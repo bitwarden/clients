@@ -131,12 +131,13 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should throw an error if no organizations are available for ownership and organization data ownership is enabled", async () => {
+    it("should initialize with a null organizationId when no organizations are available for ownership and organization data ownership is enabled", async () => {
       component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [];
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "No organizations available for ownership.",
-      );
+
+      await expect(component.ngOnInit()).resolves.not.toThrow();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
     });
 
     it("should initialize form with default values if no originalCipher is provided", fakeAsync(async () => {
@@ -260,12 +261,13 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("showOrganizationDataOwnershipOption", () => {
-    it("should show organization data ownership when the configuration allows", () => {
+    it("should show organization data ownership when the configuration allows", async () => {
       component.config.mode = "edit";
       component.config.organizationDataOwnershipDisabled = true;
       fixture.componentRef.setInput("originalCipherView", {} as CipherView);
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
       const { value, label } = select.componentInstance.items()[0];
@@ -281,6 +283,7 @@ describe("ItemDetailsSectionComponent", () => {
       component.config.organizations = [{ id: "134-433-22" } as Organization];
       await component.ngOnInit();
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
 
@@ -626,6 +629,7 @@ describe("ItemDetailsSectionComponent", () => {
 
       await component.ngOnInit();
       fixture.detectChanges();
+      await fixture.whenStable();
 
       const select = fixture.debugElement.query(By.directive(SelectComponent));
       const { label } = select.componentInstance.items()[0];

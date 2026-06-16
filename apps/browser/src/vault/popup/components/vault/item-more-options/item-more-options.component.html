@@ -10,7 +10,7 @@
     @if (!decryptionFailure) {
       @if (canAutofill && showAutofill() && autofillAllowed$ | async) {
         <button type="button" bitMenuItem (click)="doAutofill()">
-          {{ "autofill" | i18n }}
+          {{ "autofillVerb" | i18n }}
         </button>
       }
       @if (showViewOption()) {
@@ -59,10 +59,8 @@
       }
     }
     @if (canDelete$ | async) {
-      <button type="button" bitMenuItem (click)="delete()">
-        <span class="tw-text-danger">
-          {{ "delete" | i18n }}
-        </span>
+      <button type="button" bitMenuItem variant="danger" (click)="delete()">
+        {{ "delete" | i18n }}
       </button>
     }
   </bit-menu>

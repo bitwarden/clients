@@ -3,12 +3,7 @@ import { inject } from "@angular/core";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import {
-  IpcMessage,
-  IpcService,
-  isIpcMessage,
-  IpcSessionRepository,
-} from "@bitwarden/common/platform/ipc";
+import { IpcMessage, IpcService, isIpcMessage } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
   IpcClient,
@@ -20,7 +15,6 @@ import {
 export class WebIpcService extends IpcService {
   private logService = inject(LogService);
   private platformUtilsService = inject(PlatformUtilsService);
-  private sessionRepository = inject(IpcSessionRepository);
   private communicationBackend?: IpcCommunicationBackend;
 
   override async init() {
@@ -79,15 +73,11 @@ export class WebIpcService extends IpcService {
         );
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
-      if (this.platformUtilsService.isDev()) {
-        await ipcRegisterDiscoverHandler(this.client, {
-          version: await this.platformUtilsService.getApplicationVersion(),
-        });
-      }
+      await ipcRegisterDiscoverHandler(this.client, {
+        version: await this.platformUtilsService.getApplicationVersion(),
+      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
