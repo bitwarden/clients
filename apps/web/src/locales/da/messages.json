@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 eller flere e-mails er ugyldige"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "tooManyEmails": {
     "message": "Der kan kun indsendes op til $COUNT$ e-mails ad gangen",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

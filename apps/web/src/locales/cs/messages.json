@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 nebo více e-mailů jsou neplatné"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Seznam příjemců e-mailu nesmí překročit 2500 znaků. Chcete-li pokračovat, odeberte jednoho nebo více příjemců."
+  },
   "tooManyEmails": {
     "message": "Najednou můžete odeslat jen $COUNT$ e-mailů",
     "placeholders": {
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Kopírovat"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
   }
 }

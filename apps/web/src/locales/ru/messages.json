@@ -3566,7 +3566,7 @@
     "message": "год"
   },
   "years": {
-    "message": "years"
+    "message": "лет"
   },
   "yr": {
     "message": "г"
@@ -3575,7 +3575,7 @@
     "message": "месяц"
   },
   "months": {
-    "message": "months"
+    "message": "месяцев"
   },
   "monthAbbr": {
     "message": "мес.",
@@ -3723,7 +3723,7 @@
     }
   },
   "churnOfferDiscountSummary": {
-    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "message": "Скидка $DISCOUNT$ для $LENGTH$ $DURATION$",
     "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
     "placeholders": {
       "discount": {
@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "tooManyEmails": {
     "message": "Одновременно можно отправить не более $COUNT$ писем",
     "placeholders": {
@@ -14253,25 +14256,25 @@
     "message": "Вернуться к редактированию"
   },
   "organizationUserNotificationPolicyTitle": {
-    "message": "Vault banner"
+    "message": "Баннер хранилища"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+    "message": "Создайте и запустите индивидуальный баннер, который все члены организации будут видеть на своей странице хранилища после авторизации."
   },
   "singleOrgPrerequisite": {
-    "message": "The single organization policy must be turned on before activating this policy."
+    "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
   },
   "enableBanner": {
-    "message": "Enable banner"
+    "message": "Включить баннер"
   },
   "createBannerMessage": {
-    "message": "Create banner message"
+    "message": "Создать сообщение баннера"
   },
   "header": {
-    "message": "Header"
+    "message": "Заголовок"
   },
   "maximumOfXCharacters": {
-    "message": "Maximum of $COUNT$ characters",
+    "message": "Максимум символов: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14280,7 +14283,7 @@
     }
   },
   "tooManyCharacters": {
-    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "message": "Введите $NAME$ под символами $COUNT$.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14293,7 +14296,7 @@
     }
   },
   "tooManyCharactersAlt": {
-    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "message": "Создайте $NAME$ под символами $COUNT$.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14306,19 +14309,19 @@
     }
   },
   "organizationUserNotificationPolicyButtonTooltip": {
-    "message": "You must enter a header to create a button."
+    "message": "Для создания кнопки необходимо ввести заголовок."
   },
   "enterADescription": {
-    "message": "Enter a description."
+    "message": "Введите описание."
   },
   "button": {
-    "message": "Button"
+    "message": "Кнопка"
   },
   "showAfterEveryLogin": {
-    "message": "Show after every login"
+    "message": "Показывать после каждого входа"
   },
   "seeMessageEveryLogin": {
-    "message": "Users will see the message after every login even if they dismiss it."
+    "message": "Пользователи будут видеть сообщение после каждой авторизации, даже если они его закроют."
   },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Скопировать"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }

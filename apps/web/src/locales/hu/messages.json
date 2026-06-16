@@ -3566,7 +3566,7 @@
     "message": "év"
   },
   "years": {
-    "message": "years"
+    "message": "év"
   },
   "yr": {
     "message": "év"
@@ -3575,7 +3575,7 @@
     "message": "hónap"
   },
   "months": {
-    "message": "months"
+    "message": "hónap"
   },
   "monthAbbr": {
     "message": "hó.",
@@ -3723,7 +3723,7 @@
     }
   },
   "churnOfferDiscountSummary": {
-    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "message": "$DISCOUNT$ kedvezmény: $LENGTH$ $DURATION$",
     "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
     "placeholders": {
       "discount": {
@@ -9071,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 vagy több email cím érvénytelen."
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Az email címzett lista nem haladhatja meg a 2500 karaktert. Távolítsunk el egy vagy több címzettet a folytatáshoz."
+  },
   "tooManyEmails": {
     "message": "Egyszerre legfeljebb $COUNT$ email küldhető be.",
     "placeholders": {
@@ -14253,25 +14256,25 @@
     "message": "Vissza a szerkesztéshez"
   },
   "organizationUserNotificationPolicyTitle": {
-    "message": "Vault banner"
+    "message": "Széf hirdetőtábla"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+    "message": "Hozzunk létre és indítsunk el egy testreszabott hirdetőtáblát, amelyet a szervezet minden tagja lát a széf oldalán a bejelentkezés után."
   },
   "singleOrgPrerequisite": {
-    "message": "The single organization policy must be turned on before activating this policy."
+    "message": "A házirend aktiválása előtt be kell kapcsolni az onálló szervezet házirendjét."
   },
   "enableBanner": {
-    "message": "Enable banner"
+    "message": "Hirdetőtábla engedélyezése"
   },
   "createBannerMessage": {
-    "message": "Create banner message"
+    "message": "Hirdetőtábla üzenet létrehozása"
   },
   "header": {
-    "message": "Header"
+    "message": "Fejléc"
   },
   "maximumOfXCharacters": {
-    "message": "Maximum of $COUNT$ characters",
+    "message": "Maximum $COUNT$ karakter",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14280,7 +14283,7 @@
     }
   },
   "tooManyCharacters": {
-    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "message": "Adjunk meg egy $NAME$ értéket $COUNT$ karakter alatt.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14293,7 +14296,7 @@
     }
   },
   "tooManyCharactersAlt": {
-    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "message": "Hozzunk létre egy $NAME$ értéket $COUNT$ karakter alatt.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -14306,19 +14309,19 @@
     }
   },
   "organizationUserNotificationPolicyButtonTooltip": {
-    "message": "You must enter a header to create a button."
+    "message": "A gomb létrehozásához egy fejlécet kell megadni."
   },
   "enterADescription": {
-    "message": "Enter a description."
+    "message": "Írjunk be egy leírást."
   },
   "button": {
-    "message": "Button"
+    "message": "Gomb"
   },
   "showAfterEveryLogin": {
-    "message": "Show after every login"
+    "message": "Megjelenítés minden bejelentkezés után"
   },
   "seeMessageEveryLogin": {
-    "message": "Users will see the message after every login even if they dismiss it."
+    "message": "A felhasználók minden bejelentkezés után látják az üzenetet, még akkor is, ha elutasítják azt."
   },
   "sendHasUnsavedEdits": {
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
@@ -14428,5 +14431,8 @@
   },
   "copy": {
     "message": "Másolás"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
   }
 }
