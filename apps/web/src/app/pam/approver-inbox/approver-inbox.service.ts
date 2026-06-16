@@ -101,11 +101,12 @@ export class ApproverInboxService {
     this._requests$.next(next);
     try {
       const resolved = await this.pamApiService.decideAccessRequest(requestId, request);
-      // Decision response only populates status/resolvedAt/approverComment;
-      // keep the already-decrypted display fields from the existing row.
+      // Decision response only populates status/resolvedAt and the deciding decision (verdict +
+      // comment); keep the already-decrypted display fields from the existing row. The approver's
+      // name/email back-fills on the next load.
       row.status = resolved.status;
       row.resolvedAt = resolved.resolvedAt;
-      row.approverComment = resolved.approverComment;
+      row.decisions = resolved.decisions;
       this._history$.next([row, ...this._history$.value]);
     } catch (e) {
       const restored = this._requests$.value.slice();

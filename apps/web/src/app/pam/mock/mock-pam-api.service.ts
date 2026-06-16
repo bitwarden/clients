@@ -344,22 +344,18 @@ export class MockPamApiService extends DefaultPamApiService {
     if (existing.status !== "pending") {
       return existing;
     }
+    // The viewer is the deciding approver, so record them as the decision's approver (the
+    // self-approval guard is enforced by the inbox UI).
+    const decider = { id: this.store.currentUserId ?? "mock-approver", name: "You" };
     if (request.verdict === AccessDecisionVerdict.Approve) {
       // Approval issues an approved request — no lease is minted here. The requester
-      // activates it via activateLease. An extension instead extends its parent in
-      // place. The mock has no approver identity wired in, so approverId
-      // stays null (the self-approval guard is enforced by the inbox UI).
-      this.store.approveRequest(existing, /* approverId */ null, request.comment ?? undefined);
+      // activates it via activateLease. An extension instead extends its parent in place.
+      this.store.approveRequest(existing, decider, request.comment ?? undefined);
       return existing;
     }
-    const now = new Date();
-    existing.status = "denied";
-    existing.resolvedAt = now.toISOString();
-    existing.approverComment = request.comment ?? null;
-    // If the request also lives in inboxRequests (user-submitted), sync
-    // resolution fields so the history table shows the correct outcome.
-    this.store.syncInboxEntry(requestId, existing);
-    this.store.events$.next({ kind: "denied", requestId });
+    // denyRequest records the decision, flips to "denied", syncs the inbox entry (so user-submitted
+    // requests show the outcome in history), and emits the event.
+    this.store.denyRequest(existing, decider, request.comment ?? undefined);
     return existing;
   }
 

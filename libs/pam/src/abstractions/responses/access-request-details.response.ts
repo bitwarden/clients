@@ -1,7 +1,40 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
+import { AccessDeciderKind } from "../access-decider-kind";
+import { AccessDecisionVerdict } from "../access-decision-verdict";
+
 import { AccessLeaseStatus } from "./access-lease.response";
 import { AccessRequestStatus } from "./access-request.response";
+
+/**
+ * One recorded decision on an access request: who decided ({@link deciderKind}), their identity for a
+ * human decision, the verdict they reached, an optional comment, and when. An element of
+ * {@link AccessRequestDetailsResponse.decisions} — the request's decision log.
+ *
+ * For an automatic (access-rule) decision {@link id}/{@link name}/{@link email} are null. For a human
+ * decision they carry the approver; `name`/`email` may still be null when the server could not resolve
+ * the user (e.g. a deleted account), in which case the client falls back to the id.
+ */
+export class Decision extends BaseResponse {
+  deciderKind: AccessDeciderKind;
+  id: string | null;
+  name: string | null;
+  email: string | null;
+  comment: string | null;
+  verdict: AccessDecisionVerdict;
+  decidedAt: string;
+
+  constructor(response: unknown) {
+    super(response);
+    this.deciderKind = this.getResponseProperty("DeciderKind");
+    this.id = this.getResponseProperty("Id") ?? null;
+    this.name = this.getResponseProperty("Name") ?? null;
+    this.email = this.getResponseProperty("Email") ?? null;
+    this.comment = this.getResponseProperty("Comment") ?? null;
+    this.verdict = this.getResponseProperty("Verdict");
+    this.decidedAt = this.getResponseProperty("DecidedAt");
+  }
+}
 
 /**
  * An access request with its denormalized display fields (cipher/collection
@@ -16,9 +49,9 @@ import { AccessRequestStatus } from "./access-request.response";
  * that state. No other cipher field is exposed.
  *
  * The decision endpoint (`POST /access-requests/{id}/decision`) returns this
- * shape but only `status`, `resolvedAt`, and `approverComment` are guaranteed
- * to be populated; denormalized display fields and `producedLeaseId` come back
- * null.
+ * shape but only `status`, `resolvedAt`, and the single `decisions` element
+ * (verdict + comment) are guaranteed to be populated; the approver's denormalized
+ * name/email and `producedLeaseId` come back null/empty until the next read.
  */
 export class AccessRequestDetailsResponse extends BaseResponse {
   id: string;
@@ -46,12 +79,13 @@ export class AccessRequestDetailsResponse extends BaseResponse {
    * which (for an expired-while-approved request) keeps the approval time.
    */
   expiredAt: string | null;
-  approverId: string | null;
-  /** The human approver's display name, denormalized by the server; null when no human resolved. */
-  approverName: string | null;
-  /** The human approver's email, the fallback display when {@link approverName} is unset. */
-  approverEmail: string | null;
-  approverComment: string | null;
+  /**
+   * The request's decision log, oldest first — one element per decision (human or automatic). Each
+   * carries who decided (`deciderKind`), the verdict, and (for a human decision) the approver's
+   * identity and comment. Empty only while pending. An array so multi-party approval can land
+   * without a breaking contract change.
+   */
+  decisions: Decision[];
   /** The lease minted when this approved request was activated. */
   producedLeaseId: string | null;
   /**
@@ -87,10 +121,9 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.submittedAt = this.getResponseProperty("SubmittedAt");
     this.resolvedAt = this.getResponseProperty("ResolvedAt") ?? null;
     this.expiredAt = this.getResponseProperty("ExpiredAt") ?? null;
-    this.approverId = this.getResponseProperty("ApproverId") ?? null;
-    this.approverName = this.getResponseProperty("ApproverName") ?? null;
-    this.approverEmail = this.getResponseProperty("ApproverEmail") ?? null;
-    this.approverComment = this.getResponseProperty("ApproverComment") ?? null;
+    this.decisions = ((this.getResponseProperty("Decisions") as unknown[]) ?? []).map(
+      (d) => new Decision(d),
+    );
     this.producedLeaseId = this.getResponseProperty("ProducedLeaseId") ?? null;
     this.producedLeaseStatus = this.getResponseProperty("ProducedLeaseStatus") ?? null;
     this.extensionOfLeaseId = this.getResponseProperty("ExtensionOfLeaseId") ?? null;

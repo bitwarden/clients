@@ -81,10 +81,30 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
-    ApproverId: f.approverId ?? null,
-    ApproverName: f.approverName ?? null,
-    ApproverEmail: f.approverEmail ?? null,
-    ApproverComment: f.approverComment ?? null,
+    // Decision log: pending has none; a resolved request with an approverId is a human decision,
+    // otherwise an automatic (access-rule) decision with no approver identity.
+    Decisions:
+      f.status === "pending"
+        ? []
+        : [
+            f.approverId != null
+              ? {
+                  DeciderKind: "human",
+                  Id: f.approverId,
+                  Name: f.approverName ?? null,
+                  Email: f.approverEmail ?? null,
+                  Comment: f.approverComment ?? null,
+                  Verdict: f.status === "denied" ? 1 : 0,
+                  DecidedAt: f.resolvedAt ?? f.submittedAt,
+                }
+              : {
+                  DeciderKind: "automatic",
+                  Id: null,
+                  Comment: f.approverComment ?? null,
+                  Verdict: f.status === "denied" ? 1 : 0,
+                  DecidedAt: f.resolvedAt ?? f.submittedAt,
+                },
+          ],
     ProducedLeaseId: null,
   });
 }

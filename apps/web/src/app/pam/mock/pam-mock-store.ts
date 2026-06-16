@@ -5,8 +5,11 @@ import {
   AccessRuleResponse,
   AccessRequestStatus,
   AccessRequestDetailsResponse,
+  AccessDeciderKind,
+  AccessDecisionVerdict,
   AccessEvent,
   AccessLeaseResponse,
+  Decision,
 } from "@bitwarden/pam";
 
 import { PamMockConfig } from "./pam-mock-config";
@@ -145,11 +148,8 @@ export class PamMockStore {
         return;
       }
       if (PamMockConfig.shouldAutoDeny(requestId)) {
-        request.status = "denied";
-        request.resolvedAt = new Date().toISOString();
-        request.approverComment = "Outside access-rule window";
-        this.syncInboxEntry(requestId, request);
-        this.events$.next({ kind: "denied", requestId });
+        // Auto / access-rule denial: no human approver, so no comment is surfaced (matches the server contract).
+        this.denyRequest(request, null);
         return;
       }
       // Auto-approve (no human-approval condition): resolver is null.
@@ -161,27 +161,31 @@ export class PamMockStore {
    * Apply an approval to a pending request. An extension extends its parent
    * lease in place (ExtensionApprovedExtendsParentLease) and never mints a
    * activatable approved request; everything else becomes an approved request the
-   * requester activates via {@link activateLease}. `approverId` is null for an
-   * auto / access-rule decision, or the approver for a human decision.
+   * requester activates via {@link activateLease}. `approver` is null for an
+   * auto / access-rule decision, or the deciding approver for a human decision.
    */
   approveRequest(
     request: AccessRequestDetailsResponse,
-    approverId: string | null,
+    approver: MockDecider | null,
     comment?: string,
   ): void {
     const now = new Date();
     request.resolvedAt = now.toISOString();
-    request.approverId = approverId;
-    if (comment !== undefined) {
-      request.approverComment = comment;
-    }
+    // A human decision (approver set) records a human element; an auto / access-rule decision
+    // (approver null) records an automatic element. The UI derives "access rule" from deciderKind.
+    request.decisions = decisionsFor(approver, AccessDecisionVerdict.Approve, comment ?? null, now);
 
     if (request.extensionOfLeaseId != null) {
       const parent = this.leases.get(request.extensionOfLeaseId);
       if (parent == null || parent.status !== "active") {
         // ExtensionDeniedParentGone — nothing left to extend.
         request.status = "denied";
-        request.approverComment = "The lease being extended has ended";
+        request.decisions = decisionsFor(
+          approver,
+          AccessDecisionVerdict.Deny,
+          "The lease being extended has ended",
+          now,
+        );
         this.syncInboxEntry(request.id, request);
         this.events$.next({ kind: "denied", requestId: request.id });
         return;
@@ -207,6 +211,24 @@ export class PamMockStore {
     }
     this.syncInboxEntry(request.id, request);
     this.events$.next({ kind: "approved", requestId: request.id });
+  }
+
+  /**
+   * Apply a deny to a pending request: record the decision, flip to "denied", sync the inbox entry,
+   * and emit. `approver` is null for an auto / access-rule denial, or the deciding approver for a
+   * human decision.
+   */
+  denyRequest(
+    request: AccessRequestDetailsResponse,
+    approver: MockDecider | null,
+    comment?: string,
+  ): void {
+    const now = new Date();
+    request.status = "denied";
+    request.resolvedAt = now.toISOString();
+    request.decisions = decisionsFor(approver, AccessDecisionVerdict.Deny, comment ?? null, now);
+    this.syncInboxEntry(request.id, request);
+    this.events$.next({ kind: "denied", requestId: request.id });
   }
 
   /**
@@ -552,8 +574,30 @@ export class PamMockStore {
         reason: h.reason,
       });
       inbox.resolvedAt = resolvedAt.toISOString();
+      // Demo decision log: a commented row reads as a human decision (renders the comment + a name in
+      // the "Approved by" column); a resolved-but-comment-less row reads as an automatic / access-rule
+      // decision; an expired-while-pending row never got a decision, so it stays empty.
+      const verdict =
+        h.status === "denied" ? AccessDecisionVerdict.Deny : AccessDecisionVerdict.Approve;
       if (h.comment) {
-        inbox.approverComment = h.comment;
+        inbox.decisions = [
+          buildDecision({
+            deciderKind: AccessDeciderKind.Human,
+            id: this.mintId("user"),
+            name: "Robin Manager",
+            comment: h.comment,
+            verdict,
+            decidedAt: resolvedAt,
+          }),
+        ];
+      } else if (h.status !== "expired") {
+        inbox.decisions = [
+          buildDecision({
+            deciderKind: AccessDeciderKind.Automatic,
+            verdict,
+            decidedAt: resolvedAt,
+          }),
+        ];
       }
       // Mint a real lease for activated items that have an active or
       // future window so the revoke button has a leaseId to act on.
@@ -588,7 +632,7 @@ export class PamMockStore {
     }
     entry.status = source.status;
     entry.resolvedAt = source.resolvedAt;
-    entry.approverComment = source.approverComment;
+    entry.decisions = source.decisions;
     entry.producedLeaseId = source.producedLeaseId;
   }
 
@@ -614,6 +658,51 @@ function isOnDemand(request: AccessRequestDetailsResponse, refMs: number): boole
 // --- builders ----------------------------------------------------------------
 // Mint response-class instances by passing a PascalCased POJO through their
 // constructors. BaseResponse.getResponseProperty handles the casing.
+
+/** A human decider's identity for the demo. Null elsewhere means an auto / access-rule decision. */
+type MockDecider = { id: string; name?: string | null; email?: string | null };
+
+/** A request's decision log for the demo: a single human element, or a single automatic element. */
+function decisionsFor(
+  approver: MockDecider | null,
+  verdict: AccessDecisionVerdict,
+  comment: string | null,
+  decidedAt: Date,
+): Decision[] {
+  return [
+    approver == null
+      ? buildDecision({ deciderKind: AccessDeciderKind.Automatic, comment, verdict, decidedAt })
+      : buildDecision({
+          deciderKind: AccessDeciderKind.Human,
+          id: approver.id,
+          name: approver.name,
+          email: approver.email,
+          comment,
+          verdict,
+          decidedAt,
+        }),
+  ];
+}
+
+function buildDecision(init: {
+  deciderKind: AccessDeciderKind;
+  id?: string | null;
+  name?: string | null;
+  email?: string | null;
+  comment?: string | null;
+  verdict: AccessDecisionVerdict;
+  decidedAt: Date;
+}): Decision {
+  return new Decision({
+    DeciderKind: init.deciderKind,
+    Id: init.id ?? null,
+    Name: init.name ?? null,
+    Email: init.email ?? null,
+    Comment: init.comment ?? null,
+    Verdict: init.verdict,
+    DecidedAt: init.decidedAt.toISOString(),
+  });
+}
 
 function buildLease(init: {
   id: string;

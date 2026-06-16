@@ -96,11 +96,11 @@ export class MyAccessRequestsService {
     const snapshot = {
       status: target.status,
       resolvedAt: target.resolvedAt,
-      approverId: target.approverId,
+      decisions: target.decisions,
     };
     target.status = AccessRequestStatus.Cancelled;
     target.resolvedAt = new Date().toISOString();
-    target.approverId = null;
+    target.decisions = [];
     this._responses$.next([...current]);
     try {
       await this.pamApi.cancelAccessRequest(id);

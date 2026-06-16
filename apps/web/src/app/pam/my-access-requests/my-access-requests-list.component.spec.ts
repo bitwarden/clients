@@ -64,8 +64,28 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
     Reason: null,
     SubmittedAt: fixture.submittedAt ?? "2026-05-01T00:00:00Z",
     ResolvedAt: fixture.resolvedAt ?? null,
-    ResolverUserId: fixture.approverId ?? null,
-    ResolverComment: fixture.approverComment ?? null,
+    Decisions:
+      fixture.status === "pending"
+        ? []
+        : [
+            fixture.approverId != null
+              ? {
+                  DeciderKind: "human",
+                  Id: fixture.approverId,
+                  Name: null,
+                  Email: null,
+                  Comment: fixture.approverComment ?? null,
+                  Verdict: fixture.status === "denied" ? 1 : 0,
+                  DecidedAt: fixture.resolvedAt ?? fixture.submittedAt ?? "2026-05-01T00:00:00Z",
+                }
+              : {
+                  DeciderKind: "automatic",
+                  Id: null,
+                  Comment: fixture.approverComment ?? null,
+                  Verdict: fixture.status === "denied" ? 1 : 0,
+                  DecidedAt: fixture.resolvedAt ?? fixture.submittedAt ?? "2026-05-01T00:00:00Z",
+                },
+          ],
     LeaseId: null,
   });
 }

@@ -1,5 +1,7 @@
 import { AccessLeaseStatus, AccessRequestDetailsResponse } from "@bitwarden/pam";
 
+import { humanDecision } from "../testing/decision-builders";
+
 import {
   flattenHistory,
   groupHistory,
@@ -204,9 +206,17 @@ describe("flattenHistory", () => {
       RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
       ResolvedAt: "2026-06-10T10:30:00Z",
-      ApproverId: "user-9",
-      ApproverName: "Ada Approver",
-      ApproverEmail: "ada@example.com",
+      Decisions: [
+        {
+          DeciderKind: "human",
+          Id: "user-9",
+          Name: "Ada Approver",
+          Email: "ada@example.com",
+          Comment: null,
+          Verdict: 0,
+          DecidedAt: "2026-06-10T10:30:00Z",
+        },
+      ],
     });
     const rows = flattenHistory([item], now);
     expect(rows[0].approverLabelKey).toBeNull();
@@ -216,51 +226,35 @@ describe("flattenHistory", () => {
 
 describe("resolveApprover", () => {
   it("returns neither label nor name for a pending request", () => {
-    expect(
-      resolveApprover({
-        status: "pending",
-        approverId: null,
-        approverName: null,
-        approverEmail: null,
-      }),
-    ).toEqual({ approverLabelKey: null, approverName: null });
+    expect(resolveApprover("pending", undefined)).toEqual({
+      approverLabelKey: null,
+      approverName: null,
+    });
   });
 
   it("returns the access-rule label when no human decided", () => {
-    expect(
-      resolveApprover({
-        status: "approved",
-        approverId: null,
-        approverName: null,
-        approverEmail: null,
-      }),
-    ).toEqual({ approverLabelKey: "pamResolverAccessRule", approverName: null });
+    expect(resolveApprover("approved", undefined)).toEqual({
+      approverLabelKey: "pamResolverAccessRule",
+      approverName: null,
+    });
   });
 
   it("shows the approver name, then email, then id when a human decided", () => {
     expect(
-      resolveApprover({
-        status: "approved",
-        approverId: "user-9",
-        approverName: "Ada Approver",
-        approverEmail: "ada@example.com",
-      }).approverName,
+      resolveApprover(
+        "approved",
+        humanDecision({ id: "user-9", name: "Ada Approver", email: "ada@example.com" }),
+      ).approverName,
     ).toBe("Ada Approver");
     expect(
-      resolveApprover({
-        status: "denied",
-        approverId: "user-9",
-        approverName: null,
-        approverEmail: "ada@example.com",
-      }).approverName,
+      resolveApprover(
+        "denied",
+        humanDecision({ id: "user-9", name: null, email: "ada@example.com" }),
+      ).approverName,
     ).toBe("ada@example.com");
     expect(
-      resolveApprover({
-        status: "denied",
-        approverId: "user-9",
-        approverName: null,
-        approverEmail: null,
-      }).approverName,
+      resolveApprover("denied", humanDecision({ id: "user-9", name: null, email: null }))
+        .approverName,
     ).toBe("user-9");
   });
 });
