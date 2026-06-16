@@ -86,11 +86,6 @@ export class BannerComponent implements OnInit {
   }
 
   /**
-   * Actions slot only renders when a title is present.
-   */
-  protected readonly showActions = computed(() => !!this.title());
-
-  /**
    * The computed icon to display, falling back to the default icon for the variant.
    * Pass `null` to `[icon]` to suppress the icon entirely.
    */

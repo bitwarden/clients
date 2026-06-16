@@ -21,7 +21,7 @@
             [icon]="icon"
             [variant]="variant()"
             size="sm"
-            [class]="showActions() ? '@3xl:tw-hidden' : ''"
+            class="@3xl:tw-hidden"
             aria-hidden="true"
           />
           <bit-icon-tile
@@ -46,9 +46,7 @@
             </span>
           </div>
           <div class="tw-flex tw-gap-3 tw-items-start tw-shrink-0">
-            @if (showActions()) {
-              <ng-content select="[slot='actions']"></ng-content>
-            }
+            <ng-content select="[slot='actions']"></ng-content>
             @if (isDismissible()) {
               <button
                 type="button"
@@ -78,13 +76,7 @@
     <div [class]="isDismissible() ? 'tw-pe-6' : ''">
       <div class="tw-flex tw-items-start tw-gap-3 @3xl:tw-justify-center">
         @if (icon) {
-          <bit-icon-tile
-            [icon]="icon"
-            [variant]="variant()"
-            size="sm"
-            [class]="showActions() ? '@3xl:tw-hidden' : ''"
-            aria-hidden="true"
-          />
+          <bit-icon-tile [icon]="icon" [variant]="variant()" size="sm" aria-hidden="true" />
         }
         <span bitTypography="body2" class="tw-mt-0.5 tw-max-w-[800px]">
           <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
