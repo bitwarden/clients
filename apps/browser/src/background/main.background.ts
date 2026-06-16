@@ -1279,7 +1279,6 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.accountService,
       this.authService,
-      this.configService,
       this.userNotificationSettingsService,
       messageListener,
       this.animationControlService,
@@ -1412,8 +1411,6 @@ export default class MainBackground {
       this.webPushConnectionService,
       this.authRequestAnsweringService,
       this.configService,
-      this.policyService,
-      this.newPolicyService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
