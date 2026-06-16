@@ -171,7 +171,7 @@ pub mod ipc {
             #[cfg(not(target_os = "macos"))]
             {
                 let _ = message;
-                return Err(napi::Error::from_reason(
+                Err(napi::Error::from_reason(
                     "Safari IPC server is only supported on macOS",
                 ));
             }
