@@ -23,6 +23,7 @@ import { LinkComponent, LinkModule } from "../link";
 import { SideNavService } from "../navigation/side-nav.service";
 import { getRootFontSizePx } from "../shared";
 
+import { LayoutFooterService } from "./layout-footer.service";
 import { ScrollLayoutHostDirective } from "./scroll-layout.directive";
 
 /** Matches tw-min-w-96 on <main>. */
@@ -56,6 +57,7 @@ export class LayoutComponent {
   protected sideNavService = inject(SideNavService);
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
+  protected footerPortal = inject(LayoutFooterService).portal;
 
   /** Rendered only when nothing is projected into the side-nav slot (ng-content fallback). */
   private readonly sideNavSlotFallback = viewChild<ElementRef>("sideNavSlotFallback");

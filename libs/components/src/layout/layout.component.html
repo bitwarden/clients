@@ -55,6 +55,16 @@
     <ng-content></ng-content>
   </main>
 
+  <!-- Footer region (always col 2): overlaps <main> but is a sibling of it — outside the
+       `cdk-virtual-scrollable` scroll container — so pinned content (e.g. a bulk-actions bar)
+       stays fixed to the viewport while <main> scrolls. `tw-contain-layout` makes this the
+       containing block for `position: fixed` content; unlike <main> this element never scrolls,
+       so it doesn't re-introduce scroll-with-content. Grid keeps it aligned to the main column,
+       and `pointer-events-none` lets clicks through to <main> (projected content opts back in). -->
+  <div class="tw-col-start-2 tw-row-start-1 tw-z-50 tw-contain-layout tw-pointer-events-none">
+    <ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>
+  </div>
+
   <!-- Overlay backdrop for side-nav (fixed, z-40 — below nav overlay z-50) -->
   <div
     class="tw-pointer-events-none tw-fixed tw-inset-0 tw-z-40 tw-bg-black tw-bg-opacity-0 motion-safe:tw-transition-colors"

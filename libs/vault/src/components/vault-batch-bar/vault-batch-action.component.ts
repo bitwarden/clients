@@ -1,4 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { TemplatePortal } from "@angular/cdk/portal";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  TemplateRef,
+  ViewContainerRef,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -6,6 +18,7 @@ import {
   BulkActionsBarComponent,
   BulkActionComponent,
   BulkAdditionalActionComponent,
+  LayoutFooterService,
 } from "@bitwarden/components";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
@@ -29,9 +42,35 @@ const PRIMARY_ACTION_COUNT = 2;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BulkActionsBarComponent, BulkActionComponent, BulkAdditionalActionComponent],
 })
-export class VaultBatchActionComponent {
+export class VaultBatchActionComponent implements OnDestroy {
   protected readonly service = inject(VaultBatchBarService);
   private readonly i18nService = inject(I18nService);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly layoutFooter = inject(LayoutFooterService);
+
+  private readonly barPortal = viewChild.required<TemplateRef<unknown>>("barPortal");
+  private readonly portal = signal<TemplatePortal | null>(null);
+
+  constructor() {
+    // The bar is `position: fixed`, but it's used within the layout's `cdk-virtual-scrollable`
+    // <main>, whose `contain: strict` establishes a containing block — so `fixed` would resolve
+    // against <main> and scroll with its content instead of pinning to the viewport. Rendering
+    // it into the layout's footer region (a sibling of <main>, outside the scroll container)
+    // escapes that containing block while keeping the bar aligned to the main content column.
+    afterNextRender(() => {
+      const portal = new TemplatePortal(this.barPortal(), this.viewContainerRef);
+      this.portal.set(portal);
+      this.layoutFooter.attach(portal);
+    });
+  }
+
+  ngOnDestroy(): void {
+    const portal = this.portal();
+    if (portal != null) {
+      this.layoutFooter.detach(portal);
+      this.portal.set(null);
+    }
+  }
 
   /** Builds the ordered list of actions the current selection is permitted to perform. */
   private readonly visibleActions = computed<ActionDescriptor[]>(() => {
