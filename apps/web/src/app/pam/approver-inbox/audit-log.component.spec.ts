@@ -32,6 +32,8 @@ const i18n = new I18nMockService({
   status: "Status",
   pamColumnItem: "Item",
   pamColumnResolved: "Resolved",
+  pamColumnApprovedBy: "Approved by",
+  pamResolverAccessRule: "Access rule",
   pamInboxRequester: "Requester",
   pamInboxInCollection: "in __$1__",
   pamInboxHistoryEmpty: "No history to display",

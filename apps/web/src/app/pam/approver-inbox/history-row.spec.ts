@@ -5,6 +5,7 @@ import {
   groupHistory,
   historyRelTimeFor,
   historyStatusLabelFor,
+  resolveApprover,
 } from "./history-row";
 
 describe("history bucketing and labels (deferred lease minting)", () => {
@@ -189,5 +190,77 @@ describe("flattenHistory", () => {
   it("carries a time sort key from resolvedAt", () => {
     const rows = flattenHistory([activatedRow("a", "active")], now);
     expect(rows[0].sortTimeMs).toBe(Date.parse("2026-06-10T10:30:00Z"));
+  });
+
+  it("carries the resolved approver identity onto each row", () => {
+    const item = new AccessRequestDetailsResponse({
+      Id: "a",
+      CipherId: "cipher-1",
+      CollectionId: "col-1",
+      RequesterId: "user-2",
+      Status: "denied",
+      RequestedNotBefore: "2026-06-10T11:00:00Z",
+      RequestedNotAfter: "2026-06-10T13:00:00Z",
+      RequestedTtlSeconds: 3600,
+      SubmittedAt: "2026-06-10T10:00:00Z",
+      ResolvedAt: "2026-06-10T10:30:00Z",
+      ApproverId: "user-9",
+      ApproverName: "Ada Approver",
+      ApproverEmail: "ada@example.com",
+    });
+    const rows = flattenHistory([item], now);
+    expect(rows[0].approverLabelKey).toBeNull();
+    expect(rows[0].approverName).toBe("Ada Approver");
+  });
+});
+
+describe("resolveApprover", () => {
+  it("returns neither label nor name for a pending request", () => {
+    expect(
+      resolveApprover({
+        status: "pending",
+        approverId: null,
+        approverName: null,
+        approverEmail: null,
+      }),
+    ).toEqual({ approverLabelKey: null, approverName: null });
+  });
+
+  it("returns the access-rule label when no human decided", () => {
+    expect(
+      resolveApprover({
+        status: "approved",
+        approverId: null,
+        approverName: null,
+        approverEmail: null,
+      }),
+    ).toEqual({ approverLabelKey: "pamResolverAccessRule", approverName: null });
+  });
+
+  it("shows the approver name, then email, then id when a human decided", () => {
+    expect(
+      resolveApprover({
+        status: "approved",
+        approverId: "user-9",
+        approverName: "Ada Approver",
+        approverEmail: "ada@example.com",
+      }).approverName,
+    ).toBe("Ada Approver");
+    expect(
+      resolveApprover({
+        status: "denied",
+        approverId: "user-9",
+        approverName: null,
+        approverEmail: "ada@example.com",
+      }).approverName,
+    ).toBe("ada@example.com");
+    expect(
+      resolveApprover({
+        status: "denied",
+        approverId: "user-9",
+        approverName: null,
+        approverEmail: null,
+      }).approverName,
+    ).toBe("user-9");
   });
 });

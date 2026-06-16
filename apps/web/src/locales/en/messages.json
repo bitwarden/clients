@@ -14937,6 +14937,9 @@
   "pamColumnApprovers": {
     "message": "Approvers"
   },
+  "pamColumnApprovedBy": {
+    "message": "Approved by"
+  },
   "pamColumnComment": {
     "message": "Comment"
   },

@@ -22,13 +22,16 @@ function item(
     cipherName: string;
     collectionName: string;
     requesterName: string;
+    approverId: string | null;
+    approverName: string | null;
   }> = {},
 ): AccessRequestDetailsResponse {
+  const hasApprover = overrides.approverId !== null;
   return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "h1",
     CipherId: "cipher-1",
     CollectionId: "col-1",
-    RequesterUserId: "user-2",
+    RequesterId: "user-2",
     Status: overrides.status ?? "denied",
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
     RequestedNotAfter: overrides.requestedNotAfter ?? new Date(now - 60 * 60_000).toISOString(),
@@ -36,8 +39,11 @@ function item(
     Reason: "Quarterly access review",
     SubmittedAt: new Date(now - 5 * 60 * 60_000).toISOString(),
     ResolvedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
-    ResolverComment: overrides.comment ?? null,
-    LeaseId: overrides.producedLeaseId ?? null,
+    ApproverId: hasApprover ? (overrides.approverId ?? "approver-1") : null,
+    ApproverName: hasApprover ? (overrides.approverName ?? "Dana Approver") : null,
+    ApproverEmail: hasApprover ? "dana@example.com" : null,
+    ApproverComment: overrides.comment ?? null,
+    ProducedLeaseId: overrides.producedLeaseId ?? null,
     ProducedLeaseStatus: overrides.producedLeaseStatus ?? null,
     CipherName: overrides.cipherName ?? "Datadog API key",
     CollectionName: overrides.collectionName ?? "Monitoring",

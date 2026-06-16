@@ -29,6 +29,7 @@
           <th bitCell>{{ "pamColumnItem" | i18n }}</th>
           <th bitCell>{{ "pamInboxRequester" | i18n }}</th>
           <th bitCell>{{ "status" | i18n }}</th>
+          <th bitCell>{{ "pamColumnApprovedBy" | i18n }}</th>
           <th bitCell bitSortable="sortTimeMs">{{ "pamColumnResolved" | i18n }}</th>
           <th bitCell class="tw-w-0"></th>
         </tr>
@@ -65,6 +66,15 @@
               <div class="tw-mt-0.5 tw-text-xs tw-text-muted tw-italic">
                 {{ row.item.approverComment }}
               </div>
+            }
+          </td>
+          <td bitCell>
+            @if (row.approverLabelKey) {
+              <span class="tw-text-sm tw-text-muted">{{ row.approverLabelKey | i18n }}</span>
+            } @else if (row.approverName) {
+              <span class="tw-text-sm">{{ row.approverName }}</span>
+            } @else {
+              <span class="tw-text-muted">&mdash;</span>
             }
           </td>
           <td bitCell>
