@@ -60,6 +60,9 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly contentVerticalPadding = input<ContentVerticalPaddingType>(
     ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
   );
+  readonly footerVerticalPadding = input<ContentVerticalPaddingType>(
+    ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
+  );
   readonly heroTextAlignment = input<HeroTextAlignmentType>(ANON_LAYOUT_DEFAULTS.heroTextAlignment);
   // Note: `secondaryContentLocation`'s default value lives in `EXTENSION_ANON_LAYOUT_DEFAULTS`
   // (extension-only field). Kept hardcoded here because the base layout component cannot import

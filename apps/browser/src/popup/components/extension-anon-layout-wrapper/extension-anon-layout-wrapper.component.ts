@@ -75,6 +75,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideCardWrapper: boolean = false;
   protected hidePageIcon?: boolean;
   protected contentVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: ContentVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 
@@ -146,6 +147,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
     this.contentVerticalPadding =
       firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
+    this.footerVerticalPadding =
+      firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
     this.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
@@ -226,6 +229,9 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.contentVerticalPadding !== undefined) {
       this.contentVerticalPadding = data.contentVerticalPadding;
     }
+    if (data.footerVerticalPadding !== undefined) {
+      this.footerVerticalPadding = data.footerVerticalPadding;
+    }
     if (data.heroTextAlignment !== undefined) {
       this.heroTextAlignment = data.heroTextAlignment;
     }
@@ -257,6 +263,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.hideCardWrapper = null;
     this.hidePageIcon = undefined;
     this.contentVerticalPadding = undefined;
+    this.footerVerticalPadding = undefined;
     this.heroTextAlignment = undefined;
     this.secondaryContentLocation = undefined;
   }

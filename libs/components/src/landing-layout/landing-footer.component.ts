@@ -1,4 +1,8 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+
+import { ANON_LAYOUT_DEFAULTS } from "../anon-layout";
+
+import { ContentVerticalPaddingType } from "./landing-content.component";
 
 /**
  * Footer component for landing pages.
@@ -26,4 +30,17 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-footer.component.html",
 })
-export class LandingFooterComponent {}
+export class LandingFooterComponent {
+  /**
+   * Vertical padding of the footer. Defaults to "default".
+   *
+   * "compact" reduces the vertical padding.
+   */
+  readonly footerVerticalPadding = input<ContentVerticalPaddingType>(
+    ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
+  );
+
+  protected readonly paddingClasses = computed(() =>
+    this.footerVerticalPadding() === "compact" ? "tw-px-5 tw-py-3" : "tw-p-5 tw-pt-4 sm:tw-pt-6",
+  );
+}

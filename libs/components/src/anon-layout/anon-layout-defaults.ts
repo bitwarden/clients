@@ -16,6 +16,7 @@ export const ANON_LAYOUT_DEFAULTS: Required<AnonLayoutWrapperData> = {
   pageIcon: null,
   hidePageIcon: false,
   contentVerticalPadding: "default",
+  footerVerticalPadding: "default",
   heroTextAlignment: "center",
   showReadonlyHostname: false,
   maxWidth: "md",

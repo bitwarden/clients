@@ -49,6 +49,12 @@ export interface AnonLayoutWrapperData {
    */
   contentVerticalPadding?: ContentVerticalPaddingType;
   /**
+   * Vertical padding of the footer. Defaults to "default".
+   *
+   * "compact" reduces the vertical padding so more content fits. Use in scenarios where vertical space is at a premium.
+   */
+  footerVerticalPadding?: ContentVerticalPaddingType;
+  /**
    * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
    * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
    * left-aligned hero block.)
@@ -90,6 +96,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideBackgroundIllustration?: boolean | null;
   protected hidePageIcon?: boolean;
   protected contentVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: ContentVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
 
   constructor(
@@ -154,6 +161,8 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
     this.contentVerticalPadding =
       firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
+    this.footerVerticalPadding =
+      firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
     this.heroTextAlignment =
       firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
@@ -214,6 +223,9 @@ export class AnonLayoutWrapperComponent implements OnInit {
     if (data.contentVerticalPadding !== undefined) {
       this.contentVerticalPadding = data.contentVerticalPadding;
     }
+    if (data.footerVerticalPadding !== undefined) {
+      this.footerVerticalPadding = data.footerVerticalPadding;
+    }
     if (data.heroTextAlignment !== undefined) {
       this.heroTextAlignment = data.heroTextAlignment;
     }
@@ -243,6 +255,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.hideBackgroundIllustration = null;
     this.hidePageIcon = undefined;
     this.contentVerticalPadding = undefined;
+    this.footerVerticalPadding = undefined;
     this.heroTextAlignment = undefined;
   }
 }

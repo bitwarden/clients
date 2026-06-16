@@ -25,7 +25,7 @@
   </bit-landing-content>
 
   @if (!hideFooter()) {
-    <bit-landing-footer>
+    <bit-landing-footer [footerVerticalPadding]="footerVerticalPadding()">
       <div [class]="footerLayoutClasses()">
         <!-- Wrappers project here when secondaryContentLocation === "footer". Two -->
         <!-- distinct slot names are required because Angular projects to the first -->
