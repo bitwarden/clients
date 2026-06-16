@@ -166,7 +166,7 @@ pub mod ipc {
             #[cfg(target_os = "macos")]
             {
                 self.server.enqueue(message);
-            } 
+            }
             #[cfg(not(target_os = "macos"))]
             {
                 let _ = message;
