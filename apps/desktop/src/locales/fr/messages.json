@@ -1391,7 +1391,7 @@
     "message": "URL du serveur d’icônes"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL du serveur Send"
   },
   "environmentSaved": {
     "message": "Les URL d'environnement ont été enregistrées"
@@ -1828,13 +1828,13 @@
     "description": "Copy credit card security code (CVV)"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Copier la clé privée"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Copier la clé publique"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Copier l'empreinte digitale"
   },
   "cardNumber": {
     "message": "numéro de carte"
@@ -3894,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Un ou plusieurs adresses e-mail ne sont pas valides"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "La liste des destinataires de courriels ne peut pas dépasser 2 500 caractères. Supprimez un ou plusieurs destinataires pour continuer."
+  },
   "inputTrimValidator": {
     "message": "La saisie ne doit pas contenir que des espaces.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4960,7 +4963,7 @@
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the desktop app"
+    "message": "Le délai d'expiration de la session est contrôlée par l'application de bureau"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ n'est pas installé. Veuillez installer $BROWSER$ avant de tenter d'en importer les mots de passe.",
@@ -5150,7 +5153,7 @@
     "message": "Compte bancaire"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "Coordonnées du compte bancaire"
   },
   "bankName": {
     "message": "Nom de la banque"
@@ -5345,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Classe de permis"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Impossible d'enregistrer l'élément. Votre adhésion à l'organisation doit être confirmée pour enregistrer des éléments."
   }
 }
