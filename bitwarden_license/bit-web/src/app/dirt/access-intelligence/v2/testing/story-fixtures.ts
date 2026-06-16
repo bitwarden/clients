@@ -99,7 +99,7 @@ export function createSampleMembers(count: number = 5): DrawerMemberData[] {
     email: emails[i],
     userName: names[i],
     userGuid: `user-${i + 1}`,
-    atRiskPasswordCount: atRiskCounts[i],
+    atRiskApplicationCount: atRiskCounts[i],
   }));
 }
 
@@ -126,6 +126,6 @@ export function createLargeDataset(count: number): DrawerMemberData[] {
     userName: `User ${i}`,
     userGuid: `user-${i}`,
     // Use deterministic pattern instead of random: cycles through 1-25
-    atRiskPasswordCount: (i % 25) + 1,
+    atRiskApplicationCount: (i % 25) + 1,
   }));
 }
