@@ -58,7 +58,7 @@ export class MultiStepPolicyEditDialogComponent
   private readonly multiStepDestroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   private readonly accountService2 = inject(AccountService);
-  private readonly discardGuardEnabled = signal(true);
+  private readonly discardGuardEnabled = signal(false);
 
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
@@ -128,6 +128,7 @@ export class MultiStepPolicyEditDialogComponent
   };
 
   private setupDiscardGuard(): void {
+    this.discardGuardEnabled.set(true);
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       if (result || !this.isFormDirty()) {
         return true;
@@ -191,7 +192,9 @@ export class MultiStepPolicyEditDialogComponent
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
 
-    this.setupDiscardGuard();
+    if (this.dialogRef.isDrawer) {
+      this.setupDiscardGuard();
+    }
   }
 
   override readonly submit = async () => {
