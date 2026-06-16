@@ -9,8 +9,10 @@ finish-args:
   - --share=ipc
   - --share=network
   - --socket=wayland
-  # This should be fallback-x11, but on gnome/mutter, zwlr_data_control_manager_v1 is not implemented
-  # so we need to use x11 as a fallback to make copy paste work
+  # A bug in Electron 39 (which now enables Wayland by default) causes a crash on
+  # systems using Wayland with hardware acceleration. Platform decided to
+  # configure Electron to use X11 (with an opt-out) until the upstream bug is
+  # fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
   - --socket=x11
   - --device=dri
   - --env=XDG_CURRENT_DESKTOP=Unity

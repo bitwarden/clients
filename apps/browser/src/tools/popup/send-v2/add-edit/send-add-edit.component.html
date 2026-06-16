@@ -6,6 +6,19 @@
     [backAction]="onBackClick.bind(this)"
   ></popup-header>
 
+  @if (this.config.originalSend?.disabled) {
+    <bit-callout type="info" [title]="'sendNotCompliantWithYourOrgsPolicy' | i18n">
+      @if (showCopyButton()) {
+        <div>{{ "sendDisabledNonCompliantBannerMessage" | i18n }}</div>
+        <button class="tw-mt-4" , type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      } @else {
+        <div>{{ "sendWillExpireOnDeletionDate" | i18n }}</div>
+      }
+    </bit-callout>
+  }
+
   <tools-send-form
     formId="sendForm"
     [config]="config"
@@ -18,19 +31,31 @@
   </tools-send-form>
 
   <popup-footer slot="footer">
-    @if (editing()) {
-      <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
-        {{ "save" | i18n }}
-      </button>
-      <button bitButton type="button" buttonType="secondary" (click)="onCancelClick()">
-        {{ "cancel" | i18n }}
-      </button>
+    @if (config.originalSend?.disabled) {
+      @if (showCopyButton()) {
+        <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      } @else {
+        <button bitButton type="button" buttonType="danger" (click)="deleteSend()">
+          {{ "delete" | i18n }}
+        </button>
+      }
     } @else {
-      <button bitButton type="button" buttonType="secondary" (click)="editSend()">
-        {{ "edit" | i18n }}
-      </button>
+      @if (editing()) {
+        <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+          {{ "save" | i18n }}
+        </button>
+        <button bitButton type="button" buttonType="secondary" (click)="onCancelClick()">
+          {{ "cancel" | i18n }}
+        </button>
+      } @else {
+        <button bitButton type="button" buttonType="secondary" (click)="editSend()">
+          {{ "edit" | i18n }}
+        </button>
+      }
     }
-    @if (config?.mode !== "add") {
+    @if (showTrashIconButton()) {
       <button
         type="button"
         buttonType="dangerGhost"
