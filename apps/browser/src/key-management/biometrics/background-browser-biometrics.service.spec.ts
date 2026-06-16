@@ -4,6 +4,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
@@ -19,6 +20,7 @@ describe("background browser biometrics service tests", function () {
   const biometricStateService = mock<BiometricStateService>();
   const messagingService = mock<MessagingService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
   const mockConfigService = mock<ConfigService>();
   mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
@@ -33,6 +35,7 @@ describe("background browser biometrics service tests", function () {
       messagingService,
       vaultTimeoutSettingsService,
       () => null as any,
+      platformUtilsService,
     );
   });
 

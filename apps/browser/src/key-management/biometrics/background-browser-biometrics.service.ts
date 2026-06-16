@@ -8,6 +8,7 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -40,6 +41,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private ipcService: () => IpcService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
@@ -63,7 +65,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
+      this.platformUtilsService.isSafari()
+    ) {
       if (!this.nativeMessagingBackground().connected) {
         return false;
       } else {
@@ -85,7 +90,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
+      this.platformUtilsService.isSafari()
+    ) {
       if (!this.nativeMessagingBackground().connected) {
         return BiometricsStatus.DesktopDisconnected;
       } else {
@@ -111,7 +119,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
+      this.platformUtilsService.isSafari()
+    ) {
       if (!this.nativeMessagingBackground().connected) {
         return null;
       } else {
@@ -175,7 +186,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
-    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+    if (
+      (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) ||
+      this.platformUtilsService.isSafari()
+    ) {
       if (!this.nativeMessagingBackground().connected) {
         return BiometricsStatus.DesktopDisconnected;
       } else {

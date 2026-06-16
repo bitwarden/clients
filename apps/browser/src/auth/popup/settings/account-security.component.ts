@@ -172,7 +172,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
     this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.SharedUnlockPart2,
-    );
+    ).pipe(map((enabled) => enabled && !this.platformUtilsService.isSafari()));
   }
 
   get sharedUnlockDescriptionKey(): string {
