@@ -13,6 +13,7 @@ import {
   LandingContentMaxWidthType,
 } from "../landing-layout";
 
+import { BASE_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
 import { AnonLayoutComponent } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
@@ -140,17 +141,21 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
-    this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
-    this.maxWidth = firstChildRouteData["maxWidth"];
-    this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
-    this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
-
-    // When undefined, default to `false` via Boolean conversion
-    this.hidePageIcon = Boolean(firstChildRouteData["hidePageIcon"]);
-
-    // When undefined, default to a specified value
-    this.contentTopPadding = firstChildRouteData["contentTopPadding"] ?? "default";
-    this.heroTextAlignment = firstChildRouteData["heroTextAlignment"] ?? "center";
+    // When undefined, fall back to BASE_LAYOUT_DEFAULTS — single source of truth for
+    // route-init defaults, the reset emission, and the component-level input defaults.
+    this.showReadonlyHostname =
+      firstChildRouteData["showReadonlyHostname"] ?? BASE_LAYOUT_DEFAULTS.showReadonlyHostname;
+    this.maxWidth = firstChildRouteData["maxWidth"] ?? BASE_LAYOUT_DEFAULTS.maxWidth;
+    this.hideCardWrapper =
+      firstChildRouteData["hideCardWrapper"] ?? BASE_LAYOUT_DEFAULTS.hideCardWrapper;
+    this.hideBackgroundIllustration =
+      firstChildRouteData["hideBackgroundIllustration"] ??
+      BASE_LAYOUT_DEFAULTS.hideBackgroundIllustration;
+    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? BASE_LAYOUT_DEFAULTS.hidePageIcon;
+    this.contentTopPadding =
+      firstChildRouteData["contentTopPadding"] ?? BASE_LAYOUT_DEFAULTS.contentTopPadding;
+    this.heroTextAlignment =
+      firstChildRouteData["heroTextAlignment"] ?? BASE_LAYOUT_DEFAULTS.heroTextAlignment;
 
     // Cache the route-data payload so resetToCachedRouteData() can later restore it.
     this.anonLayoutWrapperDataService.cacheRouteData(

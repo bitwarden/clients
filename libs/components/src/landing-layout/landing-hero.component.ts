@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 
 import { BitSvg } from "@bitwarden/assets/svg";
 
+import { BASE_LAYOUT_DEFAULTS } from "../anon-layout";
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
 
@@ -45,7 +46,7 @@ export class LandingHeroComponent {
    * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
    * left-aligned hero block.)
    */
-  readonly heroTextAlignment = input<HeroTextAlignmentType>("center");
+  readonly heroTextAlignment = input<HeroTextAlignmentType>(BASE_LAYOUT_DEFAULTS.heroTextAlignment);
 
   protected readonly alignmentClasses = computed(() =>
     this.heroTextAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
