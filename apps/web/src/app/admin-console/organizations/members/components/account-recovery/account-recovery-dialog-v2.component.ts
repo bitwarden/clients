@@ -71,8 +71,8 @@ export type AccountRecoveryDialogResultType =
   (typeof AccountRecoveryDialogResultType)[keyof typeof AccountRecoveryDialogResultType];
 
 /**
- * V2 account recovery dialog shown when the AdminResetTwoFactor feature flag is enabled.
- * Supports selectively resetting master password, two-step login, or both.
+ * Account recovery dialog used to selectively reset an organization user's
+ * master password, two-step login, or both.
  */
 @Component({
   standalone: true,
