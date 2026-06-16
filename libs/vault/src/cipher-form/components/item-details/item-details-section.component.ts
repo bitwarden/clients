@@ -23,8 +23,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  BadgeComponent,
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -46,6 +46,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
   templateUrl: "./item-details-section.component.html",
   imports: [
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -54,7 +55,6 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
-    BadgeComponent,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {
@@ -209,7 +209,12 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.allowPersonalOwnership ? null : this.organizations[0].id;
+    // Default to personal ownership if permitted or if there are no other alternatives
+    // (in which case the top level component will show an error toast on submit)
+    if (this.allowPersonalOwnership || this.organizations.length === 0) {
+      return null;
+    }
+    return this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -218,10 +223,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     );
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
-      throw new Error("No organizations available for ownership.");
-    }
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
@@ -367,9 +368,14 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   private setCollectionControlState() {
     const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    // These permission checks are only meaningful for existing, server-fetched ciphers whose
+    // edit/viewPassword flags reflect real server-side permissions. Skip for new ciphers (no id).
+    if (!initialCipherView?.id) {
+      return;
+    }
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
     const organization = this.organizations.find((o) => o.id === orgId);
-    if (!organization || !initialCipherView) {
+    if (!organization) {
       return;
     }
     // Disable the collection control if either of the following apply:

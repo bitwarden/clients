@@ -12,10 +12,13 @@
     "message": "アクティビティ"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "危険にさらされた重要なアプリ"
+  },
+  "criticalApplicationsAtRisk": {
+    "message": "危険にさらされている重要なアプリケーション"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "すべての重要なアプリ"
   },
   "appLogoLabel": {
     "message": "Bitwarden ロゴ"
@@ -51,7 +54,7 @@
     "message": "アクセス インテリジェンス"
   },
   "noApplicationsMatchTheseFilters": {
-    "message": "No applications match these filters"
+    "message": "これらのフィルターに一致するアプリケーションはありません"
   },
   "passwordRisk": {
     "message": "パスワードのリスク"
@@ -60,19 +63,19 @@
     "message": "パスワード"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "時間の経過とともに生じるリスク"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "危険にさらされたパスワード"
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "このアイテムを編集する権限がありません"
   },
   "reviewAccessIntelligence": {
     "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
+    "message": "危険な状態のログイン情報を確認"
   },
   "dataLastUpdated": {
     "message": "データの最終更新: $DATE$",
@@ -84,7 +87,7 @@
     }
   },
   "noReportRan": {
-    "message": "You have not created a report yet"
+    "message": "まだレポートを作成していません"
   },
   "notifiedMembers": {
     "message": "通知済みメンバー"
@@ -97,15 +100,6 @@
   },
   "cannotRestoreAccessError": {
     "message": "組織へのアクセスを復元できません"
-  },
-  "allApplicationsWithCount": {
-    "message": "すべてのアプリ ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
   },
   "createNewLoginItem": {
     "message": "新しいログインアイテムを作成"
@@ -120,7 +114,7 @@
     }
   },
   "securityTasksCompleted": {
-    "message": "$COUNT$ out of $TOTAL$ security tasks completed",
+    "message": "$COUNT$ / $TOTAL$ のセキュリティタスクが完了しました",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -133,10 +127,10 @@
     }
   },
   "passwordChangeProgress": {
-    "message": "Password change progress"
+    "message": "パスワード変更の進捗状況"
   },
   "assignMembersTasksToMonitorProgress": {
-    "message": "Assign members tasks to monitor progress"
+    "message": ""
   },
   "onceYouReviewApplications": {
     "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
@@ -144,17 +138,20 @@
   "sendReminders": {
     "message": "リマインダーを送信"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+    "message": "重要なアプリケーションをマークすると、ここに表示されます。"
   },
   "viewAtRiskMembers": {
-    "message": "View at-risk members"
+    "message": "リスクの高いメンバーを表示"
   },
   "viewAtRiskApplications": {
-    "message": "View at-risk applications"
+    "message": "リスクの高いアプリケーションを表示"
   },
   "criticalApplicationsAreAtRisk": {
-    "message": "$COUNT$ out of $TOTAL$ critical applications are at-risk due to at-risk passwords",
+    "message": "$TOTAL$ 個の重要なアプリケーションのうち、$COUNT$ 個がパスワードの脆弱性により危険にさらされています",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -166,20 +163,11 @@
       }
     }
   },
-  "criticalApplicationsWithCount": {
-    "message": "特に重要なアプリ ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "criticalApplicationsMarked": {
-    "message": "critical applications marked"
+    "message": "重要なアプリケーションをマークしました"
   },
   "countOfCriticalApplications": {
-    "message": "$COUNT$ critical applications",
+    "message": "$COUNT$ つの重要なアプリケーション",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -188,7 +176,7 @@
     }
   },
   "countOfApplicationsAtRisk": {
-    "message": "$COUNT$ applications at-risk",
+    "message": "$COUNT$ つの危険にさらされたアプリケーション",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -197,7 +185,7 @@
     }
   },
   "countOfAtRiskPasswords": {
-    "message": "$COUNT$ passwords at-risk",
+    "message": "$COUNT$ つの危険にさらされたパスワード",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -206,7 +194,7 @@
     }
   },
   "newPasswordsAtRisk": {
-    "message": "$COUNT$ new passwords at-risk",
+    "message": "$COUNT$ つの新しい危険にさらされたパスワード",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -223,6 +211,42 @@
       }
     }
   },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "データ接続が完了しました。さあ、始めましょう。"
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Your entire org's security, in one view"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "優先順位を設定しましょう。リスクを表面化させます。"
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "チーム全体の改善を追跡する"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Bitwarden 拡張機能でメンバーに自動的にリスクの高いパスワードが通知されます。追跡する必要はありません。"
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "開始するには組織データをインポートします"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "インテリジェンスウェルカムツアーにアクセス"
+  },
+  "startTour": {
+    "message": "ツアーを開始"
+  },
   "noDataInOrgTitle": {
     "message": "データが見つかりません"
   },
@@ -230,19 +254,19 @@
     "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
   },
   "feature1Title": {
-    "message": "Mark applications as critical"
+    "message": "アプリケーションを重要としてマーク"
   },
   "feature1Description": {
     "message": "This will help you remove risks to your most important applications first."
   },
   "feature2Title": {
-    "message": "Help members improve their security"
+    "message": "メンバーのセキュリティ向上に役立ちます"
   },
   "feature2Description": {
-    "message": "Assign at-risk members guided security tasks to update credentials."
+    "message": "リスクの高いメンバーには、認証情報を更新するためのガイド付きセキュリティタスクを割り当てます。"
   },
   "feature3Title": {
-    "message": "Monitor progress"
+    "message": "進捗状況の監視"
   },
   "feature3Description": {
     "message": "Track changes over time to show security improvements."
@@ -251,16 +275,16 @@
     "message": "レポートを生成"
   },
   "noReportsRunDescription": {
-    "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
+    "message": "レポートを生成する準備ができました。生成したら、次のことができます："
   },
   "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
+    "message": "重要なアプリとしてマークしたものがありません"
   },
   "noCriticalApplicationsDescription": {
     "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "重要なアプリケーションを選択"
   },
   "markAppAsCritical": {
     "message": "重要なアプリとしてマーク"
@@ -269,19 +293,19 @@
     "message": "重要としてマーク"
   },
   "applicationsSelected": {
-    "message": "applications selected"
+    "message": "選択されたアプリケーション"
   },
   "selectApplication": {
     "message": "アプリケーションを選択"
   },
   "unselectApplication": {
-    "message": "Unselect application"
+    "message": "アプリケーションの選択を解除"
   },
   "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
+    "message": "重要としてマークされたアプリケーション"
   },
   "criticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked as critical",
+    "message": "$COUNT$ アプリケーションが重要としてマークされました",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -290,7 +314,7 @@
     }
   },
   "numCriticalApplicationsMarkedSuccess": {
-    "message": "$COUNT$ applications marked critical",
+    "message": "$COUNT$ アプリケーションが重要とマークされました",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -355,14 +379,27 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "These members have access to vulnerable items for critical applications."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Members with at-risk passwords"
+  "membersWithAtRiskPwds": {
+    "message": "脆弱性のあるパスワードを持つメンバー"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ 名のメンバーが脆弱性のあるパスワードを $CRITICALAPPCOUNT$ つの重要なアプリケーションで使用しています",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
-    "message": "Members of your organization will be assigned a task to change vulnerable passwords. They’ll receive a notification within their Bitwarden browser extension."
+    "message": "組織のメンバーは脆弱なパスワードを変更するタスクが割り当てられます。Bitwarden ブラウザ拡張機能内に通知が届きます。"
   },
   "membersAtRiskCount": {
-    "message": "$COUNT$ members at-risk",
+    "message": "$COUNT$ 名のメンバーが危険にさらされたパスワードを使用",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -388,8 +425,17 @@
       }
     }
   },
+  "ofCountTotal": {
+    "message": "合計 $TOTAL$ 中",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "atRiskMemberDescription": {
-    "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
+    "message": "これらのメンバーは、脆弱な、または流出済みあるいは再利用されたパスワードでアプリにログインしています。"
   },
   "atRiskMembersDescriptionNone": {
     "message": "These are no members logging into applications with weak, exposed, or reused passwords."
@@ -431,10 +477,10 @@
     "message": "Applications needing review"
   },
   "newApplicationsCardTitle": {
-    "message": "Review new applications"
+    "message": "新しいアプリケーションを確認"
   },
   "newApplicationsWithCount": {
-    "message": "$COUNT$ new applications",
+    "message": "$COUNT$ つの新しいアプリケーション",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -443,16 +489,16 @@
     }
   },
   "newApplicationsDescription": {
-    "message": "Review new applications to mark as critical and keep your organization secure"
+    "message": "新しいアプリケーションをレビューして、組織を安全に保ちます"
   },
   "reviewNow": {
     "message": "今すぐレビュー"
   },
   "allCaughtUp": {
-    "message": "All caught up!"
+    "message": "すべて確認できました！"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "この時点でレビューする新しいアプリケーションはありません"
   },
   "organizationHasItemsSavedForApplications": {
     "message": "Your organization has items saved for $COUNT$ applications",
@@ -482,28 +528,28 @@
     "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Click the star icon to mark an app as critical"
+    "message": "スターアイコンをクリックしてアプリを重要としてマークする"
   },
   "markAsCriticalPlaceholder": {
     "message": "Mark as critical functionality will be implemented in a future update"
   },
   "applicationReviewSaved": {
-    "message": "Application review saved"
+    "message": "アプリケーションのレビューが保存されました"
   },
   "newApplicationsReviewed": {
-    "message": "New applications reviewed"
+    "message": "新しいアプリケーションがレビューされました"
   },
   "errorSavingReviewStatus": {
-    "message": "Error saving review status"
+    "message": "レビューステータスの保存に失敗しました"
   },
   "pleaseTryAgain": {
     "message": "もう一度お試しください"
   },
   "unmarkAsCritical": {
-    "message": "Unmark as critical"
+    "message": "重要なマークを解除"
   },
   "criticalApplicationUnmarkedSuccessfully": {
-    "message": "Successfully unmarked application as critical"
+    "message": "重要なアプリケーションのマークを解除しました"
   },
   "whatTypeOfItem": {
     "message": "このアイテムのタイプは何ですか？"
@@ -672,6 +718,27 @@
   },
   "passportNumber": {
     "message": "パスポート番号"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "性別をコピー"
+  },
+  "birthPlace": {
+    "message": "出生地"
+  },
+  "nationality": {
+    "message": "国籍"
+  },
+  "copyNationality": {
+    "message": "国籍をコピー"
+  },
+  "passportType": {
+    "message": "パスポートの種類"
+  },
+  "nationalIdentificationNumber": {
+    "message": "国民識別番号"
   },
   "licenseNumber": {
     "message": "免許証番号"
@@ -904,7 +971,7 @@
     "message": "キャンセル"
   },
   "later": {
-    "message": "Later"
+    "message": "後で"
   },
   "canceled": {
     "message": "キャンセルしました"
@@ -974,7 +1041,7 @@
     "message": "お気に入り"
   },
   "taskSummary": {
-    "message": "Task summary"
+    "message": "タスク概要"
   },
   "types": {
     "message": "タイプ"
@@ -998,34 +1065,46 @@
     "message": "SSH 鍵"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "免許証"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "運転免許証または ID"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "ウェブサイトまたはアプリ"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "クレジットまたはデビットカード"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "個人情報"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要なテキスト"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "サーバーのログイントークン"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "銀行の詳細"
+  },
+  "typePassport": {
+    "message": "パスポート"
+  },
+  "passportDetails": {
+    "message": "パスポートの詳細"
+  },
+  "passportAdded": {
+    "message": "パスポートを追加しました"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行文書"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "アイテムを整理する"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "共有アイテムを整理する"
   },
   "typeLoginPlural": {
     "message": "ログイン"
@@ -1040,7 +1119,7 @@
     "message": "セキュアメモ"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "銀行口座"
   },
   "folders": {
     "message": "フォルダー"
@@ -1100,7 +1179,7 @@
     "message": "アイテムの追加"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "追加するアイテムを選択"
   },
   "editItem": {
     "message": "アイテムの編集"
@@ -1117,7 +1196,7 @@
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "新しい識別子",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
@@ -1129,23 +1208,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "新しい銀行口座",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "新しい免許証",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "新しいパスポート",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "新規テキスト",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "新規ファイル",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1157,55 +1236,55 @@
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "ID を編集",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "メモを編集",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "銀行口座を編集",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "免許証を編集",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "パスポートを編集",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "テキストを編集",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "ファイルを編集",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "ログインを表示",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "カードを表示",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "メモを表示",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
@@ -1308,6 +1387,9 @@
   "copyAddress": {
     "message": "住所をコピー"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "電話番号をコピー"
   },
@@ -1322,6 +1404,12 @@
   },
   "copyPassportNumber": {
     "message": "パスポート番号をコピー"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -1343,6 +1431,12 @@
   },
   "copyFingerprint": {
     "message": "フィンガープリントをコピー"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "名前をコピー"
@@ -1383,6 +1477,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "No values to copy"
@@ -1434,6 +1532,28 @@
   },
   "unselectAll": {
     "message": "すべて選択解除"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "launch": {
     "message": "開く"
@@ -1947,13 +2067,13 @@
     "message": "表示するアイテムがありません"
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "ゴミ箱にアイテムはありません"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "削除したアイテムはここに表示され、30 日後に完全に削除されます"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "保管庫にアイテムがありません"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
@@ -2212,7 +2332,7 @@
     "message": "アカウント暗号化キーは各 Bitwarden ユーザーアカウントに固有であるため、暗号化されたエクスポートを別のアカウントにインポートすることはできません。"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "エクスポート",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
@@ -2544,6 +2664,18 @@
   "deleteAccountWarning": {
     "message": "アカウントを恒久的に削除します。元に戻すことはできません。"
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "アカウントが削除されました"
   },
@@ -2569,26 +2701,6 @@
   },
   "importData": {
     "message": "データをインポート"
-  },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "インポートするデータがない場合は、 ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "新しいアイテム",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "新しいログイン",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": "を作成してください。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": "を作成してください。管理者が組織のメンバーシップを確認するまで待つ必要があります。",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "インポートエラー"
@@ -2660,7 +2772,7 @@
     "message": "ファイルを選択"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "ファイルを選択"
   },
   "noFileChosen": {
     "message": "ファイルが選択されていません"
@@ -3453,11 +3565,17 @@
   "year": {
     "message": "年"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "年"
   },
   "month": {
     "message": "月"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "月",
@@ -3478,8 +3596,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "未払いのサブスクリプションについては、指定した支払い方法へ請求されます。"
   },
-  "paymentChargedWithTrial": {
-    "message": "ご利用のプランでは、7日間の無料トライアルが可能です。トライアル期間が終わるまでは課金されません。トライアル終了後、$INTERVAL$毎に請求されます。いつでもキャンセルできます。"
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "お支払い情報"
@@ -3535,6 +3659,87 @@
   "canceledSubscription": {
     "message": "契約はキャンセルされました。"
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "無期限"
   },
@@ -3558,6 +3763,9 @@
   },
   "discount": {
     "message": "割引"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -3906,12 +4114,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "$PLAN$ の7日間の無料トライアルは、7日後に有料サブスクリプションに変換されます。",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4486,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Edited text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Edited file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Deleted text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Deleted file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Accessed text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Accessed file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "アイテム $ID$ を組織に移動しました。",
     "placeholders": {
@@ -4415,6 +4674,24 @@
       }
     }
   },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
@@ -4426,6 +4703,60 @@
   },
   "copiedLicenseNumberItemId": {
     "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "Viewed IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Copied IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Viewed SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Copied SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Viewed national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Copied national identification number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4478,14 +4809,8 @@
   "discardEditsConfirmation": {
     "message": "If you close this view, your unsaved edits will be discarded."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "keepEditing": {
     "message": "Keep editing"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "編集された方針：$ID$",
@@ -4562,8 +4887,8 @@
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
-  "revocationReasonUnknown": {
-    "message": "Unknown reason"
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
   },
   "revocationReasonManual": {
     "message": "Revoked by an admin"
@@ -4573,6 +4898,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Not in compliance with single organization policy"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
@@ -4648,9 +4976,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
-  },
-  "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "ユーザー「$ID$」の招待",
@@ -4975,10 +5300,13 @@
     "message": "Compiling insights..."
   },
   "reportGenerationDone": {
-    "message": "Done!"
+    "message": "完了!"
   },
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
+  },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
   },
   "riskInsightsRunReport": {
     "message": "Run report"
@@ -5224,6 +5552,9 @@
   },
   "bankAccount": {
     "message": "銀行口座"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "送金$COUNT$",
@@ -5539,6 +5870,24 @@
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
   },
+  "invalidateInviteLink": {
+    "message": "Invalidate invite link"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "If you remove all domains, this invite link will no longer work for anyone."
+  },
+  "invalidateLink": {
+    "message": "Invalidate link"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Invite link invalidated"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Must enter at least 1 domain"
+  },
+  "deactivateLink": {
+    "message": "Deactivate link"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
@@ -5615,7 +5964,7 @@
     "message": "Organization is suspended"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "無効な組織のアイテムにアクセスすることはできません。組織の所有者に連絡してください。"
   },
   "secretsAccessSuspended": {
     "message": "一時停止された組織にはアクセスできません。組織の所有者にお問い合わせください。"
@@ -7070,6 +7419,9 @@
   "resetPasswordDetailsError": {
     "message": "パスワードリセットの詳細な応答が null です"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
+  },
   "trashCleanupWarning": {
     "message": "30日以上ゴミ箱にあったアイテムは自動的に削除されます。"
   },
@@ -8033,6 +8385,9 @@
   "iconsUrl": {
     "message": "アイコンサーバー URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "環境 URL が保存されました"
   },
@@ -8146,7 +8501,7 @@
     "message": "Only items in your individual vault will export."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "$ORGANIZATION$ の保管庫に関連付けられたアイテムのみがエクスポートされます。個人の保管庫内のアイテムはエクスポートされません。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -8715,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "1つ以上のメールが無効です"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "tooManyEmails": {
     "message": "一度に最大 $COUNT$ 件までのメールを送信できます",
@@ -9905,9 +10263,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "アカウントを作成"
-  },
   "createSecret": {
     "message": "シークレットを作成"
   },
@@ -9930,8 +10285,45 @@
   "getStarted": {
     "message": "始める"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Get started with Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Create machine account"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Create project"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Create secret"
+  },
   "complete": {
     "message": "$COMPLETED$/$TOTAL$ 完了",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10585,11 +10977,38 @@
     "message": "詳細な手順はこちらをご覧ください：",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "ブラウザ拡張機能をインストール"
+  "getStartedWithYourVault": {
+    "message": "Get started with your vault"
   },
-  "installBrowserExtensionDetails": {
-    "message": "拡張機能を使用すると、ウェブアプリを開かずにログインや自動入力フォームをすばやく保存できます。"
+  "onboardingChecklistSubtitle": {
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Create your account"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Import your passwords"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Install the browser extension"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+  },
+  "onboardingImportCta": {
+    "message": "Import passwords"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Install extension"
+  },
+  "completed": {
+    "message": "Completed"
   },
   "projectAccessUpdated": {
     "message": "プロジェクトへのアクセスを更新しました"
@@ -10799,6 +11218,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Send notifications to change passwords"
+  },
+  "sendNotifications": {
+    "message": "Send notifications"
   },
   "assignToCollections": {
     "message": "コレクションに割り当てる"
@@ -12398,6 +12820,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
+  },
   "restartOrganizationSubscription": {
     "message": "Organization subscription restarted"
   },
@@ -12549,7 +13002,7 @@
     "message": "Items in archive"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "アーカイブにアイテムがありません"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -12590,18 +13043,18 @@
     "message": "New business unit"
   },
   "sendsTitleNoItems": {
-    "message": "Send sensitive information safely",
+    "message": "機密情報を安全に送信",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.",
+    "message": "どのプラットフォームでも、誰とでも安全にファイルとデータを共有できます。流出を防止しながら、あなたの情報はエンドツーエンドで暗号化されます。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
-    "message": "Quickly create passwords"
+    "message": "パスワードをすばやく作成"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "クリックすることで、強力でユニークなパスワードを簡単に作成できます",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
@@ -12659,7 +13112,7 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "newSshNudgeBodyTwo": {
-    "message": "Learn more about SSH agent",
+    "message": "SSH エージェントに関する詳細",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -12838,12 +13291,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Your 7-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12867,6 +13324,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Action required: You're missing a Tax ID number in payment details. If a Tax ID is not added, your invoices may include additional tax."
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
@@ -13662,7 +14123,10 @@
     "message": "Bank contact phone"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "銀行口座を検索"
+  },
+  "searchPassport": {
+    "message": "パスポートを検索"
   },
   "copyAccountNumber": {
     "message": "Copy account number"
@@ -13675,6 +14139,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -13754,8 +14227,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -13767,18 +14240,91 @@
       }
     }
   },
+  "more": {
+    "message": "More"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
   },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
   },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -13812,6 +14358,21 @@
   "skipLink": {
     "message": "Skip link"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13820,8 +14381,11 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "免許証を検索"
   },
   "driversLicenseDetails": {
     "message": "License details"
@@ -13867,5 +14431,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

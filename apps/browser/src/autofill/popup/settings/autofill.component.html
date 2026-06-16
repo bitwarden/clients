@@ -1,5 +1,5 @@
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ 'autofill' | i18n }}" showBackButton>
+  <popup-header slot="header" pageTitle="{{ 'autofillNoun' | i18n }}" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>
@@ -253,7 +253,10 @@
                 id="fill-assist"
                 type="checkbox"
               />
-              <bit-label for="fill-assist">{{ "enableFillAssist" | i18n }}</bit-label>
+              <bit-label for="fill-assist">
+                {{ "turnOnFillAssist" | i18n }}
+                <autofill-fill-assist-popover></autofill-fill-assist-popover>
+              </bit-label>
             </bit-form-control>
           }
           <bit-form-control>

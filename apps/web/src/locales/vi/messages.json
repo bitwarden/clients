@@ -14,6 +14,9 @@
   "criticalAppsAtRisk": {
     "message": "Critical apps at risk"
   },
+  "criticalApplicationsAtRisk": {
+    "message": "Critical applications at risk"
+  },
   "allCriticalApps": {
     "message": "All critical apps"
   },
@@ -98,15 +101,6 @@
   "cannotRestoreAccessError": {
     "message": "Không thể khôi phục quyền truy cập tổ chức"
   },
-  "allApplicationsWithCount": {
-    "message": "Tổng số ứng dụng ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "createNewLoginItem": {
     "message": "Tạo mục đăng nhập mới"
   },
@@ -144,6 +138,9 @@
   "sendReminders": {
     "message": "Gửi lời nhắc"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Review applications to get started."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Khi bạn đánh dấu các ứng dụng là quan trọng, chúng sẽ hiển thị tại đây."
   },
@@ -163,15 +160,6 @@
       "total": {
         "content": "$2",
         "example": "5"
-      }
-    }
-  },
-  "criticalApplicationsWithCount": {
-    "message": "Ứng dụng quan trọng ($COUNT$)",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
       }
     }
   },
@@ -222,6 +210,42 @@
         "example": "3"
       }
     }
+  },
+  "yourDataIsInLetsPutItToWork": {
+    "message": "Your data is in. Let's put it to work."
+  },
+  "takeAQuickTourOfAccessIntelligence": {
+    "message": "Take a quick tour of Access Intelligence and see exactly how to turn your org's data into action."
+  },
+  "yourEntireOrgsSecurityInOneView": {
+    "message": "Your entire org's security, in one view"
+  },
+  "accessIntelligenceGivesYouSinglePlace": {
+    "message": "Access Intelligence gives you a single place to see every app, password, and member that's at risk."
+  },
+  "youSetThePrioritiesWeSurfaceTheRisks": {
+    "message": "You set the priorities. We surface the risks."
+  },
+  "youMarkWhichAppsAreMostCritical": {
+    "message": "You mark which apps are most critical, and Access Intelligence automatically identifies the at-risk passwords that need attention first."
+  },
+  "trackImprovementsAcrossYourTeam": {
+    "message": "Track improvements across your team"
+  },
+  "membersAreAutomaticallyNotified": {
+    "message": "Members are automatically notified of at-risk passwords in their Bitwarden extension. No chasing required."
+  },
+  "importYourOrgDataToGetStarted": {
+    "message": "Import your org data to get started"
+  },
+  "onceItHasTheVaultData": {
+    "message": "Once it has the vault data, Access Intelligence will have everything it needs to report on your org's password health."
+  },
+  "accessIntelligenceWelcomeTour": {
+    "message": "Access Intelligence welcome tour"
+  },
+  "startTour": {
+    "message": "Start tour"
   },
   "noDataInOrgTitle": {
     "message": "Không tìm thấy dữ liệu"
@@ -355,8 +379,21 @@
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
     "message": "Các thành viên này có quyền truy cập vào các mục dễ bị tổn thương cho các ứng dụng quan trọng."
   },
-  "membersWithAtRiskPasswords": {
-    "message": "Thành viên có mật khẩu rủi ro"
+  "membersWithAtRiskPwds": {
+    "message": "Members with at risk passwords"
+  },
+  "membersWithAtRiskPasswordsAndForCriticalApplications": {
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
+    "placeholders": {
+      "atRiskAppCount": {
+        "content": "$1",
+        "example": "3"
+      },
+      "criticalAppCount": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
   },
   "membersWillReceiveSecurityTask": {
     "message": "Các thành viên trong tổ chức của bạn sẽ được giao nhiệm vụ thay đổi mật khẩu dễ bị tổn thương. Họ sẽ nhận được thông báo trong tiện ích mở rộng trình duyệt Bitwarden của họ."
@@ -385,6 +422,15 @@
       "count": {
         "content": "$1",
         "example": "3"
+      }
+    }
+  },
+  "ofCountTotal": {
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
       }
     }
   },
@@ -672,6 +718,27 @@
   },
   "passportNumber": {
     "message": "Số hộ chiếu"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
   },
   "licenseNumber": {
     "message": "Số bằng lái xe"
@@ -1021,6 +1088,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
@@ -1308,6 +1387,9 @@
   "copyAddress": {
     "message": "Sao chép địa chỉ"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Sao chép số điện thoại"
   },
@@ -1322,6 +1404,12 @@
   },
   "copyPassportNumber": {
     "message": "Sao chép số hộ chiếu"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -1343,6 +1431,12 @@
   },
   "copyFingerprint": {
     "message": "Sao chép vân tay"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Sao chép tên"
@@ -1383,6 +1477,10 @@
         "example": "Secret Note Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "No values to copy"
@@ -1434,6 +1532,28 @@
   },
   "unselectAll": {
     "message": "Bỏ chọn tất cả"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "launch": {
     "message": "Khởi chạy"
@@ -2544,6 +2664,18 @@
   "deleteAccountWarning": {
     "message": "Tài khoản sẽ bị xóa vĩnh viễn và không thể hoàn tác."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "Tài khoản đã được xóa"
   },
@@ -2569,26 +2701,6 @@
   },
   "importData": {
     "message": "Nhập dữ liệu"
-  },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Nếu bạn không có dữ liệu nào để nhập, bạn có thể tạo một ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "mục mới",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "đăng nhập mới",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " thay thế.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " thay thế. Bạn có thể cần phải chờ cho đến khi quản trị viên xác nhận tư cách thành viên của tổ chức của bạn.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Lỗi nhập"
@@ -3453,11 +3565,17 @@
   "year": {
     "message": "năm"
   },
+  "years": {
+    "message": "years"
+  },
   "yr": {
     "message": "năm"
   },
   "month": {
     "message": "tháng"
+  },
+  "months": {
+    "message": "months"
   },
   "monthAbbr": {
     "message": "tháng.",
@@ -3478,8 +3596,14 @@
   "paymentChargedWithUnpaidSubscription": {
     "message": "Phương thức thanh toán của bạn sẽ bị tính phí cho bất kỳ gói đăng ký nào chưa thanh toán."
   },
-  "paymentChargedWithTrial": {
-    "message": "Gói của bạn đi kèm với 7 ngày dùng thử miễn phí. Phương thức thanh toán của bạn sẽ không bị tính phí cho đến khi hết thời gian dùng thử. Bạn có thể hủy bỏ bất cứ lúc nào."
+  "paymentChargedWithTrialSpecificLength": {
+    "message": "Your plan comes with a free $TRIAL_LENGTH$ day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time.",
+    "placeholders": {
+      "trial_length": {
+        "content": "$1",
+        "example": "7"
+      }
+    }
   },
   "paymentInformation": {
     "message": "Thông tin thanh toán"
@@ -3535,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Đã hủy gói"
   },
+  "churnOfferTitle": {
+    "message": "Special offer before you go"
+  },
+  "churnOfferPreamble": {
+    "message": "If you cancel now, your access continues until"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". But as a long-time customer, we'd like to offer you something first."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Get $DISCOUNT$ off your subscription",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you a $DISCOUNT$ discount on your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Stay and get $DISCOUNT$ off",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Cancel subscription"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "You're all set!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ off for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Không bao giờ hết hạn"
   },
@@ -3558,6 +3763,9 @@
   },
   "discount": {
     "message": "giảm giá"
+  },
+  "discountApplied": {
+    "message": "Discount applied"
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -3906,12 +4114,16 @@
       }
     }
   },
-  "trialPaidInfoMessage": {
-    "message": "Gói dùng thử 7 ngày $PLAN$ miễn phí của bạn sẽ được chuyển đổi thành thuê bao trả phí sau 7 ngày.",
+  "trialPaidInfoMessageSpecificTrialLength": {
+    "message": "Your $PLAN$ $TRIAL_LENGTH$ day free trial will be converted to a paid subscription after $TRIAL_LENGTH$ days.",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -4274,6 +4486,53 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created text Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created text Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSend": {
+    "message": "Created file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created file Send with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created file Send with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedTextSend": {
+    "message": "Edited text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "editedFileSend": {
+    "message": "Edited file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedTextSend": {
+    "message": "Deleted text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletedFileSend": {
+    "message": "Deleted file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedTextSend": {
+    "message": "Accessed text Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "accessedFileSend": {
+    "message": "Accessed file Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "movedItemIdToOrg": {
     "message": "Đã di chuyển mục $ID$ vào một tổ chức.",
     "placeholders": {
@@ -4415,6 +4674,24 @@
       }
     }
   },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
@@ -4426,6 +4703,60 @@
   },
   "copiedLicenseNumberItemId": {
     "message": "Copied license number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedIbanItemId": {
+    "message": "Viewed IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedIbanItemId": {
+    "message": "Copied IBAN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedSwiftCodeItemId": {
+    "message": "Viewed SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedSwiftCodeItemId": {
+    "message": "Copied SWIFT code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedNationalIdentificationNumberItemId": {
+    "message": "Viewed national identification number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedNationalIdentificationNumberItemId": {
+    "message": "Copied national identification number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4478,14 +4809,8 @@
   "discardEditsConfirmation": {
     "message": "If you close this view, your unsaved edits will be discarded."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "keepEditing": {
     "message": "Keep editing"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "Đã chỉnh sửa chính sách $ID$.",
@@ -4562,8 +4887,8 @@
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
-  "revocationReasonUnknown": {
-    "message": "Unknown reason"
+  "revocationReasonNotLogged": {
+    "message": "No reason logged"
   },
   "revocationReasonManual": {
     "message": "Revoked by an admin"
@@ -4573,6 +4898,9 @@
   },
   "revocationReasonSingleOrganizationNonCompliance": {
     "message": "Not in compliance with single organization policy"
+  },
+  "revocationReasonDeclinedItemTransfer": {
+    "message": "Declined item transfer to organization"
   },
   "revokedUserIdTwoFactorNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
@@ -4648,9 +4976,6 @@
   },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
-  },
-  "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
   },
   "invitedUserId": {
     "message": "Đã mời người dùng $ID$.",
@@ -4980,6 +5305,9 @@
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
   },
+  "reportLoadFailed": {
+    "message": "An error occurred while loading the report. Try refreshing the page or generate a new report."
+  },
   "riskInsightsRunReport": {
     "message": "Chạy báo cáo"
   },
@@ -5224,6 +5552,9 @@
   },
   "bankAccount": {
     "message": "Tài khoản ngân hàng"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "amountX": {
     "message": "Số tiền $COUNT$",
@@ -5538,6 +5869,24 @@
   },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
+  },
+  "invalidateInviteLink": {
+    "message": "Invalidate invite link"
+  },
+  "invalidateInviteLinkDesc": {
+    "message": "If you remove all domains, this invite link will no longer work for anyone."
+  },
+  "invalidateLink": {
+    "message": "Invalidate link"
+  },
+  "inviteLinkInvalidated": {
+    "message": "Invite link invalidated"
+  },
+  "mustEnterAtLeastOneDomain": {
+    "message": "Must enter at least 1 domain"
+  },
+  "deactivateLink": {
+    "message": "Deactivate link"
   },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
@@ -7070,6 +7419,9 @@
   "resetPasswordDetailsError": {
     "message": "Phản hồi chi tiết về việc đặt lại mật khẩu là null"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "New password is required"
+  },
   "trashCleanupWarning": {
     "message": "Các mục đã nằm trong thùng rác quá 30 ngày sẽ bị xóa tự động."
   },
@@ -8033,6 +8385,9 @@
   "iconsUrl": {
     "message": "URL máy chủ biểu tượng"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Các URL môi trường đã được lưu"
   },
@@ -8715,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "Có ít nhất 1 địa chỉ email không hợp lệ"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "tooManyEmails": {
     "message": "Bạn chỉ có thể gửi tối đa $COUNT$ email cùng lúc",
@@ -9905,9 +10263,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Tạo một tài khoản"
-  },
   "createSecret": {
     "message": "Tạo bí mật"
   },
@@ -9930,8 +10285,45 @@
   "getStarted": {
     "message": "Bắt đầu"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Get started with Secrets Manager"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Complete these steps to start managing your team's secrets"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Create machine account"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Organize your secrets into projects"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Create project"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Bring existing secrets in from another tool"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Store passwords, certificates, and API keys"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Create secret"
+  },
   "complete": {
     "message": "Hoàn thành $COMPLETED$/$TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "$COMPLETED$ of $TOTAL$ complete",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10585,11 +10977,38 @@
     "message": "Xem hướng dẫn chi tiết trên trang trợ giúp của chúng tôi tại",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Cài đặt tiện ích mở rộng trình duyệt"
+  "getStartedWithYourVault": {
+    "message": "Get started with your vault"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Sử dụng tiện ích mở rộng để nhanh chóng lưu đăng nhập và tự động điền biểu mẫu mà không cần mở ứng dụng web."
+  "onboardingChecklistSubtitle": {
+    "message": "Complete these steps to secure your personal data and get the most out of Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Dismiss this checklist"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Create your account"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Import your passwords"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Install the browser extension"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Save time by importing data from another password manager. You can manually add items to your vault."
+  },
+  "onboardingImportCta": {
+    "message": "Import passwords"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Install extension"
+  },
+  "completed": {
+    "message": "Completed"
   },
   "projectAccessUpdated": {
     "message": "Quyền truy cập dự án đã được cập nhật"
@@ -10799,6 +11218,9 @@
   },
   "assignSecurityTasksToMembers": {
     "message": "Gửi thông báo thay đổi mật khẩu"
+  },
+  "sendNotifications": {
+    "message": "Send notifications"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
@@ -12398,6 +12820,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Your subscription price will increase to $PRICE$ per seat per month (billed annually) on $DATE$. Your plan features and any existing discounts will stay exactly the same.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Price increase notice"
+  },
   "restartOrganizationSubscription": {
     "message": "Đăng ký tổ chức đã được khởi động lại"
   },
@@ -12838,12 +13291,16 @@
       }
     }
   },
-  "subscribeEnterpriseSubtitle": {
-    "message": "Bản dùng thử $PLAN$ trong 7 ngày của bạn bắt đầu từ hôm nay. Thêm phương thức thanh toán ngay để tiếp tục sử dụng các tính năng này sau khi bản dùng thử của bạn kết thúc: ",
+  "subscribeEnterpriseSubtitleSpecificTrialLength": {
+    "message": "Your $TRIAL_LENGTH$-day $PLAN$ trial starts today. Add a payment method now to continue using these features after your trial ends: ",
     "placeholders": {
       "plan": {
         "content": "$1",
         "example": "Teams"
+      },
+      "trial_length": {
+        "content": "$2",
+        "example": "7"
       }
     }
   },
@@ -12867,6 +13324,10 @@
   },
   "missingTaxIdWarning": {
     "message": "Cần hành động: Bạn đang thiếu mã số thuế trong thông tin thanh toán. Nếu không thêm mã số thuế, hóa đơn của bạn có thể bao gồm thêm thuế."
+  },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "Thêm mục điều hướng",
@@ -13664,6 +14125,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -13675,6 +14139,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -13754,8 +14227,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
-  "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -13767,18 +14240,91 @@
       }
     }
   },
+  "more": {
+    "message": "More"
+  },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
   },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
   },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
+  },
+  "singleOrgPrerequisite": {
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "enableBanner": {
+    "message": "Enable banner"
+  },
+  "createBannerMessage": {
+    "message": "Create banner message"
+  },
+  "header": {
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Enter a $NAME$ under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Create a $NAME$ that's under $COUNT$ characters.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "You must enter a header to create a button."
+  },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
+  "button": {
+    "message": "Button"
+  },
+  "showAfterEveryLogin": {
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -13812,6 +14358,21 @@
   "skipLink": {
     "message": "Skip link"
   },
+  "rotateAccountEncryptionKey": {
+    "message": "Rotate account encryption key"
+  },
+  "rotateAccountEncryptionKeyDescription": {
+    "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
+  },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
+  "rotateAccountEncryptionCallout": {
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
+  },
+  "accountEncryptionKeyRotated": {
+    "message": "Account encryption key rotated"
+  },
   "callout": {
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
@@ -13819,6 +14380,9 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "searchDriversLicense": {
     "message": "Search licenses"
@@ -13867,5 +14431,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

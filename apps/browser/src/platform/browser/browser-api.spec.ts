@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { LogService } from "@bitwarden/logging";
 
 import { BrowserApi } from "./browser-api";
+import { ExtensionInstallType } from "./extension-install-type";
 
 type ChromeSettingsGet = chrome.types.ChromeSetting<boolean>["get"];
 
@@ -28,6 +29,88 @@ describe("BrowserApi", () => {
       const result = BrowserApi.isManifestVersion(2);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("getInstallType", () => {
+    let originalIsWebExtensionsApi: boolean;
+    let originalIsChromeApi: boolean;
+
+    beforeEach(() => {
+      originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      originalIsChromeApi = BrowserApi.isChromeApi;
+    });
+
+    afterEach(() => {
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      BrowserApi.isChromeApi = originalIsChromeApi;
+      delete (global.chrome as any).management;
+      delete (global as any).browser;
+    });
+
+    it.each([
+      ["admin", ExtensionInstallType.Admin],
+      ["development", ExtensionInstallType.Development],
+      ["normal", ExtensionInstallType.Normal],
+      ["sideload", ExtensionInstallType.Sideload],
+      ["other", ExtensionInstallType.Other],
+    ])("returns %s when chrome.management.getSelf reports it", async (raw, expected) => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({ installType: raw }),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(expected);
+    });
+
+    it("prefers browser.management.getSelf when isWebExtensionsApi is true", async () => {
+      BrowserApi.isWebExtensionsApi = true;
+      const browserGetSelf = jest.fn().mockResolvedValue({ installType: "admin" });
+      const chromeGetSelf = jest.fn().mockResolvedValue({ installType: "normal" });
+      (global as any).browser = { management: { getSelf: browserGetSelf } };
+      (global.chrome as any).management = { getSelf: chromeGetSelf };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Admin);
+      expect(browserGetSelf).toHaveBeenCalled();
+      expect(chromeGetSelf).not.toHaveBeenCalled();
+    });
+
+    it("returns Unknown when management.getSelf rejects", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockRejectedValue(new Error("not available")),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when the result has no installType", async () => {
+      (global.chrome as any).management = {
+        getSelf: jest.fn().mockResolvedValue({}),
+      };
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when chrome.management is absent", async () => {
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
+    });
+
+    it("returns Unknown when neither chrome nor browser is available", async () => {
+      BrowserApi.isWebExtensionsApi = false;
+      BrowserApi.isChromeApi = false;
+
+      const result = await BrowserApi.getInstallType();
+
+      expect(result).toBe(ExtensionInstallType.Unknown);
     });
   });
 
@@ -384,6 +467,94 @@ describe("BrowserApi", () => {
         expect(await BrowserApi.isPopupOpen()).toBe(false);
 
         delete (chrome.runtime as any).getContexts;
+      });
+    });
+  });
+
+  describe("isAnyPopupOrPopoutOpen", () => {
+    describe("when MV3 and chrome.runtime.getContexts is available", () => {
+      beforeEach(() => {
+        (chrome.runtime as any).getContexts = jest.fn();
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+      });
+
+      afterEach(() => {
+        delete (chrome.runtime as any).getContexts;
+      });
+
+      it("returns true when a POPUP context exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "POPUP", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns true when a TAB context with uilocation=popout exists", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          {
+            contextType: "TAB",
+            documentUrl: "chrome-extension://id/popup/index.html?uilocation=popout",
+          },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns false when only non-popout TAB contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([
+          { contextType: "TAB", documentUrl: "chrome-extension://id/popup/index.html" },
+        ]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+
+      it("returns false when no contexts exist", async () => {
+        (chrome.runtime as any).getContexts.mockResolvedValue([]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+    });
+
+    describe("when MV2, falls back to getExtensionViews", () => {
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+      });
+
+      it("returns true if the popup is open", async () => {
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "popup" ? [window] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns true if a popout tab is open", async () => {
+        const popoutWindow = {
+          location: { href: "chrome-extension://id/popup/index.html?uilocation=popout" },
+        };
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "tab" ? [popoutWindow] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(true);
+      });
+
+      it("returns false if neither popup nor popout is open", async () => {
+        chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
+      });
+
+      it("returns false if only a non-popout tab is open", async () => {
+        const tabWindow = {
+          location: { href: "chrome-extension://id/popup/index.html" },
+        };
+        chrome.extension.getViews = jest.fn().mockImplementation((props) => {
+          return props?.type === "tab" ? [tabWindow] : [];
+        });
+
+        expect(await BrowserApi.isAnyPopupOrPopoutOpen()).toBe(false);
       });
     });
   });

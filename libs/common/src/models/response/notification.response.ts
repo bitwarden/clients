@@ -1,4 +1,3 @@
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
 
 import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
@@ -72,11 +71,11 @@ export class NotificationResponse extends BaseResponse {
       case NotificationType.ProviderBankAccountVerified:
         this.payload = new ProviderBankAccountVerifiedPushNotification(payload);
         break;
-      case NotificationType.SyncPolicy:
-        this.payload = new SyncPolicyNotification(payload);
-        break;
       case NotificationType.AutoConfirmMember:
         this.payload = new AutoConfirmMemberNotification(payload);
+        break;
+      case NotificationType.PremiumStatusChanged:
+        this.payload = new PremiumStatusChangedNotification(payload);
         break;
       default:
         break;
@@ -194,15 +193,6 @@ export class ProviderBankAccountVerifiedPushNotification extends BaseResponse {
   }
 }
 
-export class SyncPolicyNotification extends BaseResponse {
-  policy: Policy;
-
-  constructor(response: any) {
-    super(response);
-    this.policy = this.getResponseProperty("Policy");
-  }
-}
-
 export class LogOutNotification extends BaseResponse {
   userId: string;
   reason?: PushNotificationLogOutReasonType;
@@ -226,5 +216,16 @@ export class AutoConfirmMemberNotification extends BaseResponse {
     this.targetUserId = this.getResponseProperty("TargetUserId");
     this.userId = this.getResponseProperty("UserId");
     this.organizationId = this.getResponseProperty("OrganizationId");
+  }
+}
+
+export class PremiumStatusChangedNotification extends BaseResponse {
+  userId: string;
+  premium: boolean;
+
+  constructor(response: any) {
+    super(response);
+    this.userId = this.getResponseProperty("UserId");
+    this.premium = this.getResponseProperty("Premium");
   }
 }

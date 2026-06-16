@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
@@ -74,7 +72,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<EncryptedString | undefined> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -110,6 +108,16 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     let key: string | undefined;
 
     if (request.resetMasterPassword) {
+      const newMasterPassword = request.newMasterPassword;
+      if (Utils.isNullOrWhitespace(newMasterPassword) || newMasterPassword == undefined) {
+        throw new Error(this.i18nService.t("resetPasswordNewPasswordRequired"));
+      }
+
+      const email = request.email;
+      if (Utils.isNullOrWhitespace(email) || email == undefined) {
+        throw new Error(this.i18nService.t("emailRequired"));
+      }
+
       const resetPasswordDetails =
         await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
           request.organizationId,
@@ -125,10 +133,17 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
         resetPasswordDetails,
         request.organizationId,
       );
+      // Prefer server-provided salt; fallback to normalized email for legacy servers
+      // that don't yet return MasterPasswordSalt in the account-recovery details response.
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3) we will no longer fall back to email.
+      const salt: MasterPasswordSalt =
+        typeof resetPasswordDetails.masterPasswordSalt === "string"
+          ? (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt)
+          : this.masterPasswordService.emailToSalt(email);
 
       ({ newMasterPasswordHash, key } = await this.buildResetPasswordRequest(
-        request.newMasterPassword,
-        request.email,
+        newMasterPassword,
+        salt,
         kdfConfig,
         existingUserKey,
       ));
@@ -195,7 +210,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     newUserKey: UserKey,
     trustedPublicKeys: Uint8Array[],
     userId: UserId,
-  ): Promise<OrganizationUserResetPasswordWithIdRequest[] | null> {
+  ): Promise<OrganizationUserResetPasswordWithIdRequest[]> {
     if (newUserKey == null) {
       throw new Error("New user key is required for rotation.");
     }
@@ -216,8 +231,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
 
       // Create/Execute request
-      const request = new OrganizationUserResetPasswordWithIdRequest();
-      request.organizationId = org.id;
+      const request = new OrganizationUserResetPasswordWithIdRequest(org.id);
       request.resetPasswordKey = encryptedKey;
       request.masterPasswordHash = "ignored";
 
@@ -233,9 +247,21 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     kdfMemory?: number;
     kdfParallelism?: number;
   }): KdfConfig {
-    return response.kdf === KdfType.PBKDF2_SHA256
-      ? new PBKDF2KdfConfig(response.kdfIterations)
-      : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
+    switch (response.kdf) {
+      case KdfType.PBKDF2_SHA256:
+        return new PBKDF2KdfConfig(response.kdfIterations);
+      case KdfType.Argon2id:
+        if (response.kdfMemory == null || response.kdfParallelism == null) {
+          throw new Error("Invalid KDF configuration");
+        }
+        return new Argon2KdfConfig(
+          response.kdfIterations,
+          response.kdfMemory,
+          response.kdfParallelism,
+        );
+      default:
+        throw new Error("Unsupported KDF type");
+    }
   }
 
   /** Decrypts the user's UserKey using the organization's private key and the stored reset password key. */
@@ -247,7 +273,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
+        map((orgKeys) => orgKeys?.[orgId as OrganizationId] ?? null),
       ),
     );
 
@@ -268,17 +294,10 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
   private async buildResetPasswordRequest(
     newMasterPassword: string,
-    email: string,
+    salt: MasterPasswordSalt,
     kdfConfig: KdfConfig,
     existingUserKey: UserKey,
   ): Promise<Pick<OrganizationUserResetPasswordRequest, "newMasterPasswordHash" | "key">> {
-    // In the Account Recovery flow, the target user's UserId is not available (only orgUserId),
-    // so salt is always derived from the target user's email via emailToSalt().
-    //
-    // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
-    // a server-provided salt for the target user rather than email derivation.
-    const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
-
     const authenticationData =
       await this.masterPasswordService.makeMasterPasswordAuthenticationData(
         newMasterPassword,
