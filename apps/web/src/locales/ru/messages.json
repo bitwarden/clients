@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Отправить напоминания"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Вы еще не отметили критичные приложения. Просмотрите приложения, чтобы начать."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "Как только вы пометите приложения как критичные, они отобразятся здесь."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Импорт данных"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Если у вас нет данных для импорта, вы можете создать ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "новый элемент.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "новый логин",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " вместо этого.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " вместо этого. Возможно, вам придется подождать, пока администратор подтвердит ваше членство в организации.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Ошибка импорта"
   },
@@ -3582,11 +3565,17 @@
   "year": {
     "message": "год"
   },
+  "years": {
+    "message": "лет"
+  },
   "yr": {
     "message": "г"
   },
   "month": {
     "message": "месяц"
+  },
+  "months": {
+    "message": "месяцев"
   },
   "monthAbbr": {
     "message": "мес.",
@@ -3670,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Подписка отменена."
   },
+  "churnOfferTitle": {
+    "message": "Специальное предложение, прежде чем вы продолжите"
+  },
+  "churnOfferPreamble": {
+    "message": "Если вы откажетесь сейчас, ваш доступ сохранится до"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". Но, как нашему давнему клиенту, мы хотели бы сначала кое-что вам предложить."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "Получите $DISCOUNT$ на вашу подписку",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "В качестве благодарности за то, что вы являетесь давним клиентом Bitwarden, мы хотим предложить вам скидку в размере $DISCOUNT$ на следующий $DURATION$ обслуживания.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Оставайтесь и получите скидку в размере $DISCOUNT$",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Отменить подписку"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Все готово!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "Ваша скидка в размере $DISCOUNT$ была применена к вашему следующему $DURATION$ действия услуги.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "Скидка $DISCOUNT$ для $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Никогда не истекает"
   },
@@ -3693,6 +3763,9 @@
   },
   "discount": {
     "message": "скидка"
+  },
+  "discountApplied": {
+    "message": "Скидка применена"
   },
   "discountExpiredOnPurchase": {
     "message": "Срок действия скидки истек. Просмотрите сумму корзины и повторите попытку."
@@ -5232,6 +5305,9 @@
   "reportGenerationFailed": {
     "message": "При создании отчета произошла ошибка. Попробуйте снова."
   },
+  "reportLoadFailed": {
+    "message": "При загрузке отчета произошла ошибка. Попробуйте обновить страницу или сгенерировать новый отчет."
+  },
   "riskInsightsRunReport": {
     "message": "Запустить отчет"
   },
@@ -5476,6 +5552,9 @@
   },
   "bankAccount": {
     "message": "Банковский счет"
+  },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
   },
   "amountX": {
     "message": "Сумма $COUNT$",
@@ -7340,6 +7419,9 @@
   "resetPasswordDetailsError": {
     "message": "Ответ на сброс пароля пустой"
   },
+  "resetPasswordNewPasswordRequired": {
+    "message": "Требуется новый пароль"
+  },
   "trashCleanupWarning": {
     "message": "Элементы, которые находились в корзине более 30 дней, будут удалены автоматически."
   },
@@ -8303,6 +8385,9 @@
   "iconsUrl": {
     "message": "URL сервера значков"
   },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
+  },
   "environmentSaved": {
     "message": "URL окружения сохранены"
   },
@@ -8985,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
   },
   "tooManyEmails": {
     "message": "Одновременно можно отправить не более $COUNT$ писем",
@@ -10175,9 +10263,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Создать аккаунт"
-  },
   "createSecret": {
     "message": "Создать секрет"
   },
@@ -10200,8 +10285,45 @@
   "getStarted": {
     "message": "Начать"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Начните работу с Менеджером секретов"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Выполните следующие действия, чтобы начать управлять секретами вашей команды"
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Создать аккаунт компьютера"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "Организуйте свои секреты в проектах"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Создать проект"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Перенесите существующие секреты из другого инструмента"
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Храните пароли, сертификаты и ключи API"
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Создать секрет"
+  },
   "complete": {
     "message": "Выполнено $COMPLETED$/$TOTAL$",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
+    "message": "Выполнено $COMPLETED$ из $TOTAL$",
     "placeholders": {
       "COMPLETED": {
         "content": "$1",
@@ -10855,11 +10977,38 @@
     "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
-    "message": "Установить расширение для браузера"
+  "getStartedWithYourVault": {
+    "message": "Начните работу с вашим хранилищем"
   },
-  "installBrowserExtensionDetails": {
-    "message": "Используйте расширение для быстрого сохранения логинов и автозаполнения форм, не открывая веб-приложение."
+  "onboardingChecklistSubtitle": {
+    "message": "Выполните следующие действия, чтобы обезопасить свои персональные данные и получить максимальную отдачу от Bitwarden"
+  },
+  "dismissThisChecklist": {
+    "message": "Отклонить этот контрольный список"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Создайте свой аккаунт"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Импортировать ваши пароли"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
+    "message": "Установить расширение браузера"
+  },
+  "onboardingImportDataSubtitle": {
+    "message": "Сэкономьте время, импортировав данные из другого менеджера паролей. Вы можете вручную добавлять элементы в свое хранилище."
+  },
+  "onboardingImportCta": {
+    "message": "Импорт паролей"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Закрепите расширение в вашем браузере. Это позволит вам авторизовываться быстрее и легко сохранять ваши пароли."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Установить расширение"
+  },
+  "completed": {
+    "message": "Выполнено"
   },
   "projectAccessUpdated": {
     "message": "Доступ к проекту обновлен"
@@ -12671,6 +12820,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Стоимость вашей подписки увеличится до $PRICE$ за место в месяц $DATE$. Функции вашего плана и все существующие скидки останутся прежними.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Стоимость вашей подписки увеличится до $PRICE$ за место в месяц (ежегодно) $DATE$. Функции вашего плана и все существующие скидки останутся прежними.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Уведомление о повышении цены"
+  },
   "restartOrganizationSubscription": {
     "message": "Подписка организации перезапущена"
   },
@@ -14047,8 +14227,8 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
   },
-  "coachmarkStepIndicator": {
-    "message": "Шаг $CURRENT$ из $TOTAL$",
+  "coachmarkStepsIndicator": {
+    "message": "$CURRENT$ из $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14075,12 +14255,76 @@
   "backToEditing": {
     "message": "Вернуться к редактированию"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Баннер хранилища"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Создайте и запустите индивидуальный баннер, который все члены организации будут видеть на своей странице хранилища после авторизации."
+  },
+  "singleOrgPrerequisite": {
+    "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
+  },
+  "enableBanner": {
+    "message": "Включить баннер"
+  },
+  "createBannerMessage": {
+    "message": "Создать сообщение баннера"
+  },
+  "header": {
+    "message": "Заголовок"
+  },
+  "maximumOfXCharacters": {
+    "message": "Максимум символов: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Введите $NAME$ под символами $COUNT$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Создайте $NAME$ под символами $COUNT$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "Для создания кнопки необходимо ввести заголовок."
+  },
+  "enterADescription": {
+    "message": "Введите описание."
+  },
+  "button": {
+    "message": "Кнопка"
+  },
+  "showAfterEveryLogin": {
+    "message": "Показывать после каждого входа"
+  },
+  "seeMessageEveryLogin": {
+    "message": "Пользователи будут видеть сообщение после каждой авторизации, даже если они его закроют."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Сохранить изменения Send не удалось",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -14187,5 +14431,8 @@
   },
   "copy": {
     "message": "Скопировать"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }

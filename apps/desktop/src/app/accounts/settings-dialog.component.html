@@ -101,33 +101,14 @@
 
       <bit-tab [label]="'appPreferences' | i18n">
         <bit-form-control>
-          <input type="checkbox" bitCheckbox formControlName="enableTray" (change)="saveTray()" />
-          <bit-label>{{ enableTrayText }}</bit-label>
-          <bit-hint>{{ enableTrayDescText }}</bit-hint>
-        </bit-form-control>
-
-        @if (showMinToTray) {
-          <bit-form-control>
-            <input
-              type="checkbox"
-              bitCheckbox
-              formControlName="enableMinToTray"
-              (change)="saveMinToTray()"
-            />
-            <bit-label>{{ enableMinToTrayText }}</bit-label>
-            <bit-hint>{{ enableMinToTrayDescText }}</bit-hint>
-          </bit-form-control>
-        }
-
-        <bit-form-control>
           <input
             type="checkbox"
             bitCheckbox
-            formControlName="enableCloseToTray"
-            (change)="saveCloseToTray()"
+            formControlName="runInBackground"
+            (change)="saveRunInBackground()"
           />
-          <bit-label>{{ enableCloseToTrayText }}</bit-label>
-          <bit-hint>{{ enableCloseToTrayDescText }}</bit-hint>
+          <bit-label>{{ runInBackgroundText }}</bit-label>
+          <bit-hint>{{ runInBackgroundDescText }}</bit-hint>
         </bit-form-control>
 
         @if (showOpenAtLoginOption) {
@@ -140,19 +121,6 @@
             />
             <bit-label>{{ "openAtLogin" | i18n }}</bit-label>
             <bit-hint>{{ "openAtLoginDesc" | i18n }}</bit-hint>
-          </bit-form-control>
-        }
-
-        @if (showAlwaysShowDock) {
-          <bit-form-control>
-            <input
-              type="checkbox"
-              bitCheckbox
-              formControlName="alwaysShowDock"
-              (change)="saveAlwaysShowDock()"
-            />
-            <bit-label>{{ "alwaysShowDock" | i18n }}</bit-label>
-            <bit-hint>{{ "alwaysShowDockDesc" | i18n }}</bit-hint>
           </bit-form-control>
         }
 

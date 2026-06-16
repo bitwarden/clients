@@ -7,7 +7,6 @@ import {
   firstValueFrom,
   map,
   of,
-  shareReplay,
   switchMap,
 } from "rxjs";
 
@@ -20,6 +19,7 @@ import { StateService } from "../../platform/abstractions/state.service";
 import { MessageSender } from "../../platform/messaging";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
+import { perUserCache$ } from "../../vault/utils/observable-utilities";
 import { AccountService } from "../abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "../abstractions/auth.service";
 import { TokenService } from "../abstractions/token.service";
@@ -28,6 +28,7 @@ import { AuthenticationStatus } from "../enums/authentication-status";
 export class AuthService implements AuthServiceAbstraction {
   activeAccountStatus$: Observable<AuthenticationStatus>;
   authStatuses$: Observable<Record<UserId, AuthenticationStatus>>;
+  authStatusFor$: (userId: UserId) => Observable<AuthenticationStatus>;
 
   constructor(
     protected accountService: AccountService,
@@ -37,6 +38,37 @@ export class AuthService implements AuthServiceAbstraction {
     protected stateService: StateService,
     private tokenService: TokenService,
   ) {
+    // Memoize the per-user auth status stream so it is built once per userId and
+    // shared via a single upstream subscription. Building it per call (as a method)
+    // recreated a shareReplay({ refCount: false }) on every invocation; because that
+    // ReplaySubject never unsubscribes from the long-lived state subjects, every
+    // getAuthStatus()/authStatusFor$() call leaked an observer graph. perUserCache$
+    // applies shareReplay({ bufferSize: 1, refCount: false }) once per userId and
+    // caches the result, so repeated reads reuse one subscription. (Fixes #20548.)
+    this.authStatusFor$ = perUserCache$((userId: UserId) => {
+      if (!Utils.isGuid(userId)) {
+        return of(AuthenticationStatus.LoggedOut);
+      }
+
+      return combineLatest([
+        this.keyService.getInMemoryUserKeyFor$(userId),
+        this.tokenService.hasAccessToken$(userId),
+      ]).pipe(
+        map(([userKey, hasAccessToken]) => {
+          if (!hasAccessToken) {
+            return AuthenticationStatus.LoggedOut;
+          }
+
+          if (!userKey) {
+            return AuthenticationStatus.Locked;
+          }
+
+          return AuthenticationStatus.Unlocked;
+        }),
+        distinctUntilChanged(),
+      );
+    });
+
     this.activeAccountStatus$ = this.accountService.activeAccount$.pipe(
       map((account) => account?.id),
       switchMap((userId) => {
@@ -65,31 +97,6 @@ export class AuthService implements AuthServiceAbstraction {
           {} as Record<UserId, AuthenticationStatus>,
         );
       }),
-    );
-  }
-
-  authStatusFor$(userId: UserId): Observable<AuthenticationStatus> {
-    if (!Utils.isGuid(userId)) {
-      return of(AuthenticationStatus.LoggedOut);
-    }
-
-    return combineLatest([
-      this.keyService.getInMemoryUserKeyFor$(userId),
-      this.tokenService.hasAccessToken$(userId),
-    ]).pipe(
-      map(([userKey, hasAccessToken]) => {
-        if (!hasAccessToken) {
-          return AuthenticationStatus.LoggedOut;
-        }
-
-        if (!userKey) {
-          return AuthenticationStatus.Locked;
-        }
-
-        return AuthenticationStatus.Unlocked;
-      }),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 

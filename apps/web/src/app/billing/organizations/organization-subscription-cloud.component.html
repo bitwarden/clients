@@ -61,7 +61,7 @@
                         "
                         class="tw-line-through !tw-text-muted"
                         >{{ i.quantity * i.originalAmount | currency: "$" }} /
-                        {{ "year" | i18n }}</span
+                        {{ i.interval | i18n }}</span
                       >
                     </div>
                   </ng-template>
@@ -82,6 +82,9 @@
         </bit-table>
       </div>
     </ng-container>
+
+    <app-organization-scheduled-price-increase-warning [organization]="userOrg">
+    </app-organization-scheduled-price-increase-warning>
 
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-mt-5">
