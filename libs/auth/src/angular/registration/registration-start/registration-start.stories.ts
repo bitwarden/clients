@@ -107,6 +107,9 @@ const decorators = (options: {
             setAnonLayoutWrapperData: (data: AnonLayoutWrapperData) => {
               return;
             },
+            resetToCachedRouteData: () => {
+              return;
+            },
           } as Partial<AnonLayoutWrapperDataService>,
         },
         {

@@ -12,6 +12,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/default-login-via-webauthn-component.service";
+import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -335,6 +337,11 @@ const safeProviders: SafeProvider[] = [
     provide: AppIdService,
     useClass: DefaultAppIdService,
     deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
+  }),
+  safeProvider({
+    provide: LoginViaWebAuthnComponentService,
+    useClass: DefaultLoginViaWebAuthnComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: LoginComponentService,
