@@ -33,6 +33,28 @@
   background-color: transparent !important;
 }
 
+/* --- Legacy Bootstrap-style modals (Settings, Premium, etc. opened via the old
+   ModalService — these use .modal/.modal-content, not bit-dialog) --- */
+.modal-content {
+  border-radius: var(--fk-radius-xl) !important;
+  border: var(--fk-glass-border-strong) !important;
+  background-color: var(--fk-overlay-bg) !important;
+  backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  box-shadow: var(--fk-elev-panel), var(--fk-glass-highlight) !important;
+  overflow: hidden;
+}
+.modal-content .modal-header,
+.modal-content .modal-body,
+.modal-content .modal-footer {
+  background-color: transparent !important;
+  border-color: var(--fk-glass-border-strong) !important;
+}
+.modal-backdrop {
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+}
+
 /* --- Form inputs → rounded, themed, subtle glass (app-wide) --- */
 [bitFieldContainer] {
   border-radius: var(--fk-radius-md) !important;

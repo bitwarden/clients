@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { CollectionSummary, FolderSummary } from "@klappstuhl/ui-bridge";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 export type NavCategory =
@@ -63,7 +65,7 @@ export interface NavItem {
     </button>
 
     <!-- Categories -->
-    <div class="tw-flex-1 tw-overflow-y-auto tw-space-y-0.5">
+    <div class="tw-flex-1 tw-space-y-0.5 tw-overflow-y-auto tw-overflow-x-hidden">
       <div
         class="tw-px-3 tw-py-1 tw-text-[10px] tw-font-semibold tw-uppercase tw-tracking-[0.1em] tw-text-fg-body-subtle"
       >
@@ -426,8 +428,22 @@ export interface NavItem {
       class="tw-mt-3 tw-flex tw-items-center tw-gap-2 tw-rounded-[var(--fk-radius-lg)] tw-p-1.5"
       style="background-color: var(--fk-card-bg); border: var(--fk-glass-border); box-shadow: var(--fk-elev-glow)"
     >
-      <div class="tw-min-w-0 tw-flex-1">
-        <ng-content select="[account-switcher]"></ng-content>
+      <div class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2.5">
+        <span class="tw-shrink-0">
+          <ng-content select="[account-switcher]"></ng-content>
+        </span>
+        @if (accountName()) {
+          <div class="tw-min-w-0 tw-flex-1 tw-leading-tight">
+            <div class="tw-truncate tw-text-[12px] tw-font-medium tw-text-fg-heading">
+              {{ accountName() }}
+            </div>
+            @if (accountEmail() && accountEmail() !== accountName()) {
+              <div class="tw-truncate tw-text-[11px] tw-text-fg-body-subtle">
+                {{ accountEmail() }}
+              </div>
+            }
+          </div>
+        }
       </div>
       <button
         type="button"
@@ -460,6 +476,14 @@ export interface NavItem {
 })
 export class KlsSidebarNavComponent {
   protected readonly i18n = inject(I18nService);
+  private readonly accountService = inject(AccountService);
+
+  private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
+    initialValue: null,
+  });
+  protected readonly accountName = computed(() => this.activeAccount()?.name ?? "");
+  protected readonly accountEmail = computed(() => this.activeAccount()?.email ?? "");
+
   readonly items = input.required<NavItem[]>();
   readonly active = input.required<NavCategory>();
   readonly activeFolder = input<string | undefined>(undefined);
