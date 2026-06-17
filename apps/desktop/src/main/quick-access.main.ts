@@ -79,6 +79,9 @@ export class QuickAccessMain {
       win.webContents.send("kls-spotlight:labels", this.labels);
     }
     win.webContents.send("kls-spotlight:reset");
+    // Ask the renderer whether the vault is locked so the spotlight can offer to
+    // unlock (e.g. Windows Hello) without opening the main window.
+    this.mainWebContents?.send("kls-qa:lock-state-request");
   }
 
   private ensureWindow(): BrowserWindow {
@@ -181,6 +184,23 @@ export class QuickAccessMain {
       }
     });
 
+    // Spotlight asks whether the vault is locked.
+    ipcMain.on("kls-spotlight:lock-state-request", () => {
+      this.mainWebContents?.send("kls-qa:lock-state-request");
+    });
+
+    // Renderer returns the lock state to the spotlight.
+    ipcMain.on("kls-qa:lock-state", (_event, state: unknown) => {
+      if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
+        this.spotlightWindow.webContents.send("kls-spotlight:lock-state", state);
+      }
+    });
+
+    // Spotlight asks the renderer to unlock with biometrics (no app window shown).
+    ipcMain.on("kls-spotlight:unlock", () => {
+      this.mainWebContents?.send("kls-qa:unlock");
+    });
+
     // Spotlight requests close (Esc).
     ipcMain.on("kls-spotlight:close", () => {
       if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
@@ -195,7 +215,7 @@ export class QuickAccessMain {
         return;
       }
       const [width] = win.getSize();
-      const clamped = Math.max(96, Math.min(560, Math.round(height)));
+      const clamped = Math.max(96, Math.min(584, Math.round(height)));
       win.setSize(width, clamped, false);
     });
   }

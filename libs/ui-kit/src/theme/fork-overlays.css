@@ -90,6 +90,66 @@
   background-color: var(--fk-selected-bg, var(--fk-hover-bg)) !important;
 }
 
+/* --- Dialog tab groups (Settings, etc.) → modern segmented "pill" control
+   instead of the flat underline tab bar, so the tabs match the glassy
+   redesign. Scoped to dialog tab groups; the redesigned shell doesn't use
+   bit-tab-group, and app-level tab bars are left untouched. --- */
+.cdk-overlay-pane bit-dialog bit-tab-header {
+  border-bottom: 0 !important;
+  align-items: center !important;
+  padding: 4px !important;
+  margin-bottom: var(--fk-space-2, 8px);
+  border-radius: var(--fk-radius-full) !important;
+  border: var(--fk-glass-border) !important;
+  background-color: var(--fk-hover-bg) !important;
+}
+.cdk-overlay-pane bit-dialog bit-tab-header [role="tablist"] {
+  gap: var(--fk-space-1, 4px) !important;
+}
+.cdk-overlay-pane bit-dialog bit-tab-header [role="tab"] {
+  padding: 6px 16px !important;
+  border-radius: var(--fk-radius-full) !important;
+  transition:
+    background-color var(--fk-dur-fast, 150ms) var(--fk-ease, ease),
+    color var(--fk-dur-fast, 150ms) var(--fk-ease, ease) !important;
+}
+/* Drop the upstream underline indicator — the active pill replaces it. */
+.cdk-overlay-pane bit-dialog bit-tab-header [role="tab"]::after {
+  display: none !important;
+}
+.cdk-overlay-pane bit-dialog bit-tab-header [role="tab"][aria-selected="true"] {
+  background-color: var(--fk-card-bg) !important;
+  box-shadow: var(--fk-elev-xs), var(--fk-glass-highlight) !important;
+}
+.cdk-overlay-pane bit-dialog bit-tab-header [role="tab"]:not([aria-selected="true"]):hover {
+  background-color: var(--fk-selected-bg) !important;
+}
+
+/* --- Account switcher dropdown (sidebar footer) → frosted-glass panel that
+   matches the redesigned dialogs/overlays. Rendered in a CDK connected
+   overlay, so it lives under .cdk-overlay-pane. --- */
+.cdk-overlay-pane .account-switcher-dropdown {
+  border-radius: var(--fk-radius-lg) !important;
+  border: var(--fk-glass-border-strong) !important;
+  background-color: var(--fk-overlay-bg) !important;
+  backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  box-shadow: var(--fk-elev-panel), var(--fk-glass-highlight) !important;
+  overflow: hidden;
+  padding: 6px;
+}
+.cdk-overlay-pane .account-switcher-dropdown button {
+  border-radius: var(--fk-radius-md) !important;
+  transition: background-color var(--fk-dur-fast, 150ms) var(--fk-ease, ease) !important;
+}
+.cdk-overlay-pane .account-switcher-dropdown button:hover {
+  background-color: var(--fk-selected-bg) !important;
+}
+.cdk-overlay-pane .account-switcher-dropdown .border {
+  background: var(--color-border-base) !important;
+  opacity: 0.5;
+}
+
 /* --- Form inputs → rounded, themed, subtle glass (app-wide) --- */
 [bitFieldContainer] {
   border-radius: var(--fk-radius-md) !important;

@@ -30,7 +30,7 @@ the original encryption, sync, authentication, and **Vaultwarden** compatibility
 | Layer             | Location                                                                     | Purpose                                                                                                                                                          |
 |-------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Design system** | `libs/ui-kit` (`@klappstuhl/ui-kit`)                                         | Theme tokens + reusable primitives (button, copy-field, reveal-field, TOTP ring, strength meter).                                                                |
-| **Bridge**        | `libs/ui-bridge` (`@klappstuhl/ui-bridge`)                                   | The *only* fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock, password-strength into a presentation-friendly API. |
+| **Bridge**        | `libs/ui-bridge` (`@klappstuhl/ui-bridge`)                                   | The *only* fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock/biometric-unlock, password-strength into a presentation-friendly API. |
 | **App shell**     | `apps/desktop/src/app/redesign/`                                             | The redesigned vault UI (sidebar, split-pane list + detail, command palette). Mounted at `/redesign`, which **replaces** `/vault` for logged-in users.           |
 | **Spotlight**     | `apps/desktop/src/spotlight/` + `apps/desktop/src/main/quick-access.main.ts` | Standalone Quick Access window (see below).                                                                                                                      |
 | **Theme**         | `libs/ui-kit/src/theme/fork-theme.css` + `fork-overlays.css`                 | Reskins the whole app by overriding CSS token *values*; imported last in `apps/desktop/src/scss/tailwind.css`.                                                   |
@@ -45,20 +45,28 @@ Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
 - **Apple-style glass theme** — rounded surfaces, frosted/translucent panels,
   backdrop blur, soft layered shadows, and smooth motion, all driven by `--fk-*`
   design tokens. Dark-mode first, light mode supported.
+- **Thin, translucent scrollbars** app-wide (matching the spotlight), themed per
+  light/dark via `--fk-scrollbar-*` tokens.
 - **Sidebar** — translucent blurred nav with categories (All items, Logins, Cards,
   Identities, Secure notes, SSH keys, Favorites, Trash), Folders, and Collections;
-  a gradient **New Item** button; a **Tools** section (Generator, Import, Export);
-  and an **account-card footer** showing the account avatar **and name/email** next
-  to a settings button.
+  the **Bitwarden wordmark** logo; a gradient **New Item** button; a **Tools**
+  section (Generator, Import, Export); and an **account-card footer** showing the
+  account avatar **and name/email** next to a settings button. The redundant
+  custom title-bar strip was removed (the window keeps its native menu bar).
+- **Account switcher** — its dropdown opens **upward** (it lives in the sidebar
+  footer, so a downward panel spilled off-screen) and gets the frosted-glass
+  treatment.
 - **Split-pane** — instant-search item list (CDK virtual scroll, hover quick-copy)
   beside a **detail panel** that composes the ui-kit primitives.
 - **Detail panel** — copy/reveal fields, live TOTP countdown ring, an **inline
   password-strength tag** (Weak/Fair/Good/Strong) in the password row, combined
-  Website section, and **inline editing** (Edit → Save/Cancel) that persists through
+  Website section, a **favorite star** (gold, optimistic toggle that fills
+  instantly), and **inline editing** (Edit → Save/Cancel) that persists through
   the bridge.
 - **Dialog & input reskin** — both modern (`bit-dialog`) and legacy (`.modal-content`,
   e.g. Settings) dialogs get the frosted/rounded treatment, including inner sections,
-  native inputs, and buttons.
+  native inputs, and buttons. Dialog tab bars (e.g. the Settings tabs) render as a
+  rounded **segmented pill** control instead of the flat underline tabs.
 
 ### Interactions
 - **Command palette** — `Ctrl/Cmd+K` glassmorphic overlay with instant filter and
@@ -71,8 +79,13 @@ Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
 ### Quick Access spotlight (the headline feature)
 A separate **frameless, transparent, always-on-top** window summoned by a global
 **`Ctrl/Cmd+Shift+Space`** — *without* opening the main app (it just needs to be
-running, e.g. in the tray, and the vault unlocked).
+running, e.g. in the tray).
 
+- **Unlock from the spotlight.** If the vault is locked when you summon it, the
+  spotlight auto-prompts a **biometric unlock** (e.g. Windows Hello) and, on
+  success, drops straight into search — the main app window never opens. Unlock is
+  delegated entirely to the existing core services via the bridge; no crypto is
+  re-implemented, and the spotlight never sees secrets.
 - Instant vault search with **website favicons** (letter-avatar fallback).
 - **Enter** copies the password; **→** opens a per-item **submenu** of available
   actions (Copy username / password / 2FA code, and **Open & fill**), navigated with
@@ -170,8 +183,10 @@ After merging, run the **Vaultwarden acceptance test** in
 ---
 
 ## Known limitations
-- **Quick Access** requires the app to be running (tray/background) and the vault
-  unlocked; a global shortcut can't wake a fully-quit process.
+- **Quick Access** requires the app to be running (tray/background); a global
+  shortcut can't wake a fully-quit process. If the vault is locked it can unlock
+  in place via biometrics, but unlocking by other means (master password / PIN)
+  still needs the main app.
 - **Open & fill** = launch website + copy password to clipboard. True keystroke
   autofill into a third-party browser is the browser extension's job; the desktop
   app can't inject into another app's web page.

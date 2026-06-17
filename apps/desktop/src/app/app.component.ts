@@ -3,6 +3,7 @@
 import {
   Component,
   DestroyRef,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
@@ -78,6 +79,7 @@ import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-
 
 import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
 import { SettingsComponent } from "./accounts/settings.component";
+import { QuickAccessRendererService } from "./redesign/quick-access-renderer.service";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -139,6 +141,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  // FORK (klappstuhl): wired at the app root (not just the redesign shell) so the
+  // Quick Access spotlight can search/unlock even while the vault is locked and
+  // the shell isn't mounted.
+  private readonly quickAccess = inject(QuickAccessRendererService);
+
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
   constructor(
@@ -190,6 +197,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Idempotent — registers the spotlight IPC handlers regardless of lock state.
+    this.quickAccess.init();
+
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
       this.activeUserId = account?.id;
     });

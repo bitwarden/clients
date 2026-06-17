@@ -112,12 +112,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
           <div class="tw-flex tw-shrink-0 tw-items-center tw-gap-2">
             <button
               type="button"
-              class="tw-rounded-[var(--fk-radius-full)] tw-p-2.5"
+              class="tw-rounded-[var(--fk-radius-full)] tw-p-2.5 tw-text-fg-body-subtle"
               style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
-              [class.tw-text-fg-warning]="it.favorite"
-              [class.tw-text-fg-body-subtle]="!it.favorite"
-              [attr.aria-label]="it.favorite ? 'Remove from favorites' : 'Add to favorites'"
-              [attr.aria-pressed]="it.favorite"
+              [style.color]="isFavorite() ? 'var(--fk-accent-amber)' : null"
+              [attr.aria-label]="isFavorite() ? 'Remove from favorites' : 'Add to favorites'"
+              [attr.aria-pressed]="isFavorite()"
               (mouseenter)="$any($event.currentTarget).style.transform = 'scale(1.15)'"
               (mouseleave)="$any($event.currentTarget).style.transform = 'scale(1)'"
               (click)="onToggleFavorite()"
@@ -126,7 +125,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
-                [attr.fill]="it.favorite ? 'currentColor' : 'none'"
+                [attr.fill]="isFavorite() ? 'currentColor' : 'none'"
                 aria-hidden="true"
               >
                 <path
@@ -564,6 +563,14 @@ export class KlsDetailPanelComponent {
   protected readonly saving = signal(false);
   protected readonly draft = signal<Partial<ItemDetail>>({});
   protected readonly passwordRevealed = signal(false);
+  // Optimistic favorite state. The `item()` input is not refreshed by the
+  // toggle call, so without an override the star would never fill on click.
+  // `undefined` means "defer to the item's own value".
+  protected readonly favoriteOverride = signal<boolean | undefined>(undefined);
+
+  protected readonly isFavorite = computed(
+    () => this.favoriteOverride() ?? this.item()?.favorite ?? false,
+  );
 
   constructor() {
     effect(() => {
@@ -573,6 +580,7 @@ export class KlsDetailPanelComponent {
       }
       this.passwordRevealed.set(false);
       this.editing.set(false);
+      this.favoriteOverride.set(undefined);
       const content = (this.el.nativeElement as HTMLElement).querySelector(".detail-content");
       if (content) {
         content.classList.remove("detail-content");
@@ -659,9 +667,16 @@ export class KlsDetailPanelComponent {
 
   protected onToggleFavorite(): void {
     const id = this.item()?.id;
-    if (id) {
-      void this.vaultService.toggleFavorite(id);
+    if (!id) {
+      return;
     }
+    // Flip immediately for instant feedback, then persist. On failure, revert.
+    const next = !this.isFavorite();
+    this.favoriteOverride.set(next);
+    this.vaultService
+      .toggleFavorite(id)
+      .then(() => this.saved.emit())
+      .catch(() => this.favoriteOverride.set(!next));
   }
 
   protected onStartEdit(): void {

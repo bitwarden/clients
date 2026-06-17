@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { CopyBridgeService, VaultViewModelService } from "@klappstuhl/ui-bridge";
+import { CopyBridgeService, LockBridgeService, VaultViewModelService } from "@klappstuhl/ui-bridge";
 
 interface QuickAccessResult {
   id: string;
@@ -32,6 +32,11 @@ interface QuickAccessLabels {
   nothingToCopy: string;
 }
 
+interface QuickAccessLockState {
+  locked: boolean;
+  canBiometricUnlock: boolean;
+}
+
 interface QuickAccessBridge {
   onSearch: (cb: (query: string) => void) => () => void;
   sendResults: (results: QuickAccessResult[]) => void;
@@ -39,6 +44,9 @@ interface QuickAccessBridge {
   sendActions: (payload: { id: string; actions: QuickAccessActionOption[] }) => void;
   onActivate: (cb: (activation: QuickAccessActivation) => void) => () => void;
   sendLabels: (labels: QuickAccessLabels) => void;
+  onLockStateRequest: (cb: () => void) => () => void;
+  sendLockState: (state: QuickAccessLockState) => void;
+  onUnlockRequest: (cb: () => void) => () => void;
 }
 
 const MAX_RESULTS = 8;
@@ -49,13 +57,17 @@ const MAX_RESULTS = 8;
  * The decrypted vault lives here, so this service answers the spotlight's search
  * requests (returning display-only fields) and performs copies through the
  * existing CopyBridgeService (clipboard auto-clear, no secrets leave the
- * renderer). Wired up by injecting it from the redesign shell.
+ * renderer). Wired up from the app root (AppComponent) so it answers the
+ * spotlight even while the vault is locked and the redesign shell isn't mounted
+ * — that lets the spotlight trigger a biometric unlock without opening the app.
  */
 @Injectable({ providedIn: "root" })
 export class QuickAccessRendererService {
   private readonly vaultService = inject(VaultViewModelService);
   private readonly copyService = inject(CopyBridgeService);
+  private readonly lockService = inject(LockBridgeService);
   private initialized = false;
+  private bridge: QuickAccessBridge | null = null;
 
   /** Idempotent — safe to call from the shell constructor. */
   init(): void {
@@ -69,11 +81,45 @@ export class QuickAccessRendererService {
       return;
     }
     this.initialized = true;
+    this.bridge = bridge;
 
     bridge.onSearch((query) => bridge.sendResults(this.search(query)));
     bridge.onActionsRequest((id) => void this.sendActions(bridge, id));
     bridge.onActivate((activation) => void this.activate(activation));
+    bridge.onLockStateRequest(() => void this.sendLockState());
+    bridge.onUnlockRequest(() => void this.unlock());
     bridge.sendLabels(this.buildLabels());
+  }
+
+  /** Report whether the vault is locked (and if biometrics can unlock it). */
+  private async sendLockState(): Promise<void> {
+    if (this.bridge == null) {
+      return;
+    }
+    try {
+      const locked = await this.lockService.isLocked();
+      const canBiometricUnlock = locked ? await this.lockService.canUnlockWithBiometrics() : false;
+      this.bridge.sendLockState({ locked, canBiometricUnlock });
+    } catch {
+      this.bridge.sendLockState({ locked: false, canBiometricUnlock: false });
+    }
+  }
+
+  /** Trigger a biometric unlock (e.g. Windows Hello), then re-report state. */
+  private async unlock(): Promise<void> {
+    let unlocked = false;
+    try {
+      unlocked = await this.lockService.unlockWithBiometrics();
+    } catch {
+      unlocked = false;
+    }
+    // On success, report unlocked directly — the auth status stream may not have
+    // propagated yet, and re-deriving could briefly report a stale "locked".
+    if (unlocked) {
+      this.bridge?.sendLockState({ locked: false, canBiometricUnlock: false });
+    } else {
+      await this.sendLockState();
+    }
   }
 
   /** Translate with a fallback (i18n.t may return "" or the key when missing). */

@@ -86,6 +86,11 @@
   --fk-strength-strong: 22 163 74;
   --fk-totp-progress: 99 102 241;
 
+  /* Thin, translucent scrollbars (matches the spotlight). Light defaults; the
+     dark theme overrides these below. */
+  --fk-scrollbar-thumb: rgb(24 28 35 / 0.18);
+  --fk-scrollbar-thumb-hover: rgb(24 28 35 / 0.32);
+
   /* Accent color palette — used for badges, type indicators, and visual accents */
   --fk-accent-emerald: #10b981;
   --fk-accent-emerald-subtle: rgb(16 185 129 / 0.1);
@@ -196,6 +201,8 @@
   --fk-glass-border-strong: 1px solid rgb(255 255 255 / 0.12);
   --fk-glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   --fk-totp-progress: 129 140 248;
+  --fk-scrollbar-thumb: rgb(255 255 255 / 0.15);
+  --fk-scrollbar-thumb-hover: rgb(255 255 255 / 0.28);
 
   /* Accent color ramps for badges, indicators, and UI accents */
   --fk-accent-emerald: #34d399;
@@ -252,6 +259,36 @@ body {
 }
 
 /* ----------------------------------------------------------------------------
+ * Thin, translucent scrollbars across the whole app — same treatment as the
+ * spotlight panel. The 2px transparent border + padding-box clip floats a slim
+ * ~4px thumb inside the track so it reads light and unobtrusive.
+ * -------------------------------------------------------------------------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--fk-scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--fk-scrollbar-thumb);
+  border-radius: var(--fk-radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--fk-scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ----------------------------------------------------------------------------
  * Login / Lock page glassmorphism enhancements.
  * Override the landing card to match the frosted-glass aesthetic.
  * -------------------------------------------------------------------------- */
@@ -268,7 +305,8 @@ body {
 }
 
 .theme_dark bit-landing-layout {
-  background: radial-gradient(ellipse at 30% 20%, rgb(109 127 245 / 0.04), transparent 60%),
+  background:
+    radial-gradient(ellipse at 30% 20%, rgb(109 127 245 / 0.04), transparent 60%),
     radial-gradient(ellipse at 70% 80%, rgb(139 92 246 / 0.03), transparent 60%);
 }
 

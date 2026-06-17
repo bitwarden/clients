@@ -42,7 +42,7 @@
           sans-serif;
         -webkit-font-smoothing: antialiased;
         user-select: none;
-        padding: 8px;
+        padding: 20px;
       }
       .panel {
         background: var(--bg);
@@ -51,7 +51,8 @@
         border: 1px solid var(--border);
         border-radius: var(--radius);
         box-shadow:
-          0 24px 64px rgb(0 0 0 / 0.5),
+          0 8px 24px rgb(0 0 0 / 0.35),
+          0 2px 8px rgb(0 0 0 / 0.2),
           inset 0 1px 0 0 rgb(255 255 255 / 0.06);
         overflow: hidden;
       }
@@ -84,6 +85,21 @@
         list-style: none;
         max-height: 420px;
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgb(255 255 255 / 0.15) transparent;
+      }
+      .results::-webkit-scrollbar {
+        width: 4px;
+      }
+      .results::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .results::-webkit-scrollbar-thumb {
+        background: rgb(255 255 255 / 0.15);
+        border-radius: 4px;
+      }
+      .results::-webkit-scrollbar-thumb:hover {
+        background: rgb(255 255 255 / 0.25);
       }
       .results:not(:empty) {
         border-top: 1px solid var(--border);
@@ -246,6 +262,54 @@
         color: var(--fg-subtle);
         font-size: 13px;
       }
+      .locked {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 26px 20px 24px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+      }
+      .lock-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgb(109 127 245 / 0.25), rgb(109 127 245 / 0.1));
+        color: var(--brand);
+        border: 1px solid var(--border);
+      }
+      .lock-text {
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .unlock-btn {
+        -webkit-app-region: no-drag;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 2px;
+        padding: 9px 18px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--sel);
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .unlock-btn:hover {
+        background: rgb(109 127 245 / 0.28);
+      }
+      .unlock-btn[disabled] {
+        opacity: 0.6;
+        cursor: default;
+      }
     </style>
   </head>
   <body>
@@ -278,6 +342,43 @@
         <span class="name" id="submenuName"></span>
       </div>
       <ul id="results" class="results"></ul>
+      <div id="locked" class="locked" style="display: none">
+        <span class="lock-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect
+              x="4"
+              y="10"
+              width="16"
+              height="11"
+              rx="2"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </span>
+        <span class="lock-text" id="lockText">Vault locked</span>
+        <button id="unlockBtn" class="unlock-btn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M7 11V7a5 5 0 0 1 9.9-1"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <rect
+              x="4"
+              y="11"
+              width="16"
+              height="10"
+              rx="2"
+              stroke="currentColor"
+              stroke-width="2"
+            />
+          </svg>
+          <span id="unlockLabel">Unlock</span>
+        </button>
+      </div>
       <div id="hint" class="hint" style="display: none">
         <span><b>↵ Enter</b> <span id="lblCopyPassword">copy password</span></span>
         <span><b>→</b> <span id="lblMoreOptions">more options</span></span>
@@ -299,6 +400,10 @@
         var hintSub = document.getElementById("hintSub");
         var submenuHead = document.getElementById("submenuHead");
         var submenuName = document.getElementById("submenuName");
+        var lockedEl = document.getElementById("locked");
+        var lockText = document.getElementById("lockText");
+        var unlockBtn = document.getElementById("unlockBtn");
+        var unlockLabel = document.getElementById("unlockLabel");
 
         var mode = "list"; // "list" | "submenu"
         var items = [];
@@ -307,6 +412,11 @@
         var actions = [];
         var subSel = 0;
         var debounce;
+
+        // Lock state (vault locked → offer biometric unlock before searching).
+        var locked = false;
+        var unlocking = false;
+        var canBiometric = false;
 
         // Translated UI strings, pushed from the renderer (English defaults).
         var labels = {
@@ -318,6 +428,10 @@
           close: "close",
           noMatches: "No matches",
           nothingToCopy: "Nothing to copy",
+          lockedTitle: "Your vault is locked",
+          unlock: "Unlock",
+          unlocking: "Unlocking…",
+          unlockError: "Couldn't unlock. Try again.",
         };
 
         function setText(id, value) {
@@ -339,11 +453,14 @@
           setText("lblClose2", labels.close);
           setText("lblCopy", labels.copy);
           setText("lblBack", labels.back);
+          if (locked) {
+            renderLocked();
+          }
         }
 
         function syncHeight() {
-          // Let the window grow/shrink to fit content.
-          var h = document.querySelector(".panel").offsetHeight + 16;
+          // Let the window grow/shrink to fit content (body padding = 20px each side).
+          var h = document.querySelector(".panel").offsetHeight + 40;
           if (kls) {
             kls.resize(h);
           }
@@ -467,12 +584,47 @@
           syncHeight();
         }
 
+        function renderLocked() {
+          submenuHead.style.display = "none";
+          hint.style.display = "none";
+          hintSub.style.display = "none";
+          list.innerHTML = "";
+          list.style.display = "none";
+          lockText.textContent = labels.lockedTitle;
+          if (unlocking) {
+            unlockLabel.textContent = labels.unlocking;
+            unlockBtn.setAttribute("disabled", "");
+          } else {
+            unlockLabel.textContent = labels.unlock;
+            unlockBtn.removeAttribute("disabled");
+          }
+          // No biometrics available → keep the button visible as a manual retry
+          // but it still just asks the renderer to attempt an unlock.
+          lockedEl.style.display = "flex";
+          syncHeight();
+        }
+
         function render() {
+          if (locked) {
+            renderLocked();
+            return;
+          }
+          lockedEl.style.display = "none";
+          list.style.display = "";
           if (mode === "submenu") {
             renderSubmenu();
           } else {
             renderList();
           }
+        }
+
+        function tryUnlock() {
+          if (unlocking || !kls) {
+            return;
+          }
+          unlocking = true;
+          renderLocked();
+          kls.unlock();
         }
 
         function openSubmenu() {
@@ -504,7 +656,7 @@
         }
 
         input.addEventListener("input", function () {
-          if (mode === "submenu") {
+          if (locked || mode === "submenu") {
             return;
           }
           clearTimeout(debounce);
@@ -524,6 +676,14 @@
               kls.close();
             }
             e.preventDefault();
+            return;
+          }
+          if (locked) {
+            // While locked, Enter retries the biometric unlock; nothing else.
+            if (e.key === "Enter") {
+              tryUnlock();
+              e.preventDefault();
+            }
             return;
           }
           if (mode === "submenu") {
@@ -565,15 +725,40 @@
           }
         });
 
+        unlockBtn.addEventListener("click", function () {
+          tryUnlock();
+        });
+
+        function applyLockState(state) {
+          var nowLocked = !!(state && state.locked);
+          canBiometric = !!(state && state.canBiometricUnlock);
+          var wasLocked = locked;
+          locked = nowLocked;
+          if (!nowLocked) {
+            // Unlocked — drop straight into search.
+            unlocking = false;
+            render();
+            input.focus();
+            return;
+          }
+          render();
+          // Auto-prompt the OS unlock (e.g. Windows Hello) on first sight of a
+          // locked vault, when biometrics can satisfy it.
+          if (!wasLocked && canBiometric && !unlocking) {
+            tryUnlock();
+          }
+        }
+
         if (kls) {
           kls.onResults(function (next) {
-            if (mode === "submenu") {
+            if (locked || mode === "submenu") {
               return;
             }
             items = Array.isArray(next) ? next : [];
             sel = 0;
             render();
           });
+          kls.onLockState(applyLockState);
           kls.onActions(function (payload) {
             if (mode !== "submenu" || !subItem || !payload || payload.id !== subItem.id) {
               return;
@@ -589,10 +774,16 @@
             input.value = "";
             items = [];
             sel = 0;
+            unlocking = false;
             render();
             input.focus();
+            // Re-check lock state each time the spotlight is summoned.
+            kls.requestLockState();
           });
           kls.onLabels(applyLabels);
+          // Initial lock-state probe (covers the case where the window is summoned
+          // for the very first time).
+          kls.requestLockState();
         }
 
         input.focus();

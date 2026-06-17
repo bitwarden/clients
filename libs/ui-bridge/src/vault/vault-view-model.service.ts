@@ -229,12 +229,12 @@ export class VaultViewModelService implements VaultViewModel {
     }
 
     cipher.name = detail.title;
-    cipher.notes = detail.notes ?? null;
+    cipher.notes = detail.notes ?? undefined;
     cipher.favorite = detail.favorite;
 
     if (cipher.login && cipher.type === CipherType.Login) {
-      cipher.login.username = detail.username ?? null;
-      cipher.login.password = detail.password ?? null;
+      cipher.login.username = detail.username ?? undefined;
+      cipher.login.password = detail.password ?? undefined;
       if (detail.uris) {
         cipher.login.uris = detail.uris
           .filter((u) => !!u)

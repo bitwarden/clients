@@ -16,7 +16,7 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
     "[style.border-right]": "'var(--fk-glass-border)'",
   },
   template: `
-    <div class="tw-p-3 tw-pb-2">
+    <div class="tw-p-4 tw-pb-2">
       <div class="tw-relative">
         <span
           class="tw-pointer-events-none tw-absolute tw-left-3.5 tw-top-1/2 tw--translate-y-1/2 tw-text-fg-body-subtle"
@@ -38,8 +38,12 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
     </div>
 
     @if (items().length > 0) {
-      <cdk-virtual-scroll-viewport [itemSize]="64" class="tw-flex-1 tw-px-3 tw-pb-2">
-        <div *cdkVirtualFor="let item of items(); trackBy: trackById" class="tw-py-1">
+      <cdk-virtual-scroll-viewport [itemSize]="64" class="tw-flex-1">
+        <div
+          *cdkVirtualFor="let item of items(); trackBy: trackById"
+          class="tw-py-1"
+          style="padding-left: 1rem; padding-right: 1rem"
+        >
           <button
             type="button"
             class="tw-group tw-relative tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-lg)] tw-p-3 tw-text-left focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
@@ -160,7 +164,7 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
       </cdk-virtual-scroll-viewport>
     } @else {
       <div
-        class="tw-flex tw-flex-1 tw-items-center tw-justify-center tw-px-3 tw-py-12 tw-text-center tw-text-[13px] tw-text-fg-body-subtle"
+        class="tw-flex tw-flex-1 tw-items-center tw-justify-center tw-px-4 tw-py-12 tw-text-center tw-text-[13px] tw-text-fg-body-subtle"
       >
         {{ i18n.t('noItemsInList') || 'No items found.' }}
       </div>

@@ -30,4 +30,11 @@ contextBridge.exposeInMainWorld("kls", {
   activate: (id, action) => ipcRenderer.send("kls-spotlight:activate", { id, action }),
   close: () => ipcRenderer.send("kls-spotlight:close"),
   resize: (height) => ipcRenderer.send("kls-spotlight:resize", height),
+  requestLockState: () => ipcRenderer.send("kls-spotlight:lock-state-request"),
+  onLockState: (cb) => {
+    const handler = (_event, state) => cb(state);
+    ipcRenderer.on("kls-spotlight:lock-state", handler);
+    return () => ipcRenderer.removeListener("kls-spotlight:lock-state", handler);
+  },
+  unlock: () => ipcRenderer.send("kls-spotlight:unlock"),
 });

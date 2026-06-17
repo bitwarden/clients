@@ -75,10 +75,21 @@ export class AccountSwitcherV2Component implements OnInit {
   isOpen = false;
   overlayPosition: ConnectedPosition[] = [
     {
-      originX: "end",
+      // Open upward: the switcher lives in the sidebar footer, so a downward
+      // panel would spill past the bottom edge of the window.
+      originX: "start",
+      originY: "top",
+      overlayX: "start",
+      overlayY: "bottom",
+      offsetY: -8,
+    },
+    {
+      // Fallback to downward if there isn't enough room above the trigger.
+      originX: "start",
       originY: "bottom",
-      overlayX: "end",
+      overlayX: "start",
       overlayY: "top",
+      offsetY: 8,
     },
   ];
 

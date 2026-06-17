@@ -101,12 +101,6 @@ const CIPHER_TYPE_BY_CATEGORY: Record<string, CipherType> = {
     `,
   ],
   template: `
-    <!-- Window drag region (blends with native menu bar) -->
-    <div
-      class="tw-flex tw-h-8 tw-w-full tw-shrink-0 tw-items-center tw-justify-end tw-px-3"
-      style="-webkit-app-region: drag; background-color: var(--fk-sidebar-bg); border-bottom: var(--fk-glass-border)"
-    ></div>
-
     <div class="tw-flex tw-min-h-0 tw-flex-1">
       <kls-sidebar-nav
         [items]="navItems()"
