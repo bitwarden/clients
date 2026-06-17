@@ -16,7 +16,7 @@ export interface QuickAccessResult {
   iconUrl?: string;
 }
 
-export type QuickAccessAction = "password" | "username" | "totp";
+export type QuickAccessAction = "password" | "username" | "totp" | "openfill";
 
 export interface QuickAccessActivation {
   id: string;

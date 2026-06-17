@@ -9,7 +9,7 @@ interface QuickAccessResult {
   iconUrl?: string;
 }
 
-type QuickAccessAction = "password" | "username" | "totp";
+type QuickAccessAction = "password" | "username" | "totp" | "openfill";
 
 interface QuickAccessActivation {
   id: string;
@@ -76,6 +76,9 @@ export class QuickAccessRendererService {
       if (detail.totpAvailable) {
         actions.push({ action: "totp", label: "Copy 2FA code" });
       }
+      if (detail.uris && detail.uris.length > 0) {
+        actions.push({ action: "openfill", label: "Open & fill" });
+      }
     } catch {
       // Item vanished or failed to decrypt — send whatever we have (possibly empty).
     }
@@ -110,6 +113,9 @@ export class QuickAccessRendererService {
         break;
       case "totp":
         await this.copyService.copyTotp(activation.id);
+        break;
+      case "openfill":
+        await this.copyService.openAndFill(activation.id);
         break;
       default:
         await this.copyService.copyPassword(activation.id);
