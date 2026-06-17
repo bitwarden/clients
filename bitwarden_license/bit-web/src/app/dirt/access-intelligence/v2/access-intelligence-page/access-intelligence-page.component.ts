@@ -27,7 +27,6 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
   MemberRegistryEntryView,
-  ApplicationHealthView,
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -424,7 +423,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return {
       type: DrawerType.AppAtRiskMembers,
       applicationName: app.applicationName,
-      members: this.mapMembersToDrawerData(members, report, app),
+      members: this.mapMembersToDrawerData(members, report),
     };
   }
 
@@ -463,7 +462,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         email: member.email,
         userName: member.userName ?? "",
         userGuid: member.id,
-        atRiskPasswordCount: report.getCriticalAtRiskPasswordCountForMember(member.id),
+        atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id, {
+          criticalOnly: true,
+        }),
       })),
     };
   }
@@ -487,15 +488,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private mapMembersToDrawerData(
     members: MemberRegistryEntryView[],
     report: AccessReportView,
-    app?: ApplicationHealthView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
       userName: member.userName ?? "",
       userGuid: member.id,
-      atRiskPasswordCount:
-        app?.getAtRiskPasswordCountForMember(member.id) ??
-        report.getAtRiskPasswordCountForMember(member.id),
+      atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id),
     }));
   }
 

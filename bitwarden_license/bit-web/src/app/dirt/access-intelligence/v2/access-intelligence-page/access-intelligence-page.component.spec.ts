@@ -372,12 +372,16 @@ describe("AccessIntelligencePageComponent", () => {
       expect(content).toBeNull();
     });
 
-    it("should derive OrgAtRiskMembers content", () => {
-      const content = component["getOrgAtRiskMembersContent"](testReport);
+    it("should derive OrgAtRiskMembers content with each member's at-risk application count", () => {
+      const content = component["getOrgAtRiskMembersContent"](testReport) as OrgAtRiskMembersData;
 
-      expect(content).toBeDefined();
-      expect((content as OrgAtRiskMembersData).type).toBe(DrawerType.OrgAtRiskMembers);
-      expect((content as OrgAtRiskMembersData).members.length).toBeGreaterThan(0);
+      expect(content.type).toBe(DrawerType.OrgAtRiskMembers);
+      // u1 (Alice) is at-risk in github.com; u2 (Bob) is at-risk in gitlab.com — one at-risk app each.
+      expect(content.members).toHaveLength(2);
+      const alice = content.members.find((m) => m.email === "alice@example.com");
+      const bob = content.members.find((m) => m.email === "bob@example.com");
+      expect(alice?.atRiskApplicationCount).toBe(1);
+      expect(bob?.atRiskApplicationCount).toBe(1);
     });
 
     it("should derive OrgAtRiskApps content", () => {
@@ -388,12 +392,16 @@ describe("AccessIntelligencePageComponent", () => {
       expect((content as OrgAtRiskAppsData).applications).toHaveLength(2); // Both apps have at-risk passwords
     });
 
-    it("should derive CriticalAtRiskMembers content", () => {
-      const content = component["getCriticalAtRiskMembersContent"](testReport);
+    it("should derive CriticalAtRiskMembers content counting only critical at-risk applications", () => {
+      const content = component["getCriticalAtRiskMembersContent"](
+        testReport,
+      ) as CriticalAtRiskMembersData;
 
-      expect(content).toBeDefined();
-      expect((content as CriticalAtRiskMembersData).type).toBe(DrawerType.CriticalAtRiskMembers);
-      expect((content as CriticalAtRiskMembersData).members.length).toBeGreaterThan(0);
+      expect(content.type).toBe(DrawerType.CriticalAtRiskMembers);
+      // Only github.com is critical, and u1 (Alice) is its only at-risk member.
+      expect(content.members).toHaveLength(1);
+      expect(content.members[0].email).toBe("alice@example.com");
+      expect(content.members[0].atRiskApplicationCount).toBe(1);
     });
 
     it("should derive CriticalAtRiskApps content", () => {
@@ -407,10 +415,12 @@ describe("AccessIntelligencePageComponent", () => {
       );
     });
 
-    it("should use view model method for member password counts", () => {
+    it("should use view model method for member at-risk application counts", () => {
       const content = component["getAppAtRiskMembersContent"](testReport, "github.com");
 
-      expect((content as AppAtRiskMembersData).members[0].atRiskPasswordCount).toBeGreaterThan(0);
+      expect((content as AppAtRiskMembersData).members[0].atRiskApplicationCount).toBeGreaterThan(
+        0,
+      );
     });
   });
 
