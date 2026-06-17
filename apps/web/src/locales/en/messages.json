@@ -9845,6 +9845,9 @@
   "newDomain": {
     "message": "New domain"
   },
+  "addDomain": {
+    "message": "Add domain"
+  },
   "noDomains": {
     "message": "No domains"
   },
