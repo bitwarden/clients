@@ -3,20 +3,8 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="
-    policySteps()[currentStep()]?.titleContent?.()
-      ? undefined
-      : policy.showEnabledBadge
-        ? (policy.name | i18n)
-        : ('editPolicy' | i18n)
-  "
-  [subtitle]="
-    policySteps()[currentStep()]?.titleContent?.()
-      ? undefined
-      : policy.showEnabledBadge
-        ? undefined
-        : (policy.name | i18n)
-  "
+  [title]="dialogTitle()"
+  [subtitle]="dialogSubtitle()"
 >
   <ng-container bitDialogTitle>
     @let title = policySteps()[currentStep()]?.titleContent?.();
