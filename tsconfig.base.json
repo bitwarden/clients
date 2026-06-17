@@ -34,6 +34,8 @@
       "@bitwarden/common/spec": ["./libs/common/spec"],
       "@bitwarden/common/*": ["./libs/common/src/*"],
       "@bitwarden/components": ["./libs/components/src"],
+      "@klappstuhl/ui-kit": ["./libs/ui-kit/src"],
+      "@klappstuhl/ui-bridge": ["./libs/ui-bridge/src"],
       "@bitwarden/core-test-utils": ["./libs/core-test-utils/src/index.ts"],
       "@bitwarden/dirt-card": ["./libs/dirt/card/src"],
       "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],

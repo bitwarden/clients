@@ -1,1 +1,6 @@
 @import "../../../../libs/components/src/tw-theme.css";
+
+/* FORK (klappstuhl): premium theme override — MUST stay last so it wins over the
+ * upstream token values above. Reskins the whole app via CSS custom properties
+ * without touching any upstream file. See docs/ui-redesign/02-DESIGN-SYSTEM.md */
+@import "../../../../libs/ui-kit/src/theme/fork-theme.css";

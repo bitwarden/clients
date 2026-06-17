@@ -1,0 +1,104 @@
+# FORK (klappstuhl) — additive release pipeline for the redesigned desktop client.
+# This file is NEW and fork-specific. It does NOT modify upstream's signed
+# build-desktop.yml, so `git merge upstream` stays clean.
+#
+# Triggers on fork UI tags only (vYYYY.M.P-ui). Produces UNSIGNED artifacts for
+# Windows / macOS / Linux and attaches them to a GitHub Release.
+# Code signing is intentionally disabled so a fork builds out-of-the-box; add
+# CSC_* / APPLE_* secrets + a signing step later if you distribute publicly.
+name: Release UI Fork (Desktop)
+
+on:
+  push:
+    tags:
+      - "v*-ui"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # create the GitHub Release
+
+env:
+  NODE_VERSION: "22.12.0"
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            eb_args: "--win nsis --x64"
+            artifacts: "apps/desktop/dist/*.exe"
+          - os: macos-latest
+            eb_args: "--mac dmg zip --x64 --arm64"
+            artifacts: |
+              apps/desktop/dist/*.dmg
+              apps/desktop/dist/*.zip
+          - os: ubuntu-latest
+            eb_args: "--linux AppImage deb --x64"
+            artifacts: |
+              apps/desktop/dist/*.AppImage
+              apps/desktop/dist/*.deb
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Set up Rust (desktop_native NAPI)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Linux build deps
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev
+
+      - name: Install workspace deps
+        run: npm ci
+
+      - name: Build native module (Rust NAPI)
+        working-directory: apps/desktop
+        run: npm run build-native
+
+      - name: Build renderer + main + preload (webpack)
+        working-directory: apps/desktop
+        run: npm run build
+
+      - name: Package (electron-builder, unsigned)
+        working-directory: apps/desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false" # no mac auto-signing on forks
+        # Explicit CLI targets override snap/flatpak targets in electron-builder.json,
+        # so plain GitHub runners don't need snapcraft/flatpak tooling.
+        run: npx electron-builder ${{ matrix.eb_args }} -p never
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ runner.os }}
+          path: ${{ matrix.artifacts }}
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Klappstuhl Pass ${{ github.ref_name }}"
+          body: |
+            Modern UI fork build (unsigned).
+            Core, crypto, sync, and Vaultwarden compatibility are unchanged from upstream Bitwarden.
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') }}
+          files: artifacts/**/*

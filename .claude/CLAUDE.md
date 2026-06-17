@@ -1,5 +1,24 @@
 # Bitwarden Clients - Claude Code Configuration
 
+## ⚡ FORK NOTICE — Klappstuhl Pass UI Redesign
+
+This is the **klappstuhlpy/clients** fork. Active project: a premium
+1Password/Proton-Pass-grade **UI redesign of the Angular desktop client**, with
+crypto/sync/auth/Vaultwarden compatibility kept **100% intact**.
+
+**Before doing any UI work, read [`docs/ui-redesign/README.md`](../docs/ui-redesign/README.md)**
+(the full plan: architecture, design system, task checklist, CI/CD, risks).
+
+Non-negotiable fork rules:
+- **Do NOT** modify encryption, key management, auth, sync, or API payloads. No
+  edits to `libs/common`, `libs/key-management`, `libs/auth`, `apps/desktop/desktop_native`.
+- All new UI lives in `@klappstuhl/ui-kit` (design system) and
+  `@klappstuhl/ui-bridge` (the only fork lib allowed to import core).
+- **No React rewrite** — stay Angular to keep upstream merges possible.
+- Reskin via `libs/ui-kit/src/theme/fork-theme.css` (overrides token *values*,
+  imported last); never edit upstream `libs/components/src/tw-theme.css`.
+- See [`.claude/rules/ui-redesign.md`](./rules/ui-redesign.md).
+
 ## Project Context Files
 
 **Read these files before reviewing to ensure that you fully understand the project and contributing guidelines**

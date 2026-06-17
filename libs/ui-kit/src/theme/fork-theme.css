@@ -1,0 +1,171 @@
+/* =============================================================================
+ * @klappstuhl/ui-kit — FORK THEME OVERRIDE
+ * -----------------------------------------------------------------------------
+ * Premium 1Password / Proton Pass inspired look. Dark-mode first.
+ *
+ * HOW THIS WORKS (and why it is upstream-merge-safe):
+ *   The upstream Bitwarden theme defines design tokens as CSS custom properties
+ *   under :root, .theme_light and .theme_dark (libs/components/src/tw-theme.css).
+ *   Tailwind utilities consume them via rgb(var(--color-*) / <alpha>).
+ *   We DO NOT edit that file. We import THIS file *after* it (see
+ *   apps/desktop/src/scss/tailwind.css) and re-declare the same variable names.
+ *   Later declaration + equal specificity wins, so the whole app reskins with
+ *   ZERO logic changes and ZERO conflicts on upstream merges.
+ *
+ *   Legacy color vars are SPACE-SEPARATED RGB TRIPLETS (e.g. "13 15 18"),
+ *   because they are wrapped in rgb(var(--x) / <alpha-value>). Keep that format.
+ *
+ * To retune the look: change values here only. Never touch upstream tw-theme.css.
+ * Token catalogue & rationale: ./tokens.md
+ * ========================================================================== */
+
+/* ----------------------------------------------------------------------------
+ * FORK-NAMESPACED TOKENS (--fk-*)
+ * New tokens our redesigned components use. Namespaced so they can never collide
+ * with an upstream token of the same purpose.
+ * -------------------------------------------------------------------------- */
+:root {
+  /* Spacing scale (4px base) — mirrors libs/ui-kit/src/theme/tokens.ts */
+  --fk-space-1: 4px;
+  --fk-space-2: 8px;
+  --fk-space-3: 12px;
+  --fk-space-4: 16px;
+  --fk-space-5: 20px;
+  --fk-space-6: 24px;
+  --fk-space-8: 32px;
+  --fk-space-10: 40px;
+  --fk-space-12: 48px;
+  --fk-space-16: 64px;
+
+  /* Radii */
+  --fk-radius-sm: 6px;
+  --fk-radius-md: 10px;
+  --fk-radius-lg: 14px;
+  --fk-radius-xl: 20px;
+  --fk-radius-full: 9999px;
+
+  /* Depth: blur for chrome/overlays + layered elevation shadows */
+  --fk-blur-chrome: 20px;
+  --fk-blur-overlay: 28px;
+  --fk-elev-xs: 0 1px 2px rgb(0 0 0 / 0.25);
+  --fk-elev-sm: 0 2px 6px rgb(0 0 0 / 0.30);
+  --fk-elev-md: 0 8px 24px rgb(0 0 0 / 0.35);
+  --fk-elev-panel: 0 16px 48px rgb(0 0 0 / 0.45);
+
+  /* Motion */
+  --fk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fk-dur-fast: 120ms;
+  --fk-dur-base: 200ms;
+  --fk-dur-slow: 320ms;
+
+  /* Type scale */
+  --fk-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --fk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* Component-level fork tokens (resolved per-theme below) */
+  --fk-sidebar-bg: rgb(255 255 255 / 0.6);
+  --fk-overlay-bg: rgb(255 255 255 / 0.75);
+  --fk-strength-weak: 220 38 38;
+  --fk-strength-medium: 217 119 6;
+  --fk-strength-strong: 22 163 74;
+  --fk-totp-progress: 109 140 248;
+}
+
+/* ----------------------------------------------------------------------------
+ * DARK THEME (primary) — refined near-black slate, indigo accent.
+ * -------------------------------------------------------------------------- */
+.theme_dark {
+  /* Backgrounds */
+  --color-background: 13 15 18; /* app shell  #0D0F12 */
+  --color-background-alt: 21 24 28; /* panels     #15181C */
+  --color-background-alt2: 109 140 248; /* brand fill */
+  --color-background-alt3: 79 105 214;
+  --color-background-alt4: 30 41 99;
+
+  --color-bg-primary: 13 15 18;
+  --color-bg-secondary: 21 24 28;
+  --color-bg-tertiary: 28 32 38;
+  --color-bg-quaternary: 36 41 49;
+
+  /* Brand / accent (indigo) */
+  --color-primary-100: 30 35 60;
+  --color-primary-300: 79 105 214;
+  --color-primary-500: 109 140 248;
+  --color-primary-600: 129 156 250;
+  --color-primary-700: 165 184 252;
+
+  /* Neutrals for secondary surfaces/text */
+  --color-secondary-100: 28 32 38;
+  --color-secondary-300: 55 62 73;
+  --color-secondary-500: 90 100 116;
+  --color-secondary-600: 120 131 148;
+  --color-secondary-700: 160 170 185;
+
+  /* Text */
+  --color-text-main: 233 236 240;
+  --color-text-muted: 148 158 173;
+  --color-text-contrast: 13 15 18;
+  --color-text-alt2: 233 236 240;
+  --color-text-code: 129 156 250;
+
+  /* Status (slightly desaturated for dark comfort) */
+  --color-success-600: 34 197 94;
+  --color-warning-600: 245 158 11;
+  --color-danger-600: 248 113 113;
+  --color-info-600: 129 156 250;
+
+  --color-shadow: 0 0 0;
+  --color-hover-default: rgb(255 255 255 / 0.06);
+  --color-hover-contrast: rgb(255 255 255 / 0.12);
+  --tw-ring-offset-color: #0d0f12;
+
+  /* Fork component tokens (translucent for blur/depth) */
+  --fk-sidebar-bg: rgb(18 21 25 / 0.72);
+  --fk-overlay-bg: rgb(18 21 25 / 0.85);
+  --fk-totp-progress: 109 140 248;
+}
+
+/* ----------------------------------------------------------------------------
+ * LIGHT THEME (optional, polished — not just inverted)
+ * -------------------------------------------------------------------------- */
+.theme_light {
+  --color-background: 250 251 252;
+  --color-background-alt: 255 255 255;
+
+  --color-bg-primary: 250 251 252;
+  --color-bg-secondary: 255 255 255;
+  --color-bg-tertiary: 243 245 248;
+  --color-bg-quaternary: 235 238 242;
+
+  --color-primary-500: 79 105 214;
+  --color-primary-600: 66 90 196;
+  --color-primary-700: 49 68 160;
+
+  --color-text-main: 24 28 35;
+  --color-text-muted: 96 109 130;
+
+  --color-hover-default: rgb(24 28 35 / 0.05);
+
+  --fk-sidebar-bg: rgb(255 255 255 / 0.68);
+  --fk-overlay-bg: rgb(255 255 255 / 0.82);
+}
+
+/* ----------------------------------------------------------------------------
+ * Base typography + smoothing for the redesigned shell.
+ * -------------------------------------------------------------------------- */
+html,
+body {
+  font-family: var(--fk-font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fk-dur-fast: 0ms;
+    --fk-dur-base: 0ms;
+    --fk-dur-slow: 0ms;
+  }
+}

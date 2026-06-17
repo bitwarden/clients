@@ -1,0 +1,27 @@
+{
+  "name": "@klappstuhl/ui-bridge",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui-bridge/src",
+  "projectType": "library",
+  "tags": ["scope:fork-ui", "type:bridge"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-script",
+      "dependsOn": [],
+      "options": { "script": "build" }
+    },
+    "build:watch": {
+      "executor": "nx:run-script",
+      "options": { "script": "build:watch" }
+    },
+    "clean": {
+      "executor": "nx:run-script",
+      "options": { "script": "clean" }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": { "lintFilePatterns": ["libs/ui-bridge/**/*.ts"] }
+    }
+  }
+}

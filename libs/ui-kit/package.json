@@ -1,0 +1,18 @@
+{
+  "name": "@klappstuhl/ui-kit",
+  "version": "0.0.0",
+  "description": "FORK (klappstuhl): Premium UI design system (tokens, theme, primitives) for the redesigned desktop client. Contains NO crypto, sync, or API logic. See docs/ui-redesign/.",
+  "keywords": ["klappstuhl", "ui", "design-system"],
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./theme": "./src/theme/fork-theme.css"
+  }
+}

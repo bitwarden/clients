@@ -1,0 +1,17 @@
+{
+  "name": "@klappstuhl/ui-bridge",
+  "version": "0.0.0",
+  "description": "FORK (klappstuhl): The ONLY seam between the redesigned UI and untouched Bitwarden core. Wraps @bitwarden/* services and exposes safe, decrypted-at-the-edge view-models. No crypto/sync re-implementation. See docs/ui-redesign/01-ARCHITECTURE.md.",
+  "keywords": ["klappstuhl", "ui", "bridge", "adapter"],
+  "license": "GPL-3.0",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  }
+}
