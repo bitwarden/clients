@@ -15,9 +15,21 @@ export interface QuickAccessResult {
   kind: string;
 }
 
+export type QuickAccessAction = "password" | "username" | "totp";
+
 export interface QuickAccessActivation {
   id: string;
-  action: "password" | "username" | "totp";
+  action: QuickAccessAction;
+}
+
+export interface QuickAccessActionOption {
+  action: QuickAccessAction;
+  label: string;
+}
+
+export interface QuickAccessActions {
+  id: string;
+  actions: QuickAccessActionOption[];
 }
 
 const klsQuickAccess = {
@@ -30,6 +42,16 @@ const klsQuickAccess = {
   /** Send computed results back to the spotlight. */
   sendResults: (results: QuickAccessResult[]): void => {
     ipcRenderer.send("kls-qa:results", results);
+  },
+  /** Register a handler for "what copyable fields does this item have?" requests. */
+  onActionsRequest: (cb: (id: string) => void): (() => void) => {
+    const handler = (_event: unknown, id: string) => cb(id);
+    ipcRenderer.on("kls-qa:actions-request", handler);
+    return () => ipcRenderer.removeListener("kls-qa:actions-request", handler);
+  },
+  /** Send the available actions for an item back to the spotlight. */
+  sendActions: (actions: QuickAccessActions): void => {
+    ipcRenderer.send("kls-qa:actions", actions);
   },
   /** Register a handler for "activate this item" requests from the spotlight. */
   onActivate: (cb: (activation: QuickAccessActivation) => void): (() => void) => {

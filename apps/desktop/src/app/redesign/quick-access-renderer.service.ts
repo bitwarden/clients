@@ -8,14 +8,23 @@ interface QuickAccessResult {
   kind: string;
 }
 
+type QuickAccessAction = "password" | "username" | "totp";
+
 interface QuickAccessActivation {
   id: string;
-  action: "password" | "username" | "totp";
+  action: QuickAccessAction;
+}
+
+interface QuickAccessActionOption {
+  action: QuickAccessAction;
+  label: string;
 }
 
 interface QuickAccessBridge {
   onSearch: (cb: (query: string) => void) => () => void;
   sendResults: (results: QuickAccessResult[]) => void;
+  onActionsRequest: (cb: (id: string) => void) => () => void;
+  sendActions: (payload: { id: string; actions: QuickAccessActionOption[] }) => void;
   onActivate: (cb: (activation: QuickAccessActivation) => void) => () => void;
 }
 
@@ -49,7 +58,27 @@ export class QuickAccessRendererService {
     this.initialized = true;
 
     bridge.onSearch((query) => bridge.sendResults(this.search(query)));
+    bridge.onActionsRequest((id) => void this.sendActions(bridge, id));
     bridge.onActivate((activation) => void this.activate(activation));
+  }
+
+  private async sendActions(bridge: QuickAccessBridge, id: string): Promise<void> {
+    const actions: QuickAccessActionOption[] = [];
+    try {
+      const detail = await this.vaultService.getDetail(id);
+      if (detail.username) {
+        actions.push({ action: "username", label: "Copy username" });
+      }
+      if (detail.password) {
+        actions.push({ action: "password", label: "Copy password" });
+      }
+      if (detail.totpAvailable) {
+        actions.push({ action: "totp", label: "Copy 2FA code" });
+      }
+    } catch {
+      // Item vanished or failed to decrypt — send whatever we have (possibly empty).
+    }
+    bridge.sendActions({ id, actions });
   }
 
   private search(query: string): QuickAccessResult[] {

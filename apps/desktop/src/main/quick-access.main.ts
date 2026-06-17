@@ -95,7 +95,9 @@ export class QuickAccessMain {
       fullscreenable: false,
       minimizable: false,
       maximizable: false,
-      hasShadow: true,
+      // The panel draws its own rounded CSS shadow; a native window shadow on a
+      // transparent window renders as an off-looking rectangle behind it.
+      hasShadow: false,
       webPreferences: {
         preload: path.join(__dirname, "spotlight", "spotlight-preload.js"),
         contextIsolation: true,
@@ -144,6 +146,18 @@ export class QuickAccessMain {
     ipcMain.on("kls-qa:results", (_event, items: unknown) => {
       if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
         this.spotlightWindow.webContents.send("kls-spotlight:results", items);
+      }
+    });
+
+    // Spotlight asks which copyable fields an item has (for the submenu).
+    ipcMain.on("kls-spotlight:actions-request", (_event, id: string) => {
+      this.mainWebContents?.send("kls-qa:actions-request", id);
+    });
+
+    // Renderer returns the available actions to the spotlight.
+    ipcMain.on("kls-qa:actions", (_event, payload: unknown) => {
+      if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
+        this.spotlightWindow.webContents.send("kls-spotlight:actions", payload);
       }
     });
 

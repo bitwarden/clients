@@ -8,7 +8,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;"
+    />
     <style>
       :root {
         --bg: rgb(16 18 22 / 0.82);
@@ -19,10 +22,24 @@
         --sel: rgb(109 127 245 / 0.18);
         --radius: 20px;
       }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { background: transparent; overflow: hidden; height: 100%; }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
       body {
-        font-family: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+        background: transparent;
+        overflow: hidden;
+        height: 100%;
+      }
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          "Segoe UI",
+          system-ui,
+          sans-serif;
         -webkit-font-smoothing: antialiased;
         user-select: none;
         padding: 8px;
@@ -33,7 +50,9 @@
         backdrop-filter: blur(40px) saturate(1.6);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        box-shadow: 0 24px 64px rgb(0 0 0 / 0.5), inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+        box-shadow:
+          0 24px 64px rgb(0 0 0 / 0.5),
+          inset 0 1px 0 0 rgb(255 255 255 / 0.06);
         overflow: hidden;
       }
       .search {
@@ -44,7 +63,10 @@
         height: 64px;
         -webkit-app-region: drag;
       }
-      .search svg { flex: 0 0 auto; color: var(--fg-subtle); }
+      .search svg {
+        flex: 0 0 auto;
+        color: var(--fg-subtle);
+      }
       .search input {
         -webkit-app-region: no-drag;
         flex: 1 1 auto;
@@ -55,9 +77,18 @@
         font-size: 18px;
         font-weight: 500;
       }
-      .search input::placeholder { color: var(--fg-subtle); }
-      .results { list-style: none; max-height: 420px; overflow-y: auto; }
-      .results:not(:empty) { border-top: 1px solid var(--border); padding: 6px; }
+      .search input::placeholder {
+        color: var(--fg-subtle);
+      }
+      .results {
+        list-style: none;
+        max-height: 420px;
+        overflow-y: auto;
+      }
+      .results:not(:empty) {
+        border-top: 1px solid var(--border);
+        padding: 6px;
+      }
       .row {
         display: flex;
         align-items: center;
@@ -66,24 +97,104 @@
         border-radius: 12px;
         cursor: pointer;
       }
-      .row.sel { background: var(--sel); }
+      .row.sel {
+        background: var(--sel);
+      }
       .avatar {
         flex: 0 0 auto;
-        width: 32px; height: 32px;
+        width: 32px;
+        height: 32px;
         border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: linear-gradient(135deg, rgb(109 127 245 / 0.25), rgb(109 127 245 / 0.1));
         color: var(--brand);
-        font-weight: 700; font-size: 14px;
+        font-weight: 700;
+        font-size: 14px;
         border: 1px solid var(--border);
       }
-      .meta { flex: 1 1 auto; min-width: 0; }
-      .title { color: var(--fg); font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .sub { color: var(--fg-subtle); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .kind { flex: 0 0 auto; color: var(--fg-subtle); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
-      .hint { display: flex; gap: 16px; padding: 8px 16px; border-top: 1px solid var(--border); color: var(--fg-subtle); font-size: 11px; }
-      .hint b { color: var(--fg); font-weight: 600; }
-      .empty { padding: 16px 20px; color: var(--fg-subtle); font-size: 13px; }
+      .meta {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .title {
+        display: block;
+        color: var(--fg);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sub {
+        display: block;
+        color: var(--fg-subtle);
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .kind {
+        flex: 0 0 auto;
+        color: var(--fg-subtle);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .chevron {
+        flex: 0 0 auto;
+        color: var(--fg-subtle);
+        opacity: 0;
+      }
+      .row.sel .chevron {
+        opacity: 0.7;
+      }
+      .submenu-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .submenu-head .back {
+        color: var(--fg-subtle);
+      }
+      .submenu-head .name {
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .action-label {
+        flex: 1 1 auto;
+        color: var(--fg);
+        font-size: 14px;
+      }
+      .hint {
+        display: flex;
+        gap: 16px;
+        padding: 8px 16px;
+        border-top: 1px solid var(--border);
+        color: var(--fg-subtle);
+        font-size: 11px;
+      }
+      .hint b {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .empty {
+        padding: 16px 20px;
+        color: var(--fg-subtle);
+        font-size: 13px;
+      }
     </style>
   </head>
   <body>
@@ -93,13 +204,36 @@
           <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
           <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
-        <input id="q" type="text" placeholder="Search your vault…" autocomplete="off" spellcheck="false" autofocus />
+        <input
+          id="q"
+          type="text"
+          placeholder="Search your vault…"
+          autocomplete="off"
+          spellcheck="false"
+          autofocus
+        />
+      </div>
+      <div id="submenuHead" class="submenu-head" style="display: none">
+        <svg class="back" width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M15 18l-6-6 6-6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span class="name" id="submenuName"></span>
       </div>
       <ul id="results" class="results"></ul>
       <div id="hint" class="hint" style="display: none">
-        <span><b>Enter</b> copy password</span>
-        <span><b>⇧Enter</b> copy username</span>
-        <span><b>⌃Enter</b> copy 2FA</span>
+        <span><b>↵ Enter</b> copy password</span>
+        <span><b>→</b> more options</span>
+        <span><b>Esc</b> close</span>
+      </div>
+      <div id="hintSub" class="hint" style="display: none">
+        <span><b>↵ Enter</b> copy</span>
+        <span><b>←</b> back</span>
         <span><b>Esc</b> close</span>
       </div>
     </div>
@@ -110,14 +244,24 @@
         var input = document.getElementById("q");
         var list = document.getElementById("results");
         var hint = document.getElementById("hint");
+        var hintSub = document.getElementById("hintSub");
+        var submenuHead = document.getElementById("submenuHead");
+        var submenuName = document.getElementById("submenuName");
+
+        var mode = "list"; // "list" | "submenu"
         var items = [];
         var sel = 0;
+        var subItem = null; // the item whose submenu is open
+        var actions = [];
+        var subSel = 0;
         var debounce;
 
         function syncHeight() {
           // Let the window grow/shrink to fit content.
           var h = document.querySelector(".panel").offsetHeight + 16;
-          if (kls) { kls.resize(h); }
+          if (kls) {
+            kls.resize(h);
+          }
         }
 
         function escapeHtml(s) {
@@ -126,7 +270,13 @@
           });
         }
 
-        function render() {
+        var CHEVRON =
+          '<svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none">' +
+          '<path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+        function renderList() {
+          submenuHead.style.display = "none";
+          hintSub.style.display = "none";
           list.innerHTML = "";
           if (!input.value.trim()) {
             hint.style.display = "none";
@@ -144,35 +294,136 @@
             li.className = "row" + (i === sel ? " sel" : "");
             var letter = (it.title || "?").charAt(0).toUpperCase();
             li.innerHTML =
-              '<span class="avatar">' + escapeHtml(letter) + "</span>" +
-              '<span class="meta"><span class="title">' + escapeHtml(it.title) + "</span>" +
-              '<span class="sub">' + escapeHtml(it.subtitle || "") + "</span></span>" +
-              '<span class="kind">' + escapeHtml(it.kind || "") + "</span>";
-            li.addEventListener("click", function () { sel = i; activate("password"); });
+              '<span class="avatar">' +
+              escapeHtml(letter) +
+              "</span>" +
+              '<span class="meta"><span class="title">' +
+              escapeHtml(it.title) +
+              "</span>" +
+              '<span class="sub">' +
+              escapeHtml(it.subtitle || "") +
+              "</span></span>" +
+              '<span class="kind">' +
+              escapeHtml(it.kind || "") +
+              "</span>" +
+              CHEVRON;
+            li.addEventListener("click", function () {
+              sel = i;
+              activate("password");
+            });
             list.appendChild(li);
           });
           hint.style.display = "flex";
           syncHeight();
         }
 
-        function activate(action) {
+        function renderSubmenu() {
+          hint.style.display = "none";
+          submenuName.textContent = subItem ? subItem.title : "";
+          submenuHead.style.display = "flex";
+          list.innerHTML = "";
+          if (actions.length === 0) {
+            list.innerHTML = '<li class="empty">Nothing to copy</li>';
+            hintSub.style.display = "none";
+            syncHeight();
+            return;
+          }
+          actions.forEach(function (a, i) {
+            var li = document.createElement("li");
+            li.className = "row" + (i === subSel ? " sel" : "");
+            li.innerHTML = '<span class="action-label">' + escapeHtml(a.label) + "</span>";
+            li.addEventListener("click", function () {
+              subSel = i;
+              activate(a.action);
+            });
+            list.appendChild(li);
+          });
+          hintSub.style.display = "flex";
+          syncHeight();
+        }
+
+        function render() {
+          if (mode === "submenu") {
+            renderSubmenu();
+          } else {
+            renderList();
+          }
+        }
+
+        function openSubmenu() {
           var it = items[sel];
-          if (it && kls) { kls.activate(it.id, action); }
+          if (!it || !kls) {
+            return;
+          }
+          subItem = it;
+          actions = [];
+          subSel = 0;
+          mode = "submenu";
+          kls.requestActions(it.id);
+          render();
+        }
+
+        function closeSubmenu() {
+          mode = "list";
+          subItem = null;
+          actions = [];
+          render();
+          input.focus();
+        }
+
+        function activate(action) {
+          var it = mode === "submenu" ? subItem : items[sel];
+          if (it && kls) {
+            kls.activate(it.id, action);
+          }
         }
 
         input.addEventListener("input", function () {
+          if (mode === "submenu") {
+            return;
+          }
           clearTimeout(debounce);
           var q = input.value;
           debounce = setTimeout(function () {
-            if (kls) { kls.search(q); }
+            if (kls) {
+              kls.search(q);
+            }
           }, 90);
         });
 
         document.addEventListener("keydown", function (e) {
           if (e.key === "Escape") {
-            if (kls) { kls.close(); }
+            if (mode === "submenu") {
+              closeSubmenu();
+            } else if (kls) {
+              kls.close();
+            }
             e.preventDefault();
-          } else if (e.key === "ArrowDown") {
+            return;
+          }
+          if (mode === "submenu") {
+            if (e.key === "ArrowDown") {
+              subSel = Math.min(actions.length - 1, subSel + 1);
+              render();
+              e.preventDefault();
+            } else if (e.key === "ArrowUp") {
+              subSel = Math.max(0, subSel - 1);
+              render();
+              e.preventDefault();
+            } else if (e.key === "ArrowLeft") {
+              closeSubmenu();
+              e.preventDefault();
+            } else if (e.key === "Enter") {
+              var a = actions[subSel];
+              if (a) {
+                activate(a.action);
+              }
+              e.preventDefault();
+            }
+            return;
+          }
+          // list mode
+          if (e.key === "ArrowDown") {
             sel = Math.min(items.length - 1, sel + 1);
             render();
             e.preventDefault();
@@ -180,20 +431,36 @@
             sel = Math.max(0, sel - 1);
             render();
             e.preventDefault();
+          } else if (e.key === "ArrowRight") {
+            openSubmenu();
+            e.preventDefault();
           } else if (e.key === "Enter") {
-            var action = e.shiftKey ? "username" : e.ctrlKey || e.metaKey ? "totp" : "password";
-            activate(action);
+            activate("password");
             e.preventDefault();
           }
         });
 
         if (kls) {
           kls.onResults(function (next) {
+            if (mode === "submenu") {
+              return;
+            }
             items = Array.isArray(next) ? next : [];
             sel = 0;
             render();
           });
+          kls.onActions(function (payload) {
+            if (mode !== "submenu" || !subItem || !payload || payload.id !== subItem.id) {
+              return;
+            }
+            actions = Array.isArray(payload.actions) ? payload.actions : [];
+            subSel = 0;
+            render();
+          });
           kls.onReset(function () {
+            mode = "list";
+            subItem = null;
+            actions = [];
             input.value = "";
             items = [];
             sel = 0;
