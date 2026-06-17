@@ -107,7 +107,7 @@ export class WeakPasswordsReportComponent
             this.logService.info(
               `[WeakPasswordsReport] User has access to ${manageableCiphers.length} ciphers in organization"`,
             );
-            this.logService.info(`[WeakPasswordsReport] Fetching collections for organization}"`);
+            this.logService.info(`[WeakPasswordsReport] Fetching collections for organization"`);
             this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
             const collections = await firstValueFrom(
               this.collectionService.decryptedCollections$(userId),
