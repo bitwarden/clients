@@ -25,7 +25,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
+import {
+  CipherFormConfigService,
+  DefaultCipherFormConfigService,
+  VaultItemDialogComponent,
+} from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
@@ -48,6 +54,14 @@ const KIND_BY_CATEGORY: Record<string, ItemKind> = {
   sshKeys: "sshKey",
 };
 
+const CIPHER_TYPE_BY_CATEGORY: Record<string, CipherType> = {
+  logins: CipherType.Login,
+  cards: CipherType.Card,
+  identities: CipherType.Identity,
+  notes: CipherType.SecureNote,
+  sshKeys: CipherType.SshKey,
+};
+
 @Component({
   selector: "kls-redesign-shell",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +72,9 @@ const KIND_BY_CATEGORY: Record<string, ItemKind> = {
     KlsCommandPaletteComponent,
     AccountSwitcherV2Component,
   ],
+  // FORK (klappstuhl): the redesign shell replaces /vault, so it must supply the
+  // same cipher-form config service the vault used to provide for the add dialog.
+  providers: [{ provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService }],
   host: {
     class: "tw-flex tw-h-screen tw-w-screen tw-flex-col tw-overflow-hidden tw-bg-bg-primary",
     style: "font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'",
@@ -136,6 +153,7 @@ export class KlsRedesignShellComponent {
   private readonly messagingService = inject(MessagingService);
   private readonly broadcasterService = inject(BroadcasterService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cipherFormConfigService = inject(CipherFormConfigService);
 
   private readonly hasUser = toSignal(this.accountService.activeAccount$.pipe(map((a) => !!a)), {
     initialValue: false,
@@ -212,7 +230,9 @@ export class KlsRedesignShellComponent {
 
     if (cat === "trash") {
       return this.trashedItems().filter((i) => {
-        if (!q) {return true;}
+        if (!q) {
+          return true;
+        }
         return (
           i.title.toLowerCase().includes(q) || (i.subtitle?.toLowerCase().includes(q) ?? false)
         );
@@ -221,9 +241,13 @@ export class KlsRedesignShellComponent {
 
     return this.liveItems().filter((i) => {
       if (collectionId) {
-        if (!i.tagIds.includes(collectionId)) {return false;}
+        if (!i.tagIds.includes(collectionId)) {
+          return false;
+        }
       } else if (folderId) {
-        if (i.folderId !== folderId) {return false;}
+        if (i.folderId !== folderId) {
+          return false;
+        }
       } else {
         const matchesCat =
           cat === "all"
@@ -231,9 +255,13 @@ export class KlsRedesignShellComponent {
             : cat === "favorites"
               ? i.favorite
               : i.kind === KIND_BY_CATEGORY[cat];
-        if (!matchesCat) {return false;}
+        if (!matchesCat) {
+          return false;
+        }
       }
-      if (!q) {return true;}
+      if (!q) {
+        return true;
+      }
       return i.title.toLowerCase().includes(q) || (i.subtitle?.toLowerCase().includes(q) ?? false);
     });
   });
@@ -247,9 +275,11 @@ export class KlsRedesignShellComponent {
       }
     });
 
-    // Global quick-access: the main process registers Ctrl/Cmd+Shift+K and, on
-    // press, restores the window and broadcasts "openQuickAccess". Opening the
-    // palette here mirrors 1Password's Quick Access spotlight.
+    // Global quick-access: the main process registers Ctrl/Cmd+Shift+Space and,
+    // on press, restores the window and broadcasts "openQuickAccess". Opening the
+    // palette here mirrors 1Password's Quick Access spotlight. The OS-level
+    // globalShortcut fires even while the window is focused, so no local
+    // keybinding for Space is needed (that would double-fire).
     this.broadcasterService.subscribe(
       "RedesignShellQuickAccess",
       (message: { command?: string }) => {
@@ -265,8 +295,6 @@ export class KlsRedesignShellComponent {
 
   @HostListener("document:keydown.meta.k", ["$event"])
   @HostListener("document:keydown.control.k", ["$event"])
-  @HostListener("document:keydown.control.shift.k", ["$event"])
-  @HostListener("document:keydown.meta.shift.k", ["$event"])
   protected onOpenPalette(event: Event): void {
     event.preventDefault();
     this.paletteOpen.set(true);
@@ -274,14 +302,18 @@ export class KlsRedesignShellComponent {
 
   @HostListener("document:keydown.arrowdown", ["$event"])
   protected onArrowDown(event: Event): void {
-    if (this.paletteOpen()) {return;}
+    if (this.paletteOpen()) {
+      return;
+    }
     event.preventDefault();
     this.moveSelection(1);
   }
 
   @HostListener("document:keydown.arrowup", ["$event"])
   protected onArrowUp(event: Event): void {
-    if (this.paletteOpen()) {return;}
+    if (this.paletteOpen()) {
+      return;
+    }
     event.preventDefault();
     this.moveSelection(-1);
   }
@@ -289,9 +321,13 @@ export class KlsRedesignShellComponent {
   @HostListener("document:keydown.control.c", ["$event"])
   @HostListener("document:keydown.meta.c", ["$event"])
   protected onCopyPassword(event: Event): void {
-    if (this.paletteOpen() || !this.selectedId()) {return;}
+    if (this.paletteOpen() || !this.selectedId()) {
+      return;
+    }
     const sel = window.getSelection();
-    if (sel && sel.toString().length > 0) {return;}
+    if (sel && sel.toString().length > 0) {
+      return;
+    }
     event.preventDefault();
     void this.copyService.copyPassword(this.selectedId()!);
   }
@@ -299,7 +335,9 @@ export class KlsRedesignShellComponent {
   @HostListener("document:keydown.control.shift.c", ["$event"])
   @HostListener("document:keydown.meta.shift.c", ["$event"])
   protected onCopyUsername(event: Event): void {
-    if (this.paletteOpen() || !this.selectedId()) {return;}
+    if (this.paletteOpen() || !this.selectedId()) {
+      return;
+    }
     event.preventDefault();
     void this.copyService.copyUsername(this.selectedId()!);
   }
@@ -359,7 +397,19 @@ export class KlsRedesignShellComponent {
   }
 
   protected onNewItem(): void {
-    this.messagingService.send("newLogin");
+    void this.openAddDialog();
+  }
+
+  // Opens the standard add-cipher drawer (same path the old vault used). All
+  // persistence still flows through core's CipherService via the dialog — the
+  // shell never builds API payloads or touches crypto.
+  private async openAddDialog(): Promise<void> {
+    const cipherType = CIPHER_TYPE_BY_CATEGORY[this.activeCategory()] ?? CipherType.Login;
+    const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
+    await VaultItemDialogComponent.openDrawer(this.dialogService, {
+      mode: "form",
+      formConfig,
+    });
   }
 
   protected onOpenGenerator(): void {

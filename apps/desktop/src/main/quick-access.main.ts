@@ -8,7 +8,7 @@ import { WindowMain } from "./window.main";
 /**
  * FORK (klappstuhl): Quick Access spotlight.
  *
- * Registers a global Ctrl/Cmd+Shift+K shortcut (1Password-style). When pressed,
+ * Registers a global Ctrl/Cmd+Shift+Space shortcut (1Password-style). When pressed,
  * the main window is restored/focused and an "openQuickAccess" message is
  * broadcast to the renderer, where the redesign shell opens the command palette.
  *
@@ -17,7 +17,7 @@ import { WindowMain } from "./window.main";
  * itself — all of that stays in the renderer behind the unlock state.
  */
 export class QuickAccessMain {
-  private static readonly SHORTCUT = "CommandOrControl+Shift+K";
+  private static readonly SHORTCUT = "CommandOrControl+Shift+Space";
 
   constructor(
     private readonly windowMain: WindowMain,
@@ -35,7 +35,7 @@ export class QuickAccessMain {
     });
 
     if (registered) {
-      this.logService.info("Quick Access shortcut registered (Ctrl/Cmd+Shift+K).");
+      this.logService.info("Quick Access shortcut registered (Ctrl/Cmd+Shift+Space).");
     } else {
       this.logService.warning("Failed to register Quick Access shortcut.");
     }
