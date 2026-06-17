@@ -50,7 +50,7 @@ export class AutotypeKeyboardShortcut {
     Returns the autotype keyboard shortcut as a single string, as
     Electron expects. Please note this does not reorder the keys.
 
-    See Electron keyboard shorcut docs for more info:
+    See Electron keyboard shortcut docs for more info:
     https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
   */
   getElectronFormat() {
@@ -67,7 +67,7 @@ export class AutotypeKeyboardShortcut {
       - On MacOS, Super maps to the Command key.
       - On MacOS, Alt maps to the Option key.
 
-    See Electron keyboard shorcut docs for more info:
+    See Electron keyboard shortcut docs for more info:
     https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
   */
   #keyboardShortcutIsValid(strArray: string[]) {

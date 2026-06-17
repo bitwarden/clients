@@ -49,7 +49,7 @@ export type Result<T, E = Error> = [E, null] | [null, T];
   Valid windows shortcut keys: Control, Alt, Super, Shift, letters A - Z
   Valid macOS shortcut keys: Control, Alt, Command, Shift, letters A - Z
 
-  See Electron keyboard shorcut docs for more info:
+  See Electron keyboard shortcut docs for more info:
   https://www.electronjs.org/docs/latest/tutorial/keyboard-shortcuts
 */
 export const AUTOTYPE_KEYBOARD_SHORTCUT = new KeyDefinition<string[]>(
