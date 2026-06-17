@@ -102,7 +102,12 @@ export class WeakPasswordsReportComponent
             this.logService.info(
               `[WeakPasswordsReport] Initializing for organization "${this.organization?.id ?? params.organizationId}"`,
             );
+
             const manageableCiphers = await this.cipherService.getAll(userId);
+            this.logService.info(
+              `[WeakPasswordsReport] User has access to ${manageableCiphers.length} ciphers in organization"`,
+            );
+            this.logService.info(`[WeakPasswordsReport] Fetching collections for organization}"`);
             this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
             const collections = await firstValueFrom(
               this.collectionService.decryptedCollections$(userId),
@@ -111,6 +116,9 @@ export class WeakPasswordsReportComponent
               collections
                 .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
                 .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[WeakPasswordsReport] User has access to ${this.sharedCollectionIds.size} shared collections in organization"`,
             );
             await super.ngOnInit();
           } catch (e) {
