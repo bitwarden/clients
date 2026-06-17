@@ -6,6 +6,7 @@ export interface Option<T> {
   value: T | null;
   label?: string;
   description?: string;
+  metaData?: string;
   disabled?: boolean;
 }
 

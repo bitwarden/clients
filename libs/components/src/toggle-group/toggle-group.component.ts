@@ -151,7 +151,7 @@ export class ToggleGroupComponent<TValue = unknown> {
     return this.toggles().map((toggle) => ({
       value: toggle.value(),
       label: toggle.labelContent()?.nativeElement.innerText,
-      count: toggle.berryComponent()?.content(),
+      metaData: toggle.berryComponent()?.content(),
     }));
   }
 
