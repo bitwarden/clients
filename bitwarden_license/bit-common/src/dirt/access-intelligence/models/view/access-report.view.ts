@@ -159,36 +159,18 @@ export class AccessReportView implements View {
   }
 
   /**
-   * Get at-risk password count for a member across ALL applications.
+   * Count the applications a member is flagged at-risk in.
    *
    * @param memberId - Organization user ID
-   * @returns Count of at-risk passwords for this member across every application
+   * @param options.criticalOnly - Restrict the count to applications marked critical
+   * @returns Number of in-scope applications where the member is at-risk
    */
-  getAtRiskPasswordCountForMember(memberId: string): number {
-    let count = 0;
-    this.reports.forEach((report) => {
-      if (report.memberRefs[memberId] === true) {
-        count += report.getAtRiskCipherIds().length;
-      }
-    });
-    return count;
-  }
-
-  /**
-   * Get at-risk password count for a member scoped to critical applications only.
-   *
-   * @param memberId - Organization user ID
-   * @returns Count of at-risk passwords for this member across applications
-   *   flagged critical
-   */
-  getCriticalAtRiskPasswordCountForMember(memberId: string): number {
-    let count = 0;
-    this.getCriticalApplications().forEach((report) => {
-      if (report.memberRefs[memberId] === true) {
-        count += report.getAtRiskCipherIds().length;
-      }
-    });
-    return count;
+  getAtRiskApplicationCountForMember(
+    memberId: string,
+    { criticalOnly = false }: { criticalOnly?: boolean } = {},
+  ): number {
+    const apps = criticalOnly ? this.getCriticalAtRiskApplications() : this.getAtRiskApplications();
+    return apps.filter((app) => app.memberRefs[memberId] === true).length;
   }
 
   // === Update Methods ===
