@@ -229,6 +229,31 @@ export default class RuntimeBackground {
           sender.url ?? sender.tab?.url,
         );
       }
+      case "authResult": {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
+        }
+
+        if (sender.tab?.id) {
+          await BrowserApi.closeTab(sender.tab.id).catch((error) => {
+            this.logService.error("Unable to close SSO tab", error);
+          });
+        }
+        break;
+      }
     }
   }
 
@@ -360,25 +385,6 @@ export default class RuntimeBackground {
         break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
-        break;
-      }
-      case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
-          return;
-        }
-
-        if (msg.lastpass) {
-          this.messagingService.send("importCallbackLastPass", {
-            code: msg.code,
-            state: msg.state,
-          });
-        } else {
-          try {
-            await openSsoAuthResultPopout(msg);
-          } catch {
-            this.logService.error("Unable to open sso popout tab");
-          }
-        }
         break;
       }
       case "webAuthnResult": {
