@@ -115,6 +115,8 @@ module.exports.buildConfig = function buildConfig(params) {
           path.resolve(__dirname, "src/package.json"),
           { from: path.resolve(__dirname, "src/images"), to: "images" },
           { from: path.resolve(__dirname, "src/locales"), to: "locales" },
+          // FORK (klappstuhl): static Quick Access spotlight page + its preload.
+          { from: path.resolve(__dirname, "src/spotlight"), to: "spotlight" },
         ],
       }),
       new DefinePlugin({

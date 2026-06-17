@@ -5,6 +5,8 @@ import auth from "./auth/preload";
 import autofill from "./autofill/preload";
 import keyManagement from "./key-management/preload";
 import platform from "./platform/preload";
+// FORK (klappstuhl): Quick Access spotlight bridge.
+import klsQuickAccess from "./quick-access.preload";
 
 /**
  * Bitwarden Preload script.
@@ -23,6 +25,7 @@ export const ipc = {
   platform,
   keyManagement,
   tools,
+  klsQuickAccess,
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);

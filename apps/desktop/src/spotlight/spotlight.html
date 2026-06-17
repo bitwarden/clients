@@ -1,0 +1,210 @@
+<!doctype html>
+<!--
+  FORK (klappstuhl): standalone Quick Access spotlight UI.
+  Self-contained static page (inline CSS + JS), loaded into a frameless,
+  transparent, always-on-top window. Owns no vault data; it talks to the main
+  window's renderer over the `window.kls` bridge (spotlight-preload.js).
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;" />
+    <style>
+      :root {
+        --bg: rgb(16 18 22 / 0.82);
+        --border: rgb(255 255 255 / 0.1);
+        --fg: rgb(236 238 242 / 1);
+        --fg-subtle: rgb(150 156 168 / 1);
+        --brand: #6d7ff5;
+        --sel: rgb(109 127 245 / 0.18);
+        --radius: 20px;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { background: transparent; overflow: hidden; height: 100%; }
+      body {
+        font-family: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+        padding: 8px;
+      }
+      .panel {
+        background: var(--bg);
+        -webkit-backdrop-filter: blur(40px) saturate(1.6);
+        backdrop-filter: blur(40px) saturate(1.6);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 24px 64px rgb(0 0 0 / 0.5), inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+        overflow: hidden;
+      }
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 20px;
+        height: 64px;
+        -webkit-app-region: drag;
+      }
+      .search svg { flex: 0 0 auto; color: var(--fg-subtle); }
+      .search input {
+        -webkit-app-region: no-drag;
+        flex: 1 1 auto;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--fg);
+        font-size: 18px;
+        font-weight: 500;
+      }
+      .search input::placeholder { color: var(--fg-subtle); }
+      .results { list-style: none; max-height: 420px; overflow-y: auto; }
+      .results:not(:empty) { border-top: 1px solid var(--border); padding: 6px; }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+      .row.sel { background: var(--sel); }
+      .avatar {
+        flex: 0 0 auto;
+        width: 32px; height: 32px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, rgb(109 127 245 / 0.25), rgb(109 127 245 / 0.1));
+        color: var(--brand);
+        font-weight: 700; font-size: 14px;
+        border: 1px solid var(--border);
+      }
+      .meta { flex: 1 1 auto; min-width: 0; }
+      .title { color: var(--fg); font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sub { color: var(--fg-subtle); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .kind { flex: 0 0 auto; color: var(--fg-subtle); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+      .hint { display: flex; gap: 16px; padding: 8px 16px; border-top: 1px solid var(--border); color: var(--fg-subtle); font-size: 11px; }
+      .hint b { color: var(--fg); font-weight: 600; }
+      .empty { padding: 16px 20px; color: var(--fg-subtle); font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+          <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input id="q" type="text" placeholder="Search your vault…" autocomplete="off" spellcheck="false" autofocus />
+      </div>
+      <ul id="results" class="results"></ul>
+      <div id="hint" class="hint" style="display: none">
+        <span><b>Enter</b> copy password</span>
+        <span><b>⇧Enter</b> copy username</span>
+        <span><b>⌃Enter</b> copy 2FA</span>
+        <span><b>Esc</b> close</span>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var kls = window.kls;
+        var input = document.getElementById("q");
+        var list = document.getElementById("results");
+        var hint = document.getElementById("hint");
+        var items = [];
+        var sel = 0;
+        var debounce;
+
+        function syncHeight() {
+          // Let the window grow/shrink to fit content.
+          var h = document.querySelector(".panel").offsetHeight + 16;
+          if (kls) { kls.resize(h); }
+        }
+
+        function escapeHtml(s) {
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+          });
+        }
+
+        function render() {
+          list.innerHTML = "";
+          if (!input.value.trim()) {
+            hint.style.display = "none";
+            syncHeight();
+            return;
+          }
+          if (items.length === 0) {
+            list.innerHTML = '<li class="empty">No matches</li>';
+            hint.style.display = "none";
+            syncHeight();
+            return;
+          }
+          items.forEach(function (it, i) {
+            var li = document.createElement("li");
+            li.className = "row" + (i === sel ? " sel" : "");
+            var letter = (it.title || "?").charAt(0).toUpperCase();
+            li.innerHTML =
+              '<span class="avatar">' + escapeHtml(letter) + "</span>" +
+              '<span class="meta"><span class="title">' + escapeHtml(it.title) + "</span>" +
+              '<span class="sub">' + escapeHtml(it.subtitle || "") + "</span></span>" +
+              '<span class="kind">' + escapeHtml(it.kind || "") + "</span>";
+            li.addEventListener("click", function () { sel = i; activate("password"); });
+            list.appendChild(li);
+          });
+          hint.style.display = "flex";
+          syncHeight();
+        }
+
+        function activate(action) {
+          var it = items[sel];
+          if (it && kls) { kls.activate(it.id, action); }
+        }
+
+        input.addEventListener("input", function () {
+          clearTimeout(debounce);
+          var q = input.value;
+          debounce = setTimeout(function () {
+            if (kls) { kls.search(q); }
+          }, 90);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            if (kls) { kls.close(); }
+            e.preventDefault();
+          } else if (e.key === "ArrowDown") {
+            sel = Math.min(items.length - 1, sel + 1);
+            render();
+            e.preventDefault();
+          } else if (e.key === "ArrowUp") {
+            sel = Math.max(0, sel - 1);
+            render();
+            e.preventDefault();
+          } else if (e.key === "Enter") {
+            var action = e.shiftKey ? "username" : e.ctrlKey || e.metaKey ? "totp" : "password";
+            activate(action);
+            e.preventDefault();
+          }
+        });
+
+        if (kls) {
+          kls.onResults(function (next) {
+            items = Array.isArray(next) ? next : [];
+            sel = 0;
+            render();
+          });
+          kls.onReset(function () {
+            input.value = "";
+            items = [];
+            sel = 0;
+            render();
+            input.focus();
+          });
+        }
+
+        input.focus();
+        syncHeight();
+      })();
+    </script>
+  </body>
+</html>

@@ -353,12 +353,8 @@ export class Main {
     );
     this.ipcService = new NoopIpcService(this.logService);
 
-    // FORK (klappstuhl): Quick Access spotlight (global Ctrl/Cmd+Shift+K)
-    this.quickAccessMain = new QuickAccessMain(
-      this.windowMain,
-      this.messagingService,
-      this.logService,
-    );
+    // FORK (klappstuhl): Quick Access spotlight (global Ctrl/Cmd+Shift+Space)
+    this.quickAccessMain = new QuickAccessMain(this.windowMain, this.logService);
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();

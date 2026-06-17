@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   HostListener,
   inject,
@@ -22,7 +21,6 @@ import {
 import { map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -42,6 +40,7 @@ import { KlsCommandPaletteComponent, PaletteAction } from "./command-palette.com
 import { KlsDetailPanelComponent } from "./detail-panel.component";
 import { KlsItemListComponent } from "./item-list.component";
 import { MOCK_ITEMS } from "./mock-data";
+import { QuickAccessRendererService } from "./quick-access-renderer.service";
 import { NavCategory, NavItem, KlsSidebarNavComponent } from "./sidebar-nav.component";
 
 type ItemKind = "login" | "card" | "identity" | "note" | "sshKey";
@@ -151,9 +150,8 @@ export class KlsRedesignShellComponent {
   private readonly router = inject(Router);
   private readonly dialogService = inject(DialogService);
   private readonly messagingService = inject(MessagingService);
-  private readonly broadcasterService = inject(BroadcasterService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly cipherFormConfigService = inject(CipherFormConfigService);
+  private readonly quickAccess = inject(QuickAccessRendererService);
 
   private readonly hasUser = toSignal(this.accountService.activeAccount$.pipe(map((a) => !!a)), {
     initialValue: false,
@@ -275,22 +273,11 @@ export class KlsRedesignShellComponent {
       }
     });
 
-    // Global quick-access: the main process registers Ctrl/Cmd+Shift+Space and,
-    // on press, restores the window and broadcasts "openQuickAccess". Opening the
-    // palette here mirrors 1Password's Quick Access spotlight. The OS-level
-    // globalShortcut fires even while the window is focused, so no local
-    // keybinding for Space is needed (that would double-fire).
-    this.broadcasterService.subscribe(
-      "RedesignShellQuickAccess",
-      (message: { command?: string }) => {
-        if (message?.command === "openQuickAccess") {
-          this.paletteOpen.set(true);
-        }
-      },
-    );
-    this.destroyRef.onDestroy(() =>
-      this.broadcasterService.unsubscribe("RedesignShellQuickAccess"),
-    );
+    // Quick Access spotlight: the standalone Ctrl/Cmd+Shift+Space window (managed
+    // by the main process) searches/copies through this renderer, since the
+    // decrypted vault lives here. Wiring it up from the shell keeps it bound to
+    // the logged-in session.
+    this.quickAccess.init();
   }
 
   @HostListener("document:keydown.meta.k", ["$event"])

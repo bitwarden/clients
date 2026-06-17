@@ -15,17 +15,24 @@
 
 ## Upstream files we intentionally touch (keep this list short)
 
-1. `apps/desktop/src/scss/tailwind.css` — one `@import` of the fork theme (last).
+1. `apps/desktop/src/scss/tailwind.css` — two `@import`s of fork CSS, kept last
+   (`fork-theme.css` then `fork-overlays.css`).
 2. `tsconfig.base.json` — two path-alias lines for the new libs.
 3. `apps/desktop/src/app/app-routing.module.ts` — one additive lazy `/redesign` route.
 4. `.storybook/main.ts` — two `stories` globs for the fork's stories.
 5. `package-lock.json` — registers the `@klappstuhl/*` workspaces (regenerated).
 6. `.claude/CLAUDE.md` — a fork pointer section (additive).
 7. `apps/desktop/src/main.ts` — wires the additive `QuickAccessMain` service
-   (global Ctrl/Cmd+Shift+K spotlight): one import, one field, one constructor
+   (global Ctrl/Cmd+Shift+Space spotlight): one import, one field, one constructor
    block, one `init()`, one `dispose()`. All other Quick Access logic lives in the
    new file `apps/desktop/src/main/quick-access.main.ts`.
-8. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
+8. `apps/desktop/src/preload.ts` — exposes the additive `klsQuickAccess` bridge
+   under the existing `ipc` global (one import + one object key). The bridge
+   itself is the new file `apps/desktop/src/quick-access.preload.ts`.
+9. `apps/desktop/webpack.base.js` — one extra `CopyWebpackPlugin` pattern copying
+   the static spotlight page (`src/spotlight/`) to the build output (avoids adding
+   a new webpack entry).
+10. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
 
 Everything else is **new files only**. Restyling happens by swapping
 component templates/styles in place, never by rewriting their data paths. Each
