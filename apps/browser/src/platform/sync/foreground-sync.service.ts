@@ -83,7 +83,7 @@ export class ForegroundSyncService extends CoreSyncService {
           filter((m) => m.requestId === requestId),
           timeout({
             first: 30_000,
-            // If we haven't heard back in 30 seconds, just pretend we heard back about an unsuccesful sync.
+            // If we haven't heard back in 30 seconds, just pretend we heard back about an unsuccessful sync.
             with: () => {
               this.logService.warning(
                 "ForegroundSyncService did not receive a message back in a reasonable time.",
