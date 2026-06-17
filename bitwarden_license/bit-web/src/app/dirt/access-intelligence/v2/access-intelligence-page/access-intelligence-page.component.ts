@@ -16,7 +16,18 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concat,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -27,7 +38,6 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
   MemberRegistryEntryView,
-  ApplicationHealthView,
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -393,19 +403,28 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
               return null;
           }
         }),
+        switchMap((content) => {
+          if (!content) {
+            void this.currentDialogRef()?.close();
+            return EMPTY;
+          }
+
+          return from(
+            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            }),
+          ).pipe(
+            tap((drawerRef) => this.currentDialogRef.set(drawerRef)),
+            // Reset drawer state whenever the dialog closes (X, ESC, or programmatic close) so
+            // re-clicking the same invoker reopens it. Without this, the state stays "open" and
+            // the re-open is filtered out by distinctUntilChanged.
+            switchMap((drawerRef) => drawerRef?.closed ?? EMPTY),
+            tap(() => this.drawerStateService.closeDrawer()),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((content) => {
-        if (content) {
-          void this.dialogService
-            .openDrawer(AccessIntelligenceDrawerV2Component, {
-              data: content,
-            })
-            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
-        } else {
-          void this.currentDialogRef()?.close();
-        }
-      });
+      .subscribe();
   }
 
   /**
@@ -424,7 +443,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return {
       type: DrawerType.AppAtRiskMembers,
       applicationName: app.applicationName,
-      members: this.mapMembersToDrawerData(members, report, app),
+      members: this.mapMembersToDrawerData(members, report),
     };
   }
 
@@ -463,7 +482,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         email: member.email,
         userName: member.userName ?? "",
         userGuid: member.id,
-        atRiskPasswordCount: report.getCriticalAtRiskPasswordCountForMember(member.id),
+        atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id, {
+          criticalOnly: true,
+        }),
       })),
     };
   }
@@ -487,15 +508,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private mapMembersToDrawerData(
     members: MemberRegistryEntryView[],
     report: AccessReportView,
-    app?: ApplicationHealthView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
       userName: member.userName ?? "",
       userGuid: member.id,
-      atRiskPasswordCount:
-        app?.getAtRiskPasswordCountForMember(member.id) ??
-        report.getAtRiskPasswordCountForMember(member.id),
+      atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id),
     }));
   }
 
