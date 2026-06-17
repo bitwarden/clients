@@ -16,8 +16,5 @@ export const UI_KIT_FORK_VERSION = "0.1.0-ui";
 // component code can reference the scale without magic numbers.
 export * from "./theme/tokens";
 
-// Angular primitives are added here as they are implemented (Phase 3, step B):
-// export * from "./components/button";
-// export * from "./components/copy-field";
-// export * from "./components/strength-meter";
-// export * from "./components/totp-ring";
+// Angular standalone primitives (Phase 3, step B).
+export * from "./components";

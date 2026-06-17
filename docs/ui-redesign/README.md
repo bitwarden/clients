@@ -18,15 +18,15 @@ templates.
 
 ## Documents
 
-| Doc | What it covers |
-|-----|----------------|
-| [00-OVERVIEW.md](./00-OVERVIEW.md) | Goal, constraints, what is/ isn't in scope |
-| [01-ARCHITECTURE.md](./01-ARCHITECTURE.md) | Boundary model, the React-vs-Angular decision, dependency rules |
-| [02-DESIGN-SYSTEM.md](./02-DESIGN-SYSTEM.md) | Tokens, theme override mechanism, component inventory, layout |
-| [03-IMPLEMENTATION-PLAN.md](./03-IMPLEMENTATION-PLAN.md) | Ordered, checkable task list with status |
-| [04-CICD.md](./04-CICD.md) | Fork release pipeline (GitHub Actions) + how it stays separate from upstream |
-| [05-COMPATIBILITY-RISKS.md](./05-COMPATIBILITY-RISKS.md) | Risk table + the Vaultwarden acceptance test |
-| [FORK-VERSIONING.md](./FORK-VERSIONING.md) | How fork versions stay separate from upstream |
+| Doc                                                      | What it covers                                                               |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [00-OVERVIEW.md](./00-OVERVIEW.md)                       | Goal, constraints, what is/ isn't in scope                                   |
+| [01-ARCHITECTURE.md](./01-ARCHITECTURE.md)               | Boundary model, the React-vs-Angular decision, dependency rules              |
+| [02-DESIGN-SYSTEM.md](./02-DESIGN-SYSTEM.md)             | Tokens, theme override mechanism, component inventory, layout                |
+| [03-IMPLEMENTATION-PLAN.md](./03-IMPLEMENTATION-PLAN.md) | Ordered, checkable task list with status                                     |
+| [04-CICD.md](./04-CICD.md)                               | Fork release pipeline (GitHub Actions) + how it stays separate from upstream |
+| [05-COMPATIBILITY-RISKS.md](./05-COMPATIBILITY-RISKS.md) | Risk table + the Vaultwarden acceptance test                                 |
+| [FORK-VERSIONING.md](./FORK-VERSIONING.md)               | How fork versions stay separate from upstream                                |
 
 ## Golden rules (do not break)
 

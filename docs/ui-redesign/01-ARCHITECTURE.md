@@ -2,13 +2,14 @@
 
 ## Decision record: Angular-native redesign (NOT a React rewrite)
 
-**Context.** The original brief proposed React + Vite + Tailwind + shadcn, *and*
+**Context.** The original brief proposed React + Vite + Tailwind + shadcn, _and_
 required (as a hard constraint) that the fork stay easy to merge from upstream
 bitwarden/clients. Upstream is Angular.
 
 **Decision.** Keep the Angular/Nx renderer and replace the **visual layer** only.
 
 **Rationale.**
+
 - Upstream ships UI changes as Angular. A React renderer would make every future
   upstream UI change un-mergeable by hand — directly violating the hard
   constraint we were told matters most.
@@ -19,20 +20,20 @@ bitwarden/clients. Upstream is Angular.
   CDK virtual scroll for fast lists. Tailwind + a CSS-custom-property theme are
   already wired.
 
-**Consequence.** We get the 1Password/Proton look *and* keep `git merge upstream`
+**Consequence.** We get the 1Password/Proton look _and_ keep `git merge upstream`
 clean. A future React-island path remains open via the bridge (see below) for
-*net-new* screens only — never to replace upstream screens.
+_net-new_ screens only — never to replace upstream screens.
 
 ## Boundary model
 
 We formalize your `core` / `bridge` / `ui` split as a **dependency rule**, not a
 destructive move of files:
 
-| Concept | Location | Rule |
-|---|---|---|
-| `core` (untouched) | `libs/common`, `libs/key-management`, `libs/auth`, `libs/vault`, `libs/platform`, `apps/desktop/desktop_native` | Read-only. Consumed only via existing public services. |
-| `bridge` | **`libs/ui-bridge`** (`@klappstuhl/ui-bridge`) | The only fork lib that imports core. Wraps services → view-models. No crypto/sync/API logic. |
-| `ui` | **`libs/ui-kit`** (`@klappstuhl/ui-kit`) + restyled `apps/desktop/src/app/**` | All visual code. Standalone Angular components + theme. |
+| Concept            | Location                                                                                                        | Rule                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `core` (untouched) | `libs/common`, `libs/key-management`, `libs/auth`, `libs/vault`, `libs/platform`, `apps/desktop/desktop_native` | Read-only. Consumed only via existing public services.                                       |
+| `bridge`           | **`libs/ui-bridge`** (`@klappstuhl/ui-bridge`)                                                                  | The only fork lib that imports core. Wraps services → view-models. No crypto/sync/API logic. |
+| `ui`               | **`libs/ui-kit`** (`@klappstuhl/ui-kit`) + restyled `apps/desktop/src/app/**`                                   | All visual code. Standalone Angular components + theme.                                      |
 
 ```
 apps/desktop/src/app/      restyled renderer (shell, sidebar, palette, split-pane)
@@ -66,7 +67,7 @@ makes fork code trivially identifiable during merges.
 ## Module-boundary enforcement (recommended)
 
 The new libs are tagged (`scope:fork-ui`, `type:ui-kit` / `type:bridge`). To make
-Nx/ESLint *enforce* "UI may not import core directly", add a depConstraint to the
+Nx/ESLint _enforce_ "UI may not import core directly", add a depConstraint to the
 `@nx/enforce-module-boundaries` rule in `eslint.config.mjs`:
 
 ```js

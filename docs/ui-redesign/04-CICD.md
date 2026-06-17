@@ -29,7 +29,7 @@ create recurring merge conflicts. Instead we add **one** new workflow:
 - **Unsigned by design.** `CSC_IDENTITY_AUTO_DISCOVERY=false` disables mac
   auto-signing. To sign later: add `CSC_LINK`/`CSC_KEY_PASSWORD` (Windows/mac)
   and notarization (`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`)
-  as repo secrets and a signing/notarize step. Keep it in *this* fork workflow,
+  as repo secrets and a signing/notarize step. Keep it in _this_ fork workflow,
   not upstream's.
 - **macOS arches:** we build `--x64 --arm64` (separate) rather than `--universal`
   to keep CI fast; switch to `--universal` if you need a single binary.

@@ -4,25 +4,28 @@
  * Premium 1Password / Proton Pass inspired look. Dark-mode first.
  *
  * HOW THIS WORKS (and why it is upstream-merge-safe):
- *   The upstream Bitwarden theme defines design tokens as CSS custom properties
- *   under :root, .theme_light and .theme_dark (libs/components/src/tw-theme.css).
- *   Tailwind utilities consume them via rgb(var(--color-*) / <alpha>).
- *   We DO NOT edit that file. We import THIS file *after* it (see
- *   apps/desktop/src/scss/tailwind.css) and re-declare the same variable names.
- *   Later declaration + equal specificity wins, so the whole app reskins with
- *   ZERO logic changes and ZERO conflicts on upstream merges.
+ *   Upstream defines design tokens as CSS custom properties under :root,
+ *   .theme_light and .theme_dark (libs/components/src/tw-theme.css). We DO NOT
+ *   edit that file. We import THIS file *after* it (apps/desktop/src/scss/
+ *   tailwind.css), re-declaring the same variable names. Later declaration +
+ *   equal specificity wins → the whole app reskins with ZERO logic changes and
+ *   ZERO conflicts on upstream merges.
  *
- *   Legacy color vars are SPACE-SEPARATED RGB TRIPLETS (e.g. "13 15 18"),
- *   because they are wrapped in rgb(var(--x) / <alpha-value>). Keep that format.
+ * TWO TOKEN FORMATS — DO NOT MIX THEM UP:
+ *   1. BASE RAMPS  --color-gray-* / --color-brand-*  → full HEX colors. The
+ *      semantic tokens (--color-bg-*, --color-fg-*, --color-border-*) reference
+ *      these via var(), so retuning the ramp recolours the whole app coherently.
+ *      This is the primary lever — prefer it over per-token overrides.
+ *   2. LEGACY      --color-primary-*, --color-text-*, --color-background*, etc.
+ *      → SPACE-SEPARATED RGB TRIPLETS (e.g. "233 236 240"), because they are
+ *      consumed via rgb(var(--x) / <alpha-value>). Older SCSS/components use
+ *      these. Keep the triplet format for these only.
  *
- * To retune the look: change values here only. Never touch upstream tw-theme.css.
- * Token catalogue & rationale: ./tokens.md
+ * Token catalogue & rationale: ./tokens.md / docs/ui-redesign/02-DESIGN-SYSTEM.md
  * ========================================================================== */
 
 /* ----------------------------------------------------------------------------
- * FORK-NAMESPACED TOKENS (--fk-*)
- * New tokens our redesigned components use. Namespaced so they can never collide
- * with an upstream token of the same purpose.
+ * FORK-NAMESPACED TOKENS (--fk-*) + indigo brand ramp (affects light too)
  * -------------------------------------------------------------------------- */
 :root {
   /* Spacing scale (4px base) — mirrors libs/ui-kit/src/theme/tokens.ts */
@@ -48,7 +51,7 @@
   --fk-blur-chrome: 20px;
   --fk-blur-overlay: 28px;
   --fk-elev-xs: 0 1px 2px rgb(0 0 0 / 0.25);
-  --fk-elev-sm: 0 2px 6px rgb(0 0 0 / 0.30);
+  --fk-elev-sm: 0 2px 6px rgb(0 0 0 / 0.3);
   --fk-elev-md: 0 8px 24px rgb(0 0 0 / 0.35);
   --fk-elev-panel: 0 16px 48px rgb(0 0 0 / 0.45);
 
@@ -58,11 +61,10 @@
   --fk-dur-base: 200ms;
   --fk-dur-slow: 320ms;
 
-  /* Type scale */
-  --fk-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-  --fk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
-    monospace;
+  /* Type */
+  --fk-font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Component-level fork tokens (resolved per-theme below) */
   --fk-sidebar-bg: rgb(255 255 255 / 0.6);
@@ -70,78 +72,107 @@
   --fk-strength-weak: 220 38 38;
   --fk-strength-medium: 217 119 6;
   --fk-strength-strong: 22 163 74;
-  --fk-totp-progress: 109 140 248;
+  --fk-totp-progress: 99 102 241;
+
+  /* Indigo brand ramp (HEX) — replaces the upstream blue across both themes. */
+  --color-brand-050: #eef0ff;
+  --color-brand-100: #e0e3ff;
+  --color-brand-200: #c3cbfd;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6d7ff5;
+  --color-brand-600: #5566e8;
+  --color-brand-700: #4553c9;
+  --color-brand-800: #3a44a3;
+  --color-brand-900: #2f3780;
+  --color-brand-950: #1e2350;
+  --color-brand-950-rgb: 30, 35, 80;
+
+  /* Legacy accent (triplets) kept in sync with the indigo ramp. */
+  --color-primary-100: 224 227 255;
+  --color-primary-300: 165 180 252;
+  --color-primary-600: 85 102 232;
+  --color-primary-700: 69 83 201;
+  --color-marketing-logo: 109 127 245;
+  --color-bw-blue: 109 127 245;
 }
 
 /* ----------------------------------------------------------------------------
- * DARK THEME (primary) — refined near-black slate, indigo accent.
+ * DARK THEME (primary) — refined near-black slate.
+ * Retune the base ramps; semantic bg/fg/border tokens inherit automatically.
  * -------------------------------------------------------------------------- */
 .theme_dark {
-  /* Backgrounds */
-  --color-background: 13 15 18; /* app shell  #0D0F12 */
-  --color-background-alt: 21 24 28; /* panels     #15181C */
-  --color-background-alt2: 109 140 248; /* brand fill */
-  --color-background-alt3: 79 105 214;
-  --color-background-alt4: 30 41 99;
+  /* Neutral ramp. Dark end (700-950) = surfaces; light end (050-400) = text. */
+  --color-gray-050: #f5f8fa; /* fg-heading */
+  --color-gray-100: #e8edf2;
+  --color-gray-200: #d6dde6; /* fg-body */
+  --color-gray-300: #aab4c2;
+  --color-gray-400: #8b97a8; /* fg-body-subtle / inactive */
+  --color-gray-400-rgb: 139, 151, 168;
+  --color-gray-500: #3a414c; /* borders */
+  --color-gray-600: #2a2f37; /* borders-strong */
+  --color-gray-700: #1c2026; /* quaternary surfaces / subtle border */
+  --color-gray-800: #15181c; /* bg-secondary (panels) */
+  --color-gray-900: #0d0f12; /* bg-primary (app shell) */
+  --color-gray-950: #08090c; /* bg-tertiary (deepest) */
+  --color-gray-950-rgb: 8, 9, 12;
 
-  --color-bg-primary: 13 15 18;
-  --color-bg-secondary: 21 24 28;
-  --color-bg-tertiary: 28 32 38;
-  --color-bg-quaternary: 36 41 49;
+  /* Brand variant for dark (slightly brighter for contrast on near-black). */
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6d7ff5;
+  --color-brand-600: #8094f8;
+  --color-brand-700: #a5b4fc;
 
-  /* Brand / accent (indigo) */
+  /* Legacy triplets used by older dark SCSS. */
+  --color-background: 13 15 18;
+  --color-background-alt: 21 24 28;
+  --color-background-alt2: 109 127 245;
+  --color-background-alt3: 69 83 201;
+  --color-background-alt4: 30 35 80;
+
   --color-primary-100: 30 35 60;
-  --color-primary-300: 79 105 214;
-  --color-primary-500: 109 140 248;
-  --color-primary-600: 129 156 250;
-  --color-primary-700: 165 184 252;
+  --color-primary-300: 129 140 248;
+  --color-primary-600: 129 148 248;
+  --color-primary-700: 165 180 252;
 
-  /* Neutrals for secondary surfaces/text */
   --color-secondary-100: 28 32 38;
-  --color-secondary-300: 55 62 73;
+  --color-secondary-300: 58 65 76;
   --color-secondary-500: 90 100 116;
-  --color-secondary-600: 120 131 148;
-  --color-secondary-700: 160 170 185;
+  --color-secondary-600: 139 151 168;
+  --color-secondary-700: 170 180 197;
 
-  /* Text */
   --color-text-main: 233 236 240;
   --color-text-muted: 148 158 173;
   --color-text-contrast: 13 15 18;
   --color-text-alt2: 233 236 240;
-  --color-text-code: 129 156 250;
+  --color-text-code: 165 180 252;
 
-  /* Status (slightly desaturated for dark comfort) */
   --color-success-600: 34 197 94;
   --color-warning-600: 245 158 11;
   --color-danger-600: 248 113 113;
-  --color-info-600: 129 156 250;
+  --color-info-600: 129 148 248;
 
   --color-shadow: 0 0 0;
   --color-hover-default: rgb(255 255 255 / 0.06);
   --color-hover-contrast: rgb(255 255 255 / 0.12);
   --tw-ring-offset-color: #0d0f12;
 
-  /* Fork component tokens (translucent for blur/depth) */
+  /* Fork component tokens (translucent for blur/depth). */
   --fk-sidebar-bg: rgb(18 21 25 / 0.72);
   --fk-overlay-bg: rgb(18 21 25 / 0.85);
-  --fk-totp-progress: 109 140 248;
+  --fk-totp-progress: 129 140 248;
 }
 
 /* ----------------------------------------------------------------------------
- * LIGHT THEME (optional, polished — not just inverted)
+ * LIGHT THEME (optional, polished — not just inverted). Soften surfaces only;
+ * semantic tokens already derive from the (light) base ramp + indigo brand.
  * -------------------------------------------------------------------------- */
 .theme_light {
+  --color-gray-050: #fafbfc; /* bg-secondary/tertiary in light */
+  --color-gray-100: #f1f4f8;
+
   --color-background: 250 251 252;
   --color-background-alt: 255 255 255;
-
-  --color-bg-primary: 250 251 252;
-  --color-bg-secondary: 255 255 255;
-  --color-bg-tertiary: 243 245 248;
-  --color-bg-quaternary: 235 238 242;
-
-  --color-primary-500: 79 105 214;
-  --color-primary-600: 66 90 196;
-  --color-primary-700: 49 68 160;
 
   --color-text-main: 24 28 35;
   --color-text-muted: 96 109 130;

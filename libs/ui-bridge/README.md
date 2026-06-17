@@ -11,7 +11,7 @@ UI (ui-kit + apps/desktop renderer)  ->  ui-bridge  ->  @bitwarden/* services  -
 
 - Keeps the UI fully decoupled from core → upstream merges stay clean.
 - Guarantees the UI never calls crypto directly or builds raw API payloads.
-- Makes a *future* React-island migration possible without re-touching screens.
+- Makes a _future_ React-island migration possible without re-touching screens.
 
 ## Rules
 

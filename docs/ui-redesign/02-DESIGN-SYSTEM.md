@@ -48,6 +48,7 @@ Skeleton, Toast, Dialog/Sheet, ContextMenu, ProgressRing (TOTP), StrengthMeter,
 CopyField, RevealField.
 
 **App composites — `apps/desktop/src/app/`:**
+
 - `AppShell` — sidebar + content grid, Electron drag region, mac traffic-light
   padding.
 - `SidebarNav` — All items · Logins · Cards · Identities · Secure notes ·
