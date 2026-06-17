@@ -123,11 +123,12 @@ describe("Button", () => {
   describe("responsive measurement", () => {
     // Stub the host's getBoundingClientRect so we can simulate a natural width
     // wider than the container in jsdom. The component briefly sets
-    // `style.width = "max-content"` to measure unconstrained width, so we
-    // branch on that to return either the natural or current width.
+    // `max-width: none` alongside `width: max-content` to measure unconstrained
+    // width; jsdom drops the `max-content` value but retains `max-width: none`,
+    // so we branch on that to return either the natural or current width.
     function stubHostRect(host: HTMLElement, naturalWidth: number, currentWidth: number) {
       jest.spyOn(host, "getBoundingClientRect").mockImplementation(() => {
-        const width = host.style.width === "max-content" ? naturalWidth : currentWidth;
+        const width = host.style.maxWidth === "none" ? naturalWidth : currentWidth;
         return {
           width,
           height: 40,
@@ -143,6 +144,7 @@ describe("Button", () => {
     }
 
     it("re-measures naturalWidth after toggles render via async pipe and switches to dropdown when they overflow", async () => {
+      TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         imports: [AsyncTogglesTestComponent],
         providers: [{ provide: I18nService, useValue: mock<I18nService>() }],
@@ -175,6 +177,7 @@ describe("Button", () => {
     });
 
     it("re-measures when the toggle count changes at runtime", async () => {
+      TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         imports: [AsyncTogglesTestComponent],
         providers: [{ provide: I18nService, useValue: mock<I18nService>() }],
