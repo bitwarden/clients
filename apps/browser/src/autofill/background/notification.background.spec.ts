@@ -2081,7 +2081,7 @@ describe("NotificationBackground", () => {
             }),
             mock<CipherView>({
               id: "cipher-id-2",
-              login: { username: "PTook", password: "11size" },
+              login: { username: "PTook", password: "11sies" },
             }),
           ];
 
