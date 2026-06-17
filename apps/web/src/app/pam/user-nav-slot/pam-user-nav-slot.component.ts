@@ -7,7 +7,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { BadgeModule, NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badge.service";
+import { ApproverInboxRequestsService } from "../approver-inbox/approver-inbox-requests.service";
 
 /**
  * Renders the PAM approver-inbox entry in the user-layout side nav, including
@@ -24,7 +24,7 @@ import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badg
 })
 export class PamUserNavSlotComponent {
   protected readonly pamEnabled$ = inject(ConfigService).getFeatureFlag$(FeatureFlag.Pam);
-  protected readonly pamInboxBadgeCount = toSignal(inject(ApproverInboxBadgeService).count$, {
+  protected readonly pamInboxBadgeCount = toSignal(inject(ApproverInboxRequestsService).count$, {
     initialValue: 0,
   });
 }

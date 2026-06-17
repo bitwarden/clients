@@ -8,7 +8,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule, I18nMockService, NavigationModule } from "@bitwarden/components";
 
-import { ApproverInboxBadgeService } from "../approver-inbox/approver-inbox-badge.service";
+import { ApproverInboxRequestsService } from "../approver-inbox/approver-inbox-requests.service";
 
 import { PamUserNavSlotComponent } from "./pam-user-nav-slot.component";
 
@@ -27,7 +27,7 @@ describe("PamUserNavSlotComponent", () => {
       imports: [PamUserNavSlotComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$ } },
-        { provide: ApproverInboxBadgeService, useValue: { count$ } },
+        { provide: ApproverInboxRequestsService, useValue: { count$ } },
         {
           provide: I18nService,
           useValue: new I18nMockService({ pamInboxNav: "Approvals" }),

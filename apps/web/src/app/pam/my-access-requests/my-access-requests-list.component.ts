@@ -10,7 +10,8 @@ import {
   inject,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { filter } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -136,7 +137,7 @@ export class MyAccessRequestsListComponent implements OnInit {
     });
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     // Keep the countdown clock outside the Angular zone: a periodic in-zone timer never lets
     // NgZone settle, which would hang `fixture.whenStable()` for any host that embeds this list.
     // The signal write still drives change detection on its own.
@@ -144,17 +145,17 @@ export class MyAccessRequestsListComponent implements OnInit {
       const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
       this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
-    // Load defensively so the list works standalone (stories / direct use). When embedded in the
-    // approver inbox the page has usually loaded already; this refreshes on tab open.
-    try {
-      await this.myRequests.load();
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamMyRequestsLoadError"),
+    // The service owns loading: it fetches on construction (page open / standalone use) and refreshes
+    // on live signals, so this component only subscribes. Surface any load failure as a toast.
+    this.myRequests.loadError$
+      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
+      .subscribe((e) => {
+        this.logService.error(e);
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("pamMyRequestsLoadError"),
+        });
       });
-    }
   }
 
   protected isCancelling(id: string): boolean {

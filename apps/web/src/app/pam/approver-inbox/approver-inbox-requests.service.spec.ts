@@ -10,7 +10,7 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { UserId } from "@bitwarden/common/types/guid";
 import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
-import { ApproverInboxBadgeService } from "./approver-inbox-badge.service";
+import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -18,14 +18,18 @@ function notificationOf(type: NotificationType): readonly [NotificationResponse,
   return [{ type } as NotificationResponse, "user-1" as UserId];
 }
 
-describe("ApproverInboxBadgeService", () => {
+function rows(...ids: string[]): AccessRequestDetailsResponse[] {
+  return ids.map((id) => ({ id }) as AccessRequestDetailsResponse);
+}
+
+describe("ApproverInboxRequestsService", () => {
   let pamFlag$: BehaviorSubject<boolean>;
   let notifications$: Subject<readonly [NotificationResponse, UserId]>;
   let mutations$: Subject<void>;
   let messages$: Subject<Message<Record<string, unknown>>>;
   let listInboxRequests: jest.Mock;
-  let service: ApproverInboxBadgeService;
-  let emitted: number[];
+  let service: ApproverInboxRequestsService;
+  let emitted: string[][];
 
   beforeEach(() => {
     pamFlag$ = new BehaviorSubject<boolean>(false);
@@ -44,48 +48,42 @@ describe("ApproverInboxBadgeService", () => {
       ],
     });
 
-    service = TestBed.inject(ApproverInboxBadgeService);
+    service = TestBed.inject(ApproverInboxRequestsService);
     emitted = [];
-    service.count$.subscribe((count) => emitted.push(count));
+    service.requests$.subscribe((r) => emitted.push(r.map((row) => row.id)));
   });
 
   afterEach(() => {
     service.destroy();
   });
 
-  function resolveRows(count: number) {
-    listInboxRequests.mockResolvedValue(
-      Array.from({ length: count }, (_, i) => ({ id: `req-${i}` }) as AccessRequestDetailsResponse),
-    );
-  }
-
-  it("stays at 0 without fetching while the flag is off", async () => {
+  it("stays empty without fetching while the flag is off", async () => {
     await flushMicrotasks();
 
     expect(listInboxRequests).not.toHaveBeenCalled();
-    expect(emitted).toEqual([0]);
+    expect(emitted).toEqual([[]]);
   });
 
   it("fetches once when the flag turns on", async () => {
-    resolveRows(2);
+    listInboxRequests.mockResolvedValue(rows("a", "b"));
     pamFlag$.next(true);
     await flushMicrotasks();
 
     expect(listInboxRequests).toHaveBeenCalledTimes(1);
-    expect(emitted).toEqual([0, 2]);
+    expect(emitted).toEqual([[], ["a", "b"]]);
   });
 
   it("re-fetches on a RefreshApproverInbox notification", async () => {
-    resolveRows(1);
+    listInboxRequests.mockResolvedValue(rows("a"));
     pamFlag$.next(true);
     await flushMicrotasks();
 
-    resolveRows(3);
+    listInboxRequests.mockResolvedValue(rows("a", "b", "c"));
     notifications$.next(notificationOf(NotificationType.RefreshApproverInbox));
     await flushMicrotasks();
 
     expect(listInboxRequests).toHaveBeenCalledTimes(2);
-    expect(emitted).toEqual([0, 1, 3]);
+    expect(emitted[emitted.length - 1]).toEqual(["a", "b", "c"]);
   });
 
   it("ignores unrelated notification types", async () => {
@@ -103,24 +101,24 @@ describe("ApproverInboxBadgeService", () => {
     pamFlag$.next(true);
     await flushMicrotasks();
 
-    resolveRows(1);
+    listInboxRequests.mockResolvedValue(rows("a"));
     mutations$.next();
     await flushMicrotasks();
 
     expect(listInboxRequests).toHaveBeenCalledTimes(2);
-    expect(emitted).toEqual([0, 1]);
+    expect(emitted[emitted.length - 1]).toEqual(["a"]);
   });
 
   it("re-fetches when a sync completes", async () => {
     pamFlag$.next(true);
     await flushMicrotasks();
 
-    resolveRows(4);
+    listInboxRequests.mockResolvedValue(rows("a", "b", "c", "d"));
     messages$.next({ command: "syncCompleted" } as Message<Record<string, unknown>>);
     await flushMicrotasks();
 
     expect(listInboxRequests).toHaveBeenCalledTimes(2);
-    expect(emitted).toEqual([0, 4]);
+    expect(emitted[emitted.length - 1]).toEqual(["a", "b", "c", "d"]);
   });
 
   it("ignores unrelated messages", async () => {
@@ -134,8 +132,8 @@ describe("ApproverInboxBadgeService", () => {
     expect(listInboxRequests).not.toHaveBeenCalled();
   });
 
-  it("resets to 0 without fetching when the flag turns off", async () => {
-    resolveRows(2);
+  it("resets to empty without fetching when the flag turns off", async () => {
+    listInboxRequests.mockResolvedValue(rows("a", "b"));
     pamFlag$.next(true);
     await flushMicrotasks();
     listInboxRequests.mockClear();
@@ -144,24 +142,11 @@ describe("ApproverInboxBadgeService", () => {
     await flushMicrotasks();
 
     expect(listInboxRequests).not.toHaveBeenCalled();
-    expect(emitted).toEqual([0, 2, 0]);
+    expect(emitted).toEqual([[], ["a", "b"], []]);
   });
 
-  it("counts only actionable requests, excluding timed-out and lapsed ones", async () => {
-    listInboxRequests.mockResolvedValue([
-      { id: "live", requestedNotAfter: null, expiredAt: null },
-      { id: "future-window", requestedNotAfter: "2999-01-01T00:00:00Z", expiredAt: null },
-      { id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z", expiredAt: null },
-      { id: "lapsed", requestedNotAfter: null, expiredAt: "2000-01-01T00:00:00Z" },
-    ] as AccessRequestDetailsResponse[]);
-    pamFlag$.next(true);
-    await flushMicrotasks();
-
-    expect(emitted).toEqual([0, 2]);
-  });
-
-  it("keeps the previous count when a fetch fails", async () => {
-    resolveRows(2);
+  it("keeps the previous rows when a fetch fails", async () => {
+    listInboxRequests.mockResolvedValue(rows("a", "b"));
     pamFlag$.next(true);
     await flushMicrotasks();
 
@@ -169,18 +154,53 @@ describe("ApproverInboxBadgeService", () => {
     mutations$.next();
     await flushMicrotasks();
 
-    expect(emitted).toEqual([0, 2]);
+    expect(emitted[emitted.length - 1]).toEqual(["a", "b"]);
     expect(TestBed.inject(LogService).error).toHaveBeenCalled();
   });
 
   it("refresh() forces an immediate fetch", async () => {
-    resolveRows(5);
+    listInboxRequests.mockResolvedValue(rows("a"));
     pamFlag$.next(true);
     await flushMicrotasks();
 
-    resolveRows(6);
+    listInboxRequests.mockResolvedValue(rows("a", "b"));
     await service.refresh();
 
-    expect(emitted).toEqual([0, 5, 6]);
+    expect(emitted[emitted.length - 1]).toEqual(["a", "b"]);
+  });
+
+  describe("count$ (nav badge)", () => {
+    let counts: number[];
+
+    beforeEach(() => {
+      counts = [];
+      service.count$.subscribe((c) => counts.push(c));
+    });
+
+    it("counts only actionable requests, excluding timed-out and lapsed ones", async () => {
+      listInboxRequests.mockResolvedValue([
+        { id: "live", requestedNotAfter: null, expiredAt: null },
+        { id: "future-window", requestedNotAfter: "2999-01-01T00:00:00Z", expiredAt: null },
+        { id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z", expiredAt: null },
+        { id: "lapsed", requestedNotAfter: null, expiredAt: "2000-01-01T00:00:00Z" },
+      ] as AccessRequestDetailsResponse[]);
+      pamFlag$.next(true);
+      await flushMicrotasks();
+
+      expect(counts[counts.length - 1]).toBe(2);
+    });
+
+    it("does not re-emit when the actionable count is unchanged", async () => {
+      listInboxRequests.mockResolvedValue(rows("a"));
+      pamFlag$.next(true);
+      await flushMicrotasks();
+
+      listInboxRequests.mockResolvedValue(rows("b"));
+      mutations$.next();
+      await flushMicrotasks();
+
+      // 0 (initial) then 1 — the second one-row fetch keeps the count at 1.
+      expect(counts).toEqual([0, 1]);
+    });
   });
 });

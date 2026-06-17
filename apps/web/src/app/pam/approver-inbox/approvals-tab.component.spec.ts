@@ -3,17 +3,19 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Subject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessDecisionVerdict, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
 import { ApprovalsTabComponent } from "./approvals-tab.component";
+import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 import { ApproverInboxService } from "./approver-inbox.service";
 
 const ME = "user-me";
@@ -98,6 +100,7 @@ describe("ApprovalsTabComponent", () => {
   let pamApiService: MockProxy<PamApiService>;
   let toastService: MockProxy<ToastService>;
   let dialogService: { open: jest.Mock };
+  let inboxRequests$: BehaviorSubject<AccessRequestDetailsResponse[]>;
 
   beforeEach(async () => {
     pamApiService = mock<PamApiService>();
@@ -106,8 +109,9 @@ describe("ApprovalsTabComponent", () => {
       open: jest.fn().mockReturnValue({ closed: of({ confirmed: true, comment: undefined }) }),
     };
 
-    pamApiService.listInboxRequests.mockResolvedValue([]);
     pamApiService.listInboxHistory.mockResolvedValue([]);
+    (pamApiService as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
+    inboxRequests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
 
     const nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue({
@@ -126,6 +130,10 @@ describe("ApprovalsTabComponent", () => {
       providers: [
         provideRouter([]),
         ApproverInboxService,
+        {
+          provide: ApproverInboxRequestsService,
+          useValue: { requests$: inboxRequests$, refresh: jest.fn() },
+        },
         { provide: PamApiService, useValue: pamApiService },
         { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: AccountService, useValue: accountService },
@@ -133,16 +141,16 @@ describe("ApprovalsTabComponent", () => {
         { provide: I18nService, useValue: i18n },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: DialogService, useValue: dialogService },
+        { provide: ServerNotificationsService, useValue: { notifications$: new Subject() } },
       ],
     }).compileComponents();
   });
 
-  /** Seed the shared inbox service (as the shell would) before rendering the tab. */
+  /** Seed the shared inbox stream (as the root service would) before rendering the tab. */
   const render = async (
     requests: AccessRequestDetailsResponse[],
   ): Promise<ComponentFixture<ApprovalsTabComponent>> => {
-    pamApiService.listInboxRequests.mockResolvedValue(requests);
-    await TestBed.inject(ApproverInboxService).load();
+    inboxRequests$.next(requests);
     const fixture = TestBed.createComponent(ApprovalsTabComponent);
     fixture.detectChanges();
     await fixture.whenStable();

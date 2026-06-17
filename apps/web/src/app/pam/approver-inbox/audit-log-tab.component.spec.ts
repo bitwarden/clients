@@ -2,15 +2,18 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, Subject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { I18nMockService, ToastService } from "@bitwarden/components";
 import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";
 
+import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 import { ApproverInboxService } from "./approver-inbox.service";
 import { AuditLogTabComponent } from "./audit-log-tab.component";
 
@@ -66,15 +69,17 @@ const i18n = new I18nMockService({
 describe("AuditLogTabComponent", () => {
   let pamApiService: MockProxy<PamApiService>;
   let toastService: MockProxy<ToastService>;
+  let inboxRequests$: BehaviorSubject<AccessRequestDetailsResponse[]>;
 
   beforeEach(async () => {
     pamApiService = mock<PamApiService>();
     toastService = mock<ToastService>();
 
-    pamApiService.listInboxRequests.mockResolvedValue([]);
     pamApiService.listInboxHistory.mockResolvedValue([]);
     pamApiService.listMyAccessRequests.mockResolvedValue([]);
     pamApiService.listActiveLeases.mockResolvedValue([]);
+    (pamApiService as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
+    inboxRequests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
 
     const nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue({
@@ -94,11 +99,16 @@ describe("AuditLogTabComponent", () => {
       providers: [
         ApproverInboxService,
         MyAccessRequestsService,
+        {
+          provide: ApproverInboxRequestsService,
+          useValue: { requests$: inboxRequests$, refresh: jest.fn() },
+        },
         { provide: PamApiService, useValue: pamApiService },
         { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18n },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: ServerNotificationsService, useValue: { notifications$: new Subject() } },
       ],
     }).compileComponents();
   });

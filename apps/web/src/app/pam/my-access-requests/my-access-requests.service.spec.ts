@@ -1,7 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AccessLeaseResponse,
@@ -13,6 +14,8 @@ import {
 import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import { MyAccessRequestsService } from "./my-access-requests.service";
+
+const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 function response(id: string, status: AccessRequestStatus): AccessRequestDetailsResponse {
   return new AccessRequestDetailsResponse({
@@ -39,10 +42,12 @@ describe("MyAccessRequestsService", () => {
   let nameResolver: MockProxy<AccessRequestNameResolver>;
   let service: MyAccessRequestsService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     pamApi = mock<PamApiService>();
     pamApi.listMyAccessRequests.mockResolvedValue([]);
     pamApi.listActiveLeases.mockResolvedValue([]);
+    // mutations$ is a stream the service merges into its live-refresh; give it a real Subject.
+    (pamApi as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
     nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
     nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
@@ -53,12 +58,16 @@ describe("MyAccessRequestsService", () => {
         MyAccessRequestsService,
         { provide: PamApiService, useValue: pamApi },
         { provide: AccessRequestNameResolver, useValue: nameResolver },
+        { provide: ServerNotificationsService, useValue: { notifications$: new Subject() } },
       ],
     });
     service = TestBed.inject(MyAccessRequestsService);
+    // Let the constructor's initial (empty) fetch settle so per-test data isn't raced by it.
+    await flushMicrotasks();
   });
 
-  it("loads requests + leases and exposes a pending count", async () => {
+  it("loads requests + leases on construction and exposes a pending count", async () => {
+    // Re-run the load now that data is staged.
     pamApi.listMyAccessRequests.mockResolvedValue([
       response("p1", "pending"),
       response("p2", "pending"),
@@ -163,11 +172,12 @@ describe("MyAccessRequestsService", () => {
       }),
     );
     await service.load();
+    pamApi.listMyAccessRequests.mockClear();
 
     await service.activate("a1");
 
     expect(pamApi.activateLease).toHaveBeenCalledWith("a1");
-    // load() is called twice: initial + post-activate reload.
-    expect(pamApi.listMyAccessRequests).toHaveBeenCalledTimes(2);
+    // activate() reloads exactly once on success.
+    expect(pamApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
   });
 });
