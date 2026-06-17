@@ -1010,6 +1010,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);

@@ -5,12 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -32,6 +26,7 @@ import { InternalNewPolicyService } from "../../admin-console/abstractions/polic
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -44,9 +39,12 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
+import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
 import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
@@ -62,6 +60,7 @@ import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
@@ -112,6 +111,7 @@ export class DefaultSyncService extends CoreSyncService {
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private configService: ConfigService,
   ) {
     super(
       tokenService,
@@ -279,6 +279,12 @@ export class DefaultSyncService extends CoreSyncService {
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
     await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM30806_SelfServiceChangeEmailCommand)
+    ) {
+      await this.accountService.setAccountEmail(response.id, response.email);
+    }
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
