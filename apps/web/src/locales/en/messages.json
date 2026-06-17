@@ -2838,6 +2838,9 @@
   "newCustomDomain": {
     "message": "New custom domain"
   },
+  "addCustomDomain": {
+    "message": "Add custom domain"
+  },
   "newCustomDomainDesc": {
     "message": "Enter a list of domains separated by commas. Only \"base\" domains are allowed. Do not enter subdomains. For example, enter \"google.com\" instead of \"www.google.com\". You can also enter \"androidapp://package.name\" to associate an android app with other website domains."
   },
