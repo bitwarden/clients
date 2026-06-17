@@ -366,9 +366,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     form.htmlID = this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ID) ?? "";
     form.htmlName = this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.NAME) ?? "";
     form.htmlClass = this.getPropertyOrAttribute(element, "class") ?? "";
-    form.htmlAction = isFormElement
-      ? (this.getFormActionAttribute(element as ElementWithOpId<HTMLFormElement>) ?? "")
-      : "";
+    form.htmlAction = isFormElement ? (this.getFormActionAttribute(element) ?? "") : "";
     form.htmlMethod = isFormElement
       ? (this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.METHOD) ?? "")
       : "";
@@ -677,11 +675,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   /**
    * Returns the action attribute of the form element. If the action attribute
    * is a relative path, it will be converted to an absolute path.
-   * @param {ElementWithOpId<HTMLFormElement>} element
+   * @param {HTMLFormElement} element
    * @returns {string | null}
    * @private
    */
-  private getFormActionAttribute(element: ElementWithOpId<HTMLFormElement>): string | null {
+  private getFormActionAttribute(element: HTMLFormElement): string | null {
     const action = this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ACTION);
     if (action === null) {
       return null;
