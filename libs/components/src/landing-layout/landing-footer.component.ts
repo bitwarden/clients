@@ -41,6 +41,6 @@ export class LandingFooterComponent {
   );
 
   protected readonly paddingClasses = computed(() =>
-    this.footerVerticalPadding() === "compact" ? "tw-px-5 tw-py-3" : "tw-p-5 tw-pt-4 sm:tw-pt-6",
+    this.footerVerticalPadding() === "compact" ? "tw-py-3" : "tw-pb-5 tw-pt-4 sm:tw-pt-6",
   );
 }
