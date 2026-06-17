@@ -15,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  ANON_LAYOUT_DEFAULTS,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -170,22 +171,21 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
     // Result is null, so email verification is required
     this.state = RegistrationStartState.CHECK_EMAIL;
-    // The `hidePageIcon` / `heroTextAlignment` / `contentVerticalPadding` / `footerVerticalPadding`
-    // overrides specifically undo the extension SignUp route's compact/left/no-icon styling
-    // (which we only want to apply to the USER_DATA_ENTRY screen, not the CHECK_EMAIL screen).
-    // Only the extension route declares those, so `resetToCachedRouteData()` in `goBack()` only
-    // rolls them back for extension. On web/desktop the overrides persist post-rollback but are
-    // equal to the AnonLayoutWrapperComponent defaults, so a rollback is safe and doesn't break
-    // anything.
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageTitle: {
         key: "checkYourEmail",
       },
       pageIcon: RegistrationCheckEmailIcon,
-      hidePageIcon: false,
-      heroTextAlignment: "center",
-      contentVerticalPadding: "default",
-      footerVerticalPadding: "default",
+      // These four fields undo the extension SignUp route's compact/left/no-icon styling for
+      // the CHECK_EMAIL screen specifically. On web/desktop these values already match the
+      // wrapper defaults, so these overrides are visual no-ops. `goBack()`'s reset is
+      // symmetric across all clients: in resetToCachedRouteData(), ANON_LAYOUT_DEFAULTS is
+      // spread before the cached route data, so route-omitted fields get set to defaults,
+      // while route-declared fields get re-applied from the cached route data.
+      hidePageIcon: ANON_LAYOUT_DEFAULTS.hidePageIcon,
+      heroTextAlignment: ANON_LAYOUT_DEFAULTS.heroTextAlignment,
+      contentVerticalPadding: ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
+      footerVerticalPadding: ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
     });
     this.registrationStartStateChange.emit(this.state);
   };
