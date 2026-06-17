@@ -11,25 +11,25 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-flex tw-h-full tw-w-80 tw-shrink-0 tw-flex-col tw-bg-bg-primary",
+      "tw-flex tw-h-full tw-w-[320px] tw-shrink-0 tw-flex-col tw-bg-bg-primary",
     "[style.border-right]": "'var(--fk-glass-border)'",
   },
   template: `
-    <div class="tw-p-3">
+    <div class="tw-p-3 tw-pb-2">
       <div class="tw-relative">
         <span
-          class="tw-pointer-events-none tw-absolute tw-left-3 tw-top-1/2 tw--translate-y-1/2 tw-text-fg-body-subtle"
+          class="tw-pointer-events-none tw-absolute tw-left-3.5 tw-top-1/2 tw--translate-y-1/2 tw-text-fg-body-subtle"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
-            <path d="m20 20-3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.75" />
+            <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
           </svg>
         </span>
         <input
           type="search"
           placeholder="Search vault…"
-          style="transition: border-color var(--fk-dur-fast) var(--fk-ease), box-shadow var(--fk-dur-fast) var(--fk-ease)"
-          class="tw-w-full tw-rounded-[var(--fk-radius-md)] tw-border tw-border-border-base tw-bg-bg-secondary tw-py-2.5 tw-pl-9 tw-pr-3 tw-text-sm tw-text-fg-body tw-placeholder-fg-body-subtle focus-visible:tw-border-border-focus focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+          style="transition: all var(--fk-dur-fast) var(--fk-ease); background-color: var(--fk-card-bg); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle)); border: var(--fk-glass-border); box-shadow: var(--fk-glass-highlight)"
+          class="tw-w-full tw-rounded-[var(--fk-radius-full)] tw-py-2.5 tw-pl-10 tw-pr-4 tw-text-[13px] tw-text-fg-body tw-placeholder-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
           [value]="query()"
           (input)="query.set($any($event.target).value)"
         />
@@ -40,30 +40,34 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
       @for (item of items(); track item.id) {
         <button
           type="button"
-          class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-md)] tw-p-2.5 tw-text-left tw-transition-all focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
-          [style.transition-duration]="'var(--fk-dur-fast)'"
-          [style.transition-timing-function]="'var(--fk-ease)'"
-          [style.background-color]="item.id === selectedId() ? 'var(--fk-selected-bg)' : 'transparent'"
-          [style.box-shadow]="item.id === selectedId() ? 'var(--fk-elev-glow)' : 'none'"
-          (mouseenter)="$any($event.currentTarget).style.backgroundColor = item.id !== selectedId() ? 'var(--fk-hover-bg)' : 'var(--fk-selected-bg)'"
-          (mouseleave)="$any($event.currentTarget).style.backgroundColor = item.id === selectedId() ? 'var(--fk-selected-bg)' : 'transparent'"
+          class="tw-group tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-lg)] tw-p-2.5 tw-text-left focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+          [style.transition]="'all var(--fk-dur-fast) var(--fk-ease)'"
+          [style.background-color]="item.id === selectedId() ? 'var(--fk-card-bg)' : 'transparent'"
+          [style.border]="item.id === selectedId() ? 'var(--fk-glass-border)' : '1px solid transparent'"
+          [style.box-shadow]="item.id === selectedId() ? 'var(--fk-glass-highlight), var(--fk-elev-xs)' : 'none'"
+          [style.backdrop-filter]="item.id === selectedId() ? 'blur(var(--fk-blur-subtle))' : 'none'"
+          [style.-webkit-backdrop-filter]="item.id === selectedId() ? 'blur(var(--fk-blur-subtle))' : 'none'"
+          (mouseenter)="onItemHover($any($event.currentTarget), item.id !== selectedId())"
+          (mouseleave)="onItemLeave($any($event.currentTarget), item.id === selectedId())"
           (click)="select.emit(item.id)"
         >
           <span
-            class="tw-flex tw-size-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-lg)] tw-text-sm tw-font-semibold tw-text-fg-brand"
-            style="background-color: var(--fk-card-bg); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle))"
+            class="tw-flex tw-size-10 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-lg)] tw-text-sm tw-font-semibold"
+            [class.tw-text-fg-brand]="item.id === selectedId()"
+            [class.tw-text-fg-body-subtle]="item.id !== selectedId()"
+            style="background-color: var(--fk-card-bg); border: var(--fk-glass-border); box-shadow: var(--fk-glass-highlight); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle))"
           >
             {{ initial(item.title) }}
           </span>
           <span class="tw-min-w-0 tw-flex-1">
             <span class="tw-flex tw-items-center tw-gap-1.5">
-              <span class="tw-truncate tw-text-sm tw-font-medium tw-text-fg-heading">{{
+              <span class="tw-truncate tw-text-[13px] tw-font-medium tw-text-fg-heading">{{
                 item.title
               }}</span>
               @if (item.favorite) {
                 <svg
-                  width="12"
-                  height="12"
+                  width="11"
+                  height="11"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   class="tw-shrink-0 tw-text-fg-warning"
@@ -82,11 +86,14 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
             }
           </span>
           @if (item.hasTotp) {
-            <span class="tw-shrink-0 tw-text-[10px] tw-font-semibold tw-text-fg-brand">TOTP</span>
+            <span
+              class="tw-shrink-0 tw-rounded-[var(--fk-radius-full)] tw-px-2 tw-py-0.5 tw-text-[10px] tw-font-semibold tw-text-fg-brand"
+              style="background-color: var(--fk-selected-bg)"
+            >TOTP</span>
           }
         </button>
       } @empty {
-        <div class="tw-px-3 tw-py-8 tw-text-center tw-text-sm tw-text-fg-body-subtle">
+        <div class="tw-px-3 tw-py-12 tw-text-center tw-text-[13px] tw-text-fg-body-subtle">
           No items match your search.
         </div>
       }
@@ -101,5 +108,21 @@ export class KlsItemListComponent {
 
   protected initial(title: string): string {
     return title.trim().charAt(0).toUpperCase() || "?";
+  }
+
+  protected onItemHover(el: HTMLElement, isInactive: boolean): void {
+    if (isInactive) {
+      el.style.backgroundColor = "var(--fk-hover-bg)";
+      el.style.border = "var(--fk-glass-border)";
+      el.style.transform = "translateX(2px)";
+    }
+  }
+
+  protected onItemLeave(el: HTMLElement, isActive: boolean): void {
+    if (!isActive) {
+      el.style.backgroundColor = "transparent";
+      el.style.border = "1px solid transparent";
+      el.style.transform = "translateX(0)";
+    }
   }
 }

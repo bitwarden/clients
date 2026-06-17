@@ -14,13 +14,13 @@ import { ChangeDetectionStrategy, Component, input, output, signal } from "@angu
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-block" },
   template: `
-    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-py-1.5">
+    <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-py-2.5">
       <div class="tw-min-w-0">
         @if (label()) {
-          <div class="tw-text-[12px] tw-font-medium tw-text-fg-body-subtle">{{ label() }}</div>
+          <div class="tw-mb-0.5 tw-text-[11px] tw-font-medium tw-uppercase tw-tracking-wider tw-text-fg-body-subtle">{{ label() }}</div>
         }
         <div
-          class="tw-truncate tw-text-sm tw-text-fg-body"
+          class="tw-truncate tw-text-[14px] tw-text-fg-heading"
           [class.tw-font-mono]="mono()"
           [class.tw-tracking-tight]="mono()"
         >
@@ -30,7 +30,10 @@ import { ChangeDetectionStrategy, Component, input, output, signal } from "@angu
 
       <button
         type="button"
-        class="tw-shrink-0 tw-rounded-[var(--fk-radius-sm)] tw-p-2 tw-text-fg-body-subtle tw-transition-colors hover:tw-bg-bg-secondary hover:tw-text-fg-body focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+        class="tw-shrink-0 tw-rounded-[var(--fk-radius-full)] tw-p-2 tw-text-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+        style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
+        (mouseenter)="$any($event.currentTarget).style.backgroundColor = 'var(--fk-hover-bg)'; $any($event.currentTarget).style.transform = 'scale(1.1)'; $any($event.currentTarget).style.color = 'var(--color-fg-brand)'"
+        (mouseleave)="$any($event.currentTarget).style.backgroundColor = 'transparent'; $any($event.currentTarget).style.transform = 'scale(1)'; $any($event.currentTarget).style.color = ''"
         [attr.aria-label]="copied() ? 'Copied' : 'Copy ' + label()"
         (click)="onCopy()"
       >
