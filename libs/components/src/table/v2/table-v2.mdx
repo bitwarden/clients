@@ -488,6 +488,32 @@ current page (fetch it keyed off the paginator's `pageIndex` / `pageSize`):
 A paginator and [virtual scrolling](#virtual-scrolling) are mutually exclusive — virtualization
 already renders large sets efficiently.
 
+## URL sync
+
+Bind **`[queryParam]`** to a namespace and the table mirrors its filters, sort, and pagination to
+the URL query string under that prefix — so a filtered/sorted/paged view is shareable and survives a
+reload. On load the params restore state (winning over `[filters]` and `defaultSort`); on change the
+table writes back with `replaceUrl` (flat history) and `merge` (params it doesn't own are left
+alone). Inactive/default facets leave no param behind, so the URL self-cleans.
+
+```html
+<bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">…</bit-table-v2>
+<!-- ?items.type=login&items.favorite=true&items.sort=name&items.direction=asc&items.page=2 -->
+```
+
+<Canvas of={stories.UrlSync} />
+
+Each filter chip syncs under its own `key`; sort, direction, page, and pageSize use those keys
+within the namespace (so don't give a chip one of those keys). Values are read back by shape —
+`true`/`false` → boolean, integers → number, a repeated key → array — which is lossy at the edges (a
+literal `"true"`, a numeric-string id), the trade for readable URLs. A distinct prefix per table
+lets several sync on one page. URL sync needs a router in context; without one (e.g. a dialog) it's
+a no-op.
+
+Under the hood this is **`queryParamStore`** (in `@bitwarden/components`), a generic writable signal
+mirrored to a URL namespace — reach for it directly to sync any component-owned state (a tab, a
+search term) to the query string, table or not.
+
 ## Scrolling and the sticky header
 
 By default the table grows to fit its rows and scrolls with the page. To bound it instead — so the

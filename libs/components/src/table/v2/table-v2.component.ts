@@ -29,6 +29,7 @@ import { FilterControl } from "../../filter-menu/filter-tokens";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
+import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
 import { BitCellComponent } from "./bit-cell.component";
@@ -47,6 +48,12 @@ const SELECTION_COLUMN_WIDTH = "40px";
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
+
+/** URL-sync param keys for the non-filter facets, alongside the filter keys in the namespace. */
+const SORT_PARAM = "sort";
+const DIRECTION_PARAM = "direction";
+const PAGE_PARAM = "page";
+const PAGE_SIZE_PARAM = "pageSize";
 
 /** Selection config a consumer supplies; the table provides the `rows` scope itself. */
 export type SelectionConfig<T> = Omit<TableSelectionConfig<T>, "rows">;
@@ -210,6 +217,30 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   /** Number of skeleton rows to show while {@link loading} is true. */
   readonly loadingRows = input(3);
 
+  /**
+   * Syncs sort, filters, and pagination to the URL query string, namespaced under
+   * this prefix — e.g. `queryParam="vault"` yields `?vault.sort=name&vault.direction=asc&vault.type=login`.
+   * Set it to enable URL sync (omit to disable); a distinct prefix per table lets
+   * several coexist on one page. On load, params restore state (winning over
+   * `[filters]` and `defaultSort`); changes write back with `replaceUrl`. Requires
+   * a router in context — a no-op without one (e.g. Storybook, a dialog).
+   */
+  readonly queryParam = input<string>();
+
+  /**
+   * The table's combined URL state — filter values plus the sort/direction/page/
+   * pageSize keys — mirrored to the `queryParam` namespace. Seeds from the URL on
+   * first read (so restore and chip seeding pull the shared-link values) and writes
+   * back on change. A no-op signal when `queryParam` is unset or there's no router.
+   */
+  private readonly urlStore = queryParamStore<ParamState>(this.queryParam);
+
+  /** Whether initial URL state has been applied — gates write-back until then. */
+  private readonly urlRestored = signal(false);
+
+  /** The paginator's consumer-configured page size; the `pageSize` param is omitted at this value. */
+  private readonly baselinePageSize = signal<number | undefined>(undefined);
+
   /** A projected paginator, if any — owns the page state; the table reads it to slice. */
   private readonly paginator = contentChild(BitTablePaginatorComponent);
 
@@ -291,20 +322,31 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       onCleanup(() => this.unregisterFilter(control));
     });
 
-    // Seed chips from `filters` as they register and their keys resolve. Each chip
+    // Seed chips as they register and their keys resolve — from the URL store when
+    // it holds a value for the key (a shared link restores faithfully), else from
+    // `[filters]`. Reading the store seeds it from the URL synchronously. Each chip
     // is seeded once; later user edits aren't undone.
     effect(() => {
+      const fromUrl = this.urlStore() as Record<string, unknown>;
       const initial = this.filters() as Record<string, unknown> | undefined;
-      const controls = this._filters();
-      if (!initial) {
-        return;
-      }
-      for (const control of controls) {
-        const key = control.key();
-        if (key && key in initial && !this.seeded.has(control)) {
-          this.seeded.add(control);
-          control.setValue(initial[key]);
+      for (const control of this._filters()) {
+        if (this.seeded.has(control)) {
+          continue;
         }
+        const key = control.key();
+        if (!key) {
+          continue;
+        }
+        let value: unknown;
+        if (key in fromUrl) {
+          value = fromUrl[key];
+        } else if (initial && key in initial) {
+          value = initial[key];
+        } else {
+          continue;
+        }
+        this.seeded.add(control);
+        control.setValue(value);
       }
     });
 
@@ -325,6 +367,65 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         this.selectedChange.emit(model.selected());
       }
     });
+
+    // Mirror the table's combined state back to the URL on change. Gated on
+    // `urlRestored` so defaults don't clobber incoming params before they're read.
+    // Inactive/default facets become empty values, which the store omits, so the
+    // URL self-cleans. The store is a no-op when `queryParam` is unset.
+    effect(() => {
+      if (!this.urlRestored()) {
+        return;
+      }
+      const state: ParamState = {};
+      for (const control of this._filters()) {
+        const key = control.key();
+        if (key) {
+          // Inactive → `undefined`, which the store omits (so an off toggle, whose
+          // value is `false`, leaves no `favorite=false` behind).
+          state[key] = control.active() ? (control.value() as ParamValue) : undefined;
+        }
+      }
+      const sort = this.sort();
+      state[SORT_PARAM] = sort.column;
+      state[DIRECTION_PARAM] = sort.column ? sort.direction : undefined;
+      const paginator = this.paginator();
+      if (paginator) {
+        const page = paginator.pageIndex();
+        state[PAGE_PARAM] = page > 0 ? page + 1 : undefined;
+        const pageSize = paginator.pageSize();
+        state[PAGE_SIZE_PARAM] = pageSize === this.baselinePageSize() ? undefined : pageSize;
+      }
+      this.urlStore.set(state);
+    });
+  }
+
+  /**
+   * Applies URL state to sort and pagination once, then opens the write-back gate.
+   * Filters restore in the seeding effect as their chips register. Runs before the
+   * `defaultSort` fallback so a sorted link wins.
+   */
+  private restoreFromUrl(): void {
+    const fromUrl = this.urlStore();
+    const column = fromUrl[SORT_PARAM];
+    if (typeof column === "string") {
+      const direction = fromUrl[DIRECTION_PARAM] === "desc" ? "desc" : "asc";
+      this.sort.set({ column: column as ColumnName<T, S>, direction });
+    }
+    const paginator = this.paginator();
+    if (paginator) {
+      // Capture the configured size before any URL override, so write-back can
+      // omit `pageSize` whenever it returns to this baseline.
+      this.baselinePageSize.set(paginator.pageSize());
+      const pageSize = fromUrl[PAGE_SIZE_PARAM];
+      if (typeof pageSize === "number" && pageSize > 0) {
+        paginator.pageSize.set(pageSize);
+      }
+      const page = fromUrl[PAGE_PARAM];
+      if (typeof page === "number" && page > 0) {
+        paginator.pageIndex.set(page - 1);
+      }
+    }
+    this.urlRestored.set(true);
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
@@ -470,8 +571,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
           "virtualization already renders large sets efficiently.",
       );
     }
+    // Restore sort/pagination from the URL (filters restore as their chips
+    // register), then open the write-back gate.
+    this.restoreFromUrl();
+
     // Seed the initial sort from the first column declaring `defaultSort`, unless
-    // a sort column is already set (e.g. via `[(sort)]`).
+    // a sort column is already set (e.g. via `[(sort)]` or restored from the URL).
     if (!this.sort().column) {
       const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
       const name = defaultCol?.name();

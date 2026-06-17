@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { NavigationEnd, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { filter as rxFilter, map } from "rxjs";
 import { userEvent } from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -283,6 +286,109 @@ class DemoFilterableTableComponent {
   }
 }
 
+/**
+ * Sync filters, sort, and pagination to the URL with **`queryParam`** — set it to a
+ * namespace and the table mirrors its state to `?<namespace>.*` params. A shared
+ * link restores the view; inactive/default facets leave no param behind. The live
+ * URL is shown above the table (with `RouterTestingModule` it updates in memory, not
+ * the address bar).
+ */
+@Component({
+  selector: "demo-url-sync-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    BitTableFilterDirective,
+    BitTablePaginatorComponent,
+    FilterMenuModule,
+    SearchModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <p class="tw-mb-2 tw-font-mono tw-text-sm tw-text-main">{{ url() }}</p>
+      <bit-table-v2 [tableDef]="table" [filter]="filter" queryParam="items">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+
+          <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+            @for (option of typeOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-chip>
+
+          <bit-filter-chip key="vault" placeholderText="Vault" multiple bitTableFilter>
+            @for (option of vaultOptions(); track option.value) {
+              <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+            }
+          </bit-filter-chip>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            bitTableFilter
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" />
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoUrlSyncTableComponent {
+  private readonly router = inject(Router);
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  /** The live URL, so the synced params are visible as filters/sort/page change. */
+  protected readonly url = toSignal(
+    this.router.events.pipe(
+      rxFilter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.favorite || row.favorite);
+
+  protected readonly typeOptions = computed(() =>
+    (["login", "card", "note"] as const)
+      .map((value) => ({ value, label: value }))
+      .filter((option) => this.data().some((r) => r.type === option.value)),
+  );
+
+  protected readonly vaultOptions = computed(() =>
+    VAULTS.map((vault) => ({ value: vault.id, label: vault.name })),
+  );
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
 export default {
   title: "Component Library/Table V2",
   decorators: [
@@ -302,6 +408,7 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoUrlSyncTableComponent,
         BulkActionsBarComponent,
         BulkActionComponent,
         BulkAdditionalActionComponent,
@@ -600,6 +707,17 @@ export const FillPage: Story = {
 export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
+  }),
+};
+
+/**
+ * Binding `queryParam` syncs filters, sort, and pagination to the URL under that
+ * namespace, so a filtered/sorted view is shareable and survives a reload. The
+ * live URL is shown above the table.
+ */
+export const UrlSync: Story = {
+  render: () => ({
+    template: `<demo-url-sync-table></demo-url-sync-table>`,
   }),
 };
 
