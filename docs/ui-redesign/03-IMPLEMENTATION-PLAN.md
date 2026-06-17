@@ -10,7 +10,7 @@ it is how the next session knows where to pick up.
 - [x] A3. Create `libs/ui-bridge` (`@klappstuhl/ui-bridge`) — package.json, project.json, tsconfig, index.
 - [x] A4. Register path aliases in `tsconfig.base.json` (`@klappstuhl/ui-kit`, `@klappstuhl/ui-bridge`).
 - [x] A5. Author fork theme (`ui-kit/src/theme/fork-theme.css` + `tokens.ts`) and wire it into `apps/desktop/src/scss/tailwind.css` (imported last).
-- [x] A6. Toolchain installed (Node 22.12.0, npm 10.9.0, cargo 1.84, Python 3.12.10). `npm install` run at repo root — lockfile now includes the `@klappstuhl/*` workspaces; both link under `node_modules/@klappstuhl/`. (Webpack renderer smoke-test of the theme import still pending — needs full `npm ci` with scripts + `build:renderer`.)
+- [x] A6. Toolchain installed (Node 22.12.0, npm 10.9.0, cargo 1.84, Python 3.12.10). `npm install` run at repo root — lockfile includes the `@klappstuhl/*` workspaces. **`npm run build:renderer` (production Angular AOT) passes (exit 0, no errors)** — confirms all redesign templates type-check and `fork-theme.css` loads via `tailwind.css` in the real webpack build. (Full `electron` run still needs the native module: `npm ci` *with* scripts → `electron-rebuild` + `build:main`/`build:preload`.)
 - [ ] A7. (Optional) Add `lucide-angular`; verify `@angular/cdk` is resolvable.
 - [ ] A8. (Optional) Add Nx depConstraints for `scope:fork-ui` in `eslint.config.mjs` (see 01-ARCHITECTURE.md).
 
