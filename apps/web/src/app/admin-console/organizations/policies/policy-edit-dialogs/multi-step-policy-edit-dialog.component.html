@@ -3,8 +3,20 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="policySteps()[currentStep()]?.titleContent?.() ? undefined : ('editPolicy' | i18n)"
-  [subtitle]="policySteps()[currentStep()]?.titleContent?.() ? undefined : (policy.name | i18n)"
+  [title]="
+    policySteps()[currentStep()]?.titleContent?.()
+      ? undefined
+      : policy.showEnabledBadge
+        ? (policy.name | i18n)
+        : ('editPolicy' | i18n)
+  "
+  [subtitle]="
+    policySteps()[currentStep()]?.titleContent?.()
+      ? undefined
+      : policy.showEnabledBadge
+        ? undefined
+        : (policy.name | i18n)
+  "
 >
   <ng-container bitDialogTitle>
     @let title = policySteps()[currentStep()]?.titleContent?.();
@@ -12,6 +24,18 @@
       <ng-container [ngTemplateOutlet]="title"></ng-container>
     }
   </ng-container>
+
+  @if (policy.showEnabledBadge) {
+    <ng-container bitDialogHeaderEnd>
+      @if (!loading()) {
+        @if (policyEnabled()) {
+          <span bitBadge variant="success">{{ "on" | i18n }}</span>
+        } @else {
+          <span bitBadge variant="secondary">{{ "off" | i18n }}</span>
+        }
+      }
+    </ng-container>
+  }
 
   <ng-container bitDialogContent>
     @if (policy.showDescription) {

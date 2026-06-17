@@ -112,6 +112,7 @@ export class MultiStepPolicyEditDialogComponent
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
+    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormViewRef();
