@@ -90,13 +90,9 @@
                   <input
                     type="checkbox"
                     bitCheckbox
-                    class="tw-mr-1"
                     (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
-                    id="selectAll"
+                    [attr.aria-label]="'selectAll' | i18n"
                   />
-                  <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">{{
-                    "all" | i18n
-                  }}</label>
                 </th>
               }
               <th bitCell bitSortable="email" default>{{ "name" | i18n }}</th>
@@ -182,24 +178,22 @@
                     <button
                       type="button"
                       bitMenuItem
+                      variant="danger"
                       (click)="isProcessing ? null : bulkRemove(organization)"
                     >
-                      <span class="tw-text-danger">
-                        <i aria-hidden="true" class="bwi bwi-fw bwi-close"></i>
-                        {{ "remove" | i18n }}
-                      </span>
+                      <bit-icon name="bwi-close" slot="start" />
+                      {{ "remove" | i18n }}
                     </button>
                   }
                   @if (bulkActions.showBulkDeleteUsers) {
                     <button
                       type="button"
                       bitMenuItem
+                      variant="danger"
                       (click)="isProcessing ? null : bulkDelete(organization)"
                     >
-                      <span class="tw-text-danger">
-                        <i aria-hidden="true" class="bwi bwi-fw bwi-trash"></i>
-                        {{ "delete" | i18n }}
-                      </span>
+                      <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                      {{ "delete" | i18n }}
                     </button>
                   }
                 </bit-menu>
@@ -365,7 +359,6 @@
                   <span class="tw-sr-only">{{ "userUsingTwoStep" | i18n }}</span>
                 }
                 @let resetPasswordPolicyEnabled = resetPasswordPolicyEnabled$ | async;
-                @let adminResetTwoFactorEnabled = adminResetTwoFactorEnabled$ | async;
                 @if (showEnrolledStatus(u, organization, resetPasswordPolicyEnabled)) {
                   <i
                     class="bwi bwi-key"
@@ -453,14 +446,7 @@
                   }
 
                   <!-- Account recovery is available to all users with appropriate permissions -->
-                  @if (
-                    allowResetPassword(
-                      u,
-                      organization,
-                      resetPasswordPolicyEnabled,
-                      adminResetTwoFactorEnabled
-                    )
-                  ) {
+                  @if (allowResetPassword(u, organization, resetPasswordPolicyEnabled)) {
                     <button
                       type="button"
                       bitMenuItem
@@ -495,22 +481,21 @@
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         (click)="isProcessing ? null : remove(u, organization)"
                       >
-                        <span class="tw-text-danger">
-                          <i aria-hidden="true" class="bwi bwi-close"></i> {{ "remove" | i18n }}
-                        </span>
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
                       </button>
                     } @else {
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         (click)="isProcessing ? null : deleteUser(u, organization)"
                       >
-                        <span class="tw-text-danger">
-                          <i class="bwi bwi-trash" aria-hidden="true"></i>
-                          {{ "delete" | i18n }}
-                        </span>
+                        <bit-icon fixedWidth name="bwi-trash" slot="start" />
+                        {{ "delete" | i18n }}
                       </button>
                     }
                   }

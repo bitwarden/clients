@@ -37,7 +37,7 @@
           {{ "makeACopy" | i18n }}
         </button>
       } @else {
-        <button type="button" bitButton buttonType="danger" [bitAction]="deleteSend">
+        <button type="button" bitButton buttonType="danger" (click)="deleteSend()">
           {{ "delete" | i18n }}
         </button>
       }

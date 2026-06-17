@@ -92,8 +92,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
-    private readonly i18nService: I18nService,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
+    private readonly i18nService: I18nService,
   ) {
     super();
   }

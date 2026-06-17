@@ -1,8 +1,7 @@
-<bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch" class="tw-mt-4">
-  <bit-label class="tw-text-sm" for="enableSendControlsPolicySwitch">{{
-    "sendControlsPolicySwitchLabel" | i18n
-  }}</bit-label>
-</bit-switch>
+<bit-form-control class="tw-mt-4">
+  <bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch"></bit-switch>
+  <bit-label class="tw-text-sm">{{ "sendControlsPolicySwitchLabel" | i18n }}</bit-label>
+</bit-form-control>
 
 <div [formGroup]="data">
   <bit-hint class="tw-mt-4 tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>

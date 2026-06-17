@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, Inject, inject, signal, viewChild } from "@angular/core";
+import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -124,6 +124,12 @@ export class SendAddEditDialogComponent {
   config: SendFormConfig;
 
   /**
+   * Whether the form is disabled (e.g., the Send is disabled by policy).
+   * When true, the Save button is hidden.
+   */
+  disableForm = false;
+
+  /**
    * Whether the Send is actively being edited
    */
   protected readonly editing = signal(false);
@@ -143,7 +149,15 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
-  private readonly sendPolicyService = inject(SendPolicyService);
+  /**
+   * Whether to show the "Make a copy" button or not
+   */
+  protected readonly showCopyButton = signal(false);
+
+  /**
+   * Whether to show the trash icon button on the far right of the footer
+   */
+  protected readonly showTrashIconButton = signal(false);
 
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
@@ -153,6 +167,7 @@ export class SendAddEditDialogComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
     void this.init();
   }
@@ -183,6 +198,12 @@ export class SendAddEditDialogComponent {
       }
     }
     this.editing.set(this.config.mode === "add");
+    this.showCopyButton.set(
+      this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+    );
+    this.showTrashIconButton.set(
+      this.showCopyButton() || (!this.config.originalSend?.disabled && this.config?.mode !== "add"),
+    );
   }
 
   /**
@@ -353,26 +374,25 @@ export class SendAddEditDialogComponent {
     }
     const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
     const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
-    await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig: {
-        areSendsAllowed: true,
-        mode: "add",
-        sendType: originalSendView.type,
-        originalSend: null,
-        presetSendFields: {
-          name: originalSendView.name,
-          text: originalSendView.text,
-          maxAccessCount: originalSendView.maxAccessCount,
-          hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
-          notes: originalSendView.notes,
-          authType:
-            whoCanAccess === WhoCanAccessType.SpecificPeople
-              ? AuthType.Email
-              : whoCanAccess === WhoCanAccessType.PasswordProtected
-                ? AuthType.Password
-                : AuthType.None,
-        },
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
       },
-    });
+    };
+    await this.init();
   }
 }

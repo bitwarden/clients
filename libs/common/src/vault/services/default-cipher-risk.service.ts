@@ -1,7 +1,5 @@
 import { firstValueFrom, switchMap } from "rxjs";
 
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   CipherLoginDetails,
   CipherRiskOptions,
@@ -13,8 +11,10 @@ import {
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, CipherId } from "../../types/guid";
 import { CipherRiskService as CipherRiskServiceAbstraction } from "../abstractions/cipher-risk.service";
+import { CipherService } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
+import { filterOutNullish } from "../utils/observable-utilities";
 
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   constructor(

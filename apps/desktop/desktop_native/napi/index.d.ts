@@ -295,7 +295,7 @@ export declare namespace sshagent_v2 {
      * * `unlock_callback` - Allows agent to vault unlock
      * * `sign_callback` - Allows agent to get approval for sign requests
      */
-    static serve(signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
+    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void
@@ -318,6 +318,7 @@ export declare namespace sshagent_v2 {
     processName?: string
     isForwarding: boolean
     namespace?: SIGNamespace
+    hostFingerprint?: string
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {
