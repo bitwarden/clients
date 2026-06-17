@@ -178,7 +178,7 @@ export class ByLinkTabComponent {
 
     await this.eventCollectionService.collect(
       EventType.Organization_InviteLinkClientCopied,
-      null,
+      undefined,
       false,
       this.organizationId(),
     );
