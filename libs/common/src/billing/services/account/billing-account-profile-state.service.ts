@@ -1,12 +1,9 @@
 import { map, Observable } from "rxjs";
 
-import {
-  BillingAccountProfile,
-  BillingAccountProfileStateService,
-} from "@bitwarden/common/billing/abstractions";
 import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import { UserId } from "../../../types/guid";
+import { BillingAccountProfile, BillingAccountProfileStateService } from "../../abstractions";
 
 export const BILLING_ACCOUNT_PROFILE_KEY_DEFINITION = new UserKeyDefinition<BillingAccountProfile>(
   BILLING_DISK,

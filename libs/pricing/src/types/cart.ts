@@ -1,4 +1,4 @@
-import { Discount } from "@bitwarden/pricing";
+import { Discount } from "..";
 
 import { Credit } from "./credit";
 

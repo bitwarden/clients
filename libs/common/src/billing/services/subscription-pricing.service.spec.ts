@@ -1,18 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  EnvironmentService,
-  Region,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { EnvironmentService, Region } from "../../platform/abstractions/environment.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { BillingApiServiceAbstraction } from "../abstractions";
+import { PlanType, ProductTierType } from "../enums";
+import { PlanResponse } from "../models/response/plan.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import {
   BusinessSubscriptionPricingTierIds,
   PersonalSubscriptionPricingTierIds,
