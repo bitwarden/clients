@@ -11452,6 +11452,10 @@
     "message": "New machine account",
     "description": "Title for creating a new machine account."
   },
+  "addMachineAccount": {
+    "message": "Add machine account",
+    "description": "Title for creating a new machine account."
+  },
   "machineAccountsNoItemsMessage": {
     "message": "Create a new machine account to get started automating secret access.",
     "description": "Message to encourage the user to start creating machine accounts."
