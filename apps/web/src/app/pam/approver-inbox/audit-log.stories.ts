@@ -49,14 +49,14 @@ function item(
             Name: overrides.approverName ?? "Dana Approver",
             Email: "dana@example.com",
             Comment: overrides.comment ?? null,
-            Verdict: (overrides.status ?? "denied") === "denied" ? 1 : 0,
+            Verdict: (overrides.status ?? "denied") === "denied" ? 0 : 1,
             DecidedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
           }
         : {
             DeciderKind: "automatic",
             Id: null,
             Comment: overrides.comment ?? null,
-            Verdict: (overrides.status ?? "denied") === "denied" ? 1 : 0,
+            Verdict: (overrides.status ?? "denied") === "denied" ? 0 : 1,
             DecidedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
           },
     ],
