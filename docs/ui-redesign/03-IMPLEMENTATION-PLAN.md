@@ -30,7 +30,7 @@ it is how the next session knows where to pick up.
 ## D. Shell & navigation
 
 - [x] D1. Preview shell built: `KlsRedesignShell` + `KlsSidebarNav` + split-pane, mounted on a NEW additive `/redesign` route (production vault untouched). Renders against mock data shaped as bridge `ItemDetail`.
-- [~] D2. `KlsItemList` + rows + selection done. TODO: swap to CDK virtual scroll + hover quick-copy.
+- [x] D2. `KlsItemList` with CDK virtual scroll (`CdkVirtualScrollViewport` + `CdkFixedSizeVirtualScroll`, 56px item height) + hover quick-copy buttons (copy username, copy TOTP) that appear on row hover with spring animation. Handles thousands of items without DOM bloat.
 - [x] D3. `SearchBar` instant filtering via signals (`filteredItems` computed over category + query).
 
 ## E. Detail & interactions
@@ -38,7 +38,7 @@ it is how the next session knows where to pick up.
 - [x] E1. `KlsDetailPanel` split-pane built with `KlsCopyField`/`KlsRevealField`/`KlsTotpRing`/`KlsStrengthMeter` + live (mock) TOTP countdown. (Real data via bridge pending.)
 - [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
 - [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
-- [ ] E3. `CommandPalette` + command registry + global hotkeys.
+- [x] E3. `CommandPalette` — Cmd/Ctrl+K overlay with glassmorphism panel, instant search filter, keyboard navigation (↑↓ + Enter), built-in navigation + action commands, shortcut hints. Wired into shell via HostListener.
 - [ ] E4. Recent items + Quick access panels.
 
 ## F. Polish & verify

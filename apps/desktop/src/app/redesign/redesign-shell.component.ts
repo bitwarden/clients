@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ItemDetail, ItemSummary, VaultViewModelService } from "@klappstuhl/ui-bridge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { map } from "rxjs";
 
+import { KlsCommandPaletteComponent, PaletteAction } from "./command-palette.component";
 import { KlsDetailPanelComponent } from "./detail-panel.component";
 import { KlsItemListComponent } from "./item-list.component";
 import { MOCK_ITEMS } from "./mock-data";
@@ -21,7 +22,7 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
 @Component({
   selector: "kls-redesign-shell",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KlsSidebarNavComponent, KlsItemListComponent, KlsDetailPanelComponent],
+  imports: [KlsSidebarNavComponent, KlsItemListComponent, KlsDetailPanelComponent, KlsCommandPaletteComponent],
   host: {
     class: "tw-flex tw-h-screen tw-w-screen tw-overflow-hidden tw-bg-bg-primary theme_dark",
     style: "font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'",
@@ -40,6 +41,13 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
       (select)="onSelectItem($event)"
     />
     <kls-detail-panel [item]="selectedDetail()" />
+
+    @if (paletteOpen()) {
+      <kls-command-palette
+        (close)="paletteOpen.set(false)"
+        (execute)="onPaletteAction($event)"
+      />
+    }
   `,
 })
 export class KlsRedesignShellComponent {
@@ -55,6 +63,7 @@ export class KlsRedesignShellComponent {
   protected readonly query = signal<string>("");
   protected readonly selectedId = signal<string | undefined>(undefined);
   protected readonly selectedDetail = signal<ItemDetail | undefined>(undefined);
+  protected readonly paletteOpen = signal(false);
 
   private readonly liveItems = computed<readonly ItemSummary[]>(() => {
     if (this.hasUser()) {
@@ -103,6 +112,13 @@ export class KlsRedesignShellComponent {
     }
   }
 
+  @HostListener("document:keydown.meta.k", ["$event"])
+  @HostListener("document:keydown.control.k", ["$event"])
+  protected onOpenPalette(event: Event): void {
+    event.preventDefault();
+    this.paletteOpen.set(true);
+  }
+
   protected onCategory(cat: NavCategory): void {
     this.activeCategory.set(cat);
     const firstId = this.filteredItems()[0]?.id;
@@ -117,6 +133,13 @@ export class KlsRedesignShellComponent {
   protected onSelectItem(id: string): void {
     this.selectedId.set(id);
     void this.loadDetail(id);
+  }
+
+  protected onPaletteAction(action: PaletteAction): void {
+    if (action.id.startsWith("nav:")) {
+      const cat = action.id.replace("nav:", "") as NavCategory;
+      this.onCategory(cat);
+    }
   }
 
   private async loadDetail(id: string): Promise<void> {
