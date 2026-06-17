@@ -16,6 +16,11 @@ contextBridge.exposeInMainWorld("kls", {
     ipcRenderer.on("kls-spotlight:reset", handler);
     return () => ipcRenderer.removeListener("kls-spotlight:reset", handler);
   },
+  onLabels: (cb) => {
+    const handler = (_event, labels) => cb(labels);
+    ipcRenderer.on("kls-spotlight:labels", handler);
+    return () => ipcRenderer.removeListener("kls-spotlight:labels", handler);
+  },
   requestActions: (id) => ipcRenderer.send("kls-spotlight:actions-request", id),
   onActions: (cb) => {
     const handler = (_event, payload) => cb(payload);

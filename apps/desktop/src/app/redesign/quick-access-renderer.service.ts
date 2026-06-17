@@ -21,12 +21,24 @@ interface QuickAccessActionOption {
   label: string;
 }
 
+interface QuickAccessLabels {
+  placeholder: string;
+  copyPassword: string;
+  moreOptions: string;
+  copy: string;
+  back: string;
+  close: string;
+  noMatches: string;
+  nothingToCopy: string;
+}
+
 interface QuickAccessBridge {
   onSearch: (cb: (query: string) => void) => () => void;
   sendResults: (results: QuickAccessResult[]) => void;
   onActionsRequest: (cb: (id: string) => void) => () => void;
   sendActions: (payload: { id: string; actions: QuickAccessActionOption[] }) => void;
   onActivate: (cb: (activation: QuickAccessActivation) => void) => () => void;
+  sendLabels: (labels: QuickAccessLabels) => void;
 }
 
 const MAX_RESULTS = 8;
@@ -61,6 +73,26 @@ export class QuickAccessRendererService {
     bridge.onSearch((query) => bridge.sendResults(this.search(query)));
     bridge.onActionsRequest((id) => void this.sendActions(bridge, id));
     bridge.onActivate((activation) => void this.activate(activation));
+    bridge.sendLabels(this.buildLabels());
+  }
+
+  /** Translate with a fallback (i18n.t may return "" or the key when missing). */
+  private t(key: string, fallback: string): string {
+    const value = this.vaultService.t(key);
+    return value && value !== key ? value : fallback;
+  }
+
+  private buildLabels(): QuickAccessLabels {
+    return {
+      placeholder: `${this.t("searchVault", "Search your vault")}…`,
+      copyPassword: this.t("copyPassword", "copy password"),
+      moreOptions: this.t("options", "more options"),
+      copy: this.t("copy", "copy"),
+      back: this.t("back", "back"),
+      close: this.t("close", "close"),
+      noMatches: this.t("noItemsToShow", "No matches"),
+      nothingToCopy: this.t("noItemsToShow", "Nothing to copy"),
+    };
   }
 
   private async sendActions(bridge: QuickAccessBridge, id: string): Promise<void> {
@@ -68,16 +100,19 @@ export class QuickAccessRendererService {
     try {
       const detail = await this.vaultService.getDetail(id);
       if (detail.username) {
-        actions.push({ action: "username", label: "Copy username" });
+        actions.push({ action: "username", label: this.t("copyUsername", "Copy username") });
       }
       if (detail.password) {
-        actions.push({ action: "password", label: "Copy password" });
+        actions.push({ action: "password", label: this.t("copyPassword", "Copy password") });
       }
       if (detail.totpAvailable) {
-        actions.push({ action: "totp", label: "Copy 2FA code" });
+        actions.push({
+          action: "totp",
+          label: this.t("copyVerificationCode", "Copy 2FA code"),
+        });
       }
       if (detail.uris && detail.uris.length > 0) {
-        actions.push({ action: "openfill", label: "Open & fill" });
+        actions.push({ action: "openfill", label: this.t("launch", "Open & fill") });
       }
     } catch {
       // Item vanished or failed to decrypt — send whatever we have (possibly empty).

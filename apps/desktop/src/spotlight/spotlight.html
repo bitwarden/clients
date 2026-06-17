@@ -279,14 +279,14 @@
       </div>
       <ul id="results" class="results"></ul>
       <div id="hint" class="hint" style="display: none">
-        <span><b>↵ Enter</b> copy password</span>
-        <span><b>→</b> more options</span>
-        <span><b>Esc</b> close</span>
+        <span><b>↵ Enter</b> <span id="lblCopyPassword">copy password</span></span>
+        <span><b>→</b> <span id="lblMoreOptions">more options</span></span>
+        <span><b>Esc</b> <span id="lblClose">close</span></span>
       </div>
       <div id="hintSub" class="hint" style="display: none">
-        <span><b>↵ Enter</b> copy</span>
-        <span><b>←</b> back</span>
-        <span><b>Esc</b> close</span>
+        <span><b>↵ Enter</b> <span id="lblCopy">copy</span></span>
+        <span><b>←</b> <span id="lblBack">back</span></span>
+        <span><b>Esc</b> <span id="lblClose2">close</span></span>
       </div>
     </div>
 
@@ -307,6 +307,39 @@
         var actions = [];
         var subSel = 0;
         var debounce;
+
+        // Translated UI strings, pushed from the renderer (English defaults).
+        var labels = {
+          placeholder: "Search your vault…",
+          copyPassword: "copy password",
+          moreOptions: "more options",
+          copy: "copy",
+          back: "back",
+          close: "close",
+          noMatches: "No matches",
+          nothingToCopy: "Nothing to copy",
+        };
+
+        function setText(id, value) {
+          var el = document.getElementById(id);
+          if (el && value) {
+            el.textContent = value;
+          }
+        }
+
+        function applyLabels(next) {
+          if (!next) {
+            return;
+          }
+          labels = Object.assign(labels, next);
+          input.placeholder = labels.placeholder;
+          setText("lblCopyPassword", labels.copyPassword);
+          setText("lblMoreOptions", labels.moreOptions);
+          setText("lblClose", labels.close);
+          setText("lblClose2", labels.close);
+          setText("lblCopy", labels.copy);
+          setText("lblBack", labels.back);
+        }
 
         function syncHeight() {
           // Let the window grow/shrink to fit content.
@@ -367,7 +400,7 @@
             return;
           }
           if (items.length === 0) {
-            list.innerHTML = '<li class="empty">No matches</li>';
+            list.innerHTML = '<li class="empty">' + escapeHtml(labels.noMatches) + "</li>";
             hint.style.display = "none";
             syncHeight();
             return;
@@ -407,7 +440,7 @@
           submenuHead.style.display = "flex";
           list.innerHTML = "";
           if (actions.length === 0) {
-            list.innerHTML = '<li class="empty">Nothing to copy</li>';
+            list.innerHTML = '<li class="empty">' + escapeHtml(labels.nothingToCopy) + "</li>";
             hintSub.style.display = "none";
             syncHeight();
             return;
@@ -559,6 +592,7 @@
             render();
             input.focus();
           });
+          kls.onLabels(applyLabels);
         }
 
         input.focus();

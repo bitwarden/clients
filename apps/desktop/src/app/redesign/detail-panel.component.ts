@@ -146,7 +146,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
                 [disabled]="saving()"
                 (click)="onCancelEdit()"
               >
-                Cancel
+                {{ i18n.t("cancel") || "Cancel" }}
               </button>
               <button
                 type="button"
@@ -156,11 +156,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
                 [disabled]="saving()"
                 (click)="onSave()"
               >
-                {{ saving() ? "Saving…" : "Save" }}
+                {{ saving() ? i18n.t("loading") || "Saving…" : i18n.t("save") || "Save" }}
               </button>
             } @else {
               <button type="button" klsButton variant="secondary" size="sm" (click)="onStartEdit()">
-                Edit
+                {{ i18n.t("edit") || "Edit" }}
               </button>
             }
           </div>

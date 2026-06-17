@@ -54,6 +54,10 @@ const klsQuickAccess = {
   sendActions: (actions: QuickAccessActions): void => {
     ipcRenderer.send("kls-qa:actions", actions);
   },
+  /** Push the translated UI label bundle for the spotlight (cached by main). */
+  sendLabels: (labels: Record<string, string>): void => {
+    ipcRenderer.send("kls-qa:labels", labels);
+  },
   /** Register a handler for "activate this item" requests from the spotlight. */
   onActivate: (cb: (activation: QuickAccessActivation) => void): (() => void) => {
     const handler = (_event: unknown, activation: QuickAccessActivation) => cb(activation);

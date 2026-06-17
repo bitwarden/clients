@@ -30,6 +30,7 @@ export class QuickAccessMain {
 
   private spotlightWindow: BrowserWindow | null = null;
   private ipcRegistered = false;
+  private labels: Record<string, string> | null = null;
 
   constructor(
     private readonly windowMain: WindowMain,
@@ -73,7 +74,10 @@ export class QuickAccessMain {
     win.center();
     win.show();
     win.focus();
-    // Tell the spotlight page to reset its input/results each time it opens.
+    // Push the latest translated labels, then reset the input/results.
+    if (this.labels != null) {
+      win.webContents.send("kls-spotlight:labels", this.labels);
+    }
     win.webContents.send("kls-spotlight:reset");
   }
 
@@ -158,6 +162,14 @@ export class QuickAccessMain {
     ipcMain.on("kls-qa:actions", (_event, payload: unknown) => {
       if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
         this.spotlightWindow.webContents.send("kls-spotlight:actions", payload);
+      }
+    });
+
+    // Renderer pushes the translated label bundle; cache + forward to spotlight.
+    ipcMain.on("kls-qa:labels", (_event, payload: Record<string, string>) => {
+      this.labels = payload;
+      if (this.spotlightWindow != null && !this.spotlightWindow.isDestroyed()) {
+        this.spotlightWindow.webContents.send("kls-spotlight:labels", payload);
       }
     });
 
