@@ -27,13 +27,13 @@ the original encryption, sync, authentication, and **Vaultwarden** compatibility
 
 ## Architecture
 
-| Layer             | Location                                                                     | Purpose                                                                                                                                                          |
-|-------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Design system** | `libs/ui-kit` (`@klappstuhl/ui-kit`)                                         | Theme tokens + reusable primitives (button, copy-field, reveal-field, TOTP ring, strength meter).                                                                |
-| **Bridge**        | `libs/ui-bridge` (`@klappstuhl/ui-bridge`)                                   | The *only* fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock/biometric-unlock, password-strength into a presentation-friendly API. |
-| **App shell**     | `apps/desktop/src/app/redesign/`                                             | The redesigned vault UI (sidebar, split-pane list + detail, command palette). Mounted at `/redesign`, which **replaces** `/vault` for logged-in users.           |
-| **Spotlight**     | `apps/desktop/src/spotlight/` + `apps/desktop/src/main/quick-access.main.ts` | Standalone Quick Access window (see below).                                                                                                                      |
-| **Theme**         | `libs/ui-kit/src/theme/fork-theme.css` + `fork-overlays.css`                 | Reskins the whole app by overriding CSS token *values*; imported last in `apps/desktop/src/scss/tailwind.css`.                                                   |
+| Layer             | Location                                                                     | Purpose                                                                                                                                                                           |
+| ----------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Design system** | `libs/ui-kit` (`@klappstuhl/ui-kit`)                                         | Theme tokens + reusable primitives (button, copy-field, reveal-field, TOTP ring, strength meter).                                                                                 |
+| **Bridge**        | `libs/ui-bridge` (`@klappstuhl/ui-bridge`)                                   | The _only_ fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock/biometric-unlock, password-strength into a presentation-friendly API. |
+| **App shell**     | `apps/desktop/src/app/redesign/`                                             | The redesigned vault UI (sidebar, split-pane list + detail, command palette). Mounted at `/redesign`, which **replaces** `/vault` for logged-in users.                            |
+| **Spotlight**     | `apps/desktop/src/spotlight/` + `apps/desktop/src/main/quick-access.main.ts` | Standalone Quick Access window (see below).                                                                                                                                       |
+| **Theme**         | `libs/ui-kit/src/theme/fork-theme.css` + `fork-overlays.css`                 | Reskins the whole app by overriding CSS token _values_; imported last in `apps/desktop/src/scss/tailwind.css`.                                                                    |
 
 Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
 
@@ -42,6 +42,7 @@ Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
 ## Features & changes
 
 ### Visual redesign
+
 - **Apple-style glass theme** — rounded surfaces, frosted/translucent panels,
   backdrop blur, soft layered shadows, and smooth motion, all driven by `--fk-*`
   design tokens. Dark-mode first, light mode supported.
@@ -69,6 +70,7 @@ Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
   rounded **segmented pill** control instead of the flat underline tabs.
 
 ### Interactions
+
 - **Command palette** — `Ctrl/Cmd+K` glassmorphic overlay with instant filter and
   keyboard navigation.
 - **Keyboard map** — arrow keys to move selection, copy shortcuts, `/` to focus
@@ -77,8 +79,9 @@ Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
   Bitwarden dialogs.
 
 ### Quick Access spotlight (the headline feature)
+
 A separate **frameless, transparent, always-on-top** window summoned by a global
-**`Ctrl/Cmd+Shift+Space`** — *without* opening the main app (it just needs to be
+**`Ctrl/Cmd+Shift+Space`** — _without_ opening the main app (it just needs to be
 running, e.g. in the tray).
 
 - **Unlock from the spotlight.** If the vault is locked when you summon it, the
@@ -87,6 +90,13 @@ running, e.g. in the tray).
   delegated entirely to the existing core services via the bridge; no crypto is
   re-implemented, and the spotlight never sees secrets.
 - Instant vault search with **website favicons** (letter-avatar fallback).
+- **Context suggestions.** When summoned, it reads the title of the app/window that
+  was focused (Windows; via a dependency-free Win32 Z-order probe that skips its own
+  and hidden helper windows) and suggests the closest-matching vault items in the
+  empty-query state — e.g. focus a browser on a saved site, or a desktop app you have
+  a login for, and it surfaces that entry before you type a thing.
+- **Mouse + keyboard navigation.** Rows highlight on hover as well as with ↑/↓, so a
+  click acts on the hovered entry.
 - **Enter** copies the password; **→** opens a per-item **submenu** of available
   actions (Copy username / password / 2FA code, and **Open & fill**), navigated with
   ↑/↓, **Enter** to copy, **←**/Esc to go back.
@@ -97,6 +107,7 @@ running, e.g. in the tray).
   secrets never enter the spotlight process.
 
 ### Internationalization
+
 - Nav categories, the edit/save buttons, and **all spotlight UI strings + actions**
   use Bitwarden's i18n (with English fallbacks). The spotlight, being a static page,
   receives a translated label bundle pushed from the renderer.
@@ -104,6 +115,7 @@ running, e.g. in the tray).
 ---
 
 ## Constraints honored
+
 - No edits to `libs/common`, `libs/key-management`, `libs/auth`, or
   `apps/desktop/desktop_native`.
 - No React/Vite/shadcn/Zustand — stays Angular. All Tailwind classes use the `tw-`
@@ -120,23 +132,27 @@ running, e.g. in the tray).
 > dirs. See [`docs/ui-redesign/`](docs/ui-redesign/) for more gotchas.
 
 ### Quick dev run (no installer)
+
 ```bash
 cd apps/desktop
 npm run build          # webpack: renderer + main + preload (one-shot, no watch)
 npm start              # launches Electron against ./build  (no auto-reload)
 ```
+
 Avoid the `--watch` dev flow while testing logged-in flows: a recompile reloads the
 window and drops the in-memory session (looks like a logout).
 
 ### Build a Windows `.exe`
 
 **Prerequisites**
+
 - Node ≥ 22.12, npm ~10
 - **Rust** (cargo) — to build the native module `desktop_native`
 - **Visual Studio Build Tools** with the “Desktop development with C++” workload
   (MSVC + Windows SDK) — required to compile the native module on Windows
 
 **Steps** (from `apps/desktop/`)
+
 ```bash
 # 1. Rebuild native node deps for Electron (only needed once / after installs)
 npx electron-rebuild
@@ -153,6 +169,7 @@ npx electron-builder --win portable --x64 -p never
 # 4b. OR a proper installer (Start-menu entry + uninstaller)
 npx electron-builder --win nsis --x64 -p never
 ```
+
 The output lands in **`apps/desktop/dist/`** (e.g. `Bitwarden 2026.6.0.exe` for the
 portable build, or a `*-Setup-*.exe` for the NSIS installer).
 
@@ -163,6 +180,7 @@ portable build, or a `*-Setup-*.exe` for the NSIS installer).
 > “More info → Run anyway”.
 
 ### Point it at your Vaultwarden
+
 On first launch, set the **Server URL** (Settings → self-hosted environment) to your
 Vaultwarden instance, then log in as usual. All sync/crypto is unchanged from
 upstream Bitwarden.
@@ -170,19 +188,23 @@ upstream Bitwarden.
 ---
 
 ## Keeping up with upstream
+
 Set up the upstream remote once and merge periodically; conflicts can only occur in
 the short list of touched files (see the compatibility doc):
+
 ```bash
 git remote add upstream https://github.com/bitwarden/clients.git
 git fetch --unshallow        # one-time, if this was a shallow clone
 git fetch upstream && git merge upstream/main
 ```
+
 After merging, run the **Vaultwarden acceptance test** in
 [`docs/ui-redesign/05-COMPATIBILITY-RISKS.md`](docs/ui-redesign/05-COMPATIBILITY-RISKS.md).
 
 ---
 
 ## Known limitations
+
 - **Quick Access** requires the app to be running (tray/background); a global
   shortcut can't wake a fully-quit process. If the vault is locked it can unlock
   in place via biometrics, but unlocking by other means (master password / PIN)
@@ -192,3 +214,7 @@ After merging, run the **Vaultwarden acceptance test** in
   app can't inject into another app's web page.
 - A few spotlight micro-labels have no dedicated Bitwarden i18n key and stay English
   in non-English locales until upstream adds one.
+- **Context suggestions** are Windows-only and title-based: they match the focused
+  window's title against item names/URLs (a browser exposes the page title, not the
+  raw tab URL, without an extension). Non-Windows hosts simply skip the suggestion
+  and fall back to plain search.

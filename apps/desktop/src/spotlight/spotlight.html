@@ -262,6 +262,15 @@
         color: var(--fg-subtle);
         font-size: 13px;
       }
+      .section-label {
+        display: block;
+        padding: 6px 12px 4px;
+        color: var(--fg-subtle);
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
       .locked {
         display: flex;
         flex-direction: column;
@@ -418,6 +427,11 @@
         var unlocking = false;
         var canBiometric = false;
 
+        // Context suggestions: items matched against the foreground app/page,
+        // shown in the empty (no-query) state.
+        var suggestions = [];
+        var suggestContext = "";
+
         // Translated UI strings, pushed from the renderer (English defaults).
         var labels = {
           placeholder: "Search your vault…",
@@ -432,6 +446,7 @@
           unlock: "Unlock",
           unlocking: "Unlocking…",
           unlockError: "Couldn't unlock. Try again.",
+          suggested: "Suggested",
         };
 
         function setText(id, value) {
@@ -507,22 +522,50 @@
           return av;
         }
 
+        // The list currently being shown/navigated: search results when there's a
+        // query, otherwise the context suggestions.
+        function currentList() {
+          return input.value.trim() ? items : suggestions;
+        }
+
+        function setListSelection(i) {
+          sel = i;
+          var rows = list.querySelectorAll(".row");
+          for (var k = 0; k < rows.length; k++) {
+            rows[k].classList.toggle("sel", k === i);
+          }
+        }
+
         function renderList() {
           submenuHead.style.display = "none";
           hintSub.style.display = "none";
           list.innerHTML = "";
-          if (!input.value.trim()) {
+          var q = input.value.trim();
+          var data = currentList();
+
+          if (!q && data.length === 0) {
+            // Empty query, no suggestions → nothing to show.
             hint.style.display = "none";
             syncHeight();
             return;
           }
-          if (items.length === 0) {
+          if (q && data.length === 0) {
             list.innerHTML = '<li class="empty">' + escapeHtml(labels.noMatches) + "</li>";
             hint.style.display = "none";
             syncHeight();
             return;
           }
-          items.forEach(function (it, i) {
+
+          if (!q) {
+            var head = document.createElement("li");
+            head.className = "section-label";
+            head.textContent = suggestContext
+              ? labels.suggested + " · " + suggestContext
+              : labels.suggested;
+            list.appendChild(head);
+          }
+
+          data.forEach(function (it, i) {
             var li = document.createElement("li");
             li.className = "row" + (i === sel ? " sel" : "");
             li.innerHTML =
@@ -537,6 +580,9 @@
               "</span>" +
               CHEVRON;
             li.insertBefore(buildAvatar(it, false), li.firstChild);
+            li.addEventListener("mouseenter", function () {
+              setListSelection(i);
+            });
             li.addEventListener("click", function () {
               sel = i;
               activate("password");
@@ -574,6 +620,13 @@
               "</span>" +
               (a.hint ? '<span class="action-value">' + escapeHtml(a.hint) + "</span>" : "") +
               "</span>";
+            li.addEventListener("mouseenter", function () {
+              subSel = i;
+              var rows = list.querySelectorAll(".row");
+              for (var k = 0; k < rows.length; k++) {
+                rows[k].classList.toggle("sel", k === i);
+              }
+            });
             li.addEventListener("click", function () {
               subSel = i;
               activate(a.action);
@@ -628,7 +681,7 @@
         }
 
         function openSubmenu() {
-          var it = items[sel];
+          var it = currentList()[sel];
           if (!it || !kls) {
             return;
           }
@@ -649,7 +702,7 @@
         }
 
         function activate(action) {
-          var it = mode === "submenu" ? subItem : items[sel];
+          var it = mode === "submenu" ? subItem : currentList()[sel];
           if (it && kls) {
             kls.activate(it.id, action);
           }
@@ -661,6 +714,13 @@
           }
           clearTimeout(debounce);
           var q = input.value;
+          if (!q.trim()) {
+            // Cleared the query → fall back to the suggestion state immediately.
+            items = [];
+            sel = 0;
+            render();
+            return;
+          }
           debounce = setTimeout(function () {
             if (kls) {
               kls.search(q);
@@ -709,7 +769,7 @@
           }
           // list mode
           if (e.key === "ArrowDown") {
-            sel = Math.min(items.length - 1, sel + 1);
+            sel = Math.min(currentList().length - 1, sel + 1);
             render();
             e.preventDefault();
           } else if (e.key === "ArrowUp") {
@@ -759,6 +819,15 @@
             render();
           });
           kls.onLockState(applyLockState);
+          kls.onSuggestions(function (payload) {
+            suggestions = payload && Array.isArray(payload.items) ? payload.items : [];
+            suggestContext = (payload && payload.context) || "";
+            // Only the empty (no-query) list state surfaces suggestions.
+            if (!locked && mode === "list" && !input.value.trim()) {
+              sel = 0;
+              render();
+            }
+          });
           kls.onActions(function (payload) {
             if (mode !== "submenu" || !subItem || !payload || payload.id !== subItem.id) {
               return;
@@ -775,6 +844,10 @@
             items = [];
             sel = 0;
             unlocking = false;
+            // Clear stale suggestions; the main process re-pushes fresh ones for
+            // the app that's focused right now.
+            suggestions = [];
+            suggestContext = "";
             render();
             input.focus();
             // Re-check lock state each time the spotlight is summoned.

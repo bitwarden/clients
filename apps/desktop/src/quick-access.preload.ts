@@ -40,6 +40,13 @@ export interface QuickAccessLockState {
   canBiometricUnlock: boolean;
 }
 
+export interface QuickAccessSuggestions {
+  /** Short label for the matched context (e.g. the app/site name). */
+  context: string;
+  /** Items matched against the foreground window/page. */
+  items: QuickAccessResult[];
+}
+
 const klsQuickAccess = {
   /** Register a handler for incoming search queries from the spotlight. */
   onSearch: (cb: (query: string) => void): (() => void) => {
@@ -86,6 +93,19 @@ const klsQuickAccess = {
     const handler = () => cb();
     ipcRenderer.on("kls-qa:unlock", handler);
     return () => ipcRenderer.removeListener("kls-qa:unlock", handler);
+  },
+  /**
+   * Register a handler for the foreground-window context (the title of the app/page
+   * focused when the spotlight was summoned), so the renderer can suggest matches.
+   */
+  onContext: (cb: (title: string) => void): (() => void) => {
+    const handler = (_event: unknown, title: string) => cb(title);
+    ipcRenderer.on("kls-qa:context", handler);
+    return () => ipcRenderer.removeListener("kls-qa:context", handler);
+  },
+  /** Send context-derived suggestions to the spotlight (empty-query state). */
+  sendSuggestions: (payload: QuickAccessSuggestions): void => {
+    ipcRenderer.send("kls-qa:suggestions", payload);
   },
 };
 

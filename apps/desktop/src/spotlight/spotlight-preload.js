@@ -37,4 +37,9 @@ contextBridge.exposeInMainWorld("kls", {
     return () => ipcRenderer.removeListener("kls-spotlight:lock-state", handler);
   },
   unlock: () => ipcRenderer.send("kls-spotlight:unlock"),
+  onSuggestions: (cb) => {
+    const handler = (_event, payload) => cb(payload);
+    ipcRenderer.on("kls-spotlight:suggestions", handler);
+    return () => ipcRenderer.removeListener("kls-spotlight:suggestions", handler);
+  },
 });
