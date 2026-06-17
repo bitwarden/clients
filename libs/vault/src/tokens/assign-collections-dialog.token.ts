@@ -1,4 +1,3 @@
-
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
