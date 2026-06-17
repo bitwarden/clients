@@ -11,9 +11,9 @@ import { AtLeastOne, Zero } from "./constraints";
 import { DynamicPasswordPolicyConstraints } from "./dynamic-password-policy-constraints";
 
 // non-null assertions used because these are always-defined constants
-const accoutSettings = BuiltIn.password.profiles[Profile.account]!
+const accountSettings = BuiltIn.password.profiles[Profile.account]!
   .storage as ObjectKey<PasswordGeneratorSettings>;
-const defaultOptions = accoutSettings.initial!;
+const defaultOptions = accountSettings.initial!;
 const disabledPolicy = {
   minLength: 0,
   useUppercase: false,

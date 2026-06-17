@@ -1,6 +1,6 @@
 # Using Nx to Build Projects
 
-Bitwarden uses [Nx](https://nx.dev/) to make building projects from the monorepo easier. To build, lint, or test a project you'll want to reference the project's `project.json` file for availible commands and their names. Then you'll run `npx nx [your_command] [your_project] [your_options]`. Run `npx nx --help` to see availible options, there are many.
+Bitwarden uses [Nx](https://nx.dev/) to make building projects from the monorepo easier. To build, lint, or test a project you'll want to reference the project's `project.json` file for available commands and their names. Then you'll run `npx nx [your_command] [your_project] [your_options]`. Run `npx nx --help` to see available options, there are many.
 
 Please note: the Nx implementation is a work in progress. CI still uses the old npm builds, and we have many "legacy" libraries that use hacks to get them into the Nx project graph.
 
@@ -40,7 +40,7 @@ npx nx build cli --configuration=oss # or "commercial"
 # For example: to run all Bitwarden licensed builds
 npx nx run-many --target=build,test,lint --all --configuration=commercial
 
-# Outputs are distrubuted in a root level /dist/ folder
+# Outputs are distributed in a root level /dist/ folder
 
 # Run a locally built CLI
 node dist/apps/cli/oss-dev/bw.js

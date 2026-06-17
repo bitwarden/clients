@@ -28,7 +28,7 @@ export class MigrationHelper {
    * ran more than that single time, they will get a unique name if that the write can make conditional logic based on which
    * migration run this is.
    *
-   * @remarks The preferrable way of writing migrations is ALWAYS to be defensive and reflect on the data you are given back. This
+   * @remarks The preferable way of writing migrations is ALWAYS to be defensive and reflect on the data you are given back. This
    * should really only be used when reflecting on the data given isn't enough.
    */
   type: MigrationHelperType;

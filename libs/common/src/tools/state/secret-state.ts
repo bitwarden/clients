@@ -151,10 +151,10 @@ export class SecretState<
 
     // convert the object to a list format so that all encrypt and decrypt
     // operations are self-similar
-    const desconstructed = this.key.deconstruct(data);
+    const deconstructed = this.key.deconstruct(data);
 
     // encrypt each value individually
-    const classifyTasks = desconstructed.map(async (item) => this.classifyItem(encryptor, item));
+    const classifyTasks = deconstructed.map(async (item) => this.classifyItem(encryptor, item));
     const classified = await Promise.all(classifyTasks);
 
     return classified;

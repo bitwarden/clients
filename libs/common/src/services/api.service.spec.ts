@@ -223,7 +223,7 @@ describe("ApiService", () => {
         expectedEffectiveUser: testActiveUser,
       },
       {
-        name: "refreshes acess token when the user passed in happens to be the active one",
+        name: "refreshes access token when the user passed in happens to be the active one",
         authedOrUserId: testActiveUser,
         expectedEffectiveUser: testActiveUser,
       },

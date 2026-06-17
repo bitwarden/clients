@@ -2,7 +2,7 @@ import { FormControl, FormGroup } from "@angular/forms";
 
 /**
  * Helper type to map a model to a strictly typed from group. Allows specifying a formGroup's
- * type explicity using an existing model/interface instead of a type being inferred
+ * type explicitly using an existing model/interface instead of a type being inferred
  * indirectly by control structure.
  * Source: https://netbasal.com/typed-reactive-forms-in-angular-no-longer-a-type-dream-bf6982b0af28
  * @example

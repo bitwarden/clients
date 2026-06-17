@@ -379,7 +379,7 @@ export class TokenService implements TokenServiceAbstraction {
             error,
           );
 
-          // Fall back to disk storage for unecrypted access token
+          // Fall back to disk storage for unencrypted access token
           decryptedAccessToken = await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
             .update((_) => accessToken, {

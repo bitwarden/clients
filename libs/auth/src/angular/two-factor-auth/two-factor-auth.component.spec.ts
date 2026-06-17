@@ -83,7 +83,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
   let mockAuthService: MockProxy<AuthService>;
   let mockConfigService: MockProxy<ConfigService>;
-  let mockKeyConnnectorService: MockProxy<KeyConnectorService>;
+  let mockKeyConnectorService: MockProxy<KeyConnectorService>;
   let mockLoginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
 
   let mockUserDecryptionOpts: {
@@ -121,8 +121,8 @@ describe("TwoFactorAuthComponent", () => {
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
     mockAuthService = mock<AuthService>();
     mockConfigService = mock<ConfigService>();
-    mockKeyConnnectorService = mock<KeyConnectorService>();
-    mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
+    mockKeyConnectorService = mock<KeyConnectorService>();
+    mockKeyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
 
     mockLoginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
     mockLoginStrategySessionTimeoutService.loginSessionTimeout$ = new BehaviorSubject<void>(
@@ -230,7 +230,7 @@ describe("TwoFactorAuthComponent", () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
-        { provide: KeyConnectorService, useValue: mockKeyConnnectorService },
+        { provide: KeyConnectorService, useValue: mockKeyConnectorService },
         {
           provide: LoginStrategySessionTimeoutService,
           useValue: mockLoginStrategySessionTimeoutService,
@@ -427,7 +427,7 @@ describe("TwoFactorAuthComponent", () => {
 
       it("navigates to /confirm-key-connector-domain when Key Connector is enabled and user has no master password", async () => {
         selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPasswordWithKeyConnector);
-        mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(
+        mockKeyConnectorService.requiresDomainConfirmation$.mockReturnValue(
           of({
             keyConnectorUrl:
               mockUserDecryptionOpts.noMasterPasswordWithKeyConnector.keyConnectorOption!

@@ -202,7 +202,7 @@ describe("OrganizationService", () => {
   });
 
   describe("upsert()", () => {
-    it("can create the organization list if necassary", async () => {
+    it("can create the organization list if necessary", async () => {
       // Notice that no default state is provided in this test, so the list in
       // `stateProvider` will be null when the `upsert` method is called.
       const mockData = buildMockOrganizations();
