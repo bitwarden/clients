@@ -5,7 +5,16 @@
   type="button"
   [startIcon]="!hideIcon ? 'bwi-plus' : undefined"
 >
-  {{ (hideIcon ? "createSend" : "new") | i18n }}
+  {{
+    (hideIcon
+      ? newToAddFeatureFlag()
+        ? "createSendV2"
+        : "createSend"
+      : newToAddFeatureFlag()
+        ? "create"
+        : "new"
+    ) | i18n
+  }}
 </button>
 <bit-menu #itemOptions>
   <a bitMenuItem [routerLink]="buildRouterLink()" [queryParams]="buildQueryParams(sendType.Text)">
