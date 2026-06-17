@@ -141,6 +141,9 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       const member = this.orgUsersUserIdMap.get(platformUserId);
       if (member?.organizationUserId != null) {
         void this.switchEntity("user", member.organizationUserId, member.name);
+        if (this.params.organizationId != null) {
+          void this.router.navigate(["/organizations", this.params.organizationId, "members"]);
+        }
       }
     }
   }

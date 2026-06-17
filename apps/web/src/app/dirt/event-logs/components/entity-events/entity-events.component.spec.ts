@@ -26,6 +26,7 @@ import { EntityEventsComponent, EntityEventsDialogParams } from "./entity-events
 describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () => {
   let component: any;
   let loadSpy: jest.SpyInstance;
+  let router: ReturnType<typeof mock<Router>>;
 
   const params: EntityEventsDialogParams = {
     entity: "send",
@@ -40,6 +41,7 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
     i18n.t.mockImplementation((id: string) => id);
     const eventService = mock<EventService>();
     eventService.getDefaultDateFilters.mockReturnValue(["", ""]);
+    router = mock<Router>();
 
     component = new EntityEventsComponent(
       params,
@@ -52,7 +54,7 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
       new FormBuilder(),
       mock<ValidationService>(),
       mock<ToastService>(),
-      mock<Router>(),
+      router,
       mock<ActivatedRoute>(),
       mock<AccountService>(),
       mock<OrganizationService>(),
@@ -74,20 +76,22 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
     return { target: code, preventDefault: jest.fn() } as unknown as Event;
   };
 
-  it("re-parameterizes to the clicked Send in place", () => {
+  it("re-parameterizes to the clicked Send in place (and does NOT navigate)", () => {
     component.onEventMessageClick(clickOnHref(SEND_EVENTS_HREF_PREFIX + "send-123"));
 
     expect(component.entity).toBe("send");
     expect(component.entityId).toBe("send-123");
     expect(loadSpy).toHaveBeenCalledTimes(1);
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it("re-parameterizes to the clicked member (resolved org-user id) in place", () => {
+  it("re-focuses on the member in place AND replaces the background with the Members page", () => {
     component.onEventMessageClick(clickOnHref(MEMBER_EVENTS_HREF_PREFIX + "member-user-id"));
 
     expect(component.entity).toBe("user");
     expect(component.entityId).toBe("org-user-1");
     expect(loadSpy).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledWith(["/organizations", "org-1", "members"]);
   });
 
   it("does nothing when the clicked user id does not resolve to a member", () => {
@@ -95,5 +99,6 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
 
     expect(component.entity).toBe("send");
     expect(loadSpy).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 });

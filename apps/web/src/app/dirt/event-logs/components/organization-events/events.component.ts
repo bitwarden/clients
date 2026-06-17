@@ -3,7 +3,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -91,6 +91,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private dialogService: DialogService,
     private configService: ConfigService,
     protected activeRoute: ActivatedRoute,
+    private router: Router,
   ) {
     super(
       eventService,
@@ -313,6 +314,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
         showUser: true,
       },
     });
+    void this.router.navigate(["/organizations", this.organizationId, "members"]);
   }
 
   private getShortId(id: string) {

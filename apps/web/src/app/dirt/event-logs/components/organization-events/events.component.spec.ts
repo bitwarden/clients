@@ -1,4 +1,4 @@
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -28,6 +28,7 @@ import { EventsComponent } from "./events.component";
 describe("EventsComponent Send access linking", () => {
   let component: any;
   let dialogService: ReturnType<typeof mock<DialogService>>;
+  let router: ReturnType<typeof mock<Router>>;
 
   beforeEach(() => {
     const eventService = mock<EventService>();
@@ -35,6 +36,7 @@ describe("EventsComponent Send access linking", () => {
     const i18n = mock<I18nService>();
     i18n.t.mockImplementation((id: string) => id);
     dialogService = mock<DialogService>();
+    router = mock<Router>();
 
     component = new EventsComponent(
       mock<ApiService>(),
@@ -55,6 +57,7 @@ describe("EventsComponent Send access linking", () => {
       dialogService,
       mock<ConfigService>(),
       mock<ActivatedRoute>(),
+      router,
     );
 
     component.organizationId = "org-1";
@@ -127,7 +130,7 @@ describe("EventsComponent Send access linking", () => {
   });
 
   describe("interactive id clicks open a dialog in place", () => {
-    it("opens a Send-scoped events dialog when a Send id is clicked", () => {
+    it("opens a Send-scoped events dialog when a Send id is clicked (and does NOT navigate)", () => {
       component.onEventMessageClick(clickOnHref(SEND_EVENTS_HREF_PREFIX + "send-123"));
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -136,9 +139,10 @@ describe("EventsComponent Send access linking", () => {
           data: expect.objectContaining({ entity: "send", entityId: "send-123" }),
         }),
       );
+      expect(router.navigate).not.toHaveBeenCalled();
     });
 
-    it("opens a member-scoped events dialog when a creator id is clicked", () => {
+    it("opens the member dialog and navigates to Members when a creator id is clicked", () => {
       component.onEventMessageClick(clickOnHref(MEMBER_EVENTS_HREF_PREFIX + "member-user-id"));
 
       expect(dialogService.open).toHaveBeenCalledWith(
@@ -151,9 +155,10 @@ describe("EventsComponent Send access linking", () => {
           }),
         }),
       );
+      expect(router.navigate).toHaveBeenCalledWith(["/organizations", "org-1", "members"]);
     });
 
-    it("opens a member-scoped events dialog when a member name is clicked", () => {
+    it("opens the member dialog and navigates to Members when a member name is clicked", () => {
       component.memberNameClicked(
         { preventDefault: jest.fn() } as unknown as Event,
         "member-user-id",
@@ -165,12 +170,14 @@ describe("EventsComponent Send access linking", () => {
           data: expect.objectContaining({ entity: "user", entityId: "org-user-1" }),
         }),
       );
+      expect(router.navigate).toHaveBeenCalledWith(["/organizations", "org-1", "members"]);
     });
 
     it("does nothing when the clicked user id does not resolve to a member", () => {
       component.memberNameClicked({ preventDefault: jest.fn() } as unknown as Event, "unknown-id");
 
       expect(dialogService.open).not.toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
     });
   });
 });
