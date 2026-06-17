@@ -13,7 +13,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -99,10 +98,6 @@ describe("WeakPasswordsReportComponent", () => {
         {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigServiceMock,
-        },
-        {
-          provide: LogService,
-          useValue: mock<LogService>(),
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
