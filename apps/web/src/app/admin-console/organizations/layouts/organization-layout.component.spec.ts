@@ -11,14 +11,12 @@ import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services/organization-warnings.service";
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
-import { ApproverInboxBadgeService } from "../../../pam/approver-inbox/approver-inbox-badge.service";
 
 import { OrganizationLayoutComponent } from "./organization-layout.component";
 
@@ -32,8 +30,6 @@ describe("OrganizationLayoutComponent", () => {
   let mockProviderService: MockProxy<ProviderService>;
   let mockFreeFamiliesPolicyService: MockProxy<FreeFamiliesPolicyService>;
   let mockOrganizationWarningsService: MockProxy<OrganizationWarningsService>;
-  let mockConfigService: MockProxy<ConfigService>;
-  let mockApproverInboxBadgeService: MockProxy<ApproverInboxBadgeService>;
   let mockAccountService: ReturnType<typeof mockAccountServiceWith>;
 
   let routeParamsSubject: BehaviorSubject<{ organizationId: OrganizationId }>;
@@ -88,8 +84,6 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService = mock<ProviderService>();
     mockFreeFamiliesPolicyService = mock<FreeFamiliesPolicyService>();
     mockOrganizationWarningsService = mock<OrganizationWarningsService>();
-    mockConfigService = mock<ConfigService>();
-    mockApproverInboxBadgeService = mock<ApproverInboxBadgeService>({ count$: of(0) });
     mockAccountService = mockAccountServiceWith(userId);
 
     mockOrganizationService.organizations$.mockReturnValue(of([makeOrg()]));
@@ -98,7 +92,6 @@ describe("OrganizationLayoutComponent", () => {
     mockProviderService.get$.mockReturnValue(of(undefined));
     mockFreeFamiliesPolicyService.showSponsoredFamiliesDropdown$.mockReturnValue(of(false));
     mockOrganizationWarningsService.getTaxIdWarning$.mockReturnValue(of(null));
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [OrganizationLayoutComponent],
@@ -111,8 +104,6 @@ describe("OrganizationLayoutComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: FreeFamiliesPolicyService, useValue: mockFreeFamiliesPolicyService },
         { provide: OrganizationWarningsService, useValue: mockOrganizationWarningsService },
-        { provide: ConfigService, useValue: mockConfigService },
-        { provide: ApproverInboxBadgeService, useValue: mockApproverInboxBadgeService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

@@ -1,6 +1,22 @@
-import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Observable, distinctUntilChanged, map } from "rxjs";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  from,
+  map,
+  merge,
+  of,
+  switchMap,
+} from "rxjs";
 
+import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import {
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
@@ -11,32 +27,40 @@ import {
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
+import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 import { isActionableInboxRequest } from "./inbox-request-filter";
 
 /**
- * Loads pending lease requests for the approver inbox, applies the
- * inbox sort (oldest first, then collection name), and manages optimistic
- * removal + rollback on decision submission.
+ * The approver inbox's page-scoped view of pending lease requests and decision history.
+ *
+ * The pending list is not fetched here — it is projected from the one shared
+ * {@link ApproverInboxRequestsService.requests$} stream (so the page and the nav badge never
+ * double-fetch `GET /access-requests/inbox`): timed-out rows are dropped, names resolved, and the
+ * inbox sort applied. The decision history (`GET /access-requests/history`) is page-only, so this
+ * service loads it on construction and refreshes it on the same live signals.
  *
  * Cipher and collection names are resolved from local vault state via
- * {@link AccessRequestNameResolver} before rows reach subscribers — no name
- * decryption happens here. No other Vault Data passes through this service.
+ * {@link AccessRequestNameResolver} before rows reach subscribers — no name decryption happens
+ * here. No other Vault Data passes through this service.
  */
 @Injectable()
 export class ApproverInboxService {
   private readonly pamApiService = inject(PamApiService);
+  private readonly inboxRequests = inject(ApproverInboxRequestsService);
+  private readonly notificationsService = inject(ServerNotificationsService);
   private readonly nameResolver = inject(AccessRequestNameResolver);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
   private readonly _history$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
-  private readonly _loading$ = new BehaviorSubject<boolean>(false);
+  private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   private readonly _renderedAt$ = new BehaviorSubject<Date>(new Date());
 
   /**
    * Collection names back-fill reactively from local vault state (see
    * {@link AccessRequestNameResolver.applyCollectionNames$}), whether that state warms up before or
-   * after the load populates the rows. Cipher names are resolved on the one-shot load path.
+   * after the rows arrive. Cipher names are resolved on the projection path.
    */
   readonly requests$: Observable<AccessRequestDetailsResponse[]> =
     this.nameResolver.applyCollectionNames$(this._requests$);
@@ -45,8 +69,8 @@ export class ApproverInboxService {
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   /**
-   * Snapshot of "now" stamped on every successful load, so the routed Approvals and Audit log tabs
-   * render elapsed/relative-time fields against one consistent reference clock.
+   * Snapshot of "now" stamped on every successful render, so the routed Approvals and Audit log
+   * tabs render elapsed/relative-time fields against one consistent reference clock.
    */
   readonly renderedAt$: Observable<Date> = this._renderedAt$.asObservable();
   readonly badgeCount$: Observable<number> = this._requests$.pipe(
@@ -54,32 +78,46 @@ export class ApproverInboxService {
     distinctUntilChanged(),
   );
 
-  /** Fetch the inbox and history, resolve display names from vault state, replace local state. */
+  constructor() {
+    // Pending list: project the shared inbox stream — drop timed-out rows, resolve names, sort —
+    // into local state. Optimistic edits (below) operate on that local state; the next shared
+    // emission reconciles them with the server.
+    this.inboxRequests.requests$
+      .pipe(
+        switchMap((rows) =>
+          // catchError keeps the source subscription alive across a failed projection (e.g. a
+          // transient vault-decrypt error) so later emissions still render.
+          from(this.projectRequests(rows)).pipe(
+            catchError((e: unknown) => {
+              this._loadError$.next(e);
+              this._loading$.next(false);
+              return EMPTY;
+            }),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((rows) => {
+        this._requests$.next(rows);
+        this._renderedAt$.next(new Date());
+        this._loading$.next(false);
+      });
+
+    // History is page-only: load on construction, then refresh on the same live signals that keep
+    // the inbox fresh (a decision this user makes, or a push that a managed request changed).
+    merge(of(null), this.liveRefresh$())
+      .pipe(
+        // Swallow per-refresh failures (loadHistory has already recorded loadError$) so one bad
+        // fetch doesn't tear down the live-refresh stream.
+        switchMap(() => from(this.loadHistory()).pipe(catchError(() => EMPTY))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  /** Re-fetch the shared inbox and the history. Best-effort reconcile hook. */
   async load(): Promise<void> {
-    this._loading$.next(true);
-    this._loadError$.next(null);
-    try {
-      const [rows, history] = await Promise.all([
-        this.pamApiService.listInboxRequests(),
-        this.pamApiService.listInboxHistory(),
-      ]);
-      // Drop requests that have timed out (server-marked lapsed, or their
-      // requested window has fully elapsed). They belong in history, not the
-      // "needs approval" list — keeping them here would strand a stale duplicate
-      // for the same cipher that can never be acted on.
-      const now = new Date();
-      const actionable = rows.filter((row) => isActionableInboxRequest(row, now));
-      // Resolve names across both lists in one pass (one vault + collection snapshot).
-      await this.nameResolver.resolveDisplayNames([...actionable, ...history]);
-      this._requests$.next(sortInbox(actionable));
-      this._history$.next(history);
-      this._renderedAt$.next(new Date());
-    } catch (e) {
-      this._loadError$.next(e);
-      throw e;
-    } finally {
-      this._loading$.next(false);
-    }
+    await Promise.all([this.inboxRequests.refresh(), this.loadHistory()]);
   }
 
   /**
@@ -146,6 +184,48 @@ export class ApproverInboxService {
       return item;
     });
     this._history$.next(updated);
+  }
+
+  /**
+   * Emits whenever the inbox should refresh from a signal other than the shared stream's own
+   * triggers: a push to this user as an approver (a managed request changed) or as a requester
+   * (one of their own requests/leases changed), and any mutation this client makes. Debounced to
+   * coalesce bursts.
+   */
+  private liveRefresh$(): Observable<unknown> {
+    return merge(
+      this.notificationsService.notifications$.pipe(
+        filter(
+          ([notification]) =>
+            notification.type === NotificationType.RefreshApproverInbox ||
+            notification.type === NotificationType.RefreshAccessRequest,
+        ),
+      ),
+      this.pamApiService.mutations$,
+    ).pipe(debounceTime(300));
+  }
+
+  private async projectRequests(
+    rows: AccessRequestDetailsResponse[],
+  ): Promise<AccessRequestDetailsResponse[]> {
+    // Drop requests that have timed out (server-marked lapsed, or their requested window has fully
+    // elapsed). They belong in history, not the "needs approval" list.
+    const now = new Date();
+    const actionable = rows.filter((row) => isActionableInboxRequest(row, now));
+    await this.nameResolver.resolveDisplayNames(actionable);
+    return sortInbox(actionable);
+  }
+
+  private async loadHistory(): Promise<void> {
+    this._loadError$.next(null);
+    try {
+      const history = await this.pamApiService.listInboxHistory();
+      await this.nameResolver.resolveDisplayNames(history);
+      this._history$.next(history);
+    } catch (e) {
+      this._loadError$.next(e);
+      throw e;
+    }
   }
 }
 

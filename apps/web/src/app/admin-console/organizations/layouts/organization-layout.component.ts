@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
@@ -25,11 +24,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BadgeModule, BannerModule, SvgModule } from "@bitwarden/components";
+import { BannerModule, SvgModule } from "@bitwarden/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -38,7 +35,7 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
-import { ApproverInboxBadgeService } from "../../../pam/approver-inbox/approver-inbox-badge.service";
+import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -52,9 +49,9 @@ import { ApproverInboxBadgeService } from "../../../pam/approver-inbox/approver-
     WebLayoutModule,
     SvgModule,
     OrgSwitcherComponent,
-    BadgeModule,
     BannerModule,
     TaxIdWarningComponent,
+    PamOrgNavSlotComponent,
   ],
 })
 export class OrganizationLayoutComponent {
@@ -66,7 +63,6 @@ export class OrganizationLayoutComponent {
   private readonly accountService = inject(AccountService);
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
-  private readonly configService = inject(ConfigService);
 
   protected readonly logo = AdminConsoleLogo;
 
@@ -124,13 +120,6 @@ export class OrganizationLayoutComponent {
   protected readonly integrationPageEnabled$: Observable<boolean> = this.organization$.pipe(
     map((org) => org.canAccessIntegrations),
   );
-
-  protected readonly pamFeatureFlagEnabled$: Observable<boolean> =
-    this.configService.getFeatureFlag$(FeatureFlag.Pam);
-
-  protected readonly pamInboxBadgeCount = toSignal(inject(ApproverInboxBadgeService).count$, {
-    initialValue: 0,
-  });
 
   protected readonly showSponsoredFamiliesDropdown$: Observable<boolean> =
     this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);

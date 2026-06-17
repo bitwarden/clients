@@ -2,13 +2,14 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { Subject, of } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -152,6 +153,8 @@ describe("MyAccessRequestsListComponent", () => {
     pamApi = mock<PamApiService>();
     pamApi.listMyAccessRequests.mockResolvedValue([]);
     pamApi.listActiveLeases.mockResolvedValue([]);
+    // mutations$ is a stream the service merges into its live-refresh; give it a real Subject.
+    (pamApi as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
 
     toast = mock<ToastService>();
 
@@ -170,6 +173,7 @@ describe("MyAccessRequestsListComponent", () => {
         { provide: I18nService, useValue: i18n },
         { provide: ToastService, useValue: toast },
         { provide: LogService, useValue: { error: jest.fn() } },
+        { provide: ServerNotificationsService, useValue: { notifications$: new Subject() } },
         // `app-vault-icon` dependencies — only exercised by rows that resolve a cipher.
         {
           provide: EnvironmentService,
