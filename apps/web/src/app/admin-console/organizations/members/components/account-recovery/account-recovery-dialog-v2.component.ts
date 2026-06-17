@@ -9,6 +9,7 @@ import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-consol
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -25,14 +26,53 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrganizationUserResetPasswordService } from "../../services/organization-user-reset-password/organization-user-reset-password.service";
 
-import {
-  AccountRecoveryDialogData,
-  AccountRecoveryDialogResultType,
-} from "./account-recovery-dialog.component";
+/**
+ * Encapsulates a few key data inputs needed to initiate an account recovery
+ * process for the organization user in question.
+ */
+export type AccountRecoveryDialogData = {
+  /**
+   * The organization user's full name
+   */
+  name: string;
+
+  /**
+   * The organization user's email address
+   */
+  email: string;
+
+  /**
+   * The `organizationUserId` for the user
+   */
+  organizationUserId: string;
+
+  /**
+   * The organization's `organizationId`
+   */
+  organizationId: OrganizationId;
+
+  /**
+   * The organization user's role type, used to determine policy exemption
+   */
+  organizationUserType: OrganizationUserType;
+
+  /**
+   * Whether the organization user currently has two-step login enabled.
+   * Used to disable the reset two-step login option when not applicable.
+   */
+  twoFactorEnabled: boolean;
+};
+
+export const AccountRecoveryDialogResultType = {
+  Ok: "ok",
+} as const;
+
+export type AccountRecoveryDialogResultType =
+  (typeof AccountRecoveryDialogResultType)[keyof typeof AccountRecoveryDialogResultType];
 
 /**
- * V2 account recovery dialog shown when the AdminResetTwoFactor feature flag is enabled.
- * Supports selectively resetting master password, two-step login, or both.
+ * Account recovery dialog used to selectively reset an organization user's
+ * master password, two-step login, or both.
  */
 @Component({
   standalone: true,
