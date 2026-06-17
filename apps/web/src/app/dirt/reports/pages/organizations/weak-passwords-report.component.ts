@@ -94,21 +94,33 @@ export class WeakPasswordsReportComponent
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
-          const collections = await firstValueFrom(
-            this.collectionService.decryptedCollections$(userId),
-          );
-          this.sharedCollectionIds = new Set(
-            collections
-              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
-              .map((c) => c.id as string),
-          );
-          await super.ngOnInit();
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[WeakPasswordsReport] Initializing for organization "${this.organization?.id ?? params.organizationId}"`,
+            );
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            await super.ngOnInit();
+          } catch (e) {
+            // Re-throwing here would surface an unhandled promise rejection rather than
+            // propagating through the observable stream, so we log and swallow instead.
+            this.logService.error(
+              `[WeakPasswordsReport] Failed to initialize for organization "${params.organizationId}"`,
+              e,
+            );
+          }
         }),
         takeUntil(this.destroyed$),
       )
@@ -120,7 +132,22 @@ export class WeakPasswordsReportComponent
       `[WeakPasswordsReport] Fetching ciphers for organization ${this.organization?.id ?? "N/A"}`,
     );
     if (this.organization) {
-      return this.cipherService.getAllFromApiForOrganization(this.organization.id, true);
+      try {
+        const ciphers = await this.cipherService.getAllFromApiForOrganization(
+          this.organization.id,
+          true,
+        );
+        this.logService.info(
+          `[WeakPasswordsReport] Fetched ${ciphers.length} ciphers for organization "${this.organization.id}"`,
+        );
+        return ciphers;
+      } catch (e) {
+        this.logService.error(
+          `[WeakPasswordsReport] Failed to fetch ciphers for organization "${this.organization?.id ?? "N/A"}"`,
+          e,
+        );
+        throw e;
+      }
     }
     return [];
   }

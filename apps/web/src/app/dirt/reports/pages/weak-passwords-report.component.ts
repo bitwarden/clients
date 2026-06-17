@@ -69,6 +69,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       await super.load();
     } catch (e) {
       this.logService.error("[WeakPasswordsReport] Failed to load report", e);
+      throw e;
     }
   }
 
@@ -82,6 +83,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       this.findWeakPasswords(allCiphers);
     } catch (e) {
       this.logService.error("[WeakPasswordsReport] Failed to fetch ciphers", e);
+      throw e;
     }
   }
 
