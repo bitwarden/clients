@@ -6917,6 +6917,36 @@
   "autoConfirmDisabledByPortal": {
     "message": "Removed Automatic user confirmation policy"
   },
+  "inviteLinkEventCreated": {
+    "message": "Created invite link",
+    "description": "Shown in the organization event log when an admin creates an invite link."
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Edited allowed domains for invite link",
+    "description": "Shown in the organization event log when an admin edits the allowed email domains for an invite link."
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Deleted invite link",
+    "description": "Shown in the organization event log when an admin deletes an invite link."
+  },
+  "inviteLinkEventCopied": {
+    "message": "Copied invite link",
+    "description": "Shown in the organization event log when an admin copies the invite link URL."
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Regenerated invite link",
+    "description": "Shown in the organization event log when an admin regenerates the invite link, invalidating the previous one."
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Member $ID$ accepted invitation through invite link",
+    "description": "Shown in the organization event log when a user joins the organization via an invite link. $ID$ is replaced with the first 8 characters of the member's ID.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
