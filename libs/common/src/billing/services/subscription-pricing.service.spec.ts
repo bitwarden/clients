@@ -1,18 +1,18 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/logging";
+
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/logging";
-
+} from "../../platform/abstractions/environment.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { BillingApiServiceAbstraction } from "../abstractions";
+import { PlanType, ProductTierType } from "../enums";
+import { PlanResponse } from "../models/response/plan.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import {
   BusinessSubscriptionPricingTierIds,
   PersonalSubscriptionPricingTierIds,
@@ -1032,6 +1032,66 @@ describe("DefaultSubscriptionPricingService", () => {
         expect(premiumTier?.passwordManager.providedStorageGB).toBeUndefined();
         expect(premiumTier?.passwordManager.features).toBeDefined();
         expect(premiumTier?.passwordManager.features.length).toBeGreaterThan(0);
+
+        done();
+      });
+    });
+
+    it("should call API on self-host when the QA bypass flag is enabled", () => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      const getPlansSpy = jest
+        .spyOn(selfHostedBillingApiService, "getPlans")
+        .mockResolvedValue(mockPlansResponse);
+      const getPremiumPlanSpy = jest
+        .spyOn(selfHostedBillingApiService, "getPremiumPlan")
+        .mockResolvedValue(mockPremiumPlanResponse);
+
+      // QA bypass flag on: self-hosted-region client behaves as cloud for pricing.
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe();
+      selfHostedService.getBusinessSubscriptionPricingTiers$().subscribe();
+
+      expect(getPlansSpy).toHaveBeenCalled();
+      expect(getPremiumPlanSpy).toHaveBeenCalled();
+    });
+
+    it("should populate prices on self-host when the QA bypass flag is enabled", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      selfHostedBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+        expect(premiumTier?.passwordManager.annualPrice).toBe(10);
+        expect(premiumTier?.passwordManager.annualPricePerAdditionalStorageGB).toBe(4);
+        expect(premiumTier?.passwordManager.providedStorageGB).toBe(1);
 
         done();
       });
