@@ -95,7 +95,7 @@
               slot="button"
               startIcon="bwi-plus"
             >
-              {{ "newItem" | i18n }}
+              {{ (newToAddFeatureFlag() ? "addItem" : "newItem") | i18n }}
             </button>
           }
         </bit-no-items>
