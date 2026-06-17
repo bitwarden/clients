@@ -1,4 +1,15 @@
 <form [formGroup]="settings" class="tw-container">
+  <bit-radio-group formControlName="catchallType" (change)="save('catchallType')">
+    <bit-label>{{ "type" | i18n }}</bit-label>
+    <bit-form-control [inline]="true" disableMargin>
+      <input type="radio" bitRadio value="random" />
+      <bit-label>{{ "random" | i18n }}</bit-label>
+    </bit-form-control>
+    <bit-form-control [inline]="true" disableMargin>
+      <input type="radio" bitRadio value="website-name" />
+      <bit-label>{{ "websiteName" | i18n }}</bit-label>
+    </bit-form-control>
+  </bit-radio-group>
   <bit-form-field>
     <bit-label>{{ "domainName" | i18n }}</bit-label>
     <input

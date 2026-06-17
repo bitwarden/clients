@@ -8728,6 +8728,10 @@
     "message": "Random",
     "description": "Generates domain-based username using random letters"
   },
+  "websiteName": {
+    "message": "Website name",
+    "description": "Username generator option that uses the current website hostname in the catch-all email address"
+  },
   "randomWord": {
     "message": "Random word"
   },
