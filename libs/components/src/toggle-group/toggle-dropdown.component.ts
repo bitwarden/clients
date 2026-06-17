@@ -9,7 +9,7 @@ import { SelectComponent } from "../select/select.component";
   selector: "bit-toggle-dropdown",
   template: `
     @if (label()) {
-      <label class="tw-sr-only" [attr.for]="bitSelect.labelForId">{{ label() }}</label>
+      <label class="tw-sr-only" [attr.for]="bitSelect.labelForId()">{{ label() }}</label>
     }
     <bit-form-field disableMargin>
       <bit-select

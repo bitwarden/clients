@@ -49,6 +49,7 @@ export class SelectComponent<T> implements ControlValueAccessor {
   private readonly i18nService = inject(I18nService);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
   readonly formFieldControl = inject(BitFormFieldControlDirective);
+  readonly labelForId = this.formFieldControl.labelForId;
 
   readonly select = viewChild.required(NgSelectComponent);
 

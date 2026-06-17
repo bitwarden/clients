@@ -108,7 +108,7 @@ describe("Button", () => {
 
       const select = fixture.debugElement.query(By.directive(SelectComponent))
         .componentInstance as SelectComponent<unknown>;
-      expect(srLabel.nativeElement.getAttribute("for")).toBe(select.labelForId);
+      expect(srLabel.nativeElement.getAttribute("for")).toBe(select.labelForId());
     });
 
     it("renders no sr-only label in dropdown mode when no label input is provided", () => {
@@ -162,7 +162,7 @@ describe("Button", () => {
       // No toggles projected yet → effect short-circuits, mode stays "inline".
       expect(group.displayMode()).toBe("inline");
 
-      asyncFixture.componentInstance.options$.next([
+      asyncFixture.componentInstance.setOptions([
         { value: "a", label: "First" },
         { value: "b", label: "Second" },
         { value: "c", label: "Third" },
@@ -190,7 +190,7 @@ describe("Button", () => {
 
       // First: two toggles fit (natural 300 ≤ container 400).
       stubHostRect(groupHost, 300, 400);
-      asyncFixture.componentInstance.options$.next([
+      asyncFixture.componentInstance.setOptions([
         { value: "a", label: "First" },
         { value: "b", label: "Second" },
       ]);
@@ -204,7 +204,7 @@ describe("Button", () => {
       // implementation that captured naturalWidth once would still report
       // inline; the fix re-measures on toggle-count change.
       stubHostRect(groupHost, 900, 400);
-      asyncFixture.componentInstance.options$.next([
+      asyncFixture.componentInstance.setOptions([
         { value: "a", label: "First" },
         { value: "b", label: "Second" },
         { value: "c", label: "Third" },
@@ -234,7 +234,12 @@ describe("Button", () => {
 })
 class AsyncTogglesTestComponent {
   readonly selected: WritableSignal<string | undefined> = signal(undefined);
-  protected readonly options$ = new BehaviorSubject<{ value: string; label: string }[]>([]);
+  private readonly _options$ = new BehaviorSubject<{ value: string; label: string }[]>([]);
+  readonly options$ = this._options$.asObservable();
+
+  setOptions(options: { value: string; label: string }[]) {
+    this._options$.next(options);
+  }
 }
 
 @Component({
