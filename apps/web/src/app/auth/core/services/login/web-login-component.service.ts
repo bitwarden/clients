@@ -16,9 +16,10 @@ import { OrganizationInviteService } from "@bitwarden/common/auth/organization-i
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { AnonLayoutWrapperDataService } from "@bitwarden/components";
+import { AnonLayoutWrapperData, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { RouterService } from "../../../../core/router.service";
@@ -52,7 +53,8 @@ export class WebLoginComponentService
     private router: Router,
     private accountService: AccountService,
     private configService: ConfigService,
-    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
   ) {
     super(
       cryptoFunctionService,
@@ -80,20 +82,48 @@ export class WebLoginComponentService
     return;
   }
 
-  showLoginQueryParamMessages(params: Params): void {
-    if (!params.organizationName) {
-      return;
+  async handleQueryParamErrors(
+    params: Params,
+  ): Promise<{ autoSubmit: boolean; mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData> }> {
+    if (!params.organizationName || !params.organizationId || !params.email) {
+      return { autoSubmit: false };
     }
+
     switch (params.error) {
-      case SsoRedirectErrorCode.InviteAcceptanceRequired:
-        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-          pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
-          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
-          pageIcon: LockIcon,
+      case SsoRedirectErrorCode.InviteAcceptanceRequired: {
+        const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+        // Match on organizationId (stable) AND email (defensive). Org display names can
+        // drift between when an invite is sent and when SSO is attempted; the id is the
+        // source of truth for "this stashed invite is for the org the server just rejected."
+        const stashMatches =
+          orgInvite?.organizationId === params.organizationId &&
+          orgInvite?.email?.toLowerCase() === params.email.toLowerCase();
+
+        if (stashMatches) {
+          // Case A: matching stashed invite — auto-progress to MP entry and supply the
+          // override that LoginComponent threads into toggleLoginUiState.
+          return {
+            autoSubmit: true,
+            mpEntryLayoutOverride: {
+              pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
+              pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+              pageIcon: LockIcon,
+            },
+          };
+        }
+
+        // Case B: no matching stash — the redirect-back UI's invite-acceptance claim
+        // does not apply to this session, so warn the user and stay at email entry.
+        this.toastService.showToast({
+          variant: "warning",
+          title: null,
+          message: this.i18nService.t("ssoLoginRequiresInviteAcceptance", params.organizationName),
+          timeout: 10000,
         });
-        return;
+        return { autoSubmit: false };
+      }
       default:
-        return;
+        return { autoSubmit: false };
     }
   }
 

@@ -47,6 +47,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -180,7 +181,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async defaultOnInit(): Promise<void> {
-    const { paramEmailIsSet, shouldAutoSubmit, params } = await this.initializeFromQueryParams();
+    const params = await firstValueFrom(this.activatedRoute.queryParams);
+    const paramEmailIsSet = this.applyEmailFromQueryParams(params);
 
     if (!paramEmailIsSet) {
       await this.loadRememberedEmail();
@@ -191,18 +193,16 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.getKnownDevice(this.emailFormControl.value);
     }
 
-    // Auto-progress past email entry when a server redirect requested it (e.g. SSO
-    // invited-user callback). Via continuePressed (not continue) so its pushState
-    // lets back-button return to email entry rather than the SSO callback URL.
-    if (shouldAutoSubmit) {
-      await this.continuePressed();
-    }
+    // Let the client decide whether to auto-progress past email entry and how to
+    // respond to error codes in /login query params (e.g. SSO invited-user server redirects).
+    const queryParamResult = params
+      ? await this.loginComponentService.handleQueryParamErrors?.(params)
+      : undefined;
 
-    // Applied after continue() so it overrides the default MP-entry layout
-    // (title/subtitle/icon) set by toggleLoginUiState in the auto-progressed
-    // SSO-redirect path.
-    if (params) {
-      this.loginComponentService.showLoginQueryParamMessages?.(params);
+    // Auto-progress when the hook signals it. Via continuePressed (not continue) so its
+    // pushState lets back-button return to email entry rather than the SSO callback URL.
+    if (queryParamResult?.autoSubmit && paramEmailIsSet) {
+      await this.continuePressed(queryParamResult.mpEntryLayoutOverride);
     }
 
     // This SSO required tracking should be initialized after email has had a chance to be pre-filled
@@ -230,32 +230,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reads `/login` query params and pre-fills the email. Returns the raw
-   * params plus flags the caller uses to decide fallback behavior,
-   * auto-progression, and deferred client-specific UI (see defaultOnInit).
+   * Pre-fills the email form control from `?email=…` if the param is present and
+   * looks like an email. Returns whether the form control was set so the caller
+   * can decide whether to fall back to the remembered email.
    */
-  private async initializeFromQueryParams(): Promise<{
-    paramEmailIsSet: boolean;
-    shouldAutoSubmit: boolean;
-    params: Params | null;
-  }> {
-    const params = await firstValueFrom(this.activatedRoute.queryParams);
-    if (!params) {
-      return { paramEmailIsSet: false, shouldAutoSubmit: false, params: null };
-    }
-
-    let paramEmailIsSet = false;
-    const qParamsEmail = params.email;
+  private applyEmailFromQueryParams(params: Params | null): boolean {
+    const qParamsEmail = params?.email;
     if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
       this.formGroup.controls.email.setValue(qParamsEmail);
-      paramEmailIsSet = true;
+      return true;
     }
-
-    return {
-      paramEmailIsSet,
-      shouldAutoSubmit: paramEmailIsSet && params.autoSubmit === "true",
-      params,
-    };
+    return false;
   }
 
   private async desktopOnInit(): Promise<void> {
@@ -547,7 +532,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     await this.router.navigate(["/login-with-device"]);
   }
 
-  protected async toggleLoginUiState(value: LoginUiState): Promise<void> {
+  protected async toggleLoginUiState(
+    value: LoginUiState,
+    mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>,
+  ): Promise<void> {
     this.loginUiState = value;
 
     if (this.loginUiState === LoginUiState.EMAIL_ENTRY) {
@@ -566,11 +554,13 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.isKnownDevice = false;
     } else if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
       this.loginComponentService.showBackButton(true);
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "welcomeBack" },
-        pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.Icons.WaveIcon,
-      });
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData(
+        mpEntryLayoutOverride ?? {
+          pageTitle: { key: "welcomeBack" },
+          pageSubtitle: this.emailFormControl.value,
+          pageIcon: this.Icons.WaveIcon,
+        },
+      );
 
       // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
       this.formGroup.controls.masterPassword.markAsUntouched();
@@ -604,23 +594,26 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Continue button clicked (or enter key pressed).
    * Adds the login url to the browser's history so that the back button can be used to go back to the email entry state.
    * Needs to be separate from the continue() function because that can be triggered by the browser's forward button.
+   * @param mpEntryLayoutOverride Optional override for the default MP-entry anon-layout. Used by
+   * client-specific flows (e.g. SSO invited-user redirect) that need a different title/subtitle/icon.
    */
-  protected async continuePressed() {
+  protected async continuePressed(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>) {
     // Add a new entry to the browser's history so that there is a history entry to go back to
     history.pushState({}, "", window.location.href);
-    await this.continue();
+    await this.continue(mpEntryLayoutOverride);
   }
 
   /**
    * Continue to the master password entry state (only if email is validated)
+   * @param mpEntryLayoutOverride See {@link continuePressed}.
    */
-  protected async continue(): Promise<void> {
+  protected async continue(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>): Promise<void> {
     const isEmailValid = this.validateEmail();
 
     if (isEmailValid) {
       this.prefetchPasswordPreloginData();
 
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY);
+      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
     }
   }
 

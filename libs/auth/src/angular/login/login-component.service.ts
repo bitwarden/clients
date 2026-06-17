@@ -4,6 +4,8 @@ import { Params } from "@angular/router";
 
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+// eslint-disable-next-line no-restricted-imports
+import { AnonLayoutWrapperData } from "@bitwarden/components";
 
 export interface PasswordPolicies {
   policies: Policy[];
@@ -51,10 +53,14 @@ export abstract class LoginComponentService {
   showBackButton: (showBackButton: boolean) => void;
 
   /**
-   * Allows the client to render UI in response to query params on /login
-   * (today: anon-layout title/subtitle/icon overrides for errors emitted by
-   * the server's SSO callback when it redirects after rejecting authentication).
+   * Handles error responses surfaced via /login query params (today:
+   * server-side SSO redirects carrying `error` + `organizationName`). Decides
+   * whether to auto-progress to MP entry, and optionally returns layout data
+   * that `toggleLoginUiState` will apply in place of the default MP-entry
+   * anon-layout.
    * - Used by: Web
    */
-  showLoginQueryParamMessages?: (params: Params) => void;
+  handleQueryParamErrors?: (
+    params: Params,
+  ) => Promise<{ autoSubmit: boolean; mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData> }>;
 }

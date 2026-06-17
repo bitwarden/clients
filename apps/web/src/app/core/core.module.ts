@@ -122,7 +122,7 @@ import {
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { AnonLayoutWrapperDataService, DialogService, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -352,7 +352,8 @@ const safeProviders: SafeProvider[] = [
       Router,
       AccountService,
       ConfigService,
-      AnonLayoutWrapperDataService,
+      ToastService,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
