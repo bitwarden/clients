@@ -1,57 +1,52 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { isId } from "@bitwarden/common/types/guid";
-import { ToastService } from "@bitwarden/components";
-
-import { BaseAcceptComponent } from "../../common/base.accept.component";
-
-import { AcceptOrganizationInviteService } from "./accept-organization.service";
+import { IconModule, ToastService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-organization.component.html",
-  standalone: false,
+  imports: [IconModule, I18nPipe],
 })
-export class AcceptOrganizationComponent extends BaseAcceptComponent {
-  orgName$ = this.acceptOrganizationInviteService.orgName$;
-  protected requiredParameters: string[] = ["organizationId", "organizationUserId", "token"];
+export class AcceptOrganizationComponent implements OnInit {
+  loading = true;
+
+  private readonly failedMessage = "inviteAcceptFailed";
 
   constructor(
-    protected router: Router,
-    protected platformUtilsService: PlatformUtilsService,
-    protected i18nService: I18nService,
-    protected route: ActivatedRoute,
-    protected authService: AuthService,
-    private acceptOrganizationInviteService: AcceptOrganizationInviteService,
+    private router: Router,
+    private i18nService: I18nService,
+    private route: ActivatedRoute,
+    private acceptFlowService: AcceptFlowService,
     private organizationInviteService: OrganizationInviteService,
     private accountService: AccountService,
     private toastService: ToastService,
-  ) {
-    super(router, platformUtilsService, i18nService, route, authService);
+  ) {}
+
+  async ngOnInit() {
+    const qParams = await firstValueFrom(this.route.queryParams);
+    await this.acceptFlowService.run<OrganizationInvite>(qParams, {
+      failedMessage: this.failedMessage,
+      parse: (p) => OrganizationInvite.fromUrlParams(p ?? {}),
+      authedHandler: (invite) => this.authedHandler(invite),
+      unauthedHandler: (invite) => this.unauthedHandler(invite),
+      getErrorMessage: (apiError) => this.getErrorMessage(apiError),
+    });
+    this.loading = false;
   }
 
-  async authedHandler(qParams: Params): Promise<void> {
-    const invite = this.fromParams(qParams);
-    if (invite === null) {
-      // The BaseAcceptComponent handles thrown errors for the authedHandler (only),
-      // but for clarity and consistency with the unauthedHandler, opting to handle and redirect here.
-      return await this.handleInvalidInvite();
-    }
-
+  private async authedHandler(invite: OrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.acceptOrganizationInviteService.validateAndAcceptInvite(
+    const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,
       activeUserId,
     );
@@ -71,25 +66,39 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     await this.router.navigate(["/"]);
   }
 
-  async unauthedHandler(qParams: Params): Promise<void> {
-    const invite = this.fromParams(qParams);
-    if (invite === null) {
-      // If invite is null (fromParams failed to validate, etc.), we must handle that case here in full.
-      // The unauthedHandler does not account for error handling in the BaseAcceptComponent.
-      return await this.handleInvalidInvite();
-    }
-
-    await this.organizationInviteService.setOrganizationInvitation(invite);
+  private async unauthedHandler(invite: OrganizationInvite): Promise<void> {
+    await this.organizationInviteService.setOrganizationInvite(invite);
     await this.navigateInviteAcceptance(invite);
   }
 
-  protected override getErrorMessage(errorMessage: string | null): string {
-    // Handle expired token specifically for org invites
+  private getErrorMessage(errorMessage: string | null): string {
+    // Handle expired token specifically for org invites by returning the generic
+    // failed message rather than the raw API error.
     if (errorMessage === "Expired token.") {
       return this.i18nService.t(this.failedMessage);
     }
 
-    return super.getErrorMessage(errorMessage);
+    // TODO PM-39080: Translate the description fragment via i18nService.
+    // Today the server returns raw English strings (e.g. "Your organization access has been
+    // revoked.", "Invalid token.", "Already accepted.") that get interpolated verbatim into
+    // `inviteAcceptFailedShort` ("Unable to accept invitation. $DESCRIPTION$"), so non-English
+    // users see English fragments and our UX leaks server-API wording.
+    //
+    // Plan: keep the `inviteAcceptFailedShort` wrapper (it is already localized) and add a
+    // server-string -> i18n-key map for the description fragment. Each mapped key is just the
+    // reason ("Your organization access has been revoked."), and we interpolate the translated
+    // fragment back into `inviteAcceptFailedShort` so every locale still gets
+    // "{localized prefix} {localized reason}". The authoritative catalog of server strings
+    // lives in the server repo at
+    // `src/Core/AdminConsole/OrganizationFeatures/OrganizationUsers/AcceptOrgUserCommand.cs`
+    // plus the token errors in `OrgUserInviteTokenable` / `TokenableValidationError`. Fall
+    // through to the current raw-passthrough interpolation for unmapped strings so we never
+    // drop information when the server adds a new error. The expired-token special case above
+    // collapses into the map once it has a mapped key. Same treatment will benefit the other
+    // 5 `BaseAcceptComponent` subclasses.
+    return errorMessage != null
+      ? this.i18nService.t("inviteAcceptFailedShort", errorMessage)
+      : this.i18nService.t(this.failedMessage);
   }
 
   /**
@@ -126,37 +135,6 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
         email: invite.email,
       },
     });
-    return;
-  }
-
-  private fromParams(params: Params): OrganizationInvite | null {
-    if (params == null) {
-      return null;
-    }
-
-    if (!isId(params.organizationId) || !isId(params.organizationUserId)) {
-      return null;
-    }
-
-    return Object.assign(new OrganizationInvite(), {
-      email: params.email,
-      initOrganization: params.initOrganization?.toLocaleLowerCase() === "true",
-      orgSsoIdentifier: params.orgSsoIdentifier,
-      orgUserHasExistingUser: params.orgUserHasExistingUser?.toLocaleLowerCase() === "true",
-      organizationId: params.organizationId,
-      organizationName: params.organizationName,
-      organizationUserId: params.organizationUserId,
-      token: params.token,
-    });
-  }
-
-  private async handleInvalidInvite(): Promise<void> {
-    this.toastService.showToast({
-      message: this.i18nService.t(this.failedMessage),
-      variant: "error",
-      timeout: 10000,
-    });
-    await this.router.navigate(["/"]);
     return;
   }
 }
