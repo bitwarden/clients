@@ -55,6 +55,41 @@
   -webkit-backdrop-filter: blur(6px) saturate(1.1);
 }
 
+/* Inner sections of legacy modals (Settings uses .box / .box-content cards and
+   native form controls). Give them the rounded, subtly-translucent treatment. */
+.modal-content .box-content {
+  border-radius: var(--fk-radius-lg) !important;
+  border: var(--fk-glass-border) !important;
+  background-color: var(--fk-hover-bg) !important;
+  overflow: hidden;
+}
+.modal-content .box-content-row,
+.modal-content .box-content-row:hover {
+  background-color: transparent !important;
+}
+.modal-content select,
+.modal-content input:not([type="checkbox"]):not([type="radio"]),
+.modal-content textarea {
+  border-radius: var(--fk-radius-md) !important;
+  border: var(--fk-glass-border) !important;
+  background-color: var(--fk-hover-bg) !important;
+}
+/* Legacy footer/plain buttons inside modals → themed pill buttons. */
+.modal-content .modal-footer button:not([bitButton]):not([klsButton]),
+.modal-content button[data-dismiss="modal"] {
+  border-radius: var(--fk-radius-full) !important;
+  border: var(--fk-glass-border-strong) !important;
+  background-color: var(--fk-card-bg) !important;
+  color: var(--color-fg-base, inherit) !important;
+  padding: 0.45rem 1.1rem !important;
+  transition:
+    background-color var(--fk-dur-fast, 150ms) var(--fk-ease, ease),
+    transform var(--fk-dur-fast, 150ms) var(--fk-ease, ease);
+}
+.modal-content .modal-footer button:not([bitButton]):not([klsButton]):hover {
+  background-color: var(--fk-selected-bg, var(--fk-hover-bg)) !important;
+}
+
 /* --- Form inputs → rounded, themed, subtle glass (app-wide) --- */
 [bitFieldContainer] {
   border-radius: var(--fk-radius-md) !important;

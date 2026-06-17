@@ -201,15 +201,21 @@ export class KlsRedesignShellComponent {
     const count = (k: ItemKind) => all.filter((i) => i.kind === k).length;
     return [
       { key: "all", label: this.i18n.t("allItems") || "All items", count: all.length },
-      { key: "logins", label: this.i18n.t("logins") || "Logins", count: count("login") },
-      { key: "cards", label: this.i18n.t("cards") || "Cards", count: count("card") },
+      // Use the translated singular type keys (logins/cards/… plural keys don't
+      // exist in the locale files, so they fell back to English).
+      { key: "logins", label: this.i18n.t("typeLogin") || "Logins", count: count("login") },
+      { key: "cards", label: this.i18n.t("typeCard") || "Cards", count: count("card") },
       {
         key: "identities",
-        label: this.i18n.t("identities") || "Identities",
+        label: this.i18n.t("typeIdentity") || "Identities",
         count: count("identity"),
       },
-      { key: "notes", label: this.i18n.t("secureNotes") || "Secure notes", count: count("note") },
-      { key: "sshKeys", label: this.i18n.t("sshKeys") || "SSH Keys", count: count("sshKey") },
+      {
+        key: "notes",
+        label: this.i18n.t("typeSecureNote") || "Secure notes",
+        count: count("note"),
+      },
+      { key: "sshKeys", label: this.i18n.t("typeSshKey") || "SSH Keys", count: count("sshKey") },
       {
         key: "favorites",
         label: this.i18n.t("favorites") || "Favorites",
@@ -390,11 +396,14 @@ export class KlsRedesignShellComponent {
     void this.openAddDialog();
   }
 
-  // Opens the standard add-cipher drawer (same path the old vault used). All
-  // persistence still flows through core's CipherService via the dialog — the
-  // shell never builds API payloads or touches crypto. Errors are surfaced
-  // (logged + toast) so the button never silently does nothing.
+  // Opens the standard add-cipher dialog. Uses dialogService.open (the same path
+  // the working generator/import/export dialogs use) rather than the drawer
+  // variant, which did not render in this shell. Persistence still flows through
+  // core's CipherService via the dialog — the shell never builds API payloads or
+  // touches crypto. Errors are surfaced (logged + toast) so the button never
+  // silently does nothing.
   private async openAddDialog(): Promise<void> {
+    this.logService.info("[QuickAdd] New Item clicked; building cipher form config");
     try {
       const cipherType = CIPHER_TYPE_BY_CATEGORY[this.activeCategory()] ?? CipherType.Login;
       const formConfig = await this.cipherFormConfigService.buildConfig(
@@ -402,12 +411,12 @@ export class KlsRedesignShellComponent {
         undefined,
         cipherType,
       );
-      await VaultItemDialogComponent.openDrawer(this.dialogService, {
-        mode: "form",
-        formConfig,
+      this.logService.info("[QuickAdd] config built; opening dialog");
+      this.dialogService.open(VaultItemDialogComponent, {
+        data: { mode: "form", formConfig },
       });
     } catch (e) {
-      this.logService.error("Quick add: failed to open the add-item dialog", e);
+      this.logService.error("[QuickAdd] failed to open the add-item dialog", e);
       this.toastService.showToast({
         variant: "error",
         title: "",
