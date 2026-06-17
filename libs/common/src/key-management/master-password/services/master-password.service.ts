@@ -104,7 +104,7 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         getFeatureFlagValue(serverConfig, FeatureFlag.PM31088_MasterPasswordServiceEmitSalt),
       ),
       switchMap((enabled) =>
-        if(
+        iif(
           () => enabled,
           this.masterPasswordUnlockData$(userId).pipe(
             switchMap((unlockData) => {
