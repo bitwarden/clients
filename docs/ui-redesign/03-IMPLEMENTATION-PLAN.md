@@ -24,7 +24,7 @@ it is how the next session knows where to pick up.
 ## C. Bridge layer
 
 - [x] C1. Implement `VaultViewModelService` (Angular @Injectable) wrapping `CipherService` → `ItemSummary`/`ItemDetail`. Maps CipherView fields (login.username/password/uris/totp, card.brand/number, identity names) reactively via `cipherViews$(userId)` observable → signal. `getDetail()` returns lazy full view; `save()` + `toggleFavorite()` delegate to `updateWithServer`. Also exposes `getTotpCode(id)` wrapping `TotpService.getCode$()`. Redesign shell consumes it live (falls back to mock data when unauthenticated in Storybook/preview).
-- [ ] C2. `CopyService` (wraps platform clipboard + `TotpService`), `LockService` (wraps `VaultTimeoutService`), `FavoritesService`, `TagsService`, `SearchService`.
+- [x] C2. `CopyBridgeService` (wraps PlatformUtilsService clipboard + TotpService for copy-username/password/totp with auto-clear), `LockBridgeService` (wraps LockService.lock), `PasswordStrengthBridgeService` (wraps zxcvbn PasswordStrengthService). All `providedIn: "root"`.
 - [ ] C3. Unit tests for the mappers (no crypto — pure projection).
 
 ## D. Shell & navigation
@@ -43,7 +43,7 @@ it is how the next session knows where to pick up.
 
 ## F. Polish & verify
 
-- [ ] F1. Animations + reduced-motion; full keyboard map; CDK focus traps.
+- [~] F1. Keyboard map implemented: ↑/↓ move selection, Ctrl+C copy password, Ctrl+Shift+C copy username, / focus search, Cmd/Ctrl+K palette. Reduced-motion already handled via --fk-dur-* zeroing. CDK focus traps still to add on palette + detail panel.
 - [ ] F2. `npm run lint:fix`, `npm run prettier`, `npm run test:types`, `npm test`.
 - [ ] F3. **Vaultwarden acceptance test** (see 05-COMPATIBILITY-RISKS.md) — all must pass.
 - [ ] F4. Storybook / Chromatic visual review.

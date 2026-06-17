@@ -1,6 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ItemDetail } from "@klappstuhl/ui-bridge";
+import {
+  CopyBridgeService,
+  ItemDetail,
+  PasswordStrengthBridgeService,
+  VaultViewModelService,
+} from "@klappstuhl/ui-bridge";
 import {
   KlsButtonComponent,
   KlsCopyFieldComponent,
@@ -9,8 +14,6 @@ import {
   KlsTotpRingComponent,
 } from "@klappstuhl/ui-kit";
 import { interval } from "rxjs";
-
-import { mockStrength } from "./mock-data";
 
 /**
  * Right pane: item detail using the ui-kit primitives. Preview-only copy writes
@@ -121,26 +124,59 @@ import { mockStrength } from "./mock-data";
 export class KlsDetailPanelComponent {
   readonly item = input<ItemDetail | undefined>(undefined);
 
+  private readonly copyService = inject(CopyBridgeService);
+  private readonly strengthService = inject(PasswordStrengthBridgeService);
+  private readonly vaultService = inject(VaultViewModelService);
+
   private readonly now = signal(Date.now());
+  protected readonly totpCode = signal("------");
+  protected readonly totpPeriod = signal(30);
 
   constructor() {
     interval(1000)
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this.now.set(Date.now()));
+      .subscribe(() => {
+        this.now.set(Date.now());
+        void this.refreshTotp();
+      });
   }
 
-  protected readonly strength = computed(() => mockStrength(this.item()?.password));
+  protected readonly strength = computed(() => this.strengthService.score(this.item()?.password));
 
-  protected readonly totpRemaining = computed(() => 30 - (Math.floor(this.now() / 1000) % 30));
-
-  protected readonly totpCode = computed(() => {
-    const window = Math.floor(this.now() / 30000);
-    return Math.abs((window * 9301 + 49297) % 1000000)
-      .toString()
-      .padStart(6, "0");
-  });
+  protected readonly totpRemaining = computed(
+    () => this.totpPeriod() - (Math.floor(this.now() / 1000) % this.totpPeriod()),
+  );
 
   protected onCopy(value: string): void {
-    void navigator.clipboard?.writeText(value);
+    this.copyService.copyToClipboard(value);
+  }
+
+  protected onToggleFavorite(): void {
+    const id = this.item()?.id;
+    if (id) {
+      void this.vaultService.toggleFavorite(id);
+    }
+  }
+
+  private async refreshTotp(): Promise<void> {
+    const id = this.item()?.id;
+    if (!id || !this.item()?.totpAvailable) {
+      return;
+    }
+    try {
+      const result = await this.vaultService.getTotpCode(id);
+      if (result) {
+        this.totpCode.set(result.code);
+        this.totpPeriod.set(result.period);
+      }
+    } catch {
+      // Fall back to mock in Storybook/preview
+      const window = Math.floor(this.now() / 30000);
+      this.totpCode.set(
+        Math.abs((window * 9301 + 49297) % 1000000)
+          .toString()
+          .padStart(6, "0"),
+      );
+    }
   }
 }

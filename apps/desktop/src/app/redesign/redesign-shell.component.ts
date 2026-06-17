@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ItemDetail, ItemSummary, VaultViewModelService } from "@klappstuhl/ui-bridge";
+import {
+  CopyBridgeService,
+  ItemDetail,
+  ItemSummary,
+  LockBridgeService,
+  VaultViewModelService,
+} from "@klappstuhl/ui-bridge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { map } from "rxjs";
 
@@ -39,6 +45,7 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
       [query]="query()"
       (queryChange)="query.set($event)"
       (select)="onSelectItem($event)"
+      (quickCopyTotp)="onQuickCopyTotp($event)"
     />
     <kls-detail-panel [item]="selectedDetail()" />
 
@@ -53,6 +60,8 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
 export class KlsRedesignShellComponent {
   private readonly vaultService = inject(VaultViewModelService);
   private readonly accountService = inject(AccountService);
+  private readonly copyService = inject(CopyBridgeService);
+  private readonly lockService = inject(LockBridgeService);
 
   private readonly hasUser = toSignal(
     this.accountService.activeAccount$.pipe(map((a) => !!a)),
@@ -119,6 +128,56 @@ export class KlsRedesignShellComponent {
     this.paletteOpen.set(true);
   }
 
+  @HostListener("document:keydown.arrowdown", ["$event"])
+  protected onArrowDown(event: Event): void {
+    if (this.paletteOpen()) {
+      return;
+    }
+    event.preventDefault();
+    this.moveSelection(1);
+  }
+
+  @HostListener("document:keydown.arrowup", ["$event"])
+  protected onArrowUp(event: Event): void {
+    if (this.paletteOpen()) {
+      return;
+    }
+    event.preventDefault();
+    this.moveSelection(-1);
+  }
+
+  @HostListener("document:keydown.control.c", ["$event"])
+  @HostListener("document:keydown.meta.c", ["$event"])
+  protected onCopyPassword(event: Event): void {
+    if (this.paletteOpen() || !this.selectedId()) {
+      return;
+    }
+    const sel = window.getSelection();
+    if (sel && sel.toString().length > 0) {
+      return;
+    }
+    event.preventDefault();
+    void this.copyService.copyPassword(this.selectedId()!);
+  }
+
+  @HostListener("document:keydown.control.shift.c", ["$event"])
+  @HostListener("document:keydown.meta.shift.c", ["$event"])
+  protected onCopyUsername(event: Event): void {
+    if (this.paletteOpen() || !this.selectedId()) {
+      return;
+    }
+    event.preventDefault();
+    void this.copyService.copyUsername(this.selectedId()!);
+  }
+
+  @HostListener("document:keydown./")
+  protected onFocusSearch(): void {
+    if (this.paletteOpen()) {
+      return;
+    }
+    // Focus is handled by the item-list search input
+  }
+
   protected onCategory(cat: NavCategory): void {
     this.activeCategory.set(cat);
     const firstId = this.filteredItems()[0]?.id;
@@ -139,6 +198,22 @@ export class KlsRedesignShellComponent {
     if (action.id.startsWith("nav:")) {
       const cat = action.id.replace("nav:", "") as NavCategory;
       this.onCategory(cat);
+    } else if (action.id === "act:lock") {
+      void this.lockService.lock();
+    }
+  }
+
+  protected onQuickCopyTotp(cipherId: string): void {
+    void this.copyService.copyTotp(cipherId);
+  }
+
+  private moveSelection(delta: number): void {
+    const items = this.filteredItems();
+    const currentIdx = items.findIndex((i) => i.id === this.selectedId());
+    const nextIdx = Math.max(0, Math.min(items.length - 1, currentIdx + delta));
+    const nextId = items[nextIdx]?.id;
+    if (nextId && nextId !== this.selectedId()) {
+      this.onSelectItem(nextId);
     }
   }
 
