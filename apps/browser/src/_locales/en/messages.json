@@ -5015,8 +5015,8 @@
     "message": "Allow",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
-  "skipForNow": {
-    "message": "Skip for now"
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Credentials saved successfully!",
