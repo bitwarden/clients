@@ -17,11 +17,15 @@
 
 1. `apps/desktop/src/scss/tailwind.css` — one `@import` of the fork theme (last).
 2. `tsconfig.base.json` — two path-alias lines for the new libs.
-3. `.claude/CLAUDE.md` — a fork pointer section (additive).
-4. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
+3. `apps/desktop/src/app/app-routing.module.ts` — one additive lazy `/redesign` route.
+4. `.storybook/main.ts` — two `stories` globs for the fork's stories.
+5. `package-lock.json` — registers the `@klappstuhl/*` workspaces (regenerated).
+6. `.claude/CLAUDE.md` — a fork pointer section (additive).
+7. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
 
 Everything else is **new files only**. Restyling happens by swapping
-component templates/styles in place, never by rewriting their data paths.
+component templates/styles in place, never by rewriting their data paths. Each
+edit above is a single additive hunk, so upstream merges stay clean.
 
 ## Vaultwarden acceptance test (run before every fork release tag)
 

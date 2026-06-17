@@ -31,6 +31,9 @@ const config: StorybookConfig = {
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/angular/src/**/*.stories.@(js|jsx|ts|tsx)",
+    // FORK (klappstuhl): UI redesign stories. See docs/ui-redesign/.
+    "../libs/ui-kit/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../apps/desktop/src/app/redesign/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),

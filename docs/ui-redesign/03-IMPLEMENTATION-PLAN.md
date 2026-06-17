@@ -17,7 +17,7 @@ it is how the next session knows where to pick up.
 ## B. Design system
 
 - [x] B1. First primitives built in `ui-kit/src/components/*`: `KlsButton`, `KlsCopyField`, `KlsRevealField`, `KlsTotpRing`, `KlsStrengthMeter` (standalone, OnPush, signal I/O, inline SVG icons; copy/reveal emit events — no direct clipboard). `tsc --noEmit` + `eslint` + `prettier` all pass. Remaining primitives (Input, Select, Toggle, Dialog, Tooltip, ContextMenu) still to do.
-- [ ] B2. Storybook stories for each (Storybook already configured at repo root).
+- [~] B2. Storybook wired for the fork: glob added in `.storybook/main.ts`; `redesign-shell.stories.ts` renders the full shell (run `npm run storybook` → "Fork Redesign / App Shell"). Per-primitive stories still to add.
 - [ ] B3. Sanity-check that retuned tokens propagate to existing `@bitwarden/components` (no API changes, values only).
 
 ## C. Bridge layer
