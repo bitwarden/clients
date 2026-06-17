@@ -204,7 +204,7 @@ export class ActivityTabComponent {
    * Opens the at-risk members drawer for critical applications only.
    */
   protected readonly onViewAtRiskMembers = () => {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskMembers,
       "activityTabAtRiskMembers",
     );
@@ -215,7 +215,7 @@ export class ActivityTabComponent {
    * Opens the at-risk applications drawer for critical applications only.
    */
   protected readonly onViewAtRiskApplications = () => {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskApps,
       "activityTabAtRiskApplications",
     );

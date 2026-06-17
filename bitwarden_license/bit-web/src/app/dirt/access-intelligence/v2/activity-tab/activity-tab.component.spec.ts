@@ -106,7 +106,7 @@ describe("ActivityTabComponent", () => {
     };
 
     mockDrawerStateService = {
-      openDrawer: jest.fn(),
+      toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
     } as any;
 
@@ -378,19 +378,19 @@ describe("ActivityTabComponent", () => {
       openSpy.mockRestore();
     });
 
-    it("should call onViewAtRiskMembers - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskMembers - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskMembers();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskMembers,
         "activityTabAtRiskMembers",
       );
     });
 
-    it("should call onViewAtRiskApplications - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskApplications - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskApplications();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskApps,
         "activityTabAtRiskApplications",
       );
