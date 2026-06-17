@@ -1,0 +1,61 @@
+/*
+ * FORK (klappstuhl): glassy/rounded reskin of upstream OVERLAYS — dialogs,
+ * drawers, and form inputs (generator, import/export, settings, add/edit cipher).
+ *
+ * Additive only: no upstream component source is edited. Imported after
+ * fork-theme.css in apps/desktop/src/scss/tailwind.css. Overrides appearance
+ * (radius / translucency / blur / shadow) via the --fk-* tokens — never
+ * structure or behavior. Targets stable structural hooks (`bit-dialog`,
+ * `[bitFieldContainer]`, CDK overlay classes) rather than utility classes.
+ */
+
+/* --- Dialog backdrop: soft frost over the app behind the modal --- */
+.cdk-overlay-dark-backdrop {
+  backdrop-filter: blur(6px) saturate(1.1);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+}
+
+/* --- Dialog / drawer panel → frosted-glass floating card --- */
+.cdk-overlay-pane bit-dialog > section {
+  border-radius: var(--fk-radius-xl) !important;
+  border: var(--fk-glass-border-strong) !important;
+  background-color: var(--fk-overlay-bg) !important;
+  backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--fk-blur-overlay)) saturate(1.6);
+  box-shadow: var(--fk-elev-panel), var(--fk-glass-highlight) !important;
+}
+
+/* Let the frost show through by neutralizing the opaque inner backgrounds the
+   upstream template paints on the header / body / footer. */
+.cdk-overlay-pane bit-dialog > section > header,
+.cdk-overlay-pane bit-dialog > section > footer,
+.cdk-overlay-pane bit-dialog > section > div {
+  background-color: transparent !important;
+}
+
+/* --- Form inputs → rounded, themed, subtle glass (app-wide) --- */
+[bitFieldContainer] {
+  border-radius: var(--fk-radius-md) !important;
+  border: var(--fk-glass-border) !important;
+  background-color: var(--fk-hover-bg) !important;
+  transition:
+    border-color var(--fk-dur-fast, 150ms) var(--fk-ease, ease),
+    box-shadow var(--fk-dur-fast, 150ms) var(--fk-ease, ease);
+}
+
+[bitFieldContainer]:focus-within {
+  border-color: var(--color-border-focus) !important;
+  box-shadow: 0 0 0 3px rgb(109 127 245 / 0.25);
+}
+
+/* Round the form-field prefix divider to match the new radius. */
+[bitFieldContainer] > [class*="tw-rounded-s-"] {
+  border-start-start-radius: var(--fk-radius-md) !important;
+  border-end-start-radius: var(--fk-radius-md) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [bitFieldContainer] {
+    transition: none;
+  }
+}

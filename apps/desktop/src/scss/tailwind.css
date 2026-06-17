@@ -4,3 +4,8 @@
  * upstream token values above. Reskins the whole app via CSS custom properties
  * without touching any upstream file. See docs/ui-redesign/02-DESIGN-SYSTEM.md */
 @import "../../../../libs/ui-kit/src/theme/fork-theme.css";
+
+/* FORK (klappstuhl): glassy/rounded reskin of upstream dialogs, drawers, and
+ * form inputs. Additive; targets stable structural hooks only. Must come after
+ * the theme so the --fk-* tokens it references are defined. */
+@import "../../../../libs/ui-kit/src/theme/fork-overlays.css";

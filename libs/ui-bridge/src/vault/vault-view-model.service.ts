@@ -1,17 +1,19 @@
 import { computed, inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
+
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CollectionService } from "@bitwarden/admin-console/common";
-import { combineLatest, filter, firstValueFrom, map, switchMap } from "rxjs";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 
 import {
   CollectionSummary,
@@ -38,7 +40,9 @@ function cipherTypeToKind(type: CipherType): ItemKind {
 }
 
 function extractHostname(uri: string | undefined | null): string | undefined {
-  if (!uri) return undefined;
+  if (!uri) {
+    return undefined;
+  }
   try {
     return new URL(uri).hostname;
   } catch {
@@ -205,7 +209,9 @@ export class VaultViewModelService implements VaultViewModel {
 
     let collectionNames: string[] | undefined;
     if (cipher.collectionIds?.length) {
-      const collections = await firstValueFrom(this.collectionService.decryptedCollections$(userId));
+      const collections = await firstValueFrom(
+        this.collectionService.decryptedCollections$(userId),
+      );
       collectionNames = collections
         .filter((c) => cipher.collectionIds!.includes(c.id))
         .map((c) => c.name);
@@ -229,6 +235,20 @@ export class VaultViewModelService implements VaultViewModel {
     if (cipher.login && cipher.type === CipherType.Login) {
       cipher.login.username = detail.username ?? null;
       cipher.login.password = detail.password ?? null;
+      if (detail.uris) {
+        cipher.login.uris = detail.uris
+          .filter((u) => !!u)
+          .map((u) => {
+            // Reuse the existing LoginUriView (preserves match settings) when unchanged.
+            const existing = cipher.login!.uris?.find((x) => x.uri === u);
+            if (existing) {
+              return existing;
+            }
+            const view = new LoginUriView();
+            view.uri = u;
+            return view;
+          });
+      }
     }
 
     await this.cipherService.updateWithServer(cipher, userId);

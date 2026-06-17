@@ -109,45 +109,61 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
               {{ it.kind }}
             </p>
           </div>
-          <button
-            type="button"
-            class="tw-rounded-[var(--fk-radius-full)] tw-p-2.5"
-            style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
-            [class.tw-text-fg-warning]="it.favorite"
-            [class.tw-text-fg-body-subtle]="!it.favorite"
-            [attr.aria-label]="it.favorite ? 'Remove from favorites' : 'Add to favorites'"
-            [attr.aria-pressed]="it.favorite"
-            (mouseenter)="$any($event.currentTarget).style.transform = 'scale(1.15)'"
-            (mouseleave)="$any($event.currentTarget).style.transform = 'scale(1)'"
-            (click)="onToggleFavorite()"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              [attr.fill]="it.favorite ? 'currentColor' : 'none'"
-              aria-hidden="true"
+          <div class="tw-flex tw-shrink-0 tw-items-center tw-gap-2">
+            <button
+              type="button"
+              class="tw-rounded-[var(--fk-radius-full)] tw-p-2.5"
+              style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
+              [class.tw-text-fg-warning]="it.favorite"
+              [class.tw-text-fg-body-subtle]="!it.favorite"
+              [attr.aria-label]="it.favorite ? 'Remove from favorites' : 'Add to favorites'"
+              [attr.aria-pressed]="it.favorite"
+              (mouseenter)="$any($event.currentTarget).style.transform = 'scale(1.15)'"
+              (mouseleave)="$any($event.currentTarget).style.transform = 'scale(1)'"
+              (click)="onToggleFavorite()"
             >
-              <path
-                d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9L12 3Z"
-                stroke="currentColor"
-                stroke-width="1.75"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          @if (editing()) {
-            <button type="button" klsButton variant="secondary" size="sm" (click)="onCancelEdit()">
-              Cancel
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                [attr.fill]="it.favorite ? 'currentColor' : 'none'"
+                aria-hidden="true"
+              >
+                <path
+                  d="m12 3 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9L12 3Z"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linejoin="round"
+                />
+              </svg>
             </button>
-            <button type="button" klsButton variant="primary" size="sm" (click)="onSave()">
-              Save
-            </button>
-          } @else {
-            <button type="button" klsButton variant="secondary" size="sm" (click)="onStartEdit()">
-              Edit
-            </button>
-          }
+            @if (editing()) {
+              <button
+                type="button"
+                klsButton
+                variant="secondary"
+                size="sm"
+                [disabled]="saving()"
+                (click)="onCancelEdit()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                klsButton
+                variant="primary"
+                size="sm"
+                [disabled]="saving()"
+                (click)="onSave()"
+              >
+                {{ saving() ? "Saving…" : "Save" }}
+              </button>
+            } @else {
+              <button type="button" klsButton variant="secondary" size="sm" (click)="onStartEdit()">
+                Edit
+              </button>
+            }
+          </div>
         </div>
 
         <div class="tw-flex-1 tw-overflow-y-auto tw-px-8 tw-py-6">
@@ -545,13 +561,16 @@ export class KlsDetailPanelComponent {
   protected readonly totpCode = signal("------");
   protected readonly totpPeriod = signal(30);
   protected readonly editing = signal(false);
+  protected readonly saving = signal(false);
   protected readonly draft = signal<Partial<ItemDetail>>({});
   protected readonly passwordRevealed = signal(false);
 
   constructor() {
     effect(() => {
       const it = this.item();
-      if (!it) {return;}
+      if (!it) {
+        return;
+      }
       this.passwordRevealed.set(false);
       this.editing.set(false);
       const content = (this.el.nativeElement as HTMLElement).querySelector(".detail-content");
@@ -574,23 +593,37 @@ export class KlsDetailPanelComponent {
 
   protected readonly strengthLabel = computed(() => {
     const s = this.strength();
-    if (s <= 1) {return "Weak";}
-    if (s <= 2) {return "Fair";}
-    if (s <= 3) {return "Good";}
+    if (s <= 1) {
+      return "Weak";
+    }
+    if (s <= 2) {
+      return "Fair";
+    }
+    if (s <= 3) {
+      return "Good";
+    }
     return "Strong";
   });
 
   protected readonly strengthColor = computed(() => {
     const s = this.strength();
-    if (s <= 1) {return "rgb(var(--fk-strength-weak))";}
-    if (s <= 2) {return "rgb(var(--fk-strength-medium))";}
+    if (s <= 1) {
+      return "rgb(var(--fk-strength-weak))";
+    }
+    if (s <= 2) {
+      return "rgb(var(--fk-strength-medium))";
+    }
     return "rgb(var(--fk-strength-strong))";
   });
 
   protected readonly strengthBg = computed(() => {
     const s = this.strength();
-    if (s <= 1) {return "rgb(var(--fk-strength-weak) / 0.12)";}
-    if (s <= 2) {return "rgb(var(--fk-strength-medium) / 0.12)";}
+    if (s <= 1) {
+      return "rgb(var(--fk-strength-weak) / 0.12)";
+    }
+    if (s <= 2) {
+      return "rgb(var(--fk-strength-medium) / 0.12)";
+    }
     return "rgb(var(--fk-strength-strong) / 0.12)";
   });
 
@@ -603,8 +636,12 @@ export class KlsDetailPanelComponent {
   }
 
   protected formatTotp(code: string): string {
-    if (code.length === 6) {return code.slice(0, 3) + " " + code.slice(3);}
-    if (code.length === 8) {return code.slice(0, 4) + " " + code.slice(4);}
+    if (code.length === 6) {
+      return code.slice(0, 3) + " " + code.slice(3);
+    }
+    if (code.length === 8) {
+      return code.slice(0, 4) + " " + code.slice(4);
+    }
     return code;
   }
 
@@ -629,7 +666,9 @@ export class KlsDetailPanelComponent {
 
   protected onStartEdit(): void {
     const it = this.item();
-    if (!it) {return;}
+    if (!it) {
+      return;
+    }
     this.draft.set({ ...it });
     this.editing.set(true);
   }
@@ -642,12 +681,19 @@ export class KlsDetailPanelComponent {
   protected async onSave(): Promise<void> {
     const it = this.item();
     const d = this.draft();
-    if (!it || !d.id) {return;}
+    if (!it || !d.id) {
+      return;
+    }
     const updated: ItemDetail = { ...it, ...d } as ItemDetail;
-    await this.vaultService.save(updated);
-    this.editing.set(false);
-    this.draft.set({});
-    this.saved.emit();
+    this.saving.set(true);
+    try {
+      await this.vaultService.save(updated);
+      this.editing.set(false);
+      this.draft.set({});
+      this.saved.emit();
+    } finally {
+      this.saving.set(false);
+    }
   }
 
   protected updateDraft(field: keyof ItemDetail, value: string): void {
