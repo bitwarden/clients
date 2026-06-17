@@ -10,7 +10,7 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src https: data:;"
     />
     <style>
       :root {
@@ -108,11 +108,28 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
         background: linear-gradient(135deg, rgb(109 127 245 / 0.25), rgb(109 127 245 / 0.1));
         color: var(--brand);
         font-weight: 700;
         font-size: 14px;
         border: 1px solid var(--border);
+      }
+      .avatar img {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        border-radius: 4px;
+      }
+      .avatar.sm {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        font-size: 12px;
+      }
+      .avatar.sm img {
+        width: 16px;
+        height: 16px;
       }
       .meta {
         flex: 1 1 auto;
@@ -163,9 +180,11 @@
         border-bottom: 1px solid var(--border);
       }
       .submenu-head .back {
+        flex: 0 0 auto;
         color: var(--fg-subtle);
       }
       .submenu-head .name {
+        flex: 1 1 auto;
         color: var(--fg);
         font-size: 13px;
         font-weight: 600;
@@ -173,10 +192,42 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .action-label {
+      .action-icon {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgb(255 255 255 / 0.05);
+        color: var(--fg-subtle);
+        border: 1px solid var(--border);
+      }
+      .row.sel .action-icon {
+        color: var(--brand);
+        background: rgb(109 127 245 / 0.12);
+      }
+      .action-meta {
         flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .action-label {
         color: var(--fg);
         font-size: 14px;
+        font-weight: 500;
+        line-height: 1.25;
+      }
+      .action-value {
+        color: var(--fg-subtle);
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .hint {
         display: flex;
@@ -223,6 +274,7 @@
             stroke-linejoin="round"
           />
         </svg>
+        <span class="avatar sm" id="submenuIcon"></span>
         <span class="name" id="submenuName"></span>
       </div>
       <ul id="results" class="results"></ul>
@@ -274,6 +326,35 @@
           '<svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none">' +
           '<path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+        var ACTION_ICONS = {
+          username:
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+          password:
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2"/></svg>',
+          totp: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        };
+
+        // Build an avatar element: favicon image when available, letter fallback
+        // (also used if the image fails to load).
+        function buildAvatar(item, small) {
+          var av = document.createElement("span");
+          av.className = "avatar" + (small ? " sm" : "");
+          var letter = (item.title || "?").charAt(0).toUpperCase();
+          if (item.iconUrl) {
+            var img = document.createElement("img");
+            img.alt = "";
+            img.referrerPolicy = "no-referrer";
+            img.addEventListener("error", function () {
+              av.textContent = letter;
+            });
+            img.src = item.iconUrl;
+            av.appendChild(img);
+          } else {
+            av.textContent = letter;
+          }
+          return av;
+        }
+
         function renderList() {
           submenuHead.style.display = "none";
           hintSub.style.display = "none";
@@ -292,11 +373,7 @@
           items.forEach(function (it, i) {
             var li = document.createElement("li");
             li.className = "row" + (i === sel ? " sel" : "");
-            var letter = (it.title || "?").charAt(0).toUpperCase();
             li.innerHTML =
-              '<span class="avatar">' +
-              escapeHtml(letter) +
-              "</span>" +
               '<span class="meta"><span class="title">' +
               escapeHtml(it.title) +
               "</span>" +
@@ -307,6 +384,7 @@
               escapeHtml(it.kind || "") +
               "</span>" +
               CHEVRON;
+            li.insertBefore(buildAvatar(it, false), li.firstChild);
             li.addEventListener("click", function () {
               sel = i;
               activate("password");
@@ -320,6 +398,10 @@
         function renderSubmenu() {
           hint.style.display = "none";
           submenuName.textContent = subItem ? subItem.title : "";
+          // Refresh the header favicon.
+          var newIcon = subItem ? buildAvatar(subItem, true) : document.createElement("span");
+          newIcon.id = "submenuIcon";
+          document.getElementById("submenuIcon").replaceWith(newIcon);
           submenuHead.style.display = "flex";
           list.innerHTML = "";
           if (actions.length === 0) {
@@ -331,7 +413,15 @@
           actions.forEach(function (a, i) {
             var li = document.createElement("li");
             li.className = "row" + (i === subSel ? " sel" : "");
-            li.innerHTML = '<span class="action-label">' + escapeHtml(a.label) + "</span>";
+            li.innerHTML =
+              '<span class="action-icon">' +
+              (ACTION_ICONS[a.action] || "") +
+              "</span>" +
+              '<span class="action-meta"><span class="action-label">' +
+              escapeHtml(a.label) +
+              "</span>" +
+              (a.hint ? '<span class="action-value">' + escapeHtml(a.hint) + "</span>" : "") +
+              "</span>";
             li.addEventListener("click", function () {
               subSel = i;
               activate(a.action);

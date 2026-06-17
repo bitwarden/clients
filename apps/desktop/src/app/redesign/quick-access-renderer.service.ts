@@ -6,6 +6,7 @@ interface QuickAccessResult {
   title: string;
   subtitle?: string;
   kind: string;
+  iconUrl?: string;
 }
 
 type QuickAccessAction = "password" | "username" | "totp";
@@ -93,7 +94,13 @@ export class QuickAccessRendererService {
           i.title.toLowerCase().includes(q) || (i.subtitle?.toLowerCase().includes(q) ?? false),
       )
       .slice(0, MAX_RESULTS)
-      .map((i) => ({ id: i.id, title: i.title, subtitle: i.subtitle, kind: i.kind }));
+      .map((i) => ({
+        id: i.id,
+        title: i.title,
+        subtitle: i.subtitle,
+        kind: i.kind,
+        iconUrl: i.iconUrl,
+      }));
   }
 
   private async activate(activation: QuickAccessActivation): Promise<void> {

@@ -13,6 +13,7 @@ export interface QuickAccessResult {
   title: string;
   subtitle?: string;
   kind: string;
+  iconUrl?: string;
 }
 
 export type QuickAccessAction = "password" | "username" | "totp";
