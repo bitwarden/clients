@@ -1213,6 +1213,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.collectionService.delete([collection.id as CollectionId], activeUserId);
+      // Deleting collections will alter the underlying ciphers, perform a full sync
+      // to ensure the vault has the most up to date cipher data.
+      await this.syncService.fullSync(true);
 
       this.toastService.showToast({
         variant: "success",
