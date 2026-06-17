@@ -21,8 +21,7 @@ import {
   sendExtensionMessage,
   getAttributeBoolean,
   getPropertyOrAttribute,
-  requestIdleCallbackPolyfill,
-  cancelIdleCallbackPolyfill,
+  CoalescedIdleTask,
   debounce,
 } from "../utils";
 
@@ -63,7 +62,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
-  private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
+  // Coalesced idle tasks: a mutation burst collapses to one pending run each.
+  private readonly mutationDrainTask = new CoalescedIdleTask(() => this.processMutations());
+  private readonly pageDetailsTask = new CoalescedIdleTask(() => this.getPageDetails());
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
@@ -80,6 +81,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private mutationBurstCount = 0;
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
+  // First un-serviced mutation's timestamp; anchors the hard maxWait floor.
+  private pageDetailsRefreshDeadlineAnchor: number | null = null;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -124,6 +127,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
+    // Refresh running: restart the maxWait window.
+    this.pageDetailsRefreshDeadlineAnchor = null;
+
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
@@ -1442,7 +1448,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (shouldSchedule) {
-      requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
+      this.mutationDrainTask.schedule({ timeout: 500 });
     }
   };
 
@@ -1493,28 +1499,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
-    requestIdleCallbackPolyfill(
-      () => {
-        for (const element of drainingTopLayer) {
-          this.setupTopLayerCandidateListener(element);
+    // Apply drained mutations in this same idle slot. Reentrant mutations land in
+    // the now-empty pending structures and drain on the next scheduled run.
+    for (const element of drainingTopLayer) {
+      this.setupTopLayerCandidateListener(element);
+    }
+    if (childListNeeded) {
+      // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
+      this.requirePageDetailsUpdate();
+    } else {
+      for (const [target, attributeNames] of drainingAttributeMutations) {
+        for (const attributeName of attributeNames) {
+          this.applyAttributeMutation(target, attributeName);
         }
-        if (childListNeeded) {
-          // Full rebuild re-reads every attribute, so the per-attribute path is redundant here.
-          this.requirePageDetailsUpdate();
-        } else {
-          for (const [target, attributeNames] of drainingAttributeMutations) {
-            for (const attributeName of attributeNames) {
-              this.applyAttributeMutation(target, attributeName);
-            }
-          }
-        }
+      }
+    }
 
-        if (this.domRecentlyMutated) {
-          this.updateAutofillElementsAfterMutation();
-        }
-      },
-      { timeout: 500 },
-    );
+    if (this.domRecentlyMutated) {
+      this.updateAutofillElementsAfterMutation();
+    }
   };
 
   private applyAttributeMutation(target: Element, attributeName: string): void {
@@ -1675,14 +1678,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.updateAfterMutationIdleCallback !== null) {
-      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
-      this.updateAfterMutationIdleCallback = null;
-    }
-
     const now = Date.now();
     const timeSinceLastMutation = now - this.lastMutationTimestamp;
     this.lastMutationTimestamp = now;
+
+    // Anchor the maxWait deadline on the first mutation of a burst.
+    if (this.pageDetailsRefreshDeadlineAnchor === null) {
+      this.pageDetailsRefreshDeadlineAnchor = now;
+    }
 
     // Check if mutations are occurring rapidly (DOM is still "hot")
     if (timeSinceLastMutation < this.mutationCooldownMs) {
@@ -1703,10 +1706,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
 
-    this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
-      this.getPageDetails.bind(this),
-      { timeout: adaptiveTimeout },
-    );
+    // Each reschedule resets rIC's deadline, so clamp to the maxWait budget left;
+    // otherwise a fast-mutating page could defer the refresh forever.
+    const elapsedSinceAnchor = now - this.pageDetailsRefreshDeadlineAnchor;
+    const remainingBudget = Math.max(0, this.maxMutationWaitMs - elapsedSinceAnchor);
+    const effectiveTimeout = Math.min(adaptiveTimeout, remainingBudget);
+
+    this.pageDetailsTask.schedule({ timeout: effectiveTimeout });
   }
 
   /**
@@ -1998,10 +2004,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
-    if (this.updateAfterMutationIdleCallback !== null) {
-      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
-      this.updateAfterMutationIdleCallback = null;
-    }
+    this.pageDetailsTask.cancel();
+    this.mutationDrainTask.cancel();
     if (this.shadowDomCheckTimeout) {
       clearTimeout(this.shadowDomCheckTimeout);
     }

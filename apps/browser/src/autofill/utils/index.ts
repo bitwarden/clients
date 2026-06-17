@@ -55,6 +55,40 @@ export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
 }
 
 /**
+ * A self-coalescing idle task: scheduling while a run is pending cancels the
+ * prior one, so a burst collapses to a single pending run. Owns its handle so
+ * callers never repeat the cancel-before-schedule dance.
+ */
+export class CoalescedIdleTask {
+  private handle: number | NodeJS.Timeout | null = null;
+
+  constructor(
+    private readonly callback: () => void,
+    private readonly defaultOptions?: Record<string, any>,
+  ) {}
+
+  schedule(options: Record<string, any> | undefined = this.defaultOptions): void {
+    this.cancel();
+    this.handle = requestIdleCallbackPolyfill(() => {
+      // Null before invoking so a callback that re-schedules itself keeps its new handle.
+      this.handle = null;
+      this.callback();
+    }, options);
+  }
+
+  cancel(): void {
+    if (this.handle !== null) {
+      cancelIdleCallbackPolyfill(this.handle);
+      this.handle = null;
+    }
+  }
+
+  get pending(): boolean {
+    return this.handle !== null;
+  }
+}
+
+/**
  * Generates a random string of characters that formatted as a custom element name.
  */
 export function generateRandomCustomElementName(): string {

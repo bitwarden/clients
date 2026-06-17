@@ -95,6 +95,14 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["setupMutationObserver"]).toHaveBeenCalledTimes(1);
     });
 
+    it("re-anchors the maxWait window so the next mutation burst gets a fresh budget", async () => {
+      collectAutofillContentService["pageDetailsRefreshDeadlineAnchor"] = 1234;
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(collectAutofillContentService["pageDetailsRefreshDeadlineAnchor"]).toBeNull();
+    });
+
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
@@ -3485,14 +3493,20 @@ describe("CollectAutofillContentService", () => {
   });
 
   describe("destroy", () => {
-    it("clears the updateAfterMutationIdleCallback", () => {
-      jest.spyOn(window, "clearTimeout");
-      const callbackId = setTimeout(jest.fn, 100);
-      collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
+    it("cancels the pending mutation drain and page-detail idle tasks", () => {
+      const pageDetailsCancel = jest.spyOn(
+        collectAutofillContentService["pageDetailsTask"],
+        "cancel",
+      );
+      const mutationDrainCancel = jest.spyOn(
+        collectAutofillContentService["mutationDrainTask"],
+        "cancel",
+      );
 
       collectAutofillContentService.destroy();
 
-      expect(clearTimeout).toHaveBeenCalledWith(callbackId);
+      expect(pageDetailsCancel).toHaveBeenCalled();
+      expect(mutationDrainCancel).toHaveBeenCalled();
     });
 
     it("clears all pending overlay setup timeouts", () => {
@@ -3634,6 +3648,43 @@ describe("CollectAutofillContentService", () => {
       const pending = collectAutofillContentService["pendingAttributeMutations"];
       expect(pending.size).toBe(1);
       expect(Array.from(pending.get(target)!).sort()).toEqual(["id", "value"]);
+    });
+  });
+
+  describe("page details refresh maxWait", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("clamps the scheduled timeout to the remaining budget under sustained mutation", () => {
+      const scheduleSpy = jest.spyOn(collectAutofillContentService["pageDetailsTask"], "schedule");
+      jest.setSystemTime(0);
+
+      // First un-serviced mutation anchors the 5s maxWait window at t=0.
+      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
+
+      // Mutating again right up against the cap leaves only a sliver of budget.
+      jest.setSystemTime(4900);
+      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
+
+      const lastTimeout = (scheduleSpy.mock.calls.at(-1)![0] as { timeout: number }).timeout;
+      expect(lastTimeout).toBeLessThanOrEqual(100);
+    });
+
+    it("never schedules a negative timeout once the budget is exhausted", () => {
+      const scheduleSpy = jest.spyOn(collectAutofillContentService["pageDetailsTask"], "schedule");
+      jest.setSystemTime(0);
+      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
+
+      jest.setSystemTime(10000); // well past the 5s cap
+      collectAutofillContentService["updateAutofillElementsAfterMutation"]();
+
+      const lastTimeout = (scheduleSpy.mock.calls.at(-1)![0] as { timeout: number }).timeout;
+      expect(lastTimeout).toBe(0);
     });
   });
 });

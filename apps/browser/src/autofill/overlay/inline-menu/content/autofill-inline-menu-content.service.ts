@@ -11,7 +11,7 @@ import {
   sendExtensionMessage,
   generateRandomCustomElementName,
   setElementStyles,
-  requestIdleCallbackPolyfill,
+  CoalescedIdleTask,
 } from "../../../utils";
 import {
   InlineMenuExtensionMessageHandlers,
@@ -48,6 +48,13 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private bodyMutationObserver: MutationObserver;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private containerElementMutationObserver: MutationObserver;
+  // Coalesced: a burst collapses to one run on the latest container.
+  private pendingContainerElement?: HTMLElement;
+  private readonly containerMutationTask = new CoalescedIdleTask(() => {
+    if (this.pendingContainerElement) {
+      void this.processContainerElementMutation(this.pendingContainerElement);
+    }
+  });
   private refreshCountWithinTimeThreshold: { [key in BackoffCheckType]: number } = {
     topLayer: 0,
     popoverAttribute: 0,
@@ -473,10 +480,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    const containerElement = mutations[0].target as HTMLElement;
-    requestIdleCallbackPolyfill(() => this.processContainerElementMutation(containerElement), {
-      timeout: 500,
-    });
+    this.pendingContainerElement = mutations[0].target as HTMLElement;
+    this.containerMutationTask.schedule({ timeout: 500 });
   };
 
   private checkPageRisks = async () => {
@@ -794,6 +799,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   destroy() {
     this.closeInlineMenu();
+    this.containerMutationTask.cancel();
     this.clearPersistentLastChildOverrideTimeout();
     this.unobservePageAttributes();
     this.unobserveCustomElements();
