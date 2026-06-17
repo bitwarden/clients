@@ -15,6 +15,7 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -84,32 +85,43 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
-  private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
-          ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
-          : from(this.billingApiService.getPlans()),
-      ),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+  // QA-only: lets a self-hosted-region client fetch cloud pricing so the
+  // premium checkout dialog can display prices. Off by default; only delivered
+  // by servers that enable it.
+  private bypassSelfHostPremiumCheck$ = this.configService.getFeatureFlag$(
+    FeatureFlag.DebugDisableSelfHostPremiumCheck,
+  );
 
-  private premiumPlanResponse$: Observable<PremiumPlanResponse> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
-          ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
-          : from(this.billingApiService.getPremiumPlan()).pipe(
-              catchError((error: unknown) => {
-                this.logService.error("Failed to fetch premium plan from API", error);
-                return throwError(() => error); // Re-throw to propagate to higher-level error handler
-              }),
-            ),
-      ),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+  private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> = combineLatest([
+    this.environmentService.environment$,
+    this.bypassSelfHostPremiumCheck$,
+  ]).pipe(
+    take(1),
+    switchMap(([environment, bypassSelfHostCheck]) =>
+      !environment.isCloud() && !bypassSelfHostCheck
+        ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
+        : from(this.billingApiService.getPlans()),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> = combineLatest([
+    this.environmentService.environment$,
+    this.bypassSelfHostPremiumCheck$,
+  ]).pipe(
+    take(1),
+    switchMap(([environment, bypassSelfHostCheck]) =>
+      !environment.isCloud() && !bypassSelfHostCheck
+        ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
+        : from(this.billingApiService.getPremiumPlan()).pipe(
+            catchError((error: unknown) => {
+              this.logService.error("Failed to fetch premium plan from API", error);
+              return throwError(() => error); // Re-throw to propagate to higher-level error handler
+            }),
+          ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
 
   private premium$: Observable<PersonalSubscriptionPricingTier> = this.premiumPlanResponse$.pipe(
     map((premiumPlan) => ({
