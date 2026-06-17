@@ -75,6 +75,13 @@ const routes: Routes = [
     canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
   },
   {
+    // FORK (klappstuhl): UI redesign preview shell — visual-only, mock data, no
+    // guards so it can be viewed in isolation. See docs/ui-redesign/.
+    path: "redesign",
+    loadComponent: () =>
+      import("./redesign/redesign-shell.component").then((m) => m.KlsRedesignShellComponent),
+  },
+  {
     path: AuthRoute.AuthenticationTimeout,
     component: AnonLayoutWrapperComponent,
     children: [

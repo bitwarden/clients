@@ -28,13 +28,14 @@ it is how the next session knows where to pick up.
 
 ## D. Shell & navigation
 
-- [ ] D1. `AppShell` + `SidebarNav`; mount inside existing routes/guards (no route path changes).
-- [ ] D2. `ItemList` (CDK virtual scroll) + `ItemRow` + hover quick-copy.
-- [ ] D3. `SearchBar` instant filtering over the bridge signal.
+- [x] D1. Preview shell built: `KlsRedesignShell` + `KlsSidebarNav` + split-pane, mounted on a NEW additive `/redesign` route (production vault untouched). Renders against mock data shaped as bridge `ItemDetail`.
+- [~] D2. `KlsItemList` + rows + selection done. TODO: swap to CDK virtual scroll + hover quick-copy.
+- [x] D3. `SearchBar` instant filtering via signals (`filteredItems` computed over category + query).
 
 ## E. Detail & interactions
 
-- [ ] E1. Split-pane `DetailPanel`; per-type sections; `CopyField`/`RevealField`/`TotpDisplay`.
+- [x] E1. `KlsDetailPanel` split-pane built with `KlsCopyField`/`KlsRevealField`/`KlsTotpRing`/`KlsStrengthMeter` + live (mock) TOTP countdown. (Real data via bridge pending.)
+- [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
 - [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
 - [ ] E3. `CommandPalette` + command registry + global hotkeys.
 - [ ] E4. Recent items + Quick access panels.
