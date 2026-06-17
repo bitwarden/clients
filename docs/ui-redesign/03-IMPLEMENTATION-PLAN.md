@@ -23,7 +23,7 @@ it is how the next session knows where to pick up.
 
 ## C. Bridge layer
 
-- [ ] C1. Implement `VaultViewModelService` (Angular @Injectable) wrapping `CipherService` → `ItemSummary`/`ItemDetail` (contract already in `ui-bridge/src/vault/vault-view-model.ts`).
+- [x] C1. Implement `VaultViewModelService` (Angular @Injectable) wrapping `CipherService` → `ItemSummary`/`ItemDetail`. Maps CipherView fields (login.username/password/uris/totp, card.brand/number, identity names) reactively via `cipherViews$(userId)` observable → signal. `getDetail()` returns lazy full view; `save()` + `toggleFavorite()` delegate to `updateWithServer`. Also exposes `getTotpCode(id)` wrapping `TotpService.getCode$()`. Redesign shell consumes it live (falls back to mock data when unauthenticated in Storybook/preview).
 - [ ] C2. `CopyService` (wraps platform clipboard + `TotpService`), `LockService` (wraps `VaultTimeoutService`), `FavoritesService`, `TagsService`, `SearchService`.
 - [ ] C3. Unit tests for the mappers (no crypto — pure projection).
 

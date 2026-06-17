@@ -1,10 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
-import { ItemDetail, ItemKind } from "@klappstuhl/ui-bridge";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ItemDetail, ItemSummary, VaultViewModelService } from "@klappstuhl/ui-bridge";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { map } from "rxjs";
 
 import { KlsDetailPanelComponent } from "./detail-panel.component";
 import { KlsItemListComponent } from "./item-list.component";
 import { MOCK_ITEMS } from "./mock-data";
 import { NavCategory, NavItem, KlsSidebarNavComponent } from "./sidebar-nav.component";
+
+type ItemKind = "login" | "card" | "identity" | "note";
 
 const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", ItemKind> = {
   logins: "login",
@@ -13,12 +18,6 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
   notes: "note",
 };
 
-/**
- * Redesign preview shell: sidebar + split-pane (list + detail) wired to mock
- * data via signals. Mounted on the `/redesign` route so it can be viewed in
- * isolation without disturbing the production vault. The data source is swapped
- * for @klappstuhl/ui-bridge's VaultViewModelService in the bridge phase.
- */
 @Component({
   selector: "kls-redesign-shell",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,20 +37,34 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
       [selectedId]="selectedId()"
       [query]="query()"
       (queryChange)="query.set($event)"
-      (select)="selectedId.set($event)"
+      (select)="onSelectItem($event)"
     />
     <kls-detail-panel [item]="selectedDetail()" />
   `,
 })
 export class KlsRedesignShellComponent {
+  private readonly vaultService = inject(VaultViewModelService);
+  private readonly accountService = inject(AccountService);
+
+  private readonly hasUser = toSignal(
+    this.accountService.activeAccount$.pipe(map((a) => !!a)),
+    { initialValue: false },
+  );
+
   protected readonly activeCategory = signal<NavCategory>("all");
   protected readonly query = signal<string>("");
-  protected readonly selectedId = signal<string | undefined>(MOCK_ITEMS[0]?.id);
+  protected readonly selectedId = signal<string | undefined>(undefined);
+  protected readonly selectedDetail = signal<ItemDetail | undefined>(undefined);
 
-  private readonly allItems = signal<ItemDetail[]>(MOCK_ITEMS);
+  private readonly liveItems = computed<readonly ItemSummary[]>(() => {
+    if (this.hasUser()) {
+      return this.vaultService.items();
+    }
+    return MOCK_ITEMS;
+  });
 
   protected readonly navItems = computed<NavItem[]>(() => {
-    const all = this.allItems();
+    const all = this.liveItems();
     const count = (k: ItemKind) => all.filter((i) => i.kind === k).length;
     return [
       { key: "all", label: "All items", count: all.length },
@@ -63,10 +76,10 @@ export class KlsRedesignShellComponent {
     ];
   });
 
-  protected readonly filteredItems = computed<ItemDetail[]>(() => {
+  protected readonly filteredItems = computed<readonly ItemSummary[]>(() => {
     const cat = this.activeCategory();
     const q = this.query().trim().toLowerCase();
-    return this.allItems().filter((i) => {
+    return this.liveItems().filter((i) => {
       const matchesCat =
         cat === "all" ? true : cat === "favorites" ? i.favorite : i.kind === KIND_BY_CATEGORY[cat];
       if (!matchesCat) {
@@ -77,19 +90,46 @@ export class KlsRedesignShellComponent {
       }
       return (
         i.title.toLowerCase().includes(q) ||
-        (i.subtitle?.toLowerCase().includes(q) ?? false) ||
-        (i.username?.toLowerCase().includes(q) ?? false)
+        (i.subtitle?.toLowerCase().includes(q) ?? false)
       );
     });
   });
 
-  protected readonly selectedDetail = computed<ItemDetail | undefined>(() => {
-    const id = this.selectedId();
-    return this.filteredItems().find((i) => i.id === id) ?? this.filteredItems()[0];
-  });
+  constructor() {
+    const firstId = this.filteredItems()[0]?.id;
+    if (firstId) {
+      this.selectedId.set(firstId);
+      void this.loadDetail(firstId);
+    }
+  }
 
   protected onCategory(cat: NavCategory): void {
     this.activeCategory.set(cat);
-    this.selectedId.set(this.filteredItems()[0]?.id);
+    const firstId = this.filteredItems()[0]?.id;
+    this.selectedId.set(firstId);
+    if (firstId) {
+      void this.loadDetail(firstId);
+    } else {
+      this.selectedDetail.set(undefined);
+    }
+  }
+
+  protected onSelectItem(id: string): void {
+    this.selectedId.set(id);
+    void this.loadDetail(id);
+  }
+
+  private async loadDetail(id: string): Promise<void> {
+    if (this.hasUser()) {
+      try {
+        const detail = await this.vaultService.getDetail(id);
+        this.selectedDetail.set(detail);
+      } catch {
+        this.selectedDetail.set(undefined);
+      }
+    } else {
+      const mock = MOCK_ITEMS.find((i) => i.id === id);
+      this.selectedDetail.set(mock);
+    }
   }
 }

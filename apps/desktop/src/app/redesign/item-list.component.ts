@@ -101,7 +101,7 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
   `,
 })
 export class KlsItemListComponent {
-  readonly items = input.required<ItemSummary[]>();
+  readonly items = input.required<readonly ItemSummary[]>();
   readonly selectedId = input<string | undefined>(undefined);
   readonly query = model<string>("");
   readonly select = output<string>();

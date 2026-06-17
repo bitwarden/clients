@@ -15,6 +15,7 @@
  */
 
 export * from "./vault/vault-view-model";
+export * from "./vault/vault-view-model.service";
 // Facades added during Phase 3 step C:
 // export * from "./vault/copy.service";       // wraps clipboard + TotpService
 // export * from "./vault/favorites.service";
