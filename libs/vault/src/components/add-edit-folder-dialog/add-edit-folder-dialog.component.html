@@ -1,6 +1,9 @@
 <form [formGroup]="folderForm" [bitSubmit]="submit" bit-dialog id="add-edit-folder">
   <span bitDialogTitle>
-    {{ (variant === "add" ? "newFolder" : "editFolder") | i18n }}
+    {{
+      (variant === "add" ? (newToAddFeatureFlag() ? "addFolder" : "newFolder") : "editFolder")
+        | i18n
+    }}
   </span>
   <div bitDialogContent>
     <bit-form-field disableMargin>
