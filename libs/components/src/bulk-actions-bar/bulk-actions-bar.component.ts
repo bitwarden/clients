@@ -60,7 +60,7 @@ export class BulkActionsBarComponent {
 
   /**
    * Optional ancestor table. When present, the bar reads selection state from
-   * `table.selection()` and clears it on dismiss, so consumers don't need to
+   * `table.selectionModel()` and clears it on dismiss, so consumers don't need to
    * wire `[selectedCount]` or `(clear)` explicitly. Used standalone or as a
    * sibling, the bar falls back to the consumer-provided input.
    */
@@ -75,7 +75,7 @@ export class BulkActionsBarComponent {
 
   /** Explicit input wins; otherwise infer from ancestor table; otherwise 0. */
   protected readonly effectiveCount = computed(
-    () => this.selectedCount() ?? this.table?.selection()?.count() ?? 0,
+    () => this.selectedCount() ?? this.table?.selectionModel()?.count() ?? 0,
   );
 
   private readonly clear$ = new Subject<void>();
@@ -174,7 +174,7 @@ export class BulkActionsBarComponent {
   }
 
   protected onClear(): void {
-    this.table?.selection()?.clear();
+    this.table?.selectionModel()?.clear();
     this.clear$.next();
     this.restorePreviousFocus();
   }

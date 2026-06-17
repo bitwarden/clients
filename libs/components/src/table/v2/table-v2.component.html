@@ -1,5 +1,5 @@
 <ng-template #headerCells>
-  @if (selection(); as sel) {
+  @if (selectionModel(); as sel) {
     <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
       <input
         type="checkbox"
@@ -18,7 +18,7 @@
 </ng-template>
 
 <ng-template #bodyCells let-row>
-  @if (selection(); as sel) {
+  @if (selectionModel(); as sel) {
     <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0">
       @if (sel.isSelectable(row)) {
         <input
@@ -38,7 +38,7 @@
 </ng-template>
 
 <ng-template #loadingCells>
-  @if (selection()) {
+  @if (selectionModel()) {
     <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0"></div>
   }
   @for (col of effectiveColumns(); track col.name()) {
@@ -140,12 +140,9 @@
   </div>
 
   <!--
-    Paginator: rendered automatically below the `role="table"` element (so it
-    sits at the bottom without being treated as a row) when the model is
-    configured with `pagination`. A stateless view over the model's pagination
-    state — consumers configure it on the model, not by projecting it.
+    Paginator: a `<bit-table-paginator>` projected by the consumer renders here,
+    below the `role="table"` element (so it isn't treated as a row). It owns the
+    page state and reads the filtered count back from the table.
   -->
-  @if (table().pagination; as pagination) {
-    <bit-table-paginator [pagination]="pagination"></bit-table-paginator>
-  }
+  <ng-content select="bit-table-paginator"></ng-content>
 </div>

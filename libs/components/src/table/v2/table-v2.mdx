@@ -12,9 +12,10 @@ per-row cell markup. The table renders a CSS-grid layout of ARIA-role elements
 (`role="table"`/`"row"`/`"columnheader"`/`"cell"`); the consumer's `<bit-header-cell>`/`<bit-cell>`
 become the grid items, and column widths map to grid tracks.
 
-A table is configured by a single `TableModel`, bound via `[table]`. The model composes the focused
-concerns — data, columns, filtering, and optional selection / pagination — so a table is built and
-bound once.
+A `TableDef`, bound via `[tableDef]`, supplies the row data and the typed column references — the
+one piece that has to be shared so `*bitCellDef` cells are strictly typed. Sort, displayed columns,
+loading, filtering, selection, and pagination are configured with inputs on the table and its helper
+components.
 
 Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and isn't being migrated
 — see [Table](?path=/docs/component-library-table--docs) for its docs.
@@ -27,16 +28,13 @@ Use `bit-table-v2` for new tables. The legacy `bit-table` continues to work and 
 type User = { id: number; name: string; email: string };
 
 class UserListComponent {
-  protected readonly table = new TableModel<User>({
-    data: this.users,
-    displayedColumns: ["id", "name", "email"],
-  });
+  protected readonly table = defineTable<User>(this.users);
   // ...
 }
 ```
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table">
   <bit-column sortable defaultSort="asc">
     <bit-header-cell>Id</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -58,37 +56,33 @@ inside each cell template.
 
 ## The model
 
-`TableModel<T, S>` is parallel to nothing else you have to assemble — it _is_ the assembly. `T` is
-the row type; `S` declares synthetic column names (see [Synthetic columns](#synthetic-columns)). It
-exposes:
-
-| Facet                    | What it owns                                                      |
-| ------------------------ | ----------------------------------------------------------------- |
-| `table.data`             | Row data, as a `Signal<T[]>`.                                     |
-| `table.columns`          | Typed column refs, e.g. `table.columns.email`, for `*bitCellDef`. |
-| `table.displayedColumns` | The ordered list of shown columns, as a `WritableSignal`.         |
-| `table.sort`             | Active sort state and transitions — `current`, `toggle`.          |
-| `table.filterValues`     | The filter chips' combined value, keyed by chip `key`.            |
-| `table.filtered`         | Rows passing the active filters — the rendered/selection scope.   |
-| `table.selection`        | Selection state — present only when `selection` is configured.    |
-| `table.pagination`       | Pagination state — present only when `pagination` is configured.  |
-
-Sorting is applied internally; there's no exposed data source. Filtering is contributed by projected
-filter chips rather than configured here — see [Filtering](#filtering).
-
-Construct it with one config object. `displayedColumns` is required; the rest are optional:
+`TableDef<T, S>` is the **typed contract**, bound via `[tableDef]`. It carries the row type `T` and
+declared synthetic column names `S` (see [Synthetic columns](#synthetic-columns)), plus the row
+`data` and the typed `columns` references. It exists for the one thing inputs can't do: thread
+`T`/`S` across the `<bit-table-v2>` ↔ `*bitCellDef` boundary so `let row` and the column keys are
+strictly typed. (The filter-values type isn't here — it's inferred from the `[filter]` fn.)
 
 ```ts
-const table = new TableModel<User, "actions">({
-  data: users,
-  displayedColumns: ["name", "email", "actions"],
-  selection: { multiple: true, canSelect: (user) => user.canManage },
-});
+const table = defineTable<User, "actions">(users);
+table.columns.email; // typed ColumnRef, drives `*bitCellDef`'s `let row`
 ```
 
 `data` is a `Signal<T[]>` — the table re-renders as it changes. For mutable data, pass a writable
 signal and `.set()` it; for static data, wrap the array in `signal(...)`. There's no `setData` — you
 own the signal.
+
+Everything else is configured with **inputs** on the table and its helper components, not on the
+model:
+
+| Input / helper                              | Purpose                                                                 |
+| ------------------------------------------- | ----------------------------------------------------------------------- |
+| `[displayedColumns]`                        | Columns to show, in order. Omit to show all in declaration order.       |
+| `[(sort)]`                                  | Active sort (`{ column, direction }`); header clicks cycle it.          |
+| `[loading]`                                 | Show skeleton rows in place of data.                                    |
+| `[filter]`                                  | Client-side row test `(row, filterValues) => boolean`.                  |
+| `[selection]`                               | Selection config (`{ multiple, canSelect }`); `(selectedChange)` emits. |
+| `<bit-table-paginator>`                     | Projected; owns page state, slices the rows.                            |
+| `table.filterValues()` / `table.filtered()` | Read off a `#t="bitTableV2"` ref for server queries.                    |
 
 ## Column definitions
 
@@ -139,10 +133,7 @@ For columns that don't correspond to a field on `T` (action columns, expand/coll
 them via the model's second type parameter, then reference them like any other column:
 
 ```ts
-const table = new TableModel<User, "actions">({
-  data: users,
-  displayedColumns: ["name", "email", "actions"],
-});
+const table = defineTable<User, "actions">(users);
 ```
 
 ```html
@@ -158,18 +149,12 @@ const table = new TableModel<User, "actions">({
 
 ### Reordering and hiding columns
 
-`displayedColumns` is the ordered list of columns to show; a column is rendered only if it's listed,
-at the position it's listed — names omitted aren't rendered even though they're declared. Reorder or
-hide at runtime by setting a new array:
-
-```ts
-const table = new TableModel<User>({ data: users, displayedColumns: ["name", "id"] });
-// later, reorder/hide/show by setting the signal:
-table.displayedColumns.set(["id", "name"]);
-```
+`[displayedColumns]` is the ordered list of columns to show; a column is rendered only if it's
+listed, at the position it's listed — names omitted aren't rendered even though they're declared.
+**Omit it to show every column in declaration order.** Bind a signal to reorder or hide at runtime:
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table" [displayedColumns]="['name', 'id']">
   <bit-column>
     <bit-header-cell>Id</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -204,14 +189,14 @@ component's view still finds the table. Pass the model in for its typed refs:
   `,
 })
 class DemoStatusColumnComponent {
-  readonly table = input.required<TableModel<User>>();
+  readonly table = input.required<TableDef<User>>();
 }
 ```
 
 Used as:
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table">
   <bit-column>
     <bit-header-cell>Name</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
@@ -247,7 +232,7 @@ When no rows render (in column-def mode) — empty data, or a filter that exclud
 table shows a default `<bit-no-items>` below the header. Project `slot="empty"` to override it:
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table">
   <div slot="empty" class="tw-p-10 tw-text-center tw-text-muted">No items found</div>
   <bit-column>…</bit-column>
 </bit-table-v2>
@@ -257,21 +242,12 @@ Manual mode has no empty state — you control the rows.
 
 ## Loading
 
-Set `loading` on the model (e.g. a resource's `isLoading`) to show skeleton rows in place of data.
-Control the count with `[loadingRows]` (default 3). Each column renders its optional
-`bitCellLoading` template; columns without one get a default skeleton. Loading takes precedence over
-the empty state.
-
-```ts
-const table = new TableModel<User>({
-  data: users,
-  displayedColumns: ["id", "name", "email"],
-  loading: usersResource.isLoading,
-});
-```
+Bind `[loading]` (e.g. a resource's `isLoading()`) to show skeleton rows in place of data. Control
+the count with `[loadingRows]` (default 3). Each column renders its optional `bitCellLoading`
+template; columns without one get a default skeleton. Loading takes precedence over the empty state.
 
 ```html
-<bit-table-v2 [table]="table" [loadingRows]="5">
+<bit-table-v2 [tableDef]="table" [loading]="usersResource.isLoading()" [loadingRows]="5">
   <bit-column>
     <bit-header-cell>Name</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
@@ -301,7 +277,7 @@ and `<bit-column>`, and project rows directly:
 ```
 
 The consumer projects one `<bit-header-row>` and any number of `<bit-row>` components. The header
-row picks up the design's styling automatically. Manual mode has no `[table]` — the consumer
+row picks up the design's styling automatically. Manual mode has no `[tableDef]` — the consumer
 iterates their own data directly; columns default to equal-share (`grid-auto-columns: 1fr`).
 
 Mode selection is automatic: any projected `<bit-column>` ⇒ column-def mode; otherwise the
@@ -334,32 +310,35 @@ sortByName = (a: User, b: User) => a.name.localeCompare(b.name);
 </bit-column>
 ```
 
-Sort state lives on the model as `table.sort.current` (`{ column, direction }`) — read it, or set it
-programmatically (e.g. to persist/restore); `table.sort.toggle(column)` cycles it. The comparator
-comes from the column's `sortFn`, so the state stays serializable.
+Sort is a two-way input: bind `[(sort)]` to a `SortState` signal (`{ column, direction }`) to read
+it or set it programmatically (e.g. to persist/restore). Header clicks cycle it; the comparator
+comes from the column's `sortFn`, so the bound state stays serializable.
+
+```html
+<bit-table-v2 [tableDef]="table" [(sort)]="sort">…</bit-table-v2>
+```
 
 ## Filtering
 
 Filtering works like a reactive form. Filter chips (`bit-filter-chip` / `bit-filter-toggle`)
 projected into the toolbar each declare a `key` and own their selection; the `bitTableFilter` bridge
 registers them, and the table collects their values into **`table.filterValues()`** — a
-`{ key: value }` object, like a `FormGroup`'s `.value`. You provide one **`filter(row, values)`**;
-the table applies it to derive `table.filtered`, which drives the rendered rows, select-all scope,
-the paginator count, and a "no matches" empty state. No per-chip state, no `ngModel`.
+`{ key: value }` object, like a `FormGroup`'s `.value`. You pass one **`[filter]`** fn
+`(row, values)`; the table derives the rendered rows, select-all scope, paginator count, and a "no
+matches" empty state from it. **Annotate the fn's `values` parameter** with your filter shape — the
+table infers it and types `filterValues()` to match. Seed initial values with `[filters]`. No
+per-chip state, no `ngModel`.
 
 ```ts
 type Filters = { type?: ItemType; favorites?: boolean };
 
-const table = new TableModel<Member, "actions", Filters>({
-  data: members,
-  displayedColumns: ["name", "type"],
-  filter: (row, f) => (!f.type || row.type === f.type) && (!f.favorites || row.favorite),
-  filters: { type: "login" }, // initial selection — seeds the matching chips
-});
+const table = defineTable<Member, "actions">(members);
+filter = (row: Member, f: Filters) =>
+  (!f.type || row.type === f.type) && (!f.favorites || row.favorite);
 ```
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="{ type: 'login' }">
   <bit-table-toolbar>
     <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
@@ -377,10 +356,10 @@ const table = new TableModel<Member, "actions", Filters>({
 
 The chip owns its menu UI and value; the bridge wires it to the table via the `FILTER_HOST` token,
 so the chip never depends on the table type and works outside a table too. For **server-side**
-filtering, omit `filter` and read `filterValues()` to build your query (feed pre-filtered rows to
-`data`). See the [Filter Menu](?path=/docs/component-library-filter-menu--docs) for composing the
-chips (sections, in-menu search, and a radio + checkbox group in one chip, which nests under the
-chip's key).
+filtering, omit `[filter]` and read `filterValues()` off a `#t="bitTableV2"` template reference to
+build your query (feed pre-filtered rows to `data`). See the
+[Filter Menu](?path=/docs/component-library-filter-menu--docs) for composing the chips (sections,
+in-menu search, and a radio + checkbox group in one chip, which nests under the chip's key).
 
 <Canvas of={stories.Filterable} />
 
@@ -411,7 +390,7 @@ The toolbar holds no filter state of its own: chips register with the table via 
 and a projected `<bit-search>` is auto-adopted as the `search` filter (see [Search](#search) above).
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
     <button slot="end" bitButton buttonType="primary">New</button>
@@ -430,23 +409,22 @@ and a projected `<bit-search>` is auto-adopted as the `search` filter (see [Sear
 
 ## Selection
 
-Configure `selection` on the model and the table prepends an internal checkbox column (generated by
-the table; consumers don't declare it):
-
-```ts
-const table = new TableModel<User>({
-  data: users,
-  displayedColumns: ["id", "name", "email"],
-  selection: { multiple: true },
-});
-```
+Pass a `[selection]` config and the table prepends an internal checkbox column (generated by the
+table; consumers don't declare it). Listen to `(selectedChange)` for the selected rows:
 
 ```html
-<bit-table-v2 [table]="table">…columns…</bit-table-v2>
+<bit-table-v2
+  [tableDef]="table"
+  [selection]="{ multiple: true }"
+  (selectedChange)="onSelected($event)"
+>
+  …columns…
+</bit-table-v2>
 ```
 
 The header checkbox targets the filtered rows (matches CDK conventions). Selected rows pick up a
-soft background. Read or mutate the selection via `table.selection`.
+soft background. (Pass a **stable** config reference — a field or getter, not an inline literal — so
+the selection isn't rebuilt on every change.)
 
 ### Selectable rows
 
@@ -454,21 +432,19 @@ When only some rows are selectable, supply a `canSelect` predicate. The table re
 only for selectable rows, and select-all / indeterminate scope to them; the predicate is also
 enforced when selecting, so a non-selectable row can't be selected even programmatically.
 
-```ts
-const table = new TableModel<User>({
-  data: users,
-  displayedColumns: ["id", "name", "email"],
-  selection: { multiple: true, canSelect: (user) => user.canManage },
-});
+```html
+<bit-table-v2 [tableDef]="table" [selection]="{ multiple: true, canSelect: canManage }"
+  >…</bit-table-v2
+>
 ```
 
 ### Bulk actions
 
 `<bit-bulk-actions-bar>` projected inside the table reads `selectedCount` implicitly from the
-model's selection via DI; its clear button also clears the selection. No explicit wiring:
+selection via DI; its clear button also clears the selection. No explicit wiring:
 
 ```html
-<bit-table-v2 [table]="table">
+<bit-table-v2 [tableDef]="table">
   <bit-bulk-actions-bar>
     <bit-bulk-action [action]="onDelete" icon="bwi-trash" label="Delete" />
     <bit-bulk-action [action]="onArchive" icon="bwi-archive" label="Archive" />
@@ -483,43 +459,33 @@ Outside a table, the bar's explicit API (`[selectedCount]`, `(clear)`) still wor
 
 ## Pagination
 
-Configure `pagination` on the model. The table renders a footer in the chrome below the rows
-automatically — there's no element to project, the same way `selection` adds the checkbox column and
-`loading` adds skeleton rows. The footer shows the current row range on the left, and a page-size
-select, previous/next controls, and a page input on the right:
-
-```ts
-const table = new TableModel<Member>({
-  data: members,
-  displayedColumns: ["name", "email"],
-  pagination: { pageSize: 10, pageSizeOptions: [10, 25, 50, 100] },
-});
-```
+Project a `<bit-table-paginator>` and the table slices its filtered (and sorted) rows to its page.
+The paginator owns the page state (`[(pageIndex)]`, `[pageSize]`, `[pageSizeOptions]`) and reads the
+total back from the table; its footer shows the current row range, a page-size select, prev/next
+controls, and a page input:
 
 ```html
-<bit-table-v2 [table]="table">…columns…</bit-table-v2>
+<bit-table-v2 [tableDef]="table">
+  …columns…
+  <bit-table-paginator [pageSize]="10" [pageSizeOptions]="[10, 25, 50, 100]" />
+</bit-table-v2>
 ```
 
 <Canvas of={stories.Pagination} />
 
 By default pagination is **client-side**: the table slices its filtered (and sorted) rows to the
-current page, and the total ("of N") is the filtered row count. Read or set the page
-programmatically via `table.pagination` — `pageIndex`, `pageSize`, `goTo`, `next`, `previous`,
-`setPageSize` — to persist or restore state.
+current page, and the total ("of N") is the filtered row count. Bind `[(pageIndex)]` /
+`[(pageSize)]` to persist or restore state.
 
-For **server-side** pagination, supply a `length` signal with the total row count. That selects
-server mode: the table does not slice — `data()` is expected to already hold only the current page
-(fetch it keyed off `table.pagination.pageIndex()` / `pageSize()`):
+For **server-side** pagination, give the paginator an explicit `[length]` (the total row count).
+That selects server mode: the table does not slice — `data()` is expected to already hold only the
+current page (fetch it keyed off the paginator's `pageIndex` / `pageSize`):
 
-```ts
-const table = new TableModel<Member>({
-  data: currentPageRows, // Signal<Member[]> — just this page, from your API
-  displayedColumns: ["name", "email"],
-  pagination: { length: totalCount, pageSize: 10 },
-});
+```html
+<bit-table-paginator [length]="totalCount" [(pageIndex)]="page" [pageSize]="10" />
 ```
 
-Pagination and [virtual scrolling](#virtual-scrolling) are mutually exclusive — virtualization
+A paginator and [virtual scrolling](#virtual-scrolling) are mutually exclusive — virtualization
 already renders large sets efficiently.
 
 ## Scrolling and the sticky header
@@ -536,7 +502,7 @@ body scrolls and the header row stays pinned — give it a height in one of two 
 ```html
 <bit-page>
   <h1 slot="header" bitTypography="h1">Members</h1>
-  <bit-table-v2 [table]="table" fill>…columns…</bit-table-v2>
+  <bit-table-v2 [tableDef]="table" fill>…columns…</bit-table-v2>
 </bit-page>
 ```
 
@@ -552,7 +518,7 @@ For large datasets, set `[virtualRowHeight]` (the height per row, in px). The ta
 itself, so it needs a bounded height — **`[maxHeight]` or `fill`**:
 
 ```html
-<bit-table-v2 [table]="table" [virtualRowHeight]="64" maxHeight="400px" [trackBy]="trackById">
+<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" maxHeight="400px" [trackBy]="trackById">
   …columns…
 </bit-table-v2>
 ```
@@ -564,8 +530,8 @@ geometry. Specify `width="…"` on columns for stable widths.
 
 ## Type safety
 
-`BitTableV2Component<T>` is generic over the row type, inferred from `[table]`. The
-`TableModel<T>`'s `table.columns.X` references (fields and synthetics alike) carry `T` to
+`BitTableV2Component<T>` is generic over the row type, inferred from `[tableDef]`. The
+`TableDef<T>`'s `table.columns.X` references (fields and synthetics alike) carry `T` to
 `*bitCellDef`, which uses `ngTemplateContextGuard` to type `let row` as `T`. Result:
 
 - `table.columns.email.typed` fails (no such property)

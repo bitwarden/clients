@@ -2,7 +2,7 @@
  * A column key paired with the row type it targets. Looks like a plain string
  * at runtime; carries the row type `T` at the type level so binding it to
  * `*bitCellDef` gives strict typing on `let row` and on the column key. Obtain
- * one from {@link TableModel.columns}.
+ * one from {@link TableDef.columns}.
  */
 export type ColumnRef<T, K extends string = string> = K & {
   readonly __columnRef?: T;

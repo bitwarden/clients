@@ -68,7 +68,7 @@ export class BitTableToolbarComponent {
   }
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
-  protected readonly itemCount = computed(() => this.table?.table().filtered().length ?? 0);
+  protected readonly itemCount = computed(() => this.table?.filteredCount() ?? 0);
 
   /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
   protected openFilterDialog(): void {

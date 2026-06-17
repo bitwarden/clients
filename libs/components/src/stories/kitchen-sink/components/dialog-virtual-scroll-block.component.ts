@@ -11,7 +11,7 @@ import {
   BitColumnComponent,
   BitHeaderCellComponent,
   BitTableV2Component,
-  TableModel,
+  defineTable,
 } from "../../../table/v2";
 
 type Row = { id: number; name: string; updatedAt: Date; tags: string[] };
@@ -37,7 +37,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   host: {
     class: "tw-flex tw-min-h-0 tw-flex-1 tw-flex-col",
   },
-  template: `<bit-table-v2 [table]="table" [virtualRowHeight]="64" fill>
+  template: `<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" fill>
     <bit-column sortable defaultSort="asc">
       <bit-header-cell>Id</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -79,10 +79,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
 export class DialogVirtualScrollBlockComponent implements OnInit {
   protected readonly dialogService = inject(DialogService);
   private readonly rows = signal<Row[]>([]);
-  protected readonly table = new TableModel<Row, "actions">({
-    data: this.rows,
-    displayedColumns: ["id", "name", "updatedAt", "tags", "actions"],
-  });
+  protected readonly table = defineTable<Row, "actions">(this.rows);
 
   protected readonly sortByTags = (a: Row, b: Row) =>
     a.tags.join(",").localeCompare(b.tags.join(","));

@@ -17,6 +17,8 @@ import {
   forwardRef,
   inject,
   input,
+  model,
+  output,
   signal,
 } from "@angular/core";
 
@@ -34,15 +36,20 @@ import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
+import { ColumnName } from "./column";
 import { FILTER_HOST, FilterHost } from "./filter-host";
-import { SortModel } from "./sort-model";
-import { TableModel } from "./table-model";
+import { SortState, cycleSort } from "./sort-model";
+import { TableDef } from "./table-def";
+import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 
 /** Grid track width for the internal selection (checkbox) column. */
 const SELECTION_COLUMN_WIDTH = "40px";
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
+
+/** Selection config a consumer supplies; the table provides the `rows` scope itself. */
+export type SelectionConfig<T> = Omit<TableSelectionConfig<T>, "rows">;
 
 /** Reads a column's value for default sorting, coercing numeric strings to numbers. */
 function sortAccessor<T>(row: T, column: string): string | number {
@@ -111,6 +118,7 @@ function sortRows<T>(
 
 @Component({
   selector: "bit-table-v2",
+  exportAs: "bitTableV2",
   templateUrl: "./table-v2.component.html",
   imports: [
     CommonModule,
@@ -120,14 +128,13 @@ function sortRows<T>(
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
-    BitTablePaginatorComponent,
     NoItemsComponent,
     SkeletonTextComponent,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   // Filter chips projected into the table register against this host via the
-  // `bitTableFilter` bridge; the table folds their predicates into `filtered`.
+  // `bitTableFilter` bridge; the table folds their values into `filtered`.
   providers: [{ provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) }],
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
@@ -138,79 +145,137 @@ function sortRows<T>(
     "[class.tw-min-h-0]": "fill()",
   },
 })
-export class BitTableV2Component<T = unknown> implements AfterContentInit, FilterHost {
+export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>
+  implements AfterContentInit, FilterHost
+{
   /**
-   * The single construct that configures the table — data, columns, and optional
-   * selection / pagination — see {@link TableModel}. Also the source of the typed
-   * `table.columns.*` references bound to `*bitCellDef`. Defaults to an empty
-   * model, so manual-mode tables need not bind it.
+   * The typed contract — row type `T`, synthetic columns `S`, filter shape `F` —
+   * plus the row data and the typed `columns.*` references bound to `*bitCellDef`.
+   * See {@link TableDef} / {@link defineTable}. Defaults to an empty definition, so
+   * manual-mode tables need not bind it.
    */
-  readonly table = input(new TableModel<T>({ displayedColumns: [] }));
+  readonly tableDef = input(new TableDef<T, S>(signal<T[]>([])));
+
+  /**
+   * The columns to display, in order — a column shows iff it's listed, at the
+   * position it's listed. Omit to show every projected `<bit-column>` in
+   * declaration order. Set a new array to reorder or hide at runtime.
+   */
+  readonly displayedColumns = input<readonly ColumnName<T, S>[]>();
+
+  /** Active sort (`{ column, direction }`). Two-way — header clicks cycle it; bind `[(sort)]` to persist. */
+  readonly sort = model<SortState<ColumnName<T, S>>>({ direction: "asc" });
+
+  /** When `true`, the table shows skeleton rows in place of data (e.g. a resource's `isLoading`). */
+  readonly loading = input(false, { transform: booleanAttribute });
+
+  /**
+   * Client-side row test, given a row and the chips' combined value object
+   * ({@link filterValues}). The table's filter-values type `F` is inferred from
+   * this fn's `values` parameter — annotate it (`(row, f: Filters) => …`) to type
+   * `filterValues()`. Omit for server-side filtering (read `filterValues` to build
+   * a query and feed pre-filtered rows to the def's `data`).
+   */
+  readonly filter = input<(row: T, values: F) => boolean>();
+
+  /** Initial filter values, keyed by chip `key`; seeds the matching chips once on init. */
+  readonly filters = input<Partial<F>>();
+
+  /** Row selection config. Omit for a non-selectable table (no checkbox column). */
+  readonly selection = input<SelectionConfig<T>>();
+
+  /** Emits the selected rows whenever the selection changes. */
+  readonly selectedChange = output<readonly T[]>();
 
   /**
    * Fixed row height in pixels for virtual scrolling. Setting it turns the
    * table into a virtual scroll viewport — virtual scrolling needs predictable
-   * row geometry, so give columns explicit widths. Omit it for a non-virtualized
-   * table. Needs a bounded height to scroll — either {@link maxHeight} or
-   * {@link fill}.
+   * row geometry, so give columns explicit widths. Needs a bounded height —
+   * {@link maxHeight} or {@link fill}.
    */
   readonly virtualRowHeight = input<number>();
 
   /**
-   * Max height of the table's scroll area, as any CSS length (e.g. `"400px"`,
-   * `"60vh"`). When set, the body scrolls within this bound and the header row
-   * stays pinned to the top; omit it to let the table grow to its content and
-   * scroll with the page. See also {@link fill} to instead fill a parent's height.
+   * Max height of the table's scroll area, as any CSS length. When set, the body
+   * scrolls within this bound and the header stays pinned; omit to grow to content.
    */
   readonly maxHeight = input<string>();
 
-  /**
-   * Grow to fill the host's height and scroll the body within it, instead of
-   * sizing to content. Use inside a bounded flex container — e.g. the body of a
-   * `bit-page` — which supplies the height to fill. An alternative to
-   * {@link maxHeight} for bounding a virtualized table.
-   */
+  /** Grow to fill the host's height and scroll the body within it (use in a bounded flex container). */
   readonly fill = input(false, { transform: booleanAttribute });
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 
-  /** Number of skeleton rows to show while {@link TableModel.loading} is true. */
+  /** Number of skeleton rows to show while {@link loading} is true. */
   readonly loadingRows = input(3);
 
-  /** The model's active sort (`{ column, direction }`). Read by header cells. */
-  readonly sort = computed(() => this.table().sort.current());
+  /** A projected paginator, if any — owns the page state; the table reads it to slice. */
+  private readonly paginator = contentChild(BitTablePaginatorComponent);
 
-  /** The model's selection model, if configured. Read by `bit-bulk-actions-bar` via DI. */
-  readonly selection = computed(() => this.table().selection);
+  /** Registered filter chips (from projection), the source of {@link filterValues}. */
+  private readonly _filters = signal<readonly FilterControl[]>([]);
 
-  /** Whether the model is loading — shows skeleton rows in place of data. */
-  protected readonly loading = computed(() => this.table().loading());
+  /** Registered filter chips, exposed for initial-value seeding. */
+  readonly filterControls = this._filters.asReadonly();
+
+  /**
+   * The chips' combined value, keyed by each chip's `key` — like a `FormGroup`'s
+   * `.value`. Drives {@link filter} and is what you read for a server query.
+   */
+  readonly filterValues = computed<F>(() => {
+    const values: Record<string, unknown> = {};
+    for (const control of this._filters()) {
+      values[control.key()] = control.value();
+    }
+    return values as F;
+  });
+
+  /**
+   * Rows passing {@link filter} given {@link filterValues} (pre-sort). The render
+   * set, the scope for select-all, and the paginator's total. With no `filter`
+   * configured this is the model's data unchanged.
+   */
+  readonly filtered = computed<T[]>(() => {
+    const filter = this.filter();
+    const data = this.tableDef().data();
+    if (!filter) {
+      return data;
+    }
+    const values = this.filterValues();
+    return data.filter((row) => filter(row, values));
+  });
+
+  /** The filtered row count — read by a projected `bit-table-paginator` for its total. */
+  readonly filteredCount = computed(() => this.filtered().length);
+
+  private readonly _selectionModel = signal<TableSelectionModel<T> | undefined>(undefined);
+
+  /** Selection state, present only when {@link selection} is configured. */
+  readonly selectionModel = this._selectionModel.asReadonly();
 
   /** Registers a projected filter chip. Called by the `bitTableFilter` bridge. */
   registerFilter(control: FilterControl): void {
-    this.table().registerFilter(control);
+    this._filters.update((filters) => [...filters, control]);
   }
 
   /** @see {@link registerFilter} */
   unregisterFilter(control: FilterControl): void {
-    this.table().unregisterFilter(control);
+    this._filters.update((filters) => filters.filter((f) => f !== control));
   }
 
-  /** Chips already seeded from `initialFilters`, so each is seeded at most once. */
+  /** Chips already seeded from {@link filters}, so each is seeded at most once. */
   private readonly seeded = new WeakSet<FilterControl>();
 
   /**
    * A `bit-search` projected anywhere into the table (e.g. its toolbar). Adopted
    * automatically as a `search` filter — no bridge directive — so its term joins
-   * {@link TableModel.filterValues} under {@link SEARCH_FILTER_KEY}.
+   * {@link filterValues} under {@link SEARCH_FILTER_KEY}.
    */
   private readonly search = contentChild(SearchComponent, { descendants: true });
 
   constructor() {
-    // Adopt a projected `bit-search` as a `search` filter control. The search
-    // owns its term (as a CVA); we only mirror it into `filterValues` and write
-    // back for seeding/clear. Re-registers if the search or model changes.
+    // Adopt a projected `bit-search` as a `search` filter control.
     effect((onCleanup) => {
       const search = this.search();
       if (!search) {
@@ -222,16 +287,15 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
         active: computed(() => (search.value() ?? "") !== ""),
         setValue: (value) => search.writeValue((value as string) ?? ""),
       };
-      const model = this.table();
-      model.registerFilter(control);
-      onCleanup(() => model.unregisterFilter(control));
+      this.registerFilter(control);
+      onCleanup(() => this.unregisterFilter(control));
     });
 
-    // Seed chips from the model's initial filter values as they register and
-    // their keys resolve. Each chip is seeded once; later user edits aren't undone.
+    // Seed chips from `filters` as they register and their keys resolve. Each chip
+    // is seeded once; later user edits aren't undone.
     effect(() => {
-      const initial = this.table().initialFilters as Record<string, unknown> | undefined;
-      const controls = this.table().filterControls();
+      const initial = this.filters() as Record<string, unknown> | undefined;
+      const controls = this._filters();
       if (!initial) {
         return;
       }
@@ -243,38 +307,56 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
         }
       }
     });
+
+    // (Re)build the selection model from config — in an effect, since the model's
+    // constructor writes a signal (not allowed in a computed). Scoped over the
+    // filtered rows for select-all.
+    effect(() => {
+      const config = this.selection();
+      this._selectionModel.set(
+        config ? new TableSelectionModel<T>({ ...config, rows: this.filtered }) : undefined,
+      );
+    });
+
+    // Surface the selection to the consumer as it changes.
+    effect(() => {
+      const model = this.selectionModel();
+      if (model) {
+        this.selectedChange.emit(model.selected());
+      }
+    });
   }
 
   private readonly _columns = signal<BitColumnComponent[]>([]);
 
   /**
-   * Whether any `<bit-column>` has been projected. When false, the table
-   * renders in manual mode — the consumer's `<bit-header-row>` / `<bit-row>`
-   * markup is projected directly inside the v2 chrome with no datasource or
-   * column registry. Use column-def mode if you need sort, selection, filter,
-   * or virtualization.
+   * Whether any `<bit-column>` has been projected. When false, the table renders
+   * in manual mode — the consumer's `<bit-header-row>` / `<bit-row>` render
+   * directly with no column registry. Use column-def mode for sort, selection,
+   * filter, or virtualization.
    */
   protected readonly hasColumns = computed(() => this._columns().length > 0);
 
   /**
-   * Registered columns resolved against the model's
-   * {@link TableModel.displayedColumns}: shown in its order, omitting any name
-   * with no registered `<bit-column>`.
+   * Registered columns resolved against {@link displayedColumns}: shown in its
+   * order, omitting any name with no registered `<bit-column>`. When
+   * `displayedColumns` is omitted, every registered column shows in declaration order.
    */
   readonly effectiveColumns = computed(() => {
-    const registry = new Map(this._columns().map((c) => [c.name(), c]));
-    return this.table()
-      .displayedColumns()
+    const registered = this._columns();
+    const displayed = this.displayedColumns();
+    if (!displayed) {
+      return registered;
+    }
+    const registry = new Map(registered.map((c) => [c.name(), c]));
+    return displayed
       .map((name) => registry.get(name))
       .filter((c): c is BitColumnComponent => c !== undefined);
   });
 
   /**
-   * Grid-template-columns string derived from the column registry, consumed
-   * by `<bit-row>` and `<bit-header-row>`. Each `<bit-column width="...">`
-   * contributes its width as a grid track; unset widths default to `1fr`.
-   * `undefined` when no columns are registered (manual mode), in which case
-   * rows fall back to `grid-auto-columns: 1fr`.
+   * Grid-template-columns string derived from the column registry, consumed by
+   * `<bit-row>` and `<bit-header-row>`. `undefined` in manual mode.
    */
   readonly gridTemplateColumns = computed<string | undefined>(() => {
     const cols = this.effectiveColumns();
@@ -282,7 +364,7 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
       return undefined;
     }
     const parts: string[] = [];
-    if (this.selection()) {
+    if (this.selectionModel()) {
       parts.push(SELECTION_COLUMN_WIDTH);
     }
     for (const col of cols) {
@@ -291,11 +373,7 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
     return parts.join(" ");
   });
 
-  /**
-   * Registers a column with this table. Called by {@link BitColumnComponent}
-   * during its construction via DI. Public for the column's use; not a stable
-   * external API.
-   */
+  /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {
     this._columns.update((cols) => [...cols, col]);
   }
@@ -320,23 +398,22 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
   ]);
 
   /**
-   * Rendered rows: the model's `filtered` sorted by {@link sort} (using the
-   * column's `sortFn` or the default), then sliced to the current page when
-   * client-side pagination is configured. In `manual` pagination mode the data
-   * already holds only the page, so no slice is applied.
+   * Rendered rows: {@link filtered} sorted by {@link sort} (using the column's
+   * `sortFn` or the default), then sliced to a projected paginator's page (unless
+   * it's in server-side mode, where the data already holds only the page).
    */
   protected readonly rows = computed(() => {
-    const filtered = this.table().filtered();
-    const sort = this.table().sort.current();
+    const filtered = this.filtered();
+    const sort = this.sort();
     let sorted = filtered;
     if (sort.column) {
       const col = this.effectiveColumns().find((c) => c.name() === sort.column);
       sorted = sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
     }
-    const pagination = this.table().pagination;
-    if (pagination && !pagination.manual) {
-      const start = pagination.currentPage() * pagination.pageSize();
-      return sorted.slice(start, start + pagination.pageSize());
+    const paginator = this.paginator();
+    if (paginator && !paginator.manual()) {
+      const start = paginator.currentPage() * paginator.pageSize();
+      return sorted.slice(start, start + paginator.pageSize());
     }
     return sorted;
   });
@@ -349,19 +426,15 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
     () => this.hasColumns() && !this.loading() && this.rows().length === 0,
   );
 
-  /**
-   * Whether the empty state is the result of filtering rather than there being
-   * no data — there are rows, but active filters excluded them all. Lets the
-   * default empty state show a "no matches" message distinct from "no items".
-   */
-  protected readonly noMatches = computed(() => this.isEmpty() && this.table().data().length > 0);
+  /** Empty because filters excluded everything (there is data) vs. genuinely no data. */
+  protected readonly noMatches = computed(
+    () => this.isEmpty() && this.tableDef().data().length > 0,
+  );
 
   /**
-   * Pixel height for the virtual-scroll viewport: the rows' natural height
-   * (`count * virtualRowHeight`) capped at {@link maxHeight}, so the table
-   * shrinks to fit a few rows but scrolls once it would exceed the bound. The
-   * viewport needs an explicit height because CDK positions rows absolutely, so
-   * they contribute no in-flow height of their own.
+   * Pixel height for the virtual-scroll viewport: the rows' natural height capped
+   * at {@link maxHeight}. The viewport needs an explicit height because CDK
+   * positions rows absolutely, so they contribute no in-flow height.
    */
   protected readonly viewportHeight = computed<string | undefined>(() => {
     const rowHeight = this.virtualRowHeight();
@@ -377,9 +450,7 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
 
   ngAfterContentInit(): void {
     if (!this.hasColumns()) {
-      // Manual mode renders projected rows directly and has no column registry,
-      // so a configured selection has nothing to attach its checkbox column to.
-      if (this.table().selection) {
+      if (this.selection()) {
         this.logService?.warning(
           "bit-table-v2: `selection` is configured but no `<bit-column>` was projected. " +
             "Selection requires column-def mode; no checkbox column will render.",
@@ -393,40 +464,41 @@ export class BitTableV2Component<T = unknown> implements AfterContentInit, Filte
           "or `fill` (inside a bounded container). Without one the viewport collapses and no rows render.",
       );
     }
-    if (this.isVirtualized() && this.table().pagination) {
+    if (this.isVirtualized() && this.paginator()) {
       this.logService?.warning(
-        "bit-table-v2: `pagination` and virtualization (`virtualRowHeight`) are mutually exclusive — " +
-          "virtualization already renders large sets efficiently. The paginator will page the virtualized rows.",
+        "bit-table-v2: a paginator and virtualization (`virtualRowHeight`) are mutually exclusive — " +
+          "virtualization already renders large sets efficiently.",
       );
     }
-    const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
-    const name = defaultCol?.name();
-    if (name) {
-      this.sortModel().applyInitial(name, defaultCol!.defaultSort() ?? "asc");
+    // Seed the initial sort from the first column declaring `defaultSort`, unless
+    // a sort column is already set (e.g. via `[(sort)]`).
+    if (!this.sort().column) {
+      const defaultCol = this.effectiveColumns().find((c) => c.defaultSort());
+      const name = defaultCol?.name();
+      if (name) {
+        this.sort.set({
+          column: name as ColumnName<T, S>,
+          direction: defaultCol!.defaultSort() ?? "asc",
+        });
+      }
     }
   }
 
   /**
-   * Translates a header sort click into a `sort.toggle` call on the model,
-   * supplying the column's name and default direction. Called by
-   * `bit-header-cell` when its sort button is clicked.
+   * Cycles the sort on a header click. The column name is a plain `string` (the
+   * key is type-erased off the projected `<bit-column>`), so it's cast to the
+   * typed sort state.
    */
   toggleSort(col: BitColumnComponent): void {
     const name = col.name();
     if (!name) {
       return;
     }
-    this.sortModel().toggle(name, col.defaultSort() ?? "asc");
-  }
-
-  /**
-   * The model's sort model viewed with plain `string` columns. A column key
-   * resolved from a projected `<bit-column>` is type-erased to `string` (see
-   * {@link BitCellDefDirective}), so internal toggles bypass the typed
-   * `SortModel<ColumnName<T, S>>` surface — which exists for typed imperative
-   * use off `TableModel` by consumers.
-   */
-  private sortModel(): SortModel<string> {
-    return this.table().sort as unknown as SortModel<string>;
+    this.sort.update(
+      (current) =>
+        cycleSort(current as SortState<string>, name, col.defaultSort() ?? "asc") as SortState<
+          ColumnName<T, S>
+        >,
+    );
   }
 }

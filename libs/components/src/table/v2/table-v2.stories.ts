@@ -29,8 +29,9 @@ import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTableFilterDirective } from "./bit-table-filter.directive";
+import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
-import { TableModel } from "./table-model";
+import { TableDef, defineTable } from "./table-def";
 import { BitTableV2Component } from "./table-v2.component";
 
 type DemoRow = { id: number; name: string; other: string };
@@ -52,7 +53,7 @@ type UsersRow = { id: number; name: string; email: string; starred: boolean };
   `,
 })
 class DemoStatusColumnComponent {
-  readonly table = input.required<TableModel<DemoRow>>();
+  readonly table = input.required<TableDef<DemoRow>>();
 }
 
 type VaultRow = {
@@ -177,7 +178,7 @@ type VaultFilters = {
   ],
   template: `
     <bit-layout>
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
@@ -238,16 +239,14 @@ type VaultFilters = {
 })
 class DemoFilterableTableComponent {
   protected readonly data = signal(VAULT_ROWS);
-  protected readonly table = new TableModel<VaultRow, never, VaultFilters>({
-    data: this.data,
-    displayedColumns: ["name", "type", "vault"],
-    filter: (row, f) =>
-      (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
-      (f.type == null || row.type === f.type) &&
-      (!f.vault?.length || f.vault.includes(row.vault)) &&
-      (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
-      (!f.favorite || row.favorite),
-  });
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.favorite || row.favorite);
 
   protected readonly typeOptions = computed(() =>
     (["login", "card", "note"] as const)
@@ -298,6 +297,7 @@ export default {
         BitHeaderRowComponent,
         BitRowComponent,
         BitTableToolbarComponent,
+        BitTablePaginatorComponent,
         BitCellLoadingDirective,
         SkeletonTextComponent,
         DemoStatusColumnComponent,
@@ -376,23 +376,9 @@ const basicData = signal<DemoRow[]>(
   })),
 );
 
-const basicTable = new TableModel<DemoRow>({
-  data: basicData,
-  displayedColumns: ["id", "name", "other"],
-});
-const reorderTable = new TableModel<DemoRow>({
-  data: basicData,
-  displayedColumns: ["name", "id"],
-});
-const emptyTable = new TableModel<DemoRow>({
-  data: signal<DemoRow[]>([]),
-  displayedColumns: ["id", "name"],
-});
-const loadingTable = new TableModel<DemoRow>({
-  data: signal<DemoRow[]>([]),
-  displayedColumns: ["id", "name", "other"],
-  loading: signal(true),
-});
+const basicTable = defineTable<DemoRow>(basicData);
+const emptyTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
+const loadingTable = defineTable<DemoRow>(signal<DemoRow[]>([]));
 
 export const Default: Story = {
   render: () => ({
@@ -401,7 +387,7 @@ export const Default: Story = {
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
     },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -423,7 +409,7 @@ export const CustomCell: Story = {
   render: () => ({
     props: { table: basicTable },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column width="80px">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -443,14 +429,13 @@ export const CustomCell: Story = {
   }),
 };
 
-const userTable = new TableModel<UsersRow>({
-  data: signal([
+const userTable = defineTable<UsersRow>(
+  signal([
     { id: 1, name: "Alex Johnson", email: "alex@example.com", starred: true },
     { id: 2, name: "Sam Rivera", email: "sam.rivera@example.com", starred: false },
     { id: 3, name: "Jordan Park", email: "jordan.park@example.com", starred: true },
   ]),
-  displayedColumns: ["name", "email"],
-});
+);
 
 /**
  * Rich cells use the slot vocabulary on `<bit-cell>` directly:
@@ -461,7 +446,7 @@ export const RichCells: Story = {
   render: () => ({
     props: { table: userTable },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column sortable defaultSort="asc">
           <bit-header-cell>Name</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.name; let row">
@@ -488,14 +473,15 @@ export const RichCells: Story = {
 };
 
 /**
- * The model's `displayedColumns` sets display order; columns it omits aren't
- * rendered even though they're declared. Here `other` is declared but left out.
+ * `[displayedColumns]` sets display order; columns it omits aren't rendered even
+ * though they're declared. Here `other` is declared but left out. (Omit
+ * `[displayedColumns]` entirely to show every column in declaration order.)
  */
 export const ReorderedAndHidden: Story = {
   render: () => ({
-    props: { table: reorderTable },
+    props: { table: basicTable, displayed: ["name", "id"] },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table" [displayedColumns]="displayed">
         <bit-column>
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -522,7 +508,7 @@ export const WrappedColumn: Story = {
   render: () => ({
     props: { table: basicTable },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column>
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -537,12 +523,9 @@ export const WrappedColumn: Story = {
   }),
 };
 
-const largeTable = new TableModel<DemoRow>({
-  data: signal(
-    [...Array(100).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
-  ),
-  displayedColumns: ["id", "name", "other"],
-});
+const largeTable = defineTable<DemoRow>(
+  signal([...Array(100).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` }))),
+);
 
 export const Scrollable: Story = {
   render: () => ({
@@ -553,7 +536,7 @@ export const Scrollable: Story = {
     },
     template: `
       <bit-layout>
-        <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy" maxHeight="400px">
+        <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" maxHeight="400px">
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -588,7 +571,7 @@ export const FillPage: Story = {
       <bit-layout disablePadding>
         <bit-page>
           <h1 slot="header" bitTypography="h1" class="tw-mb-4">Members</h1>
-          <bit-table-v2 [table]="table" [virtualRowHeight]="64" [trackBy]="trackBy" fill>
+          <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" fill>
             <bit-column sortable defaultSort="asc">
               <bit-header-cell>Id</bit-header-cell>
               <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -628,18 +611,21 @@ export const Filterable: Story = {
  */
 export const WithBulkActions: Story = {
   render: () => {
-    const table = new TableModel<DemoRow>({
-      data: basicData,
-      displayedColumns: ["id", "name", "other"],
-      selection: { multiple: true },
-    });
+    const table = defineTable<DemoRow>(basicData);
     const noop = () => {
       /* story noop */
     };
     return {
-      props: { table, move: noop, archive: noop, del: noop, exp: noop },
+      props: {
+        table,
+        selection: { multiple: true },
+        move: noop,
+        archive: noop,
+        del: noop,
+        exp: noop,
+      },
       template: `
-        <bit-table-v2 [table]="table">
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-bulk-actions-bar>
             <bit-bulk-action [action]="move" icon="bwi-folder" label="Move" />
             <bit-bulk-action [action]="archive" icon="bwi-archive" label="Archive" />
@@ -677,15 +663,11 @@ export const WithBulkActions: Story = {
  */
 export const Selectable: Story = {
   render: () => {
-    const table = new TableModel<DemoRow>({
-      data: basicData,
-      displayedColumns: ["id", "name", "other"],
-      selection: { multiple: true },
-    });
+    const table = defineTable<DemoRow>(basicData);
     return {
-      props: { table },
+      props: { table, selection: { multiple: true } },
       template: `
-        <bit-table-v2 [table]="table">
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-column>
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -711,15 +693,14 @@ export const Selectable: Story = {
  */
 export const SelectableSubset: Story = {
   render: () => {
-    const table = new TableModel<DemoRow>({
-      data: basicData,
-      displayedColumns: ["id", "name", "other"],
-      selection: { multiple: true, canSelect: (row) => row.id % 2 === 0 },
-    });
+    const table = defineTable<DemoRow>(basicData);
     return {
-      props: { table },
+      props: {
+        table,
+        selection: { multiple: true, canSelect: (row: DemoRow) => row.id % 2 === 0 },
+      },
       template: `
-        <bit-table-v2 [table]="table">
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
           <bit-column>
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -747,7 +728,7 @@ export const Empty: Story = {
   render: () => ({
     props: { table: emptyTable },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column>
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -770,7 +751,7 @@ export const Loading: Story = {
   render: () => ({
     props: { table: loadingTable },
     template: `
-      <bit-table-v2 [table]="table" [loadingRows]="4">
+      <bit-table-v2 [tableDef]="table" [loading]="true" [loadingRows]="4">
         <bit-column width="80px">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -789,29 +770,25 @@ export const Loading: Story = {
   }),
 };
 
-const paginatedTable = new TableModel<DemoRow>({
-  data: signal(
-    [...Array(23).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` })),
-  ),
-  displayedColumns: ["id", "name", "other"],
-  pagination: { pageSize: 10, pageSizeOptions: [5, 10, 25] },
-});
+const paginatedTable = defineTable<DemoRow>(
+  signal([...Array(23).keys()].map((i) => ({ id: i, name: `name-${i}`, other: `other-${i}` }))),
+);
 
 /**
- * Configure `pagination` on the model and the table renders a footer in the
- * chrome below the rows automatically — no element to project. The footer shows
- * the current row range on the left and a page-size select, previous/next
- * controls, and a page input on the right; the table slices its filtered (and
- * sorted) rows to the page.
+ * Project a `<bit-table-paginator>` and the table slices its filtered (and sorted)
+ * rows to the page. The paginator owns the page state (`[(pageIndex)]`,
+ * `[pageSize]`) and reads the total row count back from the table; the footer
+ * shows the row range, a page-size select, prev/next, and a page input.
  */
 export const Pagination: Story = {
   render: () => ({
     props: {
       table: paginatedTable,
       sortFn: (a: DemoRow, b: DemoRow) => a.id - b.id,
+      pageSizeOptions: [5, 10, 25],
     },
     template: `
-      <bit-table-v2 [table]="table">
+      <bit-table-v2 [tableDef]="table">
         <bit-column sortable defaultSort="asc" [sortFn]="sortFn">
           <bit-header-cell>Id</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -824,6 +801,7 @@ export const Pagination: Story = {
           <bit-header-cell>Other</bit-header-cell>
           <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
         </bit-column>
+        <bit-table-paginator [pageSize]="10" [pageSizeOptions]="pageSizeOptions"></bit-table-paginator>
       </bit-table-v2>
     `,
   }),
