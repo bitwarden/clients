@@ -5,6 +5,7 @@ import { Component, OnInit } from "@angular/core";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -48,6 +49,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    logService: LogService,
   ) {
     super(
       cipherService,
@@ -59,6 +61,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
@@ -100,12 +103,19 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {
+    const loginCiphers = ciphers.filter((c) => c.type === CipherType.Login);
+    this.logService.info(
+      `[WeakPasswordsReport] [${this.reportScope}] Analyzing ${loginCiphers.length} logins`,
+    );
     ciphers.forEach((ciph) => {
       const row = this.determineWeakPasswordScore(ciph);
       if (row != null) {
         this.weakPasswordCiphers.push(row);
       }
     });
+    this.logService.info(
+      `[WeakPasswordsReport] [${this.reportScope}] Found ${this.weakPasswordCiphers.length} weak passwords`,
+    );
     this.filterCiphersByOrg(this.weakPasswordCiphers);
   }
 

@@ -7,6 +7,7 @@ import { firstValueFrom, map } from "rxjs";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,6 +29,7 @@ export class BreachReportComponent implements OnInit {
     private auditService: AuditService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -50,7 +52,8 @@ export class BreachReportComponent implements OnInit {
     const email = this.formGroup.value.email.toLowerCase();
     try {
       this.breachedAccounts = await this.auditService.breachedAccounts(email);
-    } catch {
+    } catch (e) {
+      this.logService.error("[BreachReport] breachedAccounts failed", e);
       this.error = true;
     } finally {
       this.loading = false;

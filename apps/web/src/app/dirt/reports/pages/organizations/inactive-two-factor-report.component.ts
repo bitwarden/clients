@@ -1,16 +1,19 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, takeUntil, tap } from "rxjs";
+import { takeUntil, tap } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -33,6 +36,7 @@ import { SharedModule } from "../../../../shared";
 import { OrganizationBadgeModule } from "../../../../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../../../../vault/individual-vault/pipes/pipes.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
+import { OrgReportContextService } from "../../services/org-report-context.service";
 import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../inactive-two-factor-report.component";
 
 @Component({
@@ -64,6 +68,7 @@ export class InactiveTwoFactorReportComponent
 {
   private manageableCipherIds = new Set<string>();
   private sharedCollectionIds = new Set<string>();
+  private readonly orgReportContext = inject(OrgReportContextService);
 
   constructor(
     cipherService: CipherService,
@@ -78,7 +83,6 @@ export class InactiveTwoFactorReportComponent
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
     protected changeDetectorRef: ChangeDetectorRef,
-    private collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -97,26 +101,30 @@ export class InactiveTwoFactorReportComponent
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
+    const logContext = "[InactiveTwoFactorReport] [Enterprise]";
 
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
-          const collections = await firstValueFrom(
-            this.collectionService.decryptedCollections$(userId),
-          );
-          this.sharedCollectionIds = new Set(
-            collections
-              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
-              .map((c) => c.id as string),
-          );
-          await super.ngOnInit();
-          this.changeDetectorRef.markForCheck();
+          try {
+            const ctx = await this.orgReportContext.load(params.organizationId, logContext);
+            this.organization = ctx.organization;
+            this.manageableCipherIds = ctx.manageableCipherIds;
+            this.sharedCollectionIds = ctx.sharedCollectionIds;
+
+            // Runs after this.organization is assigned — the overridden getAllCiphers() reads it.
+            await super.ngOnInit();
+
+            this.logService.info(
+              `${logContext} Initialized report for organization ${this.organization?.id} ` +
+                `with ${this.manageableCipherIds.size} manageable ciphers`,
+            );
+          } catch (e) {
+            this.logService.error(`${logContext} Failed to load report`, e);
+            this.loadFailed = true;
+          } finally {
+            this.changeDetectorRef.markForCheck();
+          }
         }),
         takeUntil(this.destroyed$),
       )

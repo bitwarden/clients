@@ -38,7 +38,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     protected organizationService: OrganizationService,
     dialogService: DialogService,
     accountService: AccountService,
-    private logService: LogService,
+    logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
@@ -56,6 +56,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
@@ -67,9 +68,13 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     try {
       await this.load2fa();
     } catch (e) {
-      this.logService.error(e);
+      this.logService.error(
+        `[InactiveTwoFactorReport] [${this.reportScope}] Failed to load 2FA directory`,
+        e,
+      );
     }
 
+    let inactiveCount = 0;
     if (this.services.size > 0) {
       const allCiphers = await this.getAllCiphers();
       const inactive2faCiphers: CipherView[] = [];
@@ -90,7 +95,14 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       this.filterCiphersByOrg(inactive2faCiphers);
       this.cipherDocs = docs;
       this.changeDetectorRef.markForCheck();
+      inactiveCount = inactive2faCiphers.length;
     }
+
+    // Logged unconditionally so the completion of setCiphers() is always traceable, including
+    // when the 2FA directory failed to load and no ciphers could be analyzed.
+    this.logService.info(
+      `[InactiveTwoFactorReport] [${this.reportScope}] Found ${inactiveCount} inactive two-factor ciphers`,
+    );
   }
 
   private isInactive2faCipher(cipher: CipherView): [string, boolean] {
@@ -141,9 +153,10 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     if (this.services.size > 0) {
       return;
     }
+    this.logService.info(`[InactiveTwoFactorReport] [${this.reportScope}] Fetching 2FA directory`);
     const response = await fetch(new Request("https://api.2fa.directory/v3/totp.json"));
     if (response.status !== 200) {
-      throw new Error();
+      throw new Error(`Failed to fetch 2FA directory: HTTP ${response.status}`);
     }
     const responseJson = await response.json();
     for (const service of responseJson) {
@@ -161,6 +174,9 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       }
       this.services.set(serviceData.domain, serviceData.documentation);
     }
+    this.logService.info(
+      `[InactiveTwoFactorReport] [${this.reportScope}] Loaded ${this.services.size} 2FA services`,
+    );
     this.changeDetectorRef.markForCheck();
   }
 
