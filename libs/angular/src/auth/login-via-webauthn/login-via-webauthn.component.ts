@@ -15,12 +15,9 @@ import {
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
-import { ClientType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   AnonLayoutWrapperDataService,
@@ -30,6 +27,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component.service";
 
 export type State = "assert" | "assertFailed";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -57,18 +56,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
     TwoFactorAuthSecurityKeyFailedIcon,
   };
 
-  private readonly successRoutes: Record<ClientType, string> = {
-    [ClientType.Web]: "/vault",
-    [ClientType.Browser]: "/tabs/vault",
-    [ClientType.Desktop]: "/vault",
-    [ClientType.Cli]: "/vault",
-  };
-
-  protected get successRoute(): string {
-    const clientType = this.platformUtilsService.getClientType();
-    return this.successRoutes[clientType] || "/vault";
-  }
-
   constructor(
     private webAuthnLoginService: WebAuthnLoginServiceAbstraction,
     private router: Router,
@@ -78,9 +65,8 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private i18nService: I18nService,
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private keyService: KeyService,
-    private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private messagingService: MessagingService,
+    private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
   ) {}
 
   ngOnInit(): void {
@@ -131,18 +117,13 @@ export class LoginViaWebAuthnComponent implements OnInit {
         await this.loginSuccessHandlerService.run(authResult.userId, null);
       }
 
-      // If autoClosePopout is enabled and we're in a browser extension,
-      // re-open the regular popup and close this popout window
-      if (
-        this.shouldAutoClosePopout &&
-        this.platformUtilsService.getClientType() === ClientType.Browser
-      ) {
-        this.messagingService.send("openPopup");
-        window.close();
-        return;
+      const handled =
+        (await this.loginViaWebAuthnComponentService.handleSuccessfulAuthentication?.(
+          this.shouldAutoClosePopout,
+        )) ?? false;
+      if (!handled) {
+        await this.router.navigate([this.loginViaWebAuthnComponentService.successRoute]);
       }
-
-      await this.router.navigate([this.successRoute]);
     } catch (error) {
       if (error instanceof ErrorResponse) {
         this.validationService.showError(this.i18nService.t("invalidPasskeyPleaseTryAgain"));
