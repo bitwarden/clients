@@ -30,8 +30,8 @@ export abstract class AnonLayoutWrapperDataService {
    * undoing any subsequent imperative overrides applied via `setAnonLayoutWrapperData()`.
    *
    * Components with intra-route state transitions that imperatively override layout state
-   * can call this to roll back to the route-declared defaults before applying state-specific
-   * updates.
+   * can call this to roll back to the original route-declared fields (while spreading
+   * defaults for any fields the route omitted).
    */
   abstract resetToCachedRouteData(): void;
 }
