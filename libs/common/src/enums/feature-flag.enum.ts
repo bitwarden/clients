@@ -135,7 +135,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
-  [FeatureFlag.PolicyDrawers]: true,
+  [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
