@@ -16,6 +16,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -307,6 +309,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
+  private readonly newToAddFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    { initialValue: false },
+  );
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -324,6 +331,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -659,38 +667,74 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   private updateTitle(): void {
-    const translation: { [key: string]: { [key: number]: string } } = {
-      view: {
-        [CipherType.Login]: "viewItemHeaderLogin",
-        [CipherType.Card]: "viewItemHeaderCard",
-        [CipherType.Identity]: "viewItemHeaderIdentity",
-        [CipherType.SecureNote]: "viewItemHeaderNote",
-        [CipherType.SshKey]: "viewItemHeaderSshKey",
-        [CipherType.BankAccount]: "viewItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "viewItemHeaderLicense",
-        [CipherType.Passport]: "viewItemHeaderPassport",
-      },
-      new: {
-        [CipherType.Login]: "newItemHeaderLogin",
-        [CipherType.Card]: "newItemHeaderCard",
-        [CipherType.Identity]: "newItemHeaderIdentity",
-        [CipherType.SecureNote]: "newItemHeaderNote",
-        [CipherType.SshKey]: "newItemHeaderSshKey",
-        [CipherType.BankAccount]: "newItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
-        [CipherType.Passport]: "newItemHeaderPassport",
-      },
-      edit: {
-        [CipherType.Login]: "editItemHeaderLogin",
-        [CipherType.Card]: "editItemHeaderCard",
-        [CipherType.Identity]: "editItemHeaderIdentity",
-        [CipherType.SecureNote]: "editItemHeaderNote",
-        [CipherType.SshKey]: "editItemHeaderSshKey",
-        [CipherType.BankAccount]: "editItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "editItemHeaderLicense",
-        [CipherType.Passport]: "editItemHeaderPassport",
-      },
-    };
+    let translation: { [key: string]: { [key: number]: string } } = undefined;
+    if (this.newToAddFeatureFlag()) {
+      translation = {
+        view: {
+          [CipherType.Login]: "viewItemHeaderLoginSentenceCase",
+          [CipherType.Card]: "viewItemHeaderCardSentenceCase",
+          [CipherType.Identity]: "viewItemHeaderIdentitySentenceCase",
+          [CipherType.SecureNote]: "viewItemHeaderNoteSentenceCase",
+          [CipherType.SshKey]: "viewItemHeaderSshKey",
+          [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "viewItemHeaderLicense",
+          [CipherType.Passport]: "viewItemHeaderPassport",
+        },
+        new: {
+          [CipherType.Login]: "addItemHeaderLogin",
+          [CipherType.Card]: "addItemHeaderCard",
+          [CipherType.Identity]: "addItemHeaderIdentity",
+          [CipherType.SecureNote]: "addItemHeaderNote",
+          [CipherType.SshKey]: "addItemHeaderSshKey",
+          [CipherType.BankAccount]: "addItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "addItemHeaderDriversLicense",
+          [CipherType.Passport]: "addItemHeaderPassport",
+        },
+        edit: {
+          [CipherType.Login]: "editItemHeaderLoginSentenceCase",
+          [CipherType.Card]: "editItemHeaderCardSentenceCase",
+          [CipherType.Identity]: "editItemHeaderIdentitySentenceCase",
+          [CipherType.SecureNote]: "editItemHeaderNoteSentenceCase",
+          [CipherType.SshKey]: "editItemHeaderSshKey",
+          [CipherType.BankAccount]: "editItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "editItemHeaderLicense",
+          [CipherType.Passport]: "editItemHeaderPassport",
+        },
+      };
+    } else {
+      translation = {
+        view: {
+          [CipherType.Login]: "viewItemHeaderLogin",
+          [CipherType.Card]: "viewItemHeaderCard",
+          [CipherType.Identity]: "viewItemHeaderIdentity",
+          [CipherType.SecureNote]: "viewItemHeaderNote",
+          [CipherType.SshKey]: "viewItemHeaderSshKey",
+          [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "viewItemHeaderLicense",
+          [CipherType.Passport]: "viewItemHeaderPassport",
+        },
+        new: {
+          [CipherType.Login]: "newItemHeaderLogin",
+          [CipherType.Card]: "newItemHeaderCard",
+          [CipherType.Identity]: "newItemHeaderIdentity",
+          [CipherType.SecureNote]: "newItemHeaderNote",
+          [CipherType.SshKey]: "newItemHeaderSshKey",
+          [CipherType.BankAccount]: "newItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
+          [CipherType.Passport]: "newItemHeaderPassport",
+        },
+        edit: {
+          [CipherType.Login]: "editItemHeaderLogin",
+          [CipherType.Card]: "editItemHeaderCard",
+          [CipherType.Identity]: "editItemHeaderIdentity",
+          [CipherType.SecureNote]: "editItemHeaderNote",
+          [CipherType.SshKey]: "editItemHeaderSshKey",
+          [CipherType.BankAccount]: "editItemHeaderBankAccount",
+          [CipherType.DriversLicense]: "editItemHeaderLicense",
+          [CipherType.Passport]: "editItemHeaderPassport",
+        },
+      };
+    }
     const type = this.cipher?.type ?? this.formConfig.cipherType;
     let mode: "view" | "edit" | "new" = "view";
 
