@@ -137,7 +137,9 @@ export abstract class CipherReportComponent implements OnDestroy {
       `[CipherReport] load() — filterStatus="${this.currentFilterStatus}", cipherCount=${this.ciphers.length}`,
     );
     this.loading = true;
+    this.logService?.info(`[CipherReport] Starting full sync`);
     await this.syncService.fullSync(false);
+    this.logService?.info(`[CipherReport] Full sync complete`);
     // when a user fixes an item in a report we want to persist the filter they had
     // if they fix the last item of that filter we will go back to the "All" filter
     if (this.currentFilterStatus) {
@@ -153,6 +155,7 @@ export abstract class CipherReportComponent implements OnDestroy {
         await this.filterOrgToggle(0);
       }
     } else {
+      this.logService?.info(`[CipherReport] No active filter, calling setCiphers()`);
       await this.setCiphers();
     }
     this.loading = false;
@@ -220,12 +223,15 @@ export abstract class CipherReportComponent implements OnDestroy {
   }
 
   async refresh(result: VaultItemDialogResult, cipher: CipherView) {
+    this.logService?.info(`[CipherReport] refresh() — result="${result}", cipherId="${cipher.id}"`);
+
     if (result === VaultItemDialogResult.Deleted) {
       // update downstream report status if the cipher was deleted
       await this.determinedUpdatedCipherReportStatus(result, cipher);
 
       // the cipher was deleted, filter it out from the report.
       this.ciphers = this.ciphers.filter((ciph) => ciph.id !== cipher.id);
+      this.logService?.info(`[CipherReport] Cipher deleted, ${this.ciphers.length} remaining`);
       this.filterCiphersByOrg(this.ciphers);
       return;
     }
@@ -236,6 +242,7 @@ export abstract class CipherReportComponent implements OnDestroy {
       let updatedCipher = await this.cipherService.get(cipher.id, activeUserId);
 
       if (this.isAdminConsoleActive) {
+        this.logService?.info(`[CipherReport] Fetching cipher via admin console path`);
         updatedCipher =
           (await this.adminConsoleCipherFormConfigService.getCipher(
             cipher.id as CipherId,
@@ -258,13 +265,19 @@ export abstract class CipherReportComponent implements OnDestroy {
       // determine the index of the updated cipher in the report
       const index = this.ciphers.findIndex((c) => c.id === updatedCipherView.id);
 
+      if (index === -1) {
+        this.logService?.warning(`[CipherReport] Saved cipher not found in report list`);
+      }
+
       // the updated cipher does not meet the criteria for the report, it returns a null
       if (updatedReportResult === null && index > -1) {
+        this.logService?.info(`[CipherReport] Cipher no longer meets report criteria, removing`);
         this.ciphers.splice(index, 1);
       }
 
       // the cipher is already in the report, update it.
       if (updatedReportResult !== null && index > -1) {
+        this.logService?.info(`[CipherReport] Cipher still meets report criteria, updating`);
         this.ciphers[index] = updatedReportResult;
       }
 
@@ -296,7 +309,9 @@ export abstract class CipherReportComponent implements OnDestroy {
 
     try {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      return await this.cipherService.getAllDecrypted(activeUserId);
+      const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+      this.logService?.info(`[CipherReport] Fetched ${ciphers.length} decrypted ciphers for user`);
+      return ciphers;
     } catch (e) {
       this.logService?.error(`[CipherReport] Failed to fetch ciphers for user`, e);
       throw e;
