@@ -1,16 +1,21 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
 
 import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { PremiumCheckoutSessionPlatform } from "@bitwarden/common/billing/models/request/premium-checkout-session.request";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -42,6 +47,8 @@ import { LogService } from "@bitwarden/logging";
   templateUrl: "./premium-upgrade-dialog.component.html",
 })
 export class PremiumUpgradeDialogComponent {
+  protected readonly upgrading = signal(false);
+
   protected readonly cardDetails$: Observable<SubscriptionPricingCardDetails | null> =
     this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$().pipe(
       map((tiers) => tiers.find((tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium)),
@@ -66,15 +73,65 @@ export class PremiumUpgradeDialogComponent {
     private readonly environmentService: EnvironmentService,
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly logService: LogService,
+    private readonly configService: ConfigService,
+    private readonly billingApiService: BillingApiServiceAbstraction,
   ) {}
 
   protected async upgrade(): Promise<void> {
-    const environment = await firstValueFrom(this.environmentService.environment$);
-    const vaultUrl =
-      environment.getWebVaultUrl() +
-      "/#/settings/subscription/premium?callToAction=upgradeToPremium";
-    this.platformUtilsService.launchUri(vaultUrl);
-    void this.dialogRef.close();
+    if (this.upgrading()) {
+      return;
+    }
+    this.upgrading.set(true);
+
+    try {
+      const environment = await firstValueFrom(this.environmentService.environment$);
+      const checkoutFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM34515_BrowserDesktopCheckout,
+      );
+      // QA-only: lets a self-hosted-region client behave as cloud for premium
+      // checkout. Off by default; only delivered by servers that enable it.
+      const bypassSelfHostCheck = await this.configService.getFeatureFlag(
+        FeatureFlag.DebugDisableSelfHostPremiumCheck,
+      );
+      const platform = this.resolveCheckoutPlatform();
+
+      if (
+        checkoutFlagEnabled &&
+        (environment.isCloud() || bypassSelfHostCheck) &&
+        platform != null
+      ) {
+        const { checkoutSessionUrl } = await this.billingApiService.createPremiumCheckoutSession({
+          platform,
+        });
+        this.platformUtilsService.launchUri(checkoutSessionUrl);
+      } else {
+        const vaultUrl =
+          environment.getWebVaultUrl() +
+          "/#/settings/subscription/premium?callToAction=upgradeToPremium";
+        this.platformUtilsService.launchUri(vaultUrl);
+      }
+    } catch (error: unknown) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("error"),
+        message: this.i18nService.t("unexpectedError"),
+      });
+      this.logService.error("Failed to start premium upgrade", error);
+    } finally {
+      this.upgrading.set(false);
+      void this.dialogRef.close();
+    }
+  }
+
+  private resolveCheckoutPlatform(): PremiumCheckoutSessionPlatform | null {
+    switch (this.platformUtilsService.getClientType()) {
+      case ClientType.Browser:
+        return "browser";
+      case ClientType.Desktop:
+        return "desktop";
+      default:
+        return null;
+    }
   }
 
   protected close(): void {

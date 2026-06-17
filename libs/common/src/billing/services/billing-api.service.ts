@@ -8,10 +8,12 @@ import { OrganizationCreateRequest } from "../../admin-console/models/request/or
 import { ListResponse } from "../../models/response/list.response";
 import { OrganizationId } from "../../types/guid";
 import { BillingApiServiceAbstraction } from "../abstractions";
+import { PremiumCheckoutSessionRequest } from "../models/request/premium-checkout-session.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../models/response/plan.response";
+import { PremiumCheckoutSessionResponse } from "../models/response/premium-checkout-session.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {
@@ -32,6 +34,19 @@ export class BillingApiService implements BillingApiServiceAbstraction {
 
   cancelPremiumUserSubscription(request: SubscriptionCancellationRequest): Promise<void> {
     return this.apiService.send("POST", "/accounts/cancel", request, true, false);
+  }
+
+  async createPremiumCheckoutSession(
+    request: PremiumCheckoutSessionRequest,
+  ): Promise<PremiumCheckoutSessionResponse> {
+    const response = await this.apiService.send(
+      "POST",
+      "/account/billing/vnext/premium/checkout",
+      request,
+      true,
+      true,
+    );
+    return new PremiumCheckoutSessionResponse(response);
   }
 
   async getOrganizationBillingMetadata(

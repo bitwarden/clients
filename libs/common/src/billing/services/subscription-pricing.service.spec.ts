@@ -1036,5 +1036,65 @@ describe("DefaultSubscriptionPricingService", () => {
         done();
       });
     });
+
+    it("should call API on self-host when the QA bypass flag is enabled", () => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      const getPlansSpy = jest
+        .spyOn(selfHostedBillingApiService, "getPlans")
+        .mockResolvedValue(mockPlansResponse);
+      const getPremiumPlanSpy = jest
+        .spyOn(selfHostedBillingApiService, "getPremiumPlan")
+        .mockResolvedValue(mockPremiumPlanResponse);
+
+      // QA bypass flag on: self-hosted-region client behaves as cloud for pricing.
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe();
+      selfHostedService.getBusinessSubscriptionPricingTiers$().subscribe();
+
+      expect(getPlansSpy).toHaveBeenCalled();
+      expect(getPremiumPlanSpy).toHaveBeenCalled();
+    });
+
+    it("should populate prices on self-host when the QA bypass flag is enabled", (done) => {
+      const selfHostedBillingApiService = mock<BillingApiServiceAbstraction>();
+      const selfHostedConfigService = mock<ConfigService>();
+      const selfHostedEnvironmentService = mock<EnvironmentService>();
+
+      selfHostedBillingApiService.getPlans.mockResolvedValue(mockPlansResponse);
+      selfHostedBillingApiService.getPremiumPlan.mockResolvedValue(mockPremiumPlanResponse);
+
+      selfHostedConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      setupEnvironmentService(selfHostedEnvironmentService, Region.SelfHosted);
+
+      const selfHostedService = new DefaultSubscriptionPricingService(
+        selfHostedBillingApiService,
+        selfHostedConfigService,
+        i18nService,
+        logService,
+        selfHostedEnvironmentService,
+      );
+
+      selfHostedService.getPersonalSubscriptionPricingTiers$().subscribe((tiers) => {
+        const premiumTier = tiers.find((t) => t.id === PersonalSubscriptionPricingTierIds.Premium);
+        expect(premiumTier?.passwordManager.annualPrice).toBe(10);
+        expect(premiumTier?.passwordManager.annualPricePerAdditionalStorageGB).toBe(4);
+        expect(premiumTier?.passwordManager.providedStorageGB).toBe(1);
+
+        done();
+      });
+    });
   });
 });
