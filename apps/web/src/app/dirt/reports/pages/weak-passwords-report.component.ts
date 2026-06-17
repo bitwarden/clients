@@ -12,7 +12,6 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant, DialogService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -49,7 +48,6 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     protected adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
-    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -65,42 +63,23 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   async ngOnInit() {
-    try {
-      await super.load();
-    } catch (e) {
-      this.logService.error("[WeakPasswordsReport] Failed to load report", e);
-      throw e;
-    }
+    await super.load();
   }
 
   async setCiphers() {
-    this.logService.info(`[WeakPasswordsReport] Loading ciphers for report`);
-    try {
-      const allCiphers = await this.getAllCiphers();
-      this.logService.info(`[WeakPasswordsReport] Loaded ${allCiphers.length} ciphers for report`);
-      this.weakPasswordCiphers = [];
-      this.filterStatus = [0];
-      this.findWeakPasswords(allCiphers);
-    } catch (e) {
-      this.logService.error("[WeakPasswordsReport] Failed to fetch ciphers", e);
-      throw e;
-    }
+    const allCiphers = await this.getAllCiphers();
+    this.weakPasswordCiphers = [];
+    this.filterStatus = [0];
+    this.findWeakPasswords(allCiphers);
   }
 
   async determinedUpdatedCipherReportStatus(
     result: VaultItemDialogResult,
     updatedCipherView: CipherView,
   ): Promise<CipherView | null> {
-    this.logService.info(
-      `[WeakPasswordsReport] Updating cipher ${updatedCipherView.id}, result: ${result}`,
-    );
-
     if (result === VaultItemDialogResult.Deleted) {
       this.weakPasswordCiphers = this.weakPasswordCiphers.filter(
         (c) => c.id !== updatedCipherView.id,
-      );
-      this.logService.info(
-        `[WeakPasswordsReport] Cipher deleted, ${this.weakPasswordCiphers.length} remaining`,
       );
       return null;
     }
@@ -109,11 +88,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
 
     const index = this.weakPasswordCiphers.findIndex((c) => c.id === updatedCipherView.id);
 
-    if (index === -1) {
-      this.logService.warning(
-        `[WeakPasswordsReport] Edited cipher not found in report list: ${updatedCipherView.id}`,
-      );
-    } else {
+    if (index !== -1) {
       if (updatedReportStatus !== null) {
         this.weakPasswordCiphers[index] = updatedReportStatus;
       } else {
@@ -125,31 +100,13 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   protected findWeakPasswords(ciphers: CipherView[]): void {
-    const loginCiphers = ciphers.filter((c) => c.type === CipherType.Login);
-    this.logService.info(
-      `[WeakPasswordsReport] Analyzing ${ciphers.length} ciphers (${loginCiphers.length} logins)`,
-    );
-
-    this.logService.info(
-      `[WeakPasswordsReport] Checking passwords against user inputs and common patterns`,
-    );
     ciphers.forEach((ciph) => {
       const row = this.determineWeakPasswordScore(ciph);
       if (row != null) {
         this.weakPasswordCiphers.push(row);
       }
     });
-
-    this.logService.info(
-      `[WeakPasswordsReport] Found ${this.weakPasswordCiphers.length} weak passwords`,
-    );
-
-    this.logService.info(`[WeakPasswordsReport] Filtering ciphers by organization`);
     this.filterCiphersByOrg(this.weakPasswordCiphers);
-
-    this.logService.info(
-      `[WeakPasswordsReport] Finished loading report with ${this.ciphers.length} ciphers to display`,
-    );
   }
 
   protected determineWeakPasswordScore(ciph: CipherView): ReportResult | null {
@@ -194,14 +151,7 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
       userInput.length > 0 ? userInput : null,
     );
 
-    if (result.score == null) {
-      this.logService.warning(
-        `[WeakPasswordsReport] Password strength returned null score for cipher ${ciph.id}`,
-      );
-      return null;
-    }
-
-    if (result.score <= 2) {
+    if (result.score != null && result.score <= 2) {
       const scoreValue = this.scoreKey(result.score);
       return {
         ...ciph,
