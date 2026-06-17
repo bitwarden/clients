@@ -15,6 +15,7 @@ import {
   AnonLayoutWrapperDataService,
   ANON_LAYOUT_DEFAULTS,
   ContentVerticalPaddingType,
+  FooterVerticalPaddingType,
   HeroTextAlignmentType,
   SecondaryContentLocationType,
 } from "@bitwarden/components";
@@ -68,7 +69,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hideCardWrapper: boolean = false;
   protected hidePageIcon?: boolean;
   protected contentVerticalPadding?: ContentVerticalPaddingType;
-  protected footerVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: FooterVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 

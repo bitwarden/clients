@@ -9,6 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Translation } from "../dialog";
 import {
   ContentVerticalPaddingType,
+  FooterVerticalPaddingType,
   HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -53,7 +54,7 @@ export interface AnonLayoutWrapperData {
    *
    * "compact" reduces the vertical padding so more content fits. Use in scenarios where vertical space is at a premium.
    */
-  footerVerticalPadding?: ContentVerticalPaddingType;
+  footerVerticalPadding?: FooterVerticalPaddingType;
   /**
    * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
    * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
@@ -103,7 +104,7 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected hideBackgroundIllustration?: boolean | null;
   protected hidePageIcon?: boolean;
   protected contentVerticalPadding?: ContentVerticalPaddingType;
-  protected footerVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: FooterVerticalPaddingType;
   protected heroTextAlignment?: HeroTextAlignmentType;
   protected secondaryContentLocation?: SecondaryContentLocationType;
 

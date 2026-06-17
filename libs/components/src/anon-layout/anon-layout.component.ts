@@ -20,6 +20,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   ContentVerticalPaddingType,
+  FooterVerticalPaddingType,
   HeroTextAlignmentType,
   LandingContentMaxWidthType,
 } from "../landing-layout";
@@ -60,7 +61,7 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly contentVerticalPadding = input<ContentVerticalPaddingType>(
     ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
   );
-  readonly footerVerticalPadding = input<ContentVerticalPaddingType>(
+  readonly footerVerticalPadding = input<FooterVerticalPaddingType>(
     ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
   );
   readonly heroTextAlignment = input<HeroTextAlignmentType>(ANON_LAYOUT_DEFAULTS.heroTextAlignment);

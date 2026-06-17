@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { ContentVerticalPaddingType } from "./landing-content.component";
 import { LANDING_FOOTER_VERTICAL_PADDING_DEFAULT } from "./landing-defaults";
+
+export type FooterVerticalPaddingType = "compact" | "default";
 
 /**
  * Footer component for landing pages.
@@ -35,7 +36,7 @@ export class LandingFooterComponent {
    *
    * "compact" reduces the vertical padding.
    */
-  readonly footerVerticalPadding = input<ContentVerticalPaddingType>(
+  readonly footerVerticalPadding = input<FooterVerticalPaddingType>(
     LANDING_FOOTER_VERTICAL_PADDING_DEFAULT,
   );
 
