@@ -149,7 +149,7 @@ describe("Web Platform Utils Service", () => {
       windowProps?: Record<string, any>;
     }[] = [
       {
-        // DuckDuckGo macoOS browser v1.13
+        // DuckDuckGo macroOS browser v1.13
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3.1 Safari/605.1.15 Ddg/18.3.1",
         expectedDevice: DeviceType.DuckDuckGoBrowser,

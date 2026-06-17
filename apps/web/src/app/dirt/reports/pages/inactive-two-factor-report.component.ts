@@ -166,7 +166,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
   /**
    * Provides a way to determine if someone with permissions to run an organizational report is also able to view/edit ciphers within the results
-   * Default to true for indivduals running reports on their own vault.
+   * Default to true for individuals running reports on their own vault.
    * @param c CipherView
    * @returns boolean
    */

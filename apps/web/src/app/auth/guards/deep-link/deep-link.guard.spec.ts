@@ -39,7 +39,7 @@ export class RedirectTestComponent {}
  * We are assuming the guard is always being called. We are creating routes using the
  * RouterTestingHarness.
  *
- * when persisting a URL to storage we don't care wether or not the user is locked or logged out.
+ * when persisting a URL to storage we don't care weather or not the user is locked or logged out.
  * We only care about where the user is going, and has been.
  *
  * We are testing the activatedComponent because we are testing that the guard redirects when a user is

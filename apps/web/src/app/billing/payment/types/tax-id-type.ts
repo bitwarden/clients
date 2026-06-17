@@ -1059,8 +1059,8 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
   {
     country: "United States",
     iso: "US",
-    code: "us_ein",
-    description: "United States EIN",
+    code: "us_in",
+    description: "United States IN",
     example: "12-3456789",
     impactsTaxCalculation: false,
   },

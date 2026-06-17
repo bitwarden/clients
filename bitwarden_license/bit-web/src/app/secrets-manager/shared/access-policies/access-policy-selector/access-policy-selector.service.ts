@@ -19,14 +19,14 @@ import { ApPermissionEnum } from "./models/enums/ap-permission.enum";
 export class AccessPolicySelectorService {
   constructor(
     private organizationService: OrganizationService,
-    private accountServcie: AccountService,
+    private accountService: AccountService,
   ) {}
 
   async showAccessRemovalWarning(
     organizationId: string,
     selectedPoliciesValues: ApItemValueType[],
   ): Promise<boolean> {
-    const userId = await firstValueFrom(getUserId(this.accountServcie.activeAccount$));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );
@@ -53,7 +53,7 @@ export class AccessPolicySelectorService {
       return false;
     }
 
-    const userId = await firstValueFrom(getUserId(this.accountServcie.activeAccount$));
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organization = await firstValueFrom(
       this.organizationService.organizations$(userId).pipe(getOrganizationById(organizationId)),
     );

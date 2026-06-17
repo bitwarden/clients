@@ -176,7 +176,7 @@ describe("BillingConstraintService", () => {
       });
     });
 
-    it("shoud throw if missing billingMetadata", () => {
+    it("should throw if missing billingMetadata", () => {
       const organization = createMockOrganization({ seats: 10 });
       const billingMetadata = createMockBillingMetadata({
         organizationOccupiedSeats: undefined as any,

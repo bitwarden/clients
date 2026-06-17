@@ -535,7 +535,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(() => true),
       startWith(false),
-      take(2), // Only take the emmision from startsWith and the emission from zip.
+      take(2), // Only take the emission from startsWith and the emission from zip.
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 

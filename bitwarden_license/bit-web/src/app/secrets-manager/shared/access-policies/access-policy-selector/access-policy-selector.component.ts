@@ -139,7 +139,7 @@ export class AccessPolicySelectorComponent implements ControlValueAccessor, OnIn
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() initialPermission = ApPermissionEnum.CanRead;
 
-  // Pass in a static permission that wil be the only option for a given selector instance.
+  // Pass in a static permission that will be the only option for a given selector instance.
   // Will ignore permissionList and initialPermission.
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
