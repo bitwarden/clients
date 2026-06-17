@@ -38,6 +38,8 @@ import {
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
 export type UriType = "website" | "app";
+const UriTypeWebsite = "website";
+const UriTypeApp = "app";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -163,7 +165,7 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
-    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.type.value === "app") {
+    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.type.value === UriTypeApp) {
       return this.index === 0
         ? this.i18nService.t("appUri")
         : this.i18nService.t("appUriCount", this.index + 1);
@@ -262,7 +264,7 @@ export class UriOptionComponent implements ControlValueAccessor {
         {
           uri: value.uri ?? "",
           matchDetection: value.matchDetection ?? null,
-          type: value.type ?? "website",
+          type: value.type ?? UriTypeWebsite,
         },
         { emitEvent: false },
       );
