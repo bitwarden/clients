@@ -27,13 +27,13 @@ the original encryption, sync, authentication, and **Vaultwarden** compatibility
 
 ## Architecture
 
-| Layer | Location | Purpose |
-|-------|----------|---------|
-| **Design system** | `libs/ui-kit` (`@klappstuhl/ui-kit`) | Theme tokens + reusable primitives (button, copy-field, reveal-field, TOTP ring, strength meter). |
-| **Bridge** | `libs/ui-bridge` (`@klappstuhl/ui-bridge`) | The *only* fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock, password-strength into a presentation-friendly API. |
-| **App shell** | `apps/desktop/src/app/redesign/` | The redesigned vault UI (sidebar, split-pane list + detail, command palette). Mounted at `/redesign`, which **replaces** `/vault` for logged-in users. |
-| **Spotlight** | `apps/desktop/src/spotlight/` + `apps/desktop/src/main/quick-access.main.ts` | Standalone Quick Access window (see below). |
-| **Theme** | `libs/ui-kit/src/theme/fork-theme.css` + `fork-overlays.css` | Reskins the whole app by overriding CSS token *values*; imported last in `apps/desktop/src/scss/tailwind.css`. |
+| Layer             | Location                                                                     | Purpose                                                                                                                                                          |
+|-------------------|------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Design system** | `libs/ui-kit` (`@klappstuhl/ui-kit`)                                         | Theme tokens + reusable primitives (button, copy-field, reveal-field, TOTP ring, strength meter).                                                                |
+| **Bridge**        | `libs/ui-bridge` (`@klappstuhl/ui-bridge`)                                   | The *only* fork lib allowed to import `@bitwarden/*`. Wraps `CipherService`, `TotpService`, clipboard, lock, password-strength into a presentation-friendly API. |
+| **App shell**     | `apps/desktop/src/app/redesign/`                                             | The redesigned vault UI (sidebar, split-pane list + detail, command palette). Mounted at `/redesign`, which **replaces** `/vault` for logged-in users.           |
+| **Spotlight**     | `apps/desktop/src/spotlight/` + `apps/desktop/src/main/quick-access.main.ts` | Standalone Quick Access window (see below).                                                                                                                      |
+| **Theme**         | `libs/ui-kit/src/theme/fork-theme.css` + `fork-overlays.css`                 | Reskins the whole app by overriding CSS token *values*; imported last in `apps/desktop/src/scss/tailwind.css`.                                                   |
 
 Full design notes live in [`docs/ui-redesign/`](docs/ui-redesign/).
 
