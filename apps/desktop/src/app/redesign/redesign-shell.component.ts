@@ -22,9 +22,10 @@ import { map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,
@@ -152,6 +153,8 @@ export class KlsRedesignShellComponent {
   private readonly messagingService = inject(MessagingService);
   private readonly cipherFormConfigService = inject(CipherFormConfigService);
   private readonly quickAccess = inject(QuickAccessRendererService);
+  private readonly logService = inject(LogService);
+  private readonly toastService = inject(ToastService);
 
   private readonly hasUser = toSignal(this.accountService.activeAccount$.pipe(map((a) => !!a)), {
     initialValue: false,
@@ -389,14 +392,28 @@ export class KlsRedesignShellComponent {
 
   // Opens the standard add-cipher drawer (same path the old vault used). All
   // persistence still flows through core's CipherService via the dialog — the
-  // shell never builds API payloads or touches crypto.
+  // shell never builds API payloads or touches crypto. Errors are surfaced
+  // (logged + toast) so the button never silently does nothing.
   private async openAddDialog(): Promise<void> {
-    const cipherType = CIPHER_TYPE_BY_CATEGORY[this.activeCategory()] ?? CipherType.Login;
-    const formConfig = await this.cipherFormConfigService.buildConfig("add", undefined, cipherType);
-    await VaultItemDialogComponent.openDrawer(this.dialogService, {
-      mode: "form",
-      formConfig,
-    });
+    try {
+      const cipherType = CIPHER_TYPE_BY_CATEGORY[this.activeCategory()] ?? CipherType.Login;
+      const formConfig = await this.cipherFormConfigService.buildConfig(
+        "add",
+        undefined,
+        cipherType,
+      );
+      await VaultItemDialogComponent.openDrawer(this.dialogService, {
+        mode: "form",
+        formConfig,
+      });
+    } catch (e) {
+      this.logService.error("Quick add: failed to open the add-item dialog", e);
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18n.t("unexpectedError") || "Could not open the new item form.",
+      });
+    }
   }
 
   protected onOpenGenerator(): void {
