@@ -412,7 +412,7 @@ const routes: Routes = [
           contentVerticalPadding: "compact",
           footerVerticalPadding: "compact",
           heroTextAlignment: "left",
-          secondaryContentLocation: "footer",
+          hideFooter: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           {
