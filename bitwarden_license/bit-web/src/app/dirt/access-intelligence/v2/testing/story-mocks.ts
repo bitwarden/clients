@@ -222,7 +222,7 @@ export class MockAccessIntelligenceDataService {
  * Mock DrawerStateService for Storybook stories.
  */
 export class MockDrawerStateService {
-  openDrawer = action("openDrawer");
+  toggleDrawer = action("toggleDrawer");
   closeDrawer = action("closeDrawer");
   readonly drawerState = signal(null);
 }
