@@ -183,7 +183,7 @@ export const testData: ProtonPassJsonFile = {
               city: "New York",
               stateOrProvince: "Test",
               countryOrRegion: "US",
-              floor: "12th Foor",
+              floor: "12th Floor",
               county: "Test County",
               extraAddressDetails: [
                 {

@@ -160,7 +160,7 @@ describe("Protonpass Json Importer", () => {
     expect(cipher.identity.licenseNumber).toBe("21234");
     expect(cipher.identity.address1).toBe("Bitwarden");
     expect(cipher.identity.address2).toBe("23 Street");
-    expect(cipher.identity.address3).toBe("12th Foot Test County");
+    expect(cipher.identity.address3).toBe("12th Floor Test County");
     expect(cipher.identity.city).toBe("New York");
     expect(cipher.identity.state).toBe("Test");
     expect(cipher.identity.postalCode).toBe("4038456");

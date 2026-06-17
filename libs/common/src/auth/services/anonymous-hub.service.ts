@@ -48,7 +48,7 @@ export class AnonymousHubService implements AnonymousHubServiceAbstraction {
 
     await this.anonHubConnection.start();
 
-    this.anonHubConnection.on("AuthRequestResponseReceived", (data: any) => {
+    this.anonHubConnection.on("AuthRequestResponseRecieved", (data: any) => {
       this.ProcessNotification(new NotificationResponse(data));
     });
   }
