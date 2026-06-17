@@ -55,6 +55,13 @@ describe("DesktopLoginComponentService", () => {
       isCloud: () => true,
       getApiUrl: () => "https://api.bitwarden.com",
     } as Environment);
+    environmentService.globalEnvironment$ = of({
+      getWebVaultUrl: () => "https://webvault.bitwarden.com",
+      getRegion: () => "US",
+      getUrls: () => ({}),
+      isCloud: () => true,
+      getApiUrl: () => "https://api.bitwarden.com",
+    } as Environment);
 
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     platformUtilsService = mock<ElectronPlatformUtilsService>();

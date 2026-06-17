@@ -75,6 +75,7 @@ describe("DesktopTwoFactorAuthDuoComponentService", () => {
       } as unknown as Environment;
       const environmentBSubject = new BehaviorSubject(mockEnvironment);
       environmentService.environment$ = environmentBSubject.asObservable();
+      environmentService.globalEnvironment$ = environmentBSubject.asObservable();
 
       // Act
       await desktopTwoFactorAuthDuoComponentService.launchDuoFrameless(duoFramelessUrl);
