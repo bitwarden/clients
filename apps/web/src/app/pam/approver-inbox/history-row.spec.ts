@@ -213,7 +213,7 @@ describe("flattenHistory", () => {
           Name: "Ada Approver",
           Email: "ada@example.com",
           Comment: null,
-          Verdict: 0,
+          Verdict: 1,
           DecidedAt: "2026-06-10T10:30:00Z",
         },
       ],

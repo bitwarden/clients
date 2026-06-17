@@ -5,8 +5,8 @@
  * either one.
  */
 export const AccessDecisionVerdict = Object.freeze({
-  Approve: 0,
-  Deny: 1,
+  Deny: 0,
+  Approve: 1,
 } as const);
 export type AccessDecisionVerdict =
   (typeof AccessDecisionVerdict)[keyof typeof AccessDecisionVerdict];

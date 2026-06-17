@@ -94,14 +94,14 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
                   Name: f.approverName ?? null,
                   Email: f.approverEmail ?? null,
                   Comment: f.approverComment ?? null,
-                  Verdict: f.status === "denied" ? 1 : 0,
+                  Verdict: f.status === "denied" ? 0 : 1,
                   DecidedAt: f.resolvedAt ?? f.submittedAt,
                 }
               : {
                   DeciderKind: "automatic",
                   Id: null,
                   Comment: f.approverComment ?? null,
-                  Verdict: f.status === "denied" ? 1 : 0,
+                  Verdict: f.status === "denied" ? 0 : 1,
                   DecidedAt: f.resolvedAt ?? f.submittedAt,
                 },
           ],
