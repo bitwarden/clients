@@ -218,7 +218,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     // If the user switches region while on the password entry screen, we need to clear
     // any stale authentication errors from the previous region and refresh the prelogin
     // data (KDF settings) for the new environment.
-    this.environmentService.environment$
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.environmentService.globalEnvironment$
       .pipe(
         skip(1), // Skip the initial emission, only react to subsequent changes
         takeUntil(this.destroy$),
@@ -355,7 +356,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       switch (error.statusCode) {
         case HttpStatusCode.BadRequest: {
           if (error.message?.toLowerCase().includes("username or password is incorrect")) {
-            const env = await firstValueFrom(this.environmentService.environment$);
+            // Use the global environment because the user-scoped environment is not set until authentication is complete.
+            const env = await firstValueFrom(this.environmentService.globalEnvironment$);
             const host = Utils.getHost(env.getWebVaultUrl());
 
             this.formGroup.controls.masterPassword.setErrors({

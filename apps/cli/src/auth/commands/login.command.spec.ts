@@ -151,6 +151,9 @@ describe("LoginCommand", () => {
     environmentService.environment$ = of({
       getWebVaultUrl: () => "https://vault.bitwarden.com",
     } as any);
+    environmentService.globalEnvironment$ = of({
+      getWebVaultUrl: () => "https://vault.bitwarden.com",
+    } as any);
 
     command = new LoginCommand(
       loginStrategyService,

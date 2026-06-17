@@ -13,7 +13,8 @@ export class PasswordPreloginApiService {
   ) {}
 
   async getPreloginData(request: PasswordPreloginRequest): Promise<PasswordPreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const r = await this.apiService.send(
       "POST",
       "/accounts/prelogin/password",

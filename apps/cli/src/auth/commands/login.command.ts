@@ -426,7 +426,8 @@ export class LoginCommand {
         e instanceof ErrorResponse &&
         e.message === "Username or password is incorrect. Try again."
       ) {
-        const env = await firstValueFrom(this.environmentService.environment$);
+        // Use the global environment because the user-scoped environment is not set until authentication is complete.
+        const env = await firstValueFrom(this.environmentService.globalEnvironment$);
         const host = Utils.getHost(env.getWebVaultUrl());
         return Response.error(this.i18nService.t("invalidMasterPasswordConfirmEmailAndHost", host));
       }
@@ -556,7 +557,8 @@ export class LoginCommand {
     state: string,
     orgSsoIdentifier: string,
   ): Promise<{ ssoCode: string; orgIdentifier: string }> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     return new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {

@@ -612,7 +612,8 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   async use2faRecoveryCode() {
     // TODO: PM-17696 eventually we should have a consolidated recover-2fa component as a follow up
     // so that we don't have to always open a new tab for non-web clients.
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const webVault = env.getWebVaultUrl();
     this.platformUtilsService.launchUri(webVault + "/#/recover-2fa");
   }

@@ -60,7 +60,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
       (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
 
     if (!sdkHandledKeyConnector && response.apiUseKeyConnector) {
-      const env = await firstValueFrom(this.environmentService.environment$);
+      // Use the global environment because the user-scoped environment is not set until authentication is complete.
+      const env = await firstValueFrom(this.environmentService.globalEnvironment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
     }

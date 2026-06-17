@@ -55,7 +55,8 @@ export class DesktopLoginComponentService
     if (ipc.platform.isAppImage || ipc.platform.isDev) {
       await this.initiateSsoThroughLocalhostCallback(email, state, codeChallenge, orgSsoIdentifier);
     } else {
-      const env = await firstValueFrom(this.environmentService.environment$);
+      // Use the global environment because the user-scoped environment is not set until authentication is complete.
+      const env = await firstValueFrom(this.environmentService.globalEnvironment$);
       const webVaultUrl = env.getWebVaultUrl();
 
       const redirectUri = DESKTOP_SSO_CALLBACK;

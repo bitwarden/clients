@@ -123,7 +123,8 @@ export class SsoComponent implements OnInit {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private keyConnectorService: KeyConnectorService,
   ) {
-    environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    environmentService.globalEnvironment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
     });
 
@@ -381,7 +382,8 @@ export class SsoComponent implements OnInit {
     // we need it on the web client to verify after the user authenticates with the identity provider and is redirected back.
     await this.ssoLoginService.setSsoState(state);
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     let authorizeUrl =
       env.getIdentityUrl() +
