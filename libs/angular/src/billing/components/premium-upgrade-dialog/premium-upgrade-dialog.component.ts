@@ -3,8 +3,6 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { catchError, EMPTY, firstValueFrom, map, Observable } from "rxjs";
 
-import { SubscriptionPricingCardDetails } from "@bitwarden/angular/billing/types/subscription-pricing-card-details";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
@@ -25,6 +23,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { JslibModule } from "../../../jslib.module";
+import { SubscriptionPricingCardDetails } from "../../types/subscription-pricing-card-details";
 
 @Component({
   selector: "billing-premium-upgrade-dialog",
