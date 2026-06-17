@@ -51,6 +51,13 @@ export class VaultBatchActionComponent {
         label: this.i18nService.t("assignToCollections"),
       });
     }
+    if (this.service.canEditCollectionAccess()) {
+      actions.push({
+        action: this.service.bulkEditCollectionAccess.bind(this.service),
+        icon: "bwi-users",
+        label: this.i18nService.t("editAccess"),
+      });
+    }
     if (this.service.canArchive()) {
       actions.push({
         action: this.service.bulkArchive.bind(this.service),
