@@ -501,7 +501,7 @@ export class AppComponent implements OnInit, OnDestroy {
               this.loading = true;
               await this.syncService.fullSync(false);
               // Force reload to ensure route guards are activated
-              await this.router.navigate(["vault"], { onSameUrlNavigation: "reload" });
+              await this.router.navigate(["redesign"], { onSameUrlNavigation: "reload" });
               // Clear loading after navigating to avoid flickering the previous route
               this.loading = false;
             }
@@ -830,10 +830,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private routeToVault(action: string, cipherType: CipherType) {
-    if (!this.router.url.includes("vault")) {
+    if (!this.router.url.includes("redesign")) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["/vault"], {
+      this.router.navigate(["/redesign"], {
         queryParams: {
           action: action,
           addType: cipherType,

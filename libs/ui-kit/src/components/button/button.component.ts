@@ -39,7 +39,8 @@ const SIZES: Record<KlsButtonSize, string> = {
     "[style.transition]":
       "'all var(--fk-dur-fast) var(--fk-ease), transform var(--fk-dur-fast) var(--fk-ease-spring)'",
     "[style.backdrop-filter]": "variant() === 'secondary' ? 'blur(var(--fk-blur-subtle))' : null",
-    "[style.-webkit-backdrop-filter]": "variant() === 'secondary' ? 'blur(var(--fk-blur-subtle))' : null",
+    "[style.-webkit-backdrop-filter]":
+      "variant() === 'secondary' ? 'blur(var(--fk-blur-subtle))' : null",
     "[style.background-color]": "variant() === 'secondary' ? 'var(--fk-card-bg)' : null",
   },
 })

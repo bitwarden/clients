@@ -71,13 +71,13 @@ const routes: Routes = [
   {
     path: "",
     pathMatch: "full",
-    children: [], // Children lets us have an empty component.
-    canActivate: [redirectGuard({ loggedIn: "/vault", loggedOut: "/login", locked: "/lock" })],
+    children: [],
+    canActivate: [redirectGuard({ loggedIn: "/redesign", loggedOut: "/login", locked: "/lock" })],
   },
   {
-    // FORK (klappstuhl): UI redesign preview shell — visual-only, mock data, no
-    // guards so it can be viewed in isolation. See docs/ui-redesign/.
+    // FORK (klappstuhl): UI redesign shell — replaces /vault for logged-in users.
     path: "redesign",
+    canActivate: [authGuard],
     loadComponent: () =>
       import("./redesign/redesign-shell.component").then((m) => m.KlsRedesignShellComponent),
   },
@@ -453,9 +453,10 @@ const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        // FORK: redirect vault to redesign shell
         path: "vault",
-        component: VaultComponent,
-        data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
+        redirectTo: "/redesign",
+        pathMatch: "full",
       },
       {
         path: "send",

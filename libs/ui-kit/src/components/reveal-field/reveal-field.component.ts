@@ -14,7 +14,11 @@ import { ChangeDetectionStrategy, Component, computed, input, model, output } fr
     <div class="tw-flex tw-items-center tw-justify-between tw-gap-3 tw-py-2.5">
       <div class="tw-min-w-0">
         @if (label()) {
-          <div class="tw-mb-0.5 tw-text-[11px] tw-font-medium tw-uppercase tw-tracking-wider tw-text-fg-body-subtle">{{ label() }}</div>
+          <div
+            class="tw-mb-0.5 tw-text-[11px] tw-font-medium tw-uppercase tw-tracking-wider tw-text-fg-body-subtle"
+          >
+            {{ label() }}
+          </div>
         }
         <div class="tw-truncate tw-font-mono tw-text-[14px] tw-tracking-tight tw-text-fg-heading">
           {{ display() }}
@@ -26,8 +30,14 @@ import { ChangeDetectionStrategy, Component, computed, input, model, output } fr
           type="button"
           class="tw-rounded-[var(--fk-radius-full)] tw-p-2 tw-text-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
           style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
-          (mouseenter)="$any($event.currentTarget).style.backgroundColor = 'var(--fk-hover-bg)'; $any($event.currentTarget).style.transform = 'scale(1.1)'"
-          (mouseleave)="$any($event.currentTarget).style.backgroundColor = 'transparent'; $any($event.currentTarget).style.transform = 'scale(1)'"
+          (mouseenter)="
+            $any($event.currentTarget).style.backgroundColor = 'var(--fk-hover-bg)';
+            $any($event.currentTarget).style.transform = 'scale(1.1)'
+          "
+          (mouseleave)="
+            $any($event.currentTarget).style.backgroundColor = 'transparent';
+            $any($event.currentTarget).style.transform = 'scale(1)'
+          "
           [attr.aria-label]="revealed() ? 'Hide' : 'Reveal'"
           [attr.aria-pressed]="revealed()"
           (click)="toggle()"
@@ -59,8 +69,14 @@ import { ChangeDetectionStrategy, Component, computed, input, model, output } fr
           type="button"
           class="tw-rounded-[var(--fk-radius-full)] tw-p-2 tw-text-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
           style="transition: all var(--fk-dur-fast) var(--fk-ease-spring); background-color: transparent"
-          (mouseenter)="$any($event.currentTarget).style.backgroundColor = 'var(--fk-hover-bg)'; $any($event.currentTarget).style.transform = 'scale(1.1)'"
-          (mouseleave)="$any($event.currentTarget).style.backgroundColor = 'transparent'; $any($event.currentTarget).style.transform = 'scale(1)'"
+          (mouseenter)="
+            $any($event.currentTarget).style.backgroundColor = 'var(--fk-hover-bg)';
+            $any($event.currentTarget).style.transform = 'scale(1.1)'
+          "
+          (mouseleave)="
+            $any($event.currentTarget).style.backgroundColor = 'transparent';
+            $any($event.currentTarget).style.transform = 'scale(1)'
+          "
           aria-label="Copy"
           (click)="copy.emit(value())"
         >

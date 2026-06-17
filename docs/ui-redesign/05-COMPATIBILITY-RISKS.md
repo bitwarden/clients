@@ -21,7 +21,11 @@
 4. `.storybook/main.ts` — two `stories` globs for the fork's stories.
 5. `package-lock.json` — registers the `@klappstuhl/*` workspaces (regenerated).
 6. `.claude/CLAUDE.md` — a fork pointer section (additive).
-7. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
+7. `apps/desktop/src/main.ts` — wires the additive `QuickAccessMain` service
+   (global Ctrl/Cmd+Shift+K spotlight): one import, one field, one constructor
+   block, one `init()`, one `dispose()`. All other Quick Access logic lives in the
+   new file `apps/desktop/src/main/quick-access.main.ts`.
+8. _(optional)_ `eslint.config.mjs` — Nx depConstraints for `scope:fork-ui`.
 
 Everything else is **new files only**. Restyling happens by swapping
 component templates/styles in place, never by rewriting their data paths. Each

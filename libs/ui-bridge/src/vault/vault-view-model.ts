@@ -12,7 +12,7 @@
  * interface now so the UI can be built against a stable contract immediately.
  */
 
-export type ItemKind = "login" | "card" | "identity" | "note";
+export type ItemKind = "login" | "card" | "identity" | "note" | "sshKey";
 
 export interface ItemSummary {
   id: string;
@@ -23,12 +23,26 @@ export interface ItemSummary {
   subtitle?: string;
   favorite: boolean;
   organizationId?: string;
+  folderId?: string;
   /** Tag/collection ids for filtering in the sidebar. */
   tagIds: string[];
   /** Domain icon hint (host) — never a decrypted secret. */
   iconKey?: string;
+  /** Resolved favicon URL for display (null if favicons disabled or no URI). */
+  iconUrl?: string;
   hasTotp: boolean;
   revisionDate: string;
+}
+
+export interface FolderSummary {
+  id: string;
+  name: string;
+}
+
+export interface CollectionSummary {
+  id: string;
+  name: string;
+  organizationId: string;
 }
 
 export interface ItemDetail extends ItemSummary {
@@ -40,6 +54,9 @@ export interface ItemDetail extends ItemSummary {
   notes?: string;
   /** Opaque TOTP seed handle — the UI asks the bridge for the *code*, not this. */
   totpAvailable: boolean;
+  folderName?: string;
+  collectionNames?: string[];
+  creationDate?: string;
 }
 
 /**

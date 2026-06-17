@@ -49,6 +49,7 @@ import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { QuickAccessMain } from "./main/quick-access.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
@@ -105,6 +106,7 @@ export class Main {
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
   ipcService: IpcService;
+  quickAccessMain: QuickAccessMain; // FORK (klappstuhl): Quick Access spotlight
 
   constructor() {
     // Set paths for portable builds
@@ -351,8 +353,16 @@ export class Main {
     );
     this.ipcService = new NoopIpcService(this.logService);
 
+    // FORK (klappstuhl): Quick Access spotlight (global Ctrl/Cmd+Shift+K)
+    this.quickAccessMain = new QuickAccessMain(
+      this.windowMain,
+      this.messagingService,
+      this.logService,
+    );
+
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
+      this.quickAccessMain.dispose();
       this.storageService.dispose();
     });
   }
@@ -397,6 +407,7 @@ export class Main {
         }
 
         this.powerMonitorMain.init();
+        this.quickAccessMain.init(); // FORK (klappstuhl): register Quick Access shortcut
         await this.updaterMain.init();
 
         const [ddgIntegrationEnabled] = await Promise.all([

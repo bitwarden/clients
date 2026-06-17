@@ -1,14 +1,36 @@
-import { ChangeDetectionStrategy, Component, computed, HostListener, inject, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  HostListener,
+  inject,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
+import {
+  CollectionSummary,
   CopyBridgeService,
+  FolderSummary,
   ItemDetail,
   ItemSummary,
   LockBridgeService,
   VaultViewModelService,
 } from "@klappstuhl/ui-bridge";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { map } from "rxjs";
+
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { DialogService } from "@bitwarden/components";
+
+import { AccountSwitcherV2Component } from "../../auth/components/account-switcher/account-switcher-v2.component";
+import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
+import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
+import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 
 import { KlsCommandPaletteComponent, PaletteAction } from "./command-palette.component";
 import { KlsDetailPanelComponent } from "./detail-panel.component";
@@ -16,45 +38,91 @@ import { KlsItemListComponent } from "./item-list.component";
 import { MOCK_ITEMS } from "./mock-data";
 import { NavCategory, NavItem, KlsSidebarNavComponent } from "./sidebar-nav.component";
 
-type ItemKind = "login" | "card" | "identity" | "note";
+type ItemKind = "login" | "card" | "identity" | "note" | "sshKey";
 
-const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", ItemKind> = {
+const KIND_BY_CATEGORY: Record<string, ItemKind> = {
   logins: "login",
   cards: "card",
   identities: "identity",
   notes: "note",
+  sshKeys: "sshKey",
 };
 
 @Component({
   selector: "kls-redesign-shell",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [KlsSidebarNavComponent, KlsItemListComponent, KlsDetailPanelComponent, KlsCommandPaletteComponent],
+  imports: [
+    KlsSidebarNavComponent,
+    KlsItemListComponent,
+    KlsDetailPanelComponent,
+    KlsCommandPaletteComponent,
+    AccountSwitcherV2Component,
+  ],
   host: {
-    class: "tw-flex tw-h-screen tw-w-screen tw-overflow-hidden tw-bg-bg-primary theme_dark",
+    class: "tw-flex tw-h-screen tw-w-screen tw-flex-col tw-overflow-hidden tw-bg-bg-primary",
     style: "font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'",
   },
+  styles: [
+    `
+      :host {
+        --scrollbar-thumb: rgb(255 255 255 / 0.12);
+        --scrollbar-track: transparent;
+      }
+      :host ::ng-deep ::-webkit-scrollbar {
+        width: 6px;
+      }
+      :host ::ng-deep ::-webkit-scrollbar-track {
+        background: var(--scrollbar-track);
+      }
+      :host ::ng-deep ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 3px;
+      }
+      :host ::ng-deep ::-webkit-scrollbar-thumb:hover {
+        background: rgb(255 255 255 / 0.2);
+      }
+    `,
+  ],
   template: `
-    <kls-sidebar-nav
-      [items]="navItems()"
-      [active]="activeCategory()"
-      (select)="onCategory($event)"
-    />
-    <kls-item-list
-      [items]="filteredItems()"
-      [selectedId]="selectedId()"
-      [query]="query()"
-      (queryChange)="query.set($event)"
-      (select)="onSelectItem($event)"
-      (quickCopyTotp)="onQuickCopyTotp($event)"
-    />
-    <kls-detail-panel [item]="selectedDetail()" />
+    <!-- Window drag region (blends with native menu bar) -->
+    <div
+      class="tw-flex tw-h-8 tw-w-full tw-shrink-0 tw-items-center tw-justify-end tw-px-3"
+      style="-webkit-app-region: drag; background-color: var(--fk-sidebar-bg); border-bottom: var(--fk-glass-border)"
+    ></div>
 
-    @if (paletteOpen()) {
-      <kls-command-palette
-        (close)="paletteOpen.set(false)"
-        (execute)="onPaletteAction($event)"
+    <div class="tw-flex tw-min-h-0 tw-flex-1">
+      <kls-sidebar-nav
+        [items]="navItems()"
+        [active]="activeCategory()"
+        [folders]="folders()"
+        [collections]="collections()"
+        [activeFolder]="activeFolder()"
+        [activeCollection]="activeCollection()"
+        (select)="onCategory($event)"
+        (selectFolder)="onFolder($event)"
+        (selectCollection)="onCollection($event)"
+        (newItem)="onNewItem()"
+        (openGenerator)="onOpenGenerator()"
+        (openImport)="onOpenImport()"
+        (openExport)="onOpenExport()"
+        (openSettings)="onOpenSettings()"
+      >
+        <app-account-switcher-v2 account-switcher />
+      </kls-sidebar-nav>
+      <kls-item-list
+        [items]="filteredItems()"
+        [selectedId]="selectedId()"
+        [query]="query()"
+        (queryChange)="query.set($event)"
+        (select)="onSelectItem($event)"
+        (quickCopyTotp)="onQuickCopyTotp($event)"
       />
-    }
+      <kls-detail-panel [item]="selectedDetail()" (saved)="onDetailSaved()" />
+
+      @if (paletteOpen()) {
+        <kls-command-palette (close)="paletteOpen.set(false)" (execute)="onPaletteAction($event)" />
+      }
+    </div>
   `,
 })
 export class KlsRedesignShellComponent {
@@ -62,13 +130,20 @@ export class KlsRedesignShellComponent {
   private readonly accountService = inject(AccountService);
   private readonly copyService = inject(CopyBridgeService);
   private readonly lockService = inject(LockBridgeService);
+  private readonly i18n = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly dialogService = inject(DialogService);
+  private readonly messagingService = inject(MessagingService);
+  private readonly broadcasterService = inject(BroadcasterService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly hasUser = toSignal(
-    this.accountService.activeAccount$.pipe(map((a) => !!a)),
-    { initialValue: false },
-  );
+  private readonly hasUser = toSignal(this.accountService.activeAccount$.pipe(map((a) => !!a)), {
+    initialValue: false,
+  });
 
   protected readonly activeCategory = signal<NavCategory>("all");
+  protected readonly activeFolder = signal<string | undefined>(undefined);
+  protected readonly activeCollection = signal<string | undefined>(undefined);
   protected readonly query = signal<string>("");
   protected readonly selectedId = signal<string | undefined>(undefined);
   protected readonly selectedDetail = signal<ItemDetail | undefined>(undefined);
@@ -81,48 +156,117 @@ export class KlsRedesignShellComponent {
     return MOCK_ITEMS;
   });
 
+  protected readonly folders = computed<readonly FolderSummary[]>(() => {
+    if (this.hasUser()) {
+      return this.vaultService.folders();
+    }
+    return [];
+  });
+
+  protected readonly collections = computed<readonly CollectionSummary[]>(() => {
+    if (this.hasUser()) {
+      return this.vaultService.collections();
+    }
+    return [];
+  });
+
+  protected readonly trashedItems = computed<readonly ItemSummary[]>(() => {
+    if (this.hasUser()) {
+      return this.vaultService.trashedItems();
+    }
+    return [];
+  });
+
   protected readonly navItems = computed<NavItem[]>(() => {
     const all = this.liveItems();
     const count = (k: ItemKind) => all.filter((i) => i.kind === k).length;
     return [
-      { key: "all", label: "All items", count: all.length },
-      { key: "logins", label: "Logins", count: count("login") },
-      { key: "cards", label: "Cards", count: count("card") },
-      { key: "identities", label: "Identities", count: count("identity") },
-      { key: "notes", label: "Secure notes", count: count("note") },
-      { key: "favorites", label: "Favorites", count: all.filter((i) => i.favorite).length },
+      { key: "all", label: this.i18n.t("allItems") || "All items", count: all.length },
+      { key: "logins", label: this.i18n.t("logins") || "Logins", count: count("login") },
+      { key: "cards", label: this.i18n.t("cards") || "Cards", count: count("card") },
+      {
+        key: "identities",
+        label: this.i18n.t("identities") || "Identities",
+        count: count("identity"),
+      },
+      { key: "notes", label: this.i18n.t("secureNotes") || "Secure notes", count: count("note") },
+      { key: "sshKeys", label: this.i18n.t("sshKeys") || "SSH Keys", count: count("sshKey") },
+      {
+        key: "favorites",
+        label: this.i18n.t("favorites") || "Favorites",
+        count: all.filter((i) => i.favorite).length,
+      },
+      {
+        key: "trash",
+        label: this.i18n.t("trash") || "Trash",
+        count: this.trashedItems().length,
+      },
     ];
   });
 
   protected readonly filteredItems = computed<readonly ItemSummary[]>(() => {
     const cat = this.activeCategory();
+    const folderId = this.activeFolder();
+    const collectionId = this.activeCollection();
     const q = this.query().trim().toLowerCase();
+
+    if (cat === "trash") {
+      return this.trashedItems().filter((i) => {
+        if (!q) {return true;}
+        return (
+          i.title.toLowerCase().includes(q) || (i.subtitle?.toLowerCase().includes(q) ?? false)
+        );
+      });
+    }
+
     return this.liveItems().filter((i) => {
-      const matchesCat =
-        cat === "all" ? true : cat === "favorites" ? i.favorite : i.kind === KIND_BY_CATEGORY[cat];
-      if (!matchesCat) {
-        return false;
+      if (collectionId) {
+        if (!i.tagIds.includes(collectionId)) {return false;}
+      } else if (folderId) {
+        if (i.folderId !== folderId) {return false;}
+      } else {
+        const matchesCat =
+          cat === "all"
+            ? true
+            : cat === "favorites"
+              ? i.favorite
+              : i.kind === KIND_BY_CATEGORY[cat];
+        if (!matchesCat) {return false;}
       }
-      if (!q) {
-        return true;
-      }
-      return (
-        i.title.toLowerCase().includes(q) ||
-        (i.subtitle?.toLowerCase().includes(q) ?? false)
-      );
+      if (!q) {return true;}
+      return i.title.toLowerCase().includes(q) || (i.subtitle?.toLowerCase().includes(q) ?? false);
     });
   });
 
   constructor() {
-    const firstId = this.filteredItems()[0]?.id;
-    if (firstId) {
-      this.selectedId.set(firstId);
-      void this.loadDetail(firstId);
-    }
+    effect(() => {
+      const items = this.filteredItems();
+      if (items.length > 0 && !this.selectedId()) {
+        this.selectedId.set(items[0].id);
+        void this.loadDetail(items[0].id);
+      }
+    });
+
+    // Global quick-access: the main process registers Ctrl/Cmd+Shift+K and, on
+    // press, restores the window and broadcasts "openQuickAccess". Opening the
+    // palette here mirrors 1Password's Quick Access spotlight.
+    this.broadcasterService.subscribe(
+      "RedesignShellQuickAccess",
+      (message: { command?: string }) => {
+        if (message?.command === "openQuickAccess") {
+          this.paletteOpen.set(true);
+        }
+      },
+    );
+    this.destroyRef.onDestroy(() =>
+      this.broadcasterService.unsubscribe("RedesignShellQuickAccess"),
+    );
   }
 
   @HostListener("document:keydown.meta.k", ["$event"])
   @HostListener("document:keydown.control.k", ["$event"])
+  @HostListener("document:keydown.control.shift.k", ["$event"])
+  @HostListener("document:keydown.meta.shift.k", ["$event"])
   protected onOpenPalette(event: Event): void {
     event.preventDefault();
     this.paletteOpen.set(true);
@@ -130,18 +274,14 @@ export class KlsRedesignShellComponent {
 
   @HostListener("document:keydown.arrowdown", ["$event"])
   protected onArrowDown(event: Event): void {
-    if (this.paletteOpen()) {
-      return;
-    }
+    if (this.paletteOpen()) {return;}
     event.preventDefault();
     this.moveSelection(1);
   }
 
   @HostListener("document:keydown.arrowup", ["$event"])
   protected onArrowUp(event: Event): void {
-    if (this.paletteOpen()) {
-      return;
-    }
+    if (this.paletteOpen()) {return;}
     event.preventDefault();
     this.moveSelection(-1);
   }
@@ -149,13 +289,9 @@ export class KlsRedesignShellComponent {
   @HostListener("document:keydown.control.c", ["$event"])
   @HostListener("document:keydown.meta.c", ["$event"])
   protected onCopyPassword(event: Event): void {
-    if (this.paletteOpen() || !this.selectedId()) {
-      return;
-    }
+    if (this.paletteOpen() || !this.selectedId()) {return;}
     const sel = window.getSelection();
-    if (sel && sel.toString().length > 0) {
-      return;
-    }
+    if (sel && sel.toString().length > 0) {return;}
     event.preventDefault();
     void this.copyService.copyPassword(this.selectedId()!);
   }
@@ -163,30 +299,36 @@ export class KlsRedesignShellComponent {
   @HostListener("document:keydown.control.shift.c", ["$event"])
   @HostListener("document:keydown.meta.shift.c", ["$event"])
   protected onCopyUsername(event: Event): void {
-    if (this.paletteOpen() || !this.selectedId()) {
-      return;
-    }
+    if (this.paletteOpen() || !this.selectedId()) {return;}
     event.preventDefault();
     void this.copyService.copyUsername(this.selectedId()!);
   }
 
   @HostListener("document:keydown./")
-  protected onFocusSearch(): void {
-    if (this.paletteOpen()) {
-      return;
-    }
-    // Focus is handled by the item-list search input
-  }
+  protected onFocusSearch(): void {}
 
   protected onCategory(cat: NavCategory): void {
     this.activeCategory.set(cat);
-    const firstId = this.filteredItems()[0]?.id;
-    this.selectedId.set(firstId);
-    if (firstId) {
-      void this.loadDetail(firstId);
-    } else {
-      this.selectedDetail.set(undefined);
-    }
+    this.activeFolder.set(undefined);
+    this.activeCollection.set(undefined);
+    this.selectedId.set(undefined);
+    this.selectedDetail.set(undefined);
+  }
+
+  protected onFolder(folderId: string): void {
+    this.activeFolder.set(folderId);
+    this.activeCollection.set(undefined);
+    this.activeCategory.set("all");
+    this.selectedId.set(undefined);
+    this.selectedDetail.set(undefined);
+  }
+
+  protected onCollection(collectionId: string): void {
+    this.activeCollection.set(collectionId);
+    this.activeFolder.set(undefined);
+    this.activeCategory.set("all");
+    this.selectedId.set(undefined);
+    this.selectedDetail.set(undefined);
   }
 
   protected onSelectItem(id: string): void {
@@ -200,11 +342,40 @@ export class KlsRedesignShellComponent {
       this.onCategory(cat);
     } else if (action.id === "act:lock") {
       void this.lockService.lock();
+    } else if (action.id === "act:generator") {
+      this.onOpenGenerator();
     }
   }
 
   protected onQuickCopyTotp(cipherId: string): void {
     void this.copyService.copyTotp(cipherId);
+  }
+
+  protected onDetailSaved(): void {
+    const id = this.selectedId();
+    if (id) {
+      void this.loadDetail(id);
+    }
+  }
+
+  protected onNewItem(): void {
+    this.messagingService.send("newLogin");
+  }
+
+  protected onOpenGenerator(): void {
+    this.dialogService.open(CredentialGeneratorComponent);
+  }
+
+  protected onOpenImport(): void {
+    this.dialogService.open(ImportDesktopComponent);
+  }
+
+  protected onOpenExport(): void {
+    this.dialogService.open(ExportDesktopComponent);
+  }
+
+  protected onOpenSettings(): void {
+    this.messagingService.send("openSettings");
   }
 
   private moveSelection(delta: number): void {

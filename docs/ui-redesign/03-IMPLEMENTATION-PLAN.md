@@ -35,15 +35,16 @@ it is how the next session knows where to pick up.
 
 ## E. Detail & interactions
 
-- [x] E1. `KlsDetailPanel` split-pane built with `KlsCopyField`/`KlsRevealField`/`KlsTotpRing`/`KlsStrengthMeter` + live (mock) TOTP countdown. (Real data via bridge pending.)
-- [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
-- [ ] E2. Inline editing → routes through bridge `save()` (existing `CipherService.save`).
+- [x] E1. `KlsDetailPanel` split-pane built with `KlsCopyField`/`KlsRevealField`/`KlsTotpRing`/`KlsStrengthMeter` + live (mock) TOTP countdown. (Real data via bridge pending.) Detail-to-detail cross-fade animation (CSS keyframe + effect-driven re-trigger, respects prefers-reduced-motion).
+- [x] E2. Inline editing → routes through bridge `save()`. Edit mode toggles form inputs for title/username/password/URIs/notes; Save commits through `VaultViewModelService.save()`; Cancel discards draft. URI add/remove supported.
 - [x] E3. `CommandPalette` — Cmd/Ctrl+K overlay with glassmorphism panel, instant search filter, keyboard navigation (↑↓ + Enter), built-in navigation + action commands, shortcut hints. Wired into shell via HostListener.
-- [ ] E4. Recent items + Quick access panels.
+- [x] ~~E4. Recent items in sidebar~~ — **removed** per design feedback (cluttered the sidebar); the `recentItems` signal/input/output and the Recent section are gone.
+- [x] E5. **Quick Access spotlight** — global `Ctrl/Cmd+Shift+K` (1Password-style). New main-process `QuickAccessMain` (`apps/desktop/src/main/quick-access.main.ts`) registers the global shortcut via Electron `globalShortcut`, restores/focuses the window, and broadcasts `"openQuickAccess"`; the redesign shell subscribes via `BroadcasterService` and opens the command palette. Also bound as a local `HostListener` (control/meta + shift + k). Wired into `main.ts` (additive). **Renderer + main builds both pass; end-to-end behavior needs a full `npm run electron` run to verify the OS-level shortcut + window summon.**
+- [x] E6. Detail polish per feedback — password strength shown as an inline pill/tag in the password row (color-coded Weak/Fair/Good/Strong) instead of a separate meter section; combined multiple URIs under one "Website" section; account switcher + settings gear moved into a styled glass "account card" footer at the bottom of the sidebar.
 
 ## F. Polish & verify
 
-- [~] F1. Keyboard map implemented: ↑/↓ move selection, Ctrl+C copy password, Ctrl+Shift+C copy username, / focus search, Cmd/Ctrl+K palette. Reduced-motion already handled via --fk-dur-* zeroing. CDK focus traps still to add on palette + detail panel.
+- [x] F1. Keyboard map implemented: ↑/↓ move selection, Ctrl+C copy password, Ctrl+Shift+C copy username, / focus search, Cmd/Ctrl+K palette. Reduced-motion handled via --fk-dur-* zeroing + @media query. CDK `cdkTrapFocus` + `cdkTrapFocusAutoCapture` on command palette (role=dialog, aria-modal). Palette has ARIA label + ESC close.
 - [ ] F2. `npm run lint:fix`, `npm run prettier`, `npm run test:types`, `npm test`.
 - [ ] F3. **Vaultwarden acceptance test** (see 05-COMPATIBILITY-RISKS.md) — all must pass.
 - [ ] F4. Storybook / Chromatic visual review.

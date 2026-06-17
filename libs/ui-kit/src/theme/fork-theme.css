@@ -86,6 +86,23 @@
   --fk-strength-strong: 22 163 74;
   --fk-totp-progress: 99 102 241;
 
+  /* Accent color palette — used for badges, type indicators, and visual accents */
+  --fk-accent-emerald: #10b981;
+  --fk-accent-emerald-subtle: rgb(16 185 129 / 0.1);
+  --fk-accent-amber: #f59e0b;
+  --fk-accent-amber-subtle: rgb(245 158 11 / 0.1);
+  --fk-accent-rose: #f43f5e;
+  --fk-accent-rose-subtle: rgb(244 63 94 / 0.1);
+  --fk-accent-cyan: #06b6d4;
+  --fk-accent-cyan-subtle: rgb(6 182 212 / 0.1);
+  --fk-accent-violet: #8b5cf6;
+  --fk-accent-violet-subtle: rgb(139 92 246 / 0.1);
+
+  /* Gradient accents for premium feel */
+  --fk-gradient-brand: linear-gradient(135deg, #6d7ff5, #8b5cf6);
+  --fk-gradient-warm: linear-gradient(135deg, #f59e0b, #f43f5e);
+  --fk-gradient-cool: linear-gradient(135deg, #06b6d4, #6d7ff5);
+
   /* Indigo brand ramp (HEX) — replaces the upstream blue across both themes. */
   --color-brand-050: #eef0ff;
   --color-brand-100: #e0e3ff;
@@ -179,6 +196,23 @@
   --fk-glass-border-strong: 1px solid rgb(255 255 255 / 0.12);
   --fk-glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   --fk-totp-progress: 129 140 248;
+
+  /* Accent color ramps for badges, indicators, and UI accents */
+  --fk-accent-emerald: #34d399;
+  --fk-accent-emerald-subtle: rgb(52 211 153 / 0.12);
+  --fk-accent-amber: #fbbf24;
+  --fk-accent-amber-subtle: rgb(251 191 36 / 0.12);
+  --fk-accent-rose: #fb7185;
+  --fk-accent-rose-subtle: rgb(251 113 133 / 0.12);
+  --fk-accent-cyan: #22d3ee;
+  --fk-accent-cyan-subtle: rgb(34 211 238 / 0.12);
+  --fk-accent-violet: #a78bfa;
+  --fk-accent-violet-subtle: rgb(167 139 250 / 0.12);
+
+  /* Gradient accents for premium feel */
+  --fk-gradient-brand: linear-gradient(135deg, #6d7ff5, #a78bfa);
+  --fk-gradient-warm: linear-gradient(135deg, #f97316, #fb7185);
+  --fk-gradient-cool: linear-gradient(135deg, #22d3ee, #6d7ff5);
 }
 
 /* ----------------------------------------------------------------------------
@@ -215,6 +249,27 @@ body {
   font-family: var(--fk-font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* ----------------------------------------------------------------------------
+ * Login / Lock page glassmorphism enhancements.
+ * Override the landing card to match the frosted-glass aesthetic.
+ * -------------------------------------------------------------------------- */
+.theme_dark auth-anon-layout bit-base-card,
+.theme_dark bit-landing-card bit-base-card {
+  background-color: rgb(22 25 30 / 0.55) !important;
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgb(255 255 255 / 0.08) !important;
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.05),
+    0 8px 24px rgb(0 0 0 / 0.2),
+    0 0 1px rgb(0 0 0 / 0.06) !important;
+}
+
+.theme_dark bit-landing-layout {
+  background: radial-gradient(ellipse at 30% 20%, rgb(109 127 245 / 0.04), transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgb(139 92 246 / 0.03), transparent 60%);
 }
 
 @media (prefers-reduced-motion: reduce) {
