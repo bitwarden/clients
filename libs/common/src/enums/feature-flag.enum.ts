@@ -103,6 +103,7 @@ export enum FeatureFlag {
   PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
+  PM32380_NewToAddLabelCopyChange = "TEMPORARY",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -186,6 +187,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
+  [FeatureFlag.PM32380_NewToAddLabelCopyChange]: FALSE,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,
