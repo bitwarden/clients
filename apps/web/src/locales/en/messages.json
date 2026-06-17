@@ -7456,15 +7456,6 @@
   "resetPassword": {
     "message": "Reset password"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
     "placeholders": {
@@ -7492,20 +7483,11 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatic enrollment"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Require new members to be enrolled automatically"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "This organization has an Enterprise policy that will automatically enroll you in password reset. Enrollment will allow organization administrators to change your master password."
