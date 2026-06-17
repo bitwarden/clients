@@ -23,7 +23,10 @@ const KIND_BY_CATEGORY: Record<"logins" | "cards" | "identities" | "notes", Item
   selector: "kls-redesign-shell",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [KlsSidebarNavComponent, KlsItemListComponent, KlsDetailPanelComponent],
-  host: { class: "tw-flex tw-h-screen tw-w-screen tw-overflow-hidden tw-bg-bg-primary theme_dark" },
+  host: {
+    class: "tw-flex tw-h-screen tw-w-screen tw-overflow-hidden tw-bg-bg-primary theme_dark",
+    style: "font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'",
+  },
   template: `
     <kls-sidebar-nav
       [items]="navItems()"

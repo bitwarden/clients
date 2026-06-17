@@ -11,7 +11,8 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-flex tw-h-full tw-w-80 tw-shrink-0 tw-flex-col tw-border-r tw-border-border-base tw-bg-bg-primary",
+      "tw-flex tw-h-full tw-w-80 tw-shrink-0 tw-flex-col tw-bg-bg-primary",
+    "[style.border-right]": "'var(--fk-glass-border)'",
   },
   template: `
     <div class="tw-p-3">
@@ -27,7 +28,8 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
         <input
           type="search"
           placeholder="Search vault…"
-          class="tw-w-full tw-rounded-[var(--fk-radius-md)] tw-border tw-border-border-base tw-bg-bg-secondary tw-py-2 tw-pl-9 tw-pr-3 tw-text-sm tw-text-fg-body tw-placeholder-fg-body-subtle focus-visible:tw-border-border-focus focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+          style="transition: border-color var(--fk-dur-fast) var(--fk-ease), box-shadow var(--fk-dur-fast) var(--fk-ease)"
+          class="tw-w-full tw-rounded-[var(--fk-radius-md)] tw-border tw-border-border-base tw-bg-bg-secondary tw-py-2.5 tw-pl-9 tw-pr-3 tw-text-sm tw-text-fg-body tw-placeholder-fg-body-subtle focus-visible:tw-border-border-focus focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
           [value]="query()"
           (input)="query.set($any($event.target).value)"
         />
@@ -38,13 +40,18 @@ import { ItemSummary } from "@klappstuhl/ui-bridge";
       @for (item of items(); track item.id) {
         <button
           type="button"
-          class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-md)] tw-p-2 tw-text-left tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
-          [class.tw-bg-bg-secondary]="item.id === selectedId()"
-          [class.hover:tw-bg-bg-secondary]="item.id !== selectedId()"
+          class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-md)] tw-p-2.5 tw-text-left tw-transition-all focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+          [style.transition-duration]="'var(--fk-dur-fast)'"
+          [style.transition-timing-function]="'var(--fk-ease)'"
+          [style.background-color]="item.id === selectedId() ? 'var(--fk-selected-bg)' : 'transparent'"
+          [style.box-shadow]="item.id === selectedId() ? 'var(--fk-elev-glow)' : 'none'"
+          (mouseenter)="$any($event.currentTarget).style.backgroundColor = item.id !== selectedId() ? 'var(--fk-hover-bg)' : 'var(--fk-selected-bg)'"
+          (mouseleave)="$any($event.currentTarget).style.backgroundColor = item.id === selectedId() ? 'var(--fk-selected-bg)' : 'transparent'"
           (click)="select.emit(item.id)"
         >
           <span
-            class="tw-flex tw-size-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-md)] tw-bg-bg-tertiary tw-text-sm tw-font-semibold tw-text-fg-brand"
+            class="tw-flex tw-size-9 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-lg)] tw-text-sm tw-font-semibold tw-text-fg-brand"
+            style="background-color: var(--fk-card-bg); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle))"
           >
             {{ initial(item.title) }}
           </span>

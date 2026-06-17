@@ -18,23 +18,31 @@ export interface NavItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      "tw-flex tw-h-full tw-w-60 tw-shrink-0 tw-flex-col tw-gap-1 tw-border-r tw-border-border-base tw-p-3 tw-backdrop-blur-xl",
+      "tw-flex tw-h-full tw-w-60 tw-shrink-0 tw-flex-col tw-gap-0.5 tw-p-3",
     "[style.background-color]": "'var(--fk-sidebar-bg)'",
+    "[style.backdrop-filter]": "'blur(var(--fk-blur-chrome)) saturate(1.6)'",
+    "[style.-webkit-backdrop-filter]": "'blur(var(--fk-blur-chrome)) saturate(1.6)'",
+    "[style.border-right]": "'var(--fk-glass-border)'",
+    "[style.box-shadow]": "'var(--fk-glass-highlight)'",
   },
   template: `
-    <div class="tw-px-2 tw-pb-3 tw-pt-1 tw-text-[13px] tw-font-semibold tw-text-fg-body-subtle">
+    <div class="tw-px-2 tw-pb-3 tw-pt-1 tw-text-[13px] tw-font-semibold tw-uppercase tw-tracking-wide tw-text-fg-body-subtle">
       Vault
     </div>
 
     @for (item of items(); track item.key) {
       <button
         type="button"
-        class="tw-group tw-flex tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-md)] tw-px-2.5 tw-py-2 tw-text-left tw-text-sm tw-transition-colors focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
-        [class.tw-bg-bg-secondary]="item.key === active()"
+        class="tw-group tw-flex tw-items-center tw-gap-3 tw-rounded-[var(--fk-radius-md)] tw-px-3 tw-py-2 tw-text-left tw-text-sm tw-transition-all focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-[color:var(--color-border-focus)]"
+        [style.transition-duration]="'var(--fk-dur-fast)'"
+        [style.transition-timing-function]="'var(--fk-ease)'"
         [class.tw-text-fg-heading]="item.key === active()"
         [class.tw-font-medium]="item.key === active()"
         [class.tw-text-fg-body]="item.key !== active()"
-        [class.hover:tw-bg-bg-secondary]="item.key !== active()"
+        [style.background-color]="item.key === active() ? 'var(--fk-selected-bg)' : 'transparent'"
+        [style.box-shadow]="item.key === active() ? 'var(--fk-elev-glow)' : 'none'"
+        (mouseenter)="$any($event.currentTarget).style.backgroundColor = item.key !== active() ? 'var(--fk-hover-bg)' : 'var(--fk-selected-bg)'"
+        (mouseleave)="$any($event.currentTarget).style.backgroundColor = item.key === active() ? 'var(--fk-selected-bg)' : 'transparent'"
         (click)="select.emit(item.key)"
       >
         <span

@@ -17,8 +17,9 @@ it is how the next session knows where to pick up.
 ## B. Design system
 
 - [x] B1. First primitives built in `ui-kit/src/components/*`: `KlsButton`, `KlsCopyField`, `KlsRevealField`, `KlsTotpRing`, `KlsStrengthMeter` (standalone, OnPush, signal I/O, inline SVG icons; copy/reveal emit events — no direct clipboard). `tsc --noEmit` + `eslint` + `prettier` all pass. Remaining primitives (Input, Select, Toggle, Dialog, Tooltip, ContextMenu) still to do.
-- [~] B2. Storybook wired for the fork: glob added in `.storybook/main.ts`; `redesign-shell.stories.ts` renders the full shell (run `npm run storybook` → "Fork Redesign / App Shell"). Per-primitive stories still to add.
-- [ ] B3. Sanity-check that retuned tokens propagate to existing `@bitwarden/components` (no API changes, values only).
+- [x] B2. Storybook wired for the fork: glob added in `.storybook/main.ts`; `redesign-shell.stories.ts` renders the full shell (run `npm run storybook` → "Fork Redesign / App Shell"). Per-primitive stories still to add.
+- [x] B3. Apple-style glass pass: bumped radii (sm→8, md→14, lg→20, xl→28); deeper saturated backdrop-blur (32/40px); translucent `--fk-card-bg`/`--fk-selected-bg`/`--fk-hover-bg`; subtle `--fk-glass-border`/`--fk-glass-highlight`/`--fk-elev-glow` for frosted-panel depth; softer diffused shadows; smoother motion curves (`ease-spring`, `ease-out`, 150/250/400ms); tighter neutral ramp for gentler contrast; Inter `cv02-04,11` stylistic alternates. Components updated: sidebar (translucent blur+saturate), item-list (glass avatars, glowing selection), detail-panel (frosted card with highlight+shadow+border). Both `build-storybook` and `build:renderer` pass clean.
+- [ ] B4. Sanity-check that retuned tokens propagate to existing `@bitwarden/components` (no API changes, values only).
 
 ## C. Bridge layer
 

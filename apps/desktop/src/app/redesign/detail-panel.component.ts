@@ -32,9 +32,13 @@ import { mockStrength } from "./mock-data";
   template: `
     @let it = item();
     @if (it) {
-      <div class="tw-flex tw-items-center tw-gap-4 tw-border-b tw-border-border-base tw-p-6">
+      <div
+        class="tw-flex tw-items-center tw-gap-4 tw-p-6"
+        style="border-bottom: var(--fk-glass-border)"
+      >
         <span
-          class="tw-flex tw-size-12 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-lg)] tw-bg-bg-tertiary tw-text-lg tw-font-semibold tw-text-fg-brand"
+          class="tw-flex tw-size-12 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-[var(--fk-radius-xl)] tw-text-lg tw-font-semibold tw-text-fg-brand"
+          style="background-color: var(--fk-card-bg); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle)); box-shadow: var(--fk-elev-glow)"
         >
           {{ it.title.charAt(0).toUpperCase() }}
         </span>
@@ -49,7 +53,8 @@ import { mockStrength } from "./mock-data";
 
       <div class="tw-flex-1 tw-overflow-y-auto tw-p-6">
         <div
-          class="tw-divide-y tw-divide-border-base tw-rounded-[var(--fk-radius-lg)] tw-border tw-border-border-base tw-bg-bg-secondary tw-px-4"
+          class="tw-divide-y tw-divide-border-base tw-rounded-[var(--fk-radius-xl)] tw-px-5"
+          style="background-color: var(--fk-card-bg); backdrop-filter: blur(var(--fk-blur-subtle)); -webkit-backdrop-filter: blur(var(--fk-blur-subtle)); border: var(--fk-glass-border-strong); box-shadow: var(--fk-glass-highlight), var(--fk-elev-sm)"
         >
           @if (it.username) {
             <kls-copy-field label="Username" [value]="it.username" (copy)="onCopy($event)" />

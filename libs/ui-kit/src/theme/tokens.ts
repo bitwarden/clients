@@ -20,21 +20,23 @@ export const space = {
 } as const;
 
 export const radius = {
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  sm: 8,
+  md: 14,
+  lg: 20,
+  xl: 28,
   full: 9999,
 } as const;
 
 /** Motion timings (ms) — match --fk-dur-* (zeroed under prefers-reduced-motion). */
 export const duration = {
-  fast: 120,
-  base: 200,
-  slow: 320,
+  fast: 150,
+  base: 250,
+  slow: 400,
 } as const;
 
 export const easing = "cubic-bezier(0.22, 1, 0.36, 1)";
+export const easingSpring = "cubic-bezier(0.175, 0.885, 0.32, 1.1)";
+export const easingOut = "cubic-bezier(0, 0, 0.15, 1)";
 
 /** Typographic scale: [fontSizePx, fontWeight, lineHeight]. */
 export const typeScale = {

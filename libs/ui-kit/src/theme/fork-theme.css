@@ -40,26 +40,35 @@
   --fk-space-12: 48px;
   --fk-space-16: 64px;
 
-  /* Radii */
-  --fk-radius-sm: 6px;
-  --fk-radius-md: 10px;
-  --fk-radius-lg: 14px;
-  --fk-radius-xl: 20px;
+  /* Radii — generous Apple-style rounding */
+  --fk-radius-sm: 8px;
+  --fk-radius-md: 14px;
+  --fk-radius-lg: 20px;
+  --fk-radius-xl: 28px;
   --fk-radius-full: 9999px;
 
-  /* Depth: blur for chrome/overlays + layered elevation shadows */
-  --fk-blur-chrome: 20px;
-  --fk-blur-overlay: 28px;
-  --fk-elev-xs: 0 1px 2px rgb(0 0 0 / 0.25);
-  --fk-elev-sm: 0 2px 6px rgb(0 0 0 / 0.3);
-  --fk-elev-md: 0 8px 24px rgb(0 0 0 / 0.35);
-  --fk-elev-panel: 0 16px 48px rgb(0 0 0 / 0.45);
+  /* Depth: saturated backdrop blur + soft diffused shadows */
+  --fk-blur-chrome: 32px;
+  --fk-blur-overlay: 40px;
+  --fk-blur-subtle: 12px;
+  --fk-elev-xs: 0 1px 3px rgb(0 0 0 / 0.12), 0 0 1px rgb(0 0 0 / 0.08);
+  --fk-elev-sm: 0 2px 8px rgb(0 0 0 / 0.16), 0 0 1px rgb(0 0 0 / 0.08);
+  --fk-elev-md: 0 8px 24px rgb(0 0 0 / 0.2), 0 0 1px rgb(0 0 0 / 0.06);
+  --fk-elev-panel: 0 16px 48px rgb(0 0 0 / 0.28), 0 0 1px rgb(0 0 0 / 0.06);
+  --fk-elev-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 0 0 rgb(255 255 255 / 0.03);
 
-  /* Motion */
+  /* Glass borders — translucent highlight for frosted panels */
+  --fk-glass-border: 1px solid rgb(255 255 255 / 0.08);
+  --fk-glass-border-strong: 1px solid rgb(255 255 255 / 0.12);
+  --fk-glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+
+  /* Motion — smooth Apple-style spring curves */
   --fk-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --fk-dur-fast: 120ms;
-  --fk-dur-base: 200ms;
-  --fk-dur-slow: 320ms;
+  --fk-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.1);
+  --fk-ease-out: cubic-bezier(0, 0, 0.15, 1);
+  --fk-dur-fast: 150ms;
+  --fk-dur-base: 250ms;
+  --fk-dur-slow: 400ms;
 
   /* Type */
   --fk-font-sans:
@@ -67,8 +76,11 @@
   --fk-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Component-level fork tokens (resolved per-theme below) */
-  --fk-sidebar-bg: rgb(255 255 255 / 0.6);
-  --fk-overlay-bg: rgb(255 255 255 / 0.75);
+  --fk-sidebar-bg: rgb(255 255 255 / 0.62);
+  --fk-overlay-bg: rgb(255 255 255 / 0.78);
+  --fk-card-bg: rgb(255 255 255 / 0.5);
+  --fk-selected-bg: rgb(109 127 245 / 0.08);
+  --fk-hover-bg: rgb(24 28 35 / 0.03);
   --fk-strength-weak: 220 38 38;
   --fk-strength-medium: 217 119 6;
   --fk-strength-strong: 22 163 74;
@@ -102,20 +114,20 @@
  * Retune the base ramps; semantic bg/fg/border tokens inherit automatically.
  * -------------------------------------------------------------------------- */
 .theme_dark {
-  /* Neutral ramp. Dark end (700-950) = surfaces; light end (050-400) = text. */
-  --color-gray-050: #f5f8fa; /* fg-heading */
-  --color-gray-100: #e8edf2;
-  --color-gray-200: #d6dde6; /* fg-body */
-  --color-gray-300: #aab4c2;
-  --color-gray-400: #8b97a8; /* fg-body-subtle / inactive */
-  --color-gray-400-rgb: 139, 151, 168;
-  --color-gray-500: #3a414c; /* borders */
-  --color-gray-600: #2a2f37; /* borders-strong */
-  --color-gray-700: #1c2026; /* quaternary surfaces / subtle border */
-  --color-gray-800: #15181c; /* bg-secondary (panels) */
-  --color-gray-900: #0d0f12; /* bg-primary (app shell) */
-  --color-gray-950: #08090c; /* bg-tertiary (deepest) */
-  --color-gray-950-rgb: 8, 9, 12;
+  /* Neutral ramp — tighter contrast steps for gentle depth layering */
+  --color-gray-050: #f4f7fa; /* fg-heading */
+  --color-gray-100: #e6ebf1;
+  --color-gray-200: #d3dbe5; /* fg-body */
+  --color-gray-300: #a8b3c3;
+  --color-gray-400: #8a96a9; /* fg-body-subtle / inactive */
+  --color-gray-400-rgb: 138, 150, 169;
+  --color-gray-500: #353c47; /* borders — softer */
+  --color-gray-600: #272c34; /* borders-strong */
+  --color-gray-700: #1b1f25; /* quaternary surfaces */
+  --color-gray-800: #14171b; /* bg-secondary (panels) */
+  --color-gray-900: #0e1014; /* bg-primary (app shell) */
+  --color-gray-950: #090a0d; /* bg-tertiary (deepest) */
+  --color-gray-950-rgb: 9, 10, 13;
 
   /* Brand variant for dark (slightly brighter for contrast on near-black). */
   --color-brand-400: #818cf8;
@@ -157,9 +169,15 @@
   --color-hover-contrast: rgb(255 255 255 / 0.12);
   --tw-ring-offset-color: #0d0f12;
 
-  /* Fork component tokens (translucent for blur/depth). */
-  --fk-sidebar-bg: rgb(18 21 25 / 0.72);
-  --fk-overlay-bg: rgb(18 21 25 / 0.85);
+  /* Fork component tokens — glass panels (translucent + blur) */
+  --fk-sidebar-bg: rgb(16 18 22 / 0.62);
+  --fk-overlay-bg: rgb(16 18 22 / 0.78);
+  --fk-card-bg: rgb(22 25 30 / 0.55);
+  --fk-selected-bg: rgb(109 127 245 / 0.1);
+  --fk-hover-bg: rgb(255 255 255 / 0.04);
+  --fk-glass-border: 1px solid rgb(255 255 255 / 0.07);
+  --fk-glass-border-strong: 1px solid rgb(255 255 255 / 0.12);
+  --fk-glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   --fk-totp-progress: 129 140 248;
 }
 
@@ -179,8 +197,14 @@
 
   --color-hover-default: rgb(24 28 35 / 0.05);
 
-  --fk-sidebar-bg: rgb(255 255 255 / 0.68);
-  --fk-overlay-bg: rgb(255 255 255 / 0.82);
+  --fk-sidebar-bg: rgb(255 255 255 / 0.62);
+  --fk-overlay-bg: rgb(255 255 255 / 0.78);
+  --fk-card-bg: rgb(255 255 255 / 0.5);
+  --fk-selected-bg: rgb(109 127 245 / 0.08);
+  --fk-hover-bg: rgb(24 28 35 / 0.03);
+  --fk-glass-border: 1px solid rgb(0 0 0 / 0.06);
+  --fk-glass-border-strong: 1px solid rgb(0 0 0 / 0.1);
+  --fk-glass-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.7);
 }
 
 /* ----------------------------------------------------------------------------
