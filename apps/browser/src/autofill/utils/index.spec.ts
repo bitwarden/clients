@@ -5,6 +5,7 @@ import { logoIcon, logoLockedIcon } from "./svg-icons";
 
 import {
   buildSvgDomElement,
+  CoalescedIdleTask,
   debounce,
   generateRandomCustomElementName,
   isReadonlyOrDisabledFormFieldElement,
@@ -275,5 +276,90 @@ describe("isReadonlyOrDisabledFormFieldElement", () => {
     const textarea = document.getElementById("field") as HTMLTextAreaElement;
     textarea.readOnly = true;
     expect(isReadonlyOrDisabledFormFieldElement(textarea)).toBe(true);
+  });
+});
+
+describe("CoalescedIdleTask", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    // Exercise the requestIdleCallback branch of the polyfill, backed by timers.
+    globalThis.requestIdleCallback = jest.fn((cb: any) => setTimeout(cb, 1) as any);
+    globalThis.cancelIdleCallback = jest.fn((id: any) => clearTimeout(id));
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    delete (globalThis as any).requestIdleCallback;
+    delete (globalThis as any).cancelIdleCallback;
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
+  it("runs the callback when the idle period fires", () => {
+    const callback = jest.fn();
+    const task = new CoalescedIdleTask(callback);
+
+    task.schedule();
+    expect(task.pending).toBe(true);
+    expect(callback).not.toHaveBeenCalled();
+
+    jest.runOnlyPendingTimers();
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(task.pending).toBe(false);
+  });
+
+  it("coalesces rapid scheduling into a single run, cancelling the prior handle", () => {
+    const callback = jest.fn();
+    const task = new CoalescedIdleTask(callback);
+
+    task.schedule();
+    task.schedule();
+    task.schedule();
+    jest.runOnlyPendingTimers();
+
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(globalThis.cancelIdleCallback).toHaveBeenCalledTimes(2);
+  });
+
+  it("cancel() prevents a pending run", () => {
+    const callback = jest.fn();
+    const task = new CoalescedIdleTask(callback);
+
+    task.schedule();
+    task.cancel();
+    expect(task.pending).toBe(false);
+
+    jest.runOnlyPendingTimers();
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it("cancel() is a no-op when nothing is scheduled", () => {
+    const task = new CoalescedIdleTask(jest.fn());
+    expect(() => task.cancel()).not.toThrow();
+    expect(globalThis.cancelIdleCallback).not.toHaveBeenCalled();
+  });
+
+  it("lets a callback re-schedule itself for a future run", () => {
+    const callback = jest.fn();
+    let scheduledOnce = false;
+    const task: CoalescedIdleTask = new CoalescedIdleTask(() => {
+      callback();
+      if (!scheduledOnce) {
+        scheduledOnce = true;
+        task.schedule();
+      }
+    });
+
+    task.schedule();
+    jest.runOnlyPendingTimers(); // first run re-schedules
+    expect(task.pending).toBe(true);
+    jest.runOnlyPendingTimers(); // second run does not
+
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(task.pending).toBe(false);
   });
 });

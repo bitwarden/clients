@@ -55,6 +55,41 @@ export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
 }
 
 /**
+ * Owns a single idle-callback handle so callers schedule work without juggling
+ * raw handles: each schedule() cancels any still-pending run first (coalescing),
+ * and cancel() makes the task inert. Centralizing the handle is what lets a
+ * lifecycle owner (e.g. suspend-on-hidden) deterministically stop pending work.
+ */
+export class CoalescedIdleTask {
+  private handle: number | NodeJS.Timeout | null = null;
+
+  constructor(
+    private readonly callback: () => void,
+    private readonly defaultOptions?: Record<string, any>,
+  ) {}
+
+  schedule(options: Record<string, any> | undefined = this.defaultOptions): void {
+    this.cancel();
+    this.handle = requestIdleCallbackPolyfill(() => {
+      // Null before invoking so a callback that re-schedules itself keeps its new handle.
+      this.handle = null;
+      this.callback();
+    }, options);
+  }
+
+  cancel(): void {
+    if (this.handle !== null) {
+      cancelIdleCallbackPolyfill(this.handle);
+      this.handle = null;
+    }
+  }
+
+  get pending(): boolean {
+    return this.handle !== null;
+  }
+}
+
+/**
  * Generates a random string of characters that formatted as a custom element name.
  */
 export function generateRandomCustomElementName(): string {
