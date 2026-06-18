@@ -45,9 +45,9 @@ import {
   CopyClickDirective,
   Option,
 } from "@bitwarden/components";
-import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
