@@ -194,6 +194,8 @@ export declare namespace ipc {
      * receiving the message.
      */
     send(message: string): number
+    /** Send a message to a specific connected client by ID. */
+    sendTo(clientId: number, message: string): void
   }
   export interface IpcMessage {
     clientId: number
@@ -318,6 +320,7 @@ export declare namespace sshagent_v2 {
     processName?: string
     isForwarding: boolean
     namespace?: SIGNamespace
+    hostFingerprint?: string
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {

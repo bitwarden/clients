@@ -3,12 +3,17 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { firstValueFrom, of, throwError } from "rxjs";
 
+import { ClientType } from "@bitwarden/client-type";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { PremiumCheckoutSessionResponse } from "@bitwarden/common/billing/models/response/premium-checkout-session.response";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   Region,
@@ -30,6 +35,8 @@ describe("PremiumUpgradeDialogComponent", () => {
   let mockEnvironmentService: jest.Mocked<EnvironmentService>;
   let mockPlatformUtilsService: jest.Mocked<PlatformUtilsService>;
   let mockLogService: jest.Mocked<LogService>;
+  let mockConfigService: jest.Mocked<ConfigService>;
+  let mockBillingApiService: jest.Mocked<BillingApiServiceAbstraction>;
 
   const mockPremiumTier: PersonalSubscriptionPricingTier = {
     id: PersonalSubscriptionPricingTierIds.Premium,
@@ -85,11 +92,21 @@ describe("PremiumUpgradeDialogComponent", () => {
       environment$: of({
         getWebVaultUrl: () => "https://vault.bitwarden.com",
         getRegion: () => Region.US,
+        isCloud: () => true,
       }),
     } as any;
 
     mockPlatformUtilsService = {
       launchUri: jest.fn(),
+      getClientType: jest.fn().mockReturnValue(ClientType.Browser),
+    } as any;
+
+    mockConfigService = {
+      getFeatureFlag: jest.fn().mockResolvedValue(false),
+    } as any;
+
+    mockBillingApiService = {
+      createPremiumCheckoutSession: jest.fn(),
     } as any;
 
     mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
@@ -113,6 +130,8 @@ describe("PremiumUpgradeDialogComponent", () => {
         { provide: EnvironmentService, useValue: mockEnvironmentService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: BillingApiServiceAbstraction, useValue: mockBillingApiService },
       ],
     }).compileComponents();
 
@@ -160,13 +179,210 @@ describe("PremiumUpgradeDialogComponent", () => {
   });
 
   describe("upgrade()", () => {
-    it("should launch URI with query parameter", async () => {
-      await component["upgrade"]();
+    describe("flag-disabled / self-host flow", () => {
+      it("should launch URI with query parameter when checkout flag is disabled", async () => {
+        mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
-      expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
-        "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
-      );
-      expect(mockDialogRef.close).toHaveBeenCalled();
+        await component["upgrade"]();
+
+        expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM34515_BrowserDesktopCheckout,
+        );
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should launch web vault URL on self-host even when flag is enabled", async () => {
+        // Checkout flag on, QA bypass flag off: self-host must still fall back.
+        mockConfigService.getFeatureFlag.mockImplementation((flag: FeatureFlag) =>
+          Promise.resolve(flag === FeatureFlag.PM34515_BrowserDesktopCheckout),
+        );
+        mockEnvironmentService.environment$ = of({
+          getWebVaultUrl: () => "https://self-hosted.example.com",
+          getRegion: () => Region.SelfHosted,
+          isCloud: () => false,
+        }) as any;
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://self-hosted.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+    });
+
+    describe("Stripe checkout flow (cloud + flag enabled)", () => {
+      beforeEach(() => {
+        mockConfigService.getFeatureFlag.mockResolvedValue(true);
+        mockBillingApiService.createPremiumCheckoutSession.mockResolvedValue({
+          checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123",
+        } as any);
+      });
+
+      it("should call checkout API with browser platform on browser client", async () => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledWith({
+          platform: "browser",
+        });
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should call checkout API with desktop platform on desktop client", async () => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledWith({
+          platform: "desktop",
+        });
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should fall back to web vault when client type is unsupported (e.g. Web)", async () => {
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should show error toast and close dialog when checkout API fails", async () => {
+        const error = new Error("Network error");
+        mockBillingApiService.createPremiumCheckoutSession.mockRejectedValue(error);
+
+        await component["upgrade"]();
+
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "error",
+          message: "unexpectedError",
+        });
+        expect(mockLogService.error).toHaveBeenCalledWith("Failed to start premium upgrade", error);
+        expect(mockPlatformUtilsService.launchUri).not.toHaveBeenCalled();
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should show error toast and close dialog when feature flag lookup rejects", async () => {
+        const error = new Error("Config service unavailable");
+        mockConfigService.getFeatureFlag.mockRejectedValue(error);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "error",
+          message: "unexpectedError",
+        });
+        expect(mockLogService.error).toHaveBeenCalledWith("Failed to start premium upgrade", error);
+        expect(mockDialogRef.close).toHaveBeenCalled();
+      });
+
+      it("should disable the upgrade button while the checkout API call is in flight", async () => {
+        let resolveCheckout: (value: PremiumCheckoutSessionResponse) => void = () => undefined;
+        mockBillingApiService.createPremiumCheckoutSession.mockReturnValue(
+          new Promise((resolve) => {
+            resolveCheckout = resolve;
+          }),
+        );
+
+        const upgradePromise = component["upgrade"]();
+        await Promise.resolve();
+
+        expect(component["upgrading"]()).toBe(true);
+
+        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" } as any);
+        await upgradePromise;
+
+        expect(component["upgrading"]()).toBe(false);
+      });
+
+      it("should ignore re-entrant clicks while a checkout call is in flight", async () => {
+        let resolveCheckout: (value: PremiumCheckoutSessionResponse) => void = () => undefined;
+        mockBillingApiService.createPremiumCheckoutSession.mockReturnValue(
+          new Promise((resolve) => {
+            resolveCheckout = resolve;
+          }),
+        );
+
+        const firstCall = component["upgrade"]();
+        const secondCall = component["upgrade"]();
+
+        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" } as any);
+        await Promise.all([firstCall, secondCall]);
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("self-host QA bypass flag", () => {
+      // Resolves the two flags upgrade() reads, independently.
+      const mockFlags = (checkout: boolean, bypass: boolean) => {
+        mockConfigService.getFeatureFlag.mockImplementation((flag: FeatureFlag) =>
+          Promise.resolve(
+            flag === FeatureFlag.PM34515_BrowserDesktopCheckout
+              ? checkout
+              : flag === FeatureFlag.DebugDisableSelfHostPremiumCheck
+                ? bypass
+                : false,
+          ),
+        );
+      };
+
+      beforeEach(() => {
+        // Self-hosted region: isCloud() is false.
+        mockEnvironmentService.environment$ = of({
+          getWebVaultUrl: () => "https://self-hosted.example.com",
+          getRegion: () => Region.SelfHosted,
+          isCloud: () => false,
+        }) as any;
+        mockBillingApiService.createPremiumCheckoutSession.mockResolvedValue({
+          checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123",
+        } as any);
+      });
+
+      it("takes the Stripe checkout branch on self-host when checkout + bypass flags are both on", async () => {
+        mockFlags(true, true);
+        mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledWith({
+          platform: "browser",
+        });
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://checkout.stripe.com/c/pay/cs_123",
+        );
+      });
+
+      it("falls back to web vault on self-host when bypass flag is on but checkout flag is off", async () => {
+        mockFlags(false, true);
+
+        await component["upgrade"]();
+
+        expect(mockBillingApiService.createPremiumCheckoutSession).not.toHaveBeenCalled();
+        expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
+          "https://self-hosted.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        );
+      });
     });
   });
 

@@ -25,7 +25,9 @@ import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/model
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { DiscountTypes, getAmount } from "@bitwarden/pricing";
 
+import { OrganizationBillingClient } from "../clients";
 import {
   AdjustStorageDialogComponent,
   AdjustStorageDialogResultType,
@@ -37,6 +39,10 @@ import {
 
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
 import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
+import {
+  ChurnMitigationOfferDialogComponent,
+  ChurnMitigationOfferDialogResultType,
+} from "./churn-mitigation-offer-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
@@ -83,6 +89,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private dialogService: DialogService,
     private toastService: ToastService,
     private organizationUserApiService: OrganizationUserApiService,
+    private organizationBillingClient: OrganizationBillingClient,
   ) {}
 
   async ngOnInit() {
@@ -216,10 +223,18 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   get subscriptionLineItems() {
-    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => ({
+    // A fixed `amountOff` applies once to the subscription total, so it is consumed across the
+    // ordered line items rather than subtracted from each line independently. Compute the discounted
+    // line totals up front to track that running balance.
+    const discountedTotals = this.discountedLineTotals();
+    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse, index: number) => ({
       name: lineItem.name,
       originalAmount: lineItem.amount,
       amount: this.discountPrice(lineItem.amount, lineItem.productId),
+      discountedTotal: discountedTotals[index],
+      // True only when this line's total was actually reduced. A fixed amount-off consumed in full by
+      // earlier lines leaves later lines undiscounted, so they must not render a strikethrough/qualifier.
+      discounted: discountedTotals[index] < lineItem.quantity * lineItem.amount,
       quantity: lineItem.quantity,
       interval: lineItem.interval,
       sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,
@@ -227,6 +242,30 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       productName: lineItem.productName,
       productId: lineItem.productId,
     }));
+  }
+
+  /**
+   * Discounted total for each line item, aligned by index with `lineItems`.
+   *
+   * The percentage discount scales per unit, so each line total is `quantity × discounted unit`.
+   * A fixed `amountOff` applies once to the whole subscription, so it is subtracted from the running
+   * total across the applicable lines (clamped at 0) — never multiplied across lines.
+   */
+  private discountedLineTotals(): number[] {
+    const customerDiscount = this.customerDiscount;
+    let remainingAmountOff = customerDiscount?.amountOff ?? 0;
+
+    return this.lineItems.map((lineItem) => {
+      const lineTotal = lineItem.quantity * lineItem.amount;
+
+      if (remainingAmountOff > 0 && this.discountAppliesToProduct(lineItem.productId)) {
+        const applied = Math.min(remainingAmountOff, lineTotal);
+        remainingAmountOff -= applied;
+        return lineTotal - applied;
+      }
+
+      return lineItem.quantity * this.discountPrice(lineItem.amount, lineItem.productId);
+    });
   }
 
   get nextInvoice() {
@@ -344,6 +383,33 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   cancelSubscription = async () => {
+    const offer = await this.organizationBillingClient.getChurnOffer(this.organizationId as any);
+
+    if (offer != null) {
+      const churnDialogRef = ChurnMitigationOfferDialogComponent.open(this.dialogService, {
+        data: {
+          organizationId: this.organizationId as any,
+          offer,
+          accessEndDate: this.subscription?.periodEndDate ?? null,
+          planName: this.sub.plan.name,
+          nextChargeDate: this.subscription?.periodEndDate ?? null,
+          isAnnual: this.sub.plan.isAnnual,
+        },
+      });
+
+      const churnResult = await lastValueFrom(churnDialogRef.closed);
+
+      if (churnResult === ChurnMitigationOfferDialogResultType.Accepted) {
+        await this.load();
+        return;
+      }
+
+      if (churnResult !== ChurnMitigationOfferDialogResultType.Declined) {
+        return;
+      }
+      // Declined — fall through to offboarding survey
+    }
+
     const reference = openOffboardingSurvey(this.dialogService, {
       data: {
         type: "Organization",
@@ -418,7 +484,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   discountAppliesToProduct(productId: string): boolean {
-    return this.sub?.customerDiscount?.appliesTo?.includes(productId) ?? false;
+    const appliesTo = this.sub?.customerDiscount?.appliesTo;
+    // An empty `appliesTo` means the discount applies to the whole subscription (all products) —
+    // the configuration used by churn coupons. Treat it as "applies to all", consistent with
+    // `discountPrice` and with how Stripe applies an unrestricted coupon.
+    return !appliesTo?.length || appliesTo.includes(productId);
   }
 
   closeChangePlan() {
@@ -491,17 +561,45 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     }
   };
 
+  // Per-unit discounted price. ONLY the percentage discount reduces the per-unit price (a percentage
+  // scales linearly, so per-unit × quantity equals the discounted line total). A fixed `amountOff`
+  // applies once to the line/subscription total, NOT per seat — it is applied in `subscriptionLineItems`
+  // (see `discountedLineTotals`), so the per-unit price returned here stays at full value for amount-off.
+  // Gates on discount PRESENCE + product-applicability, NOT the perpetual `active` flag, so
+  // time-bounded (repeating) discounts also reduce the displayed price. `active` is intentionally
+  // not consulted here anymore (it still means "perpetual" for other consumers, e.g. sm-subscribe).
   discountPrice = (price: number, productId: string = null) => {
-    const discount =
-      this.customerDiscount?.active &&
-      (!productId ||
-        !this.customerDiscount.appliesTo.length ||
-        this.customerDiscount.appliesTo.includes(productId))
-        ? price * (this.customerDiscount.percentOff / 100)
-        : 0;
+    const customerDiscount = this.customerDiscount;
 
-    return price - discount;
+    const applies =
+      customerDiscount?.percentOff != null &&
+      (!productId ||
+        !customerDiscount.appliesTo.length ||
+        customerDiscount.appliesTo.includes(productId));
+
+    if (!applies) {
+      return price;
+    }
+
+    return (
+      price -
+      getAmount({ type: DiscountTypes.PercentOff, value: customerDiscount.percentOff }, price)
+    );
   };
+
+  // View-only label for the time bound on a repeating discount. Copy lives in i18n keys (pending
+  // design sign-off); public to match the sibling template-called methods (discountPrice /
+  // discountAppliesToProduct). The `end`-date branch is rendered directly in the template via the
+  // `date` pipe, so this helper only covers the `durationInMonths` path.
+  discountDurationLabel(): string | null {
+    const months = this.customerDiscount?.durationInMonths;
+    if (months == null) {
+      return null;
+    }
+    return months === 12
+      ? this.i18nService.t("discountForOneYear")
+      : this.i18nService.t("discountForMonths", months.toString());
+  }
 
   get showChangePlanButton() {
     return (
