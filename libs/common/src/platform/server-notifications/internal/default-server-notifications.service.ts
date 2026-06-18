@@ -16,15 +16,14 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { trackedMerge } from "@bitwarden/common/platform/misc";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import {
   LogOutNotification,
   NotificationResponse,
@@ -40,6 +39,7 @@ import { ConfigService } from "../../abstractions/config/config.service";
 import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
+import { trackedMerge } from "../../misc";
 import { supportSwitch } from "../../misc/support-status";
 import { ServerNotificationsService } from "../server-notifications.service";
 
