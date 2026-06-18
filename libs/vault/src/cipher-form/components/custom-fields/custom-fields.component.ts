@@ -163,6 +163,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     );
   }
 
+  dragDisabled(type: FieldType): boolean {
+    return !this.canEdit(type) || this.fields.length <= 1;
+  }
+
   ngOnInit() {
     const linkedFieldsOptionsForCipher = this.getLinkedFieldsOptionsForCipher();
     const optionsArray = Array.from(linkedFieldsOptionsForCipher?.entries() ?? []);
