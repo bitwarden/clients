@@ -5,6 +5,11 @@ import { BitFormFieldComponent } from "../form-field";
 import { Option } from "../select/option";
 import { SelectComponent } from "../select/select.component";
 
+/**
+ * @internal Used only by `ToggleGroupComponent` as the responsive fallback —
+ * rendered in place of the projected toggle buttons when the container is too
+ * narrow to display them inline.
+ */
 @Component({
   selector: "bit-toggle-dropdown",
   template: `
@@ -23,7 +28,6 @@ import { SelectComponent } from "../select/select.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BitFormFieldComponent, SelectComponent, FormsModule],
 })
-/** @internal */
 export class ToggleDropdownComponent<T> {
   readonly items = input<Option<T>[]>([]);
   readonly value = input<T | undefined>();
