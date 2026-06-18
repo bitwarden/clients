@@ -109,7 +109,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
   private currentPeopleAccessPolicies: ApItemViewType[];
 
   private readonly configService = inject(ConfigService);
-  protected readonly newToAddFeatureFlag = toSignal(
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
@@ -132,7 +132,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   get title() {
     return this.data.operation === OperationType.Add
-      ? this.newToAddFeatureFlag()
+      ? this.btnTextAddCreateFeatureFlag()
         ? "addSecret"
         : "newSecret"
       : "editSecret";

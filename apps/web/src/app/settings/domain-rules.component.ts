@@ -24,7 +24,7 @@ import { SharedModule } from "../shared";
 })
 export class DomainRulesComponent implements OnInit {
   private readonly configService = inject(ConfigService);
-  protected readonly newToAddFeatureFlag = toSignal(
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
   loading = true;

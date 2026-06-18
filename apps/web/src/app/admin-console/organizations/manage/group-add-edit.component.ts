@@ -117,7 +117,7 @@ export const openGroupAddEditDialog = (
   standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
-  private readonly newToAddFeatureFlag = toSignal(
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
@@ -268,7 +268,7 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     this.title = this.i18nService.t(
-      this.editMode ? "editGroup" : this.newToAddFeatureFlag() ? "addGroup" : "newGroup",
+      this.editMode ? "editGroup" : this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup",
     );
 
     combineLatest([

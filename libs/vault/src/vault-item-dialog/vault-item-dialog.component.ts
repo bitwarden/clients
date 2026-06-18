@@ -309,7 +309,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
-  private readonly newToAddFeatureFlag = toSignal(
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
@@ -668,7 +668,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   private updateTitle(): void {
     let translation: { [key: string]: { [key: number]: string } } = undefined;
-    if (this.newToAddFeatureFlag()) {
+    if (this.btnTextAddCreateFeatureFlag()) {
       translation = {
         view: {
           [CipherType.Login]: "viewItemHeaderLoginSentenceCase",

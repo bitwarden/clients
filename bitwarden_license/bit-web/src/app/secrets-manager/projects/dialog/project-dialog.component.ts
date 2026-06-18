@@ -44,7 +44,7 @@ export class ProjectDialogComponent implements OnInit {
   protected loading = false;
 
   private readonly configService = inject(ConfigService);
-  protected readonly newToAddFeatureFlag = toSignal(
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
@@ -82,7 +82,7 @@ export class ProjectDialogComponent implements OnInit {
 
   get title() {
     return this.data.operation === OperationType.Add
-      ? this.newToAddFeatureFlag()
+      ? this.btnTextAddCreateFeatureFlag()
         ? "addProject"
         : "newProject"
       : "editProject";

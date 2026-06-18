@@ -43,7 +43,7 @@ import {
   standalone: false,
 })
 export class DomainVerificationComponent implements OnInit, OnDestroy {
-  protected readonly newToAddFeatureFlag = toSignal(
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );

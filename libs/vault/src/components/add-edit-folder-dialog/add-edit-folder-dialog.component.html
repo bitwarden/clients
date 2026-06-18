@@ -1,8 +1,12 @@
 <form [formGroup]="folderForm" [bitSubmit]="submit" bit-dialog id="add-edit-folder">
   <span bitDialogTitle>
     {{
-      (variant === "add" ? (newToAddFeatureFlag() ? "addFolder" : "newFolder") : "editFolder")
-        | i18n
+      (variant === "add"
+        ? btnTextAddCreateFeatureFlag()
+          ? "addFolder"
+          : "newFolder"
+        : "editFolder"
+      ) | i18n
     }}
   </span>
   <div bitDialogContent>

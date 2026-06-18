@@ -43,7 +43,7 @@ export class NewCipherMenuComponent {
   cipherAdded = output<CipherType>();
   onAddItemDialog = output();
 
-  private readonly newToAddFeatureFlag = toSignal(
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
@@ -90,18 +90,18 @@ export class NewCipherMenuComponent {
     const canCreateCipher = this.canCreateCipher();
     const canCreateFolder = this.canCreateFolder();
     const canCreateCollection = this.canCreateCollection();
-    const newToAddFeatureFlag = this.newToAddFeatureFlag();
+    const btnTextAddCreateFeatureFlag = this.btnTextAddCreateFeatureFlag();
 
     // If only collections can be created, be specific
     if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
-      if (newToAddFeatureFlag) {
+      if (btnTextAddCreateFeatureFlag) {
         return "addCollection";
       } else {
         return "newCollection";
       }
     }
 
-    if (newToAddFeatureFlag) {
+    if (btnTextAddCreateFeatureFlag) {
       return "add";
     } else {
       return "new";
