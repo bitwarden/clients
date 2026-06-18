@@ -32,6 +32,13 @@ export const Profile = Object.freeze({
    */
   account: "account",
 
+  /** generator options for Secrets Manager secret values, kept separate from
+   *  {@link account} so the two generators don't share settings.
+   *  @remarks only the `password` algorithm registers this profile; requesting it
+   *   for another algorithm panics in `settings()`/`generate$()`/`policy$()`.
+   */
+  secretsManager: "secretsManager",
+
   // FIXME: consider adding a profile for bitwarden's master password
 });
 

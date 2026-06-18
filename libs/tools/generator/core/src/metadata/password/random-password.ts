@@ -9,6 +9,85 @@ import { GeneratorDependencyProvider } from "../../providers";
 import { CredentialGenerator, PasswordGeneratorSettings } from "../../types";
 import { Algorithm, Profile, Type } from "../data";
 import { GeneratorMetadata } from "../generator-metadata";
+import { CoreProfileMetadata } from "../profile-metadata";
+
+/** Builds a password profile; only the storage `key` differs between profiles. */
+function corePasswordProfile(storageKey: string): CoreProfileMetadata<PasswordGeneratorSettings> {
+  return {
+    type: "core",
+    storage: {
+      key: storageKey,
+      target: "object",
+      format: "plain",
+      classifier: new PublicClassifier<PasswordGeneratorSettings>([
+        "length",
+        "ambiguous",
+        "uppercase",
+        "minUppercase",
+        "lowercase",
+        "minLowercase",
+        "number",
+        "minNumber",
+        "special",
+        "minSpecial",
+      ]),
+      state: GENERATOR_DISK,
+      initial: {
+        length: 14,
+        ambiguous: true,
+        uppercase: true,
+        minUppercase: 1,
+        lowercase: true,
+        minLowercase: 1,
+        number: true,
+        minNumber: 1,
+        special: false,
+        minSpecial: 0,
+      },
+      options: {
+        deserializer(value) {
+          return value;
+        },
+        clearOn: ["logout"],
+      },
+    },
+    constraints: {
+      type: PolicyType.PasswordGenerator,
+      default: {
+        length: {
+          min: 5,
+          max: 128,
+          recommendation: 14,
+        },
+        minNumber: {
+          min: 0,
+          max: 9,
+        },
+        minSpecial: {
+          min: 0,
+          max: 9,
+        },
+      },
+      create(policies, context) {
+        const initial = {
+          minLength: 0,
+          useUppercase: false,
+          useLowercase: false,
+          useNumbers: false,
+          numberCount: 0,
+          useSpecial: false,
+          specialCount: 0,
+        };
+        const policy = policies.reduce(passwordLeastPrivilege, initial);
+        const constraints = new DynamicPasswordPolicyConstraints(
+          policy,
+          context.defaultConstraints,
+        );
+        return constraints;
+      },
+    },
+  };
+}
 
 const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
   id: Algorithm.password,
@@ -34,80 +113,8 @@ const password: GeneratorMetadata<PasswordGeneratorSettings> = deepFreeze({
     },
   },
   profiles: {
-    [Profile.account]: {
-      type: "core",
-      storage: {
-        key: "passwordGeneratorSettings",
-        target: "object",
-        format: "plain",
-        classifier: new PublicClassifier<PasswordGeneratorSettings>([
-          "length",
-          "ambiguous",
-          "uppercase",
-          "minUppercase",
-          "lowercase",
-          "minLowercase",
-          "number",
-          "minNumber",
-          "special",
-          "minSpecial",
-        ]),
-        state: GENERATOR_DISK,
-        initial: {
-          length: 14,
-          ambiguous: true,
-          uppercase: true,
-          minUppercase: 1,
-          lowercase: true,
-          minLowercase: 1,
-          number: true,
-          minNumber: 1,
-          special: false,
-          minSpecial: 0,
-        },
-        options: {
-          deserializer(value) {
-            return value;
-          },
-          clearOn: ["logout"],
-        },
-      },
-      constraints: {
-        type: PolicyType.PasswordGenerator,
-        default: {
-          length: {
-            min: 5,
-            max: 128,
-            recommendation: 14,
-          },
-          minNumber: {
-            min: 0,
-            max: 9,
-          },
-          minSpecial: {
-            min: 0,
-            max: 9,
-          },
-        },
-        create(policies, context) {
-          const initial = {
-            minLength: 0,
-            useUppercase: false,
-            useLowercase: false,
-            useNumbers: false,
-            numberCount: 0,
-            useSpecial: false,
-            specialCount: 0,
-          };
-          const policy = policies.reduce(passwordLeastPrivilege, initial);
-          const constraints = new DynamicPasswordPolicyConstraints(
-            policy,
-            context.defaultConstraints,
-          );
-          return constraints;
-        },
-      },
-    },
+    [Profile.account]: corePasswordProfile("passwordGeneratorSettings"),
+    [Profile.secretsManager]: corePasswordProfile("secretsManagerPasswordGeneratorSettings"),
   },
 });
 

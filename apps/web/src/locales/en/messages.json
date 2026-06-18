@@ -8656,6 +8656,15 @@
   "generatePassword": {
     "message": "Generate password"
   },
+  "generateValue": {
+    "message": "Generate value"
+  },
+  "useGeneratedValue": {
+    "message": "Use value"
+  },
+  "selectOneCharacterType": {
+    "message": "Select at least one character type"
+  },
   "generatePassphrase": {
     "message": "Generate passphrase"
   },
