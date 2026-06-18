@@ -52,9 +52,11 @@
       >
         {{ (currentStep() === policySteps().length - 1 ? "save" : "next") | i18n }}
       </button>
-      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-        {{ "cancel" | i18n }}
-      </button>
+      @if (!policy.showEnabledBadge) {
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
+      }
     }
   </ng-container>
 </form>
