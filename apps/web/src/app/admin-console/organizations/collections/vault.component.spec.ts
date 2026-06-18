@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -142,6 +143,7 @@ describe("VaultComponent (org-vault)", () => {
         },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
