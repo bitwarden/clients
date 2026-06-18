@@ -89,11 +89,11 @@
           @if (showAddCipherBtn) {
             <button
               type="button"
-              buttonType="primary"
+              [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
               bitButton
               (click)="addCipher()"
               slot="button"
-              startIcon="bwi-plus"
+              [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
             >
               {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
             </button>
