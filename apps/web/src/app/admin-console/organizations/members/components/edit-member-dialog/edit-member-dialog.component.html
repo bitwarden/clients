@@ -20,7 +20,7 @@
     @if (!loading() && organization$ | async; as organization) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab [label]="'role' | i18n">
-          <bit-radio-group formControlName="type">
+          <bit-radio-group formControlName="type" [block]="true">
             <bit-label>
               {{ "memberRole" | i18n }}
               <a
