@@ -17,7 +17,7 @@ import { CipherView } from "../../../vault/models/view/cipher.view";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "../../utils";
 
-import { EncryptedMigration,i MigrationRequirement } from "./encrypted-migration";
+import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
 
 /**
  * Migrates users that are on v1 encryption to v2 encryption by performing
