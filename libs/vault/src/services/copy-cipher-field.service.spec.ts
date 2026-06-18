@@ -11,7 +11,8 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
-import { CopyAction, CopyCipherFieldService, PasswordRepromptService } from "@bitwarden/vault";
+
+import { CopyAction, CopyCipherFieldService, PasswordRepromptService } from "..";
 
 describe("CopyCipherFieldService", () => {
   let service: CopyCipherFieldService;

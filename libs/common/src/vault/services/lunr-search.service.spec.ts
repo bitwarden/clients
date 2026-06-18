@@ -1,6 +1,6 @@
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LogService } from "../../platform/abstractions/log.service";
+import { OrganizationId, UserId } from "../../types/guid";
+import { CipherView } from "../models/view/cipher.view";
 
 import { LunrSearchService } from "./lunr-search.service";
 

@@ -1,7 +1,6 @@
 import { Observable, Subscription } from "rxjs";
 
-import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-
+import { SecurityTaskId, UserId } from "../../../types/guid";
 import { SecurityTask } from "../models";
 
 export abstract class TaskService {

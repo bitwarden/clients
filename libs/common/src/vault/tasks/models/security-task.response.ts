@@ -1,6 +1,5 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
-import { CipherId, OrganizationId, SecurityTaskId } from "@bitwarden/common/types/guid";
-
+import { BaseResponse } from "../../../models/response/base.response";
+import { CipherId, OrganizationId, SecurityTaskId } from "../../../types/guid";
 import { SecurityTaskStatus, SecurityTaskType } from "../enums";
 
 export class SecurityTaskResponse extends BaseResponse {

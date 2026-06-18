@@ -1,5 +1,4 @@
-import { CipherId, OrganizationId, SecurityTaskId } from "@bitwarden/common/types/guid";
-
+import { CipherId, OrganizationId, SecurityTaskId } from "../../../types/guid";
 import { SecurityTaskStatus, SecurityTaskType } from "../enums";
 
 import { SecurityTaskData } from "./security-task.data";

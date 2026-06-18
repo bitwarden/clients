@@ -1,7 +1,6 @@
 import { Observable, Subscription } from "rxjs";
 
-import { NotificationId, UserId } from "@bitwarden/common/types/guid";
-
+import { NotificationId, UserId } from "../../../types/guid";
 import { NotificationView } from "../models";
 
 /**

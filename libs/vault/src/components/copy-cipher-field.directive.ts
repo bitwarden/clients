@@ -11,7 +11,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuItemComponent, BitIconButtonComponent } from "@bitwarden/components";
-import { CopyAction, CopyCipherFieldService } from "@bitwarden/vault";
+
+import { CopyAction, CopyCipherFieldService } from "..";
 
 /**
  * Directive to copy a specific field from a cipher on click. Uses the `CopyCipherFieldService` to

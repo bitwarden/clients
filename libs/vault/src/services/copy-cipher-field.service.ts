@@ -14,7 +14,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+
+import { PasswordRepromptService } from "..";
 
 /**
  * The types of fields that can be copied from a cipher.

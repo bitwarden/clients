@@ -1,5 +1,6 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
+
+import { EncString } from "../../key-management/crypto/models/enc-string";
 
 /**
  * Converts a string value to an EncString, handling null/undefined gracefully.
