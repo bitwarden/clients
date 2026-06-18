@@ -151,7 +151,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
   protected readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
   private orgExceedingCollectionLimit!: Organization;
 

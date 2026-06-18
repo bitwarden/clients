@@ -110,7 +110,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   private readonly configService = inject(ConfigService);
   protected readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 

@@ -44,7 +44,7 @@ import {
 })
 export class DomainVerificationComponent implements OnInit, OnDestroy {
   protected readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 

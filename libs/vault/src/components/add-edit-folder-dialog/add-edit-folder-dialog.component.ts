@@ -68,7 +68,7 @@ export type AddEditFolderDialogData = {
 export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
   private readonly configService = inject(ConfigService);
   protected readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

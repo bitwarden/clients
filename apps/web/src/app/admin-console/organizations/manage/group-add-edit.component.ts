@@ -118,7 +118,7 @@ export const openGroupAddEditDialog = (
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
   private readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 

@@ -44,7 +44,7 @@ export class NewSendDropdownComponent {
 
   private readonly configService = inject(ConfigService);
   protected readonly newToAddFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_NewToAddLabelCopyChange),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
   );
 
   /** SendType provided for the markup to pass back the selected type of Send */
