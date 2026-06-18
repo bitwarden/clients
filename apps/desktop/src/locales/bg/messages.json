@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
   },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
+  },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
+  "copyPublicKey": {
+    "message": "Копиране на публичния ключ"
+  },
+  "copyFingerprint": {
+    "message": "Копиране на отпечатъка"
   },
   "cardNumber": {
     "message": "номер на карта"
@@ -3882,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 или повече е-пощи са неправилни"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Полето за получателите на е-писмото не може да съдържа повече от 2 500 знака. Премахнете един или повече получатели, за да продължите."
+  },
   "inputTrimValidator": {
     "message": "Въведеното не може да съдържа само интервали.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4947,6 +4962,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Времето на давност на сесията се управлява от настолното приложение"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ не е инсталиран. Моля, инсталирайте $BROWSER$ преди да внасяте паролите от него.",
     "placeholders": {
@@ -5134,6 +5152,9 @@
   "bankAccount": {
     "message": "Банкова сметка"
   },
+  "bankAccountDetails": {
+    "message": "Подробности за банковата сметка"
+  },
   "bankName": {
     "message": "Име на банката"
   },
@@ -5250,10 +5271,6 @@
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "Преглед на текста"
   },
@@ -5331,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Клас на лиценза"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
   }
 }

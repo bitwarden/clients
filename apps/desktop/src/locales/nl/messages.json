@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "Pictogrammenserver-URL"
   },
+  "sendUrl": {
+    "message": "Server-URL Send"
+  },
   "environmentSaved": {
     "message": "Omgevings-URL's opgeslagen"
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kaartnummer"
@@ -3882,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "Eén of meer e-mailadressen zijn ongeldig"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "De e-mailadressenlijst mag niet meer dan 2.500 tekens bevatten. Verwijder één of meer ontvangers om door te gaan."
+  },
   "inputTrimValidator": {
     "message": "Invoer mag niet alleen witruimte bevatten.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4947,6 +4962,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Sessie-timeout wordt beheerd door de desktopapp"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is niet geïnstalleerd. Installeer $BROWSER$ voordat je wachtwoorden importeert.",
     "placeholders": {
@@ -5134,6 +5152,9 @@
   "bankAccount": {
     "message": "Bankrekening"
   },
+  "bankAccountDetails": {
+    "message": "Bankrekeninggegevens"
+  },
   "bankName": {
     "message": "Banknaam"
   },
@@ -5250,10 +5271,6 @@
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Bewerkingen Send opslaan mislukt",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "Tekst bekijken"
   },
@@ -5331,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Rijbewijsklasse"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Kan het item niet opslaan. Voor het opslaan van items moet het bevestigd zijn dat je bij de organisatie hoort."
   }
 }
