@@ -83,10 +83,8 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       // - account_cryptographic_state
       // - master_password_unlock
       // - user_key
-      // we currently discard this as all finishRegistration flows immediately
-      // log in after a successful return. However, there is potential for
-      // setting state directly upon successful registration in the future,
-      // similar to how Key Connector and TDE handle registration.
+      // we discard this as all finishRegistration flows immediately log in
+      // after a successful return.
       await sdkClient
         .auth()
         .registration()
@@ -144,11 +142,11 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       email_verification_token: emailVerificationToken,
       organization_user_id: undefined,
       org_invite_token: undefined,
-      org_sponsored_free_family_plan_token: orgSponsoredFreeFamilyPlanToken,
-      accept_emergency_access_invite_token: acceptEmergencyAccessInviteToken,
-      accept_emergency_access_id: this.toOptionalSdkUserId(emergencyAccessId),
-      provider_invite_token: providerInviteToken,
-      provider_user_id: this.toOptionalSdkUserId(providerUserId),
+      org_sponsored_free_family_plan_token: undefined,
+      accept_emergency_access_invite_token: undefined,
+      accept_emergency_access_id: undefined,
+      provider_invite_token: undefined,
+      provider_user_id: undefined,
     };
 
     return registerFinishRequest;

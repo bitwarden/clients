@@ -356,6 +356,137 @@ describe("WebRegistrationFinishService", () => {
 
       expect(registerCall).toMatchSnapshot();
     });
+
+    it("throws an error if given an email verification token and organization invite token", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+
+      expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and an org sponsored free family plan token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          orgSponsoredFreeFamilyPlanToken,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and accept emergency access invite token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          acceptEmergencyAccessInviteToken,
+          emergencyAccessId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and provider invite token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          providerInviteToken,
+          providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
+
+    it("does not set emergency access fields when only the token is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        acceptEmergencyAccessInviteToken,
+        undefined,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.acceptEmergencyAccessInviteToken).toBeUndefined();
+      expect(registerCall.acceptEmergencyAccessId).toBeUndefined();
+    });
+
+    it("does not set emergency access fields when only the access id is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        emergencyAccessId,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.acceptEmergencyAccessInviteToken).toBeUndefined();
+      expect(registerCall.acceptEmergencyAccessId).toBeUndefined();
+    });
+
+    it("does not set provider invite fields when only the token is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        providerInviteToken,
+        undefined,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.providerInviteToken).toBeUndefined();
+      expect(registerCall.providerUserId).toBeUndefined();
+    });
+
+    it("does not set provider invite fields when only the user id is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        providerUserId,
+      );
+
+      const registerCall = accountApiService.registerFinish.mock
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall.providerInviteToken).toBeUndefined();
+      expect(registerCall.providerUserId).toBeUndefined();
+    });
   });
 
   // SDK-based registration flow. This block is fully self-contained so it can stand alone once the
@@ -527,6 +658,183 @@ describe("WebRegistrationFinishService", () => {
       expect(sdkRequest.provider_user_id).toEqual(providerUserId);
 
       expect(sdkRequest).toMatchSnapshot();
+    });
+
+    it("throws if the provided organization id is not a valid UUID", async () => {
+      let badOrgInvite = new OrganizationInvite();
+      badOrgInvite.organizationUserId = "not-a-uuid";
+      badOrgInvite.token = "orgInviteToken";
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(badOrgInvite);
+
+      await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow();
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws if the provided emergency access id is not a valid UUID", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          undefined,
+          undefined,
+          acceptEmergencyAccessInviteToken,
+          "not-a-uuid",
+        ),
+      ).rejects.toThrow();
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws if the provided provider user id is not a valid UUID", async () => {
+      await expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          providerInviteToken,
+          "not-a-uuid",
+        ),
+      ).rejects.toThrow();
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws if given an email verification token and organization invite token", async () => {
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
+
+      expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws if given an email verification token and an org sponsored free family plan token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          orgSponsoredFreeFamilyPlanToken,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and accept emergency access invite token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          acceptEmergencyAccessInviteToken,
+          emergencyAccessId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("throws an error if given an email verification token and provider invite token", async () => {
+      expect(
+        service.finishRegistration(
+          email,
+          passwordInputResult,
+          emailVerificationToken,
+          undefined,
+          undefined,
+          undefined,
+          providerInviteToken,
+          providerUserId,
+        ),
+      ).rejects.toThrow(
+        "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
+      );
+
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
+
+    it("does not set emergency access fields when only the token is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        acceptEmergencyAccessInviteToken,
+        undefined,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.accept_emergency_access_invite_token).toBeUndefined();
+      expect(sdkRequest.accept_emergency_access_id).toBeUndefined();
+    });
+
+    it("does not set emergency access fields when only the access id is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        emergencyAccessId,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.accept_emergency_access_invite_token).toBeUndefined();
+      expect(sdkRequest.accept_emergency_access_id).toBeUndefined();
+    });
+
+    it("does not set provider invite fields when only the token is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        providerInviteToken,
+        undefined,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.provider_invite_token).toBeUndefined();
+      expect(sdkRequest.provider_user_id).toBeUndefined();
+    });
+
+    it("does not set provider invite fields when only the user id is provided", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        providerUserId,
+      );
+
+      const sdkRequest = postKeysForUserPasswordRegistration.mock.calls[0][0];
+      expect(sdkRequest.provider_invite_token).toBeUndefined();
+      expect(sdkRequest.provider_user_id).toBeUndefined();
+    });
+
+    it("propagates SDK errors", async () => {
+      postKeysForUserPasswordRegistration.mockRejectedValue(new Error("sdk boom"));
+      await expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).rejects.toThrow("sdk boom");
     });
   });
 });

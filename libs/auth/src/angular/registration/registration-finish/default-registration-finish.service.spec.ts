@@ -192,6 +192,26 @@ describe("DefaultRegistrationFinishService", () => {
 
       expect(registerCall).toMatchSnapshot();
     });
+
+    it("does not invoke the SDK flow when the feature flag is off", async () => {
+      let postKeysForUserPasswordRegistration: jest.Mock;
+      let registrationClient: { post_keys_for_user_password_registration: jest.Mock };
+      let authClient: { registration: jest.Mock };
+      let sdkClient: { auth: jest.Mock };
+
+      postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
+      registrationClient = {
+        post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
+      };
+      authClient = { registration: jest.fn().mockReturnValue(registrationClient) };
+      sdkClient = { auth: jest.fn().mockReturnValue(authClient) };
+
+      sdkService.client$ = of(sdkClient as any);
+
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+      expect(accountApiService.registerFinish).toHaveBeenCalled();
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled(); // sdk is not called when ff is off
+    });
   });
 
   // SDK-based registration flow. This block is fully self-contained so it can stand alone once the
@@ -298,7 +318,7 @@ describe("DefaultRegistrationFinishService", () => {
       expect(accountApiService.registerFinish).not.toHaveBeenCalled();
     });
 
-    it("passes the web-only tokens and ids through to the SDK register request", async () => {
+    it("does not pass the web-only tokens and ids through to the SDK register request", async () => {
       await service.finishRegistration(
         email,
         passwordInputResult,
@@ -319,11 +339,11 @@ describe("DefaultRegistrationFinishService", () => {
           email_verification_token: emailVerificationToken,
           organization_user_id: undefined,
           org_invite_token: undefined,
-          org_sponsored_free_family_plan_token: orgSponsoredFreeFamilyPlanToken,
-          accept_emergency_access_invite_token: acceptEmergencyAccessInviteToken,
-          accept_emergency_access_id: emergencyAccessId,
-          provider_invite_token: providerInviteToken,
-          provider_user_id: providerUserId,
+          org_sponsored_free_family_plan_token: undefined,
+          accept_emergency_access_invite_token: undefined,
+          accept_emergency_access_id: undefined,
+          provider_invite_token: undefined,
+          provider_user_id: undefined,
         }),
       );
     });
@@ -337,38 +357,6 @@ describe("DefaultRegistrationFinishService", () => {
           provider_user_id: undefined,
         }),
       );
-    });
-
-    it("throws if the provided emergency access id is not a valid UUID", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          "not-a-uuid",
-        ),
-      ).rejects.toThrow();
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
-    });
-
-    it("throws if the provided provider user id is not a valid UUID", async () => {
-      await expect(
-        service.finishRegistration(
-          email,
-          passwordInputResult,
-          emailVerificationToken,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          "not-a-uuid",
-        ),
-      ).rejects.toThrow();
-
-      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
     });
   });
 });

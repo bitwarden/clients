@@ -112,10 +112,26 @@ export class WebRegistrationFinishService
       registerRequest.provider_user_id = super.toOptionalSdkUserId(providerUserId);
     }
 
+    // Alternative invite/acceptance tokens (org invite, org-sponsored
+    // family plan, emergency access, provider) are mutually exclusive with
+    // emailVerificationToken — presence of any one of them proves email ownership
+    // via the server-issued invite link, so the standalone email verification
+    // token is not required and would not be present.
+    if (
+      emailVerificationToken &&
+      (registerRequest.org_invite_token ||
+        registerRequest.org_sponsored_free_family_plan_token ||
+        registerRequest.accept_emergency_access_invite_token ||
+        registerRequest.provider_invite_token)
+    ) {
+      throw new Error(
+        `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
+      );
+    }
+
     return registerRequest;
   }
 
-  // Note: the org invite token and email verification are mutually exclusive. Only one will be present.
   override async buildRegisterRequest(
     newUserKey: UserKey,
     email: string,
@@ -158,6 +174,23 @@ export class WebRegistrationFinishService
     if (providerInviteToken && providerUserId) {
       registerRequest.providerInviteToken = providerInviteToken;
       registerRequest.providerUserId = providerUserId;
+    }
+
+    // Alternative invite/acceptance tokens (org invite, org-sponsored
+    // family plan, emergency access, provider) are mutually exclusive with
+    // emailVerificationToken — presence of any one of them proves email ownership
+    // via the server-issued invite link, so the standalone email verification
+    // token is not required and would not be present.
+    if (
+      emailVerificationToken &&
+      (registerRequest.orgInviteToken ||
+        registerRequest.orgSponsoredFreeFamilyPlanToken ||
+        registerRequest.acceptEmergencyAccessInviteToken ||
+        registerRequest.providerInviteToken)
+    ) {
+      throw new Error(
+        `emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.`,
+      );
     }
 
     return registerRequest;
