@@ -194,17 +194,17 @@ describe("DefaultRegistrationFinishService", () => {
     });
 
     it("does not invoke the SDK flow when the feature flag is off", async () => {
-      let postKeysForUserPasswordRegistration: jest.Mock;
-      let registrationClient: { post_keys_for_user_password_registration: jest.Mock };
-      let authClient: { registration: jest.Mock };
-      let sdkClient: { auth: jest.Mock };
+      keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      keyService.makeKeyPair.mockResolvedValue(userKeyPair);
 
-      postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
-      registrationClient = {
+      const postKeysForUserPasswordRegistration: jest.Mock = jest.fn().mockResolvedValue(undefined);
+      const registrationClient: { post_keys_for_user_password_registration: jest.Mock } = {
         post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
       };
-      authClient = { registration: jest.fn().mockReturnValue(registrationClient) };
-      sdkClient = { auth: jest.fn().mockReturnValue(authClient) };
+      const authClient: { registration: jest.Mock } = {
+        registration: jest.fn().mockReturnValue(registrationClient),
+      };
+      const sdkClient: { auth: jest.Mock } = { auth: jest.fn().mockReturnValue(authClient) };
 
       sdkService.client$ = of(sdkClient as any);
 

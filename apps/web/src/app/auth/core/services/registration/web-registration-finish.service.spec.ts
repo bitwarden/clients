@@ -360,7 +360,7 @@ describe("WebRegistrationFinishService", () => {
     it("throws an error if given an email verification token and organization invite token", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
-      expect(
+      await expect(
         service.finishRegistration(email, passwordInputResult, emailVerificationToken),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
@@ -370,7 +370,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws an error if given an email verification token and an org sponsored free family plan token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
@@ -385,7 +385,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws an error if given an email verification token and accept emergency access invite token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
@@ -402,7 +402,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws an error if given an email verification token and provider invite token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
@@ -661,9 +661,15 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws if the provided organization id is not a valid UUID", async () => {
-      let badOrgInvite = new OrganizationInvite();
-      badOrgInvite.organizationUserId = "not-a-uuid";
-      badOrgInvite.token = "orgInviteToken";
+      const badOrgInvite = new OrganizationInvite({
+        organizationId: "organizationId",
+        organizationUserId: "not-a-uuid",
+        token: "orgInviteToken",
+        email: "email",
+        organizationName: "organizationName",
+        initOrganization: false,
+        orgUserHasExistingUser: false,
+      });
       organizationInviteService.getOrganizationInvite.mockResolvedValue(badOrgInvite);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow();
@@ -706,7 +712,7 @@ describe("WebRegistrationFinishService", () => {
     it("throws if given an email verification token and organization invite token", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
 
-      expect(
+      await expect(
         service.finishRegistration(email, passwordInputResult, emailVerificationToken),
       ).rejects.toThrow(
         "emailVerificationToken and alternative invite token simultaneously detected. Could not finish registration.",
@@ -716,7 +722,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws if given an email verification token and an org sponsored free family plan token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
@@ -731,7 +737,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws an error if given an email verification token and accept emergency access invite token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
@@ -748,7 +754,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws an error if given an email verification token and provider invite token", async () => {
-      expect(
+      await expect(
         service.finishRegistration(
           email,
           passwordInputResult,
