@@ -27,7 +27,13 @@ import {
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 
-import { LeaseRow, MyRequestRow, toLeaseRow, toRow } from "./my-request-row";
+import {
+  LeaseRow,
+  MyRequestRow,
+  buildMyRequestRows,
+  extensionsByLeaseId,
+  toLeaseRow,
+} from "./my-request-row";
 
 /**
  * Loads and holds the caller's own access requests and active leases, resolving display
@@ -62,9 +68,7 @@ export class MyAccessRequestsService {
    */
   readonly responses$: Observable<AccessRequestDetailsResponse[]> =
     this.nameResolver.applyCollectionNames$(this._responses$);
-  readonly rows$: Observable<MyRequestRow[]> = this.responses$.pipe(
-    map((responses) => responses.map((r) => toRow(r))),
-  );
+  readonly rows$: Observable<MyRequestRow[]> = this.responses$.pipe(map(buildMyRequestRows));
   readonly leases$: Observable<LeaseRow[]> = this.nameResolver.applyCollectionNames$(this._leases$);
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
@@ -75,7 +79,14 @@ export class MyAccessRequestsService {
    */
   readonly cipherById$: Observable<Map<string, CipherView>> = this._cipherById$.asObservable();
   readonly pendingCount$: Observable<number> = this._responses$.pipe(
-    map((responses) => responses.filter((r) => r.status === AccessRequestStatus.Pending).length),
+    // Extensions never get their own row (they fold into the original), so they must not be counted
+    // here either — otherwise the tab badge would count a request with no visible row.
+    map(
+      (responses) =>
+        responses.filter(
+          (r) => r.status === AccessRequestStatus.Pending && r.extensionOfLeaseId == null,
+        ).length,
+    ),
     distinctUntilChanged(),
   );
 
@@ -170,7 +181,11 @@ export class MyAccessRequestsService {
         this.nameResolver.namesFor(leases),
       ]);
       this._responses$.next(requests);
-      this._leases$.next(leases.map((lease) => toLeaseRow(lease, leaseNames)));
+      // Badge an active lease that has been extended; the extension info lives on the requests.
+      const extByLease = extensionsByLeaseId(requests);
+      this._leases$.next(
+        leases.map((lease) => toLeaseRow(lease, leaseNames, extByLease.get(lease.id))),
+      );
       // Merge the decrypted views from both snapshots so the list can render favicons.
       this._cipherById$.next(new Map([...requestNames.cipherById, ...leaseNames.cipherById]));
     } catch (e) {

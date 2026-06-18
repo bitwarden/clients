@@ -50,6 +50,8 @@ type ResponseFixture = {
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
   requestedTtlSeconds?: number;
+  producedLeaseId?: string | null;
+  extensionOfLeaseId?: string | null;
 };
 
 function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
@@ -87,7 +89,8 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
                   DecidedAt: fixture.resolvedAt ?? fixture.submittedAt ?? "2026-05-01T00:00:00Z",
                 },
           ],
-    LeaseId: null,
+    ProducedLeaseId: fixture.producedLeaseId ?? null,
+    ExtensionOfLeaseId: fixture.extensionOfLeaseId ?? null,
   });
 }
 
@@ -127,6 +130,7 @@ describe("MyAccessRequestsListComponent", () => {
     pamMyRequestsCancelError: "Cancel error",
     pamStatusPending: "Pending",
     pamStatusApproved: "Approved",
+    pamStatusActivated: "Activated",
     pamStatusDenied: "Denied",
     pamStatusCancelled: "Cancelled",
     pamStatusExpired: "Expired",
@@ -146,6 +150,7 @@ describe("MyAccessRequestsListComponent", () => {
     pamStartLeaseSuccess: "Access started",
     pamStartLeaseError: "Start error",
     pamActivateWithin: "Activate within __$1__",
+    pamExtendedBadge: "Extended +__$1__ · until __$2__",
     actions: "Actions",
   });
 
@@ -298,6 +303,91 @@ describe("MyAccessRequestsListComponent", () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-pending-empty"]'),
     ).not.toBeNull();
+  }));
+
+  // No active lease for lease-1 here, so the (ended) grant stays in History, badged.
+  it("folds an extension into its original History row with an Extended badge, with no separate row", fakeAsync(() => {
+    const fixture = create([
+      makeResponse({
+        id: "orig-1",
+        status: "activated",
+        resolvedAt: new Date().toISOString(),
+        producedLeaseId: "lease-1",
+      }),
+      // Real server contract: an applied extension is `approved` and mints no lease of its own.
+      makeResponse({
+        id: "ext-1",
+        status: "approved",
+        resolvedAt: new Date().toISOString(),
+        extensionOfLeaseId: "lease-1",
+        requestedTtlSeconds: 7200,
+        requestedNotAfter: "2026-06-20T15:00:00Z",
+      }),
+    ]);
+
+    // The extension has no row of its own…
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-ext-1"]'),
+    ).toBeNull();
+    // …and the original carries the Extended badge with the added duration.
+    const badge = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-extended-orig-1"]',
+    ) as HTMLElement;
+    expect(badge).not.toBeNull();
+    expect(badge.textContent).toContain("Extended +2h");
+  }));
+
+  it("does not badge an original whose lease was never extended", fakeAsync(() => {
+    const fixture = create([
+      makeResponse({
+        id: "orig-1",
+        status: "activated",
+        resolvedAt: new Date().toISOString(),
+        producedLeaseId: "lease-1",
+      }),
+    ]);
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-orig-1"]'),
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-extended-orig-1"]'),
+    ).toBeNull();
+  }));
+
+  it("shows an active, extended lease only in Active leases (badged), not in History", fakeAsync(() => {
+    const fixture = create(
+      [
+        makeResponse({
+          id: "orig-1",
+          status: "activated",
+          resolvedAt: new Date().toISOString(),
+          producedLeaseId: "lease-1",
+        }),
+        makeResponse({
+          id: "ext-1",
+          status: "approved",
+          resolvedAt: new Date().toISOString(),
+          extensionOfLeaseId: "lease-1",
+          requestedTtlSeconds: 1800,
+          requestedNotAfter: "2026-06-20T15:00:00Z",
+        }),
+      ],
+      [makeLease("lease-1", "cipher-orig-1")],
+    );
+
+    // The active grant is not duplicated in History…
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-requests-history-row-orig-1"]'),
+    ).toBeNull();
+    // …it shows in Active leases, badged with the extension.
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-leases-row-lease-1"]'),
+    ).not.toBeNull();
+    const badge = fixture.nativeElement.querySelector(
+      '[data-testid="my-leases-extended-lease-1"]',
+    ) as HTMLElement;
+    expect(badge).not.toBeNull();
+    expect(badge.textContent).toContain("Extended +30m");
   }));
 
   it("offers Start for an approved request whose window can still produce access", fakeAsync(() => {

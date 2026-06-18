@@ -45,6 +45,21 @@
                       {{ "pamInboxInCollection" | i18n: lease.collectionName }}
                     </div>
                   }
+                  @if (lease.extendedUntil) {
+                    <span
+                      bitBadge
+                      variant="secondary"
+                      class="tw-mt-1 tw-inline-block"
+                      [attr.data-testid]="'my-leases-extended-' + lease.id"
+                    >
+                      {{
+                        "pamExtendedBadge"
+                          | i18n
+                            : extendedByLabel(lease.extendedBySeconds)
+                            : (lease.extendedUntil | date: "short")
+                      }}
+                    </span>
+                  }
                 </div>
               </div>
             </td>
@@ -179,6 +194,21 @@
                     <div class="tw-text-xs tw-text-muted">
                       {{ "pamInboxInCollection" | i18n: row.collectionName }}
                     </div>
+                  }
+                  @if (row.extendedUntil) {
+                    <span
+                      bitBadge
+                      variant="secondary"
+                      class="tw-mt-1 tw-inline-block"
+                      [attr.data-testid]="'my-requests-extended-' + row.id"
+                    >
+                      {{
+                        "pamExtendedBadge"
+                          | i18n
+                            : extendedByLabel(row.extendedBySeconds)
+                            : (row.extendedUntil | date: "short")
+                      }}
+                    </span>
                   }
                 </div>
               </div>

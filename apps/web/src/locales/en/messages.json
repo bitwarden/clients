@@ -15000,6 +15000,19 @@
   "pamExtendLeaseReasonHint": {
     "message": "Explain why you need more time."
   },
+  "pamExtendedBadge": {
+    "message": "Extended +$DURATION$ · until $DATE$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "2h"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jun 20, 3:00 PM"
+      }
+    }
+  },
   "pamGovernanceDescription": {
     "message": "Configure access rules and review activity for privileged items."
   },
