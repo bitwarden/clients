@@ -7,6 +7,13 @@ import { passwords } from "@bitwarden/desktop-napi";
 
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 
+jest.mock("electron", () => ({
+  systemPreferences: {
+    canPromptTouchID: jest.fn(),
+    promptTouchID: jest.fn(),
+  },
+}));
+
 jest.mock("@bitwarden/desktop-napi", () => ({
   biometrics: {
     setBiometricSecret: jest.fn(),

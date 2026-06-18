@@ -22,6 +22,13 @@ import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
+jest.mock("electron", () => ({
+  systemPreferences: {
+    canPromptTouchID: jest.fn(),
+    promptTouchID: jest.fn(),
+  },
+}));
+
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
     biometrics: jest.fn(),
