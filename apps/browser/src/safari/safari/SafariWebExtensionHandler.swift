@@ -513,44 +513,52 @@ enum BufferedSocketClient {
         os_log(.default, "[BufferedSocketClient] Connected successfully")
 
         // Write the 4-byte little-endian length prefix followed by the payload.
-        var lengthLE = UInt32(payload.count).littleEndian
-        let header = Data(bytes: &lengthLE, count: 4)
+        let length = UInt32(payload.count)
+        let header = Data([
+            UInt8(length & 0xff),
+            UInt8((length >> 8) & 0xff),
+            UInt8((length >> 16) & 0xff),
+            UInt8((length >> 24) & 0xff),
+        ])
         if !writeAll(fd, header) || !writeAll(fd, payload) { return nil }
 
         // Read the response length prefix, then exactly that many bytes.
         guard let lengthData = readExactly(fd, 4) else { return nil }
-        let responseLength = lengthData.withUnsafeBytes { UInt32(littleEndian: $0.load(as: UInt32.self)) }
+        let lengthBytes = [UInt8](lengthData)
+        let responseLength = UInt32(lengthBytes[0])
+            | (UInt32(lengthBytes[1]) << 8)
+            | (UInt32(lengthBytes[2]) << 16)
+            | (UInt32(lengthBytes[3]) << 24)
         if responseLength > UInt32(maxFrameLength) { return nil }
         return readExactly(fd, Int(responseLength))
     }
 
     private static func writeAll(_ fd: Int32, _ data: Data) -> Bool {
-        data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Bool in
-            guard let base = raw.baseAddress else { return data.isEmpty }
-            var total = 0
-            while total < data.count {
-                let n = write(fd, base + total, data.count - total)
-                if n <= 0 { return false }
-                total += n
-            }
+        // closeOnDealloc: false — the caller owns `fd` and closes it via `defer`.
+        let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: false)
+        do {
+            // write(contentsOf:) handles partial writes internally.
+            try handle.write(contentsOf: data)
             return true
+        } catch {
+            return false
         }
     }
 
     private static func readExactly(_ fd: Int32, _ count: Int) -> Data? {
         if count == 0 { return Data() }
-        var buffer = Data(count: count)
-        let ok = buffer.withUnsafeMutableBytes { (raw: UnsafeMutableRawBufferPointer) -> Bool in
-            guard let base = raw.baseAddress else { return false }
-            var total = 0
-            while total < count {
-                let n = read(fd, base + total, count - total)
-                if n <= 0 { return false }
-                total += n
+        // closeOnDealloc: false — the caller owns `fd` and closes it via `defer`.
+        let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: false)
+        var buffer = Data()
+        while buffer.count < count {
+            // read(upToCount:) may return fewer bytes than requested; loop until we have `count`.
+            guard let chunk = try? handle.read(upToCount: count - buffer.count),
+                  !chunk.isEmpty else {
+                return nil
             }
-            return true
+            buffer.append(chunk)
         }
-        return ok ? buffer : nil
+        return buffer
     }
 }
 
