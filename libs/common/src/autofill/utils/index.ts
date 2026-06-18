@@ -1,6 +1,5 @@
-import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-
+import { NeverDomains } from "../../models/domain/domain-service";
+import { Utils } from "../../platform/misc/utils";
 import { CardView } from "../../vault/models/view/card.view";
 import {
   DelimiterPatternExpression,
