@@ -199,16 +199,33 @@ export class CipherViewLikeUtils {
       : undefined;
     const translatedAccountType = accountTypeKey ? i18nService.t(accountTypeKey) : undefined;
 
-    const lastFour = bankAccount.accountNumber?.slice(-4);
+    let shownDigits: string | undefined = undefined;
+    if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 4) {
+      shownDigits = bankAccount.accountNumber?.slice(-4);
+    } else if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 1) {
+      const length = bankAccount.accountNumber?.length;
+      const negativeSlice = (length - 1) * -1;
+      shownDigits = bankAccount.accountNumber?.slice(negativeSlice);
+    }
 
-    if (translatedAccountType && lastFour) {
-      return `${translatedAccountType}, *${lastFour}`;
+    if (translatedAccountType && shownDigits) {
+      return `${translatedAccountType}, *${shownDigits}`;
     }
     if (translatedAccountType) {
       return translatedAccountType;
     }
-    if (lastFour) {
-      return `*${lastFour}`;
+    if (shownDigits) {
+      return `*${shownDigits}`;
+    }
+
+    if (translatedAccountType && shownDigits) {
+      return `${translatedAccountType}, *${shownDigits}`;
+    }
+    if (translatedAccountType) {
+      return translatedAccountType;
+    }
+    if (shownDigits) {
+      return `*${shownDigits}`;
     }
     return undefined;
   };
