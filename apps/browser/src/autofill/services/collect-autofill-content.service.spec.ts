@@ -58,6 +58,9 @@ describe("CollectAutofillContentService", () => {
       domQueryService,
       autofillOverlayContentService,
     );
+    // The mutation handler gates on an active observation; tests that drive it
+    // directly model the connected-observer precondition.
+    collectAutofillContentService["isObservingActive"] = true;
     window.IntersectionObserver = jest.fn(() => mockIntersectionObserver);
   });
 
@@ -2573,6 +2576,134 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
       expect(collectAutofillContentService["mutationObserver"].observe).toHaveBeenCalled();
+    });
+
+    it("registers a visibilitychange listener", () => {
+      const addEventListenerSpy = jest.spyOn(globalThis.document, "addEventListener");
+
+      collectAutofillContentService["setupMutationObserver"]();
+
+      expect(addEventListenerSpy).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+    });
+  });
+
+  describe("tab visibility handling", () => {
+    const setVisibility = (state: DocumentVisibilityState) => {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => state });
+    };
+
+    afterEach(() => {
+      setVisibility("visible");
+    });
+
+    it("disconnects the observer and drops pending mutation work when the tab becomes hidden", () => {
+      collectAutofillContentService["setupMutationObserver"]();
+      const disconnectSpy = jest.spyOn(
+        collectAutofillContentService["mutationObserver"],
+        "disconnect",
+      );
+      collectAutofillContentService["pendingChildListUpdate"] = true;
+      collectAutofillContentService["pendingAttributeMutations"].set(
+        document.createElement("input"),
+        new Set(["value"]),
+      );
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+
+      setVisibility("hidden");
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(disconnectSpy).toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
+      expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
+    });
+
+    it("re-observes the document and runs a reconciliation rebuild when the tab becomes visible", () => {
+      collectAutofillContentService["setupMutationObserver"]();
+      const observeSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "observeDocumentMutations",
+      );
+      const reconcileSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "updateAutofillElementsAfterMutation",
+      );
+
+      setVisibility("visible");
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(observeSpy).toHaveBeenCalled();
+      expect(reconcileSpy).toHaveBeenCalled();
+    });
+
+    it("ignores DOM mutations while hidden, then reconciles once visible again", async () => {
+      jest.useFakeTimers();
+      collectAutofillContentService["setupMutationObserver"]();
+      const reconcileSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "updateAutofillElementsAfterMutation",
+      );
+
+      setVisibility("hidden");
+      collectAutofillContentService["handleVisibilityChange"]();
+      reconcileSpy.mockClear();
+
+      // A disconnected observer delivers no records, so this mutation does no work.
+      document.body.appendChild(document.createElement("input"));
+      await Promise.resolve();
+      jest.advanceTimersByTime(2000);
+      await Promise.resolve();
+
+      expect(reconcileSpy).not.toHaveBeenCalled();
+
+      setVisibility("visible");
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(reconcileSpy).toHaveBeenCalled();
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it("removes the visibilitychange listener on destroy", () => {
+      const removeEventListenerSpy = jest.spyOn(globalThis.document, "removeEventListener");
+
+      collectAutofillContentService.destroy();
+
+      expect(removeEventListenerSpy).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
+    });
+
+    it("does no mutation work when the handler is invoked while suspended", () => {
+      collectAutofillContentService["setupMutationObserver"]();
+      setVisibility("hidden");
+      collectAutofillContentService["handleVisibilityChange"]();
+      const scheduleSpy = jest.spyOn(
+        collectAutofillContentService["processMutationsTask"],
+        "schedule",
+      );
+      const mutationRecord = mock<MutationRecord>({ type: "childList" });
+
+      // A callback delivered around the disconnect boundary must be inert.
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(scheduleSpy).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
+    });
+
+    it("cancels in-flight idle mutation work when the tab becomes hidden", () => {
+      collectAutofillContentService["setupMutationObserver"]();
+      const taskCancelSpy = jest.spyOn(
+        collectAutofillContentService["processMutationsTask"],
+        "cancel",
+      );
+      collectAutofillContentService["drainIdleHandle"] = setTimeout(jest.fn, 100);
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+
+      setVisibility("hidden");
+      collectAutofillContentService["handleVisibilityChange"]();
+
+      expect(taskCancelSpy).toHaveBeenCalled();
+      expect(collectAutofillContentService["drainIdleHandle"]).toBeNull();
+      expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
     });
   });
 

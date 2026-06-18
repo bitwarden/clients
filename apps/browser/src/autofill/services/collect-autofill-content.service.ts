@@ -1,4 +1,4 @@
-import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import { AUTOFILL_ATTRIBUTES, EVENTS } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
@@ -23,6 +23,7 @@ import {
   getPropertyOrAttribute,
   requestIdleCallbackPolyfill,
   cancelIdleCallbackPolyfill,
+  CoalescedIdleTask,
   debounce,
 } from "../utils";
 
@@ -64,6 +65,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
+  // True only while the observer is connected. Mutation-driven work gates on this
+  // so that callbacks delivered around the disconnect boundary (or any path that
+  // outlives disconnect) do no work while the tab is hidden.
+  private isObservingActive = false;
+  // Owned idle handles so suspend can cancel in-flight mutation work, not just the
+  // observer. The drain handle backs the deferred block inside processMutations.
+  private readonly processMutationsTask = new CoalescedIdleTask(() => this.processMutations(), {
+    timeout: 500,
+  });
+  private drainIdleHandle: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
   private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
@@ -1359,7 +1370,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private setupMutationObserver() {
     this.currentLocationHref = globalThis.location.href;
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    this.mutationObserver.observe(document.documentElement, {
+    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
+    // A tab that initializes hidden (background preload) shouldn't observe until
+    // shown; the visible transition starts observation and runs the first rebuild.
+    if (globalThis.document.visibilityState !== "hidden") {
+      this.observeDocumentMutations();
+    }
+  }
+
+  private observeDocumentMutations() {
+    this.isObservingActive = true;
+    this.mutationObserver?.observe(document.documentElement, {
       attributes: true,
       attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
@@ -1367,7 +1388,67 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     });
   }
 
+  /**
+   * While the tab is hidden, mutation-driven work is pure waste: nothing the
+   * user can see depends on it, yet a churning background page keeps the
+   * observer callback, shadow scans, and full-document rebuilds firing. On the
+   * hidden transition we disconnect the observer and drop in-flight work; on the
+   * visible transition we re-attach and run a single reconciliation rebuild that
+   * re-derives autofill state from the current DOM, so nothing accumulated while
+   * hidden is lost.
+   */
+  private handleVisibilityChange = () => {
+    if (globalThis.document.visibilityState === "hidden") {
+      this.suspendMutationObservation();
+
+      return;
+    }
+
+    this.resumeMutationObservation();
+  };
+
+  private suspendMutationObservation() {
+    this.isObservingActive = false;
+    this.mutationObserver?.disconnect();
+
+    // Cancel every in-flight idle callback so the mutation-rebuild chain cannot
+    // keep re-arming itself (processMutations -> drain -> getPageDetails) while hidden.
+    this.processMutationsTask.cancel();
+    if (this.drainIdleHandle !== null) {
+      cancelIdleCallbackPolyfill(this.drainIdleHandle);
+      this.drainIdleHandle = null;
+    }
+    if (this.updateAfterMutationIdleCallback !== null) {
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
+    }
+    if (this.shadowDomCheckTimeout) {
+      clearTimeout(this.shadowDomCheckTimeout);
+      this.shadowDomCheckTimeout = null;
+      this.pendingShadowDomCheck = false;
+    }
+
+    // Pending state is rebuilt from the live DOM on resume, so dropping it is safe.
+    this.pendingAttributeMutations.clear();
+    this.pendingTopLayerTargets.clear();
+    this.pendingChildListUpdate = false;
+    this.pendingMutationAddedElements.clear();
+    this.pendingMutationAddedElementsOverflowed = false;
+  }
+
+  private resumeMutationObservation() {
+    this.observeDocumentMutations();
+    this.updateAutofillElementsAfterMutation();
+  }
+
   private handleMutationObserverMutation = (mutations: MutationRecord[]) => {
+    // Gate on our own state, not just the observer connection: a hidden tab must
+    // do no mutation-driven work even if a callback is delivered around the
+    // disconnect boundary. Resume re-derives state from the live DOM.
+    if (!this.isObservingActive) {
+      return;
+    }
+
     if (this.currentLocationHref !== globalThis.location.href) {
       this.handleWindowLocationMutation();
 
@@ -1442,7 +1523,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (shouldSchedule) {
-      requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
+      this.processMutationsTask.schedule();
     }
   };
 
@@ -1493,8 +1574,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
-    requestIdleCallbackPolyfill(
+    this.drainIdleHandle = requestIdleCallbackPolyfill(
       () => {
+        this.drainIdleHandle = null;
         for (const element of drainingTopLayer) {
           this.setupTopLayerCandidateListener(element);
         }
@@ -1998,6 +2080,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
+    this.processMutationsTask.cancel();
+    if (this.drainIdleHandle !== null) {
+      cancelIdleCallbackPolyfill(this.drainIdleHandle);
+      this.drainIdleHandle = null;
+    }
     if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
       this.updateAfterMutationIdleCallback = null;
@@ -2007,6 +2094,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
+    globalThis.document.removeEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChange);
     if (this.mutationObserver !== null) {
       this.mutationObserver.disconnect();
       this.mutationObserver = null;
