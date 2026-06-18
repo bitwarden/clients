@@ -45,7 +45,7 @@ export class NativeMessagingTransport {
 
   /**
    * Starts a connection to the desktop app. This function attempts to establish a connection with the desktop application
-   * using native messaging. It will automaticall retry and reconnect if the connection fails or is lost.
+   * using native messaging. It will automatically retry and reconnect if the connection fails or is lost.
    */
   async connectToDesktop(): Promise<void> {
     let port: browser.runtime.Port | chrome.runtime.Port | undefined;
