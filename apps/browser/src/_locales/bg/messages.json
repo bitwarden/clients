@@ -214,8 +214,13 @@
     "message": "Попълване",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автоматично дописване"
+  "autofillNoun": {
+    "message": "Автоматично попълване",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автоматично попълване",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Авт. попълване на данни за вход"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Запазване"
+  },
+  "saveAndFill": {
+    "message": "Запазване и попълване"
   },
   "move": {
     "message": "Преместване"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Използване на асистираното попълване"
   },
+  "turnOnFillAssist": {
+    "message": "Включване на асистираното попълване"
+  },
+  "enableFillAssistDescription": {
+    "message": "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, чрез използване на определени правила. Никакви данни не се събират или съхраняват, когато използвате тази функционалност."
+  },
+  "aboutFillAssist": {
+    "message": "Относно асистираното попълване"
+  },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
   },
@@ -1793,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "Адрес на сървъра с иконки"
+  },
+  "sendUrl": {
+    "message": "Адрес на сървъра за изпращането"
   },
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
@@ -4380,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1 или повече е-пощи са неправилни"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Полето за получателите на е-писмото не може да съдържа повече от 2 500 знака. Премахнете един или повече получатели, за да продължите."
+  },
   "inputTrimValidator": {
     "message": "Въведеното не може да съдържа само интервали.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6501,6 +6524,18 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "sharedUnlock": {
+    "message": "Споделено отключване"
+  },
+  "sharedUnlockDescription": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между всички приложения на тази машина. Настолното приложение е необходимо, за да може да се осъществи синхронизация между различните браузъри."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено между трезорите по уеб на Битуорден в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизирайте приложенията на Битуорден. Когато това е включено, отключеното състояние ще бъде споделено с настолното приложение на Битуорден."
+  },
   "enterMonth": {
     "message": "Въведете месец."
   },
@@ -6644,14 +6679,13 @@
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Запазването на промените по Изпращането беше неуспешно",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
   }
 }

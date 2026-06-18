@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
@@ -43,6 +42,10 @@ export enum FeatureFlag {
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
+  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
+  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
+  PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
+  DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
@@ -95,6 +98,9 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
+  PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
+  PM29968_FillAfterSave = "pm-29968-fill-after-save",
+  PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
 
@@ -126,7 +132,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
@@ -176,6 +181,9 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
+  [FeatureFlag.PM29968_FillAfterSave]: FALSE,
+  [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
 
@@ -191,6 +199,10 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
+  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
+  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
+  [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
+  [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */

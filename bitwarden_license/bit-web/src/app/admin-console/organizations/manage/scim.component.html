@@ -27,7 +27,7 @@
   </bit-form-control>
   <bit-form-field *ngIf="showScimSettings">
     <bit-label>{{ "scimUrl" | i18n }}</bit-label>
-    <input bitInput type="text" formControlName="endpointUrl" />
+    <input bitInput type="text" formControlName="endpointUrl" readonly />
     <button
       type="button"
       bitSuffix
@@ -44,6 +44,7 @@
       [type]="showScimKey ? 'text' : 'password'"
       formControlName="clientSecret"
       id="clientSecret"
+      readonly
     />
     <button
       type="button"
