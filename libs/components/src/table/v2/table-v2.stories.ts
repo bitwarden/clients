@@ -181,7 +181,12 @@ type VaultFilters = {
   ],
   template: `
     <bit-layout>
-      <bit-table-v2 [tableDef]="table" [filter]="filter">
+      <bit-table-v2
+        [tableDef]="table"
+        [filter]="filter"
+        [presentation]="presentation()"
+        [maxHeight]="maxHeight()"
+      >
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
@@ -241,6 +246,9 @@ type VaultFilters = {
   `,
 })
 class DemoFilterableTableComponent {
+  readonly presentation = input<"table" | "list">("table");
+  readonly maxHeight = input<string>();
+
   protected readonly data = signal(VAULT_ROWS);
   protected readonly table = defineTable<VaultRow>(this.data);
 
@@ -509,6 +517,23 @@ export const Default: Story = {
         </bit-column>
       </bit-table-v2>
     `,
+  }),
+};
+
+/**
+ * The `presentation` input switches between the bordered column grid (`table`)
+ * and a `bit-item`-style card list (`list`). Reuses the {@link Filterable} demo
+ * so the filtering chrome carries over unchanged — toggle the control to compare.
+ */
+export const List: Story = {
+  args: { presentation: "list", maxHeight: "400px" },
+  argTypes: {
+    presentation: { control: "inline-radio", options: ["table", "list"] },
+    maxHeight: { control: "text" },
+  },
+  render: (args) => ({
+    props: args,
+    template: `<demo-filterable-table [presentation]="presentation" [maxHeight]="maxHeight"></demo-filterable-table>`,
   }),
 };
 

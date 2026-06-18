@@ -5,6 +5,7 @@ export { BitColumnComponent } from "./bit-column.component";
 export { BitHeaderCellComponent } from "./bit-header-cell.component";
 export { BitHeaderRowComponent } from "./bit-header-row.component";
 export { BitRowComponent } from "./bit-row.component";
+export { BitRowGroupComponent } from "./bit-row-group.component";
 export { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 export { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 export { BitTableFilterDirective } from "./bit-table-filter.directive";

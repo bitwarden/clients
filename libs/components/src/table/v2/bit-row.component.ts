@@ -23,8 +23,7 @@ import { BitTableV2Component } from "./table-v2.component";
   template: "<ng-content></ng-content>",
   host: {
     role: "row",
-    class:
-      "tw-grid tw-grid-flow-col tw-auto-cols-fr tw-border-0 tw-border-t tw-border-solid tw-border-border-base first:tw-border-t-0",
+    "[class]": "hostClasses()",
     "[style.grid-template-columns]": "gridTemplateColumns()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,4 +35,18 @@ export class BitRowComponent {
   );
 
   protected readonly gridTemplateColumns = computed(() => this.table?.gridTemplateColumns());
+
+  /**
+   * Row chrome. The grid classes lay the cells out in both presentations; the
+   * rest is presentation-specific: `table` connects rows with a top divider,
+   * `list` renders each row as a standalone `bit-item`-style card (background,
+   * rounded corners, spacing, hover).
+   */
+  protected readonly hostClasses = computed(() => {
+    const layout = "tw-grid tw-grid-flow-col tw-auto-cols-fr";
+    if (this.table?.presentation() === "list") {
+      return `${layout} tw-min-h-9 tw-mb-1.5 tw-rounded-lg tw-bg-background tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow hover:tw-bg-hover-default`;
+    }
+    return `${layout} tw-border-0 tw-border-t tw-border-solid tw-border-border-base first:tw-border-t-0`;
+  });
 }

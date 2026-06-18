@@ -57,7 +57,15 @@ export class BitHeaderCellComponent {
   /** True when there's no owning column, so the cell renders itself inline. */
   protected readonly manual = computed(() => this.column == null);
 
-  protected readonly sortable = computed(() => this.column?.sortable() ?? false);
+  /**
+   * Whether to render the sort affordance. The column must opt in via `sortable`,
+   * and the table must be in `table` presentation — `list` presentation hides the
+   * header visually, so a sort button there would be a focusable, invisible
+   * control. (Until a list-mode sort control exists, list mode is unsortable.)
+   */
+  protected readonly sortable = computed(
+    () => (this.column?.sortable() ?? false) && this.table?.presentation() !== "list",
+  );
 
   protected readonly active = computed(() => {
     if (!this.column) {
@@ -67,11 +75,11 @@ export class BitHeaderCellComponent {
   });
 
   protected readonly ariaSort = computed(() => {
-    if (!this.column || !this.column.sortable()) {
+    if (!this.sortable()) {
       return undefined;
     }
     const sort = this.table?.sort();
-    if (sort?.column !== this.column.name()) {
+    if (sort?.column !== this.column?.name()) {
       return undefined;
     }
     return sort.direction === "asc" ? "ascending" : "descending";

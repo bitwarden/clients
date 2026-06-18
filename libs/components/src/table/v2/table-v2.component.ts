@@ -26,6 +26,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { FilterControl } from "../../filter-menu/filter-tokens";
+import { IconComponent } from "../../icon/icon.component";
 import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
@@ -35,6 +36,7 @@ import { SortDirection, SortFn } from "../table-data-source";
 import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
+import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
@@ -123,6 +125,15 @@ function sortRows<T>(
   });
 }
 
+/**
+ * A flattened body item: either a data row, or a group header (with its source
+ * row-group and the number of rows in that group). Iterated by the non-virtualized
+ * body so grouped and ungrouped rendering share one path.
+ */
+type RenderItem<T> =
+  | { kind: "row"; row: T }
+  | { kind: "group"; group: BitRowGroupComponent<T>; count: number; level: number };
+
 @Component({
   selector: "bit-table-v2",
   exportAs: "bitTableV2",
@@ -135,6 +146,7 @@ function sortRows<T>(
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
+    IconComponent,
     NoItemsComponent,
     SkeletonTextComponent,
     I18nPipe,
@@ -169,6 +181,13 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * declaration order. Set a new array to reorder or hide at runtime.
    */
   readonly displayedColumns = input<readonly ColumnName<T, S>[]>();
+
+  /**
+   * Render style. `"table"` (default) draws the bordered column grid; `"list"`
+   * drops the table chrome and renders each row as a standalone `bit-item`-style
+   * card. The data, filtering, sort, and selection engine is identical in both.
+   */
+  readonly presentation = input<"table" | "list">("table");
 
   /** Active sort (`{ column, direction }`). Two-way — header clicks cycle it; bind `[(sort)]` to persist. */
   readonly sort = model<SortState<ColumnName<T, S>>>({ direction: "asc" });
@@ -397,6 +416,27 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
       this.urlStore.set(state);
     });
+
+    // `<bit-row-group>` only renders in list presentation; warn if declared in table mode.
+    effect(() => {
+      if (this.presentation() === "table" && this._groups().length > 0) {
+        this.logService?.warning(
+          'bit-table-v2: `<bit-row-group>` is only supported in `presentation="list"`. ' +
+            "Groups are ignored in table presentation.",
+        );
+      }
+    });
+
+    // Only one level of nesting is supported; deeper subgroups are ignored.
+    effect(() => {
+      const tooDeep = this._groups().some((g) => g.children().some((c) => c.children().length > 0));
+      if (tooDeep) {
+        this.logService?.warning(
+          "bit-table-v2: `<bit-row-group>` supports only one level of nesting; " +
+            "groups nested deeper than that are ignored.",
+        );
+      }
+    });
   }
 
   /**
@@ -437,6 +477,56 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * filter, or virtualization.
    */
   protected readonly hasColumns = computed(() => this._columns().length > 0);
+
+  /** Registered `<bit-row-group>`s, in declaration order. Empty = ungrouped rendering. */
+  private readonly _groups = signal<BitRowGroupComponent<T>[]>([]);
+
+  /**
+   * Whether groups actually render. `<bit-row-group>` is a `list`-presentation
+   * feature; in `table` presentation groups are ignored (and a warning is logged),
+   * so the body falls back to flat rows.
+   */
+  protected readonly groupingActive = computed(
+    () => this.presentation() === "list" && this._groups().length > 0,
+  );
+
+  /** Registers a row-group. Called by {@link BitRowGroupComponent} via DI. */
+  registerGroup(group: BitRowGroupComponent<T>): void {
+    this._groups.update((groups) => [...groups, group]);
+  }
+
+  /** @see {@link registerGroup} */
+  unregisterGroup(group: BitRowGroupComponent<T>): void {
+    this._groups.update((groups) => groups.filter((g) => g !== group));
+  }
+
+  /**
+   * Header chrome for a group at `level` (0 = top, 1 = subgroup). A muted subheader
+   * in `list`; subgroups are indented. (Grouping no-ops in `table` presentation, so
+   * the table-mode style is kept only for coherence.)
+   */
+  protected groupHeaderClass(level: number): string {
+    if (this.presentation() !== "list") {
+      return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow tw-bg-background-alt tw-px-3 tw-py-2 tw-text-sm tw-font-bold tw-text-muted";
+    }
+    // Match the extension's section/subsection type: top = `h6` (text-sm, main,
+    // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.
+    const type =
+      level === 0
+        ? "tw-text-sm tw-text-main tw-font-medium tw-px-1 tw-pb-1 tw-pt-3"
+        : "tw-text-xs tw-text-muted tw-font-medium tw-ps-4 tw-pe-1 tw-py-1";
+    return `tw-flex tw-items-center ${type}`;
+  }
+
+  /** Collapsible-header chrome: the base header plus a full-width hover/focus toggle affordance. */
+  protected groupHeaderButtonClass(level: number): string {
+    return (
+      this.groupHeaderClass(level) +
+      " tw-w-full tw-cursor-pointer tw-rounded tw-border-0 tw-bg-transparent tw-text-start" +
+      " hover:tw-bg-hover-default focus-visible:tw-outline-none focus-visible:tw-ring-2" +
+      " focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+    );
+  }
 
   /**
    * Registered columns resolved against {@link displayedColumns}: shown in its
@@ -486,15 +576,19 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   protected readonly isVirtualized = computed(() => this.virtualRowHeight() !== undefined);
 
-  /** Outer container chrome: border, rounded corners, subtle shadow. Becomes a fill flex column in {@link fill} mode. */
+  /** Outer container chrome: border, rounded corners, subtle shadow. Dropped in `list` presentation so rows float as cards. Becomes a fill flex column in {@link fill} mode. */
   protected readonly containerClass = computed(() => [
-    "tw-bg-bg-primary",
-    "tw-border",
-    "tw-border-solid",
-    "tw-border-border-base",
-    "tw-rounded-xl",
-    "tw-overflow-clip",
-    "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
+    ...(this.presentation() === "list"
+      ? []
+      : [
+          "tw-bg-bg-primary",
+          "tw-border",
+          "tw-border-solid",
+          "tw-border-border-base",
+          "tw-rounded-xl",
+          "tw-overflow-clip",
+          "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
+        ]),
     ...(this.fill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
   ]);
 
@@ -517,6 +611,78 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       return sorted.slice(start, start + paginator.pageSize());
     }
     return sorted;
+  });
+
+  /**
+   * The non-virtualized body's render list: {@link rows} as-is when ungrouped, or
+   * interleaved group headers and rows when `<bit-row-group>`s are projected. Each
+   * row joins the first group whose `match` claims it (declaration order); empty
+   * groups are skipped, and rows no group claims trail in a headerless block.
+   */
+  protected readonly renderItems = computed<RenderItem<T>[]>(() => {
+    const rows = this.rows();
+    if (!this.groupingActive()) {
+      return rows.map((row): RenderItem<T> => ({ kind: "row", row }));
+    }
+
+    // First-match-wins partition of `toSplit` across `groups`, preserving row order.
+    const partition = (groups: readonly BitRowGroupComponent<T>[], toSplit: readonly T[]) => {
+      const buckets = new Map<BitRowGroupComponent<T>, T[]>();
+      const unmatched: T[] = [];
+      for (const row of toSplit) {
+        const group = groups.find((g) => g.match()(row));
+        if (!group) {
+          unmatched.push(row);
+          continue;
+        }
+        const bucket = buckets.get(group);
+        if (bucket) {
+          bucket.push(row);
+        } else {
+          buckets.set(group, [row]);
+        }
+      }
+      return { buckets, unmatched };
+    };
+    const rowItems = (rs: readonly T[]): RenderItem<T>[] =>
+      rs.map((row): RenderItem<T> => ({ kind: "row", row }));
+
+    const items: RenderItem<T>[] = [];
+    const top = partition(this._groups(), rows);
+    for (const group of this._groups()) {
+      const groupRows = top.buckets.get(group);
+      if (!groupRows?.length) {
+        continue;
+      }
+      // A collapsed group still shows its header (with the full count) but hides its body.
+      items.push({ kind: "group", group, count: groupRows.length, level: 0 });
+      if (group.collapsible() && group.collapsed()) {
+        continue;
+      }
+      const children = group.children();
+      if (children.length === 0) {
+        items.push(...rowItems(groupRows));
+        continue;
+      }
+      // One extra level: sub-partition the group's rows across its child groups.
+      const sub = partition(children, groupRows);
+      // Rows no subgroup claims render flat directly under the parent header, BEFORE
+      // the subheadered subgroups — e.g. the extension's flat run followed by a
+      // "Cards" subgroup section.
+      items.push(...rowItems(sub.unmatched));
+      for (const child of children) {
+        const childRows = sub.buckets.get(child);
+        if (!childRows?.length) {
+          continue;
+        }
+        items.push({ kind: "group", group: child, count: childRows.length, level: 1 });
+        if (!(child.collapsible() && child.collapsed())) {
+          items.push(...rowItems(childRows));
+        }
+      }
+    }
+    items.push(...rowItems(top.unmatched));
+    return items;
   });
 
   /** Index array for the skeleton rows shown while loading. */
@@ -550,6 +716,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   private readonly logService = inject(LogService, { optional: true });
 
   ngAfterContentInit(): void {
+    if (this._groups().length > 0 && this.paginator()) {
+      throw new Error(
+        "bit-table-v2: `<bit-row-group>` and `<bit-table-paginator>` are not supported together — " +
+          "grouping with pagination is not implemented.",
+      );
+    }
     if (!this.hasColumns()) {
       if (this.selection()) {
         this.logService?.warning(
