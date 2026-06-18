@@ -2618,7 +2618,7 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["updateAfterMutationIdleCallback"]).toBeNull();
     });
 
-    it("re-observes the document and runs a reconciliation rebuild when the tab becomes visible", () => {
+    it("re-observes the document and forces a live re-derivation when the tab becomes visible", () => {
       collectAutofillContentService["setupMutationObserver"]();
       const observeSpy = jest.spyOn(
         collectAutofillContentService as any,
@@ -2628,12 +2628,18 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService as any,
         "updateAutofillElementsAfterMutation",
       );
+      // Simulate the state left by the last rebuild before the tab was hidden:
+      // cached fields and no pending mutation, so getPageDetails would otherwise
+      // short-circuit to cached data.
+      collectAutofillContentService["domRecentlyMutated"] = false;
 
       setVisibility("visible");
       collectAutofillContentService["handleVisibilityChange"]();
 
       expect(observeSpy).toHaveBeenCalled();
       expect(reconcileSpy).toHaveBeenCalled();
+      // Must re-derive from the live DOM, not serve cached field data.
+      expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
     });
 
     it("ignores DOM mutations while hidden, then reconciles once visible again", async () => {

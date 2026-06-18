@@ -1438,6 +1438,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   private resumeMutationObservation() {
     this.observeDocumentMutations();
+    // Force a true re-derivation from the live DOM: without this, getPageDetails
+    // short-circuits to cached fields (domRecentlyMutated is false after the last
+    // rebuild and nothing set it while hidden), so changes made while hidden would
+    // be missed.
+    this.requirePageDetailsUpdate();
     this.updateAutofillElementsAfterMutation();
   }
 
