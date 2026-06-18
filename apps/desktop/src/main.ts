@@ -19,7 +19,7 @@ import {
 } from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -66,6 +66,7 @@ import { DesktopSettingsService } from "./platform/services/desktop-settings.ser
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
+import { IpcMainService } from "./platform/services/ipc.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
@@ -324,6 +325,13 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.ipcService = new IpcMainService(
+      this.logService,
+      app,
+      this.nativeMessagingMain,
+      this.windowMain,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -349,7 +357,6 @@ export class Main {
       this.logService,
       this.windowMain,
     );
-    this.ipcService = new NoopIpcService(this.logService);
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
@@ -409,7 +416,6 @@ export class Main {
             await this.nativeMessagingMain.generateDdgManifests();
           }
 
-          // Start native messaging when shared unlock is enabled at runtime
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {

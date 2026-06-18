@@ -3,6 +3,7 @@ import { ipcRenderer } from "electron";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
+import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
 
 import {
   EncryptedMessageResponse,
@@ -78,6 +79,18 @@ const nativeMessaging = {
       ipcRenderer.invoke("nativeMessaging.manifests", { create }),
     generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
       ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
+};
+
+const ipcService = {
+  onMessage: (callback: (message: ForwardedIpcMessage) => void) => {
+    ipcRenderer.on("ipc.onMessage", (_event, message: ForwardedIpcMessage) => {
+      callback(message);
+    });
+  },
+
+  send: (message: IpcMessage) => {
+    ipcRenderer.send("ipc.send", message);
   },
 };
 
@@ -174,6 +187,7 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  ipcService,
 };
 
 function deviceType(): DeviceType {

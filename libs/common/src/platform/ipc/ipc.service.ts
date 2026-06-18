@@ -19,7 +19,7 @@ import { IpcClient, IncomingMessage, OutgoingMessage } from "@bitwarden/sdk-inte
  *
  * ```typescript
  * // Send a message
- * await ipcService.send(OutgoingMessage.new_json_payload({ my: "data" }, "BrowserBackground", "my-topic"));
+ * await ipcService.send(OutgoingMessage.new_json_payload({ my: "data" }, { BrowserBackground: { id: "Own" } }, "my-topic"));
  *
  * // Receive messages
  * ipcService.messages$.subscribe((message: IncomingMessage) => {
