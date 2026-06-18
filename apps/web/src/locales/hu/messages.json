@@ -138,6 +138,9 @@
   "sendReminders": {
     "message": "Emlékeztető küldés"
   },
+  "noCriticalApplicationsMarkedYet": {
+    "message": "Még nem jelöltünk meg kritikus alkalmazásokat. Tekintsük át az alkalmazásokat az induláshoz."
+  },
   "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
     "message": "A kritikus alkalmazások megjelölésével azok itt jelennek meg."
   },
@@ -2699,26 +2702,6 @@
   "importData": {
     "message": "Adatok importálása"
   },
-  "onboardingImportDataDetailsPartOne": {
-    "message": "Ha nincsenek importálandó adatok, létrehozhatunk egy",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLink": {
-    "message": "új elemet",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsLoginLink": {
-    "message": "új bejelentkezés",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
-  },
-  "onboardingImportDataDetailsPartTwoNoOrgs": {
-    "message": " helyett.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
-  },
-  "onboardingImportDataDetailsPartTwoWithOrgs": {
-    "message": " helyett. Előfordulhat, hogy meg kell várni, amíg az adminisztrátor megerősíti szervezeti tagságot.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
-  },
   "importError": {
     "message": "Importálási hiba"
   },
@@ -3582,10 +3565,16 @@
   "year": {
     "message": "év"
   },
+  "years": {
+    "message": "év"
+  },
   "yr": {
     "message": "év"
   },
   "month": {
+    "message": "hónap"
+  },
+  "months": {
     "message": "hónap"
   },
   "monthAbbr": {
@@ -3670,6 +3659,87 @@
   "canceledSubscription": {
     "message": "Az előfizetés törlésre került."
   },
+  "churnOfferTitle": {
+    "message": "Különleges ajánlat, mielőtt megyünk"
+  },
+  "churnOfferPreamble": {
+    "message": "Ha most lemondjuk, a hozzáférés eddig folytatódik:"
+  },
+  "churnOfferPreambleSuffix": {
+    "message": ". De mint ügyfél először van itt egy ajánlat."
+  },
+  "churnOfferDiscountHeading": {
+    "message": "$DISCOUNT$ feliratkozási kedvezmény",
+    "description": "Heading on the churn-mitigation offer card. DISCOUNT = discount amount, either a percentage (e.g. '10%') or a dollar amount (e.g. '$5.00')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDiscountBody": {
+    "message": "Köszönetképpen, mint régóta Bitwarden ügyfél, $DISCOUNT$ kedvezmény kaphatunk a következő $DURATION$ szolgáltatásra.",
+    "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferAccept": {
+    "message": "Maradjunk és kapjunk $DISCOUNT$ kedvezményt",
+    "description": "Primary button on the churn-mitigation offer dialog. DISCOUNT = discount amount",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      }
+    }
+  },
+  "churnOfferDecline": {
+    "message": "Feliratkozás lemondása"
+  },
+  "churnOfferSuccessTitle": {
+    "message": "Készen is vagyunk!"
+  },
+  "churnOfferSuccessBody": {
+    "message": "$DISCOUNT$ kedvezmény került alkalmazásra a következő $DURATION$ szolgáltatásra.",
+    "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "duration": {
+        "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ kedvezmény: $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Nincs lejárat"
   },
@@ -3693,6 +3763,9 @@
   },
   "discount": {
     "message": "kedvezmény"
+  },
+  "discountApplied": {
+    "message": "A kedvezmény felhasználásra került."
   },
   "discountExpiredOnPurchase": {
     "message": "A kedvezmény lejárt. Tekintsük át a kosár végösszegét és próbáljuk újra."
@@ -8312,6 +8385,9 @@
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
   },
+  "sendUrl": {
+    "message": "Send szerver webcím"
+  },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
   },
@@ -8994,6 +9070,9 @@
   },
   "multipleInputEmails": {
     "message": "1 vagy több email cím érvénytelen."
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Az email címzett lista nem haladhatja meg a 2500 karaktert. Távolítsunk el egy vagy több címzettet a folytatáshoz."
   },
   "tooManyEmails": {
     "message": "Egyszerre legfeljebb $COUNT$ email küldhető be.",
@@ -10184,9 +10263,6 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
-  "createAnAccount": {
-    "message": "Fiók létrehozása"
-  },
   "createSecret": {
     "message": "Titkos kód létrehozása"
   },
@@ -10209,7 +10285,44 @@
   "getStarted": {
     "message": "Kezdés"
   },
+  "getStartedWithSecretsManager": {
+    "message": "Kezdés a Titkos kódok kezelővel"
+  },
+  "smOnboardingChecklistSubtitle": {
+    "message": "Végezzük el ezeket a lépéseket a csapat titkos kódok kezelés elindításához."
+  },
+  "smOnboardingCreateMachineAccountCta": {
+    "message": "Gépi fiók létrehozása"
+  },
+  "smOnboardingCreateProjectSubtitle": {
+    "message": "A titkos kódok szervezése projektekbe"
+  },
+  "smOnboardingCreateProjectCta": {
+    "message": "Projekt létrehozása"
+  },
+  "smOnboardingImportSecretsSubtitle": {
+    "message": "Hozzuk át a meglévő titkos kódokat egy másik eszközről."
+  },
+  "smOnboardingCreateSecretSubtitle": {
+    "message": "Tároljuk a jelszavakat, tanúsítványokat és API-kulcsokat."
+  },
+  "smOnboardingCreateSecretCta": {
+    "message": "Titkos kód létrehozása"
+  },
   "complete": {
+    "message": "$COMPLETED$/$TOTAL$ kész",
+    "placeholders": {
+      "COMPLETED": {
+        "content": "$1",
+        "example": "1"
+      },
+      "TOTAL": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "onboardingTasksComplete": {
     "message": "$COMPLETED$/$TOTAL$ kész",
     "placeholders": {
       "COMPLETED": {
@@ -10864,11 +10977,38 @@
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
   },
-  "installBrowserExtension": {
+  "getStartedWithYourVault": {
+    "message": "Kezdés a széffel"
+  },
+  "onboardingChecklistSubtitle": {
+    "message": "Végezzük el ezeket a lépéseket a személyes adatok biztonsága érdekében és hozzuk ki a legtöbbet a Bitwardenből."
+  },
+  "dismissThisChecklist": {
+    "message": "Ezen ellenőrző lista elvetése"
+  },
+  "onboardingCreateYourAccountTitle": {
+    "message": "Fiók létrehozása"
+  },
+  "onboardingImportYourPasswordsTitle": {
+    "message": "Jelszavak importálása"
+  },
+  "onboardingInstallTheBrowserExtensionTitle": {
     "message": "Böngésző bővítmény telepítése"
   },
-  "installBrowserExtensionDetails": {
-    "message": "A bővítmény segítségével gyorsan elmenthetők a bejelentkezések és automatikusan kitölthetők az űrlapok a webalkalmazás megnyitása nélkül."
+  "onboardingImportDataSubtitle": {
+    "message": "Időt takaríthatunk meg az adatok importálásával egy másik jelszókezelőből. Manuálisan hozzáadhatunk elemeket a széfből."
+  },
+  "onboardingImportCta": {
+    "message": "Jelszavak importálása"
+  },
+  "onboardingInstallExtensionSubtitle": {
+    "message": "Rögzítsük a bővítményt a böngészőhöz. Ez lehetővé teszi a gyorsabb bejelentkezést és a jelszavak zökkenőmentes mentését."
+  },
+  "onboardingInstallExtensionCta": {
+    "message": "Bővítmény telepítése"
+  },
+  "completed": {
+    "message": "Kész"
   },
   "projectAccessUpdated": {
     "message": "A projekt elérés frissítésre került."
@@ -12680,6 +12820,37 @@
       }
     }
   },
+  "scheduledPriceIncreaseWarningMonthly": {
+    "message": "Az előfizetés ára havi $PRICE$ értékre emelkedik a $DATE$ dátummal. A csomag funkciói és a meglévő kedvezmények pontosan ugyanazok maradnak.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's monthly subscription price will increase on the next renewal date."
+  },
+  "scheduledPriceIncreaseWarningAnnually": {
+    "message": "Az előfizetés ára havi $PRICE$ értékre emelkedik (évente számlázva) $DATE$ dátummal. A csomag funkciói és a meglévő kedvezmények pontosan ugyanazok maradnak.",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$6.00"
+      },
+      "date": {
+        "content": "$2",
+        "example": "July 15, 2026"
+      }
+    },
+    "description": "Shown when the organization's annually billed subscription price will increase on the next renewal date."
+  },
+  "priceIncreaseNotice": {
+    "message": "Áremelés értesítés"
+  },
   "restartOrganizationSubscription": {
     "message": "A szervezeti feliratkozás újraindult."
   },
@@ -14084,12 +14255,76 @@
   "backToEditing": {
     "message": "Vissza a szerkesztéshez"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Széf hirdetőtábla"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Hozzunk létre és indítsunk el egy testreszabott hirdetőtáblát, amelyet a szervezet minden tagja lát a széf oldalán a bejelentkezés után."
+  },
+  "singleOrgPrerequisite": {
+    "message": "A házirend aktiválása előtt be kell kapcsolni az onálló szervezet házirendjét."
+  },
+  "enableBanner": {
+    "message": "Hirdetőtábla engedélyezése"
+  },
+  "createBannerMessage": {
+    "message": "Hirdetőtábla üzenet létrehozása"
+  },
+  "header": {
+    "message": "Fejléc"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum $COUNT$ karakter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Adjunk meg egy $NAME$ értéket $COUNT$ karakter alatt.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Hozzunk létre egy $NAME$ értéket $COUNT$ karakter alatt.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "A gomb létrehozásához egy fejlécet kell megadni."
+  },
+  "enterADescription": {
+    "message": "Írjunk be egy leírást."
+  },
+  "button": {
+    "message": "Gomb"
+  },
+  "showAfterEveryLogin": {
+    "message": "Megjelenítés minden bejelentkezés után"
+  },
+  "seeMessageEveryLogin": {
+    "message": "A felhasználók minden bejelentkezés után látják az üzenetet, még akkor is, ha elutasítják azt."
+  },
   "sendHasUnsavedEdits": {
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -14196,5 +14431,8 @@
   },
   "copy": {
     "message": "Másolás"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
   }
 }

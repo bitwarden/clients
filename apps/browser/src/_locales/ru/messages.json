@@ -214,8 +214,13 @@
     "message": "Заполнить",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автозаполнение"
+  "autofillNoun": {
+    "message": "Автозаполнение",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автозаполнение",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Автозаполнение логина"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Сохранить"
+  },
+  "saveAndFill": {
+    "message": "Сохранить и заполнить"
   },
   "move": {
     "message": "Переместить"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Использовать помощник по заполнению"
   },
+  "turnOnFillAssist": {
+    "message": "Включить помощник по заполнению"
+  },
+  "enableFillAssistDescription": {
+    "message": "Функция помощник по заполнению повышает точность автозаполнения на поддерживаемых сайтах за счет использования правил, специфичных для конкретного сайта. При использовании этой функции данные не собираются и не сохраняются."
+  },
+  "aboutFillAssist": {
+    "message": "О помощнике по заполнению"
+  },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
   },
@@ -1793,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "URL сервера значков"
+  },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
   },
   "environmentSaved": {
     "message": "URL окружения сохранены"
@@ -4380,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "inputTrimValidator": {
     "message": "Введенные данные не должны содержать только пробелы.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6501,6 +6524,18 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "sharedUnlock": {
+    "message": "Совместная разблокировка"
+  },
+  "sharedUnlockDescription": {
+    "message": "Обеспечьте синхронизацию ваших приложений Bitwarden. Если эта функция включена, состояние разблокировки будет совместно использоваться всеми приложениями на этом компьютере. Для синхронизации между различными браузерами требуется приложение для компьютера."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано приложению Bitwarden."
+  },
   "enterMonth": {
     "message": "Введите месяц."
   },
@@ -6644,14 +6679,13 @@
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Сохранить изменения Send не удалось",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }
