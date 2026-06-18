@@ -72,7 +72,7 @@ export class ToggleGroupComponent<TValue = unknown> {
    * display modes (inline, full-width, and the responsive dropdown), so
    * consumers do not need to branch on the rendered mode.
    */
-  readonly selected = model.required<TValue>();
+  readonly selected = model<TValue>();
 
   readonly displayMode = signal<"inline" | "full-width" | "dropdown">("inline");
   readonly toggleOptions = signal<Option<TValue>[]>([]);
@@ -163,7 +163,6 @@ export class ToggleGroupComponent<TValue = unknown> {
     }
 
     const isFullWidth = mode === "full-width" || this.fullWidth();
-
     return [
       "tw-gap-1",
       "tw-auto-cols-fr",
