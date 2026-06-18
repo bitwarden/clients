@@ -145,13 +145,11 @@ describe("V2KeyRotationMigration", () => {
       expect(mockSyncService.fullSync).not.toHaveBeenCalled();
     });
 
-    it("returns 'noMigrationNeeded' when user has no user key", async () => {
+    it("throws when the user has no user key", async () => {
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(null as unknown as UserKey));
 
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("noMigrationNeeded");
+      await expect(sut.needsMigration(mockUserId)).rejects.toThrow("No user key found");
       expect(mockSyncService.fullSync).not.toHaveBeenCalled();
     });
 
@@ -245,7 +243,7 @@ describe("V2KeyRotationMigration", () => {
       await expect(sut.runMigrations(null as any, mockMasterPassword)).rejects.toThrow("userId");
     });
 
-    it("performs a full sync before rotating the user key", async () => {
+    it("performs a full sync after rotating the user key", async () => {
       const callOrder: string[] = [];
       mockSyncService.fullSync.mockImplementation(async () => {
         callOrder.push("fullSync");
@@ -264,7 +262,7 @@ describe("V2KeyRotationMigration", () => {
         "CreateIfNeeded",
         mockUserId,
       );
-      expect(callOrder).toEqual(["fullSync", "rotateUserKey", "fullSync"]);
+      expect(callOrder).toEqual(["rotateUserKey", "fullSync"]);
     });
 
     it("throws when the rotation service returns false (trust denied)", async () => {
@@ -273,7 +271,7 @@ describe("V2KeyRotationMigration", () => {
       await expect(sut.runMigrations(mockUserId, mockMasterPassword)).rejects.toThrow(
         "[V2KeyRotationMigration] Rotation aborted by user trust prompt.",
       );
-      expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
+      expect(mockSyncService.fullSync).not.toHaveBeenCalled();
     });
 
     it("propagates errors thrown by the rotation service", async () => {
