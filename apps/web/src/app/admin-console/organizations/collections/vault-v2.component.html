@@ -122,11 +122,11 @@
                 slot="button"
                 bitButton
                 (click)="addCipher()"
-                buttonType="primary"
+                [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
                 type="button"
-                startIcon="bwi-plus"
+                [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
               >
-                {{ "newItem" | i18n }}
+                {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
               </button>
             }
           </bit-no-items>

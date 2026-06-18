@@ -46,6 +46,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -143,6 +145,7 @@ export class VaultV2Component implements OnInit, OnDestroy {
   private readonly collectionActions = inject(VaultCollectionActionsService);
   protected readonly collectionService = inject(VaultCollectionService);
   private readonly cipherActions = inject(VaultCipherActionsService);
+  private readonly configService = inject(ConfigService);
 
   protected readonly Unassigned = Unassigned;
 
@@ -185,6 +188,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
   protected readonly showCollectionAccessRestricted$: Observable<boolean>;
 
   protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   constructor() {
     this.organizationId$ = this.filter$.pipe(
