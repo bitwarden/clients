@@ -7,10 +7,16 @@ import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { Translation } from "../dialog";
-import { LandingContentMaxWidthType } from "../landing-layout";
+import {
+  ContentVerticalPaddingType,
+  FooterVerticalPaddingType,
+  HeroTextAlignmentType,
+  LandingContentMaxWidthType,
+} from "../landing-layout";
 
+import { ANON_LAYOUT_DEFAULTS } from "./anon-layout-defaults";
 import { AnonLayoutWrapperDataService } from "./anon-layout-wrapper-data.service";
-import { AnonLayoutComponent } from "./anon-layout.component";
+import { AnonLayoutComponent, SecondaryContentLocationType } from "./anon-layout.component";
 export interface AnonLayoutWrapperData {
   /**
    * The optional title of the page.
@@ -26,8 +32,35 @@ export interface AnonLayoutWrapperData {
   pageSubtitle?: string | Translation | null;
   /**
    * The icon to display on the page. Pass null to hide the icon.
+   *
+   * Optional. The layout itself decides whether to render the icon based on `hidePageIcon`;
+   * this field just supplies which icon to render when it is shown.
    */
-  pageIcon: BitSvg | null;
+  pageIcon?: BitSvg | null;
+  /**
+   * Whether to hide the page icon. Defaults to false (icon is shown).
+   *
+   * When true, the layout suppresses the icon even if `pageIcon` is set.
+   */
+  hidePageIcon?: boolean;
+  /**
+   * Vertical padding of the content area. Defaults to "default".
+   *
+   * "compact" reduces the vertical padding so more content fits. Use in scenarios where vertical space is at a premium.
+   */
+  contentVerticalPadding?: ContentVerticalPaddingType;
+  /**
+   * Vertical padding of the footer. Defaults to "default".
+   *
+   * "compact" reduces the vertical padding so more content fits. Use in scenarios where vertical space is at a premium.
+   */
+  footerVerticalPadding?: FooterVerticalPaddingType;
+  /**
+   * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
+   * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
+   * left-aligned hero block.)
+   */
+  heroTextAlignment?: HeroTextAlignmentType;
   /**
    * Optional flag to either show the optional environment selector (false) or just a readonly hostname (true).
    */
@@ -44,6 +77,13 @@ export interface AnonLayoutWrapperData {
    * Hides the background illustration. Defaults to false.
    */
   hideBackgroundIllustration?: boolean;
+  /**
+   * Where to render content from the route's `outlet: "secondary"` router outlet. Defaults to "main".
+   *
+   * "main" places the secondary content beneath the main card.
+   * "footer" places it inside the footer.
+   */
+  secondaryContentLocation?: SecondaryContentLocationType;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -62,6 +102,11 @@ export class AnonLayoutWrapperComponent implements OnInit {
   protected maxWidth?: LandingContentMaxWidthType | null;
   protected hideCardWrapper?: boolean | null;
   protected hideBackgroundIllustration?: boolean | null;
+  protected hidePageIcon?: boolean;
+  protected contentVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: FooterVerticalPaddingType;
+  protected heroTextAlignment?: HeroTextAlignmentType;
+  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   constructor(
     private router: Router,
@@ -112,10 +157,31 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
-    this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
-    this.maxWidth = firstChildRouteData["maxWidth"];
-    this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
-    this.hideBackgroundIllustration = Boolean(firstChildRouteData["hideBackgroundIllustration"]);
+    // When undefined, fall back to ANON_LAYOUT_DEFAULTS — single source of truth for
+    // route-init defaults, the reset emission, and the component-level input defaults.
+    this.showReadonlyHostname =
+      firstChildRouteData["showReadonlyHostname"] ?? ANON_LAYOUT_DEFAULTS.showReadonlyHostname;
+    this.maxWidth = firstChildRouteData["maxWidth"] ?? ANON_LAYOUT_DEFAULTS.maxWidth;
+    this.hideCardWrapper =
+      firstChildRouteData["hideCardWrapper"] ?? ANON_LAYOUT_DEFAULTS.hideCardWrapper;
+    this.hideBackgroundIllustration =
+      firstChildRouteData["hideBackgroundIllustration"] ??
+      ANON_LAYOUT_DEFAULTS.hideBackgroundIllustration;
+    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
+    this.contentVerticalPadding =
+      firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
+    this.footerVerticalPadding =
+      firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
+    this.heroTextAlignment =
+      firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
+    this.secondaryContentLocation =
+      firstChildRouteData["secondaryContentLocation"] ??
+      ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
+
+    // Cache the route-data payload so resetToCachedRouteData() can later restore it.
+    this.anonLayoutWrapperDataService.cacheRouteData(
+      firstChildRouteData as Partial<AnonLayoutWrapperData>,
+    );
   }
 
   private listenForServiceDataChanges() {
@@ -123,11 +189,11 @@ export class AnonLayoutWrapperComponent implements OnInit {
       .anonLayoutWrapperData$()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((data: Partial<AnonLayoutWrapperData>) => {
-        this.setAnonLayoutWrapperData(data);
+        this.setAnonLayoutWrapperDataFromService(data);
       });
   }
 
-  private setAnonLayoutWrapperData(data: Partial<AnonLayoutWrapperData>) {
+  private setAnonLayoutWrapperDataFromService(data: Partial<AnonLayoutWrapperData>) {
     if (!data) {
       return;
     }
@@ -163,6 +229,22 @@ export class AnonLayoutWrapperComponent implements OnInit {
       this.maxWidth = data.maxWidth;
     }
 
+    if (data.hidePageIcon !== undefined) {
+      this.hidePageIcon = data.hidePageIcon;
+    }
+    if (data.contentVerticalPadding !== undefined) {
+      this.contentVerticalPadding = data.contentVerticalPadding;
+    }
+    if (data.footerVerticalPadding !== undefined) {
+      this.footerVerticalPadding = data.footerVerticalPadding;
+    }
+    if (data.heroTextAlignment !== undefined) {
+      this.heroTextAlignment = data.heroTextAlignment;
+    }
+    if (data.secondaryContentLocation !== undefined) {
+      this.secondaryContentLocation = data.secondaryContentLocation;
+    }
+
     // Manually fire change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
     // when setting the page data from a service
     this.changeDetectorRef.detectChanges();
@@ -186,5 +268,10 @@ export class AnonLayoutWrapperComponent implements OnInit {
     this.maxWidth = null;
     this.hideCardWrapper = null;
     this.hideBackgroundIllustration = null;
+    this.hidePageIcon = undefined;
+    this.contentVerticalPadding = undefined;
+    this.footerVerticalPadding = undefined;
+    this.heroTextAlignment = undefined;
+    this.secondaryContentLocation = undefined;
   }
 }

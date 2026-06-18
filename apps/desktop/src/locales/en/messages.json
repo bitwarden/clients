@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "moveToOrgDesc": {
@@ -1064,7 +1064,7 @@
   "logIn": {
     "message": "Log in"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1172,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Get master password hint"
   },
   "emailRequired": {
     "message": "Email address is required."
@@ -2555,8 +2552,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2641,6 +2638,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
@@ -3415,9 +3415,6 @@
   "vault": {
     "message": "Vault",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
   },
   "rememberEmail": {
     "message": "Remember email"
