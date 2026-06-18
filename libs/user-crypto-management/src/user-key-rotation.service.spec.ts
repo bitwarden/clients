@@ -19,8 +19,7 @@ describe("DefaultUserKeyRotationService", () => {
   const mockUserId = "mockUserId" as UserId;
 
   let mockUserCryptoManagement: {
-    get_untrusted_emergency_access_public_keys: jest.Mock;
-    get_untrusted_organization_public_keys: jest.Mock;
+    get_untrusted_memberships: jest.Mock;
     rotate_user_keys: jest.Mock;
   };
 
@@ -32,13 +31,14 @@ describe("DefaultUserKeyRotationService", () => {
     mockUserCryptoDialogService = mock<UserCryptoDialogService>();
 
     mockUserCryptoManagement = {
-      get_untrusted_emergency_access_public_keys: jest.fn(),
-      get_untrusted_organization_public_keys: jest.fn(),
+      get_untrusted_memberships: jest.fn(),
       rotate_user_keys: jest.fn(),
     };
 
-    mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-    mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
+    mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+      emergency_access_memberships: [],
+      organization_memberships: [],
+    });
     mockUserCryptoManagement.rotate_user_keys.mockResolvedValue(undefined);
 
     const mockSdkClient = {
@@ -74,12 +74,10 @@ describe("DefaultUserKeyRotationService", () => {
     };
 
     it("delegates to UserCryptoDialogService with the SDK results", async () => {
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [mockEmergencyAccessMembership],
+        organization_memberships: [mockOrganizationMembership],
+      });
       mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
         wasTrustDenied: false,
         trustedOrganizationPublicKeys: [],
@@ -95,12 +93,10 @@ describe("DefaultUserKeyRotationService", () => {
     });
 
     it("propagates a denied TrustVerificationResult from the dialog service", async () => {
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [mockEmergencyAccessMembership],
+        organization_memberships: [mockOrganizationMembership],
+      });
       mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
         wasTrustDenied: true,
         trustedOrganizationPublicKeys: [],
@@ -119,8 +115,10 @@ describe("DefaultUserKeyRotationService", () => {
     it("propagates a trusted TrustVerificationResult from the dialog service", async () => {
       const orgKey = "orgPublicKey" as PublicKey;
       const eaKey = "eaPublicKey" as PublicKey;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [],
+        organization_memberships: [],
+      });
       mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
         wasTrustDenied: false,
         trustedOrganizationPublicKeys: [orgKey],

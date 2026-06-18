@@ -119,13 +119,13 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
           }
 
           using ref = sdk.take();
-          const emergencyAccessV1Memberships = await ref.value
+          const untrustedMemberships = await ref.value
             .user_crypto_management()
-            .get_untrusted_emergency_access_public_keys();
-          const organizationV1Memberships = await ref.value
-            .user_crypto_management()
-            .get_untrusted_organization_public_keys();
-          return [emergencyAccessV1Memberships, organizationV1Memberships] as const;
+            .get_untrusted_memberships();
+          return [
+            untrustedMemberships.emergency_access_memberships,
+            untrustedMemberships.organization_memberships,
+          ] as const;
         }),
       ),
     );
