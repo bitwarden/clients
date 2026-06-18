@@ -1827,6 +1827,15 @@
     "message": "பாதுகாப்பு குறியீட்டை நகலெடுக்கவும்",
     "description": "Copy credit card security code (CVV)"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "cardNumber": {
     "message": "அட்டை எண்"
   },
@@ -3885,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 அல்லது அதற்கு மேற்பட்ட மின்னஞ்சல்கள் செல்லாதவை"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "உள்ளிட்டத்தில் வெறும் வெற்று இடங்கள் மட்டும் இருக்கக்கூடாது.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -5259,10 +5271,6 @@
     "message": "Send has unsaved edits. Are you sure you want to leave?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "View text"
   },
@@ -5340,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

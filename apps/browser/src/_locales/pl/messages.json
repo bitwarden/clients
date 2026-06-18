@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Użyj asystenta autouzupełniania"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
   },
@@ -4391,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "Co najmniej 1 adres e-mail jest nieprawidłowy"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Tekst nie może zawierać tylko spacji.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6667,14 +6679,13 @@
     "message": "Pasek postępu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Zapisanie wysyłki nie powidło się",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Jeśli elementy są częścią wielu kolekcji, nie możesz ich importować do swoich elementów"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }
