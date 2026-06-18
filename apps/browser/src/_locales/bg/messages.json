@@ -1350,13 +1350,13 @@
     "message": "Използване на асистираното попълване"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Включване на асистираното попълване"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Асистираното попълване подобрява точността на автоматичното попълване в поддържаните уеб сайтове, чрез използване на определени правила. Никакви данни не се събират или съхраняват, когато използвате тази функционалност."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "Относно асистираното попълване"
   },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
@@ -4400,6 +4400,9 @@
   "multipleInputEmails": {
     "message": "1 или повече е-пощи са неправилни"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Полето за получателите на е-писмото не може да съдържа повече от 2 500 знака. Премахнете един или повече получатели, за да продължите."
+  },
   "inputTrimValidator": {
     "message": "Въведеното не може да съдържа само интервали.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -6681,5 +6684,8 @@
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
   }
 }

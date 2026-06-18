@@ -1,6 +1,5 @@
-import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-
 import { ApiService } from "../../../abstractions/api.service";
+import { SendAccessToken } from "../../../auth/send-access";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
 import {
