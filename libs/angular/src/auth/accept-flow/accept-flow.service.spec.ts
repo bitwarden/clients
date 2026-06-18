@@ -216,5 +216,54 @@ describe("AcceptFlowService", () => {
       expect(config.authedHandler).not.toHaveBeenCalled();
       expect(config.unauthedHandler).not.toHaveBeenCalled();
     });
+
+    describe("onError", () => {
+      it("invokes onError before the toast and redirect when the handler throws", async () => {
+        authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+          AuthenticationStatus.Unlocked,
+        );
+        const callOrder: string[] = [];
+        const onError = jest.fn().mockImplementation(async () => {
+          callOrder.push("onError");
+        });
+        toastService.showToast.mockImplementation(() => {
+          callOrder.push("toast");
+        });
+        router.navigate.mockImplementation(async () => {
+          callOrder.push("navigate");
+          return true;
+        });
+        const config = buildConfig({
+          authedHandler: jest.fn().mockRejectedValue(new Error("boom")),
+          onError,
+        });
+
+        await sut.run(validParams, config);
+
+        expect(onError).toHaveBeenCalledTimes(1);
+        expect(callOrder).toEqual(["onError", "toast", "navigate"]);
+      });
+
+      it("invokes onError when parse returns null", async () => {
+        const onError = jest.fn().mockResolvedValue(undefined);
+        const config = buildConfig({ onError });
+
+        await sut.run({ id: "org-id" /* token missing */ }, config);
+
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+
+      it("does not invoke onError on the happy path", async () => {
+        authService.activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(
+          AuthenticationStatus.Unlocked,
+        );
+        const onError = jest.fn().mockResolvedValue(undefined);
+        const config = buildConfig({ onError });
+
+        await sut.run(validParams, config);
+
+        expect(onError).not.toHaveBeenCalled();
+      });
+    });
   });
 });
