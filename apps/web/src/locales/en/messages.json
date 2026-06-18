@@ -9056,6 +9056,10 @@
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
+  },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
     "placeholders": {

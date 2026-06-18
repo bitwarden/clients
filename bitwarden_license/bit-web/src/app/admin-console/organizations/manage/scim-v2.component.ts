@@ -1,16 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   Signal,
   signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, of, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
@@ -27,6 +28,7 @@ import {
   BaseCardDirective,
   BitActionDirective,
   BitIconButtonComponent,
+  CalloutComponent,
   CardComponent,
   DialogService,
   FormFieldModule,
@@ -40,6 +42,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { WebHeaderComponent } from "@bitwarden/web-vault/app/layouts/header/web-header.component";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+import { ScimBannerService } from "./scim-banner.service";
 
 let nextId = 0;
 
@@ -51,6 +54,7 @@ let nextId = 0;
     WebHeaderComponent,
     ReactiveFormsModule,
     BaseCardDirective,
+    CalloutComponent,
     CardComponent,
     TypographyModule,
     LinkComponent,
@@ -71,6 +75,7 @@ export class ScimV2Component {
   private readonly environmentService = inject(EnvironmentService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
+  private readonly scimBannerService = inject(ScimBannerService);
 
   protected readonly loading = signal(true);
   protected readonly showScimSettings = signal(false);
@@ -88,12 +93,24 @@ export class ScimV2Component {
     clientSecret: new FormControl(""),
   });
 
+  private readonly bannerSeen: Signal<boolean>;
+  protected readonly showProvisioningBanner: Signal<boolean>;
+
   private readonly organizationId: Signal<OrganizationId>;
   private readonly existingConnectionId = signal<string | undefined>(undefined);
   private readonly cachedApiKey = signal<string | undefined>(undefined);
 
   constructor() {
     this.organizationId = toSignal(this.route.params.pipe(map((params) => params.organizationId)));
+
+    this.bannerSeen = toSignal(
+      toObservable(this.organizationId).pipe(
+        switchMap((orgId) => (orgId ? this.scimBannerService.bannerSeen$(orgId) : of(false))),
+      ),
+      { initialValue: false },
+    );
+
+    this.showProvisioningBanner = computed(() => !this.showScimSettings() && !this.bannerSeen());
 
     effect(() => {
       if (this.organizationId()) {
@@ -176,6 +193,10 @@ export class ScimV2Component {
   };
 
   protected readonly submit = async () => {
+    if (this.enabled.value === true && !this.showScimSettings()) {
+      await this.scimBannerService.markBannerSeen(this.organizationId());
+    }
+
     const request = new OrganizationConnectionRequest(
       this.organizationId(),
       OrganizationConnectionType.Scim,
@@ -232,6 +253,7 @@ export class ScimV2Component {
     this.cachedApiKey.set(undefined);
     this.showScimKey.set(false);
     if (connection !== null && connection.config?.enabled) {
+      await this.scimBannerService.markBannerSeen(this.organizationId());
       this.showScimSettings.set(true);
       this.enabled.setValue(true);
       this.formData.setValue({
