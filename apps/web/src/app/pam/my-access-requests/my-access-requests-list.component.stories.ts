@@ -62,6 +62,9 @@ type Fixture = {
   approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
+  requestedTtlSeconds?: number;
+  producedLeaseId?: string | null;
+  extensionOfLeaseId?: string | null;
 };
 
 const oneHour = 60 * 60 * 1000;
@@ -77,7 +80,7 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     Status: f.status,
     RequestedNotBefore: f.requestedNotBefore ?? null,
     RequestedNotAfter: f.requestedNotAfter ?? null,
-    RequestedTtlSeconds: 3600,
+    RequestedTtlSeconds: f.requestedTtlSeconds ?? 3600,
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
@@ -105,7 +108,8 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
                   DecidedAt: f.resolvedAt ?? f.submittedAt,
                 },
           ],
-    ProducedLeaseId: null,
+    ProducedLeaseId: f.producedLeaseId ?? null,
+    ExtensionOfLeaseId: f.extensionOfLeaseId ?? null,
   });
 }
 
@@ -167,6 +171,7 @@ const i18nMock = () =>
     pamMyRequestsCancelError: "Cancel error",
     pamStatusPending: "Pending",
     pamStatusApproved: "Approved",
+    pamStatusActivated: "Activated",
     pamStatusDenied: "Denied",
     pamStatusCancelled: "Cancelled",
     pamStatusExpired: "Expired",
@@ -191,6 +196,7 @@ const i18nMock = () =>
     pamColumnRemaining: "Remaining",
     pamStartLeaseButton: "Start access",
     pamActivateWithin: "Activate within __$1__",
+    pamExtendedBadge: "Extended +__$1__ · until __$2__",
     actions: "Actions",
   });
 
@@ -338,5 +344,45 @@ export const WithActiveLeases: Story = {
       }),
     ],
     [makeLease("lease-1", "cipher-r1"), makeLease("lease-2", "cipher-p2")],
+  ),
+};
+
+// An extended grant whose lease is still active: it shows only under Active leases, badged
+// "Extended +2h · until …" (its extension is folded in, never a separate row), and is not
+// duplicated in History. A denied request keeps History populated.
+export const WithExtension: Story = {
+  ...withFixtures(
+    [
+      makeResponse({
+        id: "r1",
+        status: "activated",
+        submittedAt: new Date(now - 2 * oneDay).toISOString(),
+        resolvedAt: new Date(now - 1 * oneDay).toISOString(),
+        approverId: "alice-id",
+        approverName: "Alice Approver",
+        approverEmail: "alice@example.com",
+        producedLeaseId: "lease-r1",
+      }),
+      // Real server contract: an applied extension is `approved` and mints no lease of its own.
+      makeResponse({
+        id: "r1-ext-1",
+        status: "approved",
+        submittedAt: new Date(now - 12 * oneHour).toISOString(),
+        resolvedAt: new Date(now - 12 * oneHour).toISOString(),
+        extensionOfLeaseId: "lease-r1",
+        requestedTtlSeconds: 7200,
+        requestedNotAfter: new Date(now + 2 * oneHour).toISOString(),
+      }),
+      makeResponse({
+        id: "r2",
+        status: "denied",
+        submittedAt: new Date(now - 3 * oneDay).toISOString(),
+        resolvedAt: new Date(now - 3 * oneDay).toISOString(),
+        approverId: "bob-id",
+        approverName: "Bob Approver",
+        approverComment: "Wrong scope.",
+      }),
+    ],
+    [makeLease("lease-r1", "cipher-r1")],
   ),
 };

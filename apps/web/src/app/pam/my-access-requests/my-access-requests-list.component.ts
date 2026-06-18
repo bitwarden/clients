@@ -28,7 +28,12 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessRequestStatus, formatRelativeTime, formatRemaining } from "@bitwarden/pam";
+import {
+  AccessRequestStatus,
+  formatDurationShort,
+  formatRelativeTime,
+  formatRemaining,
+} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { MyAccessRequestsService } from "./my-access-requests.service";
@@ -103,13 +108,22 @@ export class MyAccessRequestsListComponent implements OnInit {
       .slice(0, MY_REQUESTS_PAGE_LIMIT),
   );
 
-  /** Every resolved request, newest first — the full history (no recency window). */
-  protected readonly historyRows = computed(() =>
-    this.rows()
-      .filter((r) => r.status !== AccessRequestStatus.Pending)
+  /**
+   * Resolved requests, newest first. A grant whose lease is still active is excluded — it belongs in
+   * Active leases, not both places — and returns here once the lease ends (no longer in the active
+   * set). No recency window otherwise.
+   */
+  protected readonly historyRows = computed(() => {
+    const activeLeaseIds = new Set(this.leases().map((l) => l.id));
+    return this.rows()
+      .filter(
+        (r) =>
+          r.status !== AccessRequestStatus.Pending &&
+          !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
+      )
       .sort((a, b) => timeOf(b) - timeOf(a))
-      .slice(0, MY_REQUESTS_PAGE_LIMIT),
-  );
+      .slice(0, MY_REQUESTS_PAGE_LIMIT);
+  });
 
   protected readonly hasAnyRows = computed(
     () =>
@@ -237,6 +251,11 @@ export class MyAccessRequestsListComponent implements OnInit {
   /** A live "ends in X" label for an active lease. */
   protected leaseRemainingLabel(lease: LeaseRow): string {
     return formatRemaining(lease.notAfter.getTime() - this.nowMs());
+  }
+
+  /** "+2h"-style label for the total time an extension added; shared by lease and history rows. */
+  protected extendedByLabel(seconds: number | null): string {
+    return formatDurationShort(seconds ?? 0);
   }
 
   /** Locale-aware relative phrasing for a resolved time ("2 days ago"); "" when unresolved. */
