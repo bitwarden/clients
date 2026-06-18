@@ -1,5 +1,4 @@
-import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-
+import { SendAccessToken } from "../../../auth/send-access";
 import { ListResponse } from "../../../models/response/list.response";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
