@@ -33,7 +33,7 @@
           />
         }
         <div
-          class="tw-flex tw-justify-between tw-flex-col tw-gap-3 @3xl:tw-flex-row tw-pe-6 @3xl:tw-pe-0 tw-w-full"
+          class="tw-flex tw-justify-between tw-flex-col @3xl:tw-flex-row @3xl:tw-gap-3 tw-pe-6 @3xl:tw-pe-0 tw-w-full"
         >
           <div>
             <div
@@ -46,7 +46,9 @@
             </span>
           </div>
           <div class="tw-flex tw-gap-3 tw-items-start tw-shrink-0">
-            <ng-content select="[slot='actions']"></ng-content>
+            <div class="empty:tw-hidden tw-flex tw-gap-3 tw-items-start tw-mt-3 @3xl:tw-mt-0">
+              <ng-content select="[slot='actions']"></ng-content>
+            </div>
             @if (isDismissible()) {
               <button
                 type="button"
