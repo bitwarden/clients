@@ -158,6 +158,10 @@ export class CipherView implements View, InitializerMetadata {
     return false;
   }
 
+  get isUserOwnedCipher(): boolean {
+    return this.organizationId == null;
+  }
+
   get hasFields(): boolean {
     return this.fields && this.fields.length > 0;
   }

@@ -17,6 +17,7 @@ import { MasterPasswordServiceAbstraction } from "../../master-password/abstract
 import { withPasswordManagerSdk } from "../../utils";
 
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 /**
  * Migrates users that are on v1 encryption to v2 encryption by performing
@@ -126,9 +127,9 @@ export class V2KeyRotationMigration implements EncryptedMigration {
   private async userKeyIsV1(userId: UserId): Promise<boolean> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
-      return false;
+      throw new Error(`[V2KeyRotationMigration] No user key found for user ${userId}`);
     }
-    return userKey.inner().type !== EncryptionType.CoseEncrypt0;
+    return userKey.inner().type === EncryptionType.AesCbc256_HmacSha256_B64;
   }
 
   private async userEnrolledInAccountRecovery(userId: UserId): Promise<boolean> {
@@ -158,7 +159,7 @@ export class V2KeyRotationMigration implements EncryptedMigration {
   private async userHasV1Attachments(userId: UserId): Promise<boolean> {
     const ciphers = await firstValueFrom(this.cipherService.cipherViews$(userId));
     return (
-      ciphers != null && ciphers.some((c) => c.attachments?.some((a) => a.isLegacyAttachment()))
+      ciphers != null && ciphers.filter((c: CipherView) => c.isUserOwnedCipher).some((c: CipherView) => c.hasOldAttachments)
     );
   }
 
