@@ -49,6 +49,7 @@ import { MenuMain } from "./main/menu/menu.main";
 import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
+import { SafariIpcMain } from "./main/safari-ipc.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
 import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
@@ -95,6 +96,7 @@ export class Main {
   trayMain: TrayMain;
   biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
+  safariIpcMain: SafariIpcMain;
   clipboardMain: ClipboardMain;
   nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
@@ -325,10 +327,12 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.safariIpcMain = new SafariIpcMain(this.logService);
     this.ipcService = new IpcMainService(
       this.logService,
       app,
       this.nativeMessagingMain,
+      this.safariIpcMain,
       this.windowMain,
     );
 
@@ -359,6 +363,7 @@ export class Main {
     );
 
     app.on("will-quit", () => {
+      this.safariIpcMain.stop();
       this.mainDesktopAutotypeService.dispose();
       this.storageService.dispose();
     });
@@ -418,6 +423,12 @@ export class Main {
 
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
+
+          // Safari cannot use native messaging hosts; it talks to the desktop over a buffered
+          // socket in the shared App Group container (macOS only).
+          if (process.platform === "darwin") {
+            await this.safariIpcMain.listen();
+          }
         } catch (err) {
           this.logService.error("Error while setting up native messaging:", err);
         }

@@ -19,9 +19,22 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { NativeMessagingMain } from "../../main/native-messaging.main";
+import { SafariIpcMain } from "../../main/safari-ipc.main";
 import { WindowMain } from "../../main/window.main";
 import { isDev } from "../../utils";
 
+/** Envelope serialized over the buffered Safari socket. Payloads are opaque (SDK-encrypted). */
+interface SafariIpcEnvelope {
+  destination: unknown;
+  source?: unknown;
+  payload: number[];
+  topic?: string;
+}
+
+/**
+ * Desktop main-process {@link IpcService}. Handles both Safari (buffered socket) and non-Safari
+ * (firefox/chromium/CLI native messaging, plus the desktop renderer) clients.
+ */
 export class IpcMainService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
 
@@ -29,6 +42,7 @@ export class IpcMainService extends IpcService {
     private logService: LogService,
     private app: Electron.App,
     private nativeMessaging: NativeMessagingMain,
+    private safariIpcMain: SafariIpcMain,
     private windowMain: WindowMain,
   ) {
     super();
@@ -51,6 +65,18 @@ export class IpcMainService extends IpcService {
             typeof message.destination === "object" &&
             "BrowserBackground" in message.destination
           ) {
+            // Safari has no persistent native-messaging connection; route through the buffered
+            // socket instead. Safari backgrounds are addressed by the string id "Own".
+            if (isSafariBackground(message.destination.BrowserBackground)) {
+              const envelope: SafariIpcEnvelope = {
+                destination: message.destination,
+                payload: [...message.payload],
+                topic: message.topic,
+              };
+              this.safariIpcMain.enqueue(JSON.stringify(envelope));
+              return;
+            }
+
             const ipcMessage = {
               type: "bitwarden-ipc-message",
               message: {
@@ -130,6 +156,9 @@ export class IpcMainService extends IpcService {
         }
       });
 
+      // Handle messages from the Safari extension, received over the buffered socket.
+      this.safariIpcMain.setMessageHandler((raw) => this.receiveFromSafari(raw));
+
       // Handle messages from renderer process
       ipcMain.on("ipc.send", async (_event, message: IpcMessage) => {
         try {
@@ -182,6 +211,37 @@ export class IpcMainService extends IpcService {
       this.logService.error("[IPC] Initialization failed", e);
     }
   }
+
+  private receiveFromSafari(raw: string): void {
+    let envelope: SafariIpcEnvelope;
+    try {
+      envelope = JSON.parse(raw) as SafariIpcEnvelope;
+    } catch (e) {
+      this.logService.warning("[IPC] Dropping malformed Safari message", e);
+      return;
+    }
+
+    try {
+      this.communicationBackend?.receive(
+        new IncomingMessage(
+          new Uint8Array(envelope.payload),
+          envelope.destination as IncomingMessage["destination"],
+          (envelope.source ?? { BrowserBackground: { id: "Own" } }) as IncomingMessage["source"],
+          envelope.topic,
+        ),
+      );
+    } catch (e) {
+      this.logService.warning("[IPC] Failed to dispatch Safari message", e);
+    }
+  }
+}
+
+/**
+ * A {@link BrowserBackground} host with the string id `"Own"` is the Safari extension, which is
+ * reached over the buffered socket rather than a native-messaging connection.
+ */
+function isSafariBackground(host: { id: string | { Id: number } }): boolean {
+  return host.id === "Own";
 }
 
 /**
