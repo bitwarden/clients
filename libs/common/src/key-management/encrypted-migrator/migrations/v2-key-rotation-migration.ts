@@ -13,11 +13,11 @@ import { EncryptionType } from "../../../platform/enums";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
+import { CipherView } from "../../../vault/models/view/cipher.view";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { withPasswordManagerSdk } from "../../utils";
 
-import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { EncryptedMigration,i MigrationRequirement } from "./encrypted-migration";
 
 /**
  * Migrates users that are on v1 encryption to v2 encryption by performing
