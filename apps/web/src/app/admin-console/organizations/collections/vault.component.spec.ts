@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -27,12 +28,16 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   CipherFormConfig,
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterModel,
   RoutedVaultFilterService,
+  VaultBatchBarService,
   VaultFilter,
   VaultFilterServiceAbstraction,
   VaultItemDialogComponent,
@@ -142,6 +147,7 @@ describe("VaultComponent (org-vault)", () => {
         },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -164,6 +170,13 @@ describe("VaultComponent (org-vault)", () => {
               useValue: { activeFilter$: of(new VaultFilter()) },
             },
             { provide: CipherFormConfigService, useValue: cipherFormConfigService },
+            {
+              provide: VaultBatchBarService,
+              useValue: { completed$: NEVER, setConfig: jest.fn() },
+            },
+            { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: mock() },
+            { provide: BULK_DELETE_DIALOG, useValue: mock() },
+            { provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: mock() },
           ],
         },
       })
