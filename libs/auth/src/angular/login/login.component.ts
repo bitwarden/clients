@@ -66,7 +66,9 @@ const BroadcasterSubscriptionId = "LoginComponent";
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum LoginUiState {
+  /** Display the email input field + continue button */
   EMAIL_ENTRY = "EmailEntry",
+  /** Display the master password input field + login submit button */
   MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
 }
 
@@ -530,8 +532,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginComponentService.showBackButton(false);
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "logInToBitwarden" },
-        pageIcon: this.Icons.VaultIcon,
+        pageTitle: { key: "loginPageEmailEntryScreenTitle" },
+        pageIcon: this.Icons.VaultIcon, // layout decides whether to render it via hidePageIcon
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
@@ -542,10 +544,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.isKnownDevice = false;
     } else if (this.loginUiState === LoginUiState.MASTER_PASSWORD_ENTRY) {
       this.loginComponentService.showBackButton(true);
+
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "welcomeBack" },
+        pageTitle: { key: "loginPageMasterPasswordEntryScreenTitle" },
         pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.Icons.WaveIcon,
+        pageIcon: this.Icons.WaveIcon, // layout decides whether to render it via hidePageIcon
       });
 
       // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors

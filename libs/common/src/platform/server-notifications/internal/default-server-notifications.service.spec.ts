@@ -5,14 +5,14 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
