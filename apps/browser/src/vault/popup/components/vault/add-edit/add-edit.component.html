@@ -31,7 +31,7 @@
   }
 
   <popup-footer slot="footer">
-    @if (showSaveAndFill) {
+    @if (saveAndFillEnabled) {
       <button [bitAction]="submitAndFill" type="button" bitButton buttonType="primary">
         {{ "saveAndFill" | i18n }}
       </button>
@@ -40,12 +40,12 @@
       bitButton
       type="submit"
       form="cipherForm"
-      [buttonType]="showSaveAndFill ? 'secondary' : 'primary'"
+      [buttonType]="saveAndFillEnabled ? 'secondary' : 'primary'"
       #submitBtn
     >
       {{ (previouslyCouldArchive ? "unarchiveAndSave" : "save") | i18n }}
     </button>
-    @if (showSaveAndFill) {
+    @if (saveAndFillEnabled) {
       <button
         (click)="handleBackButton()"
         bitButton
