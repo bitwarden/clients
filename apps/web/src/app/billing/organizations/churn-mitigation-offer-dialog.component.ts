@@ -1,5 +1,5 @@
-import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, signal } from "@angular/core";
+import { CommonModule, CurrencyPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, Inject, inject, signal } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,6 +27,8 @@ export type ChurnMitigationOfferDialogParams = {
   planName: string;
   /** Next charge date shown in the success state after the offer is applied. */
   nextChargeDate: string | null;
+  /** Whether the subscription bills annually; drives interval-aware discount copy. */
+  isAnnual: boolean;
 };
 
 export const ChurnMitigationOfferDialogResultType = Object.freeze({
@@ -41,6 +43,7 @@ export type ChurnMitigationOfferDialogResultType =
 @Component({
   templateUrl: "./churn-mitigation-offer-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [CurrencyPipe],
   imports: [BillingSharedModule, CommonModule, ButtonModule, CardComponent, DialogModule],
 })
 export class ChurnMitigationOfferDialogComponent {
@@ -48,6 +51,8 @@ export class ChurnMitigationOfferDialogComponent {
 
   protected readonly offerRedeemed = signal(false);
   protected readonly loading = signal(false);
+
+  private readonly currencyPipe = inject(CurrencyPipe);
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly params: ChurnMitigationOfferDialogParams,
@@ -59,10 +64,14 @@ export class ChurnMitigationOfferDialogComponent {
   ) {}
 
   protected get discountLabel(): string {
-    if (this.params.offer.percentOff != null) {
-      return `${this.params.offer.percentOff}%`;
+    const offer = this.params.offer;
+    if (offer.percentOff != null) {
+      return `${offer.percentOff}%`;
     }
-    return this.params.offer.name;
+    if (offer.amountOff != null) {
+      return this.currencyPipe.transform(offer.amountOff, "$", "symbol", "1.2-2") ?? offer.name;
+    }
+    return offer.name;
   }
 
   protected get durationDescription(): string {
@@ -78,6 +87,25 @@ export class ChurnMitigationOfferDialogComponent {
     return this.i18nService.t(this.durationUnitKey);
   }
 
+  /** True when the offer is a fixed amount that applies to each billing period (repeating). */
+  protected get isRecurringAmount(): boolean {
+    return this.params.offer.amountOff != null && this.params.offer.duration === "repeating";
+  }
+
+  /** Localized singular billing-interval unit ("year"/"month") for per-period discount copy. */
+  protected get billingIntervalUnit(): string {
+    return this.i18nService.t(this.params.isAnnual ? "year" : "month");
+  }
+
+  /**
+   * Per-interval discount label for the summary card, e.g. "$15.00/month".
+   * The i18n pipe accepts at most three positional args, so the amount and interval
+   * are pre-composed here to leave room for the length + unit on the card key.
+   */
+  protected get discountLabelPerInterval(): string {
+    return `${this.discountLabel}/${this.billingIntervalUnit}`;
+  }
+
   /** Number of whole years or months the discount covers (years when divisible by 12). */
   private get durationCount(): number {
     const months = this.params.offer.durationInMonths;
@@ -90,7 +118,11 @@ export class ChurnMitigationOfferDialogComponent {
   /** i18n key for the duration unit, pluralized to match {@link durationCount}. */
   private get durationUnitKey(): "year" | "years" | "month" | "months" {
     const months = this.params.offer.durationInMonths;
-    const isYears = months == null || months % 12 === 0;
+    if (months == null) {
+      // `once`: covers a single billing period → use the subscription interval.
+      return this.params.isAnnual ? "year" : "month";
+    }
+    const isYears = months % 12 === 0;
     if (isYears) {
       return this.durationCount === 1 ? "year" : "years";
     }

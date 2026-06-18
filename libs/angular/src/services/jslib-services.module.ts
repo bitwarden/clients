@@ -120,6 +120,8 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -137,8 +139,6 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -1749,7 +1749,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteService,
     useClass: DefaultOrganizationInviteService,
-    deps: [],
+    deps: [
+      ApiServiceAbstraction,
+      AuthServiceAbstraction,
+      KeyService,
+      EncryptService,
+      PolicyApiServiceAbstraction,
+      InternalPolicyService,
+      LogService,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      I18nServiceAbstraction,
+      GlobalStateProvider,
+    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,

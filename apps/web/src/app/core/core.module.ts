@@ -12,6 +12,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/default-login-via-webauthn-component.service";
+import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -46,7 +48,6 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
   PolicyService,
@@ -58,10 +59,10 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
 import { DefaultChangeEmailService } from "@bitwarden/common/auth/services/change-email/default-change-email.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -146,7 +147,6 @@ import {
   DefaultSshImportPromptService,
   SshImportPromptService,
 } from "@bitwarden/vault";
-import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 
@@ -293,11 +293,6 @@ const safeProviders: SafeProvider[] = [
     useValue: ClientType.Web,
   }),
   safeProvider({
-    provide: OrganizationInviteService,
-    useClass: WebOrganizationInviteService,
-    deps: [GlobalStateProvider],
-  }),
-  safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
     deps: [
@@ -307,8 +302,6 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       SdkService,
       OrganizationInviteService,
-      PolicyApiServiceAbstraction,
-      LogService,
       PolicyService,
     ],
   }),
@@ -349,12 +342,16 @@ const safeProviders: SafeProvider[] = [
     deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
   }),
   safeProvider({
+    provide: LoginViaWebAuthnComponentService,
+    useClass: DefaultLoginViaWebAuthnComponentService,
+    deps: [],
+  }),
+  safeProvider({
     provide: LoginComponentService,
     useClass: WebLoginComponentService,
     deps: [
       OrganizationInviteService,
       LogService,
-      PolicyApiServiceAbstraction,
       InternalPolicyService,
       RouterService,
       CryptoFunctionService,
