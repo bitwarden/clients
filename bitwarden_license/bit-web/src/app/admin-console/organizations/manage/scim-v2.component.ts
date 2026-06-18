@@ -253,6 +253,7 @@ export class ScimV2Component {
     this.cachedApiKey.set(undefined);
     this.showScimKey.set(false);
     if (connection !== null && connection.config?.enabled) {
+      await this.scimBannerService.markBannerSeen(this.organizationId());
       this.showScimSettings.set(true);
       this.enabled.setValue(true);
       this.formData.setValue({
