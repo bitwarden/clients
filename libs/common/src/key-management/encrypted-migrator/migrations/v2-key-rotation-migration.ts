@@ -103,11 +103,6 @@ export class V2KeyRotationMigration implements EncryptedMigration {
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {
     assertNonNullish(userId, "userId");
 
-    this.logService.info(
-      `[V2KeyRotationMigration] Performing full sync before v2 upgrade for user ${userId}`,
-    );
-    await this.syncService.fullSync(true);
-
     this.logService.info(`[V2KeyRotationMigration] Rotating user key for user ${userId}`);
     const success = await this.userKeyRotationService.rotateUserKey(
       { Password: { password: masterPassword! } },
