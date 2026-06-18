@@ -53,6 +53,7 @@ export class WindowMain {
     private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
+    private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
   init(show: boolean = true): Promise<any> {
@@ -151,8 +152,11 @@ export class WindowMain {
             return;
           } else {
             app.on("second-instance", (event, argv, workingDirectory) => {
-              // Someone tried to run a second instance, we should focus our window.
-              if (this.win != null) {
+              // Someone tried to run a second instance (e.g. launching from the desktop
+              // icon or terminal while already running). Always bring us to the foreground.
+              if (this.focusWindowCallback != null) {
+                void this.focusWindowCallback();
+              } else if (this.win != null) {
                 if (this.win.isMinimized() || !this.win.isVisible()) {
                   this.win.show();
                 }
@@ -228,7 +232,9 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win == null) {
+          if (this.focusWindowCallback != null) {
+            await this.focusWindowCallback();
+          } else if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon

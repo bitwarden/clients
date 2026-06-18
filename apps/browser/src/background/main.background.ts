@@ -131,7 +131,6 @@ import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/ma
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -145,6 +144,8 @@ import {
 } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
 import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { DefaultV2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/services/default-v2-upgrade-token-state.service";
 import {
   DefaultVaultTimeoutSettingsService,
   VaultTimeoutSettingsService,
@@ -176,7 +177,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -526,6 +527,7 @@ export default class MainBackground {
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
+  v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
   webPushConnectionService: WorkerWebPushConnectionService | UnsupportedWebPushConnectionService;
   animationControlService: AnimationControlService;
@@ -723,6 +725,8 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.v2UpgradeTokenStateService = new DefaultV2UpgradeTokenStateService(this.stateProvider);
+
     this.backgroundSyncService = new BackgroundSyncService(this.taskSchedulerService);
     this.backgroundSyncService.register(() => this.fullSync());
 
@@ -805,8 +809,6 @@ export default class MainBackground {
       this.logService,
     );
 
-    const pinStateService = new PinStateService(this.stateProvider);
-
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
@@ -834,7 +836,6 @@ export default class MainBackground {
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
-      pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
       this.tokenService,
@@ -974,23 +975,12 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
     );
 
-    this.pinService = new PinService(
-      this.encryptService,
-      this.logService,
-      this.keyService,
-      this.sdkService,
-      pinStateService,
-    );
+    this.pinService = new PinService(this.sdkService);
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
-    this.ipcService = new IpcBackgroundService(
-      this.platformUtilsService,
-      this.logService,
-      ipcSessionRepository,
-    );
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
       () => this.configService,
       this.logService,
@@ -998,9 +988,25 @@ export default class MainBackground {
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
-      this.pinService,
       () => this.ipcService,
     );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
+      this.v2UpgradeTokenStateService,
+    );
+    void browserBiometricsService.setUnlockService(this.unlockService);
 
     this.passwordStrengthService = new PasswordStrengthService();
 
@@ -1224,6 +1230,7 @@ export default class MainBackground {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
@@ -1267,7 +1274,6 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.accountService,
       this.authService,
-      this.configService,
       this.userNotificationSettingsService,
       messageListener,
       this.animationControlService,
@@ -1400,8 +1406,6 @@ export default class MainBackground {
       this.webPushConnectionService,
       this.authRequestAnsweringService,
       this.configService,
-      this.policyService,
-      this.newPolicyService,
       this.autoConfirmService,
       this.billingAccountProfileStateService,
     );
@@ -1701,21 +1705,6 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.unlockService = new DefaultUnlockService(
-      this.registerSdkService,
-      this.accountCryptographicStateService,
-      pinStateService,
-      this.kdfConfigService,
-      this.accountService,
-      this.masterPasswordService,
-      this.stateProvider,
-      this.logService,
-      this.biometricsService,
-      this.platformUtilsService,
-      this.stateService,
-      this.biometricStateService,
-    );
-
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
     this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
       this.ipcService,
@@ -1830,6 +1819,7 @@ export default class MainBackground {
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
       await this.sharedUnlockLeaderService.start();

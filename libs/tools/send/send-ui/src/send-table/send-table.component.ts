@@ -14,6 +14,7 @@ import {
   MenuModule,
   TableDataSource,
   TableModule,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -35,6 +36,8 @@ import {
     MenuModule,
     BadgeModule,
     TypographyModule,
+    TooltipDirective,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
