@@ -4,8 +4,10 @@ import {
   InvalidCurrentPasswordError,
 } from "@bitwarden/angular/auth/password-management/change-password";
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -23,11 +25,20 @@ export class WebChangePasswordService
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
+    protected policyService: PolicyService,
+    protected organizationInviteService: OrganizationInviteService,
     private syncService: SyncService,
     private userKeyRotationService: UserKeyRotationService,
     private routerService: RouterService,
   ) {
-    super(keyService, masterPasswordApiService, masterPasswordService, masterPasswordUnlockService);
+    super(
+      keyService,
+      masterPasswordApiService,
+      masterPasswordService,
+      masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
+    );
   }
 
   async changePasswordAndRotateUserKey(

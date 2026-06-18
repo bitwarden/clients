@@ -51,7 +51,10 @@ import { ExtensionNewDeviceVerificationComponentService } from "@bitwarden/brows
 import { BrowserRouterService } from "@bitwarden/browser/platform/popup/services/browser-router.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  InternalPolicyService,
+  PolicyService,
+} from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import {
   AccountService,
   AccountService as AccountServiceAbstraction,
@@ -63,6 +66,7 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import {
   AutofillSettingsService,
@@ -788,6 +792,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
       WINDOW,
     ],
   }),

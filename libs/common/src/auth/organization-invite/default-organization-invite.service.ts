@@ -12,6 +12,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -125,6 +126,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       this.logService.error(e);
       return undefined;
     }
+  }
+
+  async getMasterPasswordPolicyOptionsForInvite(
+    invite: OrganizationInvite,
+  ): Promise<MasterPasswordPolicyOptions | undefined> {
+    const policies = await this.getInvitePolicies(invite);
+    if (policies == null) {
+      return undefined;
+    }
+    return this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
   }
 
   private async acceptAndInitOrganization(

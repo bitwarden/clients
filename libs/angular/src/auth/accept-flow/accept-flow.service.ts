@@ -28,6 +28,12 @@ export interface AcceptFlowConfig<TInvite> {
   unauthedHandler: (invite: TInvite) => Promise<void>;
   /** Override default error-message resolution. Receives the API error message, or null for invalid-link. */
   getErrorMessage?: (apiError: string | null) => string;
+  /**
+   * Invoked when the handler throws or the link is invalid, before the error toast + redirect.
+   * Use this to clean up flow-specific state (e.g. the org-invite stash) so a thrown failure
+   * does not leave dead state behind for later consumers.
+   */
+  onError?: () => Promise<void>;
 }
 
 /**
@@ -75,6 +81,10 @@ export class AcceptFlowService {
     apiError: string | null,
     config: AcceptFlowConfig<TInvite>,
   ): Promise<void> {
+    if (config.onError) {
+      await config.onError();
+    }
+
     const message = config.getErrorMessage
       ? config.getErrorMessage(apiError)
       : this.defaultErrorMessage(apiError, config);
