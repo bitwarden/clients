@@ -45,6 +45,10 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
+    // Sync first so a rotation already performed on another client is reflected
+    // here before we prompt the user.
+    await this.syncService.fullSync(false);
+
     if (await this.userHasV1Attachments(userId)) {
       this.logService.info(`[V2KeyRotationMigration] User ${userId} has v1 attachments. Skipping.`);
       return "noMigrationNeeded";
@@ -63,10 +67,6 @@ export class V2KeyRotationMigration implements EncryptedMigration {
       );
       return "noMigrationNeeded";
     }
-
-    // Sync first so a rotation already performed on another client is reflected
-    // here before we prompt the user.
-    await this.syncService.fullSync(false);
 
     if (!(await this.userKeyIsV1(userId))) {
       this.logService.info(
