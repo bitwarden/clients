@@ -104,19 +104,25 @@ export class V2KeyRotationMigration implements EncryptedMigration {
     assertNonNullish(userId, "userId");
 
     this.logService.info(`[V2KeyRotationMigration] Rotating user key for user ${userId}`);
-    const success = await this.userKeyRotationService.rotateUserKey(
-      { Password: { password: masterPassword! } },
-      "CreateIfNeeded",
-      userId,
-    );
+
+    if (await this.masterPasswordService.userHasMasterPassword(userId)) {
+      assertNonNullish(masterPassword, "masterPassword");
+      const success = await this.userKeyRotationService.rotateUserKey(
+        { Password: { password: masterPassword! } },
+        "CreateIfNeeded",
+        userId,
+      );
+      if (!success) {
+        throw new Error("[V2KeyRotationMigration] Rotation aborted by user trust prompt.");
+      }
+    } else {
+      throw new Error("[V2KeyRotationMigration] Rotation for users without master passwords is not currently supported.");
+    }
+
     this.logService.info(
       `[V2KeyRotationMigration] Performing full sync after v2 upgrade for user ${userId}`,
     );
     await this.syncService.fullSync(true);
-
-    if (!success) {
-      throw new Error("[V2KeyRotationMigration] Rotation aborted by user trust prompt.");
-    }
   }
 
   private async userKeyIsV1(userId: UserId): Promise<boolean> {
