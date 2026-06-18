@@ -165,6 +165,9 @@ export class V2KeyRotationMigration implements EncryptedMigration {
   }
 
   private async userHasCorruptCiphers(userId: UserId): Promise<boolean> {
+    // Force the decryption of ciphers in case they are not decrypted otherwise, and discard the result.
+    // Otherwise, the failedToDecryptCiphers may block forever.
+    await firstValueFrom(this.cipherService.cipherViews$(userId));
     const ciphers = await firstValueFrom(this.cipherService.failedToDecryptCiphers$(userId));
     return ciphers != null && ciphers.length > 0;
   }
