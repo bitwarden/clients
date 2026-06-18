@@ -1,15 +1,3 @@
-<!--
-  # Table of Contents
-
-    This file contains a single consolidated template for all visual clients.
-
-  # UI States
-
-    The template has two UI states, defined by the `LoginUiState` enum:
-      EMAIL_ENTRY: displays the email input field + continue button
-      MASTER_PASSWORD_ENTRY: displays the master password input field + login button
--->
-
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
     <!-- Email Address input -->
@@ -102,13 +90,13 @@
 
     <!-- Link to Password Hint page - doesn't use bit-hint so that it doesn't get hidden on input validation errors -->
     <a bitLink routerLink="/hint" (click)="goToHint()" class="tw-inline-block tw-mb-4">
-      {{ "getMasterPasswordHint" | i18n }}
+      {{ "hint" | i18n }}
     </a>
 
     <div class="tw-grid tw-gap-3">
       <!-- Submit button to Login with Master Password -->
       <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ "loginWithMasterPassword" | i18n }}
+        {{ "logIn" | i18n }}
       </button>
 
       <!-- Button to Login with Device -->
