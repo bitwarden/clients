@@ -116,7 +116,9 @@ export class V2KeyRotationMigration implements EncryptedMigration {
         throw new Error("[V2KeyRotationMigration] Rotation aborted by user trust prompt.");
       }
     } else {
-      throw new Error("[V2KeyRotationMigration] Rotation for users without master passwords is not currently supported.");
+      throw new Error(
+        "[V2KeyRotationMigration] Rotation for users without master passwords is not currently supported.",
+      );
     }
 
     this.logService.info(
@@ -160,7 +162,10 @@ export class V2KeyRotationMigration implements EncryptedMigration {
   private async userHasV1Attachments(userId: UserId): Promise<boolean> {
     const ciphers = await firstValueFrom(this.cipherService.cipherViews$(userId));
     return (
-      ciphers != null && ciphers.filter((c: CipherView) => c.isUserOwnedCipher).some((c: CipherView) => c.hasOldAttachments)
+      ciphers != null &&
+      ciphers
+        .filter((c: CipherView) => c.isUserOwnedCipher)
+        .some((c: CipherView) => c.hasOldAttachments)
     );
   }
 
