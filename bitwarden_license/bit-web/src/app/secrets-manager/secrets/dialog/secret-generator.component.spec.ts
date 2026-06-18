@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { map, of } from "rxjs";
@@ -16,18 +16,20 @@ describe("SecretGeneratorComponent", () => {
   let component: SecretGeneratorComponent;
   let fixture: ComponentFixture<SecretGeneratorComponent>;
   let generatorService: MockProxy<CredentialGeneratorService>;
+  let settingsNext: jest.Mock;
 
   beforeEach(async () => {
     generatorService = mock<CredentialGeneratorService>();
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as any);
 
+    settingsNext = jest.fn();
     generatorService.settings.mockReturnValue({
       withConstraints$: of({
         state: { length: 14, uppercase: true, lowercase: true, number: true, special: false },
         constraints: { length: { min: 5, max: 128 } },
       }),
-      next: jest.fn(),
+      next: settingsNext,
     } as any);
 
     generatorService.generate$.mockImplementation(({ on$ }: any) =>
@@ -93,4 +95,34 @@ describe("SecretGeneratorComponent", () => {
 
     expect(component["canGenerate"]).toBe(false);
   });
+
+  it("opens the panel and generates a preview when toggled", async () => {
+    expect(component["isOpen"]()).toBe(false);
+
+    component["toggle"]();
+    await fixture.whenStable();
+
+    expect(component["isOpen"]()).toBe(true);
+    expect(component["preview"]()).toBe("gen-password-secretsManager");
+  });
+
+  it("closes the panel when toggled while open", async () => {
+    component["toggle"]();
+    await fixture.whenStable();
+    expect(component["isOpen"]()).toBe(true);
+
+    component["toggle"]();
+    expect(component["isOpen"]()).toBe(false);
+  });
+
+  it("writes the updated settings back to the generator when the form changes", fakeAsync(() => {
+    settingsNext.mockClear();
+
+    component["settingsForm"].patchValue({ length: 20, special: true });
+    tick(100);
+
+    expect(settingsNext).toHaveBeenCalledWith(
+      expect.objectContaining({ length: 20, special: true, minSpecial: 1 }),
+    );
+  }));
 });

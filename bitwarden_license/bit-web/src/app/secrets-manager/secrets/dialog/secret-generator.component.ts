@@ -17,7 +17,6 @@ import {
   ButtonModule,
   CheckboxModule,
   ColorPasswordModule,
-  CopyClickDirective,
   FormFieldModule,
 } from "@bitwarden/components";
 import {
@@ -42,7 +41,6 @@ const SETTINGS_WAIT_MS = 100;
     FormFieldModule,
     CheckboxModule,
     ColorPasswordModule,
-    CopyClickDirective,
     I18nPipe,
   ],
 })
