@@ -218,15 +218,6 @@ export class CipherViewLikeUtils {
       return `*${shownDigits}`;
     }
 
-    if (translatedAccountType && shownDigits) {
-      return `${translatedAccountType}, *${shownDigits}`;
-    }
-    if (translatedAccountType) {
-      return translatedAccountType;
-    }
-    if (shownDigits) {
-      return `*${shownDigits}`;
-    }
     return undefined;
   };
 
