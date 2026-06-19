@@ -5,6 +5,7 @@ import { Message } from "../models/native-messaging/message";
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
 import { DuckDuckGoMessageHandlerService } from "./duckduckgo-message-handler.service";
+import { isForwardedIpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
 
 @Injectable()
 export class NativeMessagingService {
@@ -19,6 +20,12 @@ export class NativeMessagingService {
 
   private async messageHandler(msg: LegacyMessageWrapper | Message) {
     const outerMessage = msg as Message;
+
+    // Ignore SDK IPC messages here
+    if (isIpcMessage(msg) || isForwardedIpcMessage(msg)) {
+      return;
+    }
+
     if (outerMessage.version) {
       // If there is a version, it is a using the protocol created for the DuckDuckGo integration
       await this.duckduckgoMessageHandler.handleMessage(outerMessage);
