@@ -336,19 +336,22 @@ describe("AddEditComponent", () => {
       expect(navigate).not.toHaveBeenCalled();
     });
 
-    it("closes single action popout", async () => {
+    it("closes single action popout without notification when save and fill is disabled", async () => {
       jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValueOnce(true);
       jest.spyOn(BrowserPopupUtils, "closeSingleActionPopout").mockResolvedValue();
       const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+      (component as any).saveAndFillEnabled = false;
 
       await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
 
-      expect(sendMessageSpy).toHaveBeenCalledWith("showLoginSavedNotification", {
-        cipherId: "123-456-789",
-        itemName: "Test Cipher",
-        senderTabId: 1,
-      });
-      expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalled();
+      expect(sendMessageSpy).not.toHaveBeenCalledWith(
+        "showLoginSavedNotification",
+        expect.anything(),
+      );
+      expect(BrowserPopupUtils.closeSingleActionPopout).toHaveBeenCalledWith(
+        "vault_AddEditVaultItem",
+        1000,
+      );
       expect(navigate).not.toHaveBeenCalled();
     });
 
@@ -358,6 +361,7 @@ describe("AddEditComponent", () => {
       const sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
       vaultPopupAutofillService.doAutofill.mockResolvedValue(true);
       (component as any).fillOnSuccessfulSave = true;
+      (component as any).saveAndFillEnabled = true;
 
       await component.onCipherSaved({ id: "123-456-789", name: "Test Cipher" } as CipherView);
 

@@ -3,8 +3,10 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -23,6 +25,8 @@ describe("SendCreateCommand", () => {
   const sendApiService = mock<SendApiService>();
   const accountProfileService = mock<BillingAccountProfileStateService>();
   const accountService = mock<AccountService>();
+  const policyService = mock<PolicyService>();
+  const configService = mock<ConfigService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -41,6 +45,7 @@ describe("SendCreateCommand", () => {
       getWebVaultUrl: () => "https://vault.bitwarden.com",
       getSendUrl: () => "https://send.bitwarden.com/#",
     } as any);
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     command = new SendCreateCommand(
       sendService,
@@ -48,6 +53,8 @@ describe("SendCreateCommand", () => {
       sendApiService,
       accountProfileService,
       accountService,
+      policyService,
+      configService,
     );
   });
 
