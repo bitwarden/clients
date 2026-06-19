@@ -1,10 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
+import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/delete-two-factor-authenticator.request";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
+import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
+import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
@@ -16,10 +20,8 @@ import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
 import { TwoFactorRecoverResponse } from "@bitwarden/common/auth/models/response/two-factor-recover.response";
-import {
-  TwoFactorWebAuthnResponse,
-  ChallengeResponse,
-} from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
@@ -136,8 +138,9 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorAuthenticator", () => {
       it("disables authenticator two-factor authentication", async () => {
-        const request = new DisableTwoFactorAuthenticatorRequest();
-        request.masterPasswordHash = "master-password-hash";
+        const request = new DeleteTwoFactorAuthenticatorRequest();
+        request.userVerificationToken = "uv-token";
+        request.key = "MFRGGZDFMZTWQ2LK";
         const mockResponse = {
           Enabled: false,
           Type: 0,
@@ -466,20 +469,23 @@ describe("TwoFactorApiService", () => {
     });
 
     describe("getTwoFactorWebAuthnChallenge", () => {
-      it("obtains cryptographic challenge for WebAuthn credential registration", async () => {
+      it("obtains the wrapped challenge and user verification token", async () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          challenge: "Y2hhbGxlbmdlLXN0cmluZw",
-          rp: { name: "Bitwarden" },
-          user: {
-            id: "dXNlci1pZA",
-            name: "user@example.com",
-            displayName: "User",
+          Options: {
+            challenge: "Y2hhbGxlbmdlLXN0cmluZw",
+            rp: { name: "Bitwarden" },
+            user: {
+              id: "dXNlci1pZA",
+              name: "user@example.com",
+              displayName: "User",
+            },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }], // ES256
+            excludeCredentials: [] as PublicKeyCredentialDescriptor[],
+            timeout: 60000,
           },
-          pubKeyCredParams: [{ type: "public-key", alg: -7 }], // ES256
-          excludeCredentials: [] as PublicKeyCredentialDescriptor[],
-          timeout: 60000,
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -492,14 +498,11 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(ChallengeResponse);
-        expect(result.challenge).toBeDefined();
-        expect(result.rp).toHaveProperty("name", "Bitwarden");
-        expect(result.user).toHaveProperty("id");
-        expect(result.user).toHaveProperty("name");
-        expect(result.user).toHaveProperty("displayName", "User");
-        expect(result.pubKeyCredParams).toHaveLength(1);
-        expect(Number(result.timeout)).toBeTruthy();
+        expect(result).toBeInstanceOf(TwoFactorWebAuthnChallengeResponse);
+        expect(result.options).toBeDefined();
+        expect(result.options.challenge).toBeDefined();
+        expect(result.options.rp).toHaveProperty("name", "Bitwarden");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -588,7 +591,7 @@ describe("TwoFactorApiService", () => {
       it("removes specific WebAuthn credential while preserving other registered keys", async () => {
         const request = new UpdateTwoFactorWebAuthnDeleteRequest();
         request.id = 1;
-        request.masterPasswordHash = "master-password-hash";
+        request.userVerificationToken = "uv-token";
         const mockResponse = {
           Enabled: true,
           Keys: [{ Name: "Security Key", Id: 2, Migrated: true }], // Key with id:1 removed
@@ -637,60 +640,118 @@ describe("TwoFactorApiService", () => {
     });
   });
 
-  describe("Disable APIs", () => {
-    describe("putTwoFactorDisable", () => {
-      it("disables specified two-factor provider for current user", async () => {
-        const request = new TwoFactorProviderRequest();
-        request.type = 0; // Authenticator
-        request.masterPasswordHash = "master-password-hash";
-        const mockResponse = {
-          Enabled: false,
-          Type: 0,
-        };
+  describe("Per-provider Delete APIs", () => {
+    describe("deleteTwoFactorYubiKey", () => {
+      it("removes YubiKey two-factor enrollment for the current user", async () => {
+        const request = new TwoFactorYubiKeyDeleteRequest();
+        request.userVerificationToken = "uv-token";
+        const mockResponse = { Enabled: false, Type: 3 }; // YubiKey
         apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.putTwoFactorDisable(request);
+        const result = await twoFactorApiService.deleteTwoFactorYubiKey(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
-          "PUT",
-          "/two-factor/disable",
+          "DELETE",
+          "/two-factor/yubikey",
           request,
           true,
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorProviderResponse);
         expect(result.enabled).toBe(false);
-        expect(result.type).toBe(0); // Authenticator
+        expect(result.type).toBe(3);
       });
     });
 
-    describe("putTwoFactorOrganizationDisable", () => {
-      it("disables two-factor provider for organization with policy management permissions", async () => {
-        const organizationId = "org-123";
-        const request = new TwoFactorProviderRequest();
-        request.type = 6; // Duo
-        request.masterPasswordHash = "master-password-hash";
-        const mockResponse = {
-          Enabled: false,
-          Type: 6,
-        };
+    describe("deleteTwoFactorDuo", () => {
+      it("removes Duo two-factor enrollment for the current user", async () => {
+        const request = new TwoFactorDuoDeleteRequest();
+        request.userVerificationToken = "uv-token";
+        const mockResponse = { Enabled: false, Type: 2 }; // Duo
         apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.putTwoFactorOrganizationDisable(
+        const result = await twoFactorApiService.deleteTwoFactorDuo(request);
+
+        expect(apiService.send).toHaveBeenCalledWith(
+          "DELETE",
+          "/two-factor/duo",
+          request,
+          true,
+          true,
+        );
+        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
+        expect(result.enabled).toBe(false);
+        expect(result.type).toBe(2);
+      });
+    });
+
+    describe("deleteTwoFactorEmail", () => {
+      it("removes email two-factor enrollment for the current user", async () => {
+        const request = new TwoFactorEmailDeleteRequest();
+        request.userVerificationToken = "uv-token";
+        const mockResponse = { Enabled: false, Type: 1 }; // Email
+        apiService.send.mockResolvedValue(mockResponse);
+
+        const result = await twoFactorApiService.deleteTwoFactorEmail(request);
+
+        expect(apiService.send).toHaveBeenCalledWith(
+          "DELETE",
+          "/two-factor/email",
+          request,
+          true,
+          true,
+        );
+        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
+        expect(result.enabled).toBe(false);
+        expect(result.type).toBe(1);
+      });
+    });
+
+    describe("deleteTwoFactorOrganizationDuo", () => {
+      it("removes Duo two-factor enrollment for an organization with policy management permissions", async () => {
+        const organizationId = "org-123";
+        const request = new TwoFactorOrganizationDuoDeleteRequest();
+        request.userVerificationToken = "uv-token";
+        const mockResponse = { Enabled: false, Type: 6 }; // OrganizationDuo
+        apiService.send.mockResolvedValue(mockResponse);
+
+        const result = await twoFactorApiService.deleteTwoFactorOrganizationDuo(
           organizationId,
           request,
         );
 
         expect(apiService.send).toHaveBeenCalledWith(
-          "PUT",
-          `/organizations/${organizationId}/two-factor/disable`,
+          "DELETE",
+          `/organizations/${organizationId}/two-factor/duo`,
           request,
           true,
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorProviderResponse);
         expect(result.enabled).toBe(false);
-        expect(result.type).toBe(6); // Duo
+        expect(result.type).toBe(6);
+      });
+    });
+
+    describe("deleteTwoFactorWebAuthnAll", () => {
+      it("removes the entire WebAuthn enrollment in a single round-trip", async () => {
+        const request = new TwoFactorWebAuthnDeleteAllRequest();
+        request.userVerificationToken = "uv-token";
+        const mockResponse = { Enabled: false, Type: 7 }; // WebAuthn
+        apiService.send.mockResolvedValue(mockResponse);
+
+        const result = await twoFactorApiService.deleteTwoFactorWebAuthnAll(request);
+
+        expect(apiService.send).toHaveBeenCalledWith(
+          "DELETE",
+          "/two-factor/webauthn/all",
+          request,
+          true,
+          true,
+        );
+        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
+        expect(result.enabled).toBe(false);
+        expect(result.type).toBe(7);
       });
     });
   });

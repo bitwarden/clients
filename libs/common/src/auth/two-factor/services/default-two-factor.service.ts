@@ -9,10 +9,14 @@ import { PlatformUtilsService } from "../../../platform/abstractions/platform-ut
 import { Utils } from "../../../platform/misc/utils";
 import { GlobalStateProvider } from "../../../platform/state";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
+import { DeleteTwoFactorAuthenticatorRequest } from "../../models/request/delete-two-factor-authenticator.request";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
+import { TwoFactorDuoDeleteRequest } from "../../models/request/two-factor-duo-delete.request";
+import { TwoFactorEmailDeleteRequest } from "../../models/request/two-factor-email-delete.request";
 import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "../../models/request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "../../models/request/two-factor-web-authn-delete-all.request";
+import { TwoFactorYubiKeyDeleteRequest } from "../../models/request/two-factor-yubikey-delete.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
@@ -25,10 +29,8 @@ import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.respo
 import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
 import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
 import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
-import {
-  TwoFactorWebAuthnResponse,
-  ChallengeResponse,
-} from "../../models/response/two-factor-web-authn.response";
+import { TwoFactorWebAuthnChallengeResponse } from "../../models/response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnResponse } from "../../models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
 import {
   PROVIDERS,
@@ -205,7 +207,9 @@ export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
     return this.twoFactorApiService.getTwoFactorWebAuthn(request);
   }
 
-  getTwoFactorWebAuthnChallenge(request: SecretVerificationRequest): Promise<ChallengeResponse> {
+  getTwoFactorWebAuthnChallenge(
+    request: SecretVerificationRequest,
+  ): Promise<TwoFactorWebAuthnChallengeResponse> {
     return this.twoFactorApiService.getTwoFactorWebAuthnChallenge(request);
   }
 
@@ -220,7 +224,7 @@ export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
   }
 
   deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
+    request: DeleteTwoFactorAuthenticatorRequest,
   ): Promise<TwoFactorProviderResponse> {
     return this.twoFactorApiService.deleteTwoFactorAuthenticator(request);
   }
@@ -258,15 +262,31 @@ export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
     return this.twoFactorApiService.deleteTwoFactorWebAuthn(request);
   }
 
-  putTwoFactorDisable(request: TwoFactorProviderRequest): Promise<TwoFactorProviderResponse> {
-    return this.twoFactorApiService.putTwoFactorDisable(request);
+  deleteTwoFactorYubiKey(
+    request: TwoFactorYubiKeyDeleteRequest,
+  ): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.deleteTwoFactorYubiKey(request);
   }
 
-  putTwoFactorOrganizationDisable(
+  deleteTwoFactorDuo(request: TwoFactorDuoDeleteRequest): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.deleteTwoFactorDuo(request);
+  }
+
+  deleteTwoFactorEmail(request: TwoFactorEmailDeleteRequest): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.deleteTwoFactorEmail(request);
+  }
+
+  deleteTwoFactorOrganizationDuo(
     organizationId: string,
-    request: TwoFactorProviderRequest,
+    request: TwoFactorOrganizationDuoDeleteRequest,
   ): Promise<TwoFactorProviderResponse> {
-    return this.twoFactorApiService.putTwoFactorOrganizationDisable(organizationId, request);
+    return this.twoFactorApiService.deleteTwoFactorOrganizationDuo(organizationId, request);
+  }
+
+  deleteTwoFactorWebAuthnAll(
+    request: TwoFactorWebAuthnDeleteAllRequest,
+  ): Promise<TwoFactorProviderResponse> {
+    return this.twoFactorApiService.deleteTwoFactorWebAuthnAll(request);
   }
 
   postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {

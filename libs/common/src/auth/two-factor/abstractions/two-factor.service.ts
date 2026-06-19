@@ -1,10 +1,14 @@
 import { ListResponse } from "../../../models/response/list.response";
 import { KeyDefinition, TWO_FACTOR_MEMORY } from "../../../platform/state";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
+import { DeleteTwoFactorAuthenticatorRequest } from "../../models/request/delete-two-factor-authenticator.request";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
+import { TwoFactorDuoDeleteRequest } from "../../models/request/two-factor-duo-delete.request";
+import { TwoFactorEmailDeleteRequest } from "../../models/request/two-factor-email-delete.request";
 import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "../../models/request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "../../models/request/two-factor-web-authn-delete-all.request";
+import { TwoFactorYubiKeyDeleteRequest } from "../../models/request/two-factor-yubikey-delete.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
 import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
 import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
@@ -17,10 +21,8 @@ import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.respo
 import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
 import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
 import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "../../models/response/two-factor-web-authn.response";
+import { TwoFactorWebAuthnChallengeResponse } from "../../models/response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnResponse } from "../../models/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
 
 /**
@@ -310,7 +312,7 @@ export abstract class TwoFactorService {
    */
   abstract getTwoFactorWebAuthnChallenge(
     request: SecretVerificationRequest,
-  ): Promise<ChallengeResponse>;
+  ): Promise<TwoFactorWebAuthnChallengeResponse>;
 
   /**
    * Gets the recovery code configuration for the current user from the API.
@@ -341,16 +343,15 @@ export abstract class TwoFactorService {
   ): Promise<TwoFactorAuthenticatorResponse>;
 
   /**
-   * Disables the authenticator (TOTP) two-factor provider for the current user.
-   * Requires user verification token to confirm the operation.
+   * Removes the authenticator (TOTP) two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation.
    * Used for settings management.
    *
-   * @param request The {@link DisableTwoFactorAuthenticatorRequest} to prove authentication.
+   * @param request The {@link DeleteTwoFactorAuthenticatorRequest} containing the user verification token and key.
    * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract deleteTwoFactorAuthenticator(
-    request: DisableTwoFactorAuthenticatorRequest,
+    request: DeleteTwoFactorAuthenticatorRequest,
   ): Promise<TwoFactorProviderResponse>;
 
   /**
@@ -439,33 +440,69 @@ export abstract class TwoFactorService {
   ): Promise<TwoFactorWebAuthnResponse>;
 
   /**
-   * Disables a specific two-factor provider for the current user.
-   * The provider will no longer be required or usable for authentication.
-   * Requires user verification via master password or OTP.
+   * Removes the YubiKey two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation.
+   * Does NOT require premium — disabling must always be available even if premium has lapsed.
    * Used for settings management.
    *
-   * @param request The {@link TwoFactorProviderRequest} to prove authentication.
+   * @param request The {@link TwoFactorYubiKeyDeleteRequest} containing the user verification token.
    * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract putTwoFactorDisable(
-    request: TwoFactorProviderRequest,
+  abstract deleteTwoFactorYubiKey(
+    request: TwoFactorYubiKeyDeleteRequest,
   ): Promise<TwoFactorProviderResponse>;
 
   /**
-   * Disables a specific two-factor provider for an organization.
-   * The provider will no longer be available for organization members.
-   * Requires user verification and organization policy management permissions.
+   * Removes the Duo two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation.
+   * Does NOT require premium — disabling must always be available even if premium has lapsed.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorDuoDeleteRequest} containing the user verification token.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract deleteTwoFactorDuo(
+    request: TwoFactorDuoDeleteRequest,
+  ): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Removes the email two-factor enrollment for the current user.
+   * Requires a user verification token to confirm the operation.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorEmailDeleteRequest} containing the user verification token.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract deleteTwoFactorEmail(
+    request: TwoFactorEmailDeleteRequest,
+  ): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Removes the Duo two-factor enrollment for an organization.
+   * Requires a user verification token to confirm the operation and
+   * organization policy management permissions.
    * Used for settings management.
    *
    * @param organizationId The ID of the organization.
-   * @param request The {@link TwoFactorProviderRequest} to prove authentication.
+   * @param request The {@link TwoFactorOrganizationDuoDeleteRequest} containing the user verification token.
    * @returns A promise that resolves to the updated provider status.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract putTwoFactorOrganizationDisable(
+  abstract deleteTwoFactorOrganizationDuo(
     organizationId: string,
-    request: TwoFactorProviderRequest,
+    request: TwoFactorOrganizationDuoDeleteRequest,
+  ): Promise<TwoFactorProviderResponse>;
+
+  /**
+   * Removes the entire WebAuthn (FIDO2) two-factor enrollment for the current user — all
+   * credentials are removed and the provider is disabled in a single round-trip. The only path
+   * that can clear the last registered credential, since per-credential delete refuses by design.
+   * Used for settings management.
+   *
+   * @param request The {@link TwoFactorWebAuthnDeleteAllRequest} containing the user verification token.
+   * @returns A promise that resolves to the updated provider status.
+   */
+  abstract deleteTwoFactorWebAuthnAll(
+    request: TwoFactorWebAuthnDeleteAllRequest,
   ): Promise<TwoFactorProviderResponse>;
 
   /**
