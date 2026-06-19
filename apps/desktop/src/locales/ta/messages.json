@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
-    "message": "மீண்டும் வருக"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "இந்த பொருளை நீங்கள் எந்த அமைப்புக்கு நகர்த்த விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும். ஒரு அமைப்புக்கு நகர்த்துவது அந்தப் பொருளின் உரிமையை அந்த அமைப்புக்கு மாற்றும். நீங்கள் இந்த பொருளை நகர்த்தியவுடன் அதன் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "நீளம்"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "உள்நுழை"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden க்கு உள்நுழை"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "உங்கள் கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடவும், உங்கள் கடவுச்சொல் குறிப்பு உங்களுக்கு அனுப்பப்படும்"
-  },
-  "getMasterPasswordHint": {
-    "message": "முதன்மை கடவுச்சொல் குறிப்பைப் பெறவும்"
   },
   "emailRequired": {
     "message": "மின்னஞ்சல் முகவரி தேவை."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "ட்ராய் ஐகானுக்கு சுருக்கவும்"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கவும்"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToTray": {
-    "message": "ட்ராய் ஐகானுக்கு மூடவும்"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு மூடவும்"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableTray": {
-    "message": "ட்ராய் ஐகானைக் காட்டு"
-  },
-  "enableTrayDesc": {
-    "message": "கணினி ட்ராயில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "உள்நுழைவில் தானாகவே தொடங்கவும்"
   },
   "openAtLoginDesc": {
     "message": "Bitwarden டெஸ்க்டாப் செயலியை உள்நுழையும்போது தானாகவே தொடங்கவும்."
-  },
-  "alwaysShowDock": {
-    "message": "டாக்கில் எப்போதும் காட்டவும்"
-  },
-  "alwaysShowDockDesc": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கும்போதும் டாக்கில் Bitwarden ஐகானைக் காட்டவும்."
-  },
-  "confirmTrayTitle": {
-    "message": "ட்ராய்-ஐ மறைப்பதை உறுதிப்படுத்தவும்"
-  },
-  "confirmTrayDesc": {
-    "message": "இந்த அமைப்பை முடக்குவது மற்ற அனைத்து ட்ராய் தொடர்பான அமைப்புகளையும் முடக்கும்."
   },
   "language": {
     "message": "மொழி"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "பாதுகாப்பு குறியீட்டை நகலெடுக்கவும்",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "அட்டை எண்"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "வெளியேறு"
   },
-  "showHide": {
-    "message": "காட்டு / மறை",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "ட்ராய்-க்கு மறை"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "விருப்பத்தேர்வுகள்"
-  },
-  "enableMenuBar": {
-    "message": "பட்டிப் பட்டி ஐகானைக் காட்டு"
-  },
-  "enableMenuBarDesc": {
-    "message": "பட்டிப் பட்டியில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
   },
   "hideToMenuBar": {
     "message": "பட்டிப் பட்டியக்கு மறை"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "உங்கள் இன்பாக்ஸில் Bitwarden-இலிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறவும்."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "சந்தாவை நீக்கு"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "உங்கள் புதிய கடவுச்சொல் உங்கள் தற்போதைய கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "உங்கள் கடவுச்சொல் குறிப்பு உங்கள் கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "வால்ட்",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "முதன்மை கடவுச்சொல்லுடன் உள்நுழைக"
   },
   "rememberEmail": {
     "message": "மின்னஞ்சலை நினைவில் கொள்க"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

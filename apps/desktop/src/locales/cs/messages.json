@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "Nemáte oprávnění upravit tuto položku"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Vítejte zpět"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Kopírovat soukromý klíč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovat veřejný klíč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovat otisk prstu"
+  },
   "length": {
     "message": "Délka"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Přihlásit se"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Přihlásit se do Bitwardenu"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
-  },
-  "getMasterPasswordHint": {
-    "message": "Získat nápovědu pro hlavní heslo"
   },
   "emailRequired": {
     "message": "Je vyžadována e-mailová adresa."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
-  "enableMinToTray": {
-    "message": "Minimalizovat do systémové lišty"
+  "runInBackground": {
+    "message": "Nechat Bitwarden běžet na pozadí"
   },
-  "enableMinToTrayDesc": {
-    "message": "Při minimalizaci okna zobrazí ikonu v systémové liště."
+  "runInBackgroundDesc": {
+    "message": "Když zavřete okno, je Bitwarden bude dostupný z lišty. Doporučeno při použití SSH agenta nebo integrace prohlížeče."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimalizovat do panelu nabídek"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Při minimalizaci okna zobrazí ikonu v panelu nabídek."
-  },
-  "enableCloseToTray": {
-    "message": "Zavřít do systémové lišty"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Při zavření okna zobrazí ikonu v systémové liště."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Zavřít do panelu nabídek"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Při zavření okna zobrazí ikonu v panelu nabídek."
-  },
-  "enableTray": {
-    "message": "Zobrazit ikonu v systémové liště"
-  },
-  "enableTrayDesc": {
-    "message": "Vždy bude zobrazovat ikonu v systémové liště."
+  "runInBackgroundDescMac": {
+    "message": "Když zavřete okno, je Bitwarden bude dostupný z řádku nabídek. Doporučeno při použití SSH agenta nebo integrace prohlížeče."
   },
   "openAtLogin": {
     "message": "Spustit automaticky při přihlášení"
   },
   "openAtLoginDesc": {
     "message": "Při přihlášení automaticky spustí aplikaci Bitwarden."
-  },
-  "alwaysShowDock": {
-    "message": "Vždy zobrazovat v Docku"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Zobrazí ikonu Bitwarden v Docku, i když je minimalizován na liště nabídky."
-  },
-  "confirmTrayTitle": {
-    "message": "Potvrdit skrývání lišty"
-  },
-  "confirmTrayDesc": {
-    "message": "Zakázáním tohoto nastavení zakážete také všechna ostatní nastavení související s lištami."
   },
   "language": {
     "message": "Jazyk"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopírovat bezpečnostní kód",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Kopírovat soukromý klíč"
-  },
-  "copyPublicKey": {
-    "message": "Kopírovat veřejný klíč"
-  },
-  "copyFingerprint": {
-    "message": "Kopírovat otisk prstu"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Ukončit"
   },
-  "showHide": {
-    "message": "Zobrazit / Skrýt",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Zobrazit",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Skrýt do systémové lišty"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Možnosti"
-  },
-  "enableMenuBar": {
-    "message": "Povolit ikonu panelu nabídek"
-  },
-  "enableMenuBarDesc": {
-    "message": "Vždy zobrazí ikonu v panelu nabídek."
   },
   "hideToMenuBar": {
     "message": "Skrýt do panelu nabídek"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Přijímejte aktualizace od Bitwardenu do doručené pošty."
   },
   "unsubscribe": {
     "message": "Odhlásit odběr"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Vaše nové heslo nemůže být stejné jako Vaše současné heslo."
+  },
+  "hint": {
+    "message": "Nápověda"
   },
   "hintEqualsPassword": {
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Trezor",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Přihlásit se pomocí hlavního hesla"
   },
   "rememberEmail": {
     "message": "Zapamatovat si e-mail"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
+  "domainNotAllowed": {
+    "message": "Zahrnout jen následující domény: $DOMAINS$. Zkontrolujte to a zkuste to znovu",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Více"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
   },
+  "discardEditsTitle": {
+    "message": "Zahodit úpravy"
+  },
+  "discardEditsConfirmation": {
+    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny."
+  },
   "discardEdits": {
     "message": "Zahodit úpravy"
   },
-  "discardEditsMessage": {
-    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
-  },
-  "backToEditing": {
-    "message": "Zpět k úpravám"
+  "keepEditing": {
+    "message": "Pokračovat v úpravách"
   },
   "sendHasUnsavedEdits": {
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Není v souladu s pravidly Send Vaší organizace",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Pro úpravu tohoto Send vytvořte kopii. Pokud tento Send vyprší v nastaveném datu smazání, není potřeba žádná akce.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v nastaveném datu smazání",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvořit kopii"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"

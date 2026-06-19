@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "Нямате право за редактиране на този елемент"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Добре дошли отново"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Копиране на частния ключ"
+  },
+  "copyPublicKey": {
+    "message": "Копиране на публичния ключ"
+  },
+  "copyFingerprint": {
+    "message": "Копиране на отпечатъка"
+  },
   "length": {
     "message": "Дължина"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Вписване"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Впишете се в Битуорден"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "getMasterPasswordHint": {
-    "message": "Получете подсказване за главната парола"
   },
   "emailRequired": {
     "message": "Електронната поща е задължителна."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
-  "enableMinToTray": {
-    "message": "Смаляване в областта за уведомяване"
+  "runInBackground": {
+    "message": "Поддържайте Битуорден работещ във фонов режим"
   },
-  "enableMinToTrayDesc": {
-    "message": "При смаляване на прозореца да се показва иконка в областта за уведомяване."
+  "runInBackgroundDesc": {
+    "message": "Когато затворите прозореца, Битуорден ще бъде достъпен от системната област. Препоръчително, когато използвате SSH агента или интеграцията в браузъра."
   },
-  "enableMinToMenuBar": {
-    "message": "Минимизиране в лентата за меню"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "При минимизиране на прозореца да се показва иконка в лентата за меню."
-  },
-  "enableCloseToTray": {
-    "message": "Затваряне в областта за уведомяване"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "При затваряне на прозореца да се показва иконка в областта за уведомяване."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Затваряне в лентата за меню"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "При затваряне на прозореца да се показва иконка в лентата за меню."
-  },
-  "enableTray": {
-    "message": "Включване на иконката в областта за уведомяване"
-  },
-  "enableTrayDesc": {
-    "message": "Постоянно показване на иконка в областта за уведомяване."
+  "runInBackgroundDescMac": {
+    "message": "Когато затворите прозореца, Битуорден ще бъде достъпен от лентата с менюта. Препоръчително, когато използвате SSH агента или интеграцията в браузъра."
   },
   "openAtLogin": {
     "message": "Автоматично стартиране със системата"
   },
   "openAtLoginDesc": {
     "message": "Автоматично стартиране на самостоятелното приложение на Битуорден при вписване в системата."
-  },
-  "alwaysShowDock": {
-    "message": "Винаги да се показва в дока"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Показване на иконата на Битуорден в дока, дори когато е минимизиран в лентата за меню."
-  },
-  "confirmTrayTitle": {
-    "message": "Потвърждаване на изключване на областта за уведомяванията"
-  },
-  "confirmTrayDesc": {
-    "message": "Изключването на настройката изключва всички други настройки за областта за уведомяванията."
   },
   "language": {
     "message": "Език"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Копиране на частния ключ"
-  },
-  "copyPublicKey": {
-    "message": "Копиране на публичния ключ"
-  },
-  "copyFingerprint": {
-    "message": "Копиране на отпечатъка"
   },
   "cardNumber": {
     "message": "номер на карта"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Изход"
   },
-  "showHide": {
-    "message": "Показване / Скриване",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Показване",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Скриване в областта за уведомяване"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Настройки"
-  },
-  "enableMenuBar": {
-    "message": "Икона в лентата с менюта"
-  },
-  "enableMenuBarDesc": {
-    "message": "Винаги да се показва икона в лентата с менюта."
   },
   "hideToMenuBar": {
     "message": "Скриване в лентата с менюта"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Поне една политика на организация има следните изисквания към главната парола:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
+  "receiveMarketingEmails": {
+    "message": "Получавайте актуализации от Битуорден в пощата си."
   },
   "unsubscribe": {
     "message": "Отписване"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Новата парола не може да бъде същата като текущата."
+  },
+  "hint": {
+    "message": "Подсказка"
   },
   "hintEqualsPassword": {
     "message": "Подсказването за паролата не може да съвпада с нея."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Трезор",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Вписване с главната парола"
   },
   "rememberEmail": {
     "message": "Запомняне на е-пощата"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
   },
+  "domainNotAllowed": {
+    "message": "Включват се само следните домейни: $DOMAINS$. Моля, прегледайте и опитайте отново",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Още"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
   },
+  "discardEditsTitle": {
+    "message": "Отхвърляне на промените"
+  },
+  "discardEditsConfirmation": {
+    "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани."
+  },
   "discardEdits": {
     "message": "Отхвърляне на промените"
   },
-  "discardEditsMessage": {
-    "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
-  },
-  "backToEditing": {
-    "message": "Назад към редактирането"
+  "keepEditing": {
+    "message": "Продължаване на редактирането"
   },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не отговаря на политиката за Изпращания на Вашата организация",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "За да редактирате това Изпращане, първо му направете копие.Ако давността на това Изпращане може да изтече на зададена дата за изтриване, не са необходими допълнителни действия.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Давността на това Изпращане ще изтече на зададената дата за изтриване",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Създаване на копие"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"

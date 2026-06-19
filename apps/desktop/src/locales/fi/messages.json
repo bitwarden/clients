@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
-    "message": "Tervetuloa takaisin"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Valitse organisaatio, jolle haluat siirtää kohteen. Tämä siirtää kohteen organisaation omistukseen, etkä tämän jälkeen ole enää sen suora omistaja."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Pituus"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Kirjaudu"
   },
-  "logInToBitwarden": {
-    "message": "Kirjaudu Bitwardeniin"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Syötä sähköpostitse vastaanottamasi koodi"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Syötä tilisi sähköpostiosoite, niin salasanavihjeesi lähetetään sinulle sähköpostitse"
-  },
-  "getMasterPasswordHint": {
-    "message": "Pyydä pääsalasanan vihjettä"
   },
   "emailRequired": {
     "message": "Sähköpostiosoite vaaditaan."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "Pienennä ilmoitusalueelle"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Pienennä ikkuna kuvakkeeksi ilmoitusalueelle."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Pienennä valikkoriville"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Pienennä ikkuna kuvakkeeksi valikkoriville."
-  },
-  "enableCloseToTray": {
-    "message": "Sulje ilmoitusalueelle"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Sulje ikkuna kuvakkeeksi ilmoitusalueelle."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Sulje valikkoriville"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Sulje ikkuna kuvakkeeksi valikkoriville."
-  },
-  "enableTray": {
-    "message": "Näytä ilmoitusalueen kuvake"
-  },
-  "enableTrayDesc": {
-    "message": "Näytä aina kuvake ilmoitusalueella."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Käynnistä automaattisesti kirjauduttaessa"
   },
   "openAtLoginDesc": {
     "message": "Käynnistä Bitwarden-sovellus automaattisesti kirjautumisen yhteydessä."
-  },
-  "alwaysShowDock": {
-    "message": "Näytä aina Dockissa"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Näytä Bitwardenin kuvake Dockissa myös silloin, kun se on pienennetty valikkoriville."
-  },
-  "confirmTrayTitle": {
-    "message": "Vahvista piilotus ilmoitusalueelta"
-  },
-  "confirmTrayDesc": {
-    "message": "Asetuksen käytöstä poisto poistaa myös kaikki muut ilmoitusalueeseen liittyvät asetukset käytöstä."
   },
   "language": {
     "message": "Kieli"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopioi turvakoodi",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Poistu"
   },
-  "showHide": {
-    "message": "Näytä tai piilota",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Piilota ilmoitusalueelle"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Asetukset"
-  },
-  "enableMenuBar": {
-    "message": "Näytä kuvake valikkorivillä"
-  },
-  "enableMenuBarDesc": {
-    "message": "Näytä aina kuvake valikkorivillä."
   },
   "hideToMenuBar": {
     "message": "Piilota valikkoriville"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Vastaanota Bitwardenilta postilaatikkoosi vinkkejä, uutisia ja tutkimusmahdollisuuksia."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Lopeta tilaus"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Uusi salasanasi ei voi olla sama kuin nykyinen salasanasi."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Salasanavihjeesi ei voi olla sama kuin salasanasi."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Holvi",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Kirjaudu pääsalasanalla"
   },
   "rememberEmail": {
     "message": "Muista sähköpostiosoite"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

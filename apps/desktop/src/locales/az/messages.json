@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
   },
-  "welcomeBack": {
-    "message": "Yenidən xoş gəlmisiniz"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Bu elementi daşımaq istədiyiniz təşkilatı seçin. Bir təşkilata daşımaq, elementin sahibliyini də həmin təşkilata daşıyacaq. Daşıdıqdan sonra bu elementə birbaşa sahibliyiniz olmayacaq."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Uzunluq"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Giriş et"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden-ə giriş edin"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-poçtunuza göndərilən kodu daxil edin"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
-  },
-  "getMasterPasswordHint": {
-    "message": "Ana parol üçün məsləhət alın"
   },
   "emailRequired": {
     "message": "E-poçt ünvanı lazımdır."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
-  "enableMinToTray": {
-    "message": "Bildiriş sahəsi ikonuna kiçilt"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Pəncərə kiçildiləndə, bunun əvəzinə bildiriş sahəsində bir ikon göstər."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Menyu çubuğuna kiçilt"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Pəncərəni kiçildəndə, bunun əvəzinə menyu çubuğunda bir ikon göstər."
-  },
-  "enableCloseToTray": {
-    "message": "Bildiriş ikonu üçün bağla"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Pəncərə bağladılanda, bunun əvəzinə bildiriş sahəsində bir ikon göstər."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Menyu çubuğunda bağla"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Pəncərəni bağladılanda, bunun əvəzinə menyu çubuğunda bir ikon göstər."
-  },
-  "enableTray": {
-    "message": "Bildiriş sahəsi ikonunu göstər"
-  },
-  "enableTrayDesc": {
-    "message": "Bildiriş sahəsində həmişə bir ikon göstər."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Giriş ediləndə avtomatik başlat"
   },
   "openAtLoginDesc": {
     "message": "Giriş ediləndə Bitwarden masaüstü tətbiqini avtomatik başlat."
-  },
-  "alwaysShowDock": {
-    "message": "\"Dock\"da həmişə göstər"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Menyu çubuğuna kiçildiləndə belə Bitwarden ikonunu Yuvada göstər."
-  },
-  "confirmTrayTitle": {
-    "message": "Gizlətmə sahəsini təsdiqlə"
-  },
-  "confirmTrayDesc": {
-    "message": "Bu ayarı söndürsəniz, bütün əlaqəli ayarlar da söndürüləcək."
   },
   "language": {
     "message": "Dil"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Güvənlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kart nömrəsi"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Çıxış"
   },
-  "showHide": {
-    "message": "Göstər / gizlət",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Bildiriş nişanına gizlət"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Tərcihlər"
-  },
-  "enableMenuBar": {
-    "message": "Menyu çubuğu ikonunu göstər"
-  },
-  "enableMenuBarDesc": {
-    "message": "Menyu çubuğunda həmişə bir ikon göstər."
   },
   "hideToMenuBar": {
     "message": "Menyu çubuğunda gizlət"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Parol məsləhəti, parolunuzla eyni ola bilməz."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Seyf",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Ana parolla giriş et"
   },
   "rememberEmail": {
     "message": "E-poçtu xatırla"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Daha çox"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Bank hesabı məlumatlarınızı saxlayaraq bütün cihazlarınızdan asanlıqla və güvənli şəkildə erişə bilərsiniz."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Düzəlişləri sil"
   },
-  "discardEditsMessage": {
-    "message": "Bu görünüşü bağlasanız, saxlanılmamış düzəlişləriniz silinəcək"
-  },
-  "backToEditing": {
-    "message": "Düzəlişə qayıt"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send-də saxlanılmamış düzəlişlər var. Tərk etmək istədiyinizə əminsiniz?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"

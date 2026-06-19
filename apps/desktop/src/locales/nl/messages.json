@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welkom terug"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Lengte"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Log in"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Inloggen op Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
-  },
-  "getMasterPasswordHint": {
-    "message": "Hoofdwachtwoordhint opvragen"
   },
   "emailRequired": {
     "message": "E-mailadres vereist."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Websitepictogrammen weergeven en URL's voor wachtwoordwijzigingen ophalen"
   },
-  "enableMinToTray": {
-    "message": "Minimaliseren naar systeemvak"
+  "runInBackground": {
+    "message": "Bitwarden actief op de achtergrond houden"
   },
-  "enableMinToTrayDesc": {
-    "message": "Wanneer het venster wordt geminimaliseerd, een pictogram in het systeemvak weergeven."
+  "runInBackgroundDesc": {
+    "message": "Wanneer je het venster sluit, is Bitwarden toegankelijk vanuit de tray. Aanbevolen bij het gebruik van de SSH-agent of browserintegratie."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimaliseren naar menubalk"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Bij het minimaliseren van het venster, een pictogram in de menubalk weergeven."
-  },
-  "enableCloseToTray": {
-    "message": "Sluiten naar systeemvak"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Bij het sluiten van het venster, een pictogram in het systeemvak weergeven."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Menubalk sluiten"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Bij het sluiten van het venster, een pictogram in de menubalk weergeven."
-  },
-  "enableTray": {
-    "message": "Systeemvakpictogram inschakelen"
-  },
-  "enableTrayDesc": {
-    "message": "Altijd een pictogram in het systeemvak weergeven."
+  "runInBackgroundDescMac": {
+    "message": "Wanneer je het venster sluit, is Bitwarden toegankelijk vanuit de tray. Aanbevolen bij het gebruik van de SSH-agent of browserintegratie."
   },
   "openAtLogin": {
     "message": "Automatisch starten bij inloggen"
   },
   "openAtLoginDesc": {
     "message": "Bitwarden-desktopapplicatie automatisch starten bij inloggen."
-  },
-  "alwaysShowDock": {
-    "message": "Altijd laten zien in het dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Toon het Bitwarden-pictogram in het dock, zelfs wanneer geminimaliseerd in de menubalk."
-  },
-  "confirmTrayTitle": {
-    "message": "Uitschakelen van het systeemvakpictogram bevestigen"
-  },
-  "confirmTrayDesc": {
-    "message": "Het uitschakelen van deze instelling zal ook alle andere instellingen van het systeemvakpictogram uitschakelen."
   },
   "language": {
     "message": "Taal"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kaartnummer"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Afsluiten"
   },
-  "showHide": {
-    "message": "Weergeven/verbergen",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Weergeven",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Verbergen naar het systeemvak"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Voorkeuren"
-  },
-  "enableMenuBar": {
-    "message": "Pictogram in de taakbalk"
-  },
-  "enableMenuBarDesc": {
-    "message": "Altijd een pictogram in de taakbalk weergeven."
   },
   "hideToMenuBar": {
     "message": "Verbergen naar de taakbalk"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Een of meer organisatiebeleidseisen stelt de volgende eisen aan je hoofdwachtwoord:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
+  "receiveMarketingEmails": {
+    "message": "Updates van Bitwarden in je inbox ontvangen."
   },
   "unsubscribe": {
     "message": "Afmelden"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Kluis",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Inloggen met je hoofdwachtwoord"
   },
   "rememberEmail": {
     "message": "E-mailadres onthouden"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
   },
+  "domainNotAllowed": {
+    "message": "Alleen de volgende domeinen insluiten: $DOMAINS$. Controleer en probeer het opnieuw",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Meer"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Sla je bankgegevens op om deze gemakkelijk en veilig op al je apparaten te benaderen."
   },
+  "discardEditsTitle": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "discardEditsConfirmation": {
+    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt."
+  },
   "discardEdits": {
     "message": "Bewerkingen verwerpen"
   },
-  "discardEditsMessage": {
-    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
-  },
-  "backToEditing": {
-    "message": "Terug naar bewerken"
+  "keepEditing": {
+    "message": "Doorgaan met bewerken"
   },
   "sendHasUnsavedEdits": {
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Niet in overeenstemming met het Send-beleid van je organisatie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Maak een kopie om deze Send te bewerken. Als deze Send kan verlopen op de verwijderingsdatum is geen actie nodig",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Deze Send vervalt automatisch op de ingestelde verwijderingsdatum",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Een kopie maken"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"

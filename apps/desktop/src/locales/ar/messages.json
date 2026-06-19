@@ -75,7 +75,7 @@
     "message": "نظّم العناصر المشتركة"
   },
   "typeDriversLicense": {
-    "message": "الترخيص"
+    "message": "رخصة قيادة"
   },
   "typeDriversLicenseSubtitle": {
     "message": "رخصة القيادة أو بطاقة الهوية"
@@ -111,7 +111,7 @@
     "message": "نقل إلى مؤسسة"
   },
   "movedItemToOrg": {
-    "message": "$ITEMNAME$ انتقل إلى $ORGNAME$",
+    "message": "$ITEMNAME$ تم نقله لـ $ORGNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "ليس لديك صلاحية لتعديل هذا العنصر"
   },
-  "welcomeBack": {
-    "message": "مرحبًا بعودتك"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "مرحبا بعودتك"
   },
   "moveToOrgDesc": {
     "message": "اختر المؤسسة التي ترغب في نقل هذا العنصر إليها. يؤدي الانتقال إلى مؤسسة إلى نقل ملكية العنصر إلى تلك المؤسسة. لن تكون المالك المباشر لهذا العنصر بعد نقله."
@@ -195,7 +195,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "ترخيص",
+    "message": "ترخيص جديد",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -235,10 +235,10 @@
     "description": "Header for edit passport item type"
   },
   "name": {
-    "message": "الاسم"
+    "message": "اسم"
   },
   "uri": {
-    "message": "الرابط"
+    "message": "URI"
   },
   "uriPosition": {
     "message": "الرابط $POSITION$",
@@ -315,7 +315,7 @@
     "description": "for adding new items"
   },
   "newUri": {
-    "message": "رابط جديد"
+    "message": "URI جديد"
   },
   "username": {
     "message": "اسم المستخدم"
@@ -345,7 +345,7 @@
     "message": "حقول مخصصة"
   },
   "launch": {
-    "message": "بدء"
+    "message": "تشغيل"
   },
   "copyValue": {
     "message": "نسخ القيمة",
@@ -371,7 +371,7 @@
     "message": "رقم"
   },
   "brand": {
-    "message": "العلامة"
+    "message": "علامة تجارية"
   },
   "expiration": {
     "message": "تاريخ الانتهاء"
@@ -383,7 +383,7 @@
     "message": "اسم الهوية"
   },
   "company": {
-    "message": "الشركة"
+    "message": "شركة"
   },
   "ssn": {
     "message": "رقم الضمان الاجتماعي"
@@ -482,7 +482,7 @@
     "message": "أدخل كلمة المرور"
   },
   "sshAgentUnlockRequired": {
-    "message": "الرجاء فتح المخزن الخاص بك للموافقة على طلب مفتاح SSH."
+    "message": "الرجاء فتح الخزنة الخاص بك للموافقة على طلب مفتاح SSH."
   },
   "sshAgentUnlockTimeout": {
     "message": "انتهت مهلة طلب مفتاح SSH."
@@ -506,7 +506,7 @@
     "message": "تذكر تفويضات SSH"
   },
   "sshAgentPromptBehaviorAlways": {
-    "message": "دائماً"
+    "message": "دائما"
   },
   "sshAgentPromptBehaviorNever": {
     "message": "مطلقاً"
@@ -524,7 +524,7 @@
     "message": "المزامنة مع المتصفح"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "للاتصال بـ $VAULTURL$,تحتاج إلى مزامنة متصفحك الافتراضي مع تطبيق Bitwarden. ستتم إعادة توجيهك إلى هذا التطبيق بمجرد مزامنة متصفحك.",
+    "message": "للاتصال بـ $VAULTURL$, تحتاج إلى مزامنة متصفحك الافتراضي مع تطبيق Bitwarden. ستتم إعادة توجيهك إلى هذا التطبيق بمجرد مزامنة متصفحك.",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -546,7 +546,7 @@
     "message": "خطأ في فك التشفير"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه"
+    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه."
   },
   "contactCSToAvoidDataLossPart1": {
     "message": "فريق نجاح العملاء",
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "نسخ المفتاح الخاص"
+  },
+  "copyPublicKey": {
+    "message": "نسخ المفتاح العام"
+  },
+  "copyFingerprint": {
+    "message": "نسخ بصمة الإصبع"
+  },
   "length": {
     "message": "الطول"
   },
@@ -993,7 +1002,7 @@
     "message": "هل أنت متأكد من أنك تريد حذف هذا المرفق؟"
   },
   "attachmentSaved": {
-    "message": "تم حفظ المرفق."
+    "message": "تم حفظ المرفق"
   },
   "addAttachment": {
     "message": "إضافة مرفق"
@@ -1017,7 +1026,7 @@
     "message": "ملف"
   },
   "selectFile": {
-    "message": "تحديد ملف."
+    "message": "تحديد ملف"
   },
   "maxFileSize": {
     "message": "الحجم الأقصى للملف هو 500 ميجابايت."
@@ -1055,11 +1064,11 @@
   "logIn": {
     "message": "تسجيل الدخول"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "تسجيل الدخول إلى Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني."
+    "message": "أدخل الرمز الذي تم إرساله إلى بريدك الإلكتروني"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "أدخل الرمز من تطبيق المصادقة الخاص بك"
@@ -1164,9 +1173,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
-  "getMasterPasswordHint": {
-    "message": "احصل على تلميح لكلمة المرور الرئيسية"
-  },
   "emailRequired": {
     "message": "عنوان البريد الإلكتروني مطلوب."
   },
@@ -1202,7 +1208,7 @@
     "message": "تم إنشاء حسابك الجديد! يمكنك الآن تسجيل الدخول."
   },
   "newAccountCreated2": {
-    "message": "أنشئ حسابك الجديد!"
+    "message": "تم إنشاء حسابك الجديد!"
   },
   "youHaveBeenLoggedIn": {
     "message": "لقد قمت بتسجيل الدخول!"
@@ -1348,13 +1354,13 @@
     "message": "البيئة المستضافة ذاتيا"
   },
   "selfHostedBaseUrlHint": {
-    "message": "حدد عنوان URL الأساسي لمحالّك التي استضافت تثبيت Bitwarden على سبيل المثال: https://bitwarden.company.com"
+    "message": "حدد عنوان URL الأساسي لتثبيت Bitwarden المستضاف محليا. مثال: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
-    "message": "للتكوين المتقدم، يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
+    "message": "للإعدادات المتقدمة، يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
   },
   "selfHostedEnvFormInvalid": {
-    "message": "يجب عليك إضافة رابط الخادم الأساسي أو على الأقل بيئة مخصصة."
+    "message": "يجب عليك إضافة URL الخادم الأساسي أو بيئة مخصصة واحدة على الأقل."
   },
   "selfHostedEnvMustUseHttps": {
     "message": "يجب أن تستخدم عناوين الروابط HTTPS."
@@ -1394,7 +1400,7 @@
     "message": "URL خادم Send"
   },
   "environmentSaved": {
-    "message": "تم حفظ عناوين URL للبيئة."
+    "message": "تم حفظ عناوين URL للبيئة"
   },
   "ok": {
     "message": "موافق"
@@ -1445,7 +1451,7 @@
     "message": "ستصبح أي صادرات مقيدة بالحساب قمت بحفظها غير صالحة."
   },
   "confirmIdentityToContinue": {
-    "message": "قم بتأكيد هويتك للمتابعة."
+    "message": "أكد هويتك للمتابعة"
   },
   "enterYourMasterPassword": {
     "message": "أدخل كلمة مرورك الرئيسية"
@@ -1595,7 +1601,7 @@
     "message": "كلمة المرور الرئيسية غير صالحة"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "كلمة المرور الرئيسية غير صالحة. تأكد من صحة بريدك الإلكتروني وأن حسابك تم إنشاؤه على $HOST$.",
+    "message": "كلمة المرور الرئيسية غير صالحة. تحقق من صحة عنوان بريدك الإلكتروني ومن أن حسابك قد تم إنشاؤه على $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1613,7 +1619,7 @@
     "message": "مهلة الخزانة"
   },
   "vaultTimeout1": {
-    "message": "المهلة"
+    "message": "مهلة انتهاء"
   },
   "vaultTimeoutDesc": {
     "message": "اختر وقت انتهاء مهلة خزانتك وقم بتنفيذ الإجراء المحدد."
@@ -1664,7 +1670,7 @@
     "message": "عند إعادة التشغيل"
   },
   "never": {
-    "message": "أبداً"
+    "message": "أبدا"
   },
   "security": {
     "message": "الأمان"
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "عرض أيقونات المواقع واسترداد روابط تغيير كلمة المرور"
   },
-  "enableMinToTray": {
-    "message": "تصغير إلى أيقونة شريط المهام"
+  "runInBackground": {
+    "message": "إبقاء Bitwarden قيد التشغيل في الخلفية"
   },
-  "enableMinToTrayDesc": {
-    "message": "عند تصغير النافذة، أظهر رمزًا في شريط المهام بدلاً من ذلك."
+  "runInBackgroundDesc": {
+    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحا من منطقة الإشعارات. ينصح بذلك عند استخدام وكيل SSH أو تكامل المتصفح."
   },
-  "enableMinToMenuBar": {
-    "message": "تصغير إلى شريط القوائم"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "عند تصغير النافذة، أظهر رمزًا في شريط القوائم بدلاً من ذلك."
-  },
-  "enableCloseToTray": {
-    "message": "أغلق إلى أيقونة شريط المهام"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "عند غلق النافذة، أظهر رمزًا في شريط المهام بدلاً من ذلك."
-  },
-  "enableCloseToMenuBar": {
-    "message": "إغلاق إلى شريط القوائم"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "عند إغلاق النافذة، إظهار أيقونة في شريط القوائم بدلاً من ذلك."
-  },
-  "enableTray": {
-    "message": "تمكين أيقونة شريط المهام"
-  },
-  "enableTrayDesc": {
-    "message": "إظهار أيقونة دائماً في شريط المهام."
+  "runInBackgroundDescMac": {
+    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحاً من شريط القوائم. ينصح بذلك عند استخدام وكيل SSH أو تكامل المتصفح."
   },
   "openAtLogin": {
     "message": "بدء التشغيل تلقائياً عند تسجيل الدخول"
   },
   "openAtLoginDesc": {
     "message": "بدء تشغيل تطبيق سطح المكتب Bitwarden تلقائياً عند تسجيل الدخول."
-  },
-  "alwaysShowDock": {
-    "message": "إظهار دائمًا في القائمة"
-  },
-  "alwaysShowDockDesc": {
-    "message": "إظهار أيقونة Bitwarden في القائمة حتى عند التصغير إلى شريط القائمة."
-  },
-  "confirmTrayTitle": {
-    "message": "تأكيد تعطيل الشريط"
-  },
-  "confirmTrayDesc": {
-    "message": "سيؤدي تعطيل هذا الإعداد أيضًا إلى تعطيل كافة الإعدادات الأخرى ذات الصلة بشريط النظام."
   },
   "language": {
     "message": "اللّغة"
@@ -1786,7 +1759,7 @@
     "message": "إعادة التشغيل"
   },
   "later": {
-    "message": "لاحقاً"
+    "message": "لاحقا"
   },
   "noUpdatesAvailable": {
     "message": "لا توجد تحديثات متوفرة حاليا. أنت تستخدم أحدث إصدار."
@@ -1827,15 +1800,6 @@
     "message": "نسخ رمز الأمان",
     "description": "Copy credit card security code (CVV)"
   },
-  "copyPrivateKey": {
-    "message": "نسخ المفتاح الخاص"
-  },
-  "copyPublicKey": {
-    "message": "نسخ المفتاح العام"
-  },
-  "copyFingerprint": {
-    "message": "نسخ بصمة الإصبع"
-  },
   "cardNumber": {
     "message": "رقم البطاقة"
   },
@@ -1861,7 +1825,7 @@
     "message": "1 جيغابايت وحدة تخزين مشفرة لمرفقات الملفات."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ تخزين مشفر للمرفقات",
+    "message": "$SIZE$ تخزين مشفر للمرفقات.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -2124,14 +2088,14 @@
     "description": "An entity of multiple related people (ex. a team or business organization)."
   },
   "default": {
-    "message": "الافتراضي"
+    "message": "افتراضي"
   },
   "exit": {
-    "message": "الخروج"
+    "message": "خروج"
   },
-  "showHide": {
-    "message": "عرض / اخفاء",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "إظهار",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "إخفاء إلى الشريط"
@@ -2145,7 +2109,7 @@
     "description": "ex. Date this item was updated"
   },
   "dateCreated": {
-    "message": "أنشئ",
+    "message": "تم الإنشاء",
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
@@ -2239,15 +2203,15 @@
     "message": "من يملك هذا العنصر؟"
   },
   "strong": {
-    "message": "قوية",
+    "message": "قوي",
     "description": "ex. A strong password. Scale: Weak -> Good -> Strong"
   },
   "good": {
-    "message": "جيدة",
+    "message": "جيد",
     "description": "ex. A good password. Scale: Weak -> Good -> Strong"
   },
   "weak": {
-    "message": "ضعيفة",
+    "message": "ضعيف",
     "description": "ex. A weak password. Scale: Weak -> Good -> Strong"
   },
   "weakMasterPassword": {
@@ -2335,12 +2299,6 @@
   "preferences": {
     "message": "التفضيلات"
   },
-  "enableMenuBar": {
-    "message": "تمكين أيقونة شريط القائمة"
-  },
-  "enableMenuBarDesc": {
-    "message": "إظهار أيقونة دائماً في شريط القائمة."
-  },
   "hideToMenuBar": {
     "message": "إخفاء إلى شريط القائمة"
   },
@@ -2376,10 +2334,10 @@
     "message": "أنت مالك لمؤسسة واحدة على الأقل. سيؤدي حذف حسابك إلى حذف أي مؤسسة أنت مالكها الوحيد."
   },
   "installLater": {
-    "message": "لا يمكنك حذف حسابك وأنت مالك مؤسسة. قم بنقل الملكية أو حذف المؤسسة أولاً."
+    "message": "التثبيت لاحقا"
   },
   "continueWithInstall": {
-    "message": "إذا غادرت الآن، لن يتم حفظ تغييراتك. قم بتثبيت التحديث لاحقاً حتى تتمكن من البقاء وحفظ تغييراتك."
+    "message": "متابعة التثبيت"
   },
   "clone": {
     "message": "استنساخ"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "تتطلب سياسة مؤسسة واحدة أو أكثر أن تستوفي كلمة المرور الرئيسية المتطلبات التالية:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "احصل على المشورة والإعلانات وفرص البحث من Bitwarden في صندوق الوارد الخاص بك."
+  "receiveMarketingEmails": {
+    "message": "تلقّي تحديثات Bitwarden في بريدك الإلكتروني."
   },
   "unsubscribe": {
     "message": "إلغاء الاشتراك"
@@ -2634,10 +2592,10 @@
     "message": "استخدام تسارع العتاد"
   },
   "enableHardwareAccelerationDesc": {
-    "message": "بشكل افتراضي هذا الإعداد مفعل. أوقف التشغيل فقط إذا واجهت مشاكل في الرسوم البيانية. إعادة التشغيل مطلوبة."
+    "message": "هذا الإعداد مفعل بشكل افتراضي. أوقف التشغيل فقط إذا واجهت أخطاء في الرسوم البيانية. إعادة التشغيل مطلوبة."
   },
   "approve": {
-    "message": "الموافقة"
+    "message": "موافقة"
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ يريد الاتصال بـ Bitwarden",
@@ -2652,7 +2610,7 @@
     "message": "هل ترغب في الموافقة على هذا الطلب؟"
   },
   "verifyNativeMessagingConnectionWarning": {
-    "message": "وإذا لم تقم بالشروع في هذا الطلب، فلا توافق عليه."
+    "message": "إذا لم تكن أنت من قدم هذا الطلب، فلا توافق عليه."
   },
   "biometricsNotEnabledTitle": {
     "message": "القياسات الحيوية غير مفعلة"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "لا يمكن أن تكون كلمة مرورك الجديدة مطابقة لكلمة مرورك الحالية."
+  },
+  "hint": {
+    "message": "تلميح"
   },
   "hintEqualsPassword": {
     "message": "لا يمكن أن يكون تلميح كلمة المرور نفس كلمة المرور الخاصة بك."
@@ -2767,11 +2728,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textHiddenByDefault": {
-    "message": "عند الوصول إلى الإرسال، إخفاء النص بشكل افتراضي",
+    "message": "إخفاء النص بشكل تلقائي عند الوصول إلى Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "إنشاء إرسال",
+    "message": "تمت إضافة Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -2809,10 +2770,10 @@
     }
   },
   "oneDay": {
-    "message": "يوم واحد"
+    "message": "يوم 1"
   },
   "custom": {
-    "message": "مُخصّص"
+    "message": "مخصص"
   },
   "deleteSendConfirmation": {
     "message": "هل أنت متأكد من أنك تريد حذف هذا الإرسال؟",
@@ -2928,7 +2889,7 @@
     "message": "التحقق مطلوب لهذا الإجراء. قم بتعيين رمز PIN للمتابعة."
   },
   "setPin": {
-    "message": "تعيين رقم التعريف الشخصي"
+    "message": "تعيين "
   },
   "verifyWithBiometrics": {
     "message": "التحقق بواسطة القياسات الحيوية"
@@ -3032,7 +2993,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "لحد الأدنى لـمدة انتهاء الجلسة المخصصة هو دقيقة واحدة."
+    "message": "الحد الأدنى لـمهلة انتهاء الجلسة المخصصة هو دقيقة 1."
   },
   "inviteAccepted": {
     "message": "تم قبول الدعوة"
@@ -3443,11 +3404,8 @@
     "message": "هل أنت متأكد من أنك تريد استخدام خيار \"مطلقا\"؟ إعداد خيارات القفل إلى \"مطلقا\" يخزن مفتاح تشفير المستودع الخاص بك على جهازك. إذا كنت تستخدم هذا الخيار، يجب أن تتأكد من الحفاظ على حماية جهازك بشكل صحيح."
   },
   "vault": {
-    "message": "الخزانة",
+    "message": "الخزنة",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
   },
   "rememberEmail": {
     "message": "تذكر البريد الإلكتروني"
@@ -3498,7 +3456,7 @@
     "message": "عبارة بصمة الإصبع"
   },
   "youWillBeNotifiedOnceTheRequestIsApproved": {
-    "message": "سيتم إعلامك بمجرد الموافقة على الطلب"
+    "message": "ستتلقى إشعارا بمجرد الموافقة على الطلب"
   },
   "needAnotherOption": {
     "message": "تسجيل الدخول باستخدام الجهاز يجب أن يتم إعداده في إعدادات تطبيق Bitwarden. هل تحتاج إلى خيار آخر؟"
@@ -3745,7 +3703,7 @@
     "message": "مشكلة في تسجيل الدخول؟"
   },
   "loginApproved": {
-    "message": "تمت الموافقة على تسجيل الدخول"
+    "message": "تم قبول تسجيل الدخول"
   },
   "userEmailMissing": {
     "message": "البريد الإلكتروني للمستخدم مفقود"
@@ -3826,7 +3784,7 @@
     "message": "المؤسسة غير موثوقة"
   },
   "emergencyAccessTrustWarning": {
-    "message": "لأمان حسابك، تأكد فقط إذا كنت قد منحت صلاحية الوصول في حالات الطوارئ لهذا المستخدم وكانت عبارة بصمة الإصبع الخاصة به تطابق ما هو معروض في حسابه."
+    "message": "لأمان حسابك، تأكد فقط إذا كنت قد منحت صلاحية الوصول في حالات الطوارئ لهذا المستخدم وكانت عبارة بصمة الإصبع الخاصة به تطابق ما هو معروض في حسابه"
   },
   "orgTrustWarning": {
     "message": "لأمان حسابك، تابع فقط إذا كنت عضواً في هذه المؤسسة، وكانت ميزة استرداد الحساب مفعّلة، وكانت عبارة بصمة الإصبع المعروضة أدناه تطابق بصمة المؤسسة."
@@ -3895,7 +3853,7 @@
     "message": "1 أو أكثر من رسائل البريد الإلكتروني غير صالحة"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "لا يمكن أن تتجاوز قائمة مستلمي البريد الإلكتروني 2,500 حرف. احذف مستلماً واحداً أو أكثر للمتابعة."
+    "message": "لا يمكن أن تتجاوز قائمة مستلمي البريد الإلكتروني 2,500 حرف. احذف مستلما واحدا أو أكثر للمتابعة."
   },
   "inputTrimValidator": {
     "message": "الإدخال يجب أن لا يحتوي على مساحة بيضاء فقط.",
@@ -4010,7 +3968,7 @@
     "message": "اتبع الخطوات أدناه لإتمام تسجيل الدخول بمفتاح الأمان."
   },
   "launchDuo": {
-    "message": "تشغيل دوو في المتصفح"
+    "message": "تشغيل Duo في المتصفح"
   },
   "importFormatError": {
     "message": "لم يتم تنسيق البيانات بشكل صحيح. الرجاء التحقق من ملف الاستيراد الخاص بك وحاول مرة أخرى."
@@ -4022,7 +3980,7 @@
     "message": "خطأ في فك تشفير الملف المصدر. مفتاح التشفير الخاص بك لا يتطابق مع مفتاح التشفير المستخدم عند تصدير البيانات."
   },
   "invalidFilePassword": {
-    "message": "كلمة مرور الملف غير صالحة، الرجاء استخدام كلمة المرور التي أدخلتها عند إنشاء ملف التصدير."
+    "message": "كلمة مرور الملف غير صالحة، يرجى استخدام كلمة المرور التي أدخلتها عند إنشاء ملف التصدير."
   },
   "destination": {
     "message": "الوجهة"
@@ -4137,7 +4095,7 @@
     "message": "أدخل رمز المرور لمرة واحدة من تطبيق المصادقة الخاص بك"
   },
   "lastPassOOBDesc": {
-    "message": "الموافقة على طلب تسجيل الدخول في تطبيق المصادقة الخاص بك أو إدخال رمز مرور لمرة واحدة."
+    "message": "وافق على طلب تسجيل الدخول في تطبيق المصادقة الخاص بك أو أدخل رمز مرور لمرة واحدة."
   },
   "passcode": {
     "message": "رمز المرور"
@@ -4188,11 +4146,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"التعبير النمطي\" خيار متقدم يزيد من خطر كشف بياناتك السرية.",
+    "message": "\"التعبير النمطي\" خيار متقدم يزيد من خطر كشف بيانات حسابك.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"يبدأ بـ\" خيار متقدم يزيد من خطر كشف بياناتك السرية.",
+    "message": "\"يبدأ بـ\" خيار متقدم يزيد من خطر كشف بيانات حسابك.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -4404,7 +4362,7 @@
     "message": "إعداد تسجيل الدخول بخطوتين"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "سيرسل Bitwarden رمزاً إلى بريدك الإلكتروني للتحقق من تسجيل الدخول من الأجهزة الجديدة بدءاً من $DATE$."
+    "message": "سيرسل Bitwarden رمزا إلى بريدك الإلكتروني للتحقق من تسجيل الدخول من الأجهزة الجديدة بدءا من ${DATE}."
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "يمكنك إعداد تسجيل الدخول بخطوتين كطريقة بديلة لحماية حسابك أو تغيير بريدك الإلكتروني إلى بريد يمكنك الوصول إليه."
@@ -4916,7 +4874,7 @@
     "message": "انتهاء مهلة الجلسة"
   },
   "browserAccessDenied": {
-    "message": "تم تحديد مجلد متصفح غير صالح أو تم رفض الوصول."
+    "message": "تم تحديد مجلد متصفح غير صالح أو تم رفض الوصول"
   },
   "resizeSideNavigation": {
     "message": "تغيير حجم شريط التنقل الجانبي"
@@ -4938,10 +4896,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "حددت مؤسستك مدة انتهاء الجلسة الافتراضية عند قفل النظام."
+    "message": "حددت مؤسستك مهلة انتهاء الجلسة الافتراضية عند قفل النظام."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "حددت مؤسستك مدة انتهاء الجلسة الافتراضية عند إعادة التشغيل."
+    "message": "حددت مؤسستك مهلة انتهاء الجلسة الافتراضية عند إعادة التشغيل."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "لا يمكن أن يتجاوز الحد الأقصى لمدة انتهاء الجلسة $HOURS$ ساعة و $MINUTES$ دقيقة",
@@ -4960,7 +4918,7 @@
     "message": "عند إعادة التشغيل"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "حدد طريقة فتح القفل لتغيير إجراء انتهاء مهلة الجلسة."
+    "message": "حدد طريقة فتح القفل لتغيير إجراء انتهاء مهلة الجلسة"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
     "message": "مهلة انتهاء الجلسة يتحكم فيها تطبيق سطح المكتب"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "فشل التحقق من هوية المستخدم."
   },
+  "domainNotAllowed": {
+    "message": "يرجى إدراج النطاقات التالية فقط: $DOMAINS$. يُرجى المراجعة والمحاولة مرة أخرى",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "المزيد"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "احفظ معلومات حسابك البنكي للوصول إليها بسهولة وأمان عبر أجهزتك."
   },
+  "discardEditsTitle": {
+    "message": "تجاهل التعديلات"
+  },
+  "discardEditsConfirmation": {
+    "message": "إذا أغلقت هذه الصفحة، سيتم تجاهل التعديلات غير المحفوظة."
+  },
   "discardEdits": {
     "message": "تجاهل التعديلات"
   },
-  "discardEditsMessage": {
-    "message": "إذا أغلقت هذه النافذة، ستُفقد تعديلاتك غير المحفوظة."
-  },
-  "backToEditing": {
-    "message": "العودة إلى التعديل"
+  "keepEditing": {
+    "message": "الاستمرار في التعديل"
   },
   "sendHasUnsavedEdits": {
     "message": "يحتوي Send على تعديلات غير محفوظة. هل أنت متأكد من المغادرة؟",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "شريط التقدم",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "غير متوافق مع سياسة Send الخاصة بمنظمتك",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "لتعديل هذا الـ Send، أنشئ نسخة منه. إذا كان من الممكن أن ينتهي هذا الـ Send في تاريخ الحذف المحدد، فلا حاجة لأي إجراء",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "سينتهي هذا الـ Send تلقائياً في تاريخ الحذف المحدد",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "إنشاء نسخة"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "لا يمكنك استيراد عناصر إلى عناصري التي تنتمي إلى مجموعات متعددة"
