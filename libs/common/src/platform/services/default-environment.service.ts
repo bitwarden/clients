@@ -420,9 +420,7 @@ abstract class UrlEnvironment implements Environment {
       return this.urls.scim + "/v2";
     }
 
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://scim.bitwarden.com/v2"
-      : this.getWebVaultUrl() + "/scim/v2";
+    return this.getWebVaultUrl() + "/scim/v2";
   }
 
   getSendUrl() {
@@ -430,11 +428,7 @@ abstract class UrlEnvironment implements Environment {
       return this.urls.send + "/#/";
     }
 
-    const webVaultUrl = this.getWebVaultUrl();
-    if (webVaultUrl === "https://vault.bitwarden.com") {
-      return "https://send.bitwarden.com/#/";
-    }
-    return webVaultUrl + "/#/send/";
+    return this.getWebVaultUrl() + "/#/send/";
   }
 
   /**
