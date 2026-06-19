@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 
+import { isForwardedIpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
+
 import { LegacyMessageWrapper } from "../models/native-messaging/legacy-message-wrapper";
 import { Message } from "../models/native-messaging/message";
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
 import { DuckDuckGoMessageHandlerService } from "./duckduckgo-message-handler.service";
-import { isForwardedIpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
 
 @Injectable()
 export class NativeMessagingService {
