@@ -95,13 +95,11 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       userId,
       this.sdkService,
       async (sdk) => {
-          const untrustedMemberships = await sdk
-            .user_crypto_management()
-            .get_untrusted_memberships();
-          return [
-            untrustedMemberships.emergency_access_memberships,
-            untrustedMemberships.organization_memberships,
-          ] as const;
+        const untrustedMemberships = await sdk.user_crypto_management().get_untrusted_memberships();
+        return [
+          untrustedMemberships.emergency_access_memberships,
+          untrustedMemberships.organization_memberships,
+        ] as const;
       },
     );
     this.logService.info("result", { emergencyAccessV1Memberships, organizationV1Memberships });
