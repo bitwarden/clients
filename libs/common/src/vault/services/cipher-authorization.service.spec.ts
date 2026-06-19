@@ -4,13 +4,13 @@ import { Observable, firstValueFrom, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "../../admin-console/models/collections";
+import { Organization } from "../../admin-console/models/domain/organization";
+import { Utils } from "../../platform/misc/utils";
+import { UserId } from "../../types/guid";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherView } from "../models/view/cipher.view";
 

@@ -1,7 +1,7 @@
 import { Observable, Subscription } from "rxjs";
 
-import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
-import { UserId } from "@bitwarden/common/types/guid";
+import { NotificationResponse } from "../../models/response/notification.response";
+import { UserId } from "../../types/guid";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Needed to link to API
 import type { DefaultServerNotificationsService } from "./internal";

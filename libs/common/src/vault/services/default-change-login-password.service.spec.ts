@@ -6,16 +6,13 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { ApiService } from "../../abstractions/api.service";
+import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
+import { CipherType } from "../enums";
+import { CipherView } from "../models/view/cipher.view";
+import { LoginUriView } from "../models/view/login-uri.view";
+import { LoginView } from "../models/view/login.view";
 
 import { DefaultChangeLoginPasswordService } from "./default-change-login-password.service";
 
