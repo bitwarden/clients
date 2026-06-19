@@ -4,5 +4,6 @@ export enum OrganizationUserStatusType {
   Invited = 0,
   Accepted = 1,
   Confirmed = 2,
+  Staged = 3,
   Revoked = -1,
 }

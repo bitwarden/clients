@@ -44,6 +44,11 @@
           <bit-berry [value]="dataSource.activeUserCount"></bit-berry>
         </bit-toggle>
 
+        <bit-toggle [value]="userStatusType.Staged">
+          {{ "staged" | i18n }}
+          <bit-berry [value]="dataSource.stagedUserCount"></bit-berry>
+        </bit-toggle>
+
         <bit-toggle [value]="userStatusType.Invited">
           {{ "invited" | i18n }}
           <bit-berry [value]="dataSource.invitedUserCount"></bit-berry>

@@ -1,13 +1,16 @@
 import { combineLatest, map, Observable } from "rxjs";
 
-import { OrganizationUserPolicyContext } from "@bitwarden/sdk-internal";
+import {
+  OrganizationUserPolicyContext,
+  OrganizationUserStatusType as SdkOrganizationUserStatusType,
+} from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
-import { PolicyType } from "../../enums";
+import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { Organization } from "../../models/domain/organization";
 import { Policy } from "../../models/domain/policy";
@@ -87,11 +90,33 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
   ): OrganizationUserPolicyContext {
     return {
       id: organization.id,
-      status: organization.status,
+      status: this.toSdkOrganizationUserStatus(organization.status),
       role: organization.type,
       enabled: organization.enabled,
       usePolicies: organization.usePolicies,
       isProviderUser: organization.isProviderUser,
     };
+  }
+
+  /**
+   * Maps the client {@link OrganizationUserStatusType} to the SDK equivalent.
+   *
+   * TODO: Remove once SDK adopts the new status type
+   **/
+  private static toSdkOrganizationUserStatus(
+    status: OrganizationUserStatusType,
+  ): SdkOrganizationUserStatusType {
+    switch (status) {
+      case OrganizationUserStatusType.Invited:
+        return SdkOrganizationUserStatusType.Invited;
+      case OrganizationUserStatusType.Accepted:
+        return SdkOrganizationUserStatusType.Accepted;
+      case OrganizationUserStatusType.Confirmed:
+        return SdkOrganizationUserStatusType.Confirmed;
+      case OrganizationUserStatusType.Revoked:
+        return SdkOrganizationUserStatusType.Revoked;
+      default:
+        return SdkOrganizationUserStatusType.Invited;
+    }
   }
 }

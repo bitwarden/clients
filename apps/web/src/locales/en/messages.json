@@ -6754,6 +6754,9 @@
   "accepted": {
     "message": "Accepted"
   },
+  "staged": {
+    "message": "Staged"
+  },
   "sendLink": {
     "message": "Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
