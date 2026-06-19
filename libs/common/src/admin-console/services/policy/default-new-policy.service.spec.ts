@@ -2,7 +2,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
-import { PolicyView } from "@bitwarden/sdk-internal";
+import {
+  OrganizationUserStatusType as SdkOrganizationUserStatusType,
+  PolicyView,
+} from "@bitwarden/sdk-internal";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
@@ -120,6 +123,23 @@ describe("DefaultNewPolicyService", () => {
         enabled: true,
         revisionDate,
       });
+    });
+
+    it("maps a Staged organization status to the SDK Invited status", async () => {
+      // The client enum has Staged, which the SDK enum lacks; the boundary mapper's
+      // default branch should map it to the nearest pre-membership status, Invited.
+      singleUserState.nextState(arrayToRecord([]));
+      organizationService.organizations$
+        .calledWith(userId)
+        .mockReturnValue(of([organization(orgId1, OrganizationUserStatusType.Staged)]));
+
+      const filterByType = jest.fn().mockReturnValue([]);
+      sdkService.client.policies.mockReturnValue({ filter_by_type: filterByType } as any);
+
+      await firstValueFrom(service.policiesByType$(PolicyType.MaximumVaultTimeout, userId));
+
+      const [, sdkOrgs] = filterByType.mock.calls[0];
+      expect(sdkOrgs[0].status).toBe(SdkOrganizationUserStatusType.Invited);
     });
 
     it("passes undefined to the SDK when a policy has no data", async () => {
