@@ -13,14 +13,12 @@ import {
 
 import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
@@ -152,50 +150,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
       data: { type: type, organizationId: this.organizationId },
     });
     return await lastValueFrom(twoFactorVerifyDialogRef.closed);
-  }
-
-  /**
-   * For users who enabled a premium-only 2fa provider,
-   * they should still be allowed to disable that provider
-   * (without otherwise modifying) if they no longer have
-   * premium access [PM-21204]
-   * @param type the 2FA Provider Type
-   */
-  async disablePremium2faTypeForNonPremiumUser(type: TwoFactorProviderType) {
-    // Use UserVerificationDialogComponent instead of TwoFactorVerifyComponent
-    // because the latter makes GET API calls that require premium for YubiKey/Duo.
-    // The disable endpoint only requires user verification, not provider configuration.
-    const result = await UserVerificationDialogComponent.open(this.dialogService, {
-      title: "twoStepLogin",
-      verificationType: {
-        type: "custom",
-        verificationFn: async (secret) => {
-          const request = await this.userVerificationService.buildRequest<TwoFactorProviderRequest>(
-            secret,
-            TwoFactorProviderRequest,
-          );
-          request.type = type;
-
-          await this.twoFactorService.putTwoFactorDisable(request);
-          return true;
-        },
-      },
-    });
-
-    if (result.userAction === "cancel") {
-      return;
-    }
-
-    if (!result.verificationSuccess) {
-      return;
-    }
-
-    this.toastService.showToast({
-      variant: "success",
-      title: "",
-      message: this.i18nService.t("twoStepDisabled"),
-    });
-    this.updateStatus(false, type);
   }
 
   async manage(type: TwoFactorProviderType) {

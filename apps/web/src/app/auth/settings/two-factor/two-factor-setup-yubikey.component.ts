@@ -11,6 +11,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
 import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -72,6 +73,7 @@ export class TwoFactorSetupYubiKeyComponent
   type = TwoFactorProviderType.Yubikey;
   keys: Key[] = [];
   anyKeyHasNfc = false;
+  private userVerificationToken!: string;
 
   override componentName = "app-two-factor-yubikey";
   formGroup:
@@ -166,13 +168,14 @@ export class TwoFactorSetupYubiKeyComponent
       return;
     }
     const keys = this.formGroup.controls.formKeys.value;
-    const request = await this.buildRequestModel(UpdateTwoFactorYubikeyOtpRequest);
+    const request = new UpdateTwoFactorYubikeyOtpRequest();
     request.key1 = keys != null && keys.length > 0 ? (keys[0]?.key ?? "") : "";
     request.key2 = keys != null && keys.length > 1 ? (keys[1]?.key ?? "") : "";
     request.key3 = keys != null && keys.length > 2 ? (keys[2]?.key ?? "") : "";
     request.key4 = keys != null && keys.length > 3 ? (keys[3]?.key ?? "") : "";
     request.key5 = keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "";
     request.nfc = this.formGroup.value.anyKeyHasNfc ?? false;
+    request.userVerificationToken = this.userVerificationToken;
 
     this.processResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
     this.refreshFormArrayData();
@@ -182,6 +185,29 @@ export class TwoFactorSetupYubiKeyComponent
       variant: "success",
     });
     this.onUpdated.emit(this.enabled);
+  }
+
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const request = new TwoFactorYubiKeyDeleteRequest();
+    request.userVerificationToken = this.userVerificationToken;
+    await this.twoFactorService.deleteTwoFactorYubiKey(request);
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
   }
 
   remove(pos: number) {
@@ -201,6 +227,7 @@ export class TwoFactorSetupYubiKeyComponent
   private processResponse(response: TwoFactorYubiKeyResponse) {
     this.enabled = response.enabled;
     this.anyKeyHasNfc = response.nfc || !response.enabled;
+    this.userVerificationToken = response.userVerificationToken;
     this.keys = [
       { key: response.key1, existingKey: this.padRight(response.key1) },
       { key: response.key2, existingKey: this.padRight(response.key2) },

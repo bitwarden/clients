@@ -6,6 +6,7 @@ import { firstValueFrom, map } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
@@ -63,6 +64,7 @@ export class TwoFactorSetupEmailComponent
   sentEmail: string = "";
   emailPromise: Promise<unknown> | undefined;
   override componentName = "app-two-factor-email";
+  private userVerificationToken!: string;
   formGroup = this.formBuilder.group({
     token: ["", [Validators.required]],
     email: ["", [Validators.email, Validators.required]],
@@ -129,25 +131,50 @@ export class TwoFactorSetupEmailComponent
   };
 
   private disableEmail() {
-    return super.disableMethod();
+    return this.disableMethod();
   }
 
   sendEmail = async () => {
-    const request = await this.buildRequestModel(TwoFactorEmailRequest);
+    const request = new TwoFactorEmailRequest();
     request.email = this.email;
+    request.userVerificationToken = this.userVerificationToken;
     this.emailPromise = this.twoFactorService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorEmailRequest);
+    const request = new UpdateTwoFactorEmailRequest();
     request.email = this.email;
     request.token = this.token;
+    request.userVerificationToken = this.userVerificationToken;
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
     await this.processResponse(response);
     this.onUpdated.emit(true);
+  }
+
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const request = new TwoFactorEmailDeleteRequest();
+    request.userVerificationToken = this.userVerificationToken;
+    await this.twoFactorService.deleteTwoFactorEmail(request);
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
   }
 
   onClose = () => {
@@ -158,6 +185,7 @@ export class TwoFactorSetupEmailComponent
     this.token = null;
     this.email = response.email;
     this.enabled = response.enabled;
+    this.userVerificationToken = response.userVerificationToken;
     if (!this.enabled && (this.email == null || this.email === "")) {
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),

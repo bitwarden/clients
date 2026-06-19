@@ -4,6 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -64,6 +66,7 @@ export class TwoFactorSetupDuoComponent
     host: ["", [Validators.required]],
   });
   override componentName = "app-two-factor-duo";
+  private userVerificationToken!: string;
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
@@ -135,10 +138,11 @@ export class TwoFactorSetupDuoComponent
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorDuoRequest);
+    const request = new UpdateTwoFactorDuoRequest();
     request.clientId = this.clientId;
     request.clientSecret = this.clientSecret;
     request.host = this.host;
+    request.userVerificationToken = this.userVerificationToken;
 
     let response: TwoFactorDuoResponse;
 
@@ -155,6 +159,36 @@ export class TwoFactorSetupDuoComponent
     this.onUpdated.emit(true);
   }
 
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    if (this.organizationId != null) {
+      const request = new TwoFactorOrganizationDuoDeleteRequest();
+      request.userVerificationToken = this.userVerificationToken;
+      await this.twoFactorService.deleteTwoFactorOrganizationDuo(this.organizationId, request);
+    } else {
+      const request = new TwoFactorDuoDeleteRequest();
+      request.userVerificationToken = this.userVerificationToken;
+      await this.twoFactorService.deleteTwoFactorDuo(request);
+    }
+
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
+  }
+
   onClose = () => {
     void this.dialogRef.close(this.enabled);
   };
@@ -164,6 +198,7 @@ export class TwoFactorSetupDuoComponent
     this.clientSecret = response.clientSecret;
     this.host = response.host;
     this.enabled = response.enabled;
+    this.userVerificationToken = response.userVerificationToken;
   }
 
   /**

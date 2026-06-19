@@ -9,7 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
+import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/delete-two-factor-authenticator.request";
 import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -155,7 +155,7 @@ export class TwoFactorSetupAuthenticatorComponent
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorAuthenticatorRequest);
+    const request = new UpdateTwoFactorAuthenticatorRequest();
     request.token = this.formGroup.value.token;
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
@@ -176,8 +176,7 @@ export class TwoFactorSetupAuthenticatorComponent
       return;
     }
 
-    const request = await this.buildRequestModel(DisableTwoFactorAuthenticatorRequest);
-    request.type = this.type;
+    const request = new DeleteTwoFactorAuthenticatorRequest();
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;
     await this.twoFactorService.deleteTwoFactorAuthenticator(request);

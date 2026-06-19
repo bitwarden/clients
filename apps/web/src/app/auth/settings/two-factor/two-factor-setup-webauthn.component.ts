@@ -6,8 +6,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
 import { UpdateTwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn-delete.request";
 import { UpdateTwoFactorWebAuthnRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn.request";
+import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-challenge.response";
 import {
   ChallengeResponse,
   TwoFactorWebAuthnResponse,
@@ -73,7 +75,8 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   webAuthnError: boolean = false;
   webAuthnListening: boolean = false;
   webAuthnResponse: PublicKeyCredential | null = null;
-  challengePromise: Promise<ChallengeResponse> | undefined;
+  challengePromise: Promise<TwoFactorWebAuthnChallengeResponse> | undefined;
+  private userVerificationToken!: string;
 
   override componentName = "app-two-factor-webauthn";
 
@@ -120,15 +123,15 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnRequest);
-
     if (this.webAuthnResponse == undefined || this.keyIdAvailable == undefined) {
       throw new Error("WebAuthn response or key ID is missing");
     }
 
+    const request = new UpdateTwoFactorWebAuthnRequest();
     request.deviceResponse = this.webAuthnResponse;
     request.id = this.keyIdAvailable;
     request.name = this.formGroup.value.name || "";
+    request.userVerificationToken = this.userVerificationToken;
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
     this.processResponse(response);
@@ -148,6 +151,31 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     }
   };
 
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Server's per-credential DELETE refuses to remove the last registered credential
+    // (lockout-prevention), so the only path to disable WebAuthn entirely is the bulk endpoint.
+    const request = new TwoFactorWebAuthnDeleteAllRequest();
+    request.userVerificationToken = this.userVerificationToken;
+    await this.twoFactorService.deleteTwoFactorWebAuthnAll(request);
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
+  }
+
   async remove(key: Key) {
     if (this.keysConfiguredCount <= 1 || key.removePromise != null) {
       return;
@@ -163,8 +191,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (!confirmed) {
       return;
     }
-    const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnDeleteRequest);
+    const request = new UpdateTwoFactorWebAuthnDeleteRequest();
     request.id = key.id;
+    request.userVerificationToken = this.userVerificationToken;
     try {
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
@@ -181,8 +210,13 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     }
     const request = await this.buildRequestModel(SecretVerificationRequest);
     this.challengePromise = this.twoFactorService.getTwoFactorWebAuthnChallenge(request);
-    const challenge = await this.challengePromise;
-    this.readDevice(challenge);
+    const wrappedChallenge = await this.challengePromise;
+    if (wrappedChallenge.options == null) {
+      this.webAuthnError = true;
+      return;
+    }
+    this.userVerificationToken = wrappedChallenge.userVerificationToken;
+    this.readDevice(wrappedChallenge.options);
   };
 
   private readDevice(webAuthnChallenge: ChallengeResponse) {
@@ -272,6 +306,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.keyIdAvailable = nextId;
 
     this.enabled = response.enabled;
+    if (response.userVerificationToken) {
+      this.userVerificationToken = response.userVerificationToken;
+    }
     this.onUpdated.emit(this.enabled);
   }
 
