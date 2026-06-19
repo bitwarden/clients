@@ -7,4 +7,5 @@ export class TwoFactorEmailRequest extends SecretVerificationRequest {
   deviceIdentifier: string;
   authRequestId: string;
   ssoEmail2FaSessionToken?: string;
+  userVerificationToken?: string;
 }

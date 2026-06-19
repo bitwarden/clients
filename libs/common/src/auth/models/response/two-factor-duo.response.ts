@@ -5,6 +5,7 @@ export class TwoFactorDuoResponse extends BaseResponse {
   host: string;
   clientSecret: string;
   clientId: string;
+  userVerificationToken: string;
 
   constructor(response: any) {
     super(response);
@@ -12,5 +13,6 @@ export class TwoFactorDuoResponse extends BaseResponse {
     this.host = this.getResponseProperty("Host");
     this.clientSecret = this.getResponseProperty("ClientSecret");
     this.clientId = this.getResponseProperty("ClientId");
+    this.userVerificationToken = this.getResponseProperty("UserVerificationToken");
   }
 }

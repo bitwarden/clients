@@ -4,12 +4,14 @@ import { Utils } from "../../../platform/misc/utils";
 export class TwoFactorWebAuthnResponse extends BaseResponse {
   enabled: boolean;
   keys: KeyResponse[];
+  userVerificationToken: string;
 
   constructor(response: any) {
     super(response);
     this.enabled = this.getResponseProperty("Enabled");
     const keys = this.getResponseProperty("Keys");
     this.keys = keys == null ? null : keys.map((k: any) => new KeyResponse(k));
+    this.userVerificationToken = this.getResponseProperty("UserVerificationToken");
   }
 }
 

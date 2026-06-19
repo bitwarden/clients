@@ -8,6 +8,7 @@ export class TwoFactorYubiKeyResponse extends BaseResponse {
   key4: string;
   key5: string;
   nfc: boolean;
+  userVerificationToken: string;
 
   constructor(response: any) {
     super(response);
@@ -18,5 +19,6 @@ export class TwoFactorYubiKeyResponse extends BaseResponse {
     this.key4 = this.getResponseProperty("Key4");
     this.key5 = this.getResponseProperty("Key5");
     this.nfc = this.getResponseProperty("Nfc");
+    this.userVerificationToken = this.getResponseProperty("UserVerificationToken");
   }
 }
