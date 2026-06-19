@@ -183,13 +183,22 @@ export class AnonLayoutWrapperComponent implements OnInit {
       });
   }
 
+  /**
+   * Applies a service-driven partial update to the wrapper. Components push updates through
+   * AnonLayoutWrapperDataService.setAnonLayoutWrapperData() to override route-level layout.
+   *
+   * `Partial` semantics allows the AnonLayoutWrapperDataService to pass in ONLY the properties it
+   * wishes to change, while leaving the rest unchanged.
+   * - omitted (undefined) keys on incoming `data` leave the existing component state unchanged
+   * - present keys on incoming data update the component state.
+   */
   private setAnonLayoutWrapperDataFromService(data: Partial<AnonLayoutWrapperData>) {
     if (!data) {
       return;
     }
 
-    // Null emissions are used to reset the page data as all fields are optional.
-
+    // For `pageTitle`, `pageSubtitle`, and `pageIcon`, an explicit `null` on the incoming `data`
+    // clears the field (as opposed to `undefined` which leaves the component state unchanged).
     if (data.pageTitle !== undefined) {
       this.pageTitle = this.handleStringOrTranslation(data.pageTitle);
     }
