@@ -102,8 +102,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
             untrustedMemberships.emergency_access_memberships,
             untrustedMemberships.organization_memberships,
           ] as const;
-        }),
-      ),
+      },
     );
     this.logService.info("result", { emergencyAccessV1Memberships, organizationV1Memberships });
 
