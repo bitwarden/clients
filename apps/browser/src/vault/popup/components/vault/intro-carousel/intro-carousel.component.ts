@@ -51,7 +51,6 @@ export class IntroCarouselComponent implements OnInit {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("defaultPasswordManagerSuccessToast"),
     });
   }
