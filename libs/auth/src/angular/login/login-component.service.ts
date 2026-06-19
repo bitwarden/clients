@@ -9,9 +9,6 @@ export interface PasswordPolicies {
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
 }
 
-/** Translation key with optional placeholders, compatible with the Translation type from @bitwarden/components. */
-export type LoginComponentTranslation = { key: string; placeholders?: string[] };
-
 /**
  * The `LoginComponentService` allows the single libs/auth `LoginComponent` to
  * delegate all client-specific functionality to client-specific service
@@ -22,21 +19,6 @@ export type LoginComponentTranslation = { key: string; placeholders?: string[] }
  * performs the core login logic.
  */
 export abstract class LoginComponentService {
-  /** When false, the page icon is hidden on the login page. */
-  shouldShowPageIcons: boolean;
-
-  /** The page title shown during email entry. */
-  emailEntryPageTitle: string | LoginComponentTranslation;
-
-  /** The page title shown during master password entry. */
-  masterPasswordPageTitle: string | LoginComponentTranslation;
-
-  /** The hint link text on the master password entry screen. */
-  hintLinkText: string | LoginComponentTranslation;
-
-  /** The submit button text on the master password entry screen. */
-  masterPasswordSubmitButtonText: string | LoginComponentTranslation;
-
   /**
    * Gets the organization policies if there is an organization invite.
    * - Used by: Web

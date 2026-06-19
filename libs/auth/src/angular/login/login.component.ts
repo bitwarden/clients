@@ -55,11 +55,7 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 
-import {
-  LoginComponentService,
-  LoginComponentTranslation,
-  PasswordPolicies,
-} from "./login-component.service";
+import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
@@ -98,8 +94,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   readonly Icons = { WaveIcon, VaultIcon };
-  protected hintLinkText: string;
-  protected submitButtonText: string;
 
   clientType: ClientType;
   ClientType = ClientType;
@@ -156,18 +150,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private passwordPreloginService: PasswordPreloginService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
-
-    this.hintLinkText = this.resolveTranslation(this.loginComponentService.hintLinkText);
-    this.submitButtonText = this.resolveTranslation(
-      this.loginComponentService.masterPasswordSubmitButtonText,
-    );
-  }
-
-  private resolveTranslation(value: string | LoginComponentTranslation): string {
-    if (typeof value === "string") {
-      return value;
-    }
-    return this.i18nService.t(value.key, ...(value.placeholders ?? []));
   }
 
   async ngOnInit(): Promise<void> {
