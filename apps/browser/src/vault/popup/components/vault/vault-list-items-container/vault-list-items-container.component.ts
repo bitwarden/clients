@@ -430,8 +430,9 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
 
     // When only the `CipherListView` is available, fetch the full cipher details
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id!), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id!) as CipherId),
+    );
 
     await this.vaultPopupAutofillService.doAutofill(cipherView);
   }

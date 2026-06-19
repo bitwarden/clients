@@ -30,6 +30,17 @@ export type EncryptionContext = {
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
+  /**
+   * Observable that emits the decrypted {@link CipherView} for a single cipher, or `undefined`
+   * when no cipher with the given id exists in the user's vault.
+   *
+   * Encapsulates the common pattern of subscribing to {@link cipherViews$} and finding a single
+   * cipher by id. The observable re-emits whenever the user's ciphers change.
+   *
+   * @param userId The id of the user whose vault should be searched.
+   * @param cipherId The id of the cipher to retrieve.
+   */
+  abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;
