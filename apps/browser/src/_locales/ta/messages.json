@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "உங்கள் நிறுவனத்திற்கு ஒற்றை உள்நுழைவு தேவை."
   },
-  "welcomeBack": {
-    "message": "மீண்டும் வருக"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "ஒரு வலிமையான கடவுச்சொல்லை அமைக்கவும்"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "உங்கள் கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடவும், உங்கள் கடவுச்சொல் குறிப்பு உங்களுக்கு அனுப்பப்படும்"
   },
-  "getMasterPasswordHint": {
-    "message": "முதன்மை கடவுச்சொல் குறிப்பைப் பெறு"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "தொடர்"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "உள்நுழை"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden-இல் உள்நுழை"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "கடவுச்சொல் அங்கீகாரம் தோல்வியடைந்தது"
   },
-  "useADifferentLogInMethod": {
-    "message": "வேறு உள்நுழைவு முறையைப் பயன்படுத்தவும்"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "பாதுகாப்பு விசை தொடர்புகொள்ளக் காத்திருக்கிறது..."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "உங்கள் புதிய முதன்மை கடவுச்சொல் கொள்கை தேவைகளைப் பூர்த்தி செய்யவில்லை."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "உங்கள் இன்பாக்ஸில் Bitwarden இலிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறுங்கள்."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "தவிர்க்கவும்"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "மாஸ்டர் கடவுச்சொல்லுடன் உள்நுழைக"
-  },
   "newAroundHere": {
     "message": "இங்கே புதியவரா?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "இயல்புநிலையாக அமை",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "சான்றுகள் வெற்றிகரமாகச் சேமிக்கப்பட்டன!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

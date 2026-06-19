@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Deine Organisation erfordert Single Sign-On."
   },
-  "welcomeBack": {
-    "message": "Willkommen zurück"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Anmelden"
   },
   "setAStrongPassword": {
     "message": "Lege ein starkes Passwort fest"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Gib deine E-Mail-Adresse ein und dein Passwort-Hinweis wird dir zugesandt"
   },
-  "getMasterPasswordHint": {
-    "message": "Hinweis zum Masterpasswort erhalten"
+  "hint": {
+    "message": "Hinweis"
   },
   "continue": {
     "message": "Weiter"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Anmelden"
   },
-  "logInToBitwarden": {
-    "message": "Bei Bitwarden anmelden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Anmelden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Gib den an deine E-Mail-Adresse gesendeten Code ein"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey-Authentifizierung fehlgeschlagen"
   },
-  "useADifferentLogInMethod": {
-    "message": "Eine andere Anmeldemethode verwenden"
+  "useDifferentLoginMethod": {
+    "message": "Andere Anmeldemethode verwenden"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ihr neues Master-Passwort entspricht nicht den Anforderungen der Richtlinie."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang."
+  "receiveMarketingEmails": {
+    "message": "Erhalte Neuigkeiten von Bitwarden in deinem Posteingang."
   },
   "unsubscribe": {
     "message": "Deabonnieren"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Mit Master-Passwort anmelden"
-  },
   "newAroundHere": {
     "message": "Neu hier?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "Als Standard festlegen",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Mache Bitwarden zum Standard-Passwort-Manager deines Browsers"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Wir werden den eingebauten Passwort-Manager deines Browsers deaktivieren, damit du dich sicher anmelden kannst."
+  },
+  "allow": {
+    "message": "Erlauben",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Überspringen"
   },
   "saveCipherAttemptSuccess": {
     "message": "Zugangsdaten erfolgreich gespeichert!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
+  "domainNotAllowed": {
+    "message": "Gib nur die folgenden Domains an: $DOMAINS$. Bitte überprüfe deine Eingabe und versuche es erneut",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Entspricht nicht der Send-Richtlinie deiner Organisation",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Erstellle eine Kopie, um diesen Send zu bearbeiten. Wenn dieses Send zum festgelegten Löschdatum ablaufen kann, sind keine Maßnahmen erforderlich",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Dieses Send läuft automatisch zum festgelegten Löschdatum ab",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Eine Kopie erstellen"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Du kannst keine Einträge in \"Meine Einträge\" importieren, die Teil mehrerer Sammlungen sind"
