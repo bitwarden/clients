@@ -6050,6 +6050,9 @@
   "projectsCannotCreate": {
     "message": "Projects cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
+  "projectsCannotEdit": {
+    "message": "Projects cannot be edited in suspended organizations. Please contact your organization owner for assistance."
+  },
   "serviceAccountsCannotCreate": {
     "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
@@ -11433,6 +11436,9 @@
   },
   "machineAccountsCannotCreate": {
     "message": "Machine accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "machineAccountsCannotEdit": {
+    "message": "Machine accounts cannot be edited in suspended organizations. Please contact your organization owner for assistance."
   },
   "machineAccount": {
     "message": "Machine account",

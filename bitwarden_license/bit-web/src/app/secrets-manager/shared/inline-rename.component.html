@@ -1,0 +1,45 @@
+@if (canEdit()) {
+  @if (editing()) {
+    <form class="tw-flex tw-items-center tw-gap-2" [formGroup]="form" [bitSubmit]="submit">
+      <div class="tw-w-64 tw-max-w-full">
+        <input
+          appAutofocus
+          bitInput
+          formControlName="name"
+          (keydown.escape)="cancel()"
+          [attr.aria-label]="label()"
+          class="tw-text-base tw-font-normal tw-leading-normal"
+          [id]="idPrefix() + '_input_name'"
+        />
+      </div>
+      <button
+        type="submit"
+        bitIconButton="bwi-check"
+        buttonType="primary"
+        size="small"
+        bitFormButton
+        [label]="'save' | i18n"
+        [id]="idPrefix() + '_button_save-name'"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="secondary"
+        size="small"
+        (click)="cancel()"
+        [label]="'cancel' | i18n"
+        [id]="idPrefix() + '_button_cancel-name'"
+      ></button>
+    </form>
+  } @else {
+    <button
+      type="button"
+      bitIconButton="bwi-pencil"
+      buttonType="subtleGhost"
+      size="small"
+      (click)="start()"
+      [label]="editLabel()"
+      [id]="idPrefix() + '_button_edit-name'"
+    ></button>
+  }
+}

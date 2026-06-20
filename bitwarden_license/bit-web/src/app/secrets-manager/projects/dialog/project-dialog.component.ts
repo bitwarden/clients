@@ -10,6 +10,7 @@ import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/
 
 import { ProjectView } from "../../models/view/project.view";
 import { ProjectService } from "../../projects/project.service";
+import { SM_NAME_MAX_LENGTH } from "../../shared/sm-constants";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -34,7 +35,11 @@ export interface ProjectOperation {
 export class ProjectDialogComponent implements OnInit {
   protected formGroup = new FormGroup({
     name: new FormControl("", {
-      validators: [Validators.required, Validators.maxLength(500), BitValidators.trimValidator],
+      validators: [
+        Validators.required,
+        Validators.maxLength(SM_NAME_MAX_LENGTH),
+        BitValidators.trimValidator,
+      ],
       updateOn: "submit",
     }),
   });

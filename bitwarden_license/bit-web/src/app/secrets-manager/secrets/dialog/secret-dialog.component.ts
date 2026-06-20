@@ -41,6 +41,7 @@ import {
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { ApItemEnum } from "../../shared/access-policies/access-policy-selector/models/enums/ap-item.enum";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
+import { SM_NAME_MAX_LENGTH } from "../../shared/sm-constants";
 import { SecretService } from "../secret.service";
 
 import { SecretDeleteDialogComponent, SecretDeleteOperation } from "./secret-delete.component";
@@ -83,7 +84,11 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
 
   protected formGroup = new FormGroup({
     name: new FormControl("", {
-      validators: [Validators.required, Validators.maxLength(500), BitValidators.trimValidator],
+      validators: [
+        Validators.required,
+        Validators.maxLength(SM_NAME_MAX_LENGTH),
+        BitValidators.trimValidator,
+      ],
       updateOn: "submit",
     }),
     value: new FormControl("", [Validators.required, Validators.maxLength(25000)]),
@@ -93,7 +98,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     }),
     project: new FormControl("", [Validators.required]),
     newProjectName: new FormControl("", {
-      validators: [Validators.maxLength(500), BitValidators.trimValidator],
+      validators: [Validators.maxLength(SM_NAME_MAX_LENGTH), BitValidators.trimValidator],
       updateOn: "submit",
     }),
     peopleAccessPolicies: new FormControl([] as ApItemValueType[]),

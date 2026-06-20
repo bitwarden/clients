@@ -1,4 +1,19 @@
-<app-header *ngIf="project$ | async as project" [title]="project.name" icon="bwi-collection">
+<app-header
+  *ngIf="project$ | async as project"
+  [title]="renaming ? rename.titlePlaceholder : project.name"
+  icon="bwi-collection"
+>
+  <sm-inline-rename
+    #rename
+    slot="title-suffix"
+    [(editing)]="renaming"
+    [name]="project.name"
+    [label]="'projectName' | i18n"
+    [editLabel]="'editProject' | i18n"
+    [canEdit]="project.write"
+    [save]="saveRename"
+    idPrefix="project-header"
+  ></sm-inline-rename>
   <bit-breadcrumbs slot="breadcrumbs">
     <bit-breadcrumb [route]="['..']" icon="bwi-angle-left">{{ "projects" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
@@ -25,15 +40,5 @@
     </ng-container>
   </bit-tab-nav-bar>
   <sm-new-menu></sm-new-menu>
-  <button
-    type="button"
-    slot="secondary"
-    bitButton
-    buttonType="secondary"
-    (click)="openEditDialog()"
-    *ngIf="project.write"
-  >
-    {{ "editProject" | i18n }}
-  </button>
 </app-header>
 <router-outlet></router-outlet>

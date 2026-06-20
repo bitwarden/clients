@@ -8,6 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
+import { SM_NAME_MAX_LENGTH } from "../../shared/sm-constants";
 import { ServiceAccountService } from "../service-account.service";
 
 // FIXME: update to use a const object instead of a typescript enum
@@ -34,7 +35,11 @@ export class ServiceAccountDialogComponent implements OnInit {
   protected formGroup = new FormGroup(
     {
       name: new FormControl("", {
-        validators: [Validators.required, Validators.maxLength(500), BitValidators.trimValidator],
+        validators: [
+          Validators.required,
+          Validators.maxLength(SM_NAME_MAX_LENGTH),
+          BitValidators.trimValidator,
+        ],
         updateOn: "submit",
       }),
     },
