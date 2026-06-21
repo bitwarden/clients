@@ -146,7 +146,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
               return null;
             }
 
-            await this.biometricStateService.setBiometricUnlockEnabled(true);
+            await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
             await this.keyService.setUserKey(userKey, userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
