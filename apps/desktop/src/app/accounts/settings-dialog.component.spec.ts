@@ -640,7 +640,10 @@ describe("SettingsDialogComponent", () => {
         await (component as any).updateBiometricHandler(true);
 
         expect((component as any).form.controls.biometric.value).toBe(false);
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false, mockUserId);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -680,7 +683,10 @@ describe("SettingsDialogComponent", () => {
         await (component as any).updateBiometricHandler(true);
 
         expect(desktopBiometricsService.setupBiometrics).toHaveBeenCalled();
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
         expect((component as any).form.controls.biometric.value).toBe(true);
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -704,9 +710,15 @@ describe("SettingsDialogComponent", () => {
         it("handles windows case", async () => {
           await (component as any).updateBiometricHandler(true);
 
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+            true,
+            mockUserId,
+          );
           expect((component as any).form.controls.autoPromptBiometrics.value).toBe(false);
-          expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false, mockUserId);
+          expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+            false,
+            mockUserId,
+          );
           expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(true);
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -733,9 +745,15 @@ describe("SettingsDialogComponent", () => {
               false,
             );
 
-            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+              true,
+              mockUserId,
+            );
             expect((component as any).form.controls.autoPromptBiometrics.value).toBe(false);
-            expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false, mockUserId);
+            expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+              false,
+              mockUserId,
+            );
             expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
             expect((component as any).form.controls.biometric.value).toBe(true);
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -764,9 +782,15 @@ describe("SettingsDialogComponent", () => {
                 desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
               ).toHaveBeenCalledWith(mockUserId, mockUserKey);
 
-              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+                true,
+                mockUserId,
+              );
               expect((component as any).form.controls.autoPromptBiometrics.value).toBe(false);
-              expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false, mockUserId);
+              expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+                false,
+                mockUserId,
+              );
               expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
               expect((component as any).form.controls.biometric.value).toBe(true);
               expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -785,9 +809,15 @@ describe("SettingsDialogComponent", () => {
         (component as any).isLinux = true;
         await (component as any).updateBiometricHandler(true);
 
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
         expect((component as any).form.controls.autoPromptBiometrics.value).toBe(false);
-        expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false, mockUserId);
+        expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect((component as any).form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -814,9 +844,15 @@ describe("SettingsDialogComponent", () => {
 
           expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
           expect((component as any).form.controls.biometric.value).toBe(false);
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true, mockUserId);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+            true,
+            mockUserId,
+          );
           expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledTimes(2);
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false, mockUserId);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+            false,
+            mockUserId,
+          );
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
         },
       );
@@ -828,7 +864,10 @@ describe("SettingsDialogComponent", () => {
         await (component as any).updateBiometricHandler(false);
 
         expect((component as any).form.controls.biometric.value).toBe(false);
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false, mockUserId);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
