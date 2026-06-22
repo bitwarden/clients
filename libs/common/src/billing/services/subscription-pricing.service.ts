@@ -11,18 +11,18 @@ import {
 } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { PlanType } from "@bitwarden/common/billing/enums";
-import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ListResponse } from "../../models/response/list.response";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { BillingApiServiceAbstraction } from "../abstractions";
 import { SubscriptionPricingServiceAbstraction } from "../abstractions/subscription-pricing.service.abstraction";
+import { PlanType } from "../enums";
+import { PlanResponse } from "../models/response/plan.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import {
   BusinessSubscriptionPricingTier,
   BusinessSubscriptionPricingTierIds,
