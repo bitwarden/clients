@@ -1,4 +1,5 @@
 dist-safari/
+.auto-test/
 *.nupkg
 *.env
 PlugIns/safari.appex/

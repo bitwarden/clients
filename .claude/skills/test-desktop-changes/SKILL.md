@@ -49,14 +49,25 @@ so the proposed steps live alongside the captured run.
 
 ## Step 3 — Launch the app and attach
 
-From `apps/desktop`, start the dev build (builds main/renderer/preload and launches Electron):
+From `apps/desktop`, start the dev build **in the background** so it keeps running for the whole
+test. This builds main/renderer/preload and launches Electron with the remote debugging port:
 
 ```bash
+# run with run_in_background: true so the process survives across the test
 npm run electron
 ```
 
-Wait until the window is up and the renderer is serving on port `9222`. Then attach with the Chrome
-DevTools MCP and confirm the target:
+The process must stay up for the rest of the run — do not block on it. Note its background task id;
+you stop it in Step 7.
+
+Wait until the renderer is actually serving on port `9222` before attaching (do not sleep blindly —
+poll the CDP endpoint):
+
+```bash
+npx wait-on http://localhost:9222/json/version
+```
+
+Then attach with the Chrome DevTools MCP and confirm the target:
 
 - `list_pages` — locate the Bitwarden renderer page and select it (`select_page`).
 - If attach fails, see the `chrome-devtools-mcp:troubleshooting` skill (the port must match `9222`).
@@ -111,3 +122,15 @@ Walk the test plan. For each change:
 
 To publish the run to the PR, invoke the `add-auto-test-to-pr` skill with the `.auto-test/<run-id>/`
 directory.
+
+## Step 7 — Shut down the app
+
+Stop the background Electron process started in Step 3 (stop its background task). The dev launch
+runs several watchers under one `concurrently` parent, so also clear any stragglers:
+
+```bash
+pkill -f "scripts/start.js" || true   # the concurrently parent + main/preload/renderer watchers
+pkill -f "remote-debugging-port=9222" || true   # the electron instance
+```
+
+Run this even if the test failed, so no Electron process or watcher leaks between runs.
