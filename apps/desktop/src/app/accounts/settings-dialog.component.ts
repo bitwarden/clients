@@ -557,8 +557,7 @@ export class SettingsDialogComponent implements OnInit {
   private showAutostartSetting(): boolean {
     // Windows store does not support autostart
     // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    // Snap store has auto-start enabled through electron-builder ALWAYS
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   protected async saveOpenAtLogin() {
