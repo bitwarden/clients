@@ -67,7 +67,7 @@ export abstract class PamApiService {
    *
    * @deprecated Scheduled for removal; the full leased cipher will be served
    * through the standard cipher read path rather than this dedicated endpoint
-   * (`GET /ciphers/{id}/lease/cipher`). Still fully functional for now.
+   * (`GET /leases/ciphers/{id}/cipher`). Still fully functional for now.
    */
   abstract getLeasedCipher(cipherId: string): Promise<CipherResponse>;
   abstract cancelAccessRequest(id: string): Promise<void>;

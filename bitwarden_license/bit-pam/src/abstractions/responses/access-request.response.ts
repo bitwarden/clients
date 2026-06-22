@@ -21,7 +21,7 @@ export type AccessRequestStatus = (typeof AccessRequestStatus)[keyof typeof Acce
 
 /**
  * A plain access-request row, as returned inside the submission result
- * envelope of `POST /ciphers/{id}/lease` on the human path. The richer
+ * envelope of `POST /leases/ciphers/{id}` on the human path. The richer
  * `AccessRequestDetailsResponse` adds approver and display fields.
  */
 export class AccessRequestResponse extends BaseResponse {
