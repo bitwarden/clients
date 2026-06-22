@@ -2349,6 +2349,54 @@ describe("OverlayBackground", () => {
             command: "showSaveLoginInlineMenuList",
           });
         });
+
+        it("does not show the save login menu on a password-generation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on a password-generation field once the new-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "";
+          formData.newPassword = "generated";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on an account-creation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
       });
     });
 
