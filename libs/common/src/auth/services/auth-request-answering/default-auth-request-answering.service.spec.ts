@@ -1,19 +1,19 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UserId } from "@bitwarden/user-core";
+
+import { mockAccountInfoWith } from "../../../../spec";
+import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import {
   ButtonLocation,
   SystemNotificationEvent,
-} from "@bitwarden/common/platform/system-notifications/system-notifications.service";
-import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/user-core";
-
+} from "../../../platform/system-notifications/system-notifications.service";
+import { Account, AccountService } from "../../abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthService } from "../../abstractions/auth.service";
+import { AuthenticationStatus } from "../../enums/authentication-status";
+import { ForceSetPasswordReason } from "../../models/domain/force-set-password-reason";
 
 import { DefaultAuthRequestAnsweringService } from "./default-auth-request-answering.service";
 import {

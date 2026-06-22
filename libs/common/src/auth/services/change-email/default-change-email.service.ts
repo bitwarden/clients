@@ -1,7 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordUnlockData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // Marked for removal when PM-30811 feature flag is unwound.
 // eslint-disable-next-line no-restricted-imports
@@ -10,6 +8,8 @@ import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { MasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockData } from "../../../key-management/master-password/types/master-password.types";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EmailTokenRequest } from "../../models/request/email-token.request";
 import { EmailRequest } from "../../models/request/email.request";

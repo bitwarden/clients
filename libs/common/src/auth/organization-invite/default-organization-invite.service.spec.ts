@@ -4,31 +4,32 @@ import { BehaviorSubject } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
-import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
+import { FakeGlobalStateProvider } from "../../../spec";
+import { ApiService } from "../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../admin-console/models/domain/policy";
+import { ResetPasswordPolicyOptions } from "../../admin-console/models/domain/reset-password-policy-options";
+import { OrganizationKeysResponse } from "../../admin-console/models/response/organization-keys.response";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../key-management/crypto/models/enc-string";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { Utils } from "../../platform/misc/utils";
+import { OrgKey } from "../../types/key";
+import { AuthService } from "../abstractions/auth.service";
+
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
+import { OrganizationInvite } from "./organization-invite";
 
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;

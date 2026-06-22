@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { DeviceType } from "@bitwarden/common/enums";
+import { DeviceType } from "../../../enums";
 
 import { DeviceResponse } from "./responses/device.response";
 import { DeviceView } from "./views/device.view";

@@ -1,9 +1,21 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
+import { newGuid } from "@bitwarden/guid";
+
+import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../admin-console/enums";
+import {
+  Environment,
+  EnvironmentService,
+} from "../../../platform/abstractions/environment.service";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { Utils } from "../../../platform/misc/utils";
+import { UserId } from "../../../types/guid";
+import { SsoRequiredCacheEntry } from "../../abstractions/sso-login.service.abstraction";
+
+import { SsoLoginService } from "./sso-login.service";
 import {
   CODE_VERIFIER,
   GLOBAL_ORGANIZATION_SSO_IDENTIFIER,
@@ -11,18 +23,7 @@ import {
   SSO_REQUIRED_CACHE,
   SSO_STATE,
   USER_ORGANIZATION_SSO_IDENTIFIER,
-} from "@bitwarden/common/auth/services/sso-login/sso-login.state";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
-import { newGuid } from "@bitwarden/guid";
-
-import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
-import { SsoRequiredCacheEntry } from "../../abstractions/sso-login.service.abstraction";
+} from "./sso-login.state";
 
 const email = "user1@example.com";
 const webVaultUrl = "https://vault.bitwarden.com";

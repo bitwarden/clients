@@ -2,8 +2,9 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 /**
  * This component is used to display a message to the user that their authentication session has expired.

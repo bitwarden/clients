@@ -12,17 +12,17 @@ import {
   tap,
 } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
 
+import { MasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
+import { MessagingService } from "../../../platform/abstractions/messaging.service";
+import { SystemNotificationEvent } from "../../../platform/system-notifications/system-notifications.service";
+import { AccountService } from "../../abstractions/account.service";
 import { AuthRequestAnsweringService } from "../../abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthService } from "../../abstractions/auth.service";
+import { AuthenticationStatus } from "../../enums/authentication-status";
+import { ForceSetPasswordReason } from "../../models/domain/force-set-password-reason";
+import { getOptionalUserId, getUserId } from "../account.service";
 
 import {
   PendingAuthRequestsStateService,

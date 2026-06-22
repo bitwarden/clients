@@ -1,7 +1,9 @@
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { UserId } from "@bitwarden/user-core";
+
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../admin-console/models/domain/policy";
+
+import { OrganizationInvite } from "./organization-invite";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy
