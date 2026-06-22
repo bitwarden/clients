@@ -4,7 +4,7 @@ import { AccessLeaseResponse } from "./access-lease.response";
 import { AccessRequestDetailsResponse } from "./access-request-details.response";
 
 /**
- * Wire-format snapshot returned by `GET /ciphers/{cipherId}/lease/state`.
+ * Wire-format snapshot returned by `GET /leases/ciphers/{cipherId}/state`.
  *
  * Carries the three caller-scoped pieces of access state the cipher view
  * banner and vault-row badge need to render: the active lease (if any), an

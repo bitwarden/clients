@@ -125,7 +125,7 @@ export class CipherLeaseBannerComponent implements OnInit {
    * Whether a lease-state fetch is worthwhile for this cipher: the PAM flag is on
    * AND the cipher is PAM-governed — either still gated (`partialData` present) or
    * served under an active lease (`leaseGated`). Gates the `state` stream so a
-   * non-PAM cipher open never fires `GET /ciphers/{id}/lease/state`.
+   * non-PAM cipher open never fires `GET /leases/ciphers/{id}/state`.
    */
   private readonly leaseStateRelevant = computed(
     () => this.pamEnabled() && (this.partialData() != null || this.leaseGated()),
@@ -186,7 +186,7 @@ export class CipherLeaseBannerComponent implements OnInit {
       toObservable(this.leaseStateRelevant),
     ]).pipe(
       switchMap(([cipherId, userId, relevant]) =>
-        // Only hit GET /ciphers/{id}/lease/state for PAM-governed ciphers (see
+        // Only hit GET /leases/ciphers/{id}/state for PAM-governed ciphers (see
         // leaseStateRelevant). A non-PAM cipher open used to fire the call and lean
         // on a server 404 to stay inert; gating on partialData || leaseGated also
         // keeps the active-lease countdown / extend / end controls working after

@@ -33,7 +33,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("getAccessPreCheck", () => {
-    it("GETs /ciphers/{id}/lease/pre-check and wraps the response", async () => {
+    it("GETs /leases/ciphers/{id}/pre-check and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessPreCheck",
         CipherId: "cipher-1",
@@ -44,7 +44,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/ciphers/cipher-1/lease/pre-check",
+        "/leases/ciphers/cipher-1/pre-check",
         null,
         true,
         true,
@@ -55,7 +55,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("submitAccessRequest", () => {
-    it("POSTs /ciphers/{id}/lease with a duration body on the automatic path", async () => {
+    it("POSTs /leases/ciphers/{id} with a duration body on the automatic path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
         ApprovalMode: AccessApprovalMode.Automatic,
@@ -78,7 +78,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/ciphers/cipher-1/lease",
+        "/leases/ciphers/cipher-1",
         body,
         true,
         true,
@@ -90,7 +90,7 @@ describe("DefaultPamApiService", () => {
       expect(result.request?.notAfter).toBe("2026-06-04T13:00:00Z");
     });
 
-    it("POSTs /ciphers/{id}/lease with a window body on the human path", async () => {
+    it("POSTs /leases/ciphers/{id} with a window body on the human path", async () => {
       apiService.send.mockResolvedValue({
         Object: "accessRequest",
         ApprovalMode: AccessApprovalMode.Human,
@@ -118,7 +118,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/ciphers/cipher-1/lease",
+        "/leases/ciphers/cipher-1",
         body,
         true,
         true,
@@ -211,7 +211,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("getLeasedCipher", () => {
-    it("GETs /ciphers/{id}/lease/cipher and wraps the response", async () => {
+    it("GETs /leases/ciphers/{id}/cipher and wraps the response", async () => {
       apiService.send.mockResolvedValue({
         Id: "cipher-1",
         Name: "name-cipher",
@@ -222,7 +222,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/ciphers/cipher-1/lease/cipher",
+        "/leases/ciphers/cipher-1/cipher",
         null,
         true,
         true,
@@ -566,7 +566,7 @@ describe("DefaultPamApiService", () => {
   });
 
   describe("getCipherAccessState$", () => {
-    it("GETs /ciphers/{id}/lease/state on initial subscription and emits the mapped snapshot", async () => {
+    it("GETs /leases/ciphers/{id}/state on initial subscription and emits the mapped snapshot", async () => {
       apiService.send.mockResolvedValue({
         CipherId: "cipher-1",
         ActiveLease: {
@@ -587,7 +587,7 @@ describe("DefaultPamApiService", () => {
 
       expect(apiService.send).toHaveBeenCalledWith(
         "GET",
-        "/ciphers/cipher-1/lease/state",
+        "/leases/ciphers/cipher-1/state",
         null,
         true,
         true,

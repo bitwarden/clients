@@ -75,7 +75,7 @@ export class DefaultPamApiService implements PamApiService {
 
   private async fetchCipherAccessState(cipherId: string): Promise<CipherAccessState> {
     try {
-      const raw = await this.send("GET", `/ciphers/${cipherId}/lease/state`, null, true);
+      const raw = await this.send("GET", `/leases/ciphers/${cipherId}/state`, null, true);
       const snapshot = new CipherAccessStateResponse(raw);
       return {
         activeLease: snapshot.activeLease ?? undefined,
@@ -97,7 +97,7 @@ export class DefaultPamApiService implements PamApiService {
 
   async getAccessPreCheck(cipherId: string): Promise<AccessPreCheckResponse> {
     return new AccessPreCheckResponse(
-      await this.send("GET", `/ciphers/${cipherId}/lease/pre-check`, null, true),
+      await this.send("GET", `/leases/ciphers/${cipherId}/pre-check`, null, true),
     );
   }
 
@@ -106,16 +106,16 @@ export class DefaultPamApiService implements PamApiService {
     body: AccessRequestCreateRequest,
   ): Promise<AccessRequestResultResponse> {
     const response = new AccessRequestResultResponse(
-      await this.send("POST", `/ciphers/${cipherId}/lease`, body, true),
+      await this.send("POST", `/leases/ciphers/${cipherId}`, body, true),
     );
     this.localRefresh$.next();
     return response;
   }
 
-  // DEPRECATED: GET /ciphers/{id}/lease/cipher is scheduled for removal; kept functional. See PamApiService.getLeasedCipher.
+  // DEPRECATED: GET /leases/ciphers/{id}/cipher is scheduled for removal; kept functional. See PamApiService.getLeasedCipher.
   async getLeasedCipher(cipherId: string): Promise<CipherResponse> {
     return new CipherResponse(
-      await this.send("GET", `/ciphers/${cipherId}/lease/cipher`, null, true),
+      await this.send("GET", `/leases/ciphers/${cipherId}/cipher`, null, true),
     );
   }
 

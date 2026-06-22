@@ -85,10 +85,10 @@ wrapper):
 
 | Method & path                                                    | Purpose                                                                                                                        |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /ciphers/{id}/lease/state`                                  | Access-state snapshot (active lease / pending / approved request). 404 = not gated or flag off → empty snapshot, banner inert. |
-| `GET /ciphers/{id}/lease/pre-check`                              | Resolve approval workflow (`AccessApprovalMode`) for the caller.                                                               |
-| `POST /ciphers/{id}/lease`                                       | Submit an access request.                                                                                                      |
-| `GET /ciphers/{id}/lease/cipher`                                 | **@deprecated** — full leased cipher; scheduled for removal.                                                                   |
+| `GET /leases/ciphers/{id}/state`                                 | Access-state snapshot (active lease / pending / approved request). 404 = not gated or flag off → empty snapshot, banner inert. |
+| `GET /leases/ciphers/{id}/pre-check`                             | Resolve approval workflow (`AccessApprovalMode`) for the caller.                                                               |
+| `POST /leases/ciphers/{id}`                                      | Submit an access request.                                                                                                      |
+| `GET /leases/ciphers/{id}/cipher`                                | **@deprecated** — full leased cipher; scheduled for removal.                                                                   |
 | `GET /access-requests/inbox` `/history` `/mine`                  | Approver pending / approver history / requester's own.                                                                         |
 | `POST /access-requests/{id}/decision`                            | Approver approve/deny (`AccessDecisionRequest`).                                                                               |
 | `POST /access-requests/{id}/revoke`                              | Cancel a pending / approved request.                                                                                           |
