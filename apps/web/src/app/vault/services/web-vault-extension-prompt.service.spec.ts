@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -27,11 +28,14 @@ describe("WebVaultExtensionPromptService", () => {
   });
   const getUser = jest.fn().mockReturnValue({ state$: mockStateSubject.asObservable() });
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+
   beforeEach(() => {
     jest.clearAllMocks();
     extensionInstalled$.next(false);
     mockStateSubject.next(false);
     activeAccountSubject.next({ id: mockUserId, creationDate: mockAccountCreationDate });
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -58,6 +62,7 @@ describe("WebVaultExtensionPromptService", () => {
           provide: ConfigService,
           useValue: {
             getFeatureFlag,
+            serverSettings$: serverSettings$.asObservable(),
           },
         },
         {

@@ -5,12 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -32,6 +26,7 @@ import { InternalNewPolicyService } from "../../admin-console/abstractions/polic
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -44,9 +39,12 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
+import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -110,6 +108,7 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
   ) {
     super(
       tokenService,
@@ -350,7 +349,8 @@ export class DefaultSyncService extends CoreSyncService {
 
   private async syncProfileOrganizations(response: ProfileResponse, userId: UserId) {
     const organizations: { [id: string]: OrganizationData } = {};
-    response.organizations.forEach((o) => {
+    const source = response.organizationsNew ?? response.organizations ?? [];
+    source.forEach((o) => {
       organizations[o.id] = new OrganizationData(o, {
         isMember: true,
         isProviderUser: false,
@@ -501,6 +501,15 @@ export class DefaultSyncService extends CoreSyncService {
       } catch (error) {
         this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
       }
+    }
+
+    if (userDecryption.v2UpgradeToken != null) {
+      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
+        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
+        userId,
+      );
+    } else {
+      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
     }
   }
 }

@@ -335,7 +335,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       await firstValueFrom(canManage$);
 
       expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
-        PolicyType.AutoConfirm,
+        PolicyType.AutomaticUserConfirmation,
         mockUserId,
       );
     });
@@ -348,7 +348,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
 
       expect(canManage).toBe(false);
       expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
-        PolicyType.AutoConfirm,
+        PolicyType.AutomaticUserConfirmation,
         mockUserId,
       );
     });

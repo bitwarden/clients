@@ -18,6 +18,7 @@ import {
   MenuTriggerForDirective,
   TableModule,
   LinkModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -52,10 +53,11 @@ interface CopyFieldConfig {
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    IconModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
   protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
@@ -175,8 +177,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
-
   /**
    * Returns the list of copyable fields based on cipher type.
    * Used to render copy menu items dynamically.
@@ -221,17 +221,36 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         return [{ field: "secureNote", title: "copyNote" }];
       case CipherType.BankAccount:
         return [
+          { field: "nameOnAccount", title: "copyNameOnAccount" },
           { field: "accountNumber", title: "copyAccountNumber" },
           { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "branchNumber", title: "copyBranchNumber" },
           { field: "pin", title: "copyPin" },
           { field: "iban", title: "copyIban" },
+          { field: "swiftCode", title: "copySwiftCode" },
+        ];
+      case CipherType.Passport:
+        return [
+          { field: "givenName", title: "copyFirstName" },
+          { field: "surname", title: "copyLastName" },
+          { field: "passportNumber", title: "copyPassportNumber" },
+          {
+            field: "nationalIdentificationNumber",
+            title: "copyNationalIdentificationNumber",
+          },
         ];
       case CipherType.DriversLicense:
         return [
-          { field: "firstName", title: "copyFirstName" },
-          { field: "middleName", title: "copyMiddleName" },
-          { field: "lastName", title: "copyLastName" },
+          { field: "firstNameLicense", title: "copyFirstName" },
+          { field: "middleNameLicense", title: "copyMiddleName" },
+          { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
         ];
       default:
         return [];

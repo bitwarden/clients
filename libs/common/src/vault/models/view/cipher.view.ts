@@ -1,15 +1,15 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { ItemView } from "@bitwarden/common/vault/models/view/item.view";
 import {
   CipherCreateRequest,
   CipherEditRequest,
+  CipherPartialEditRequest,
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { DeepJsonify } from "../../../types/deep-jsonify";
@@ -26,6 +26,7 @@ import { DriversLicenseView } from "./drivers-license.view";
 import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
+import { ItemView } from "./item.view";
 import { LoginView } from "./login.view";
 import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
@@ -414,6 +415,7 @@ export class CipherView implements View, InitializerMetadata {
       reprompt: this.reprompt ?? CipherRepromptType.None,
       fields: this.fields?.map((f) => f.toSdkFieldView()),
       type: this.getSdkCipherViewType(),
+      archivedDate: this.archivedDate?.toISOString(),
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK create request
@@ -456,6 +458,21 @@ export class CipherView implements View, InitializerMetadata {
     }
 
     return sdkCipherEditRequest;
+  }
+
+  /**
+   * Maps CipherView to an SDK CipherPartialEditRequest
+   *
+   * @returns {CipherPartialEditRequest} The SDK cipher edit request object
+   */
+  toSdkPartialUpdateCipherRequest(): CipherPartialEditRequest {
+    const sdkCipherPartialEditRequest: CipherPartialEditRequest = {
+      id: asUuid(this.id),
+      folderId: this.folderId ? asUuid(this.folderId) : undefined,
+      favorite: this.favorite ?? false,
+    };
+
+    return sdkCipherPartialEditRequest;
   }
 
   /**

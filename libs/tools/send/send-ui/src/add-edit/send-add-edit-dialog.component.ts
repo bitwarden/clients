@@ -3,10 +3,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   DIALOG_DATA,
@@ -19,12 +22,14 @@ import {
   ToastService,
   DialogModule,
   ButtonComponent,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
+import { SendPolicyService } from "../services/send-policy.service";
 
 export interface SendItemDialogParams {
   /**
@@ -77,6 +82,7 @@ export type SendItemDialogResult = {
     AsyncActionsModule,
     DialogModule,
     CipherFormGeneratorComponent,
+    CalloutComponent,
   ],
 })
 export class SendAddEditDialogComponent {
@@ -114,6 +120,12 @@ export class SendAddEditDialogComponent {
   config: SendFormConfig;
 
   /**
+   * Whether the form is disabled (e.g., the Send is disabled by policy).
+   * When true, the Save button is hidden.
+   */
+  disableForm = false;
+
+  /**
    * Whether the Send is actively being edited
    */
   protected readonly editing = signal(false);
@@ -133,6 +145,16 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
+  /**
+   * Whether to show the "Make a copy" button or not
+   */
+  protected readonly showCopyButton = signal(false);
+
+  /**
+   * Whether to show the trash icon button on the far right of the footer
+   */
+  protected readonly showTrashIconButton = signal(false);
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -141,9 +163,21 @@ export class SendAddEditDialogComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.config = params.formConfig;
+    this.init();
+  }
+
+  init() {
+    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
     this.editing.set(this.config.mode === "add");
+    this.showCopyButton.set(
+      this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+    );
+    this.showTrashIconButton.set(
+      this.showCopyButton() || (!this.config.originalSend?.disabled && this.config?.mode !== "add"),
+    );
   }
 
   /**
@@ -256,13 +290,19 @@ export class SendAddEditDialogComponent {
   }
 
   protected async cancelEditSend() {
-    const proceed = await this.sendFormService.promptForUnsavedEdits();
-    if (!proceed) {
-      return;
-    }
     if (this.config.mode === "add") {
+      // For "add" mode, just call close() — the closePredicate wired at open-time
+      // (promptForUnsavedEdits) will handle showing the discard dialog exactly once.
+      // Calling promptForUnsavedEdits manually here AND then close() would cause the
+      // discard dialog to appear twice (once here, once from the closePredicate).
       void this.dialogRef.close();
     } else {
+      // For "edit" mode we are not closing the dialog, just toggling back to view mode,
+      // so the closePredicate never runs — we must check for unsaved edits manually.
+      const proceed = await this.sendFormService.promptForUnsavedEdits();
+      if (!proceed) {
+        return;
+      }
       this.editing.set(false);
     }
   }
@@ -299,5 +339,34 @@ export class SendAddEditDialogComponent {
       data: params,
       closePredicate: params.closePredicate,
     });
+  }
+
+  async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
+      },
+    };
+    this.init();
   }
 }

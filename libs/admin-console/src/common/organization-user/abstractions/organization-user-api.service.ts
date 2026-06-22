@@ -209,18 +209,6 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
-   * Reset an organization user's password
-   * @param organizationId - Identifier for the organization the user belongs to
-   * @param id - Organization user identifier
-   * @param request - Reset password details
-   */
-  abstract putOrganizationUserResetPassword(
-    organizationId: string,
-    id: string,
-    request: OrganizationUserResetPasswordRequest,
-  ): Promise<void>;
-
-  /**
    * Recover an organization user's account (password and/or two-step login)
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier

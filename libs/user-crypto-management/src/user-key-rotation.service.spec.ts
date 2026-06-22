@@ -1,70 +1,26 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { of } from "rxjs";
 
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { DialogService } from "@bitwarden/components";
-import {
-  AccountRecoveryTrustComponent,
-  EmergencyAccessTrustComponent,
-  KeyRotationTrustInfoComponent,
-} from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
+import { PublicKey, UpgradeTokenAction } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
+import { UserCryptoDialogService } from "./user-crypto-dialog.service.abstraction";
 import { DefaultUserKeyRotationService } from "./user-key-rotation.service";
-
-// Mock dialog open functions
-const initialPromptedOpenTrue = jest.fn();
-initialPromptedOpenTrue.mockReturnValue({ closed: new BehaviorSubject(true) });
-
-const initialPromptedOpenFalse = jest.fn();
-initialPromptedOpenFalse.mockReturnValue({ closed: new BehaviorSubject(false) });
-
-const emergencyAccessTrustOpenTrusted = jest.fn();
-emergencyAccessTrustOpenTrusted.mockReturnValue({
-  closed: new BehaviorSubject(true),
-});
-
-const emergencyAccessTrustOpenUntrusted = jest.fn();
-emergencyAccessTrustOpenUntrusted.mockReturnValue({
-  closed: new BehaviorSubject(false),
-});
-
-const accountRecoveryTrustOpenTrusted = jest.fn();
-accountRecoveryTrustOpenTrusted.mockReturnValue({
-  closed: new BehaviorSubject(true),
-});
-
-const accountRecoveryTrustOpenUntrusted = jest.fn();
-accountRecoveryTrustOpenUntrusted.mockReturnValue({
-  closed: new BehaviorSubject(false),
-});
-
-// Mock the key-management-ui module before importing components
-jest.mock("@bitwarden/key-management-ui", () => ({
-  KeyRotationTrustInfoComponent: {
-    open: jest.fn(),
-  },
-  EmergencyAccessTrustComponent: {
-    open: jest.fn(),
-  },
-  AccountRecoveryTrustComponent: {
-    open: jest.fn(),
-  },
-}));
 
 describe("DefaultUserKeyRotationService", () => {
   let service: DefaultUserKeyRotationService;
 
   let mockSdkService: MockProxy<SdkService>;
   let mockLogService: MockProxy<LogService>;
-  let mockDialogService: MockProxy<DialogService>;
+  let mockUserCryptoDialogService: MockProxy<UserCryptoDialogService>;
 
   const mockUserId = "mockUserId" as UserId;
 
   let mockUserCryptoManagement: {
-    get_untrusted_emergency_access_public_keys: jest.Mock;
-    get_untrusted_organization_public_keys: jest.Mock;
+    get_untrusted_memberships: jest.Mock;
+    rotate_user_keys: jest.Mock;
   };
 
   beforeEach(() => {
@@ -72,15 +28,18 @@ describe("DefaultUserKeyRotationService", () => {
 
     mockSdkService = mock<SdkService>();
     mockLogService = mock<LogService>();
-    mockDialogService = mock<DialogService>();
+    mockUserCryptoDialogService = mock<UserCryptoDialogService>();
 
     mockUserCryptoManagement = {
-      get_untrusted_emergency_access_public_keys: jest.fn(),
-      get_untrusted_organization_public_keys: jest.fn(),
+      get_untrusted_memberships: jest.fn(),
+      rotate_user_keys: jest.fn(),
     };
 
-    mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-    mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
+    mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+      emergency_access_memberships: [],
+      organization_memberships: [],
+    });
+    mockUserCryptoManagement.rotate_user_keys.mockResolvedValue(undefined);
 
     const mockSdkClient = {
       take: jest.fn().mockReturnValue({
@@ -93,11 +52,11 @@ describe("DefaultUserKeyRotationService", () => {
 
     mockSdkService.userClient$.mockReturnValue(of(mockSdkClient as any));
 
-    service = new DefaultUserKeyRotationService(mockSdkService, mockLogService, mockDialogService);
-
-    KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-    EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
-    AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
+    service = new DefaultUserKeyRotationService(
+      mockSdkService,
+      mockLogService,
+      mockUserCryptoDialogService,
+    );
   });
 
   describe("verifyTrust", () => {
@@ -105,6 +64,7 @@ describe("DefaultUserKeyRotationService", () => {
       id: "mockId",
       name: "mockName",
       public_key: new Uint8Array([1, 2, 3]),
+      grantee_id: "mockGranteeId",
     };
 
     const mockOrganizationMembership = {
@@ -113,183 +73,189 @@ describe("DefaultUserKeyRotationService", () => {
       public_key: new Uint8Array([4, 5, 6]),
     };
 
-    it("returns empty arrays if initial dialog is closed", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenFalse;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(trustedEmergencyAccessUsers).toEqual([]);
-      expect(trustedOrgs).toEqual([]);
-      expect(wasTrustDenied).toBe(true);
-    });
-
-    it("returns empty arrays if account recovery dialog is closed", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenUntrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(trustedEmergencyAccessUsers).toEqual([]);
-      expect(trustedOrgs).toEqual([]);
-      expect(wasTrustDenied).toBe(true);
-    });
-
-    it("returns empty arrays if emergency access dialog is closed", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenUntrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(trustedEmergencyAccessUsers).toEqual([]);
-      expect(trustedOrgs).toEqual([]);
-      expect(wasTrustDenied).toBe(true);
-    });
-
-    it("returns trusted keys when all dialogs are confirmed with only emergency access users", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(wasTrustDenied).toBe(false);
-      expect(trustedEmergencyAccessUsers).toEqual([mockEmergencyAccessMembership.public_key]);
-      expect(trustedOrgs).toEqual([]);
-    });
-
-    it("returns trusted keys when all dialogs are confirmed with only organizations", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(wasTrustDenied).toBe(false);
-      expect(trustedEmergencyAccessUsers).toEqual([]);
-      expect(trustedOrgs).toEqual([mockOrganizationMembership.public_key]);
-    });
-
-    it("returns empty arrays when no organizations or emergency access users exist", async () => {
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(wasTrustDenied).toBe(false);
-      expect(trustedEmergencyAccessUsers).toEqual([]);
-      expect(trustedOrgs).toEqual([]);
-    });
-
-    it("returns trusted keys when all dialogs are confirmed with both organizations and emergency access users", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
-
-      const {
-        wasTrustDenied,
-        trustedOrganizationPublicKeys: trustedOrgs,
-        trustedEmergencyAccessUserPublicKeys: trustedEmergencyAccessUsers,
-      } = await service.verifyTrust(mockUserId);
-
-      expect(wasTrustDenied).toBe(false);
-      expect(trustedEmergencyAccessUsers).toEqual([mockEmergencyAccessMembership.public_key]);
-      expect(trustedOrgs).toEqual([mockOrganizationMembership.public_key]);
-    });
-
-    it("does not show initial dialog when no organizations or emergency access users exist", async () => {
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
+    it("delegates to UserCryptoDialogService with the SDK results", async () => {
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [mockEmergencyAccessMembership],
+        organization_memberships: [mockOrganizationMembership],
+      });
+      mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
 
       await service.verifyTrust(mockUserId);
 
-      expect(KeyRotationTrustInfoComponent.open).not.toHaveBeenCalled();
+      expect(mockUserCryptoDialogService.verifyTrust).toHaveBeenCalledWith(
+        [mockOrganizationMembership],
+        [mockEmergencyAccessMembership],
+      );
     });
 
-    it("shows initial dialog when organizations exist", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([
-        mockOrganizationMembership,
-      ]);
+    it("propagates a denied TrustVerificationResult from the dialog service", async () => {
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [mockEmergencyAccessMembership],
+        organization_memberships: [mockOrganizationMembership],
+      });
+      mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
+        wasTrustDenied: true,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
 
-      await service.verifyTrust(mockUserId);
+      const result = await service.verifyTrust(mockUserId);
 
-      expect(KeyRotationTrustInfoComponent.open).toHaveBeenCalledWith(mockDialogService, {
-        numberOfEmergencyAccessUsers: 0,
-        orgName: mockOrganizationMembership.name,
+      expect(result).toEqual({
+        wasTrustDenied: true,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
       });
     });
 
-    it("shows initial dialog when emergency access users exist", async () => {
-      KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
-      EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
-      mockUserCryptoManagement.get_untrusted_emergency_access_public_keys.mockResolvedValue([
-        mockEmergencyAccessMembership,
-      ]);
-      mockUserCryptoManagement.get_untrusted_organization_public_keys.mockResolvedValue([]);
-
-      await service.verifyTrust(mockUserId);
-
-      expect(KeyRotationTrustInfoComponent.open).toHaveBeenCalledWith(mockDialogService, {
-        numberOfEmergencyAccessUsers: 1,
-        orgName: undefined,
+    it("propagates a trusted TrustVerificationResult from the dialog service", async () => {
+      const orgKey = "orgPublicKey" as PublicKey;
+      const eaKey = "eaPublicKey" as PublicKey;
+      mockUserCryptoManagement.get_untrusted_memberships.mockResolvedValue({
+        emergency_access_memberships: [],
+        organization_memberships: [],
       });
+      mockUserCryptoDialogService.verifyTrust.mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [orgKey],
+        trustedEmergencyAccessUserPublicKeys: [eaKey],
+      });
+
+      const result = await service.verifyTrust(mockUserId);
+
+      expect(result).toEqual({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [orgKey],
+        trustedEmergencyAccessUserPublicKeys: [eaKey],
+      });
+      expect(mockUserCryptoDialogService.verifyTrust).toHaveBeenCalledWith([], []);
+    });
+  });
+
+  describe("rotateUserKey", () => {
+    const mockPasswordRotation = { Password: { password: "mockPassword" } };
+    const mockUpgradeTokenAction: UpgradeTokenAction = "Skip";
+    const mockOrgKey = "mockOrgPublicKey" as PublicKey;
+    const mockEaKey = "mockEaPublicKey" as PublicKey;
+
+    let verifyTrustSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      verifyTrustSpy = jest.spyOn(service, "verifyTrust").mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [mockOrgKey],
+        trustedEmergencyAccessUserPublicKeys: [mockEaKey],
+      });
+    });
+
+    it("calls verifyTrust with the correct userId", async () => {
+      await service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId);
+
+      expect(verifyTrustSpy).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("does not call rotate_user_keys when verifyTrust throws", async () => {
+      verifyTrustSpy.mockRejectedValue(new Error("trust check failed"));
+
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("trust check failed");
+
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+    });
+
+    it("returns false when trust is denied", async () => {
+      verifyTrustSpy.mockResolvedValue({
+        wasTrustDenied: true,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        mockUpgradeTokenAction,
+        mockUserId,
+      );
+
+      expect(result).toBe(false);
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+      expect(mockSdkService.userClient$).not.toHaveBeenCalled();
+      expect(mockLogService.info).toHaveBeenCalledWith(
+        "[UserKeyRotationService] Trust was denied by user. Aborting!",
+      );
+    });
+
+    it("returns true on successful rotation", async () => {
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        mockUpgradeTokenAction,
+        mockUserId,
+      );
+
+      expect(result).toBe(true);
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key_rotation_method: mockPasswordRotation,
+          trusted_organization_public_keys: [mockOrgKey],
+          trusted_emergency_access_public_keys: [mockEaKey],
+          upgrade_token_action: mockUpgradeTokenAction,
+        }),
+      );
+    });
+
+    it("forwards a CreateIfNeeded upgrade token action to the SDK request", async () => {
+      const result = await service.rotateUserKey(
+        mockPasswordRotation,
+        "CreateIfNeeded",
+        mockUserId,
+      );
+
+      expect(result).toBe(true);
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          upgrade_token_action: "CreateIfNeeded",
+        }),
+      );
+    });
+
+    it("passes empty arrays when verifyTrust returns no keys", async () => {
+      verifyTrustSpy.mockResolvedValue({
+        wasTrustDenied: false,
+        trustedOrganizationPublicKeys: [],
+        trustedEmergencyAccessUserPublicKeys: [],
+      });
+
+      await service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId);
+
+      expect(mockUserCryptoManagement.rotate_user_keys).toHaveBeenCalledWith(
+        expect.objectContaining({
+          key_rotation_method: mockPasswordRotation,
+          trusted_organization_public_keys: [],
+          trusted_emergency_access_public_keys: [],
+          upgrade_token_action: mockUpgradeTokenAction,
+        }),
+      );
+    });
+
+    it("throws when the SDK client is null", async () => {
+      mockSdkService.userClient$.mockReturnValue(of(null) as any);
+
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("SDK not available");
+      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
+    });
+
+    it("throws when rotate_user_keys rejects", async () => {
+      mockUserCryptoManagement.rotate_user_keys.mockRejectedValue(new Error("rotation failed"));
+
+      await expect(
+        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
+      ).rejects.toThrow("rotation failed");
     });
   });
 });
