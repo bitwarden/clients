@@ -14,8 +14,7 @@ debugging port, records a screencast of the run, and scripts navigation (includi
 
 - The Chrome DevTools MCP is configured to attach to the renderer at `http://localhost:9222`
   (the desktop dev launch already exposes `--remote-debugging-port=9222`).
-- Work from `apps/desktop`. The dev launch builds the renderer in development mode, so the Angular
-  debug global `window.ng` is available — the navigation script below relies on it.
+- Work from `apps/desktop`. The dev launch builds the renderer in development mode.
 
 ## Step 1 — Understand the changes
 
@@ -45,6 +44,9 @@ Produce a short plan that contains:
 3. **Navigation steps** — the sequence of screens/actions needed to reach each change, using the
    Settings-injection helper (Step 4) where the change lives in Settings.
 
+Write this plan to `.auto-test/<run-id>/plan.md` (the same `<run-id>` dir as the screenshots, Step 4)
+so the proposed steps live alongside the captured run.
+
 ## Step 3 — Launch the app and attach
 
 From `apps/desktop`, start the dev build (builds main/renderer/preload and launches Electron):
@@ -69,22 +71,20 @@ input, then `fill` the PIN and submit. The dev build's default PIN unlock is `12
 Drive the renderer with the Chrome DevTools MCP. Use `take_snapshot` to read the current UI,
 `click` / `fill` / `press_key` to interact, and `take_screenshot` to capture state.
 
+Take a `take_screenshot` after every step and save it to `.auto-test/<run-id>/`, where `<run-id>` is
+a unique id generated for this run (e.g. a timestamp). Create the directory at the start of the run
+so each stage's screenshot is captured under it.
+
 To open **Settings**, inject a script that sends the `openSettings` message through the renderer's
-messaging bus. The handler lives in `app.component.ts` and fires when the message reaches the
-renderer `MessageListener`. Send it through the app's `MessageSender` (reachable via the root
-`AppComponent` instance) — that publishes to the intraprocess messaging subject the handler listens
-on:
+messaging bus:
 
 ```js
 // chrome-devtools MCP: evaluate_script (runs in the renderer main world)
-const appRoot = document.querySelector("app-root");
-const appComponent = window.ng.getComponent(appRoot);
-appComponent.messagingService.send("openSettings");
+bitwardenMessagingService.sendMessage({ command: "openSettings" });
 ```
 
-> Note: the raw preload bridge `window.ipc.platform.sendMessage({ command: "openSettings" })` only
-> routes renderer→main, and the main process does not echo `openSettings` back — so it will **not**
-> open the dialog. Use the `messagingService.send` path above.
+This only works after the vault is unlocked — unlock first (Step 3, default PIN `1234`), otherwise
+the message has no effect.
 
 After injecting, `take_snapshot` / `take_screenshot` to confirm the Settings dialog (or modal,
 depending on the `DesktopSettingsDialog` feature flag) is open, then navigate to the section the
@@ -106,33 +106,8 @@ Walk the test plan. For each change:
 
 - Report, per change: intent, what was observed, pass/fail, and attach the screencast/screenshots.
 - If anything failed, include the console output and the exact navigation step that reproduced it.
+- Write the report to `.auto-test/<run-id>/report.md`, alongside the screenshots and `plan.md` for
+  this run.
 
-## Step 7 — Add results to the PR
-
-Add an `## Auto-Test` section to the PR description with the screenshot(s) and a brief list of the
-steps performed. Keep it terse: no em dashes, no prose, just short bullet steps.
-
-1. Upload each screenshot so it renders in GitHub. The reliable path is to attach the image to a
-   throwaway issue comment via the API and reuse the returned asset URL, or commit the PNG into the
-   branch and reference its raw URL. Embed with `![](url)`.
-2. Fetch the current PR body, append the section, and update it:
-
-   ```bash
-   gh pr view --json body -q .body > /tmp/pr-body.md
-   # append the section to /tmp/pr-body.md, then:
-   gh pr edit --body-file /tmp/pr-body.md
-   ```
-
-The appended section should look like:
-
-```markdown
-## Auto-Test
-
-Steps performed:
-
-- Open Settings dialog
-- Navigate to Account section
-- Toggle the changed setting
-
-![](https://.../screenshot.png)
-```
+To publish the run to the PR, invoke the `add-auto-test-to-pr` skill with the `.auto-test/<run-id>/`
+directory.
