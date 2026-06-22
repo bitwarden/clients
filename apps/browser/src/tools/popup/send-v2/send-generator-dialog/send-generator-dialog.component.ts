@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { Component, Inject, signal } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -51,7 +51,7 @@ export class BrowserSendGeneratorDialogComponent {
    * The currently generated value.
    * @protected
    */
-  protected generatedValue: string = "";
+  protected readonly generatedValue = signal<string>("");
 
   constructor(
     @Inject(DIALOG_DATA) protected params: BrowserSendGeneratorDialogParams,
@@ -72,12 +72,12 @@ export class BrowserSendGeneratorDialogComponent {
   protected selectValue = () => {
     void this.dialogRef.close({
       action: "selected",
-      generatedValue: this.generatedValue,
+      generatedValue: this.generatedValue(),
     });
   };
 
   onValueGenerated(value: string) {
-    this.generatedValue = value;
+    this.generatedValue.set(value);
   }
 
   onAlgorithmSelected = (selected?: AlgorithmInfo) => {
@@ -86,7 +86,7 @@ export class BrowserSendGeneratorDialogComponent {
     } else {
       this.selectButtonText = this.i18nService.t("useThisPassword");
     }
-    this.generatedValue = undefined;
+    this.generatedValue.set("");
   };
 
   /**

@@ -19,7 +19,7 @@
       buttonType="primary"
       (click)="selectValue()"
       data-testid="select-button"
-      [disabled]="!(selectButtonText && generatedValue)"
+      [disabled]="!(selectButtonText && generatedValue())"
     >
       {{ selectButtonText }}
     </button>
