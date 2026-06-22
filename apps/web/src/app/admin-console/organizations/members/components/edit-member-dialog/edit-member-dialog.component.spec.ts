@@ -73,7 +73,7 @@ function buildUserDetails(
     accessSecretsManager: false,
     resetPasswordEnrolled: false,
     hasMasterPassword: true,
-    managedByOrganization: false,
+    claimedByOrganization: false,
   });
 }
 
@@ -84,7 +84,7 @@ function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMem
     organizationUserId: USER_ID,
     name: "Test User",
     usesKeyConnector: false,
-    managedByOrganization: false,
+    claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
     initialTab: MemberDialogTab.Role,
     ...overrides,

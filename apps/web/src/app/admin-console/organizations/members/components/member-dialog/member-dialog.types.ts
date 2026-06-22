@@ -30,7 +30,7 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   name: string;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
-  managedByOrganization?: boolean;
+  claimedByOrganization?: boolean;
   initialTab: MemberDialogTab;
 }
 

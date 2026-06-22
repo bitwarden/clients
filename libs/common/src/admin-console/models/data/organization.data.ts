@@ -62,7 +62,7 @@ export class OrganizationData {
   limitCollectionDeletion: boolean;
   limitItemDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
-  userIsManagedByOrganization: boolean;
+  userIsClaimedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   useDisableSMAdsForUsers: boolean;
@@ -135,7 +135,7 @@ export class OrganizationData {
     this.limitCollectionDeletion = response.limitCollectionDeletion;
     this.limitItemDeletion = response.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
-    this.userIsManagedByOrganization = response.userIsManagedByOrganization;
+    this.userIsClaimedByOrganization = response.userIsClaimedByOrganization;
     this.useAccessIntelligence = response.useAccessIntelligence;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
     this.useDisableSMAdsForUsers = response.useDisableSMAdsForUsers ?? false;

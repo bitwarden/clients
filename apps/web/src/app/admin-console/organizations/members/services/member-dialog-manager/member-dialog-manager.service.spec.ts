@@ -80,7 +80,7 @@ describe("MemberDialogManagerService", () => {
       status: OrganizationUserStatusType.Confirmed,
       hasMasterPassword: true,
       accessSecretsManager: false,
-      managedByOrganization: false,
+      claimedByOrganization: false,
       twoFactorEnabled: false,
     } as OrganizationUserView;
 
@@ -168,7 +168,7 @@ describe("MemberDialogManagerService", () => {
             usesKeyConnector: false,
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Role,
-            managedByOrganization: false,
+            claimedByOrganization: false,
           },
         }),
       );

@@ -99,7 +99,7 @@ export class MemberDialogManagerService {
         usesKeyConnector: user.usesKeyConnector,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
         initialTab: initialTab,
-        managedByOrganization: user.managedByOrganization,
+        claimedByOrganization: user.claimedByOrganization,
       },
     });
 

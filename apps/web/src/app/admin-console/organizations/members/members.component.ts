@@ -523,9 +523,9 @@ export class MembersComponent {
       showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
       showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
       showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.managedByOrganization),
+      showBulkRemoveUsers: members.every((m) => !m.claimedByOrganization),
       showBulkDeleteUsers: members.every(
-        (m) => m.managedByOrganization && validStatuses.includes(m.status),
+        (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),
     };
 
