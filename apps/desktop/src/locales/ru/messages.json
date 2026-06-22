@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "С возвращением"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Скопировать приватный ключ"
+  },
+  "copyPublicKey": {
+    "message": "Скопировать публичный ключ"
+  },
+  "copyFingerprint": {
+    "message": "Скопировать отпечаток"
+  },
   "length": {
     "message": "Длина"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Войти"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Войти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
-  },
-  "getMasterPasswordHint": {
-    "message": "Получить подсказку к мастер-паролю"
   },
   "emailRequired": {
     "message": "Необходимо указать email."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
-  "enableMinToTray": {
-    "message": "Сворачивать в область уведомлений"
+  "runInBackground": {
+    "message": "Оставить Bitwarden работать в фоновом режиме"
   },
-  "enableMinToTrayDesc": {
-    "message": "При сворачивании окна будет отображаться значок в области уведомлений."
+  "runInBackgroundDesc": {
+    "message": "После закрытия окна Bitwarden будет доступен в трее. Рекомендуется при использовании SSH-агента или интеграции с браузером."
   },
-  "enableMinToMenuBar": {
-    "message": "Свернуть в панель меню"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "При сворачивании окна будет отображен значок в панели меню."
-  },
-  "enableCloseToTray": {
-    "message": "Закрывать в область уведомлений"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "При закрытии окна будет отображаться значок в области уведомлений."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Закрыть в панель меню"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "При закрытии окна будет отображен значок в панели меню."
-  },
-  "enableTray": {
-    "message": "Включить значок в области уведомлений"
-  },
-  "enableTrayDesc": {
-    "message": "Всегда отображать значок в области уведомлений."
+  "runInBackgroundDescMac": {
+    "message": "После закрытия окна Bitwarden будет доступен в строке меню. Рекомендуется при использовании SSH-агента или интеграции с браузером."
   },
   "openAtLogin": {
     "message": "Запускать автоматически при входе в систему"
   },
   "openAtLoginDesc": {
     "message": "Автоматически запускать приложение Bitwarden для компьютера при входе в систему."
-  },
-  "alwaysShowDock": {
-    "message": "Всегда показывать в Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Показывать значок Bitwarden на панели Dock, даже если он свернут в панель меню."
-  },
-  "confirmTrayTitle": {
-    "message": "Подтвердить отключение области уведомлений"
-  },
-  "confirmTrayDesc": {
-    "message": "Отключение этого параметра также отключит все прочие настройки, связанные с областью уведомлений."
   },
   "language": {
     "message": "Язык"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Скопировать код безопасности",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Скопировать приватный ключ"
-  },
-  "copyPublicKey": {
-    "message": "Скопировать публичный ключ"
-  },
-  "copyFingerprint": {
-    "message": "Скопировать отпечаток"
   },
   "cardNumber": {
     "message": "номер карты"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Выйти"
   },
-  "showHide": {
-    "message": "Показать/скрыть",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Показать",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Свернуть в область уведомлений"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Настройки"
-  },
-  "enableMenuBar": {
-    "message": "Включить значок в строке меню"
-  },
-  "enableMenuBarDesc": {
-    "message": "Всегда показывать значок в строке меню."
   },
   "hideToMenuBar": {
     "message": "Скрыть в строке меню"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
+  "receiveMarketingEmails": {
+    "message": "Получать новости от Bitwarden в свой почтовый ящик."
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Ваш новый пароль не может быть таким же, как текущий."
+  },
+  "hint": {
+    "message": "Подсказка"
   },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Хранилище",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Войти с мастер-паролем"
   },
   "rememberEmail": {
     "message": "Запомнить email"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "domainNotAllowed": {
+    "message": "Включить только следующие домены: $DOMAINS$. Пожалуйста, проверьте и повторите попытку",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Еще"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Сохраните данные своего банковского счета, чтобы иметь к ним удобный и безопасный доступ со всех своих устройств."
   },
+  "discardEditsTitle": {
+    "message": "Отменить изменения"
+  },
+  "discardEditsConfirmation": {
+    "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
+  },
   "discardEdits": {
     "message": "Отменить изменения"
   },
-  "discardEditsMessage": {
-    "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
-  },
-  "backToEditing": {
-    "message": "Вернуться к редактированию"
+  "keepEditing": {
+    "message": "Продолжить редактирование"
   },
   "sendHasUnsavedEdits": {
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не соответствует политике Send вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Для редактирования этой Send, сделайте копию. Если эта Send может истечь к дате удаления, никаких действий не требуется",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Эта Send автоматически истечет после установки даты удаления",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Сделать копию"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"

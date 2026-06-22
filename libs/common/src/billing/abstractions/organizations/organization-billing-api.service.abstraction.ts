@@ -1,5 +1,4 @@
-import { ChangePlanFrequencyRequest } from "@bitwarden/common/billing/models/request/change-plan-frequency.request";
-
+import { ChangePlanFrequencyRequest } from "../../models/request/change-plan-frequency.request";
 import {
   BillingInvoiceResponse,
   BillingTransactionResponse,
