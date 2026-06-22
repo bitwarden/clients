@@ -17,6 +17,7 @@ import { OrganizationApiServiceAbstraction } from "../../admin-console/abstracti
 import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
@@ -127,6 +128,16 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       this.logService.error(e);
       return undefined;
     }
+  }
+
+  async getMasterPasswordPolicyOptionsForInvite(
+    invite: OrganizationInvite,
+  ): Promise<MasterPasswordPolicyOptions | undefined> {
+    const policies = await this.getInvitePolicies(invite);
+    if (policies == null) {
+      return undefined;
+    }
+    return this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
   }
 
   private async acceptAndInitOrganization(

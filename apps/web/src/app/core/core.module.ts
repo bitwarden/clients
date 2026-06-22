@@ -475,6 +475,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
       SyncService,
       UserKeyRotationService,
       RouterService,

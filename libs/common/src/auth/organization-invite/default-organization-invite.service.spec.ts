@@ -16,6 +16,7 @@ import { OrganizationApiServiceAbstraction } from "../../admin-console/abstracti
 import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../admin-console/models/domain/reset-password-policy-options";
 import { OrganizationKeysResponse } from "../../admin-console/models/response/organization-keys.response";
@@ -466,6 +467,68 @@ describe("DefaultOrganizationInviteService", () => {
       await sut.getInvitePolicies(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("getMasterPasswordPolicyOptionsForInvite", () => {
+    it("derives MP options from the invite's policies", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      const expectedOptions = { minLength: 12 } as MasterPasswordPolicyOptions;
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(expectedOptions);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBe(expectedOptions);
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).toHaveBeenCalledWith(
+        policies,
+      );
+    });
+
+    it("returns undefined when the underlying policy fetch throws", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockRejectedValue(new Error("fetch failed"));
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the underlying policy fetch returns null without throwing", async () => {
+      const invite = createOrgInvite();
+      policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combinePoliciesIntoMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when the org has no MP policy (combiner returns undefined)", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.SingleOrg, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(undefined);
+
+      const result = await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("reuses the cached policy list across repeat calls for the same invite", async () => {
+      const invite = createOrgInvite();
+      const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
+      policyApiService.getPoliciesByToken.mockResolvedValue(policies);
+      policyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+        {} as MasterPasswordPolicyOptions,
+      );
+
+      await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+      await sut.getMasterPasswordPolicyOptionsForInvite(invite);
+
+      expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
   });
 });
