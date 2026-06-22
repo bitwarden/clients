@@ -7,28 +7,30 @@ import {
   OrganizationUserAcceptRequest,
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { ORGANIZATION_INVITE } from "@bitwarden/common/auth/organization-invite/organization-invite-state";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
-import { OrgKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
+
+import { ApiService } from "../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../admin-console/models/domain/policy";
+import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { Utils } from "../../platform/misc/utils";
+import { GlobalState, GlobalStateProvider } from "../../platform/state";
+import { OrgKey } from "../../types/key";
+import { AuthService } from "../abstractions/auth.service";
+
+import { OrganizationInvite } from "./organization-invite";
+import { ORGANIZATION_INVITE } from "./organization-invite-state";
+import { OrganizationInviteService } from "./organization-invite.service";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   private organizationInviteState: GlobalState<OrganizationInvite | null>;

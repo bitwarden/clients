@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "欢迎回来"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "复制私钥"
+  },
+  "copyPublicKey": {
+    "message": "复制公钥"
+  },
+  "copyFingerprint": {
+    "message": "复制指纹"
+  },
   "length": {
     "message": "长度"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "登录到 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
-  },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并获取更改密码的 URL"
   },
-  "enableMinToTray": {
-    "message": "最小化到托盘图标"
+  "runInBackground": {
+    "message": "保持 Bitwarden 在后台运行"
   },
-  "enableMinToTrayDesc": {
-    "message": "最小化窗口后，在系统托盘中显示图标。"
+  "runInBackgroundDesc": {
+    "message": "关闭窗口后，仍可通过系统托盘访问 Bitwarden。使用 SSH 代理或浏览器集成时，建议开启此选项。"
   },
-  "enableMinToMenuBar": {
-    "message": "最小化到菜单栏"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "最小化窗口后，改为在菜单栏中显示图标。"
-  },
-  "enableCloseToTray": {
-    "message": "关闭到托盘图标"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "关闭窗口后，在系统托盘中显示图标。"
-  },
-  "enableCloseToMenuBar": {
-    "message": "关闭到菜单栏"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "关闭窗口后，改为在菜单栏中显示图标。"
-  },
-  "enableTray": {
-    "message": "显示托盘图标"
-  },
-  "enableTrayDesc": {
-    "message": "始终在系统托盘中显示图标。"
+  "runInBackgroundDescMac": {
+    "message": "关闭窗口后，仍可通过菜单栏访问 Bitwarden。使用 SSH 代理或浏览器集成时，建议开启此选项。"
   },
   "openAtLogin": {
     "message": "登录时自动启动"
   },
   "openAtLoginDesc": {
     "message": "登录时自动启动 Bitwarden 桌面应用程序。"
-  },
-  "alwaysShowDock": {
-    "message": "始终在 Dock 中显示"
-  },
-  "alwaysShowDockDesc": {
-    "message": "即使已最小化到菜单栏，仍在 Dock 中显示 Bitwarden 图标。"
-  },
-  "confirmTrayTitle": {
-    "message": "确认隐藏到托盘"
-  },
-  "confirmTrayDesc": {
-    "message": "停用此设置也将停用其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "复制安全码",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "复制私钥"
-  },
-  "copyPublicKey": {
-    "message": "复制公钥"
-  },
-  "copyFingerprint": {
-    "message": "复制指纹"
   },
   "cardNumber": {
     "message": "卡号"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "退出"
   },
-  "showHide": {
-    "message": "显示 / 隐藏",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "显示",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "隐藏到托盘"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "偏好设置"
-  },
-  "enableMenuBar": {
-    "message": "显示菜单栏图标"
-  },
-  "enableMenuBarDesc": {
-    "message": "始终显示菜单栏图标。"
   },
   "hideToMenuBar": {
     "message": "隐藏到菜单栏"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求主密码满足以下要求："
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "unsubscribe": {
     "message": "取消订阅"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "您的新密码不能与当前密码相同。"
+  },
+  "hint": {
+    "message": "提示"
   },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "密码库",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
   },
   "rememberEmail": {
     "message": "记住电子邮箱"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "更多"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
   },
+  "discardEditsTitle": {
+    "message": "放弃编辑"
+  },
+  "discardEditsConfirmation": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
+  },
   "discardEdits": {
     "message": "放弃编辑"
   },
-  "discardEditsMessage": {
-    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
-  },
-  "backToEditing": {
-    "message": "返回继续编辑"
+  "keepEditing": {
+    "message": "继续编辑"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"

@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Ваша організація вимагає єдиний вхід (SSO)."
   },
-  "welcomeBack": {
-    "message": "З поверненням"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Встановіть надійний пароль"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
   },
-  "getMasterPasswordHint": {
-    "message": "Отримати підказку для головного пароля"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Продовжити"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Увійти"
   },
-  "logInToBitwarden": {
-    "message": "Увійти в Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введіть код, надісланий вам електронною поштою"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Збій автентифікації ключа доступу"
   },
-  "useADifferentLogInMethod": {
-    "message": "Використати інший спосіб входу"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Очікується взаємодія з ключем безпеки..."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Увійти з головним паролем"
-  },
   "newAroundHere": {
     "message": "Виконуєте вхід вперше?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "Зробити типовим",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Облікові дані успішно збережено!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Ваша організація вимагає видимість е-пошти. Щоб зберегти, приберіть позначку з функції \"Приховати мою адресу е-пошти від отримувачів\"."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Ви не можете імпортувати записи в \"Мої записи\", які є частиною різних збірок"
