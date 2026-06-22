@@ -21,11 +21,8 @@ import {
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
-import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -43,7 +40,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
-import { UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -143,7 +139,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private policyService: InternalPolicyService,
-    private newPolicyService: InternalNewPolicyService,
     private router: Router,
     private toastService: ToastService,
     private logService: LogService,
@@ -440,11 +435,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     // TODO: PM-18269 - evaluate if we can combine this with the
     // password evaluation done in the password login strategy.
     if (this.orgPoliciesFromInvite) {
-      // Since we have retrieved the policies, we can go ahead and set them into state for future use
-      // e.g., the change-password page currently only references state for policy data and
-      // doesn't fallback to pulling them from the server like it should if they are null.
-      await this.setPoliciesIntoState(authResult.userId, this.orgPoliciesFromInvite.policies);
-
       const isPasswordChangeRequired = await this.isPasswordChangeRequiredByOrgPolicy(
         this.orgPoliciesFromInvite.enforcedPasswordPolicyOptions,
       );
@@ -465,10 +455,9 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Checks if the master password meets the enforced policy requirements
    * and if the user is required to change their password.
    *
-   * TODO: This is duplicate checking that we want to only do in the password login strategy.
-   *       Once we no longer need the policies state being set to reference later in change password
-   *       via using the Admin Console's new policy endpoint changes we can remove this. Consult
-   *       PM-23001 for details.
+   * TODO: PM-18269 - this duplicates the evaluation done in PasswordLoginStrategy.
+   * Consolidate so the WeakMasterPassword ForceSetPasswordReason flow is the single
+   * mechanism that drives the redirect to change-password post-login.
    */
   private async isPasswordChangeRequiredByOrgPolicy(
     enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions,
@@ -505,13 +494,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.logService.error(e);
       return false;
     }
-  }
-
-  private async setPoliciesIntoState(userId: UserId, policies: Policy[]): Promise<void> {
-    const policiesData: { [id: string]: PolicyData } = {};
-    policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
-    await this.policyService.replace(policiesData, userId);
-    await this.newPolicyService.replace(policiesData, userId);
   }
 
   protected async startAuthRequestLogin(): Promise<void> {

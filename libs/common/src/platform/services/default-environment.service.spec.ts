@@ -232,6 +232,22 @@ describe("EnvironmentService", () => {
       // Must NOT return "https://send.bitwarden.com/#/" (cloud fallback)
       expect(env.getSendUrl()).toBe("https://vault.myserver.com/#/send/");
     });
+
+    it("getScimUrl falls back to webVault when only webVault is configured (regression)", async () => {
+      // Regression: self-hosted user sets only webVault (no base, no scim).
+      // getScimUrl() must use the self-hosted webVault, not the Bitwarden cloud scim URL.
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.webVault = "https://vault.myserver.com";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
+
+      await switchUser(testUser);
+
+      const env = await firstValueFrom(sut.environment$);
+
+      expect(env.getWebVaultUrl()).toBe("https://vault.myserver.com");
+      // Must NOT return "https://scim.bitwarden.com/v2" (cloud fallback)
+      expect(env.getScimUrl()).toBe("https://vault.myserver.com/scim/v2");
+    });
   });
 
   describe("without user", () => {
