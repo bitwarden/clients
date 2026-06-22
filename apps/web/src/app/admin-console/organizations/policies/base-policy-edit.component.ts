@@ -89,11 +89,6 @@ export abstract class BasePolicyEditDefinition {
   warningKey?: string;
 
   /**
-   * @deprecated No longer read by the drawer template. The cancel button is always hidden in drawers.
-   */
-  hideCancelButton?: boolean;
-
-  /**
    * Optional drawer-specific configuration for this policy.
    * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
    * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
