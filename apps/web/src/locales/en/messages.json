@@ -7072,15 +7072,6 @@
     "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendRestrictSendTypeTextAndFile": {
-    "message": "Text and file"
-  },
-  "sendRestrictSendTypeTextOnly": {
-    "message": "Text"
-  },
-  "sendRestrictSendTypeFileOnly": {
-    "message": "File"
-  },
   "sendOptions": {
     "message": "Send options",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
