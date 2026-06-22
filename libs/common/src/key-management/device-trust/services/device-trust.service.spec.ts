@@ -9,7 +9,6 @@ import {
   UserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -22,6 +21,7 @@ import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices
 import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
 import { DeviceType } from "../../../enums";
+import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";

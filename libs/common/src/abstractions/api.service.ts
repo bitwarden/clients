@@ -1,13 +1,13 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
+
+import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-
-import { OrganizationConnectionType } from "../admin-console/enums";
+} from "../admin-console/models/collections";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";

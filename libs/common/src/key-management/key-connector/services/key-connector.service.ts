@@ -8,9 +8,6 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LogoutReason,
 } from "@bitwarden/auth/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -26,11 +23,13 @@ import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../../admin-console/enums";
 import { Organization } from "../../../admin-console/models/domain/organization";
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { TokenService } from "../../../auth/abstractions/token.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { KeysRequest } from "../../../models/request/keys.request";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-sdk.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -43,6 +42,7 @@ import { InternalMasterPasswordServiceAbstraction } from "../../master-password/
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 import { KeyConnectorUserKeyRequest } from "../models/key-connector-user-key.request";
+import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
 import { SetKeyConnectorKeyRequest } from "../models/set-key-connector-key.request";
 
 export const USES_KEY_CONNECTOR = new UserKeyDefinition<boolean | null>(

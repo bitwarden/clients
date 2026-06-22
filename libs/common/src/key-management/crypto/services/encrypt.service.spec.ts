@@ -1,16 +1,16 @@
 import { mockReset, mock } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { makeStaticByteArray } from "../../../../spec";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { EncryptionType } from "../../../platform/enums";
+import { Utils } from "../../../platform/misc/utils";
+import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CryptoFunctionService } from "../abstractions/crypto-function.service";
+import { EncString } from "../models/enc-string";
 
 import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 

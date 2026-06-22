@@ -16,12 +16,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
-import {
-  ChangePasswordService,
-  DefaultChangePasswordService,
-} from "@bitwarden/angular/auth/password-management/change-password";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -433,6 +427,12 @@ import {
 } from "@bitwarden/vault-export-core";
 
 import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
+import { DefaultDeviceManagementComponentService } from "../auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "../auth/device-management/device-management-component.service.abstraction";
+import {
+  ChangePasswordService,
+  DefaultChangePasswordService,
+} from "../auth/password-management/change-password";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";

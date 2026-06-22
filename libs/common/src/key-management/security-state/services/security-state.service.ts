@@ -1,7 +1,6 @@
 import { map, Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { UserId } from "../../../types/guid";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
 import { SignedSecurityState } from "../../types";
 import { SecurityStateService } from "../abstractions/security-state.service";

@@ -8,14 +8,14 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+
+import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
+import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-
-import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { OrganizationConnectionType } from "../admin-console/enums";
+} from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
