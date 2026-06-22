@@ -94,20 +94,19 @@
       (blur)="handleBlur()"
     ></bit-multi-select>
     <bit-hint>{{ hint }}</bit-hint>
+    <div class="tw-shrink-0" slot="inline-end">
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [loading]="loading"
+        [disabled]="disabled"
+        (click)="addButton()"
+      >
+        {{ "add" | i18n }}
+      </button>
+    </div>
   </bit-form-field>
-
-  <div class="tw-shrink-0 tw-mt-[0.6rem]">
-    <button
-      type="button"
-      bitButton
-      buttonType="secondary"
-      [loading]="loading"
-      [disabled]="disabled"
-      (click)="addButton()"
-    >
-      {{ "add" | i18n }}
-    </button>
-  </div>
 </ng-template>
 
 <ng-template #spinner>
