@@ -28,8 +28,6 @@ import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
 
 describe("DefaultOrganizationInviteService", () => {

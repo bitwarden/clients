@@ -1,11 +1,12 @@
 import { firstValueFrom, Observable } from "rxjs";
 
-import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../../admin-console/enums";
-import { EnvironmentService } from "../../../platform/abstractions/environment.service";
-import { LogService } from "../../../platform/abstractions/log.service";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { GlobalState, SingleUserState, StateProvider } from "../../../platform/state";
-import { UserId } from "../../../types/guid";
 import {
   SsoLoginServiceAbstraction,
   SsoRequiredCacheEntry,

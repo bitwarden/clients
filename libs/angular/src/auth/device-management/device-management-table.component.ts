@@ -9,6 +9,7 @@ import {
   SimpleChanges,
 } from "@angular/core";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DevicePendingAuthRequest } from "@bitwarden/common/auth/abstractions/devices/responses/device.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
@@ -20,8 +21,6 @@ import {
   TableDataSource,
   TableModule,
 } from "@bitwarden/components";
-
-import { JslibModule } from "../../jslib.module";
 
 import { DeviceDisplayData } from "./device-management.component";
 import { recentlyActiveSortFn } from "./utils/device-sort.utils";

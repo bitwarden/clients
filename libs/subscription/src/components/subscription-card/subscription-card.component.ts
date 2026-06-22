@@ -14,9 +14,8 @@ import {
   BitwardenIcon,
 } from "@bitwarden/components";
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
+import { BitwardenSubscription, SubscriptionStatuses } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { BitwardenSubscription, SubscriptionStatuses } from "../..";
 
 export const SubscriptionCardActions = {
   ContactSupport: "contact-support",

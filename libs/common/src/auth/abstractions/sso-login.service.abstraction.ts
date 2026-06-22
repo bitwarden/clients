@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "../../types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 
 /**
  * The `email` and `webVaultUrl` combo of a user who is required to sign in with SSO.

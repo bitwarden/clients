@@ -2,8 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule } from "@bitwarden/components";
-
-import { Discount, DiscountBadgeComponent, DiscountTypes } from "../..";
+import { Discount, DiscountBadgeComponent, DiscountTypes } from "@bitwarden/pricing";
 
 export default {
   title: "Billing/Discount Badge",

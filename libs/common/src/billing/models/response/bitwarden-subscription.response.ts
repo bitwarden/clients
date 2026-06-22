@@ -1,3 +1,6 @@
+import { CartResponse } from "@bitwarden/common/billing/models/response/cart.response";
+import { StorageResponse } from "@bitwarden/common/billing/models/response/storage.response";
+import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { Cart } from "@bitwarden/pricing";
 import {
   BitwardenSubscription,
@@ -5,11 +8,6 @@ import {
   SubscriptionStatus,
   SubscriptionStatuses,
 } from "@bitwarden/subscription";
-
-import { BaseResponse } from "../../../models/response/base.response";
-
-import { CartResponse } from "./cart.response";
-import { StorageResponse } from "./storage.response";
 
 export class BitwardenSubscriptionResponse extends BaseResponse {
   status: SubscriptionStatus;

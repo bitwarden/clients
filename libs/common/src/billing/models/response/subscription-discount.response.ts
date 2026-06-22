@@ -1,5 +1,5 @@
-import { BaseResponse } from "../../../models/response/base.response";
-import { DiscountTierType } from "../../enums";
+import { DiscountTierType } from "@bitwarden/common/billing/enums";
+import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
 export interface SubscriptionDiscount {
   stripeCouponId: string;

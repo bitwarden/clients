@@ -1,9 +1,11 @@
 import { Observable } from "rxjs";
 
+import {
+  OrganizationUserConfirmRequest,
+  OrganizationUserBulkResponse,
+} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-
-import { OrganizationUserConfirmRequest, OrganizationUserBulkResponse } from "../..";
 
 export abstract class OrganizationUserService {
   /**

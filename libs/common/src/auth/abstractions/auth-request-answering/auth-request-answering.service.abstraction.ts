@@ -1,8 +1,7 @@
 import { Observable } from "rxjs";
 
+import { SystemNotificationEvent } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UserId } from "@bitwarden/user-core";
-
-import { SystemNotificationEvent } from "../../../platform/system-notifications/system-notifications.service";
 
 export abstract class AuthRequestAnsweringService {
   /**

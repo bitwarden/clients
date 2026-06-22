@@ -2,14 +2,15 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, from, zip } from "rxjs";
 
-import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "../../../admin-console/models/domain/organization";
-import { AccountService } from "../../../auth/abstractions/account.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { getUserId } from "../../../auth/services/account.service";
 import { StateProvider } from "../../../platform/state";
-import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "../abstractions/event-collection.service";

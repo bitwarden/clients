@@ -1,4 +1,4 @@
-import { UserId } from "../../../types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 
 export abstract class ChangeEmailService {
   /**
