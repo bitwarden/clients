@@ -83,6 +83,7 @@ export default tseslint.config(
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
       "@bitwarden/platform/no-page-script-url-leakage": "error",
+      "@bitwarden/platform/no-unawaited-using-return": "error",
       "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
@@ -636,6 +637,17 @@ export default tseslint.config(
         "@bitwarden/ui",
         "@bitwarden/vault",
       ]),
+    },
+  },
+
+  // Within a package, import sibling code via relative paths rather than the package's own
+  // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
+  // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
+  // TODO: change to "error" once existing self-alias imports are converted (run `eslint --fix`).
+  {
+    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    rules: {
+      "@bitwarden/platform/no-self-package-import": "off",
     },
   },
 

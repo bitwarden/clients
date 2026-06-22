@@ -36,7 +36,7 @@
     "message": "SSH キー"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "銀行口座"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
@@ -48,28 +48,40 @@
     "message": "Personal info"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要なテキスト"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "サーバーのログイントークン"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "銀行の詳細"
+  },
+  "typePassport": {
+    "message": "パスポート"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行文書"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "アイテムを整理する"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "共有アイテムを整理する"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "免許証"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "運転免許証または ID"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "追加するアイテムを選択"
   },
   "chooseItemToAddDesc": {
     "message": "Select the item type you want to add to your vault."
@@ -84,7 +96,7 @@
     "message": "保管庫を検索"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "検索をリセット"
   },
   "addItem": {
     "message": "アイテムの追加"
@@ -112,10 +124,10 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "このアイテムを編集する権限がありません"
   },
-  "welcomeBack": {
-    "message": "ようこそ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "このアイテムを移動する組織を選択してください。組織に移動すると、アイテムの所有権がその組織に移行します。 このアイテムが移動された後、あなたはこのアイテムの直接の所有者にはなりません。"
@@ -127,63 +139,59 @@
     "message": "アイテムの表示"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "ログインを表示",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "カードを表示",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "ID を表示",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "メモを表示",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "銀行口座を表示",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "免許証を表示",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "パスポートを表示",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "新規ログイン",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "新規カード",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "新しい識別子",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "新規メモ",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "新しい銀行口座",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
@@ -253,7 +261,7 @@
     "message": "Hide text by default"
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "閲覧者にメールアドレスを見せないようにします。"
   },
   "limitSendViews": {
     "message": "Limit views"
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "パスポート番号"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "免許証番号"
@@ -838,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "長さ"
   },
@@ -1011,8 +1064,8 @@
   "logIn": {
     "message": "ログイン"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden にログイン"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "メールアドレスに送信されたコードを入力してください"
@@ -1120,9 +1173,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "アカウントのメールアドレスを入力すると、パスワードのヒントが送信されます"
   },
-  "getMasterPasswordHint": {
-    "message": "マスターパスワードのヒントを取得する"
-  },
   "emailRequired": {
     "message": "メールアドレスは必須項目です。"
   },
@@ -1180,6 +1230,10 @@
   },
   "noItemsInList": {
     "message": "表示するアイテムがありません"
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "確認コードをメールに送信"
@@ -1341,6 +1395,9 @@
   },
   "iconsUrl": {
     "message": "アイコンサーバー URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "環境 URL を保存しました。"
@@ -1629,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "トレイアイコンに最小化"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "ウインドウを最小化するとき、システムトレイにアイコンを表示するようにします。"
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "メニューバーに最小化"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "ウインドウを最小化するとき、メニューバーにアイコンを表示するようにします。"
-  },
-  "enableCloseToTray": {
-    "message": "トレイアイコンへ閉じる"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "ウインドウを閉じたとき、システムトレイにアイコンを表示するようにします。"
-  },
-  "enableCloseToMenuBar": {
-    "message": "閉じてメニューバーに表示"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "ウインドウを閉じたとき、メニューバーにアイコンを表示するようにします。"
-  },
-  "enableTray": {
-    "message": "トレイアイコンの有効化"
-  },
-  "enableTrayDesc": {
-    "message": "システムトレイにアイコンを常に表示します。"
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "ログイン時に自動的に起動"
   },
   "openAtLoginDesc": {
     "message": "Bitwarden デスクトップアプリケーションをログイン時に自動的に起動します。"
-  },
-  "alwaysShowDock": {
-    "message": "常にドックに表示"
-  },
-  "alwaysShowDockDesc": {
-    "message": "メニューバーに最小化した場合でも、Bitwarden アイコンを表示します。"
-  },
-  "confirmTrayTitle": {
-    "message": "トレイの無効化の確認"
-  },
-  "confirmTrayDesc": {
-    "message": "この設定を無効にすると、他のすべてのトレイ関連設定も無効になります。"
   },
   "language": {
     "message": "Language"
@@ -1908,6 +1932,31 @@
   "selectAll": {
     "message": "すべて選択"
   },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
+  },
   "zoomIn": {
     "message": "拡大"
   },
@@ -2044,9 +2093,9 @@
   "exit": {
     "message": "終了"
   },
-  "showHide": {
-    "message": "表示 / 非表示",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "トレイに隠す"
@@ -2229,6 +2278,12 @@
   "deleteAccountWarning": {
     "message": "アカウントを恒久的に削除します。元に戻すことはできません。"
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "アカウントを削除できません"
   },
@@ -2243,12 +2298,6 @@
   },
   "preferences": {
     "message": "設定"
-  },
-  "enableMenuBar": {
-    "message": "メニューバーアイコンを有効化"
-  },
-  "enableMenuBarDesc": {
-    "message": "メニューバーに常にアイコンを表示します。"
   },
   "hideToMenuBar": {
     "message": "メニューバーに隠す"
@@ -2494,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden からメールでアドバイスやお知らせ、リサーチの機会を受け取りましょう。"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "配信停止"
@@ -2539,9 +2588,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "残念ながらお使いの Microsoft Store のバージョンではブラウザの統合に対応していません。"
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "残念ながら、Linux バージョンではブラウザー統合は現在サポートされていません。"
-  },
   "enableHardwareAcceleration": {
     "message": "ハードウェアアクセラレーションを使用する"
   },
@@ -2583,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "新しいパスワードを現在のパスワードと同じにすることはできません。"
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "パスワードのヒントをパスワードと同じにすることはできません。"
@@ -3358,9 +3407,6 @@
     "message": "保管庫",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "マスターパスワードでログイン"
-  },
   "rememberEmail": {
     "message": "メールアドレスを保存"
   },
@@ -3805,6 +3851,9 @@
   },
   "multipleInputEmails": {
     "message": "1つ以上のメールアドレスが無効です"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "inputTrimValidator": {
     "message": "値を空白のみにしないでください。",
@@ -4670,6 +4719,10 @@
   "invalidShortcut": {
     "message": "Invalid shortcut"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4867,6 +4920,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5001,7 +5057,7 @@
     "message": "Anyone with a password set by you"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "表示できる人"
   },
   "specificPeople": {
     "message": "Specific people"
@@ -5030,6 +5086,17 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -5050,6 +5117,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank name"
@@ -5088,6 +5158,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -5100,6 +5173,15 @@
   "copyIban": {
     "message": "Copy IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
     "message": "Copy first name"
   },
@@ -5111,6 +5193,9 @@
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5139,21 +5224,20 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5173,7 +5257,7 @@
     "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -5188,6 +5272,24 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "License details"
@@ -5230,5 +5332,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

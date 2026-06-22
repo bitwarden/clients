@@ -40,6 +40,7 @@ export type AutofillExtensionMessageHandlers = {
   collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
   applyTargetedFields: ({ message }: AutofillExtensionMessageParam) => void;
+  clearTargetingRulesCache: () => void;
   startAutofillMonitors: () => void;
   stopAutofillMonitors: () => void;
 };

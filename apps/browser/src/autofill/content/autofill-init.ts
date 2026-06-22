@@ -35,6 +35,7 @@ class AutofillInit implements AutofillInitInterface {
     fillForm: ({ message }) => (this.isMonitoring ? this.fillForm(message) : undefined),
     applyTargetedFields: ({ message }) =>
       this.isMonitoring ? this.applyTargetedFields(message) : undefined,
+    clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
     startAutofillMonitors: () => this.startMonitoring(),
     stopAutofillMonitors: () => this.stopMonitoring(),
   };
@@ -214,6 +215,15 @@ class AutofillInit implements AutofillInitInterface {
     return this.collectAutofillContentService.applyExternalTargetedFields(
       message.iframeTargetedFields ?? [],
     );
+  }
+
+  /**
+   * Drops cached targeting rules in this frame and re-collects page details so
+   * the background's `pageDetailsForTab` is repopulated with the new strategy.
+   */
+  private handleClearTargetingRulesCache(): void {
+    this.collectAutofillContentService.clearCachedTargetingRules();
+    void this.collectPageDetails({ command: "collectPageDetails", sender: "autofillInit" });
   }
 
   /**
