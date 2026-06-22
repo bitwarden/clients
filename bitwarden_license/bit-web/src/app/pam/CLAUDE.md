@@ -1,57 +1,156 @@
 # PAM web UI (`bitwarden_license/bit-web/src/app/pam`)
 
-Commercial home for the PAM access-rules admin UI: the list, the routed
-create/edit page, and the IP-allowlist editor. Gated behind `FeatureFlag.Pam`
-(`pm-37044-pam-v-0`).
+The web vault's Privileged Access Management surfaces — member request flows,
+the approver inbox, admin access-rule CRUD, and the governance dashboard. This is
+the **commercial home** for PAM: the Angular UI, the page/gate/reloader services,
+**and** the concrete `Default*` implementations (`services/`) + the cipher-lease
+banner. It **consumes** `@bitwarden/pam` (the OSS contract layer — abstractions,
+DTOs, helpers); the domain model, state machines, API client contract, and the
+`pam.allium` spec are documented in **`libs/pam/CLAUDE.md` — read that first**.
+Everything here is gated behind `FeatureFlag.Pam` (`pm-37044-pam-v-0`).
 
-## Surfaces
+Because `apps/web` (OSS) may not import licensed code, anything OSS needs to
+render PAM is reached through a seam — see **"OSS seams"** below.
 
-- `abstractions/` / `helpers/` — framework-agnostic contract layer: domain
-  types and error helpers (`abstractions/access-rule.ts`), the abstract
-  `AccessRuleSdkService` contract (`abstractions/access-rule-sdk.service.ts`),
-  and pure helpers (`helpers/`). Re-exported via `index.ts`. No Angular APIs
-  here; keep it that way so this stays unit-testable without a TestBed. Was
-  its own package (`@bitwarden/bit-pam`) — folded in here since `bit-web` was
-  its only consumer.
-- `access-rules/` — list (`access-rules.component` + `.service`) and the
-  routed create/edit page (`access-rule-edit.component`), at `access-rules`,
-  `access-rules/new`, `access-rules/:accessRuleId`.
-- `access-rule-edit/ip-allowlist/` — the `ip_allowlist` condition's CIDR editor
-  plus its validators (delegates to the SDK's `is_valid_cidr`). The editor is a
-  thin view over a `FormArray` owned by the edit page's form group (passed in via
-  a `cidrArray` input): the array-level validators live on the host control so
-  validity flows through the parent form, and the page disables the array while
-  the condition is off. Per-row CIDR validation rides on each pushed control.
+## Where PAM is mounted (routing)
 
-## CRUD is SDK-served, not HTTP
+Both mount points are registered from **bit-web** (so they only exist in the
+commercial build; Angular falls through bit-web's route trees to OSS for
+non-licensed paths):
 
-Access-rule CRUD goes through the Rust SDK
-(`client.commercial().pam().access_rules()`), never HTTP. `AccessRuleSdkService`
-(`abstractions/access-rule-sdk.service.ts`) is the abstract contract;
-`services/access-rules-sdk.service.ts` composes the SDK client.
+- **End-user**, in `bitwarden_license/bit-web/src/app/app-routing.module.ts`:
+  - `/pam/approver-inbox` → lazy `pam/approver-inbox/approver-inbox.routes.ts`
+  - `/leasing/requests/:id` → `pam/access-request-route` (email deep-link; forwards to the inbox)
+  - both guarded by `canAccessFeature(FeatureFlag.Pam, true, "/vault")`.
+- **Admin**, mounted at `/organizations/:orgId/pam` via bit-web's
+  `admin-console/organizations/organizations-routing.module.ts` → `pam/pam-routing.module.ts`:
+  - `access-rules` and `approver-inbox` → `organizationPermissionsGuard((o) => o.canManageAccessRules)`
+  - `governance` → `organizationPermissionsGuard(canAccessOrgAdmin)`
 
-## Error shape
+The approver-inbox is a tabbed shell (`approver-inbox.component`) with routed
+children **approvals / my-requests / audit-log**. The shell **provides**
+`ApproverInboxService` and `MyAccessRequestsService` so all tabs share one loaded
+instance and stay mounted across tab switches.
 
-`abstractions/access-rule.ts` defines `AccessRuleError` — a flat,
-hand-written shape (`{ name: "AccessRuleError", variant, message }`) mirroring
-the SDK's wasm-bindgen error convention. Use `accessRuleErrorMessage()` /
-`isAccessRuleNotFound()` to interpret it; never treat it as `ErrorResponse`.
+## Surfaces (components)
 
-## `export type` matters
+- **Member-facing**: `cipher-lease-badge/` + `vault-row-lease-badge/` (vault-row
+  countdown / "requires approval" pills), the `cipher-lease-banner/` (injected
+  into the cipher view), `my-access-requests/` (own requests + active leases;
+  Start / Cancel / End-access). The user nav entry is `pam-user-nav-slot` — an
+  **OSS-resident** slot in `apps/web/src/app/pam/` (see OSS seams).
+- **Approver**: `approver-inbox/` — `approvals` (decide via `decide-dialog`),
+  `audit-log` (managed history + own requests, with revoke / cancel-approval),
+  `inbox-request-filter.ts` (drops timed-out rows), `approval-row.ts` /
+  `history-row.ts` (presentation models + factories).
+- **Admin**: `access-rules/` (CRUD; `access-rule-dialog`, `access-rules.service`)
+  with `access-rule-editor/ip-allowlist/` (CIDR `ControlValueAccessor` +
+  validators in `cidr.validator.ts`), `governance-dashboard/` (+ `kill-switch/`),
+  `collection-access-rule-callout/` (shown in the collection-edit dialog via the
+  `COLLECTION_ACCESS_RULE_CALLOUT` seam). The org nav group is `pam-org-nav-slot`
+  — an **OSS-resident** slot in `apps/web/src/app/pam/` (see OSS seams).
 
-`abstractions/access-rule.ts` re-exports `AccessCondition`,
-`AccessRuleAddEditRequest`, and `AccessRuleView` from `@bitwarden/sdk-internal`
-using `export type` (not `export`) — this is type-only and erased at compile
-time, so jest never resolves the wasm SDK package running this directory's
-unit tests. Keep new re-exports of SDK shapes type-only for the same reason.
+> **Governance dashboard + kill switch are mock-only today.** Their API methods
+> (`getGovernanceSummary`, `bulkRevokeLeases`, `unblockNewLeases`,
+> `isLeasingFrozen`) `Promise.reject` in `DefaultPamApiService` (see
+> `libs/pam/CLAUDE.md`). The components are real but only function under the mock.
 
-## Routing and DI
+## The cipher-open → banner → reloader flow (the vault seam)
 
-`pam-routing.module.ts` guards every route with `canAccessFeature(FeatureFlag.Pam)`;
-`access-rules` additionally requires `organizationPermissionsGuard((org) =>
-org.canManageAccessRules)`. Mounting this module (`organizations-routing.module.ts`)
-and calling `providePam()` from `app.module.ts` happen elsewhere.
+`libs/vault` never imports PAM. The integration is three injection tokens whose
+implementations PAM registers in `provide-pam.ts`:
 
-`provide-pam.ts` binds `AccessRuleSdkService` (`./index`) to
-`AccessRulesSdkService`, which serves CRUD via the Rust SDK's
-`commercial().pam().access_rules()` client — never HTTP.
+1. **`CIPHER_OPEN_GATE`** (token in `vault/individual-vault/cipher-open-gate.ts`;
+   impl `cipher-open-gate.service.ts`). The vault list calls `check(cipher,
+userId)` when a row is opened. Returns `"open"` (partial view — not gated, flag
+   off, or no active lease), `{ kind: "openWith", cipher }` (full cipher fetched
+   under an active lease), or `"handled"`. **The gate never auto-activates an
+   approved request** — with no active lease it opens the partial view and lets
+   the banner drive the request flow.
+2. **`CIPHER_VIEW_BANNER`** (`libs/vault/src/tokens/`) = `CipherLeaseBannerComponent`,
+   rendered by `cipher-view.component.ts` via `NgComponentOutlet`. The banner owns
+   every inline request interaction: no lease → "Request access" (fold-out form),
+   pending → "Cancel request", approved → "Start access", active → countdown +
+   "Extend" / "End access".
+3. **`GATED_CIPHER_RELOADER`** (`libs/vault/src/tokens/`; impl
+   `gated-cipher-reloader.service.ts`). `vault-item-dialog.component.ts` subscribes
+   to `fullCipher$(cipherId)`, which emits the full cipher once a lease lands and
+   `null` when none — so the dialog **swaps partial → full in place** and
+   **re-locks** when the lease ends. The leased cipher is never cached.
+
+## DI wiring
+
+`provide-pam.ts` exports `providePam(): SafeProvider[]`, imported once by the
+commercial **`bit-web/app.module.ts`** (not OSS `core.module.ts` — OSS must not
+reference licensed providers). It binds `PamApiService` + `AccessEventService`
+(real or mock, chosen at factory time), the three vault tokens above,
+`LeasedCipherFetcherService`, and the OSS-seam bindings (next section):
+`PamInboxBadgeService → ApproverInboxRequestsService`, `COLLECTION_ACCESS_RULE_CALLOUT`,
+`VAULT_ROW_LEASE_BADGE`.
+
+## OSS seams (how OSS renders PAM without importing licensed code)
+
+`apps/web` and `libs/**` can't import this directory. Five seam points let OSS
+hosts surface PAM, all bound in `provide-pam.ts`:
+
+- **Vault cipher view** — `CIPHER_OPEN_GATE` (token in apps/web),
+  `CIPHER_VIEW_BANNER` + `GATED_CIPHER_RELOADER` (tokens in `libs/vault`). See the
+  flow section above.
+- **Nav badge** — the two nav-slot components **stay in `apps/web/src/app/pam/`**
+  (org + user layouts) and inject the OSS abstraction `PamInboxBadgeService`
+  (`@bitwarden/pam`), bound here to `ApproverInboxRequestsService.count$`.
+- **Collection callout** — `COLLECTION_ACCESS_RULE_CALLOUT` (token next to the
+  collection-dialog in apps/web). The dialog renders the bound component via
+  `*ngComponentOutlet`; bound here to `CollectionAccessRuleCalloutComponent`.
+- **Vault-row badge** — `VAULT_ROW_LEASE_BADGE` (token next to vault-items in
+  apps/web). `vault-cipher-row` renders it via `*ngComponentOutlet`; bound here to
+  `VaultRowLeaseBadgeComponent`.
+
+In an OSS-only build (no bit-web) every seam is simply unprovided, so PAM is
+absent and the hosts render normally.
+
+## Service patterns to follow
+
+- **Singleton vs page-scoped.** `ApproverInboxRequestsService` is a **root
+  singleton** — the single source of pending inbox requests, multicast to nav
+  badges (`count$`) and the page (`requests$`); fetch once, refresh on push /
+  mutation / sync-complete. `ApproverInboxService`, `MyAccessRequestsService`, and
+  `AccessRulesService` are **page-scoped** (provided at their route) and own
+  projection + optimistic edits.
+- **Optimistic updates with rollback.** Mutating actions remove/modify the row
+  immediately, then roll back and re-throw on API failure so the component can
+  toast. Re-entrancy is guarded by a `Set<id>` of in-flight ids.
+- **Name resolution stays zero-knowledge.** `access-request-name-resolver.service.ts`
+  fills cipher/collection names from **already-decrypted local vault state** — it
+  never sends data to the server to resolve names. Only display names and
+  favicon `CipherView`s flow through; no other vault data. `applyCollectionNames$`
+  back-fills names reactively as vault state warms, independent of load order.
+- **Live countdowns** tick a `nowMs` signal updated **outside the Angular zone**
+  (the write still triggers change detection) to avoid blocking `whenStable()`.
+- Components are standalone + `OnPush` + signals; observable interop via
+  `toSignal()`. Dialogs use the `DIALOG_DATA` / `DialogRef` / static `.open()`
+  factory pattern. Tailwind classes need the `tw-` prefix.
+
+## Feature flag
+
+`FeatureFlag.Pam = "pm-37044-pam-v-0"`. **Defaulted `TRUE` in this worktree
+(demo) — revert to `FALSE` before merging upstream.** Components degrade silently
+when the flag is off (render nothing); routes redirect to `/vault`.
+
+## Mock layer (demo scaffolding)
+
+Enabled by `localStorage.setItem("pam-mock", "true")` — `provide-pam.ts` checks
+`PamMockConfig.isEnabled()` at DI factory time and swaps in `MockPamApiService` +
+`MockAccessEventService`. `pam-mock-store.ts` is an in-memory state machine
+(auto-decides after a delay, ~20% auto-deny, lazy expiry sweep, simulates the
+freeze / kill switch); `mock-access-event.service.ts` bridges store events into
+the push stream. The mock is the only way to exercise governance / kill-switch
+today.
+
+## i18n
+
+~240 keys, prefixed `pam*` (plus a few `accessRule*`), in
+`apps/web/src/locales/en/messages.json`. The UI says "access request" /
+"approval", not "lease". When adding copy, follow the existing `pam`-prefix
+convention; per `libs/pam/README.md` the collection-side toggle deliberately
+keeps `pamLeasing*` keys while rule-shape keys are `pamAccessRule*`.

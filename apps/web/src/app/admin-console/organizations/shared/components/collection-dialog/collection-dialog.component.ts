@@ -58,7 +58,6 @@ import {
 import { Vfo1I18nPipe, Vfo1IconPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
-import { CollectionAccessRuleCalloutComponent } from "../../../../../pam/collection-access-rule-callout/collection-access-rule-callout.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -73,6 +72,7 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -91,14 +91,7 @@ type ButtonType = (typeof ButtonType)[keyof typeof ButtonType];
 @Component({
   selector: "app-collection-dialog",
   templateUrl: "collection-dialog.component.html",
-  imports: [
-    SharedModule,
-    AccessSelectorModule,
-    SelectModule,
-    Vfo1IconPipe,
-    Vfo1I18nPipe,
-    CollectionAccessRuleCalloutComponent,
-  ],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, Vfo1IconPipe, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CollectionDialogComponent implements OnInit {
@@ -117,6 +110,12 @@ export class CollectionDialogComponent implements OnInit {
   private readonly configService = inject(ConfigService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  // PAM collection access-rule callout. Bound in commercial code via
+  // COLLECTION_ACCESS_RULE_CALLOUT; unprovided (null) in OSS-only builds.
+  protected readonly accessRuleCallout = inject(COLLECTION_ACCESS_RULE_CALLOUT, {
+    optional: true,
+  });
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],

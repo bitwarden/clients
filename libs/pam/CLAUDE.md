@@ -1,11 +1,14 @@
 # `@bitwarden/pam` — Privileged Access Management (credential leasing)
 
-This library is the framework-agnostic core of PAM: the domain types, the typed
-API client (`PamApiService`), pure helpers, and the one shared UI piece (the
-cipher-lease banner). The **web UI that consumes it** lives in
-`apps/web/src/app/pam/` — see that directory's `CLAUDE.md` for surfaces, routing,
-and DI wiring. The whole feature is gated behind the `pm-37044-pam-v-0`
-(`FeatureFlag.Pam`) flag.
+This library is the framework-agnostic **contract** layer of PAM: the domain
+types, the abstract API client (`PamApiService`), the access-event and nav-badge
+abstractions, the wire DTOs, and pure helpers. It deliberately holds **no
+implementations and no components** — PAM is a commercial feature, so the
+concrete `Default*` services, the cipher-lease banner, and the entire web UI live
+in **`bitwarden_license/bit-web/src/app/pam/`** (libs may not depend on licensed
+code, so the impls live there and consume these abstractions). See that
+directory's `CLAUDE.md` for surfaces, routing, and DI wiring. The whole feature
+is gated behind the `pm-37044-pam-v-0` (`FeatureFlag.Pam`) flag.
 
 ## Read the spec first: `pam.allium`
 
@@ -71,8 +74,9 @@ server-side. Server tests: `dotnet test test/Core.Test/Core.Test.csproj --filter
 ## API client — `PamApiService`
 
 Abstract class: `src/abstractions/pam-api.service.ts`. HTTP impl:
-`src/services/default-pam-api.service.ts`. Routes (all under the standard API
-base; `send()` is the thin wrapper):
+`bitwarden_license/bit-web/src/app/pam/services/default-pam-api.service.ts`
+(commercial). Routes (all under the standard API base; `send()` is the thin
+wrapper):
 
 | Method & path                                                    | Purpose                                                                                                                        |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -121,15 +125,21 @@ human (non-automatic) decision for display.
 ## Library layout
 
 - `abstractions/` — interfaces, enums, and `responses/` DTOs (server → client).
-- `services/` — `Default*` implementations + `requests/` (client → server DTOs).
-  `LeasedCipherFetcherService` wraps the deprecated leased-cipher fetch into a
-  transient `Cipher`; `DefaultAccessEventService` filters the app-wide push stream
-  to `NotificationType.RefreshAccessRequest` (29) and exposes `accessChanged$()`.
+  Includes the abstract `PamApiService`, `AccessEventService`, and
+  `PamInboxBadgeService` (the OSS nav-badge seam, implemented in commercial code).
+- `services/requests/` — `requests/` (client → server DTOs) only. The `Default*`
+  service implementations **moved to commercial**
+  (`bitwarden_license/bit-web/src/app/pam/services/`): `DefaultPamApiService`,
+  `DefaultAccessEventService` (filters the app-wide push stream to
+  `NotificationType.RefreshAccessRequest` (29) and exposes `accessChanged$()`),
+  and `LeasedCipherFetcherService` (wraps the deprecated leased-cipher fetch into
+  a transient `Cipher`).
 - `helpers/` — **pure, framework-free** functions (formatting, filtering,
   validation, lease-window math). Each has a `.spec.ts` alongside. Keep them free
   of Angular/DOM so they stay CLI-shareable.
-- `components/cipher-lease-banner/` — the only component in the library (rendered
-  in the vault cipher view via the `CIPHER_VIEW_BANNER` token).
+- The cipher-lease banner component also lives in commercial code now
+  (`bit-web/.../pam/cipher-lease-banner/`, bound to the `CIPHER_VIEW_BANNER`
+  token); this library holds no components.
 
 ## Conventions & invariants for this library
 

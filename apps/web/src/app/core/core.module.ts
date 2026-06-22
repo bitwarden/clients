@@ -179,7 +179,6 @@ import { WebLockComponentService } from "../key-management/lock/services/web-loc
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
 import { WebSessionTimeoutTypeService } from "../key-management/session-timeout/services/web-session-timeout-type.service";
 import { WebBiometricsService } from "../key-management/web-biometric.service";
-import { providePam } from "../pam/provide-pam";
 import { WebIpcService } from "../platform/ipc/web-ipc.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
@@ -565,7 +564,6 @@ const safeProviders: SafeProvider[] = [
       LegacyCompatKeyService,
     ],
   }),
-  ...providePam(),
 ];
 
 @NgModule({
