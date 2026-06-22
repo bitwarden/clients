@@ -16,6 +16,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -70,6 +71,7 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private messagingService: MessagingService,
   ) {}
 
   init() {
@@ -114,6 +116,12 @@ export class InitService {
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);
+
+      // Expose the messaging service on the global window object in development only, so
+      // automation can drive the app, e.g. `window.bitwardenMessagingService.send("openSettings")`.
+      if (ipc.platform.isDev) {
+        (window as any).bitwardenMessagingService = this.messagingService;
+      }
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
         await this.sharedUnlockLeaderService.start();
