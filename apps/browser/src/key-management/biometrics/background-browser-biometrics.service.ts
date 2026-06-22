@@ -1,5 +1,5 @@
-import { combineLatest, timer } from "rxjs";
-import { filter, concatMap } from "rxjs/operators";
+import { BehaviorSubject, combineLatest, EMPTY, timer } from "rxjs";
+import { filter, concatMap, switchMap } from "rxjs/operators";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
@@ -31,6 +31,8 @@ import { NativeMessagingBackground } from "../../background/nativeMessaging.back
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
 
+  private activePollingUser$ = new BehaviorSubject<UserId | null>(null);
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private configService: () => ConfigService,
@@ -44,22 +46,38 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
     // so that there is no wait when used.
-    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$();
-
-    combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
+    this.activePollingUser$
       .pipe(
-        filter(([_, enabled]) => enabled),
-        filter(([_]) => !this.nativeMessagingBackground().connected),
-        concatMap(async () => {
-          try {
-            await this.nativeMessagingBackground().connect();
-            await this.getBiometricsStatus();
-          } catch {
-            // Ignore
+        switchMap((userId) => {
+          if (userId == null) {
+            return EMPTY;
           }
+          return combineLatest([
+            timer(0, this.BACKGROUND_POLLING_INTERVAL),
+            this.biometricStateService.biometricUnlockEnabled$(userId),
+          ]).pipe(
+            filter(([_, enabled]) => enabled),
+            filter(() => !this.nativeMessagingBackground().connected),
+            concatMap(async () => {
+              try {
+                await this.nativeMessagingBackground().connect();
+                await this.getBiometricsStatus();
+              } catch {
+                // Ignore
+              }
+            }),
+          );
         }),
       )
       .subscribe();
+  }
+
+  startPolling(userId: UserId): void {
+    this.activePollingUser$.next(userId);
+  }
+
+  stopPolling(): void {
+    this.activePollingUser$.next(null);
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -128,7 +146,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
               return null;
             }
 
-            await this.biometricStateService.setBiometricUnlockEnabled(true);
+            await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
             await this.keyService.setUserKey(userKey, userId);
             // to update badge and other things
             this.messagingService.send("switchAccount", { userId });
@@ -156,7 +174,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
         try {
           await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
-          await this.biometricStateService.setBiometricUnlockEnabled(true);
+          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;
