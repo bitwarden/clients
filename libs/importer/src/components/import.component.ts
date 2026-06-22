@@ -389,6 +389,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         // Set organizationId for org imports, undefined for personal vault
         this.organizationId = value !== "myVault" ? value : undefined;
 
+        // Clear any previously selected target since folders and collections are not interchangeable
+        // across personal vault and organization destinations.
+        this.formGroup.controls.targetSelector.setValue(null);
+
         // Enable targetSelector for both personal vault (folders) and org vault (collections)
         // Note: The template switches between showing folders vs collections based on organizationId
         this.formGroup.controls.targetSelector.enable();

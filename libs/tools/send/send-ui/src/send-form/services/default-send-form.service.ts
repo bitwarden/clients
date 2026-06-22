@@ -8,12 +8,13 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { LogService } from "@bitwarden/logging";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
 import { SendPolicyService } from "../../services/send-policy.service";
@@ -29,7 +30,6 @@ import { SendForm } from "../send-form-container";
 export class DefaultSendFormService implements SendFormService {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
-  private logService = inject(LogService);
   private formBuilder = inject(FormBuilder);
   private accountService = inject(AccountService);
   private sendApiService = inject(SendApiService);
@@ -46,7 +46,8 @@ export class DefaultSendFormService implements SendFormService {
 
   private readonly _originalSendView = signal<SendView | null>(null);
   readonly originalSendView = this._originalSendView.asReadonly();
-  private updatedSendView: SendView | null = null;
+  private readonly _updatedSendView = signal<SendView | null>(null);
+  readonly updatedSendView = this._updatedSendView.asReadonly();
   private file: File | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
@@ -62,7 +63,7 @@ export class DefaultSendFormService implements SendFormService {
   }
 
   patchSend(updateFn: (current: SendView) => SendView): void {
-    this.updatedSendView = updateFn(this.updatedSendView);
+    this._updatedSendView.set(updateFn(this._updatedSendView()));
   }
 
   setFile(file: File): void {
@@ -76,17 +77,26 @@ export class DefaultSendFormService implements SendFormService {
     });
     this._sendForm.reset();
     this.file = undefined;
-    this.updatedSendView = new SendView();
+    let originalSendView: SendView | null = null;
+    let updatedSendView = new SendView();
     if (this.sendFormConfig.mode === "add") {
-      this._originalSendView.set(null);
-      this.updatedSendView.type = this.sendFormConfig.sendType;
+      updatedSendView.type = this.sendFormConfig.sendType;
+      const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+      if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
+        updatedSendView.authType = AuthType.Password;
+      } else if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
+        updatedSendView.authType = AuthType.Email;
+      }
+      updatedSendView = Object.assign(updatedSendView, this.sendFormConfig.presetSendFields ?? {});
     } else {
       if (!this.sendFormConfig.originalSend) {
         throw new Error("Original send is required for edit or clone mode");
       }
-      this._originalSendView.set(await this.decryptSend(this.sendFormConfig.originalSend));
-      this.updatedSendView = Object.assign(this.updatedSendView, this.originalSendView());
+      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
+      updatedSendView = Object.assign(updatedSendView, originalSendView);
     }
+    this._originalSendView.set(originalSendView);
+    this._updatedSendView.set(updatedSendView);
   }
 
   async submitSendForm() {
@@ -97,7 +107,7 @@ export class DefaultSendFormService implements SendFormService {
       return;
     }
 
-    if (this.updatedSendView?.hideEmail === true) {
+    if (this._updatedSendView()?.hideEmail === true) {
       const disableHideEmail = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
       if (disableHideEmail) {
         this.toastService.showToast({
@@ -112,28 +122,28 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
+    let sendView: SendView;
     try {
       const sendData = await this.sendService.encrypt(
-        this.updatedSendView,
+        this.updatedSendView(),
         this.file,
-        this.updatedSendView.password,
+        this.updatedSendView().password,
         null,
       );
       const newSend = await this.sendApiService.save(sendData);
-      const sendView = await this.decryptSend(newSend);
-      this._originalSendView.set(null);
-      this.updatedSendView = null;
-      this._submitting.set(false);
-      return sendView;
+      sendView = await this.decryptSend(newSend);
     } catch (err) {
-      this.logService.error(err);
-      this.toastService.showToast({
-        message: this.i18nService.t("saveSendEditsFailed"),
-        variant: "error",
-      });
+      // We surface any errors but make sure that the submitting
+      // status signal is set to false before we do
       this._submitting.set(false);
-      return;
+      throw err;
     }
+
+    this._originalSendView.set(null);
+    this._updatedSendView.set(null);
+    this._submitting.set(false);
+
+    return sendView;
   }
 
   sendFormHasEdits() {
@@ -149,8 +159,8 @@ export class DefaultSendFormService implements SendFormService {
     };
     return (
       this.sendForm().touched &&
-      JSON.stringify(this.originalSendView(), replacer) !==
-        JSON.stringify(this.updatedSendView, replacer)
+      JSON.stringify(this._originalSendView(), replacer) !==
+        JSON.stringify(this._updatedSendView(), replacer)
     );
   }
 
@@ -168,6 +178,10 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
+        // Reset the form's touched state so sendFormHasEdits() returns
+        // false after the user discards. Without this, the browser's beforeunload
+        // (in send.component.ts) would still fire when the user tries
+        this._sendForm.markAsUntouched();
         return true;
       } else {
         return false;

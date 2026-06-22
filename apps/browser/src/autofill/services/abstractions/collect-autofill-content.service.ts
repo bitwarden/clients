@@ -18,6 +18,10 @@ interface CollectAutofillContentService {
   autofillFormElements: AutofillFormElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
+  applyExternalTargetedFields(
+    targetedFields: { selector: string; fieldType: string }[],
+  ): Promise<void>;
+  clearCachedTargetingRules(): void;
   destroy(): void;
 }
 

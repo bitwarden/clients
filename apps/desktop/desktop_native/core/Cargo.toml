@@ -22,7 +22,7 @@ aes = { workspace = true }
 anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
-bitwarden-russh = { workspace = true }
+bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
 chacha20poly1305 = { workspace = true }
@@ -32,8 +32,8 @@ interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
 rsa = "=0.9.6"
-sha2 = { workspace = true }
-ssh-key = { workspace = true, features = [
+sha2 = "=0.10.9"
+ssh-key = { version = "=0.6.7", features = [
     "encryption",
     "ed25519",
     "rsa",
@@ -48,7 +48,7 @@ typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-ashpd = { workspace = true }
+ashpd = { workspace = true, features = ["background", "clipboard", "remote_desktop", "screencast"] }
 homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }

@@ -29,16 +29,16 @@
     "message": "Kirjaudu pääsyavaimella"
   },
   "unlockWithPasskey": {
-    "message": "Poista lukitus todentamisavaimella"
+    "message": "Avaa pääsyavaimella"
   },
   "useSingleSignOn": {
     "message": "Käytä kertakirjautumista"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Organisaatiosi vaatii kertakirjautumisen."
   },
-  "welcomeBack": {
-    "message": "Tervetuloa takaisin"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Aseta vahva salasana"
@@ -162,19 +162,22 @@
     "message": "Kopioi yritys"
   },
   "copySSN": {
-    "message": "Kopioi henkilötunnus"
+    "message": "Kopioi sosiaaliturvatunnus"
   },
   "copyPassportNumber": {
     "message": "Kopioi passin numero"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopioi henkilötunnus"
+  },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopioi etunimi"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopioi toinen nimi"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopioi sukunimi"
   },
   "copyLicenseNumber": {
     "message": "Kopioi ajokortin numero"
@@ -211,8 +214,13 @@
     "message": "Täytä",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automaattitäyttö"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automaattitäytä kirjautumistieto"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Syötä tilisi sähköpostiosoite, niin salasanavihjeesi lähetetään sinulle sähköpostitse"
   },
-  "getMasterPasswordHint": {
-    "message": "Pyydä pääsalasanan vihjettä"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Jatka"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Tallenna"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Siirrä"
@@ -580,7 +591,7 @@
     "message": "Arkistossa ei ole kohteita"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Arkistoidut kohteet löytvät täältä, eikä niitä näytetä yleisissä hakutuloksissa ja  automaattitäytön ehdotuksissa."
   },
   "itemArchiveToast": {
     "message": "Kohde arkistoitu"
@@ -718,20 +729,20 @@
     "message": "Arvioi laajennus"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Vianselvitys"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Oletko kohdannut ongelmia?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Lataa ja jaa diagnostiikkaraportti"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwardenin asiakaspalvelulle",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Lataa"
   },
   "browserNotSupportClipboard": {
     "message": "Selaimesi ei tue helppoa leikepöydälle kopiointia. Kopioi kohde manuaalisesti."
@@ -777,7 +788,7 @@
     "message": "Virheellinen pääsalasana"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Virheellinen pääsalasana. Tarkista sähköpostiosoitteesi ja että tilisi on luotu palvelimelle $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -834,10 +845,10 @@
     "message": "Kun järjestelmä lukitaan"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Kun järjestelmää ei käytetä"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "Kun järjestelmä siirtyy lepotilaan"
   },
   "onRestart": {
     "message": "Kun selain käynnistetään uudelleen"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "Kirjaudu"
   },
-  "logInToBitwarden": {
-    "message": "Kirjaudu Bitwardeniin"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Syötä sähköpostitse saamasi koodi"
@@ -1336,7 +1347,16 @@
     "message": "Lisävalinnat"
   },
   "enableFillAssist": {
-    "message": "Use fill assist"
+    "message": "Käytä täyttöapua"
+  },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
   },
   "enableContextMenuItem": {
     "message": "Näytä sisältövalikon valinnat"
@@ -1478,7 +1498,7 @@
     "message": "Uudet suositellut salauksen asetukset parantavat tilisi turvallisuutta. Syötä pääsalasanasi päivittääksesi nyt."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Jatka vahvistamalla henkilöllisyytesi"
   },
   "enterYourMasterPassword": {
     "message": "Syötä pääsalasanasi"
@@ -1689,13 +1709,13 @@
     "message": "Lue suojausavain"
   },
   "readingPasskeyLoading": {
-    "message": "Reading passkey..."
+    "message": "Luetaan pääsyavainta..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Passkey authentication failed"
+    "message": "Pääsyavaintodennus epäonnistui"
   },
-  "useADifferentLogInMethod": {
-    "message": "Käytä vaihtoehtoista kirjautumistapaa"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Odotetaan suojausavaimen aktivointia..."
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "Kuvakepalvelimen URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Palvelinympäristön URL-osoitteet tallennettiin"
   },
@@ -1820,10 +1843,22 @@
     "message": "Poista automaattitäyttö käytöstä"
   },
   "confirmAutofill": {
-    "message": "Vahvista automaattinen täyttö"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "Merkki"
   },
+  "birthDay": {
+    "message": "Syntymäpäivä"
+  },
+  "birthMonth": {
+    "message": "Syntymäkuukausi"
+  },
+  "birthYear": {
+    "message": "Syntymävuosi"
+  },
+  "expirationDay": {
+    "message": "Erääntymisaika"
+  },
   "expirationMonth": {
     "message": "Erääntymiskuukausi"
   },
   "expirationYear": {
     "message": "Erääntymisvuosi"
+  },
+  "issueDay": {
+    "message": "Myöntöpäivä"
+  },
+  "issueMonth": {
+    "message": "Myöntökuukausi"
+  },
+  "issueYear": {
+    "message": "Myöntövuosi"
   },
   "monthly": {
     "message": "kuukausi"
@@ -2095,10 +2151,55 @@
     "message": "Yritys"
   },
   "ssn": {
-    "message": "Henkilötunnus"
+    "message": "Sosiaaliturvatunnus"
   },
   "passportNumber": {
     "message": "Passin numero"
+  },
+  "dateOfBirth": {
+    "message": "Syntymäaika"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Henkilötunnus"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
   },
   "licenseNumber": {
     "message": "Ajokortin numero"
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "typeNote": {
     "message": "Muistiinpano"
   },
@@ -2182,61 +2286,40 @@
     "message": "Server login token"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Järjestele kohteesi"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Järjestele jaetut kohteesi"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Pankkitiedot"
+  },
+  "typePassport": {
+    "message": "Passi"
+  },
+  "passportDetails": {
+    "message": "Passin tiedot"
+  },
+  "passportAdded": {
+    "message": "Passi lisättiin"
+  },
+  "typePassportSubtitle": {
+    "message": "Matkustusasiakirja"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Ajokortti"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "Ajokortti tai henkilöllisyystodistus"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Lisenssin tiedot"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "Myöntänyt osavaltio/provinssi"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Lisenssi luokka"
   },
   "newItemHeaderLogin": {
     "message": "Uusi kirjautumistieto",
@@ -2247,11 +2330,11 @@
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Uusi henkilöllisyys",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Uusi muistio",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
@@ -2259,23 +2342,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Uusi pankkitili",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Uusi lisenssi",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Uusi passi",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Uusi teksti",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Uusi tiedosto",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2287,11 +2370,11 @@
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Muokkaa henkilöllisyyttä",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Muokkaa muistiota",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2299,23 +2382,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Muokkaa pankkitiliä",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Muokkaa lisenssiä",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Muokkaa passia",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Muokkaa tekstiä",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Muokkaa tiedostoa",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2327,11 +2410,11 @@
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Näytä henkilöllisyys",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Näytä muistio",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
@@ -2339,19 +2422,19 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Näytä pankkitili",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Näytä lisenssi",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Näytä passi",
     "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Valitse lisättävä kohde"
   },
   "passwordHistory": {
     "message": "Salasanahistoria"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "Tyhjennä",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Valittu"
+  },
+  "bulkActionsBar": {
+    "message": "Massatoiminnot"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "Tarkasta, onko salasana vuotanut."
@@ -2539,7 +2647,7 @@
     "message": "Heikko pääsalasana"
   },
   "weakMasterPasswordDesc": {
-    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salauslausetta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
+    "message": "Valitsemasi pääsalasana on heikko. Sinun tulisi käyttää vahvaa pääsalasanaa (tai salalausetta) suojataksesi Bitwarden-tilisi kunnolla. Haluatko varmasti käyttää tätä pääsalasanaa?"
   },
   "rotateAccountEncKey": {
     "message": "Also rotate my account's encryption key"
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Uusi pääsalasanasi ei täytä käytännön määrittämiä vaatimuksia."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Vastaanota Bitwardenilta postilaatikkoosi vinkkejä, uutisia ja tutkimusmahdollisuuksia."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Lopeta tilaus"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometristä todennusta ei voida suorittaa. Harkitse pääsalasanan käyttämistä tai uloskirjautumista. Jos tämä jatkuu, ole yhteydessä Bitwardenin asiakaspalveluun."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Oikeutta ei myönnetty"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Biometriaa ei tueta selainlaajennuksessa ilman viestintäoikeutta Bitwardenin työpöytäsovelluksen kanssa. Yritä uudelleen."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Käyttöoikeuspyynnön virhe"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Toimintoa ei voi suorittaa sivupalkissa, yritä toimintoa uudelleen ponnahdusvalikossa tai ponnahdusikkunassa."
   },
   "personalOwnershipSubmitError": {
     "message": "Yrityskäytännön vuoksi kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Kirjaudu pääsalasanalla"
-  },
   "newAroundHere": {
     "message": "Oletko uusi täällä?"
   },
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "Ainakin yksi sähköpostiosoite on virheellinen"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Syöte ei voi sisältää vain tyhjiä merkkejä.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automaattitäyttö sivun avautuessa käyttää oletusasetusta.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"
@@ -4909,6 +4999,22 @@
     "message": "Määritä oletukseksi",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
+  },
   "saveCipherAttemptSuccess": {
     "message": "Käyttäjätiedot tallennettiin!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Ei kopioitavia arvoja"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "Seuraava"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6303,7 +6417,7 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "Kun selain käynnistetään uudelleen"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
   },
   "maxAccessCount": {
     "message": "Maximum access count",
@@ -6551,11 +6692,36 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

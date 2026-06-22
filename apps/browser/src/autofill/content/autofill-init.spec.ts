@@ -296,6 +296,65 @@ describe("AutofillInit", () => {
         });
       });
 
+      describe("applyTargetedFields", () => {
+        it("delegates to applyExternalTargetedFields with the message's iframeTargetedFields", async () => {
+          const iframeTargetedFields = [{ selector: "#username", fieldType: "username" }];
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "applyExternalTargetedFields")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage({ command: "applyTargetedFields", iframeTargetedFields });
+          await flushPromises();
+
+          expect(
+            autofillInit["collectAutofillContentService"].applyExternalTargetedFields,
+          ).toHaveBeenCalledWith(iframeTargetedFields);
+        });
+
+        it("passes an empty array when iframeTargetedFields is not present", async () => {
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "applyExternalTargetedFields")
+            .mockResolvedValue(undefined);
+
+          sendMockExtensionMessage({ command: "applyTargetedFields" });
+          await flushPromises();
+
+          expect(
+            autofillInit["collectAutofillContentService"].applyExternalTargetedFields,
+          ).toHaveBeenCalledWith([]);
+        });
+      });
+
+      describe("clearTargetingRulesCache", () => {
+        let collectPageDetailsSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "clearCachedTargetingRules")
+            .mockImplementation();
+          collectPageDetailsSpy = jest
+            .spyOn(autofillInit as any, "collectPageDetails")
+            .mockResolvedValue(undefined);
+        });
+
+        it("delegates to CollectAutofillContentService.clearCachedTargetingRules", () => {
+          sendMockExtensionMessage({ command: "clearTargetingRulesCache" });
+
+          expect(
+            autofillInit["collectAutofillContentService"].clearCachedTargetingRules,
+          ).toHaveBeenCalled();
+        });
+
+        it("re-collects page details so the background cache is repopulated", () => {
+          sendMockExtensionMessage({ command: "clearTargetingRulesCache" });
+
+          expect(collectPageDetailsSpy).toHaveBeenCalledWith({
+            command: "collectPageDetails",
+            sender: "autofillInit",
+          });
+        });
+      });
+
       describe("collectAutofillTriage", () => {
         const pageDetails: AutofillPageDetails = {
           title: "title",
