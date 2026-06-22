@@ -5972,6 +5972,18 @@
   "and": {
     "message": "and"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "You cannot log in with SSO until you have accepted an invitation to join $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
