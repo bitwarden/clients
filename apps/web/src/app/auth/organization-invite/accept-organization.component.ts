@@ -40,6 +40,10 @@ export class AcceptOrganizationComponent implements OnInit {
       authedHandler: (invite) => this.authedHandler(invite),
       unauthedHandler: (invite) => this.unauthedHandler(invite),
       getErrorMessage: (apiError) => this.getErrorMessage(apiError),
+      // Clear the stashed invite when accept throws. All server-side accept rejections
+      // (expired/revoked/already-accepted/policy violations) are permanent, so retaining
+      // the stash would let its policies bleed into the voluntary change-password component.
+      onError: () => this.organizationInviteService.clearOrganizationInvite(),
     });
     this.loading = false;
   }

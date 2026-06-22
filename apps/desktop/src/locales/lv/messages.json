@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
   },
-  "welcomeBack": {
-    "message": "Laipni lūdzam atpakaļ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Izvēlies apvienību, uz kuru pārvietot šo vienumu. Pārvietošana nodod šī vienuma piederību apvienībai. Tu vairs nebūsi šī vienuma tiešais īpašnieks pēc tā pārvietošanas."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Garums"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Pieteikties"
   },
-  "logInToBitwarden": {
-    "message": "Pieteikties Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Jāievada e-pastā nosūtītais kods"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Jāievada sava konta e-pasta adrese, un paroles norāde tiks nosūtīta"
-  },
-  "getMasterPasswordHint": {
-    "message": "Saņemt galvenās paroles norādi"
   },
   "emailRequired": {
     "message": "Ir jānorāda e-pasta adrese."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Rādīt tīmekļvietņu ikonas un iegūt paroles nomaiņas URL"
   },
-  "enableMinToTray": {
-    "message": "Samazināt ikonjoslā"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Tā vietā, lai samazinātu logu, parādīt ikonu sistēmas ikonjoslā."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Samazināt izvēļņjoslā"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Tā vietā, lai samazinātu logu, parādīt ikonu izvēļņjoslā."
-  },
-  "enableCloseToTray": {
-    "message": "Aizverot pārvietot uz ikonjoslu"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Tā vietā, lai aizvērtu logu, parādīt ikonu sistēmas ikonjoslā."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Aizvērt izvēļņjoslā"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Tā vietā, lai aizvērtu logu, parādīt ikonu izvēļņjoslā."
-  },
-  "enableTray": {
-    "message": "Iespējot parādīšanu ikonjoslā"
-  },
-  "enableTrayDesc": {
-    "message": "Vienmēr rādīt ikonu sistēmas ikonjoslā."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Automātiski sāknēt pēc pieteikšanās"
   },
   "openAtLoginDesc": {
     "message": "Automātiski sāknēt Bitwarden darbvirsmas lietotni pēc pieteikšanās."
-  },
-  "alwaysShowDock": {
-    "message": "Vienmēr rādīt lietotņu joslā"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Rādīt Bitwarden ikonu lietotņu joslā pat tad, ka notiek samazināšana uz izvēļņjoslu."
-  },
-  "confirmTrayTitle": {
-    "message": "Apstiprināt parādīšanas ikonjoslā atspējošanu"
-  },
-  "confirmTrayDesc": {
-    "message": "Šī iestatījuma izslēgšana padarīs nepieejamas arī citus ar ikonjoslu saistītus uzstādījumus."
   },
   "language": {
     "message": "Valoda"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Ievietot drošības kodu starpliktuvē",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kartes numurs"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Iziet"
   },
-  "showHide": {
-    "message": "Rādīt / paslēpt",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Paslēpt ikonjoslā"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Uzstādījumi"
-  },
-  "enableMenuBar": {
-    "message": "Iespējot izvēļņjoslas ikonu"
-  },
-  "enableMenuBarDesc": {
-    "message": "Vienmēr rādīt ikonu izvēļņjoslā."
   },
   "hideToMenuBar": {
     "message": "Paslēpt izvēļņjoslā"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Jaunā parole nevar būt tāda pati kā pašreizējā."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Paroles norāde nedrīkst būt tāda pati kā parole."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Glabātava",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Pieteikties ar galveno paroli"
   },
   "rememberEmail": {
     "message": "Atcerēties e-pasta adresi"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Lietotāja apliecināšana neizdevās."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Vairāk"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "“Mani vienumi” nevar ievietot vienumus, kas ir daļa no vairākiem krājumiem"
