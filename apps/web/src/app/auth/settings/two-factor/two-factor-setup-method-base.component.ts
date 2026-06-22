@@ -11,6 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+// TODO: PM-39385 - Remove this base class and replace with a more flexible composition-based approach.
 /**
  * Base class for two-factor setup components (ex: email, yubikey, webauthn, duo).
  *
