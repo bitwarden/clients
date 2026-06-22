@@ -63,7 +63,7 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   private readonly introCarouselService = inject(IntroCarouselService);
   private readonly autofillBrowserSettingsService = inject(AutofillBrowserSettingsService);
 
-  private readonly privacyPermissionIsGranted = false;
+  private privacyPermissionIsGranted = false;
 
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
