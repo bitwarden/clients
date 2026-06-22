@@ -186,14 +186,14 @@
           @if (isExternalIdVisible) {
             <bit-form-field>
               <bit-label>{{ "externalId" | i18n }}</bit-label>
-              <input bitInput type="text" formControlName="externalId" />
+              <input bitInput type="text" formControlName="externalId" readonly />
               <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
             </bit-form-field>
           }
           @if (isSsoExternalIdVisible) {
             <bit-form-field>
               <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
-              <input bitInput type="text" formControlName="ssoExternalId" />
+              <input bitInput type="text" formControlName="ssoExternalId" readonly />
               <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
             </bit-form-field>
           }

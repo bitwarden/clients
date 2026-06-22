@@ -174,7 +174,7 @@
 
         <bit-form-field>
           <bit-label>{{ "callbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="callbackPath" />
+          <input bitInput readonly [value]="callbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -186,7 +186,7 @@
 
         <bit-form-field>
           <bit-label>{{ "signedOutCallbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="signedOutCallbackPath" />
+          <input bitInput readonly [value]="signedOutCallbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -328,7 +328,7 @@
 
         <bit-form-field *ngIf="ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityId" />
+          <input bitInput readonly [value]="spEntityId" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -340,7 +340,7 @@
 
         <bit-form-field *ngIf="!ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityIdStatic" />
+          <input bitInput readonly [value]="spEntityIdStatic" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -352,7 +352,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spMetadataUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spMetadataUrl" />
+          <input bitInput readonly [value]="spMetadataUrl" />
           <button
             bitIconButton="bwi-external-link"
             bitSuffix
@@ -371,7 +371,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spAcsUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spAcsUrl" />
+          <input bitInput readonly [value]="spAcsUrl" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix

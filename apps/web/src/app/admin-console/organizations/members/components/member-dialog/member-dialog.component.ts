@@ -144,8 +144,8 @@ export class MemberDialogComponent implements OnDestroy {
   protected formGroup = this.formBuilder.group({
     emails: [""],
     type: OrganizationUserType.User,
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
-    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
+    externalId: this.formBuilder.control(""),
+    ssoExternalId: this.formBuilder.control(""),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
