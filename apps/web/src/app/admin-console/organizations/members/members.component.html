@@ -229,6 +229,11 @@
                         <button type="button" bitLink>
                           {{ u.name ?? u.email }}
                         </button>
+                        @if (u.status === userStatusType.Staged) {
+                          <span bitBadge class="tw-text-xs" variant="secondary">
+                            {{ "staged" | i18n }}
+                          </span>
+                        }
                         @if (u.status === userStatusType.Invited) {
                           <span bitBadge class="tw-text-xs" variant="secondary">
                             {{ "invited" | i18n }}
@@ -275,6 +280,11 @@
                     <div class="tw-flex tw-flex-col">
                       <div class="tw-flex tw-flex-row tw-gap-2">
                         <span>{{ u.name ?? u.email }}</span>
+                        @if (u.status === userStatusType.Staged) {
+                          <span bitBadge class="tw-text-xs" variant="secondary">
+                            {{ "staged" | i18n }}
+                          </span>
+                        }
                         @if (u.status === userStatusType.Invited) {
                           <span bitBadge class="tw-text-xs" variant="secondary">
                             {{ "invited" | i18n }}
