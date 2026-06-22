@@ -27,6 +27,10 @@ import {
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
+import {
+  getPendingDefaultPasswordManagerApply,
+  setPendingDefaultPasswordManagerApply,
+} from "../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -61,10 +65,16 @@ export default class RuntimeBackground {
       this.onInstalledReason = details.reason;
     });
 
-    if (chrome?.permissions?.onAdded) {
-      chrome.permissions.onAdded.addListener((permissions) => {
-        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
-      });
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     }
   }
 
@@ -229,28 +239,48 @@ export default class RuntimeBackground {
           sender.url ?? sender.tab?.url,
         );
       }
+      case "authResult": {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
+        }
+
+        if (sender.tab?.id) {
+          await BrowserApi.closeTab(sender.tab.id).catch((error) => {
+            this.logService.error("Unable to close SSO tab", error);
+          });
+        }
+        break;
+      }
     }
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
-    permissions: chrome.permissions.Permissions,
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
   ) {
-    if (!permissions.permissions?.includes("privacy")) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
       return;
     }
 
-    if (!chrome.storage?.session) {
-      return;
-    }
-
-    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    if (!result.pendingDefaultPasswordManagerApply) {
+    if (!(await getPendingDefaultPasswordManagerApply())) {
       return;
     }
 
     try {
       await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+      await setPendingDefaultPasswordManagerApply(false);
     } catch (error) {
       this.logService.error(error);
     }
@@ -360,25 +390,6 @@ export default class RuntimeBackground {
         break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
-        break;
-      }
-      case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
-          return;
-        }
-
-        if (msg.lastpass) {
-          this.messagingService.send("importCallbackLastPass", {
-            code: msg.code,
-            state: msg.state,
-          });
-        } else {
-          try {
-            await openSsoAuthResultPopout(msg);
-          } catch {
-            this.logService.error("Unable to open sso popout tab");
-          }
-        }
         break;
       }
       case "webAuthnResult": {

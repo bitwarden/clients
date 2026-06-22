@@ -14,7 +14,7 @@ const entriesCache = new Map();
 /** Walk up from `startDir` until a directory containing tsconfig.base.json is found. */
 function findRepoRoot(startDir) {
   let dir = startDir;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     if (fs.existsSync(path.join(dir, "tsconfig.base.json"))) {
       return dir;
