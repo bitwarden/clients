@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
@@ -63,7 +70,7 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   private readonly introCarouselService = inject(IntroCarouselService);
   private readonly autofillBrowserSettingsService = inject(AutofillBrowserSettingsService);
 
-  private privacyPermissionIsGranted = false;
+  private readonly privacyPermissionIsGranted = signal(false);
 
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
@@ -80,7 +87,7 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     if (BrowserApi.getBrowserClientVendor(window) !== BrowserClientVendors.Unknown) {
-      this.privacyPermissionIsGranted = await BrowserApi.permissionsGranted(["privacy"]);
+      this.privacyPermissionIsGranted.set(await BrowserApi.permissionsGranted(["privacy"]));
     }
 
     if (!(await this.autofillBrowserSettingsService.isDefaultPasswordManagerPromptFlowComplete())) {
@@ -92,7 +99,7 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   }
 
   protected onContinueClick(): void {
-    if (BrowserApi.isFirefox && !this.privacyPermissionIsGranted) {
+    if (BrowserApi.isFirefox && !this.privacyPermissionIsGranted()) {
       if (BrowserPopupUtils.inPopout(window)) {
         void this.continueFirefoxPopout();
       } else {

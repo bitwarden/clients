@@ -133,7 +133,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
 
   it("should request permission before pending state on Firefox popup continue", () => {
     BrowserApi.isFirefox = true;
-    component["privacyPermissionIsGranted"] = false;
+    component["privacyPermissionIsGranted"].set(false);
     jest.mocked(BrowserPopupUtils.inPopout).mockReturnValue(false);
 
     const callOrder: string[] = [];
@@ -151,7 +151,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
 
   it("should apply and navigate on Firefox popout continue when permission is granted", async () => {
     BrowserApi.isFirefox = true;
-    component["privacyPermissionIsGranted"] = false;
+    component["privacyPermissionIsGranted"].set(false);
     jest.mocked(BrowserPopupUtils.inPopout).mockReturnValue(true);
     jest.mocked(BrowserApi.requestPermission).mockResolvedValue(true);
 
@@ -165,7 +165,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
 
   it("should show a dialog and navigate on Firefox popout continue when permission is denied", async () => {
     BrowserApi.isFirefox = true;
-    component["privacyPermissionIsGranted"] = false;
+    component["privacyPermissionIsGranted"].set(false);
     jest.mocked(BrowserPopupUtils.inPopout).mockReturnValue(true);
     jest.mocked(BrowserApi.requestPermission).mockResolvedValue(false);
 
@@ -178,7 +178,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
 
   it("should close the toolbar popup but not a popout on Firefox popup continue", async () => {
     BrowserApi.isFirefox = true;
-    component["privacyPermissionIsGranted"] = false;
+    component["privacyPermissionIsGranted"].set(false);
     jest.mocked(BrowserPopupUtils.inPopup).mockReturnValue(false);
     jest.mocked(BrowserPopupUtils.inPopout).mockReturnValue(true);
 
@@ -192,7 +192,7 @@ describe("DefaultPasswordManagerPromptComponent", () => {
 
   it("should close the toolbar popup on Firefox popup continue", async () => {
     BrowserApi.isFirefox = true;
-    component["privacyPermissionIsGranted"] = false;
+    component["privacyPermissionIsGranted"].set(false);
     jest.mocked(BrowserPopupUtils.inPopup).mockReturnValue(true);
     jest.mocked(BrowserPopupUtils.inPopout).mockReturnValue(false);
 
