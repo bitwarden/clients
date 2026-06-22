@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { View } from "@bitwarden/common/models/view/view";
+import { View } from "../../../models/view/view";
 
 interface SelectionResponseLike {
   id: string;

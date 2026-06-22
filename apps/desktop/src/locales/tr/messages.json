@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Tekrar hoş geldiniz"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Özel anahtarı kopyala"
+  },
+  "copyPublicKey": {
+    "message": "Ortak anahtarı kopyala"
+  },
+  "copyFingerprint": {
+    "message": "Parmak izini kopyala"
+  },
   "length": {
     "message": "Uzunluk"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Giriş yap"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden'a giriş yapın"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Bitwarden’a giriş yapın"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-posta adresinize gönderilen kodu girin"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
-  },
-  "getMasterPasswordHint": {
-    "message": "Ana parola ipucunu al"
   },
   "emailRequired": {
     "message": "E-posta adresi gereklidir."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Web sitesi simgelerini göster ve parola değiştirme URL'lerini al"
   },
-  "enableMinToTray": {
-    "message": "Tepsi simgesine küçült"
+  "runInBackground": {
+    "message": "Bitwarden'ı arka planda çalıştırmaya devam et"
   },
-  "enableMinToTrayDesc": {
-    "message": "Pencere küçültülünce sistem tepsisinde bir simge göster."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Menü çubuğuna küçült"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Pencere küçültülünce menü çubuğunda bir simge göster."
-  },
-  "enableCloseToTray": {
-    "message": "Tepsi simgesine kapat"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Pencere kapatılınca sistem tepsisinde bir simge göster."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Menü çubuğuna kapat"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Pencere kapatılınca menü çubuğunda bir simge göster."
-  },
-  "enableTray": {
-    "message": "Tepsi simgesini etkinleştir"
-  },
-  "enableTrayDesc": {
-    "message": "Sistem tepsisinde her zaman simge göster."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Oturum açıldığında otomatik başlat"
   },
   "openAtLoginDesc": {
     "message": "Oturum açılınca Bitwarden masaüstü uygulamasını otomatik olarak başlat."
-  },
-  "alwaysShowDock": {
-    "message": "Dock'ta her zaman göster"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Menü çubuğuna küçültüldüğünde bile Bitwarden simgesini Dock'ta göster."
-  },
-  "confirmTrayTitle": {
-    "message": "Tepsiyi kapatmayı onaylayın"
-  },
-  "confirmTrayDesc": {
-    "message": "Bu ayarı kapatırsanız tepsiyle ilgili diğer ayarlar da kapanır."
   },
   "language": {
     "message": "Dil"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Güvenlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Özel anahtarı kopyala"
-  },
-  "copyPublicKey": {
-    "message": "Ortak anahtarı kopyala"
-  },
-  "copyFingerprint": {
-    "message": "Parmak izini kopyala"
   },
   "cardNumber": {
     "message": "kart numarası"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Çıkış"
   },
-  "showHide": {
-    "message": "Göster / gizle",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Göster",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Tepsiye gizle"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Tercihler"
-  },
-  "enableMenuBar": {
-    "message": "Menü çubuğu simgesini göster"
-  },
-  "enableMenuBarDesc": {
-    "message": "Menü çubuğunda her zaman bir simge göster."
   },
   "hideToMenuBar": {
     "message": "Menü çubuğuna gizle"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Bir veya daha fazla kuruluş ilkesi gereğince ana parola aşağıdaki gereksinimleri karşılamalıdır:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
+  "receiveMarketingEmails": {
+    "message": "Bitwarden'dan haberler e-postanıza gelsin."
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolanız mevcut parolanızla aynı olamaz."
+  },
+  "hint": {
+    "message": "İpucu"
   },
   "hintEqualsPassword": {
     "message": "Parola ipucunuz parolanızla aynı olamaz."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Kasa",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Ana parola ile giriş yap"
   },
   "rememberEmail": {
     "message": "E-postayı hatırla"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Daha fazla"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Banka hesap bilgilerinizi kaydedin, tüm cihazlarınızdan kolayca ve güvenle erişin."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Düzenlemeleri sil"
   },
-  "discardEditsMessage": {
-    "message": "Bu görünümü kapatırsanız kaydedilmemiş düzenlemeleriniz silinir"
-  },
-  "backToEditing": {
-    "message": "Düzenlemeye dön"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send'de kaydedilmemiş düzenlemeler var. Çıkmak istediğinizden emin misiniz?",
@@ -5285,7 +5254,7 @@
     "message": "Girdi sayısal olmalıdır"
   },
   "integerInputError": {
-    "message": "Girdi tam sayı olmalıdır"
+    "message": "Girdi tamsayı olmalıdır"
   },
   "hideEmailPolicyInEffect": {
     "message": "Sizin için kuruluş e-posta görünürlüğü zorunlu kılıyor. Kaydetmek için \"Bu adresi gizle\" seçeneğinin işaretini kaldırın."
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "İlerleme çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birden fazla koleksiyonun parçası olan kayıtlar Kayıtlarım içerisine içe aktarılamaz"

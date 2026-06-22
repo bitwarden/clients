@@ -2,17 +2,17 @@
 // @ts-strict-ignore
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { assertNonNullish } from "../../../auth/utils";
 import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
 import { LogService } from "../../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
+import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
