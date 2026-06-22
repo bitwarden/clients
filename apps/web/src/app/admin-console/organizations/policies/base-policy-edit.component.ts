@@ -190,9 +190,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
 
     const orgKey = orgKeys[this.organizationId() as OrganizationId];
 
-    if (orgKey == null) {
-      throw new Error("No encryption key for this organization.");
-    }
+    assertNonNullish(orgKey, "No encryption key for this organization.");
 
     const request = await this.buildRequest(orgKey);
 
