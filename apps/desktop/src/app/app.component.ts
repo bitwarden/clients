@@ -288,7 +288,7 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "openSettings": {
-            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
+            if (true) {
               SettingsDialogComponent.open(this.dialogService);
             } else {
               await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
