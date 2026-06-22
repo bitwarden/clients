@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Precisa de outra opção?"
   },
-  "loginWithMasterPassword": {
-    "message": "Iniciar sessão com a palavra-passe mestra"
-  },
   "readingPasskeyLoading": {
     "message": "A ler chave de acesso..."
   },
@@ -1751,7 +1748,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Falha na autenticação da chave de acesso. Por favor, tente novamente."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Utilizar um método de início de sessão diferente"
   },
   "logInWithPasskey": {
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A sua organização exige o início de sessão único."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Bem-vindo de volta"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Iniciar sessão"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Iniciar sessão no Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduza o endereço de e-mail da sua conta e ser-lhe-á enviada a sua dica da palavra-passe"
-  },
-  "getMasterPasswordHint": {
-    "message": "Obter a dica da palavra-passe mestra"
   },
   "emailRequired": {
     "message": "O endereço de e-mail é obrigatório."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "Como agradecimento por ser um cliente de longa data do Bitwarden, gostaríamos de lhe oferecer um desconto de $AMOUNT$ em cada $INTERVAL$ na sua próxima subscrição de $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "Foi aplicado um desconto de $AMOUNT$ em cada $INTERVAL$ na sua próxima subscrição de $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ por $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Nunca expira"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Desconto aplicado"
+  },
+  "discountForOneYear": {
+    "message": "por 1 ano"
+  },
+  "discountForMonths": {
+    "message": "por $COUNT$ meses",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "até $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "O desconto expirou. Por favor, reveja o total do seu carrinho e tente novamente."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Gerir o acesso à organização, todas as coleções, membros, relatórios e definições de segurança"
   },
+  "adminRoleDesc": {
+    "message": "Gerir todas as coleções, membros, relatórios e definições de segurança"
+  },
   "user": {
     "message": "Utilizador"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Se fechar esta vista, as alterações não guardadas serão descartadas."
+  },
+  "discardEdits": {
+    "message": "Descartar alterações"
   },
   "keepEditing": {
     "message": "Continuar a editar"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Não selecionou nada."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
+  "receiveMarketingEmails": {
+    "message": "Receba atualizações do Bitwarden na sua caixa de entrada."
   },
   "subscribe": {
     "message": "Subscrever"
@@ -6957,6 +7032,21 @@
     "message": "Devido a uma política da empresa, só é possível eliminar um Send existente.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Não está em conformidade com a política do Send da sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Para editar este Send, crie uma cópia. Se este Send puder expirar na data de eliminação definida, não é necessária qualquer ação",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Este Send expirará automaticamente na data de eliminação definida",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Fazer uma cópia"
+  },
   "sendControls": {
     "message": "Controlos do Send"
   },
@@ -6964,8 +7054,9 @@
     "message": "Defina opções para criar e editar Sends, incluindo a possibilidade de os remover.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Os membros da organização que podem gerir as políticas da organização estão isentos da aplicação desta política."
+  "sendControlsPolicyDescV2": {
+    "message": "Configure o que os membros podem fazer utilizando o Send. Os administradores e proprietários estão isentos desta política.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Opções do Send",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "A sua nova palavra-passe não pode ser igual à sua palavra-passe atual."
   },
+  "hint": {
+    "message": "Dica"
+  },
   "hintEqualsPassword": {
     "message": "A dica da sua palavra-passe não pode ser igual à sua palavra-passe."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Redefinir palavra-passe"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Ao prosseguir, terminará a sessão atual de $NAME$ e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Ao prosseguir, terminará a sessão atual de $NAME$ e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Gestão da recuperação de contas"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Com base no método de encriptação, recupere contas quando as palavras-passe mestras ou os dispositivos de confiança são esquecidos ou perdidos."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam automaticamente antes de os administradores poderem recuperar as suas contas. O registo automático ativará a recuperação de contas para novos membros."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscrição automática"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Exigir que os novos membros sejam inscritos automaticamente"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Esta organização tem uma política empresarial que o inscreverá automaticamente na redefinição de palavra-passe. A inscrição permitirá que os administradores da organização alterem a sua palavra-passe mestra."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "Definições SCIM guardadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Apenas é permitida uma integração deste tipo ($TYPE$). A integração em conflito é: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ de desconto",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Proteja a sua infraestrutura"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Mantenha a segurança dos itens do seu cofre elevada ao consultar relatórios para detetar vulnerabilidades."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Monitorize a atividade de segurança"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "À medida que revê as aplicações e atribui tarefas aos membros, o progresso da sua organização em melhorias de segurança aparecerá aqui."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Dê prioridade aos riscos"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Reveja todas as aplicações armazenadas no cofre da sua organização e marque com estrela as que são a maior prioridade para a sua segurança."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Corrija os seus maiores riscos"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Aqui poderá acompanhar os riscos das aplicações prioritárias e atribuir tarefas aos membros para reforçar as suas palavras-passe."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Ajude os membros a melhorar"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Depois de selecionar as aplicações críticas, peça aos membros para alterarem as palavras-passe em risco. Eles receberão uma mensagem na sua extensão do Bitwarden."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Mantenha-se a par dos novos riscos"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Atualize regularmente os relatórios e as informações para detetar novos riscos e ver as métricas mais recentes à medida que a sua organização cresce."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ de $TOTAL$",
+    "message": "$CURRENT$ de $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Passo $CURRENT$ de $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "Um ou mais domínios são inválidos"
+  },
+  "domainNotAllowed": {
+    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Controlar se os membros podem utilizar o Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Qualquer um"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Isto foi preenchido utilizando domínios reivindicados."
+  },
   "more": {
     "message": "Mais"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A sua conta bancária tem de ser verificada antes de poder ser utilizada para esta atualização. Por favei, verifique a sua conta bancária ou escolha outro método de pagamento."
-  },
-  "discardEdits": {
-    "message": "Descartar alterações"
   },
   "discardEditsMessage": {
     "message": "Se fechar esta vista, as alterações não guardadas serão descartadas"
@@ -14327,6 +14467,25 @@
     "message": "O Send tem alterações não guardadas. Tem a certeza de que pretende sair?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Ativar controlos do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Permitir"
+  },
+  "block": {
+    "message": "Bloquear"
+  },
+  "sendControlAccessOptions": {
+    "message": "Opções de acesso"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Mostrar sempre o endereço de e-mail do membro com os destinatários"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Palavra-passe definida pelo membro"
+  },
   "hideMyEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
   },
@@ -14381,6 +14540,12 @@
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
+  "emailVerification": {
+    "message": "Verificação de e-mail"
+  },
+  "separateDomainsWithComma": {
+    "message": "Separe os domínios com uma vírgula"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
   },
@@ -14433,6 +14598,6 @@
     "message": "Copiar"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Não foi possível guardar o item. Tem de estar confirmado na organização para poder guardar itens."
   }
 }
