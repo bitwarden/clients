@@ -9,6 +9,7 @@ import {
   signal,
 } from "@angular/core";
 
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import {
   ButtonModule,
   TableDataSource,
@@ -17,7 +18,6 @@ import {
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { FlatHistoryRow, HistoryFilter, flattenHistory } from "./history-row";

@@ -13,13 +13,13 @@ import {
   switchMap,
 } from "rxjs";
 
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/bit-pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { isActionableInboxRequest } from "./inbox-request-filter";
 

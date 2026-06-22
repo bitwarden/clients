@@ -15,15 +15,15 @@ import {
   switchMap,
 } from "rxjs";
 
-import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import {
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
   AccessLeaseRevokeRequest,
   AccessLeaseStatus,
   PamApiService,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 

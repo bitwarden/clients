@@ -1,9 +1,10 @@
+import { AccessEventService, PamApiService } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { AccessEventService, PamApiService, PamInboxBadgeService } from "@bitwarden/pam";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
+import { PamInboxBadgeService } from "@bitwarden/web-vault/app/pam/pam-inbox-badge.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 import { CIPHER_OPEN_GATE } from "@bitwarden/web-vault/app/vault/individual-vault/cipher-open-gate";
 

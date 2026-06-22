@@ -2,8 +2,8 @@ import { importProvidersFrom } from "@angular/core";
 import { provideRouter } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { DialogModule } from "@bitwarden/components";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApprovalsComponent } from "./approvals.component";

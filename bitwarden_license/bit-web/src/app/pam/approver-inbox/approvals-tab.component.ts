@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map } from "rxjs";
 
+import { AccessDecisionRequest, AccessDecisionVerdict } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
-import { AccessDecisionRequest, AccessDecisionVerdict } from "@bitwarden/pam";
 
 import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 import { ApproverInboxService } from "./approver-inbox.service";

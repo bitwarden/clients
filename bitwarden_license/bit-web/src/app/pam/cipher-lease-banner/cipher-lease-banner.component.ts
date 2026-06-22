@@ -12,6 +12,21 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, of, switchMap } from "rxjs";
 
+import {
+  AccessApprovalMode,
+  AccessLeaseExtensionRequest,
+  AccessLeaseRevokeRequest,
+  AccessRequestCreateRequest,
+  CipherAccessState,
+  defaultWindowFormValues,
+  endAfterStartValidator,
+  formatRemaining,
+  LEASE_DURATION_PRESETS,
+  LEASE_EXTENSION_DURATION_PRESETS,
+  MAX_LEASE_DURATION_MINUTES,
+  PamApiService,
+  windowWithinMaxDurationValidator,
+} from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -27,21 +42,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessApprovalMode,
-  AccessLeaseExtensionRequest,
-  AccessLeaseRevokeRequest,
-  AccessRequestCreateRequest,
-  CipherAccessState,
-  defaultWindowFormValues,
-  endAfterStartValidator,
-  formatRemaining,
-  LEASE_DURATION_PRESETS,
-  LEASE_EXTENSION_DURATION_PRESETS,
-  MAX_LEASE_DURATION_MINUTES,
-  PamApiService,
-  windowWithinMaxDurationValidator,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**

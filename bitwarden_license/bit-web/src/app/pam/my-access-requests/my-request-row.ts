@@ -1,11 +1,11 @@
-import { BadgeVariant } from "@bitwarden/components";
 import {
   AccessLeaseResponse,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   Decision,
   findHumanDecision,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { BadgeVariant } from "@bitwarden/components";
 
 /** Max items rendered per section (no pagination). */
 export const MY_REQUESTS_PAGE_LIMIT = 50;

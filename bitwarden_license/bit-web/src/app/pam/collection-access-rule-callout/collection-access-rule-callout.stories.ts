@@ -2,11 +2,11 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService } from "@bitwarden/components";
-import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
 

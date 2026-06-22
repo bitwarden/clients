@@ -15,6 +15,11 @@ import { RouterModule } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import {
+  AccessDecisionVerdict,
+  AccessRequestDetailsResponse,
+  canApprove,
+} from "@bitwarden/bit-pam";
+import {
   ButtonModule,
   ChipFilterComponent,
   ChipFilterOption,
@@ -28,7 +33,6 @@ import {
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessDecisionVerdict, AccessRequestDetailsResponse, canApprove } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ApprovalRow, toApprovalRow } from "./approval-row";

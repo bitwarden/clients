@@ -2,11 +2,11 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BulkRevokeResult, PamApiService } from "@bitwarden/pam";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { KillSwitchDialogResult } from "./kill-switch-dialog.component";

@@ -1,10 +1,6 @@
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, Observable, startWith } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
   AccessDecisionRequest,
   AccessDecisionVerdict,
@@ -16,7 +12,11 @@ import {
   BulkRevokeResult,
   CipherAccessState,
   OrganizationGovernanceSummaryResponse,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { DefaultPamApiService } from "../services/default-pam-api.service";
 

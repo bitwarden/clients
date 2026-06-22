@@ -23,6 +23,7 @@ module.exports = {
     "<rootDir>/bitwarden_license/bit-browser/jest.config.js",
     "<rootDir>/bitwarden_license/bit-cli/jest.config.js",
     "<rootDir>/bitwarden_license/bit-common/jest.config.js",
+    "<rootDir>/bitwarden_license/bit-pam/jest.config.js",
     "<rootDir>/bitwarden_license/bit-web/jest.config.js",
 
     "<rootDir>/libs/admin-console/jest.config.js",
@@ -44,7 +45,6 @@ module.exports = {
     "<rootDir>/libs/logging-angular/jest.config.js",
     "<rootDir>/libs/messaging/jest.config.js",
     "<rootDir>/libs/node/jest.config.js",
-    "<rootDir>/libs/pam/jest.config.js",
     "<rootDir>/libs/platform/jest.config.js",
     "<rootDir>/libs/serialization/jest.config.js",
     "<rootDir>/libs/state-test-utils/jest.config.js",
@@ -67,7 +67,6 @@ module.exports = {
     "<rootDir>/libs/user-crypto-management/jest.config.js",
     "<rootDir>/libs/scheduling/jest.config.js",
     "<rootDir>/libs/organization-invite-link/jest.config.js",
-    "<rootDir>/libs/pam/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:

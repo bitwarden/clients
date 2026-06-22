@@ -13,6 +13,12 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { filter, switchMap } from "rxjs";
 
+import {
+  AccessCondition,
+  formatCondition,
+  OrganizationGovernanceSummaryResponse,
+  PamApiService,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -29,12 +35,6 @@ import {
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessCondition,
-  formatCondition,
-  OrganizationGovernanceSummaryResponse,
-  PamApiService,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { KillSwitchComponent } from "./kill-switch/kill-switch.component";

@@ -4,11 +4,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";

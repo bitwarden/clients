@@ -2,12 +2,6 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { of } from "rxjs";
 
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, ToastService } from "@bitwarden/components";
 import {
   AccessApprovalMode,
   AccessPreCheckResponse,
@@ -15,7 +9,13 @@ import {
   AccessRequestResultResponse,
   CipherAccessState,
   PamApiService,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { CipherLeaseBannerComponent } from "./cipher-lease-banner.component";
 

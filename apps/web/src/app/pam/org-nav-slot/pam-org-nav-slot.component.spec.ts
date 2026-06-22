@@ -8,7 +8,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule, I18nMockService, NavigationModule } from "@bitwarden/components";
-import { PamInboxBadgeService } from "@bitwarden/pam";
+
+import { PamInboxBadgeService } from "../pam-inbox-badge.service";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 

@@ -2,9 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Observable, of } from "rxjs";
 
+import { AccessLeaseResponse, CipherAccessState, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { AccessLeaseResponse, CipherAccessState, PamApiService } from "@bitwarden/pam";
 
 import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 import { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";

@@ -3,12 +3,12 @@ import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { of } from "rxjs";
 
+import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogRef, I18nMockService } from "@bitwarden/components";
-import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
 

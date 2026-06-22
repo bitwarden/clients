@@ -28,6 +28,7 @@
       "@bitwarden/auto-confirm/angular": ["./libs/auto-confirm/src/angular"],
       "@bitwarden/billing": ["./libs/billing/src"],
       "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"],
+      "@bitwarden/bit-pam": ["./bitwarden_license/bit-pam/src/index.ts"],
       "@bitwarden/browser/*": ["./apps/browser/src/*"],
       "@bitwarden/cli/*": ["./apps/cli/src/*"],
       "@bitwarden/client-type": ["./libs/client-type/src/index.ts"],
@@ -52,7 +53,6 @@
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/nx-plugin": ["./libs/nx-plugin/src/index.ts"],
       "@bitwarden/organization-invite-link": ["./libs/organization-invite-link/src/index.ts"],
-      "@bitwarden/pam": ["./libs/pam/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
       "@bitwarden/pricing": ["./libs/pricing/src/index.ts"],
@@ -73,8 +73,7 @@
       "@bitwarden/vault": ["./libs/vault/src"],
       "@bitwarden/vault-export-core": ["./libs/tools/export-vault-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export-vault-ui/src"],
-      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
-      "@bitwarden/pam": ["./libs/pam/src/index.ts"]
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"]
     },
     "plugins": [
       {

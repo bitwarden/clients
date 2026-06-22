@@ -1,10 +1,10 @@
 import { Injectable, inject } from "@angular/core";
 import { distinctUntilChanged, from, map, Observable, of, switchMap } from "rxjs";
 
+import { PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { PamApiService } from "@bitwarden/pam";
 import { GatedCipherReloader } from "@bitwarden/vault";
 
 import { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";

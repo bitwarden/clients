@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { BehaviorSubject, Subject } from "rxjs";
 
+import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/bit-pam";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -8,7 +9,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessageListener, Message } from "@bitwarden/common/platform/messaging";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { UserId } from "@bitwarden/common/types/guid";
-import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 

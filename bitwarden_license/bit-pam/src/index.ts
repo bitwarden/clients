@@ -34,7 +34,6 @@ export {
 export { CipherAccessStateResponse } from "./abstractions/responses/cipher-access-state.response";
 export { AccessEvent, AccessEventKind } from "./abstractions/access-event";
 export { AccessEventService } from "./abstractions/access-event.service";
-export { PamInboxBadgeService } from "./abstractions/pam-inbox-badge.service";
 
 export { AccessRequestCreateRequest } from "./services/requests/access-request-create.request";
 export { AccessDecisionRequest } from "./services/requests/access-decision.request";

@@ -1,4 +1,4 @@
-import { AccessDeciderKind, AccessDecisionVerdict, Decision } from "@bitwarden/pam";
+import { AccessDeciderKind, AccessDecisionVerdict, Decision } from "@bitwarden/bit-pam";
 
 /**
  * Build a human {@link Decision} for unit tests that exercise decider resolution

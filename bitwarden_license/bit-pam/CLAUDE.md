@@ -1,18 +1,23 @@
-# `@bitwarden/pam` — Privileged Access Management (credential leasing)
+# `@bitwarden/bit-pam` — Privileged Access Management (credential leasing)
 
-This library is the framework-agnostic **contract** layer of PAM: the domain
-types, the abstract API client (`PamApiService`), the access-event and nav-badge
-abstractions, the wire DTOs, and pure helpers. It deliberately holds **no
-implementations and no components** — PAM is a commercial feature, so the
-concrete `Default*` services, the cipher-lease banner, and the entire web UI live
-in **`bitwarden_license/bit-web/src/app/pam/`** (libs may not depend on licensed
-code, so the impls live there and consume these abstractions). See that
-directory's `CLAUDE.md` for surfaces, routing, and DI wiring. The whole feature
-is gated behind the `pm-37044-pam-v-0` (`FeatureFlag.Pam`) flag.
+This **commercial** library is the framework-agnostic **contract** layer of PAM:
+the domain types, the abstract API client (`PamApiService`), the access-event
+abstraction, the wire DTOs, and pure helpers. It deliberately holds **no
+implementations and no components** — the concrete `Default*` services, the
+cipher-lease banner, and the entire web UI live alongside it under
+**`bitwarden_license/bit-web/src/app/pam/`** and consume these abstractions. See
+that directory's `CLAUDE.md` for surfaces, routing, and DI wiring.
+
+PAM is a commercial feature, so this entire contract layer lives under
+`bitwarden_license/` (license-locked). The **one exception** is
+`PamInboxBadgeService`, the OSS nav-badge seam: it lives in
+`apps/web/src/app/pam/pam-inbox-badge.service.ts` because OSS code (`apps/web`)
+consumes it and may not import licensed code. The whole feature is gated behind
+the `pm-37044-pam-v-0` (`FeatureFlag.Pam`) flag.
 
 ## Read the spec first: `pam.allium`
 
-`libs/pam/pam.allium` is the **authoritative design spec** (an Allium prose/rules
+`bitwarden_license/bit-pam/pam.allium` is the **authoritative design spec** (an Allium prose/rules
 spec). It models every entity and its state machine, cipher-open gating, request
 evaluation, lease lifecycle, the UI surfaces, and the invariants. When a behavior
 is unclear or contested, the spec is the source of truth — read it before the
@@ -125,8 +130,9 @@ human (non-automatic) decision for display.
 ## Library layout
 
 - `abstractions/` — interfaces, enums, and `responses/` DTOs (server → client).
-  Includes the abstract `PamApiService`, `AccessEventService`, and
-  `PamInboxBadgeService` (the OSS nav-badge seam, implemented in commercial code).
+  Includes the abstract `PamApiService` and `AccessEventService`. (The
+  `PamInboxBadgeService` nav-badge seam lives in `apps/web/src/app/pam/`, **not
+  here** — OSS code consumes it, so it stays outside `bitwarden_license/`.)
 - `services/requests/` — `requests/` (client → server DTOs) only. The `Default*`
   service implementations **moved to commercial**
   (`bitwarden_license/bit-web/src/app/pam/services/`): `DefaultPamApiService`,
@@ -156,4 +162,6 @@ human (non-automatic) decision for display.
 
 ## Tests
 
-`npm test -- libs/pam` (or `npx jest libs/pam`). Build: `nx build pam`.
+`npm test -- bit-pam` (or `npx jest bitwarden_license/bit-pam`). Built as part of
+the consuming `bit-web` build — `bit-pam` is path-mapped (`@bitwarden/bit-pam`),
+not a standalone Nx project.

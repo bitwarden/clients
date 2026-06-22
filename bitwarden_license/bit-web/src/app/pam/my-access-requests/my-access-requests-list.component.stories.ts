@@ -2,6 +2,12 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import {
+  AccessLeaseResponse,
+  AccessRequestDetailsResponse,
+  AccessRequestStatus,
+  PamApiService,
+} from "@bitwarden/bit-pam";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -12,12 +18,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { I18nMockService, ToastService } from "@bitwarden/components";
-import {
-  AccessLeaseResponse,
-  AccessRequestDetailsResponse,
-  AccessRequestStatus,
-  PamApiService,
-} from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 

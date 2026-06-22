@@ -10,11 +10,11 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
 
 /**
  * Resolves the cipher and collection display names on access-request rows from

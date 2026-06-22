@@ -5,12 +5,16 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, of } from "rxjs";
 
+import {
+  AccessDecisionVerdict,
+  AccessRequestDetailsResponse,
+  PamApiService,
+} from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
-import { AccessDecisionVerdict, AccessRequestDetailsResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 

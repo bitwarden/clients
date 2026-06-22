@@ -2,9 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRulesService } from "./access-rules.service";
 

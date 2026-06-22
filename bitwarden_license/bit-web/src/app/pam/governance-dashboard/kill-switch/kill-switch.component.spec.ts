@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BulkRevokeResult, PamApiService } from "@bitwarden/pam";
 
 import { KillSwitchDialogComponent, KillSwitchDialogResult } from "./kill-switch-dialog.component";
 import { KillSwitchComponent } from "./kill-switch.component";

@@ -12,6 +12,11 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { filter, lastValueFrom, map, switchMap, take } from "rxjs";
 
+import {
+  AccessRuleResponse,
+  AccessRuleStatusFilter,
+  accessRuleMatchesFilter,
+} from "@bitwarden/bit-pam";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -35,11 +40,6 @@ import {
   TableModule,
   ToastService,
 } from "@bitwarden/components";
-import {
-  AccessRuleResponse,
-  AccessRuleStatusFilter,
-  accessRuleMatchesFilter,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 

@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
+import { AccessRequestDetailsResponse, AccessRequestStatus } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse, AccessRequestStatus } from "@bitwarden/pam";
 
 import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";
 

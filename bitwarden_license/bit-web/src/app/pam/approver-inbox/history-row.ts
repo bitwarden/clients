@@ -5,7 +5,7 @@ import {
   Decision,
   findHumanDecision,
   formatRemaining,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
 
 /** Time-bucket a history item belongs to. */
 export type BucketKey = "active" | "future" | "past";

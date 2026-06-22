@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
 
 import { AuditLogComponent } from "./audit-log.component";
 

@@ -3,10 +3,10 @@ import { ActivatedRoute, Params, provideRouter, Router } from "@angular/router";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRuleDialogComponent, AccessRuleDialogResult } from "./access-rule-dialog.component";
 import { AccessRulesComponent } from "./access-rules.component";

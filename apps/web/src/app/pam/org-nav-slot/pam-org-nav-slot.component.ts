@@ -7,8 +7,9 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BadgeModule, NavigationModule } from "@bitwarden/components";
-import { PamInboxBadgeService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { PamInboxBadgeService } from "../pam-inbox-badge.service";
 
 /**
  * Renders the PAM nav group (Access rules, Access requests, Governance) in the Admin Console

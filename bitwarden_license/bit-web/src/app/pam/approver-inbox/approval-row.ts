@@ -1,4 +1,4 @@
-import { AccessRequestDetailsResponse, elapsedKey } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse, elapsedKey } from "@bitwarden/bit-pam";
 
 /** An i18n `{ key, value }` pair, leaving localization to the template. */
 export type LabelValue = { key: string; value: number | null };
