@@ -19,8 +19,6 @@ import {
   filter,
 } from "rxjs";
 
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
@@ -37,7 +35,9 @@ import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { OrganizationId, UserId } from "../../../types/guid";
+import { ConfigService } from "../../abstractions/config/config.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";

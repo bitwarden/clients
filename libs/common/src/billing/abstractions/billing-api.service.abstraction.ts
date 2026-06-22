@@ -1,7 +1,9 @@
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
+import { PremiumCheckoutSessionRequest } from "../../billing/models/request/premium-checkout-session.request";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
 import { OrganizationBillingMetadataResponse } from "../../billing/models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../../billing/models/response/plan.response";
+import { PremiumCheckoutSessionResponse } from "../../billing/models/response/premium-checkout-session.response";
 import { ListResponse } from "../../models/response/list.response";
 import { OrganizationId } from "../../types/guid";
 import { InvoicesResponse } from "../models/response/invoices.response";
@@ -15,6 +17,10 @@ export abstract class BillingApiServiceAbstraction {
   ): Promise<void>;
 
   abstract cancelPremiumUserSubscription(request: SubscriptionCancellationRequest): Promise<void>;
+
+  abstract createPremiumCheckoutSession(
+    request: PremiumCheckoutSessionRequest,
+  ): Promise<PremiumCheckoutSessionResponse>;
 
   abstract getOrganizationBillingMetadata(
     organizationId: OrganizationId,
