@@ -32,6 +32,8 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { JslibModule } from "../../jslib.module";
 
+import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component.service";
+
 export type State = "assert" | "assertFailed";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -51,6 +53,8 @@ export type State = "assert" | "assertFailed";
 })
 export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
+  protected showTroubleLoggingInText: boolean;
+  protected leftAlignDescription: boolean;
   private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
@@ -82,7 +86,11 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
-  ) {}
+    private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
+  ) {
+    this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
+    this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
+  }
 
   ngOnInit(): void {
     // Check if we should auto-close the popout after successful authentication
@@ -156,13 +164,13 @@ export class LoginViaWebAuthnComponent implements OnInit {
 
   private setDefaultIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon,
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon, // layout decides whether to render it via hidePageIcon
     });
   }
 
   private setFailureIcon(): void {
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon,
+      pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon, // layout decides whether to render it via hidePageIcon
     });
   }
 }

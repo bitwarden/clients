@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Ilgis"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Prisijungti"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Gauti pagrindinio slaptažodžio užuominą"
   },
   "emailRequired": {
     "message": "Reikalingas el. pašto adresas."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "Sumažinti į užduočių juostos piktogramą"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Sumažinus langą, rodyti ikoną užduočių juostoje."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Sumažinti meniu juostoje"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Sumažinus langą, rodyti ikoną užduočių juostoje."
-  },
-  "enableCloseToTray": {
-    "message": "Uždarymo į užduočių juostą ikona"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Uždarius langą, rodyti ikoną užduočių juostoje."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Uždaryti meniu juostoje"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Uždarius langą, rodyti ikoną užduočių juostoje."
-  },
-  "enableTray": {
-    "message": "Rodyti užduočių juostos ikoną"
-  },
-  "enableTrayDesc": {
-    "message": "Visada rodyti ikoną užduočių juostoje."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Automatiškai pasileisti prisijungus"
   },
   "openAtLoginDesc": {
     "message": "Prisijungus pradėti Bitwarden darbalaukio aplikaciją automatiškai."
-  },
-  "alwaysShowDock": {
-    "message": "Visada rodyti Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Rodyti Bitwarden ikoną, esančią Dock, net kai ji sumažinta į meniu juostą."
-  },
-  "confirmTrayTitle": {
-    "message": "Patvirtinti sumažinimą užduočių juostoje"
-  },
-  "confirmTrayDesc": {
-    "message": "Išjungus šį nustatymą bus išjungti visi kiti su užduočių juosta susiję nustatymai."
   },
   "language": {
     "message": "Kalba"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopijuoti saugos kodą",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Išeiti"
   },
-  "showHide": {
-    "message": "Rodyti / Slėpti",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Paslėpti užduočių juostoje"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Nuostatos"
-  },
-  "enableMenuBar": {
-    "message": "Rodyti meniu juostos ikoną"
-  },
-  "enableMenuBarDesc": {
-    "message": "Visada rodyti ikoną meniu juostoje."
   },
   "hideToMenuBar": {
     "message": "Paslėpti meniu juostoje"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Jūsų slaptažodžio užuomina negali būti lygi jūsų slaptažodžiui."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Saugykla",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Prisijungti su pagrindiniu slaptažodžiu"
   },
   "rememberEmail": {
     "message": "Prisiminti el. paštą"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
