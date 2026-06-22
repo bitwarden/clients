@@ -91,6 +91,44 @@ describe("RepositoryRecord", () => {
     });
   });
 
+  describe("shouldInclude filtering", () => {
+    // Mirrors the PAM partial-data case: elements failing shouldInclude stay in
+    // stored state but are hidden from SDK reads. Here "partial:"-prefixed values
+    // stand in for the excluded elements.
+    function filteringRepo(): RepositoryRecord<ClientType, SdkType> {
+      const filteringMapper: SdkRecordMapper<ClientType, SdkType> = {
+        ...createMapper(),
+        shouldInclude: (value) => !value.startsWith("partial:"),
+      };
+      return new RepositoryRecord(userId, stateProvider, filteringMapper);
+    }
+
+    it("get returns the value for an included element", async () => {
+      await setState({ "id-1": "value-1" });
+
+      expect(await filteringRepo().get("id-1")).toEqual({ value: "value-1" });
+    });
+
+    it("get returns null for an excluded element even though it is stored", async () => {
+      await setState({ "id-1": "partial:value-1" });
+
+      expect(await filteringRepo().get("id-1")).toBeNull();
+    });
+
+    it("list omits excluded elements, keeping the rest", async () => {
+      await setState({ "id-1": "value-1", "id-2": "partial:value-2", "id-3": "value-3" });
+
+      expect(await filteringRepo().list()).toEqual([{ value: "value-1" }, { value: "value-3" }]);
+    });
+
+    it("list returns everything when no mapper excludes elements", async () => {
+      await setState({ "id-1": "value-1", "id-2": "value-2" });
+
+      // The default mapper has no shouldInclude.
+      expect(await repo.list()).toEqual([{ value: "value-1" }, { value: "value-2" }]);
+    });
+  });
+
   describe("set", () => {
     it("adds new item to empty state", async () => {
       await setState({});

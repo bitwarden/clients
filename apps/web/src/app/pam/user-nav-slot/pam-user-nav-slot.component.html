@@ -1,0 +1,9 @@
+@if (pamEnabled$ | async) {
+  <bit-nav-item icon="bwi-lock-encrypted" [text]="'pamInboxNav' | i18n" route="pam/approver-inbox">
+    @if (pamInboxBadgeCount() > 0) {
+      <span slot="end" class="tw-flex tw-items-center">
+        <span bitBadge variant="primary">{{ pamInboxBadgeCount() }}</span>
+      </span>
+    }
+  </bit-nav-item>
+}

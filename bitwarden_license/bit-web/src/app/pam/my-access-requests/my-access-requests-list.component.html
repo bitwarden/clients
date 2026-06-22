@@ -1,0 +1,288 @@
+@if (loading() && !hasAnyRows()) {
+  <p bitTypography="body1" class="tw-text-muted">
+    {{ "loading" | i18n }}
+  </p>
+} @else if (!hasAnyRows()) {
+  <bit-no-items class="tw-mt-2 tw-block" data-testid="my-requests-empty">
+    <span slot="title" class="tw-mt-4 tw-block">{{ "pamMyRequestsEmptyTitle" | i18n }}</span>
+    <span slot="description">{{ "pamMyRequestsEmptyDescription" | i18n }}</span>
+  </bit-no-items>
+} @else {
+  <!-- Active leases section -->
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h4">{{ "pamMyLeasesActiveSection" | i18n }}</h2>
+    </bit-section-header>
+
+    @if (leases().length === 0) {
+      <p bitTypography="body2" class="tw-text-muted" data-testid="my-leases-empty">
+        {{ "pamMyLeasesActiveEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="leasesDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "window" | i18n }}</th>
+            <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnRemaining" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let lease of rows$ | async"
+            [attr.data-testid]="'my-leases-row-' + lease.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(lease.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ lease.cipherName ?? lease.cipherId }}</div>
+                  @if (lease.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: lease.collectionName }}
+                    </div>
+                  }
+                  @if (lease.extendedUntil) {
+                    <span
+                      bitBadge
+                      variant="secondary"
+                      class="tw-mt-1 tw-inline-block"
+                      [attr.data-testid]="'my-leases-extended-' + lease.id"
+                    >
+                      {{
+                        "pamExtendedBadge"
+                          | i18n
+                            : extendedByLabel(lease.extendedBySeconds)
+                            : (lease.extendedUntil | date: "short")
+                      }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
+            </td>
+            <td bitCell>
+              <span bitBadge variant="success">{{ leaseRemainingLabel(lease) }}</span>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-section>
+
+  <!-- Pending section -->
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h4">{{ "pamMyRequestsPendingSection" | i18n }}</h2>
+    </bit-section-header>
+
+    @if (pendingRows().length === 0) {
+      <p bitTypography="body2" class="tw-text-muted" data-testid="my-requests-pending-empty">
+        {{ "pamMyRequestsPendingEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="pendingDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+            <th bitCell bitSortable="submittedAt" default="desc">
+              {{ "pamColumnSubmitted" | i18n }}
+            </th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let row of rows$ | async"
+            [attr.data-testid]="'my-requests-pending-row-' + row.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ row.cipherName ?? row.cipherId }}</div>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              @if (row.requestedNotBefore && row.requestedNotAfter) {
+                {{ row.requestedNotBefore | date: "short" }}
+                &ndash;
+                {{ row.requestedNotAfter | date: "short" }}
+              } @else if (row.requestedNotAfter) {
+                {{ "pamWindowUntil" | i18n: (row.requestedNotAfter | date: "short") }}
+              } @else {
+                {{ "pamWindowTtlSeconds" | i18n: row.requestedTtlSeconds }}
+              }
+            </td>
+            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell>
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [disabled]="isCancelling(row.id)"
+                (click)="cancel(row)"
+                [attr.data-testid]="'my-requests-cancel-' + row.id"
+              >
+                {{ "cancel" | i18n }}
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-section>
+
+  <!-- History section -->
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h4">{{ "pamMyRequestsHistorySection" | i18n }}</h2>
+    </bit-section-header>
+
+    @if (historyRows().length === 0) {
+      <p bitTypography="body2" class="tw-text-muted" data-testid="my-requests-history-empty">
+        {{ "pamMyRequestsHistoryEmpty" | i18n }}
+      </p>
+    } @else {
+      <bit-table [dataSource]="historyDataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell bitSortable="status">{{ "pamColumnStatus" | i18n }}</th>
+            <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
+            <th bitCell>{{ "pamColumnComment" | i18n }}</th>
+            <th bitCell bitSortable="resolvedAt" default="desc">
+              {{ "pamColumnResolved" | i18n }}
+            </th>
+            <th bitCell class="tw-w-40">
+              <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+            </th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr
+            bitRow
+            *ngFor="let row of rows$ | async"
+            [attr.data-testid]="'my-requests-history-row-' + row.id"
+          >
+            <td bitCell>
+              <div class="tw-flex tw-items-center tw-gap-3">
+                @if (cipherFor(row.cipherId); as cipher) {
+                  <app-vault-icon [cipher]="cipher" />
+                }
+                <div>
+                  <div>{{ row.cipherName ?? row.cipherId }}</div>
+                  @if (row.collectionName) {
+                    <div class="tw-text-xs tw-text-muted">
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                    </div>
+                  }
+                  @if (row.extendedUntil) {
+                    <span
+                      bitBadge
+                      variant="secondary"
+                      class="tw-mt-1 tw-inline-block"
+                      [attr.data-testid]="'my-requests-extended-' + row.id"
+                    >
+                      {{
+                        "pamExtendedBadge"
+                          | i18n
+                            : extendedByLabel(row.extendedBySeconds)
+                            : (row.extendedUntil | date: "short")
+                      }}
+                    </span>
+                  }
+                </div>
+              </div>
+            </td>
+            <td bitCell>
+              <span
+                bitBadge
+                [variant]="row.statusVariant"
+                [attr.data-testid]="'my-requests-status-' + row.id"
+              >
+                {{ row.statusLabelKey | i18n }}
+              </span>
+            </td>
+            <td bitCell>
+              @if (row.resolverLabelKey) {
+                {{ row.resolverLabelKey | i18n }}
+              } @else {
+                {{ row.resolverName }}
+              }
+            </td>
+            <td bitCell>
+              @if (row.approverComment) {
+                {{ row.approverComment }}
+              } @else {
+                <span class="tw-text-muted">&mdash;</span>
+              }
+            </td>
+            <td bitCell>
+              @if (row.resolvedAt) {
+                <span class="tw-whitespace-nowrap" [title]="row.resolvedAt | date: 'medium'">
+                  {{ relativeResolved(row) }}
+                </span>
+              }
+            </td>
+            <td bitCell>
+              <div class="tw-flex tw-items-start tw-gap-2">
+                @if (canStart(row)) {
+                  <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="primary"
+                      size="small"
+                      [disabled]="isStarting(row.id)"
+                      (click)="activateLease(row)"
+                      [attr.data-testid]="'my-requests-start-' + row.id"
+                    >
+                      {{ "pamStartLeaseButton" | i18n }}
+                    </button>
+                    @if (redemptionRemainingLabel(row); as remaining) {
+                      <span class="tw-text-xs tw-text-muted">
+                        {{ "pamActivateWithin" | i18n: remaining }}
+                      </span>
+                    }
+                  </div>
+                }
+                @if (canCancel(row)) {
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="secondary"
+                    size="small"
+                    [disabled]="isCancelling(row.id)"
+                    (click)="cancel(row)"
+                    [attr.data-testid]="'my-requests-cancel-' + row.id"
+                  >
+                    {{ "cancel" | i18n }}
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    }
+  </bit-section>
+}

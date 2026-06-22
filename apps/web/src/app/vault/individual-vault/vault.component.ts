@@ -1,4 +1,13 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  Optional,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, of, Subject } from "rxjs";
@@ -133,6 +142,7 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 
 import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
+import { CIPHER_OPEN_GATE, CipherOpenGate } from "./cipher-open-gate";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -339,6 +349,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private webVaultPromptService: WebVaultPromptService,
     private vaultBatchBarService: VaultBatchBarService<C>,
     private configService: ConfigService,
+    // Optional so the always-on vault doesn't hard-couple to PAM wiring: absent the
+    // gate (PAM not provided), every cipher opens normally. See PAM's providePam().
+    @Optional() @Inject(CIPHER_OPEN_GATE) private cipherOpenGate: CipherOpenGate | null,
   ) {}
 
   async ngOnInit() {
@@ -1110,11 +1123,27 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
 
+    const verdict = (await this.cipherOpenGate?.check(cipher, activeUserId)) ?? "open";
+    if (verdict === "handled") {
+      await this.go(
+        { cipherId: null, itemId: null, action: null },
+        this.configureRouterFocusToCipher(cipher.id),
+      );
+      return;
+    }
+
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
+
+    if (typeof verdict === "object" && verdict.kind === "openWith") {
+      // PAM gate handed us a transient leased Cipher fetched fresh from the
+      // server. Substitute it into the form config so the dialog renders full
+      // data; the local CipherService cache stays partial.
+      cipherFormConfig.originalCipher = verdict.cipher;
+    }
 
     await this.openVaultItemDialog(
       "view",

@@ -312,6 +312,10 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  get canManageAccessRules() {
+    return this.isAdmin;
+  }
+
   get canManageUsers() {
     return this.isAdmin || this.permissions.manageUsers;
   }

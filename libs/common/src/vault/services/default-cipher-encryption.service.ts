@@ -140,6 +140,14 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
 
           const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
 
+          // PAM gated ciphers carry a client-only `partialData` marker that the SDK
+          // round trip drops. Re-attach it from the source cipher so gating surfaces
+          // (e.g. the cipher-lease banner) see it on the decrypted view. The
+          // transient `leaseGated` marker (full cipher served under an active lease)
+          // is dropped the same way; re-attach it too.
+          clientCipherView.partialData = cipher.partialData;
+          clientCipherView.leaseGated = cipher.leaseGated;
+
           // Decrypt Fido2 credentials if available
           if (
             clientCipherView.type === CipherType.Login &&
@@ -189,6 +197,10 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
             try {
               const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
               const clientCipherView = CipherView.fromSdkCipherView(sdkCipherView)!;
+
+              // Re-attach the client-only `partialData` marker dropped by the SDK
+              // round trip (PAM gating signal); see CipherView.partialData.
+              clientCipherView.partialData = cipher.partialData;
 
               // Handle FIDO2 credentials if present
               if (

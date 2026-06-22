@@ -35,6 +35,7 @@ import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/type
 import { FreeFamiliesPolicyService } from "../../../billing/services/free-families-policy.service";
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
+import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -50,6 +51,7 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
+    PamOrgNavSlotComponent,
   ],
 })
 export class OrganizationLayoutComponent {

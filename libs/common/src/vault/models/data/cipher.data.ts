@@ -47,6 +47,12 @@ export class CipherData {
   archivedDate?: string;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: string;
+  /**
+   * Raw JSON-string partial-data payload for PAM-gated rows. See CipherResponse.
+   * Widened to allow `null` so a `CipherResponse` (whose `partialData` is
+   * `string | null`) stays structurally assignable to `CipherData`.
+   */
+  partialData?: string | null;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
@@ -72,6 +78,7 @@ export class CipherData {
     this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
+    this.partialData = response.partialData ?? undefined;
 
     switch (this.type) {
       case CipherType.Login:

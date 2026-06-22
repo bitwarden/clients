@@ -454,6 +454,25 @@ describe("DefaultCipherEncryptionService", () => {
       expect(mockSdkClient.vault().ciphers().decrypt_fido2_credentials).not.toHaveBeenCalled();
     });
 
+    it("re-attaches the client-only partialData marker the SDK round trip drops", async () => {
+      // PAM gated ciphers carry `partialData`, which the SDK view doesn't model;
+      // decrypt must copy it back from the source cipher so gating surfaces (e.g.
+      // the cipher-lease banner) see it on the decrypted view.
+      const sdkView: CipherView = {
+        id: cipherId as string,
+        type: CipherType.Login,
+        name: "test-name",
+      } as CipherView;
+      cipherObj.partialData = '{"Name":"enc-name"}';
+
+      mockSdkClient.vault().ciphers().decrypt.mockReturnValue(sdkCipherView);
+      jest.spyOn(CipherView, "fromSdkCipherView").mockReturnValue(sdkView);
+
+      const result = await cipherEncryptionService.decrypt(cipherObj, userId);
+
+      expect(result.partialData).toBe('{"Name":"enc-name"}');
+    });
+
     it("should decrypt FIDO2 credentials if present", async () => {
       const fido2Credentials = [
         {

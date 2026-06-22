@@ -26,6 +26,7 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -213,6 +214,25 @@ describe("VaultItemDialogComponent", () => {
       component.setTestFormConfig({ mode: "edit" });
 
       expect(component["disableEdit"]).toBe(false);
+    });
+  });
+
+  describe("showEdit", () => {
+    beforeEach(() => {
+      component.setTestParams({ mode: "view" });
+      component["showRestore"] = false;
+    });
+
+    it("returns true for a full cipher in view mode", () => {
+      component.setTestCipher({ id: "c1", isDeleted: false } as any);
+
+      expect(component["showEdit"]).toBe(true);
+    });
+
+    it("returns false for a partial-data (PAM-gated, unleased) cipher", () => {
+      component.setTestCipher({ id: "c1", isDeleted: false, partialData: "{}" } as any);
+
+      expect(component["showEdit"]).toBe(false);
     });
   });
 
@@ -565,6 +585,98 @@ describe("VaultItemDialogComponent", () => {
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
+    });
+  });
+
+  describe("revealFullCipher (gated cipher revealed after a lease is minted)", () => {
+    it("swaps in the decrypted leased cipher and recomputes edit/delete permissions", async () => {
+      const leasedCipher = { id: "gated-1" } as Cipher;
+      const decrypted = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(decrypted);
+      canEditCipherReturnValue$.next(true);
+      canDeleteCipherReturnValue$.next(true);
+
+      await component["revealFullCipher"](leasedCipher);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(leasedCipher, "test-user-id");
+      expect(component["cipher"]).toBe(decrypted);
+      // The full cipher backs subsequent edit/attachment flows.
+      expect(component["formConfig"].originalCipher).toBe(leasedCipher);
+      expect(component["canEdit"]).toBe(true);
+      expect(component["canDelete"]).toBe(true);
+    });
+  });
+
+  describe("relockToPartial (lease ended under an open gated cipher)", () => {
+    it("swaps the partial cipher back in and forces the read-only view", async () => {
+      const partialCipher = { id: "gated-1", partialData: '{"Name":"AWS root"}' } as Cipher;
+      const decrypted = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+        partialData: '{"Name":"AWS root"}',
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(decrypted);
+      // Was revealed, mid-edit, and editable; the revoke must drop all of it back.
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+      component["canEdit"] = true;
+      component["canDelete"] = true;
+
+      await component["relockToPartial"](partialCipher);
+
+      expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(partialCipher, "test-user-id");
+      expect(component["cipher"]).toBe(decrypted);
+      expect(component["formConfig"].originalCipher).toBe(partialCipher);
+      expect(component["params"].mode).toBe("view");
+      // The form must unmount so its editable fields and full-cipher form cache don't outlive the lease.
+      expect(component["loadForm"]).toBe(false);
+      expect(component["canEdit"]).toBe(false);
+      expect(component["canDelete"]).toBe(false);
+    });
+  });
+
+  describe("ngOnInit edit gating for partial-data ciphers", () => {
+    it("forces a partial-data cipher opened in form mode back to view, even with edit permission", async () => {
+      const partialCipher = {
+        id: "gated-1",
+        type: CipherType.Login,
+        collectionIds: [],
+        partialData: '{"Name":"AWS root"}',
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(partialCipher);
+      // A manage/edit user passes the permission check — gating must still apply.
+      canEditCipherReturnValue$.next(true);
+      component.setTestFormConfig({ mode: "edit", originalCipher: { id: "gated-1" } as any });
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("view");
+      expect(component["loadForm"]).toBe(false);
+    });
+
+    it("keeps a full cipher in form mode for a user who can edit", async () => {
+      const fullCipher = {
+        id: "full-1",
+        type: CipherType.Login,
+        collectionIds: [],
+      } as CipherView;
+      cipherServiceMock.decrypt.mockResolvedValue(fullCipher);
+      canEditCipherReturnValue$.next(true);
+      component.setTestFormConfig({ mode: "edit", originalCipher: { id: "full-1" } as any });
+      component.setTestParams({ mode: "form" });
+      component["loadForm"] = true;
+
+      await component.ngOnInit();
+
+      expect(component["params"].mode).toBe("form");
+      expect(component["loadForm"]).toBe(true);
     });
   });
 });

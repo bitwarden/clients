@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  Type,
+} from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -65,6 +73,8 @@ import {
   convertToSelectionView,
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
+
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -165,6 +175,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private collectionService: CollectionService,
     private configService: ConfigService,
+    @Optional()
+    @Inject(COLLECTION_ACCESS_RULE_CALLOUT)
+    protected accessRuleCallout: Type<unknown> | null,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
     this.initialPermission = params.initialPermission ?? CollectionPermission.View;

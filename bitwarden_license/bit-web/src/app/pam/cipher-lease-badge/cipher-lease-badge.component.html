@@ -1,0 +1,33 @@
+@switch (state()) {
+  @case ("gated_no_lease") {
+    <span
+      class="tw-inline-flex tw-items-center tw-justify-center tw-text-muted"
+      [bitTooltip]="tooltip()"
+      tabindex="0"
+      data-testid="cipher-lease-badge-gated"
+    >
+      <span class="tw-relative tw-inline-flex tw-size-5 tw-items-center tw-justify-center">
+        <bit-icon name="bwi-lock" class="tw-text-base"></bit-icon>
+        <bit-icon
+          name="bwi-clock"
+          class="tw-absolute -tw-bottom-0 -tw-right-0 tw-text-xxs tw-leading-none tw-bg-background tw-rounded-full"
+        ></bit-icon>
+      </span>
+      <span class="tw-sr-only">{{ tooltip() }}</span>
+    </span>
+  }
+  @case ("gated_active_lease") {
+    <span
+      class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success"
+      [bitTooltip]="tooltip()"
+      tabindex="0"
+      data-testid="cipher-lease-badge-active"
+    >
+      <bit-icon name="bwi-unlock" class="tw-text-base"></bit-icon>
+      <span class="tw-text-xs tw-tabular-nums" data-testid="cipher-lease-countdown">{{
+        remainingLabel()
+      }}</span>
+      <span class="tw-sr-only">{{ tooltip() }}</span>
+    </span>
+  }
+}

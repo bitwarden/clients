@@ -1,0 +1,15 @@
+<app-header [title]="'pamInboxTitle' | i18n">
+  <bit-tab-nav-bar slot="tabs" [label]="'pamInboxTitle' | i18n">
+    <bit-tab-link route="approvals" [berryValue]="pendingApprovalsCount()">{{
+      "pamTabApprovals" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="my-requests" [berryValue]="myPendingCount()">{{
+      "pamTabMyRequests" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="audit-log">{{ "pamTabAuditLog" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<p class="tw-m-0 tw-mb-4 tw-text-muted">{{ "pamInboxSubtitle" | i18n }}</p>
+
+<router-outlet></router-outlet>

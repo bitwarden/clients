@@ -52,6 +52,14 @@ export class CipherResponse extends BaseResponse {
   archivedDate: string;
   reprompt: CipherRepromptType;
   key: string;
+  /**
+   * Raw JSON-string payload the server returns on PAM-gated rows in lieu of
+   * the full sensitive fields. Plumbed through to the SDK Cipher's `data`
+   * field so the SDK's decrypt path produces a partial CipherView. Its
+   * presence is the "this row is gated" marker used by the vault-row badge
+   * and cipher-open gate.
+   */
+  partialData: string | null = null;
 
   constructor(response: any) {
     super(response);
@@ -133,5 +141,33 @@ export class CipherResponse extends BaseResponse {
 
     this.reprompt = this.getResponseProperty("Reprompt") || CipherRepromptType.None;
     this.key = this.getResponseProperty("Key") || null;
+
+    // PAM gated rows ship a `partialData` JSON blob in place of the sensitive
+    // fields. Keep the raw string as the gating marker, and lift the encrypted
+    // `Name` from the blob into the top-level `name` so the standard cipher
+    // decrypt path (Cipher.decrypt) can decrypt it like any other cipher name.
+    const partialData = this.getResponseProperty("PartialData");
+    if (partialData != null) {
+      this.partialData =
+        typeof partialData === "string" ? partialData : JSON.stringify(partialData);
+      try {
+        const parsed = JSON.parse(this.partialData);
+        if (parsed?.Name != null && this.name == null) {
+          this.name = parsed.Name;
+        }
+        // Likewise lift the encrypted login URIs so the partial view exposes a
+        // domain (favicon, launch). Only `Uris` ships in the blob — the secret
+        // login fields (password, TOTP, …) stay gated — so the decrypted partial
+        // view gains a domain but no credentials. Build the login from `Uris`
+        // alone so an expanded blob can never leak more onto the gated view.
+        if (this.type === CipherType.Login && this.login == null && parsed?.Uris?.length > 0) {
+          this.login = new LoginApi({ Uris: parsed.Uris });
+        }
+      } catch {
+        // Malformed partialData blob — leave name as-is. The cipher will
+        // render with an empty name; the gating signal (partialData) is
+        // still preserved.
+      }
+    }
   }
 }

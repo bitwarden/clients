@@ -88,3 +88,5 @@ export {
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
+
+export * from "./tokens/gated-cipher-reloader.token";

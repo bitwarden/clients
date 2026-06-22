@@ -1,0 +1,156 @@
+@if (loading() && requests().length === 0) {
+  <div class="tw-text-muted">{{ "loading" | i18n }}</div>
+} @else if (requests().length === 0) {
+  <bit-no-items>
+    <ng-container slot="title">
+      @if (hasManagerCollections()) {
+        {{ "pamInboxEmptyTitle" | i18n }}
+      } @else {
+        {{ "pamInboxNotApproverTitle" | i18n }}
+      }
+    </ng-container>
+    <ng-container slot="description">
+      @if (hasManagerCollections()) {
+        {{ "pamInboxEmptyDescription" | i18n }}
+      } @else {
+        {{ "pamInboxNotApproverDescription" | i18n }}
+      }
+    </ng-container>
+  </bit-no-items>
+} @else {
+  <!-- Toolbar: search + filters on the left, density toggle on the right -->
+  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+    <bit-search
+      class="tw-grow tw-max-w-md"
+      [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+      [formControl]="searchControl"
+    ></bit-search>
+    <bit-chip-filter
+      [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+      placeholderIcon="bwi-collection-shared"
+      [options]="collectionOptions()"
+      [formControl]="collectionControl"
+    ></bit-chip-filter>
+    <bit-chip-filter
+      [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
+      placeholderIcon="bwi-user"
+      [options]="requesterOptions()"
+      [formControl]="requesterControl"
+    ></bit-chip-filter>
+    <div class="tw-flex-1"></div>
+    <bit-toggle-group
+      [selected]="density()"
+      (selectedChange)="density.set($event)"
+      aria-label="{{ 'pamApprovalsDensityLabel' | i18n }}"
+    >
+      <bit-toggle value="comfortable">{{ "pamApprovalsDensityComfortable" | i18n }}</bit-toggle>
+      <bit-toggle value="compact">{{ "pamApprovalsDensityCompact" | i18n }}</bit-toggle>
+    </bit-toggle-group>
+  </div>
+
+  <h2 bitTypography="h4" class="tw-mb-3">
+    {{ "pamApprovalsPendingHeader" | i18n: requests().length }}
+  </h2>
+
+  <bit-table [dataSource]="dataSource">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+        <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
+        <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
+        <th bitCell>{{ "pamInboxReason" | i18n }}</th>
+        <th bitCell bitSortable="submittedAtMs" default="asc">{{ "pamColumnSubmitted" | i18n }}</th>
+        <th bitCell class="tw-text-right">
+          <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+        </th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'approvals-row'">
+        <!-- Item -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          <div class="tw-flex tw-items-center tw-gap-2">
+            <!-- TODO(PM-follow-up): brand/credential favicons require resolution from the gated
+                 CipherView in local vault; use a generic credential icon for now. -->
+            <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
+            <div class="tw-min-w-0">
+              <span class="tw-font-medium">{{ row.cipherName }}</span>
+              <a
+                [routerLink]="['/vault']"
+                [queryParams]="{ action: 'view', cipherId: row.request.cipherId }"
+                class="tw-ml-1 tw-text-muted hover:tw-text-main"
+                [attr.aria-label]="'pamInboxViewInVault' | i18n"
+                [bitTooltip]="'pamInboxViewInVault' | i18n"
+                ><bit-icon name="bwi-arrow-right" class="tw-text-xs"></bit-icon
+              ></a>
+              @if (row.collectionName && !compact()) {
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                </div>
+              }
+            </div>
+          </div>
+        </td>
+        <!-- Requester -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          <div>{{ row.requester }}</div>
+          @if (row.requesterEmail && row.request.requesterName && !compact()) {
+            <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
+          }
+        </td>
+        <!-- Requested window -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          <span [bitTooltip]="row.exactWindow">
+            <span>{{ row.duration.key | i18n: row.duration.value }}</span>
+            <span class="tw-text-muted">
+              &nbsp;·&nbsp;{{ row.relativeStart.key | i18n: row.relativeStart.value }}</span
+            >
+          </span>
+        </td>
+        <!-- Reason -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          @if (row.reason) {
+            {{ row.reason }}
+          } @else {
+            <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+          }
+        </td>
+        <!-- Requested (relative submit time) -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          <span class="tw-whitespace-nowrap tw-text-muted">{{
+            row.elapsed.key | i18n: row.elapsed.value
+          }}</span>
+        </td>
+        <!-- Actions -->
+        <td bitCell [class.!tw-py-1]="compact()">
+          <div class="tw-flex tw-justify-end tw-gap-2">
+            <button
+              bitButton
+              type="button"
+              buttonType="secondary"
+              size="small"
+              [disabled]="!row.canDecide"
+              [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+              data-testid="approver-inbox-deny"
+              (click)="openDecision(row, deny)"
+            >
+              {{ "pamInboxDeny" | i18n }}
+            </button>
+            <button
+              bitButton
+              type="button"
+              buttonType="primary"
+              size="small"
+              [disabled]="!row.canDecide"
+              [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+              data-testid="approver-inbox-approve"
+              (click)="openDecision(row, approve)"
+            >
+              {{ "pamInboxApprove" | i18n }}
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </bit-table>
+}
