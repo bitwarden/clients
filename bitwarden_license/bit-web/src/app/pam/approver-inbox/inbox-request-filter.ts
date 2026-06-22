@@ -1,4 +1,4 @@
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
 /**
  * Whether a request still belongs in the approver inbox — i.e. a decision can

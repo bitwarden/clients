@@ -4,9 +4,10 @@ The web vault's Privileged Access Management surfaces — member request flows,
 the approver inbox, admin access-rule CRUD, and the governance dashboard. This is
 the **commercial home** for PAM: the Angular UI, the page/gate/reloader services,
 **and** the concrete `Default*` implementations (`services/`) + the cipher-lease
-banner. It **consumes** `@bitwarden/pam` (the OSS contract layer — abstractions,
-DTOs, helpers); the domain model, state machines, API client contract, and the
-`pam.allium` spec are documented in **`libs/pam/CLAUDE.md` — read that first**.
+banner. It **consumes** `@bitwarden/bit-pam` (the commercial contract layer —
+abstractions, DTOs, helpers); the domain model, state machines, API client
+contract, and the `pam.allium` spec are documented in
+**`bitwarden_license/bit-pam/CLAUDE.md` — read that first**.
 Everything here is gated behind `FeatureFlag.Pam` (`pm-37044-pam-v-0`).
 
 Because `apps/web` (OSS) may not import licensed code, anything OSS needs to
@@ -53,7 +54,7 @@ instance and stay mounted across tab switches.
 > **Governance dashboard + kill switch are mock-only today.** Their API methods
 > (`getGovernanceSummary`, `bulkRevokeLeases`, `unblockNewLeases`,
 > `isLeasingFrozen`) `Promise.reject` in `DefaultPamApiService` (see
-> `libs/pam/CLAUDE.md`). The components are real but only function under the mock.
+> `bitwarden_license/bit-pam/CLAUDE.md`). The components are real but only function under the mock.
 
 ## The cipher-open → banner → reloader flow (the vault seam)
 
@@ -98,7 +99,8 @@ hosts surface PAM, all bound in `provide-pam.ts`:
   flow section above.
 - **Nav badge** — the two nav-slot components **stay in `apps/web/src/app/pam/`**
   (org + user layouts) and inject the OSS abstraction `PamInboxBadgeService`
-  (`@bitwarden/pam`), bound here to `ApproverInboxRequestsService.count$`.
+  (also defined in `apps/web/src/app/pam/`, since OSS consumes it), bound here to
+  `ApproverInboxRequestsService.count$`.
 - **Collection callout** — `COLLECTION_ACCESS_RULE_CALLOUT` (token next to the
   collection-dialog in apps/web). The dialog renders the bound component via
   `*ngComponentOutlet`; bound here to `CollectionAccessRuleCalloutComponent`.
@@ -152,5 +154,5 @@ today.
 ~240 keys, prefixed `pam*` (plus a few `accessRule*`), in
 `apps/web/src/locales/en/messages.json`. The UI says "access request" /
 "approval", not "lease". When adding copy, follow the existing `pam`-prefix
-convention; per `libs/pam/README.md` the collection-side toggle deliberately
+convention; per `bitwarden_license/bit-pam/README.md` the collection-side toggle deliberately
 keeps `pamLeasing*` keys while rule-shape keys are `pamAccessRule*`.

@@ -10,7 +10,7 @@ Lands behind the `pm-37044-pam-v-0` feature flag.
 
 PM-37751 renamed the `LeasingPolicy*` types, request/response classes, service
 methods, and routes to `AccessRule*` / `AccessRequest*`. The rename has been
-propagated across `libs/pam` and `apps/web`. `pamLeasing*` i18n keys describing
+propagated across `bitwarden_license/bit-pam` and `apps/web`. `pamLeasing*` i18n keys describing
 the collection-side toggle (`pamLeasingTab*`, `pamLeasingEnabled*`,
 `pamLeasingTurnOff*`, `pamLeasingSaved*`, `pamLeasingSaveFailed*`) are kept by
 design; rule-shape editor keys moved to `pamAccessRule*`. `requestDetailModal*`

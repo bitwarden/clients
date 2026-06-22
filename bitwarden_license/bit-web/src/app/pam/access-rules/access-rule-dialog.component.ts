@@ -12,6 +12,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import {
+  AccessRuleRequest,
+  AccessRuleResponse,
+  AccessCondition,
+  ACCESS_RULE_DURATION_PRESETS,
+  PamApiService,
+  snapToNearestAccessRuleDuration,
+} from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -31,14 +39,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessRuleRequest,
-  AccessRuleResponse,
-  AccessCondition,
-  ACCESS_RULE_DURATION_PRESETS,
-  PamApiService,
-  snapToNearestAccessRuleDuration,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IpAllowlistEditorComponent } from "../access-rule-editor/ip-allowlist/ip-allowlist-editor.component";

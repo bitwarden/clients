@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
-import { AccessEventService } from "@bitwarden/pam";
+import { AccessEventService } from "@bitwarden/bit-pam";
 
 import { PamMockStore } from "./pam-mock-store";
 

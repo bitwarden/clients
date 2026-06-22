@@ -4,16 +4,16 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import {
+  CollectionGovernanceRowResponse,
+  OrganizationGovernanceSummaryResponse,
+  PamApiService,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  CollectionGovernanceRowResponse,
-  OrganizationGovernanceSummaryResponse,
-  PamApiService,
-} from "@bitwarden/pam";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { GovernanceDashboardComponent } from "./governance-dashboard.component";

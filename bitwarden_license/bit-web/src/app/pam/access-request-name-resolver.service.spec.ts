@@ -3,11 +3,11 @@ import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
 
 import { AccessRequestNameResolver } from "./access-request-name-resolver.service";
 

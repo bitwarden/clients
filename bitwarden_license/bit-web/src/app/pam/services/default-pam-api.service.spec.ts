@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import {
   AccessApprovalMode,
   AccessCondition,
@@ -13,7 +11,9 @@ import {
   AccessLeaseRevokeRequest,
   AccessRequestCreateRequest,
   AccessRuleRequest,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
 

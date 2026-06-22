@@ -2,12 +2,12 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
+import { CipherAccessState, AccessLeaseResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nMockService } from "@bitwarden/components";
-import { CipherAccessState, AccessLeaseResponse, PamApiService } from "@bitwarden/pam";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 

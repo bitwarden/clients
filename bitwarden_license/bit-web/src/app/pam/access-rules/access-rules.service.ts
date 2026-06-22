@@ -2,11 +2,6 @@ import { Injectable, LOCALE_ID, inject } from "@angular/core";
 import { BehaviorSubject, Observable, combineLatest, firstValueFrom, map } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { BitwardenIcon } from "@bitwarden/components";
 import {
   AccessCondition,
   AccessRuleResponse,
@@ -14,7 +9,12 @@ import {
   accessRuleToRequest,
   accessRuleWindow,
   formatRelativeTime,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { BitwardenIcon } from "@bitwarden/components";
 
 /** A condition rendered as an icon + i18n label key. */
 export type ConditionBadge = {

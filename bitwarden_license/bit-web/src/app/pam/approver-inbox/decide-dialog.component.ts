@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 
+import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import {
   ButtonModule,
   DIALOG_DATA,
@@ -12,7 +13,6 @@ import {
   IconModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { durationLabel, reasonText, relativeStart } from "./approval-row";

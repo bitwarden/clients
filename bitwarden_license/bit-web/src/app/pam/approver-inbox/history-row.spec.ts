@@ -1,4 +1,4 @@
-import { AccessLeaseStatus, AccessRequestDetailsResponse } from "@bitwarden/pam";
+import { AccessLeaseStatus, AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
 import { humanDecision } from "../testing/decision-builders";
 

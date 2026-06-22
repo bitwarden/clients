@@ -3,13 +3,13 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { catchError, combineLatest, from, map, of, switchMap } from "rxjs";
 
+import { AccessRuleResponse, PamApiService, summarizeRuleConditions } from "@bitwarden/bit-pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
-import { AccessRuleResponse, PamApiService, summarizeRuleConditions } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**

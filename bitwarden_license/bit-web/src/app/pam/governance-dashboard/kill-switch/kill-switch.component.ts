@@ -11,6 +11,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
 
+import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,7 +25,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { BulkRevokeResult, PamApiService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { KillSwitchDialogComponent, KillSwitchDialogResult } from "./kill-switch-dialog.component";

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
+import { GatedState, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -10,7 +11,6 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { GatedState, PamApiService } from "@bitwarden/pam";
 
 import { CipherLeaseBadgeComponent } from "../cipher-lease-badge/cipher-lease-badge.component";
 

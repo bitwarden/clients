@@ -6,8 +6,9 @@ import { of } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { BadgeModule, NavigationModule } from "@bitwarden/components";
-import { PamInboxBadgeService } from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { PamInboxBadgeService } from "../pam-inbox-badge.service";
 
 /**
  * Renders the PAM approver-inbox entry in the user-layout side nav, including

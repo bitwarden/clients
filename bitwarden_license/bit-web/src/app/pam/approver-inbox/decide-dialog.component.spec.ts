@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
+import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, I18nMockService } from "@bitwarden/components";
-import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/pam";
 
 import { DecideDialogComponent } from "./decide-dialog.component";
 

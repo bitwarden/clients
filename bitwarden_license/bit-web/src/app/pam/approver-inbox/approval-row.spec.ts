@@ -1,4 +1,4 @@
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
 import { durationLabel, reasonText, relativeStart, toApprovalRow } from "./approval-row";
 

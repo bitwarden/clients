@@ -2,13 +2,13 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import {
   AccessRequestDetailsResponse,
   AccessDecisionRequest,
   AccessDecisionVerdict,
   PamApiService,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 
 import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
 

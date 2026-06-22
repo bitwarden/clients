@@ -2,7 +2,7 @@
 -- pam.allium
 
 -- Scope: Privileged Access Management (PAM) v0 — credential leasing for the
--- web vault. Distilled from libs/pam and apps/web/src/app/pam.
+-- web vault. Distilled from bitwarden_license/bit-pam and apps/web/src/app/pam.
 --
 -- Includes:
 --   - Access rules (conditions attached to a collection)
@@ -946,7 +946,7 @@ rule OrgAdminDeletesAccessRule {
 --   collection_managers mode: all users with manage rights on request.collection.
 --   specific mode: the listed users.
 -- The self-approval guard is enforced at the rule level (not in this set).
-deferred EligibleApprovers    -- see: libs/pam/src/helpers/can-approve.ts
+deferred EligibleApprovers    -- see: bitwarden_license/bit-pam/src/helpers/can-approve.ts
 
 -- `EligibleRevokers(lease)`: who may revoke an active lease. This is the lease's
 -- own requester (early end), plus EligibleApprovers for the lease's request, plus

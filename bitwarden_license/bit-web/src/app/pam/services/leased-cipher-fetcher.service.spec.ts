@@ -1,8 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { PamApiService } from "@bitwarden/bit-pam";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
-import { PamApiService } from "@bitwarden/pam";
 
 import { LeasedCipherFetcherService } from "./leased-cipher-fetcher.service";
 

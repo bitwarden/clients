@@ -3,10 +3,10 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, SelectItemView, ToastService } from "@bitwarden/components";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/pam";
 
 import { AccessRuleDialogComponent, AccessRuleDialogData } from "./access-rule-dialog.component";
 

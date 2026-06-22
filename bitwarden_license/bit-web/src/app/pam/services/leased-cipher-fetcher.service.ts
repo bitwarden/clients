@@ -1,7 +1,7 @@
+import { PamApiService } from "@bitwarden/bit-pam";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { PamApiService } from "@bitwarden/pam";
 
 /**
  * Fetches the full encrypted cipher for a leased-access view.

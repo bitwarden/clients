@@ -3,17 +3,17 @@ import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import {
+  CollectionGovernanceRowResponse,
+  OrganizationGovernanceSummaryResponse,
+  PamApiService,
+} from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  CollectionGovernanceRowResponse,
-  OrganizationGovernanceSummaryResponse,
-  PamApiService,
-} from "@bitwarden/pam";
 
 import {
   GovernanceDashboardComponent,

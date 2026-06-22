@@ -1,9 +1,5 @@
 import { concat, from, merge, Observable, of, Subject, switchMap, timer } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 import {
   AccessDecisionRequest,
   AccessEventService,
@@ -21,7 +17,11 @@ import {
   CipherAccessStateResponse,
   OrganizationGovernanceSummaryResponse,
   PamApiService,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

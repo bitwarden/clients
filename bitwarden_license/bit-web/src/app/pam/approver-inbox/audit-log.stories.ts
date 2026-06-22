@@ -1,7 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 
-import { AccessRequestDetailsResponse } from "@bitwarden/pam";
+import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AuditLogComponent } from "./audit-log.component";

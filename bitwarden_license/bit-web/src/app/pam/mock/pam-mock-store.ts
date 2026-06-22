@@ -10,7 +10,7 @@ import {
   AccessEvent,
   AccessLeaseResponse,
   Decision,
-} from "@bitwarden/pam";
+} from "@bitwarden/bit-pam";
 
 import { PamMockConfig } from "./pam-mock-config";
 

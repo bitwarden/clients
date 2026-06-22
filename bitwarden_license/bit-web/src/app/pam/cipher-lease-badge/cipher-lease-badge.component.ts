@@ -8,9 +8,9 @@ import {
   signal,
 } from "@angular/core";
 
+import { GatedState, formatRemaining } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconComponent, TooltipDirective } from "@bitwarden/components";
-import { GatedState, formatRemaining } from "@bitwarden/pam";
 
 @Component({
   selector: "app-pam-cipher-lease-badge",

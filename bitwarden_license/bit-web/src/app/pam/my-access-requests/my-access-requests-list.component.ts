@@ -14,6 +14,12 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { filter } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import {
+  AccessRequestStatus,
+  formatDurationShort,
+  formatRelativeTime,
+  formatRemaining,
+} from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -28,12 +34,6 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  AccessRequestStatus,
-  formatDurationShort,
-  formatRelativeTime,
-  formatRemaining,
-} from "@bitwarden/pam";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { MyAccessRequestsService } from "./my-access-requests.service";

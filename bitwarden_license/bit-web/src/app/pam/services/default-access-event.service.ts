@@ -1,9 +1,9 @@
 import { filter, map, Observable, share } from "rxjs";
 
+import { AccessEventService } from "@bitwarden/bit-pam";
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
 import { UserId } from "@bitwarden/common/types/guid";
-import { AccessEventService } from "@bitwarden/pam";
 
 /**
  * Default {@link AccessEventService} implementation.
