@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import {
   AvatarModule,
   BreadcrumbsModule,
@@ -20,8 +21,7 @@ import {
   NavigationModule,
   TabsModule,
   TypographyModule,
-} from "@bitwarden/components";
-
+} from "..";
 import { I18nMockService } from "../utils";
 
 import { HeaderComponent } from "./header.component";
