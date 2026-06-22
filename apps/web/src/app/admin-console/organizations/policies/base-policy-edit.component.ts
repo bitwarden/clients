@@ -144,8 +144,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
 
   /**
    * Optional multi-step configuration for policies that require multiple steps to complete.
+   * Defaults to a single step that saves the policy.
    */
-  policySteps?: PolicyStep[];
+  policySteps: PolicyStep[] = [{ sideEffect: () => this.savePolicy() }];
 
   ngOnInit(): void {
     this.enabled.setValue(this.policyResponse()?.enabled ?? false);

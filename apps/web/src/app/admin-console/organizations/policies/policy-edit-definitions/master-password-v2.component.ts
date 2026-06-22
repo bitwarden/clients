@@ -23,6 +23,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
 
 export class MasterPasswordPolicyV2 extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
@@ -31,6 +32,9 @@ export class MasterPasswordPolicyV2 extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = MasterPasswordPolicyV2Component;
+  showDescription = false;
+  showEnabledBadge = true;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);

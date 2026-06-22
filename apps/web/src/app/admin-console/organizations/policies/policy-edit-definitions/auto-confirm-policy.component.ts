@@ -92,7 +92,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
   ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
 
-  readonly policySteps: PolicyStep[] = [
+  override readonly policySteps: PolicyStep[] = [
     {
       titleContent: this.step0Title,
       bodyContent: this.step0Content,
