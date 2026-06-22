@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "הארגון שלך דורש כניסה יחידה."
   },
-  "welcomeBack": {
-    "message": "ברוך שובך"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "הגדר סיסמה חזקה"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "הזן את כתובת דוא\"ל החשבון שלך והרמז לסיסמה שלך יישלח אליך"
   },
-  "getMasterPasswordHint": {
-    "message": "הצג את הרמז לסיסמה הראשית"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "המשך"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "היכנס"
   },
-  "logInToBitwarden": {
-    "message": "היכנס אל Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "הזן את הקוד שנשלח לדוא\"ל שלך"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "אימות מפתח גישה נכשל"
   },
-  "useADifferentLogInMethod": {
-    "message": "השתמש בשיטת כניסה אחרת"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "ממתין לאינטראקציה עם מפתח אבטחה..."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "הסיסמה הראשית החדשה השלך לא עומדת בדרישות המדיניות."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "קבל עצות, הכרזות, והזדמנויות מחקר מאת Bitwarden בדואר הנכנס שלך."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "בטל הרשמה"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "כניסה עם סיסמה ראשית"
-  },
   "newAroundHere": {
     "message": "חדש כאן?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "הפוך לברירת מחדל",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "האישורים נשמרו בהצלחה!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

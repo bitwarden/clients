@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Need another option?"
   },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
-  },
   "readingPasskeyLoading": {
     "message": "Reading passkey..."
   },
@@ -1751,8 +1748,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey authentication failed. Please try again."
   },
-  "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Your organization requires single sign-on."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Log in"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Get master password hint"
   },
   "emailRequired": {
     "message": "Email address is required."
@@ -3743,6 +3737,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you $AMOUNT$ off each $INTERVAL$ for the next $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "$AMOUNT$ off each $INTERVAL$ has been applied for the next $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Never expires"
   },
@@ -3769,6 +3817,27 @@
   },
   "discountApplied": {
     "message": "Discount applied"
+  },
+  "discountForOneYear": {
+    "message": "for 1 year"
+  },
+  "discountForMonths": {
+    "message": "for $COUNT$ months",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "through $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Discount expired. Please review your cart total and try again."
@@ -4361,6 +4430,9 @@
   },
   "adminDesc": {
     "message": "Manage organization access, all collections, members, reporting, and security settings"
+  },
+  "adminRoleDesc": {
+    "message": "Manage all collections, members, reporting, and security settings"
   },
   "user": {
     "message": "User"
@@ -5826,8 +5898,8 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "subscribe": {
     "message": "Subscribe"
@@ -7306,6 +7378,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
   },
+  "hint": {
+    "message": "Hint"
+  },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
   },
@@ -7387,15 +7462,6 @@
   "resetPassword": {
     "message": "Reset password"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Proceeding will log $NAME$ out of their current session, requiring them to log back in. Active sessions on other devices may continue to remain active for up to one hour.",
     "placeholders": {
@@ -7423,20 +7489,11 @@
   "accountRecoveryPolicy": {
     "message": "Account recovery administration"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatic enrollment"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Require new members to be enrolled automatically"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "This organization has an Enterprise policy that will automatically enroll you in password reset. Enrollment will allow organization administrators to change your master password."
@@ -9007,6 +9064,10 @@
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
@@ -11920,6 +11981,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ Discount",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
   },
@@ -14274,8 +14344,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Monitor security activity"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "As you review applications and assign member tasks, your org's progress on security improvements will show up here."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Prioritize risks"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Review every application stored in your org vault and star ones that are the highest priority to your security."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Fix your biggest risks"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "You'll track risks for prioritized applications here and assign tasks to members to strengthen their passwords."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Help members improve"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Once you've selected critical applications, prompt members to change at-risk passwords. They'll receive a message in their Bitwarden extension."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Stay on top of new risks"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$",
+    "message": "$CURRENT$ of $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",

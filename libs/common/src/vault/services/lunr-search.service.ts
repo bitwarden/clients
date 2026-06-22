@@ -3,12 +3,12 @@
 import * as lunr from "lunr";
 import { Opaque } from "type-fest";
 
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
 import { FieldType } from "../enums/field-type.enum";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
