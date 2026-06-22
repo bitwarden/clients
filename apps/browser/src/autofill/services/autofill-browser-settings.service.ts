@@ -7,6 +7,7 @@ import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { BrowserClientVendor } from "@bitwarden/common/autofill/types";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import {
   applyDefaultPasswordManagerOverride,
   getDefaultPasswordManagerSessionState,
@@ -30,8 +31,10 @@ export class AutofillBrowserSettingsService {
   }
 
   async isDefaultPasswordManagerPromptFlowComplete(): Promise<boolean> {
-    if ((await getDefaultPasswordManagerSessionState()) === "show-toast") {
-      return true;
+    const sessionState = await getDefaultPasswordManagerSessionState();
+
+    if (sessionState === "show-toast") {
+      return BrowserApi.permissionsGranted(["privacy"]);
     }
 
     if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
@@ -41,7 +44,7 @@ export class AutofillBrowserSettingsService {
     return BrowserApi.browserAutofillSettingsOverridden();
   }
 
-  async hasGrantedPendingDefaultPasswordManagerApply(): Promise<boolean> {
+  private async hasGrantedPendingDefaultPasswordManagerApply(): Promise<boolean> {
     if ((await getDefaultPasswordManagerSessionState()) !== "pending") {
       return false;
     }
@@ -54,9 +57,39 @@ export class AutofillBrowserSettingsService {
     return true;
   }
 
+  async resumeGrantedPendingDefaultPasswordManagerApply(
+    browserClient: BrowserClientVendor,
+  ): Promise<boolean | null> {
+    if (!(await this.hasGrantedPendingDefaultPasswordManagerApply())) {
+      return null;
+    }
+
+    if (!(await this.isBrowserAutofillSettingOverridden(browserClient))) {
+      await applyDefaultPasswordManagerOverride();
+    } else {
+      await setDefaultPasswordManagerSessionState(null);
+    }
+
+    return this.isBrowserAutofillSettingOverridden(browserClient);
+  }
+
+  async completeFirefoxPopupPermissionFlow(window: Window): Promise<void> {
+    await setDefaultPasswordManagerSessionState("pending");
+
+    if (BrowserPopupUtils.inPopup(window)) {
+      BrowserApi.closePopup(window);
+    }
+  }
+
   async ensurePrivacyPermissionForOverride(): Promise<boolean> {
     if (await BrowserApi.permissionsGranted(["privacy"])) {
       return true;
+    }
+
+    if (BrowserApi.isFirefox) {
+      this.requestPrivacyPermissionFromUserGesture();
+      await setDefaultPasswordManagerSessionState("pending");
+      return false;
     }
 
     await setDefaultPasswordManagerSessionState("pending");
@@ -67,6 +100,10 @@ export class AutofillBrowserSettingsService {
     }
 
     return Boolean(granted);
+  }
+
+  requestPrivacyPermissionFromUserGesture(): void {
+    void BrowserApi.requestPermission({ permissions: ["privacy"] });
   }
 
   async disableBrowserAutofillAsDefaultPasswordManager(): Promise<DisableBrowserAutofillAsDefaultPasswordManagerResult> {

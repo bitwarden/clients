@@ -64,10 +64,8 @@ import {
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
-import { setDefaultPasswordManagerSessionState } from "../../../autofill/default-password-manager-session.util";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -233,7 +231,11 @@ export class AutofillComponent implements OnInit {
         this.browserClientVendor,
       );
 
-    if (await this.autofillBrowserSettingsService.hasGrantedPendingDefaultPasswordManagerApply()) {
+    if (
+      (await this.autofillBrowserSettingsService.resumeGrantedPendingDefaultPasswordManagerApply(
+        this.browserClientVendor,
+      )) !== null
+    ) {
       this.defaultBrowserAutofillDisabled =
         await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
           this.browserClientVendor,
@@ -532,16 +534,12 @@ export class AutofillComponent implements OnInit {
 
   async updateDefaultBrowserAutofillDisabled() {
     if (
-      this.browserClientVendor === BrowserClientVendors.Firefox &&
+      BrowserApi.isFirefox &&
       this.defaultBrowserAutofillDisabled &&
       !this.privacyPermissionIsGranted
     ) {
-      void BrowserApi.requestPermission({ permissions: ["privacy"] });
-      await setDefaultPasswordManagerSessionState("pending");
-
-      if (BrowserPopupUtils.inPopup(window) || BrowserPopupUtils.inPopout(window)) {
-        BrowserApi.closePopup(window);
-      }
+      void this.autofillBrowserSettingsService.requestPrivacyPermissionFromUserGesture();
+      await this.autofillBrowserSettingsService.completeFirefoxPopupPermissionFlow(window);
 
       return;
     }

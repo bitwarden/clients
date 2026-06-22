@@ -5,6 +5,7 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { BitwardenLogo } from "@bitwarden/assets/svg";
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import {
   BaseCardComponent,
@@ -15,10 +16,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { IntroCarouselService } from "../../../vault/popup/services/intro-carousel.service";
+import { applyDefaultPasswordManagerOverride } from "../../default-password-manager-session.util";
 import { AutofillBrowserSettingsService } from "../../services/autofill-browser-settings.service";
 
 import {
@@ -59,6 +63,8 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   private readonly introCarouselService = inject(IntroCarouselService);
   private readonly autofillBrowserSettingsService = inject(AutofillBrowserSettingsService);
 
+  private readonly privacyPermissionIsGranted = false;
+
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
     { initialValue: false },
@@ -73,6 +79,10 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   );
 
   async ngOnInit(): Promise<void> {
+    if (BrowserApi.getBrowserClientVendor(window) !== BrowserClientVendors.Unknown) {
+      this.privacyPermissionIsGranted = await BrowserApi.permissionsGranted(["privacy"]);
+    }
+
     if (!(await this.autofillBrowserSettingsService.isDefaultPasswordManagerPromptFlowComplete())) {
       return;
     }
@@ -81,35 +91,75 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
     await this.navigateToNextScreen();
   }
 
-  protected async onContinue(): Promise<void> {
-    await this.defaultPasswordManagerPromptService.setPromptDismissed();
+  protected onContinueClick(): void {
+    if (BrowserApi.isFirefox && !this.privacyPermissionIsGranted) {
+      if (BrowserPopupUtils.inPopout(window)) {
+        void this.continueFirefoxPopout();
+      } else {
+        this.autofillBrowserSettingsService.requestPrivacyPermissionFromUserGesture();
+        void this.continueFirefoxPopup();
+      }
+      return;
+    }
 
-    const result =
-      await this.autofillBrowserSettingsService.disableBrowserAutofillAsDefaultPasswordManager();
+    void this.continueWithDefaultPasswordManagerApply();
+  }
 
-    if (result === "denied") {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "privacyPermissionAdditionNotGrantedTitle" },
-        content: { key: "privacyPermissionAdditionNotGrantedDescription" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
+  private async continueFirefoxPopout(): Promise<void> {
+    const permissionGranted = BrowserApi.requestPermission({ permissions: ["privacy"] });
+    await this.dismissPrompt();
+
+    if (await permissionGranted) {
+      await applyDefaultPasswordManagerOverride();
+    } else {
+      await this.showPrivacyPermissionDeniedDialog();
+    }
+
+    await this.navigateToNextScreen();
+  }
+
+  private async continueFirefoxPopup(): Promise<void> {
+    await this.dismissPrompt();
+    await this.autofillBrowserSettingsService.completeFirefoxPopupPermissionFlow(window);
+  }
+
+  private async continueWithDefaultPasswordManagerApply(): Promise<void> {
+    await this.dismissPrompt();
+
+    if (
+      (await this.autofillBrowserSettingsService.disableBrowserAutofillAsDefaultPasswordManager()) ===
+      "denied"
+    ) {
+      await this.showPrivacyPermissionDeniedDialog();
     }
 
     await this.navigateToNextScreen();
   }
 
   protected async onSkip(): Promise<void> {
-    await this.defaultPasswordManagerPromptService.setPromptDismissed();
+    await this.dismissPrompt();
     await this.navigateToNextScreen();
   }
 
+  private async dismissPrompt(): Promise<void> {
+    await this.defaultPasswordManagerPromptService.setPromptDismissed();
+  }
+
+  private async showPrivacyPermissionDeniedDialog(): Promise<void> {
+    await this.dialogService.openSimpleDialog({
+      title: { key: "privacyPermissionAdditionNotGrantedTitle" },
+      content: { key: "privacyPermissionAdditionNotGrantedDescription" },
+      acceptButtonText: { key: "ok" },
+      cancelButtonText: null,
+      type: "warning",
+    });
+  }
+
   private async navigateToNextScreen(): Promise<void> {
-    const hasIntroCarouselDismissed = await firstValueFrom(
+    const introCarouselDismissed = await firstValueFrom(
       this.introCarouselService.introCarouselState$,
     );
 
-    await this.router.navigate([hasIntroCarouselDismissed ? "/login" : "/intro-carousel"]);
+    await this.router.navigate([introCarouselDismissed ? "/login" : "/intro-carousel"]);
   }
 }

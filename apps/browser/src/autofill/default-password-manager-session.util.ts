@@ -4,13 +4,61 @@ const DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY = "defaultPasswordManagerSessio
 
 export type DefaultPasswordManagerSessionState = "pending" | "show-toast";
 
-export async function getDefaultPasswordManagerSessionState(): Promise<DefaultPasswordManagerSessionState | null> {
-  if (!chrome.storage?.session) {
-    return null;
+async function getSessionStorageValue(storageKey: string): Promise<unknown> {
+  if (BrowserApi.isWebExtensionsApi) {
+    const sessionStorage = browser?.storage?.session;
+    if (!sessionStorage) {
+      return undefined;
+    }
+
+    const items = await sessionStorage.get(storageKey);
+    return items?.[storageKey];
   }
 
-  const result = await chrome.storage.session.get(DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY);
-  const state = result?.[DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY];
+  const sessionStorage = chrome?.storage?.session;
+  if (!sessionStorage) {
+    return undefined;
+  }
+
+  return new Promise((resolve) =>
+    sessionStorage.get(storageKey, (result) => resolve(result?.[storageKey])),
+  );
+}
+
+async function setSessionStorageValue(
+  storageKey: string,
+  storageValue: unknown | null,
+): Promise<void> {
+  if (BrowserApi.isWebExtensionsApi) {
+    const sessionStorage = browser?.storage?.session;
+    if (!sessionStorage) {
+      return;
+    }
+
+    if (storageValue == null) {
+      await sessionStorage.remove(storageKey);
+    } else {
+      await sessionStorage.set({ [storageKey]: storageValue });
+    }
+    return;
+  }
+
+  const sessionStorage = chrome?.storage?.session;
+  if (!sessionStorage) {
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    if (storageValue == null) {
+      sessionStorage.remove(storageKey, () => resolve());
+    } else {
+      sessionStorage.set({ [storageKey]: storageValue }, () => resolve());
+    }
+  });
+}
+
+export async function getDefaultPasswordManagerSessionState(): Promise<DefaultPasswordManagerSessionState | null> {
+  const state = await getSessionStorageValue(DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY);
 
   return state === "pending" || state === "show-toast" ? state : null;
 }
@@ -18,15 +66,7 @@ export async function getDefaultPasswordManagerSessionState(): Promise<DefaultPa
 export async function setDefaultPasswordManagerSessionState(
   state: DefaultPasswordManagerSessionState | null,
 ): Promise<void> {
-  if (!chrome.storage?.session) {
-    return;
-  }
-
-  if (state) {
-    await chrome.storage.session.set({ [DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY]: state });
-  } else {
-    await chrome.storage.session.remove(DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY);
-  }
+  await setSessionStorageValue(DEFAULT_PASSWORD_MANAGER_SESSION_STATE_KEY, state);
 }
 
 export async function applyDefaultPasswordManagerOverride(): Promise<void> {
