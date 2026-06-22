@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "あなたの組織ではシングルサインオン (SSO) を使用する必要があります。"
   },
-  "welcomeBack": {
-    "message": "ようこそ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "ログイン"
   },
   "setAStrongPassword": {
     "message": "強力なパスワードを設定する"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "アカウントのメールアドレスを入力すると、パスワードのヒントが送信されます"
   },
-  "getMasterPasswordHint": {
-    "message": "マスターパスワードのヒントを取得する"
+  "hint": {
+    "message": "ヒント"
   },
   "continue": {
     "message": "続ける"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "ログイン"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden にログイン"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "ログイン"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "メールアドレスに送信されたコードを入力してください"
@@ -1350,13 +1350,13 @@
     "message": "入力補助を使用する"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "入力アシストをオンにする"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "入力アシストは、サイト固有のルールを使用して対応サイトの自動入力の精度を向上させます。この機能を使用してもデータが収集されたり保存されることはありません。"
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "入力アシストについて"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -1714,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "パスキー認証に失敗しました"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "別のログイン方法を使用する"
   },
   "awaitingSecurityKeyInteraction": {
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新しいマスターパスワードは最低要件を満たしていません。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden からメールでアドバイスやお知らせ、リサーチの機会を受け取りましょう。"
+  "receiveMarketingEmails": {
+    "message": "メールで Bitwarden から最新情報を受け取りましょう。"
   },
   "unsubscribe": {
     "message": "配信停止"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "マスターパスワードでログイン"
-  },
   "newAroundHere": {
     "message": "初めてですか?"
   },
@@ -4399,6 +4396,9 @@
   },
   "multipleInputEmails": {
     "message": "1つ以上のメールアドレスが無効です"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "メール受信者リストは2,500文字を超えることはできません。続行するには1つ以上の受信者を削除してください。"
   },
   "inputTrimValidator": {
     "message": "値を空白のみにしないでください。",
@@ -4998,6 +4998,22 @@
   "makeDefault": {
     "message": "デフォルトにする",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "認証情報を保存しました！",
@@ -6679,7 +6695,33 @@
   "hideEmailPolicyInEffect": {
     "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   },
+  "domainNotAllowed": {
+    "message": "$DOMAINS$ のドメインのみを含めてください 。確認してもう一度お試しください",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "組織の Send ポリシーに準拠していません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "この Send を編集するには、コピーを作成してください。この Send が設定された削除日時に期限切れになる可能性がある場合は、アクションは必要ありません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "この Send は、設定された削除日時に自動的に期限切れになります",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "コピーを作成"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "アイテムを保存できません。アイテムを保存するには組織に確認する必要があります。"
   }
 }

@@ -3565,10 +3565,16 @@
   "year": {
     "message": "év"
   },
+  "years": {
+    "message": "év"
+  },
   "yr": {
     "message": "év"
   },
   "month": {
+    "message": "hónap"
+  },
+  "months": {
     "message": "hónap"
   },
   "monthAbbr": {
@@ -3712,6 +3718,24 @@
       },
       "duration": {
         "content": "$2",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummary": {
+    "message": "$DISCOUNT$ kedvezmény: $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen. DISCOUNT = discount amount; LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
         "example": "year"
       }
     }
@@ -9047,6 +9071,9 @@
   "multipleInputEmails": {
     "message": "1 vagy több email cím érvénytelen."
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Az email címzett lista nem haladhatja meg a 2500 karaktert. Távolítsunk el egy vagy több címzettet a folytatáshoz."
+  },
   "tooManyEmails": {
     "message": "Egyszerre legfeljebb $COUNT$ email küldhető be.",
     "placeholders": {
@@ -14228,12 +14255,76 @@
   "backToEditing": {
     "message": "Vissza a szerkesztéshez"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Széf hirdetőtábla"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Hozzunk létre és indítsunk el egy testreszabott hirdetőtáblát, amelyet a szervezet minden tagja lát a széf oldalán a bejelentkezés után."
+  },
+  "singleOrgPrerequisite": {
+    "message": "A házirend aktiválása előtt be kell kapcsolni az onálló szervezet házirendjét."
+  },
+  "enableBanner": {
+    "message": "Hirdetőtábla engedélyezése"
+  },
+  "createBannerMessage": {
+    "message": "Hirdetőtábla üzenet létrehozása"
+  },
+  "header": {
+    "message": "Fejléc"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum $COUNT$ karakter",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharacters": {
+    "message": "Adjunk meg egy $NAME$ értéket $COUNT$ karakter alatt.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "description"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "tooManyCharactersAlt": {
+    "message": "Hozzunk létre egy $NAME$ értéket $COUNT$ karakter alatt.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "button"
+      },
+      "count": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip": {
+    "message": "A gomb létrehozásához egy fejlécet kell megadni."
+  },
+  "enterADescription": {
+    "message": "Írjunk be egy leírást."
+  },
+  "button": {
+    "message": "Gomb"
+  },
+  "showAfterEveryLogin": {
+    "message": "Megjelenítés minden bejelentkezés után"
+  },
+  "seeMessageEveryLogin": {
+    "message": "A felhasználók minden bejelentkezés után látják az üzenetet, még akkor is, ha elutasítják azt."
+  },
   "sendHasUnsavedEdits": {
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideMyEmail": {
@@ -14340,5 +14431,8 @@
   },
   "copy": {
     "message": "Másolás"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
   }
 }
