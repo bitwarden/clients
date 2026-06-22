@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from "@angular/core";
+import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { map } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -45,6 +46,7 @@ export class MasterPasswordPolicyV2 extends BasePolicyEditDefinition {
   selector: "master-password-policy-v2-edit",
   templateUrl: "master-password-v2.component.html",
   imports: [
+    AsyncPipe,
     CalloutComponent,
     CheckboxModule,
     FormControlModule,
@@ -57,7 +59,7 @@ export class MasterPasswordPolicyV2 extends BasePolicyEditDefinition {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MasterPasswordPolicyV2Component extends BasePolicyEditComponent implements OnInit {
+export class MasterPasswordPolicyV2Component extends BasePolicyEditComponent {
   readonly MinPasswordLength = Utils.minimumPasswordLength;
   readonly MaxPasswordLength = Utils.maximumPasswordLength;
 
@@ -77,25 +79,16 @@ export class MasterPasswordPolicyV2Component extends BasePolicyEditComponent imp
     enforceOnLogin: [false],
   });
 
-  readonly passwordScores: { name: string; value: number | null }[];
-  readonly showKeyConnectorInfo = signal(false);
+  readonly showKeyConnectorInfo$ = this.organization$.pipe(
+    map((org) => org?.keyConnectorEnabled ?? false),
+  );
 
-  constructor() {
-    super();
-
-    this.passwordScores = [
-      { name: "-- " + this.i18nService.t("select") + " --", value: null },
-      { name: this.i18nService.t("weak") + " (0)", value: 0 },
-      { name: this.i18nService.t("weak") + " (1)", value: 1 },
-      { name: this.i18nService.t("weak") + " (2)", value: 2 },
-      { name: this.i18nService.t("good") + " (3)", value: 3 },
-      { name: this.i18nService.t("strong") + " (4)", value: 4 },
-    ];
-  }
-
-  async ngOnInit() {
-    super.ngOnInit();
-    const organization = await firstValueFrom(this.organization$);
-    this.showKeyConnectorInfo.set(organization?.keyConnectorEnabled ?? false);
-  }
+  readonly passwordScores: { name: string; value: number | null }[] = [
+    { name: "-- " + this.i18nService.t("select") + " --", value: null },
+    { name: this.i18nService.t("weak") + " (0)", value: 0 },
+    { name: this.i18nService.t("weak") + " (1)", value: 1 },
+    { name: this.i18nService.t("weak") + " (2)", value: 2 },
+    { name: this.i18nService.t("good") + " (3)", value: 3 },
+    { name: this.i18nService.t("strong") + " (4)", value: 4 },
+  ];
 }
