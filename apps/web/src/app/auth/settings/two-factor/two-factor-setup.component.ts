@@ -13,12 +13,16 @@ import {
 
 import { TwoFactorIconComponent } from "@bitwarden/angular/auth/components/two-factor-icon.component";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
+import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
+import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
@@ -150,6 +154,69 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
       data: { type: type, organizationId: this.organizationId },
     });
     return await lastValueFrom(twoFactorVerifyDialogRef.closed);
+  }
+
+  /**
+   * Lapsed-premium escape hatch: a user who previously enrolled a premium provider (YubiKey or
+   * Duo) while subscribed should still be able to disable it after their premium subscription
+   * lapses. Surfaces a UV dialog rather than the full management screen so the user cannot
+   * accidentally attempt to add more credentials (which would fail at PUT-time on the server).
+   *
+   * Under the hood: the per-provider GET (now non-premium-gated) mints a UV token, which the
+   * per-provider DELETE then consumes — same single dialog interaction as before, two server
+   * round-trips instead of one.
+   */
+  async disablePremium2faTypeForNonPremiumUser(type: TwoFactorProviderType) {
+    const result = await UserVerificationDialogComponent.open(this.dialogService, {
+      title: "twoStepLogin",
+      verificationType: {
+        type: "custom",
+        verificationFn: async (secret) => {
+          const getRequest =
+            await this.userVerificationService.buildRequest<SecretVerificationRequest>(
+              secret,
+              SecretVerificationRequest,
+            );
+
+          switch (type) {
+            case TwoFactorProviderType.Yubikey: {
+              const response = await this.twoFactorService.getTwoFactorYubiKey(getRequest);
+              const deleteRequest = new TwoFactorYubiKeyDeleteRequest();
+              deleteRequest.userVerificationToken = response.userVerificationToken;
+              await this.twoFactorService.deleteTwoFactorYubiKey(deleteRequest);
+              break;
+            }
+            case TwoFactorProviderType.Duo: {
+              const response = await this.twoFactorService.getTwoFactorDuo(getRequest);
+              const deleteRequest = new TwoFactorDuoDeleteRequest();
+              deleteRequest.userVerificationToken = response.userVerificationToken;
+              await this.twoFactorService.deleteTwoFactorDuo(deleteRequest);
+              break;
+            }
+            default:
+              throw new Error(
+                "disablePremium2faTypeForNonPremiumUser only supports YubiKey and Duo",
+              );
+          }
+          return true;
+        },
+      },
+    });
+
+    if (result.userAction === "cancel") {
+      return;
+    }
+
+    if (!result.verificationSuccess) {
+      return;
+    }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.updateStatus(false, type);
   }
 
   async manage(type: TwoFactorProviderType) {
