@@ -2349,6 +2349,54 @@ describe("OverlayBackground", () => {
             command: "showSaveLoginInlineMenuList",
           });
         });
+
+        it("does not show the save login menu on a password-generation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on a password-generation field once the new-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "";
+          formData.newPassword = "generated";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on an account-creation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
       });
     });
 
@@ -4065,6 +4113,44 @@ describe("OverlayBackground", () => {
           focusedFieldOpid: undefined,
           inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
         });
+      });
+
+      it("keeps targeted newPassword fields that would fail the heuristic isNewPasswordField check", async () => {
+        const newPasswordField = createAutofillFieldMock({
+          opid: "targeted_field_0_newPassword_0",
+          type: "password",
+          htmlName: "newPassword",
+          targeted: true,
+          fieldQualifier: "newPassword",
+        });
+        // `confirmPassword` is one token, so the keyword "confirm password" (with a space)
+        // misses it via the heuristic; the targeted flag must override that.
+        const confirmPasswordField = createAutofillFieldMock({
+          opid: "targeted_field_0_newPassword_1",
+          type: "password",
+          htmlName: "confirmPassword",
+          targeted: true,
+          fieldQualifier: "newPassword",
+        });
+        const pageDetail = createPageDetailMock({
+          details: createAutofillPageDetailsMock({
+            fields: [newPasswordField, confirmPasswordField],
+          }),
+        });
+        overlayBackground["pageDetailsForTab"][sender.tab!.id!]!.set(sender.frameId!, pageDetail);
+
+        sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
+        await flushPromises();
+
+        const passedPageDetails = (autofillService.doAutoFill as jest.Mock).mock.calls[0][0]
+          .pageDetails;
+        const filteredOpids = passedPageDetails[0].details.fields
+          .map((f: { opid: string }) => f.opid)
+          .sort();
+        expect(filteredOpids).toEqual([
+          "targeted_field_0_newPassword_0",
+          "targeted_field_0_newPassword_1",
+        ]);
       });
     });
   });

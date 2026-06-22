@@ -1,9 +1,8 @@
+import { PasswordRequest } from "../../auth/models/request/password.request";
 import {
   MasterPasswordAuthenticationData,
   MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
-
-import { PasswordRequest } from "../../auth/models/request/password.request";
+} from "../../key-management/master-password/types/master-password.types";
 
 export class KdfRequest extends PasswordRequest {
   constructor(

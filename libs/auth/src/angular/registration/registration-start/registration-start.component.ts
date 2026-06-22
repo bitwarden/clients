@@ -7,7 +7,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { RegistrationCheckEmailIcon, RegistrationUserAddIcon } from "@bitwarden/assets/svg";
+import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -15,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  ANON_LAYOUT_DEFAULTS,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -175,6 +176,16 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
         key: "checkYourEmail",
       },
       pageIcon: RegistrationCheckEmailIcon,
+      // These four fields undo the extension SignUp route's compact/left/no-icon styling for
+      // the CHECK_EMAIL screen specifically. On web/desktop these values already match the
+      // wrapper defaults, so these overrides are visual no-ops. `goBack()`'s reset is
+      // symmetric across all clients: in resetToCachedRouteData(), ANON_LAYOUT_DEFAULTS is
+      // spread before the cached route data, so route-omitted fields get set to defaults,
+      // while route-declared fields get re-applied from the cached route data.
+      hidePageIcon: ANON_LAYOUT_DEFAULTS.hidePageIcon,
+      heroTextAlignment: ANON_LAYOUT_DEFAULTS.heroTextAlignment,
+      contentVerticalPadding: ANON_LAYOUT_DEFAULTS.contentVerticalPadding,
+      footerVerticalPadding: ANON_LAYOUT_DEFAULTS.footerVerticalPadding,
     });
     this.registrationStartStateChange.emit(this.state);
   };
@@ -199,12 +210,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.state = RegistrationStartState.USER_DATA_ENTRY;
-    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: RegistrationUserAddIcon,
-      pageTitle: {
-        key: "createAccount",
-      },
-    });
+    this.anonLayoutWrapperDataService.resetToCachedRouteData();
     this.registrationStartStateChange.emit(this.state);
   }
 

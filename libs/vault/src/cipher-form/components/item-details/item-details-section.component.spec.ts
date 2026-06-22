@@ -131,12 +131,13 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should throw an error if no organizations are available for ownership and organization data ownership is enabled", async () => {
+    it("should initialize with a null organizationId when no organizations are available for ownership and organization data ownership is enabled", async () => {
       component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [];
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "No organizations available for ownership.",
-      );
+
+      await expect(component.ngOnInit()).resolves.not.toThrow();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
     });
 
     it("should initialize form with default values if no originalCipher is provided", fakeAsync(async () => {
@@ -698,6 +699,46 @@ describe("ItemDetailsSectionComponent", () => {
       await component.ngOnInit();
 
       expect(component.itemDetailsForm.controls.organizationId.value).toBe("org1");
+    });
+
+    it("should not disable the collections control when the cipher has no id", async () => {
+      // Regression test: setCollectionControlState() checks edit/viewPassword to determine
+      // if the collection control should be disabled. These flags are only meaningful for
+      // server-fetched ciphers. A cipher without an id (e.g. one being created, or an
+      // in-progress cipher restored from the popup's view cache) will have edit=false as
+      // a default, which would incorrectly disable the control. The guard on `id` ensures
+      // the permission check is skipped for unsaved ciphers.
+      component.config.mode = "add";
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [
+        {
+          id: "org1",
+          name: "Organization 1",
+          canEditAllCiphers: false,
+          allowAdminAccessToAllCollectionItems: true,
+        } as unknown as Organization,
+      ];
+      component.config.collections = [
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
+      ];
+
+      // No id — unsaved cipher with edit=false defaults that would fail the permission check
+      const unsavedCipher = {
+        name: "My New Item",
+        organizationId: "org1",
+        folderId: null,
+        collectionIds: ["col1"],
+        favorite: false,
+        edit: false,
+        viewPassword: true,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValue(unsavedCipher);
+      initializedWithCachedCipher.mockReturnValue(true);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.collectionIds.disabled).toBe(false);
     });
   });
 

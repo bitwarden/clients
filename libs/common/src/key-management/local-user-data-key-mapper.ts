@@ -1,8 +1,8 @@
-import { SdkRecordMapper } from "@bitwarden/common/platform/services/sdk/client-managed-state";
-import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { LocalUserDataKeyState } from "@bitwarden/sdk-internal";
 
 import { LOCAL_USER_DATA_KEY } from "../platform/services/key-state/local-user-data-key.state";
+import { SdkRecordMapper } from "../platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "../platform/state";
 
 import { LocalUserDataKey } from "./types";
 
