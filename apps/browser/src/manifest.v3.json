@@ -100,7 +100,7 @@
     "webRequestAuthProvider"
   ],
   "optional_permissions": ["privacy"],
-  "__firefox__optional_permissions": [],
+  "__firefox__optional_permissions": ["privacy"],
   "__safari__optional_permissions": null,
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
