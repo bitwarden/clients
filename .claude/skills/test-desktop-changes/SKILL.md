@@ -103,3 +103,33 @@ Walk the test plan. For each change:
 
 - Report, per change: intent, what was observed, pass/fail, and attach the screencast/screenshots.
 - If anything failed, include the console output and the exact navigation step that reproduced it.
+
+## Step 7 — Add results to the PR
+
+Add an `## Auto-Test` section to the PR description with the screenshot(s) and a brief list of the
+steps performed. Keep it terse: no em dashes, no prose, just short bullet steps.
+
+1. Upload each screenshot so it renders in GitHub. The reliable path is to attach the image to a
+   throwaway issue comment via the API and reuse the returned asset URL, or commit the PNG into the
+   branch and reference its raw URL. Embed with `![](url)`.
+2. Fetch the current PR body, append the section, and update it:
+
+   ```bash
+   gh pr view --json body -q .body > /tmp/pr-body.md
+   # append the section to /tmp/pr-body.md, then:
+   gh pr edit --body-file /tmp/pr-body.md
+   ```
+
+The appended section should look like:
+
+```markdown
+## Auto-Test
+
+Steps performed:
+
+- Open Settings dialog
+- Navigate to Account section
+- Toggle the changed setting
+
+![](https://.../screenshot.png)
+```
