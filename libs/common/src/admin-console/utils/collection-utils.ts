@@ -1,13 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  CollectionView,
-  NestingDelimiter,
-  CollectionAdminView,
-} from "@bitwarden/common/admin-console/models/collections";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { OrganizationId } from "../../types/guid";
+import { TreeNode } from "../../vault/models/domain/tree-node";
+import { ServiceUtils } from "../../vault/service-utils";
+import { CollectionView, NestingDelimiter, CollectionAdminView } from "../models/collections";
 
 export function getNestedCollectionTree(
   collections: CollectionAdminView[],

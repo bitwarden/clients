@@ -1,12 +1,5 @@
 import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserBulkConfirmRequest,
-  OrganizationUserBulkResponse,
-  OrganizationUserConfirmRequest,
-  OrganizationUserService,
-} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -16,6 +9,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import {
+  OrganizationUserApiService,
+  OrganizationUserBulkConfirmRequest,
+  OrganizationUserBulkResponse,
+  OrganizationUserConfirmRequest,
+  OrganizationUserService,
+} from "../..";
 import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
 import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 
