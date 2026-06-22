@@ -144,6 +144,7 @@ export class LockComponent implements OnInit, OnDestroy {
   // Desktop properties:
   private deferFocus: boolean | null = null;
   private biometricAsked = false;
+  private biometricAutoPromptPending = false;
 
   defaultUnlockOptionSetForUser = false;
 
@@ -181,15 +182,15 @@ export class LockComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    // Identify client before subscribing to account state; activeAccount$ can synchronously emit.
+    this.clientType = this.platformUtilsService.getClientType();
+
     this.listenForActiveUnlockOptionChanges();
 
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
     this.listenForUnlockOptionsChanges();
-
-    // Identify client
-    this.clientType = this.platformUtilsService.getClientType();
 
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
@@ -304,6 +305,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // Desktop properties:
     this.biometricAsked = false;
+    this.biometricAutoPromptPending = false;
   }
 
   private setEmailAsPageSubtitle(email: string) {
@@ -341,14 +343,14 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // TODO: PM-12546 - we need to make our biometric autoprompt experience consistent between the
     // desktop and extension.
-    if (this.clientType === "desktop") {
+    if (this.clientType === ClientType.Desktop) {
       if (autoPromptBiometrics) {
         this.loading = false;
         await this.desktopAutoPromptBiometrics();
       }
     }
 
-    if (this.clientType === "browser") {
+    if (this.clientType === ClientType.Browser) {
       if (
         this.unlockOptions?.biometrics.enabled &&
         autoPromptBiometrics &&
@@ -713,6 +715,14 @@ export class LockComponent implements OnInit, OnDestroy {
               this.focusInput();
               this.deferFocus = false;
             }
+            if (message.windowIsFocused) {
+              void this.desktopAutoPromptBiometricsIfEnabled().catch((e) =>
+                this.logService.error(
+                  "[LockComponent] Failed to auto-prompt biometrics on focus.",
+                  e,
+                ),
+              );
+            }
             break;
           default:
         }
@@ -721,25 +731,49 @@ export class LockComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
+  private async desktopAutoPromptBiometricsIfEnabled() {
+    if (this.clientType !== ClientType.Desktop) {
+      return;
+    }
+
+    const autoPromptBiometrics = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
+
+    if (autoPromptBiometrics) {
+      await this.desktopAutoPromptBiometrics();
+    }
+  }
+
   private async desktopAutoPromptBiometrics() {
-    if (!this.unlockOptions?.biometrics?.enabled || this.biometricAsked) {
+    if (
+      !this.unlockOptions?.biometrics?.enabled ||
+      this.biometricAsked ||
+      this.biometricAutoPromptPending ||
+      this.unlockingViaBiometrics
+    ) {
       return;
     }
 
-    if (!(await this.biometricService.getShouldAutopromptNow())) {
-      return;
-    }
+    this.biometricAutoPromptPending = true;
+    try {
+      if (!(await this.biometricService.getShouldAutopromptNow())) {
+        return;
+      }
 
-    // prevent the biometric prompt from showing if the user has already cancelled it
-    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
-      return;
-    }
+      // prevent the biometric prompt from showing if the user has already cancelled it
+      if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
+        return;
+      }
 
-    const windowVisible = await this.lockComponentService.isWindowVisible();
+      const windowVisible = await this.lockComponentService.isWindowVisible();
 
-    if (windowVisible) {
-      this.biometricAsked = true;
-      await this.unlockViaBiometrics();
+      if (windowVisible) {
+        this.biometricAsked = true;
+        await this.unlockViaBiometrics();
+      }
+    } finally {
+      this.biometricAutoPromptPending = false;
     }
   }
 
