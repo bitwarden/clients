@@ -15,9 +15,6 @@ export const SearchTextDebounceInterval = 100; // milliseconds
 
 export class SearchService implements SearchServiceAbstraction {
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
-  // Immediately search for CJK characters as they can represent complete search terms, regardless of the active locale.
-  private readonly immediateSearchQueryRegex =
-    /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
   private readonly defaultSearchableMinLength: number = 2;
   private searchableMinLength: number = this.defaultSearchableMinLength;
 
@@ -49,10 +46,6 @@ export class SearchService implements SearchServiceAbstraction {
     }
 
     query = normalizeSearchQuery(query);
-
-    if (this.immediateSearchQueryRegex.test(query)) {
-      return true;
-    }
 
     // Regular queries only require a minimum length
     return query.length >= this.searchableMinLength;
