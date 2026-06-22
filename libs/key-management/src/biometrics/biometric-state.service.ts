@@ -1,10 +1,11 @@
-import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
+import { Observable, firstValueFrom, map } from "rxjs";
 
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import {
   EncryptedString,
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ActiveUserState, GlobalState, StateProvider } from "@bitwarden/common/platform/state";
+import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import {
@@ -20,39 +21,37 @@ import {
 export abstract class BiometricStateService {
   /**
    * Returns whether biometric unlock is enabled for a user.
-   * @param userId The user id to check. If not provided, returns the state for the currently active user.
+   * @param userId The user id to check.
    * @returns An observable that emits `true` if the user has elected to store a biometric key to unlock their vault.
    */
-  abstract biometricUnlockEnabled$(userId?: UserId): Observable<boolean>;
+  abstract biometricUnlockEnabled$(userId: UserId): Observable<boolean>;
   /**
    * If the user has elected to require a password on first unlock of an application instance, this key will store the
    * encrypted client key half used to unlock the vault.
-   *
-   * Tracks the currently active user
+   * @param userId The user id to check.
    */
-  abstract encryptedClientKeyHalf$: Observable<EncString | null>;
+  abstract encryptedClientKeyHalf$(userId: UserId): Observable<EncString | null>;
   /**
    * Whether the user has cancelled the biometric prompt.
-   *
-   * tracks the currently active user
+   * @param userId The user id to check.
    */
-  abstract promptCancelled$: Observable<boolean>;
+  abstract promptCancelled$(userId: UserId): Observable<boolean>;
   /**
    * Whether the user has elected to automatically prompt for biometrics.
-   *
-   * tracks the currently active user
+   * @param userId The user id to check.
    */
-  abstract promptAutomatically$: Observable<boolean>;
+  abstract promptAutomatically$(userId: UserId): Observable<boolean>;
   /**
    * Whether or not IPC fingerprint has been validated by the user this session.
    */
   abstract fingerprintValidated$: Observable<boolean>;
 
   /**
-   * Updates the biometric unlock enabled state for the currently active user.
+   * Updates the biometric unlock enabled state for the given user.
    * @param enabled whether or not to store a biometric key to unlock the vault
+   * @param userId the user to update
    */
-  abstract setBiometricUnlockEnabled(enabled: boolean): Promise<void>;
+  abstract setBiometricUnlockEnabled(enabled: boolean, userId: UserId): Promise<void>;
 
   /**
    * Gets the biometric unlock enabled state for the given user.
@@ -61,20 +60,21 @@ export abstract class BiometricStateService {
    */
   abstract getBiometricUnlockEnabled(userId: UserId): Promise<boolean>;
 
-  abstract setEncryptedClientKeyHalf(encryptedKeyHalf: EncString, userId?: UserId): Promise<void>;
+  abstract setEncryptedClientKeyHalf(encryptedKeyHalf: EncString, userId: UserId): Promise<void>;
 
   abstract getEncryptedClientKeyHalf(userId: UserId): Promise<EncString | null>;
 
   /**
-   * Updates the active user's state to reflect that they've cancelled the biometric prompt.
+   * Updates the given user's state to reflect that they've cancelled the biometric prompt.
+   * @param userId the user to update
    */
-  abstract setUserPromptCancelled(): Promise<void>;
+  abstract setUserPromptCancelled(userId: UserId): Promise<void>;
 
   /**
    * Resets the given user's state to reflect that they haven't cancelled the biometric prompt.
-   * @param userId the user to reset the prompt cancelled state for. If not provided, the currently active user will be used.
+   * @param userId the user to reset the prompt cancelled state for.
    */
-  abstract resetUserPromptCancelled(userId?: UserId): Promise<void>;
+  abstract resetUserPromptCancelled(userId: UserId): Promise<void>;
 
   /**
    * Resets all user's state to reflect that they haven't cancelled the biometric prompt.
@@ -82,10 +82,11 @@ export abstract class BiometricStateService {
   abstract resetAllPromptCancelled(): Promise<void>;
 
   /**
-   * Updates the currently active user's setting for auto prompting for biometrics on application start and lock
+   * Updates the given user's setting for auto prompting for biometrics on application start and lock
    * @param prompt Whether or not to prompt for biometrics on application start.
+   * @param userId the user to update
    */
-  abstract setPromptAutomatically(prompt: boolean): Promise<void>;
+  abstract setPromptAutomatically(prompt: boolean, userId: UserId): Promise<void>;
 
   /**
    * Updates whether or not IPC has been validated by the user this session
@@ -115,37 +116,14 @@ export abstract class BiometricStateService {
 }
 
 export class DefaultBiometricStateService implements BiometricStateService {
-  private biometricUnlockEnabledState: ActiveUserState<boolean>;
-  private encryptedClientKeyHalfState: ActiveUserState<EncryptedString>;
   private promptCancelledState: GlobalState<Record<UserId, boolean>>;
-  private promptAutomaticallyState: ActiveUserState<boolean>;
   private fingerprintValidatedState: GlobalState<boolean>;
   private lastProcessReloadState: GlobalState<Date>;
-  encryptedClientKeyHalf$: Observable<EncString | null>;
-  promptCancelled$: Observable<boolean>;
-  promptAutomatically$: Observable<boolean>;
   fingerprintValidated$: Observable<boolean>;
-  lastProcessReload$: Observable<Date | null>;
+  private lastProcessReload$: Observable<Date | null>;
 
   constructor(private stateProvider: StateProvider) {
-    this.biometricUnlockEnabledState = this.stateProvider.getActive(BIOMETRIC_UNLOCK_ENABLED);
-
-    this.encryptedClientKeyHalfState = this.stateProvider.getActive(ENCRYPTED_CLIENT_KEY_HALF);
-    this.encryptedClientKeyHalf$ = this.encryptedClientKeyHalfState.state$.pipe(
-      map(encryptedClientKeyHalfToEncString),
-    );
-
     this.promptCancelledState = this.stateProvider.getGlobal(PROMPT_CANCELLED);
-    this.promptCancelled$ = combineLatest([
-      this.stateProvider.activeUserId$,
-      this.promptCancelledState.state$,
-    ]).pipe(
-      map(([userId, record]) => {
-        return userId != null ? (record?.[userId] ?? false) : false;
-      }),
-    );
-    this.promptAutomaticallyState = this.stateProvider.getActive(PROMPT_AUTOMATICALLY);
-    this.promptAutomatically$ = this.promptAutomaticallyState.state$.pipe(map(Boolean));
 
     this.fingerprintValidatedState = this.stateProvider.getGlobal(FINGERPRINT_VALIDATED);
     this.fingerprintValidated$ = this.fingerprintValidatedState.state$.pipe(map(Boolean));
@@ -154,43 +132,39 @@ export class DefaultBiometricStateService implements BiometricStateService {
     this.lastProcessReload$ = this.lastProcessReloadState.state$;
   }
 
-  async setBiometricUnlockEnabled(enabled: boolean): Promise<void> {
-    await this.biometricUnlockEnabledState.update(() => enabled);
+  async setBiometricUnlockEnabled(enabled: boolean, userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+    await this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).update(() => enabled);
   }
 
-  biometricUnlockEnabled$(userId?: UserId): Observable<boolean> {
-    if (userId != null) {
-      return this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).state$.pipe(map(Boolean));
-    }
-    // Backwards compatibility for active user state
-    // TODO remove with https://bitwarden.atlassian.net/browse/PM-12043
-    return this.biometricUnlockEnabledState.state$.pipe(map(Boolean));
+  biometricUnlockEnabled$(userId: UserId): Observable<boolean> {
+    assertNonNullish(userId, "userId");
+    return this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).state$.pipe(map(Boolean));
   }
 
   async getBiometricUnlockEnabled(userId: UserId): Promise<boolean> {
-    return await firstValueFrom(
-      this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).state$.pipe(map(Boolean)),
-    );
+    return await firstValueFrom(this.biometricUnlockEnabled$(userId));
   }
 
-  async setEncryptedClientKeyHalf(encryptedKeyHalf: EncString, userId?: UserId): Promise<void> {
+  async setEncryptedClientKeyHalf(encryptedKeyHalf: EncString, userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
     const value = encryptedKeyHalf?.encryptedString ?? null;
-    if (userId) {
-      await this.stateProvider.getUser(userId, ENCRYPTED_CLIENT_KEY_HALF).update(() => value);
-    } else {
-      await this.encryptedClientKeyHalfState.update(() => value);
-    }
+    await this.stateProvider.getUser(userId, ENCRYPTED_CLIENT_KEY_HALF).update(() => value);
+  }
+
+  encryptedClientKeyHalf$(userId: UserId): Observable<EncString | null> {
+    assertNonNullish(userId, "userId");
+    return this.stateProvider
+      .getUser(userId, ENCRYPTED_CLIENT_KEY_HALF)
+      .state$.pipe(map(encryptedClientKeyHalfToEncString));
   }
 
   async getEncryptedClientKeyHalf(userId: UserId): Promise<EncString | null> {
-    return await firstValueFrom(
-      this.stateProvider
-        .getUser(userId, ENCRYPTED_CLIENT_KEY_HALF)
-        .state$.pipe(map(encryptedClientKeyHalfToEncString)),
-    );
+    return await firstValueFrom(this.encryptedClientKeyHalf$(userId));
   }
 
   async getBiometricEnrolledKeyId(userId: UserId): Promise<string | null> {
+    assertNonNullish(userId, "userId");
     return await firstValueFrom(
       this.stateProvider
         .getUser(userId, BIOMETRIC_ENROLLED_KEY_ID)
@@ -199,60 +173,57 @@ export class DefaultBiometricStateService implements BiometricStateService {
   }
 
   async setBiometricEnrolledKeyId(userId: UserId, keyId: string | null): Promise<void> {
+    assertNonNullish(userId, "userId");
     await this.stateProvider.getUser(userId, BIOMETRIC_ENROLLED_KEY_ID).update(() => keyId);
   }
 
   async logout(userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
     await this.stateProvider.getUser(userId, ENCRYPTED_CLIENT_KEY_HALF).update(() => null);
     await this.resetUserPromptCancelled(userId);
-    // Persist auto prompt setting through logout
-    // Persist dismissed require password on start callout through logout
+  }
+
+  promptCancelled$(userId: UserId): Observable<boolean> {
+    assertNonNullish(userId, "userId");
+    return this.promptCancelledState.state$.pipe(map((record) => record?.[userId] ?? false));
   }
 
   async resetUserPromptCancelled(userId: UserId): Promise<void> {
-    await this.stateProvider.getGlobal(PROMPT_CANCELLED).update(
-      (data, activeUserId) => {
+    assertNonNullish(userId, "userId");
+    await this.promptCancelledState.update(
+      (data) => {
         if (data != null) {
-          delete data[userId ?? activeUserId];
+          delete data[userId];
         }
         return data;
       },
       {
-        combineLatestWith: this.stateProvider.activeUserId$,
-        shouldUpdate: (data, activeUserId) => data?.[userId ?? activeUserId] != null,
+        shouldUpdate: (data) => data?.[userId] != null,
       },
     );
   }
 
-  async setUserPromptCancelled(): Promise<void> {
-    await this.promptCancelledState.update(
-      (record, userId) => {
-        if (userId != null) {
-          record ??= {};
-          record[userId] = true;
-        }
-        return record;
-      },
-      {
-        combineLatestWith: this.stateProvider.activeUserId$,
-        shouldUpdate: (_, userId) => {
-          if (userId == null) {
-            throw new Error(
-              "Cannot update biometric prompt cancelled state without an active user",
-            );
-          }
-          return true;
-        },
-      },
-    );
+  async setUserPromptCancelled(userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+    await this.promptCancelledState.update((record) => {
+      record ??= {};
+      record[userId] = true;
+      return record;
+    });
   }
 
   async resetAllPromptCancelled(): Promise<void> {
     await this.promptCancelledState.update(() => null);
   }
 
-  async setPromptAutomatically(prompt: boolean): Promise<void> {
-    await this.promptAutomaticallyState.update(() => prompt);
+  promptAutomatically$(userId: UserId): Observable<boolean> {
+    assertNonNullish(userId, "userId");
+    return this.stateProvider.getUser(userId, PROMPT_AUTOMATICALLY).state$.pipe(map(Boolean));
+  }
+
+  async setPromptAutomatically(prompt: boolean, userId: UserId): Promise<void> {
+    assertNonNullish(userId, "userId");
+    await this.stateProvider.getUser(userId, PROMPT_AUTOMATICALLY).update(() => prompt);
   }
 
   async setFingerprintValidated(validated: boolean): Promise<void> {

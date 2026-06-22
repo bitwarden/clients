@@ -1,6 +1,9 @@
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
 import { UserId } from "@bitwarden/user-core";
+
+import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../admin-console/models/domain/policy";
+
+import { OrganizationInvite } from "./organization-invite";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy
@@ -41,4 +44,15 @@ export abstract class OrganizationInviteService {
    * @returns all enabled policies for the org, or undefined on fetch error.
    */
   abstract getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined>;
+
+  /**
+   * Derives the master-password policy options enforced by an invite's organization. Uses
+   * {@link getInvitePolicies} internally, so repeat calls for the same invite honor the
+   * per-token cache and do not re-fetch.
+   * @returns the org's combined MP requirements, or undefined if the policy fetch failed or
+   *   the org has no MP policy enabled.
+   */
+  abstract getMasterPasswordPolicyOptionsForInvite(
+    invite: OrganizationInvite,
+  ): Promise<MasterPasswordPolicyOptions | undefined>;
 }

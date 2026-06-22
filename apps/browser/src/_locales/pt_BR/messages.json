@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A sua organização requer o uso da autenticação única."
   },
-  "welcomeBack": {
-    "message": "Bem-vindo de volta"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Conectar-se"
   },
   "setAStrongPassword": {
     "message": "Configure uma senha forte"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Digite o endereço de e-mail da sua conta e a dica da sua senha será enviada para você"
   },
-  "getMasterPasswordHint": {
-    "message": "Receber dica da senha principal"
+  "hint": {
+    "message": "Dica"
   },
   "continue": {
     "message": "Continuar"
@@ -394,7 +394,7 @@
     "message": "Salvar"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Salvar e preencher"
   },
   "move": {
     "message": "Mover"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Entrar"
   },
-  "logInToBitwarden": {
-    "message": "Conecte-se ao Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Conectar-se"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Digite o código enviado para o seu e-mail"
@@ -1350,13 +1350,13 @@
     "message": "Usar assistência de preenchimento"
   },
   "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+    "message": "Ativar assistência de preenchimento"
   },
   "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "A assistência de preenchimento melhora a precisão do preenchimento automático em sites suportados, usando regras específicas a sites. Nenhum dado é coletado ou salvo quando usa este recurso."
   },
   "aboutFillAssist": {
-    "message": "About fill assist"
+    "message": "Sobre a assistência de preenchimento"
   },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
@@ -1714,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Falha na autenticação da chave de acesso"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Usar um método de autenticação diferente"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1812,7 +1812,7 @@
     "message": "URL do servidor de ícones"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "URL do servidor do Send"
   },
   "environmentSaved": {
     "message": "URLs do ambiente salvas"
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "A nova senha principal não atende aos requisitos da política."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Receba dicas, novidades e oportunidades de pesquisa do Bitwarden em sua caixa de entrada."
+  "receiveMarketingEmails": {
+    "message": "Receba atualizações do Bitwarden na sua caixa de entrada."
   },
   "unsubscribe": {
     "message": "Desinscreva-se"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Conectar-se com senha principal"
-  },
   "newAroundHere": {
     "message": "Novo por aqui?"
   },
@@ -4401,7 +4398,7 @@
     "message": "1 ou mais e-mails são inválidos"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "A lista de destinatários de e-mail não pode exceder 2.500 caracteres. Remova um ou mais destinatários para continuar."
   },
   "inputTrimValidator": {
     "message": "O campo não pode conter apenas espaços em branco.",
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "Tornar padrão",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Credenciais salvas com sucesso!",
@@ -6525,16 +6538,16 @@
     "message": "Falha na verificação do usuário."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "Desbloqueio compartilhado"
   },
   "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+    "message": "Mantenha seus aplicativos do Bitwarden sincronizados. Quando ativados, o estado de desbloqueio será compartilhado com todos os apps nesta máquina. O app de computador é necessário para sincronizar entre navegadores diferentes."
   },
   "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+    "message": "Mantenha seus aplicativos do Bitwarden sincronizados. Quando ativado, o estado de desbloqueio será compartilhado com os cofres web do Bitwarden no Safari."
   },
   "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+    "message": "Mantenha seus aplicativos do Bitwarden sincronizados. Quando ativado, o estado de desbloqueio será compartilhado com o app de computador do Bitwarden."
   },
   "enterMonth": {
     "message": "Digite o mês."
@@ -6682,10 +6695,33 @@
   "hideEmailPolicyInEffect": {
     "message": "Sua organização requer visibilidade de email. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
   },
+  "domainNotAllowed": {
+    "message": "Inclua apenas os seguintes domínios: $DOMAINS$. Revise e tente novamente",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Não está conforme a política de Send da sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Para editar este Send, crie uma cópia. Se este Send pode expirar na data de apagamento, nenhuma ação é necessária",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Este Send expirará automaticamente na data de apagamento configurada",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Criar uma cópia"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Você não pode importar itens que fazem parte de várias coleções para Meus itens"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Não é possível salvar o item. Você deve ser confirmado na organização para salvar os itens."
   }
 }

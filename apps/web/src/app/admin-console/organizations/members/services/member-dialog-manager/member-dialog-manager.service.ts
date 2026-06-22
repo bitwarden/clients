@@ -16,8 +16,8 @@ import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import {
+  AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
-  AccountRecoveryDialogV2Component,
 } from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
@@ -111,7 +111,7 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const dialogRef = AccountRecoveryDialogV2Component.open(this.dialogService, {
+    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(user),
         email: user.email,
