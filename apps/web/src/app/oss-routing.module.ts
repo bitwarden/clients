@@ -73,6 +73,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
@@ -603,6 +604,16 @@ const routes: Routes = [
             outlet: "secondary",
           },
         ],
+      },
+      {
+        path: "premium/checkout/success",
+        data: {
+          titleId: "paymentSuccessful",
+          pageIcon: null,
+          doNotSaveUrl: true,
+          maxWidth: "lg",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
       },
       {
         path: AuthRoute.ChangePassword,
