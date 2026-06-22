@@ -269,11 +269,13 @@ describe("DefaultCollectionService", () => {
 
     it("uses collectionEncryptionService.decryptMany when flag is enabled", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
       const collection1 = collectionDataFactory(org1);
       const decryptedView = collectionViewDataFactory(org1);
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
+      cryptoKeys.next({ [org1]: orgKey1 });
       collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
@@ -287,7 +289,11 @@ describe("DefaultCollectionService", () => {
     });
 
     it("handles empty collections via SDK path", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+
       await setEncryptedState([]);
+      cryptoKeys.next({ [org1]: orgKey1 });
       collectionEncryptionService.decryptMany.mockResolvedValue([]);
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
@@ -297,6 +303,7 @@ describe("DefaultCollectionService", () => {
 
     it("sorts results returned from collectionEncryptionService", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
       const collection1 = collectionDataFactory(org1);
       const collection2 = collectionDataFactory(org1);
 
@@ -308,6 +315,7 @@ describe("DefaultCollectionService", () => {
       view2.name = "Alpha";
 
       await setEncryptedState([collection1, collection2]);
+      cryptoKeys.next({ [org1]: orgKey1 });
       // Return in reverse alphabetical order to verify sorting
       collectionEncryptionService.decryptMany.mockResolvedValue([view1, view2]);
 
@@ -315,6 +323,52 @@ describe("DefaultCollectionService", () => {
 
       expect(result[0].name).toBe("Alpha");
       expect(result[1].name).toBe("Zebra");
+    });
+
+    it("does not call decryptMany when orgKeys$ emits null (locked/logged-out guard)", (done) => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      void setEncryptedState([collection1]).then(() => {
+        // First emit null (simulates locked / logged-out state)
+        cryptoKeys.next(null);
+
+        // decryptMany must not have been called yet
+        expect(collectionEncryptionService.decryptMany).not.toHaveBeenCalled();
+
+        // Then emit real keys — this should unblock decryption
+        cryptoKeys.next({ [org1]: orgKey1 });
+      });
+
+      collectionService
+        .decryptedCollections$(userId)
+        .pipe(takeWhile((views) => views.length === 0))
+        .subscribe({ complete: () => done() });
+    });
+
+    it("starts decrypting after orgKeys$ transitions from null to valid keys", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      // Emit null first, then valid keys
+      cryptoKeys.next(null);
+      cryptoKeys.next({ [org1]: orgKey1 });
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+      expect(result).toContainPartialObjects([{ id: collection1.id }]);
     });
   });
 

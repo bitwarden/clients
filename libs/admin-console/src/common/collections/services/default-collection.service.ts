@@ -111,8 +111,11 @@ export class DefaultCollectionService implements CollectionService {
     return this.configService.getFeatureFlag$(FeatureFlag.PM35153CollectionSdkDecryption).pipe(
       switchMap((sdkEnabled) => {
         if (sdkEnabled) {
-          return this.encryptedCollections$(userId).pipe(
-            switchMap((collections) =>
+          return combineLatest([
+            this.encryptedCollections$(userId),
+            this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+          ]).pipe(
+            switchMap(([collections]) =>
               from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
                 map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
                 delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
