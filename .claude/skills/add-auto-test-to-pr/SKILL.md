@@ -20,16 +20,22 @@ A `.auto-test/<run-id>/` directory containing:
 
 If no run-id is given, use the most recent directory under `.auto-test/`.
 
-## Step 1 — Build the section
+## Step 1 — Upload every screenshot
 
-Add an `## Auto-Test` section with a brief list of the steps performed (from `plan.md` /
-`report.md`) and the screenshot(s). Keep it terse: no em dashes, no prose, just short bullet steps.
+Upload **all** screenshots in the run directory (not just one) so they render in GitHub, preserving
+their capture order. The reliable path is to attach each image to a throwaway issue comment via the
+API and reuse the returned asset URL, or commit the PNGs into the branch and reference their raw
+URLs. Keep a map of `screenshot file -> uploaded URL` for the next step.
 
-## Step 2 — Upload screenshots
+## Step 2 — Build the section
 
-Upload each screenshot so it renders in GitHub. The reliable path is to attach the image to a
-throwaway issue comment via the API and reuse the returned asset URL, or commit the PNG into the
-branch and reference its raw URL. Embed with `![](url)`.
+Assemble an `## Auto-Test` section from `plan.md` / `report.md` and the uploaded URLs. Keep it terse
+(short bullet steps, no em dashes, no filler prose) but well structured:
+
+- A short status line up top (pass/fail summary).
+- A `Steps performed` bullet list.
+- Each screenshot under a `<details>` block in capture order, captioned with its step, so the
+  section stays collapsed by default and does not flood the PR body.
 
 ## Step 3 — Update the PR body
 
@@ -46,11 +52,28 @@ The appended section should look like:
 ```markdown
 ## Auto-Test
 
-Steps performed:
+**Result:** ✅ 3/3 changes verified
 
-- Open Settings dialog
-- Navigate to Account section
-- Toggle the changed setting
+**Steps performed**
 
-![](https://.../screenshot.png)
+1. Open Settings dialog
+2. Navigate to Account section
+3. Toggle the changed setting
+
+<details>
+<summary>Screenshots</summary>
+
+**1. Settings dialog**
+
+![Settings dialog](https://.../01-settings.png)
+
+**2. Account section**
+
+![Account section](https://.../02-account.png)
+
+**3. Setting toggled**
+
+![Setting toggled](https://.../03-toggle.png)
+
+</details>
 ```
