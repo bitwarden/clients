@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Вашата организация изисква еднократно удостоверяване."
   },
-  "welcomeBack": {
-    "message": "Добре дошли отново"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Вписване"
   },
   "setAStrongPassword": {
     "message": "Използвайте сложна парола"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
   },
-  "getMasterPasswordHint": {
-    "message": "Подсказка за главната парола"
+  "hint": {
+    "message": "Подсказка"
   },
   "continue": {
     "message": "Продължаване"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Вписване"
   },
-  "logInToBitwarden": {
-    "message": "Впишете се в Битуорден"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Вписване"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Въведете кода изпратен на е-пощата Ви"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Удостоверяването чрез секретен ключ беше неуспешно"
   },
-  "useADifferentLogInMethod": {
-    "message": "Използване на друг метод на вписване"
+  "useDifferentLoginMethod": {
+    "message": "Използване на друг метод за вписване"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Изчакване на действие с ключ за сигурност…"
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Паролата ви не отговаря на политиките."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
+  "receiveMarketingEmails": {
+    "message": "Получавайте актуализации от Битуорден в пощата си."
   },
   "unsubscribe": {
     "message": "Отписване"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Вписване с главната парола"
-  },
   "newAroundHere": {
     "message": "За пръв път ли сте тук?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "Задаване по подразбиране",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Направете Битуорден своя управител на пароли по подразбиране в браузъра си"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "от изскачащия прозорец в браузъра, за да дадете на Битуордун разрешение да промени настройките."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Вграденият в браузъра Ви управител на пароли ще бъде изключен, така че да може да се възползвате от по-сигурно вписване."
+  },
+  "allow": {
+    "message": "Разрешаване",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Пропускане"
   },
   "saveCipherAttemptSuccess": {
     "message": "Идентификационните данни са запазени успешно!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
+  },
+  "domainNotAllowed": {
+    "message": "Включват се само следните домейни: $DOMAINS$. Моля, прегледайте и опитайте отново",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не отговаря на политиката за Изпращание на Вашата организация",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "За да редактирате това Изпращане, първо му направете копие.Ако давността на това Изпращане може да изтече на зададена дата за изтриване, не са необходими допълнителни действия.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Давността на това Изпращане ще изтече на зададената дата за изтриване",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Създаване на копие"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"

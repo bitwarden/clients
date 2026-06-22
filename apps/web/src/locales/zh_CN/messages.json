@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
-  },
   "readingPasskeyLoading": {
     "message": "正在读取通行密钥..."
   },
@@ -1751,7 +1748,7 @@
   "passkeyAuthenticationFailed": {
     "message": "通行密钥验证失败。请重试。"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "使用其他登录方式"
   },
   "logInWithPasskey": {
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的组织要求单点登录 (SSO)。"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "欢迎回来"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "登录到 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
-  },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -3666,7 +3660,7 @@
     "message": "如果您现在取消，您的访问权限将持续至"
   },
   "churnOfferPreambleSuffix": {
-    "message": "。作为长期客户，我们愿先为您提供一些优惠。"
+    "message": "作为长期客户，我们愿先为您提供一些优惠。"
   },
   "churnOfferDiscountHeading": {
     "message": "订阅立享 $DISCOUNT$ 减免",
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "作为对 Bitwarden 长期客户的感谢，我们愿为您的下一次 $DURATION$ 服务每 $INTERVAL$ 提供 $AMOUNT$ 减免。",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "每 $INTERVAL$ $AMOUNT$ 减免已应用到您的下一次 $DURATION$ 订阅。",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$LENGTH$ $DURATION$ 享 $DISCOUNT$ 减免",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "永不过期"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "折扣已生效"
+  },
+  "discountForOneYear": {
+    "message": "为期 1 年"
+  },
+  "discountForMonths": {
+    "message": "为期 $COUNT$ 个月",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "截止 $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "管理组织的访问权限、所有集合、成员、报告，以及安全设置"
   },
+  "adminRoleDesc": {
+    "message": "管理所有集合、成员、报告，以及安全设置"
+  },
   "user": {
     "message": "用户"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
   },
   "keepEditing": {
     "message": "继续编辑"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "您没有选择任何内容。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "subscribe": {
     "message": "订阅"
@@ -5871,16 +5946,16 @@
     "message": "重新生成邀请链接"
   },
   "invalidateInviteLink": {
-    "message": "使邀请链接失效"
+    "message": "作废邀请链接"
   },
   "invalidateInviteLinkDesc": {
     "message": "如果您移除所有域名，此邀请链接将不再对任何人有效。"
   },
   "invalidateLink": {
-    "message": "使链接失效"
+    "message": "作废链接"
   },
   "inviteLinkInvalidated": {
-    "message": "邀请链接已失效"
+    "message": "邀请链接已作废"
   },
   "mustEnterAtLeastOneDomain": {
     "message": "必须至少输入 1 个域名"
@@ -6611,7 +6686,7 @@
     "message": "下载"
   },
   "sendAccessPasswordTitle": {
-    "message": "输入密码后查看此 Send",
+    "message": "输入密码以查看此 Send",
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
@@ -6957,6 +7032,21 @@
     "message": "由于某个企业策略，您只能删除现有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
+  },
   "sendControls": {
     "message": "Send 控制"
   },
@@ -6964,8 +7054,9 @@
     "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "可以管理组织策略的组织成员不受此策略的约束。"
+  "sendControlsPolicyDescV2": {
+    "message": "配置成员可以使用 Send 执行的操作。管理员和所有者不受此策略的约束。",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Send 选项",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "您的新密码不能与当前密码相同。"
   },
+  "hint": {
+    "message": "提示"
+  },
   "hintEqualsPassword": {
     "message": "密码提示不能与密码相同。"
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "重置密码"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "继续操作将使 $NAME$ 注销当前会话，并要求他们重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "继续操作将使 $NAME$ 注销当前会话，并要求他们重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "账户恢复管理"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "基于加密方式，当主密码或受信任设备被遗忘或丢失时恢复账户。"
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将启用账户恢复功能。"
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "为新成员启用自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "SCIM 设置已保存",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "仅允许一个此类型 ($TYPE$) 的集成。存在冲突的集成是：$NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ 折扣",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "保护您的基础设施"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "检测安全活动"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "审查应用程序并分配成员任务后，您的组织在安全性改进方面的进度将显示在此处。"
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "优先处理风险"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "审查组织密码库中的所有应用程序，并为对安全具有最高优先级的应用程序加上星标。"
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "解决最重要的风险"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "您将在此处跟踪优先应用程序的风险，并将任务分配给成员，以加强他们的密码的安全。"
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "帮助成员提升安全性"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "选择关键应用程序后，提醒成员更改存在风险的密码。他们将在 Bitwarden 浏览器扩展中收到通知。"
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "及时发现新的风险"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "定期刷新报告和洞察，以及时发现新的风险，并查看组织发展过程中的最新指标。"
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ / $TOTAL$",
+    "message": "$CURRENT$ / $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "一个或多个域名无效"
+  },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "控制成员是否可以使用 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "任意"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "此内容使用已声明的域名填充。"
+  },
   "more": {
     "message": "更多"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
-  },
-  "discardEdits": {
-    "message": "放弃编辑"
   },
   "discardEditsMessage": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
@@ -14327,6 +14467,25 @@
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "启用 Send 控制",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "允许"
+  },
+  "block": {
+    "message": "阻止"
+  },
+  "sendControlAccessOptions": {
+    "message": "访问选项"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "始终向接收者显示成员的电子邮箱地址"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "由成员设置的密码"
+  },
   "hideMyEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "电子邮箱验证"
+  },
+  "separateDomainsWithComma": {
+    "message": "使用逗号分隔域名"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"

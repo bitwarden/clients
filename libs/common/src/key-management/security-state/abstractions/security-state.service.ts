@@ -1,7 +1,6 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
-
+import { UserId } from "../../../types/guid";
 import { SignedSecurityState } from "../../types";
 
 export abstract class SecurityStateService {

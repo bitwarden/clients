@@ -26,6 +26,15 @@
             class="tw-inline-flex tw-items-center"
             >{{ "providerDiscount" | i18n: customerDiscount?.percentOff }}</span
           >
+          <span
+            *ngIf="customerDiscount?.amountOff > 0 && !isSecretsManagerTrial()"
+            bitBadge
+            variant="success"
+            class="tw-inline-flex tw-items-center"
+            >{{
+              "providerDiscountAmountOff" | i18n: (customerDiscount?.amountOff | currency: "$")
+            }}</span
+          >
         </strong>
         <bit-table>
           <ng-template body>
@@ -52,17 +61,28 @@
                   <ng-template #calculateElse>
                     <div class="tw-flex tw-flex-col">
                       <span>
-                        {{ i.quantity * i.amount | currency: "$" }} /
+                        {{ i.discountedTotal | currency: "$" }} /
                         {{ i.interval | i18n }}
                       </span>
-                      <span
-                        *ngIf="
-                          customerDiscount?.percentOff && discountAppliesToProduct(i.productId)
-                        "
-                        class="tw-line-through !tw-text-muted"
+                      <span *ngIf="i.discounted" class="tw-line-through !tw-text-muted"
                         >{{ i.quantity * i.originalAmount | currency: "$" }} /
                         {{ i.interval | i18n }}</span
                       >
+                      <span
+                        *ngIf="
+                          i.discounted &&
+                          (customerDiscount?.durationInMonths != null || customerDiscount?.end)
+                        "
+                        class="tw-text-sm !tw-text-muted"
+                      >
+                        <ng-container
+                          *ngIf="customerDiscount?.durationInMonths != null; else throughDate"
+                          >{{ discountDurationLabel() }}</ng-container
+                        >
+                        <ng-template #throughDate>{{
+                          "discountThroughDate" | i18n: (customerDiscount?.end | date: "longDate")
+                        }}</ng-template>
+                      </span>
                     </div>
                   </ng-template>
                 </td>
