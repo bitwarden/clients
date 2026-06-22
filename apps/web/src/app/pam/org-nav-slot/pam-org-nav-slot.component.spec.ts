@@ -8,8 +8,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeModule, I18nMockService, NavigationModule } from "@bitwarden/components";
-
-import { ApproverInboxRequestsService } from "../approver-inbox/approver-inbox-requests.service";
+import { PamInboxBadgeService } from "@bitwarden/pam";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
@@ -32,7 +31,7 @@ describe("PamOrgNavSlotComponent", () => {
       imports: [PamOrgNavSlotComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$ } },
-        { provide: ApproverInboxRequestsService, useValue: { count$ } },
+        { provide: PamInboxBadgeService, useValue: { count$ } },
         {
           provide: I18nService,
           useValue: new I18nMockService({

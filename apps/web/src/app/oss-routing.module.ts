@@ -16,7 +16,6 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -663,22 +662,6 @@ const routes: Routes = [
           ),
         ],
         canDeactivate: [unsavedSendEditsGuard],
-      },
-      {
-        path: "pam/approver-inbox",
-        data: { titleId: "pamInboxTitle" } satisfies RouteDataProperties,
-        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
-        loadChildren: () =>
-          import("./pam/approver-inbox/approver-inbox.routes").then((m) => m.approverInboxRoutes),
-      },
-      {
-        path: "leasing/requests/:id",
-        data: { titleId: "pamAccessRequestTitle" } satisfies RouteDataProperties,
-        canActivate: [canAccessFeature(FeatureFlag.Pam, true, "/vault")],
-        loadComponent: () =>
-          import("./pam/access-request-route/access-request-route.component").then(
-            (m) => m.AccessRequestRouteComponent,
-          ),
       },
       {
         path: "sm-landing",

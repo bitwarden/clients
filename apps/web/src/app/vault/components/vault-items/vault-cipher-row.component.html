@@ -36,7 +36,11 @@
     >
       {{ cipher.name }}
     </button>
-    <app-pam-vault-row-lease-badge class="tw-ml-2" [cipher]="cipher" />
+    @if (leaseBadge) {
+      <span class="tw-ml-2">
+        <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
+      </span>
+    }
 
     @if (hasAttachments) {
       <ng-container>

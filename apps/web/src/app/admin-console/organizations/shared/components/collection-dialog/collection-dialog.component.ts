@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Optional,
+  Type,
+} from "@angular/core";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -52,7 +60,6 @@ import {
 } from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
-import { CollectionAccessRuleCalloutComponent } from "../../../../../pam/collection-access-rule-callout/collection-access-rule-callout.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -66,6 +73,8 @@ import {
   convertToSelectionView,
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
+
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -123,7 +132,7 @@ export enum CollectionDialogAction {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule, CollectionAccessRuleCalloutComponent],
+  imports: [SharedModule, AccessSelectorModule, SelectModule],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -166,6 +175,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private collectionService: CollectionService,
     private configService: ConfigService,
+    @Optional()
+    @Inject(COLLECTION_ACCESS_RULE_CALLOUT)
+    protected accessRuleCallout: Type<unknown> | null,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
     this.initialPermission = params.initialPermission ?? CollectionPermission.View;

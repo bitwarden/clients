@@ -1,6 +1,5 @@
 import { OverlayContainer } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
@@ -29,17 +28,6 @@ import {
 } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
-
-// Stub the PAM-owned badge so the row spec stays free of PAM dependencies.
-@Component({
-  selector: "app-pam-vault-row-lease-badge",
-  standalone: true,
-  template: "",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class VaultRowLeaseBadgeStubComponent {
-  readonly cipher = input.required<{ id: string }>();
-}
 
 // eslint-disable-next-line no-console
 const originalError = console.error;
@@ -73,7 +61,6 @@ describe("VaultCipherRowComponent", () => {
         CopyCipherFieldDirective,
         OrganizationNameBadgeComponent,
         PremiumBadgeComponent,
-        VaultRowLeaseBadgeStubComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },

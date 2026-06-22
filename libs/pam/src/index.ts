@@ -34,17 +34,13 @@ export {
 export { CipherAccessStateResponse } from "./abstractions/responses/cipher-access-state.response";
 export { AccessEvent, AccessEventKind } from "./abstractions/access-event";
 export { AccessEventService } from "./abstractions/access-event.service";
+export { PamInboxBadgeService } from "./abstractions/pam-inbox-badge.service";
 
-export { DefaultPamApiService } from "./services/default-pam-api.service";
-export { DefaultAccessEventService } from "./services/default-access-event.service";
-export { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
 export { AccessRequestCreateRequest } from "./services/requests/access-request-create.request";
 export { AccessDecisionRequest } from "./services/requests/access-decision.request";
 export { AccessLeaseExtensionRequest } from "./services/requests/access-lease-extension.request";
 export { AccessLeaseRevokeRequest } from "./services/requests/access-lease-revoke.request";
 export { AccessRuleRequest, accessRuleToRequest } from "./services/requests/access-rule.request";
-
-export { CipherLeaseBannerComponent } from "./components/cipher-lease-banner/cipher-lease-banner.component";
 
 export { GatedState } from "./helpers/gated-state";
 export { AccessRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";
@@ -68,6 +64,7 @@ export {
   MAX_LEASE_DURATION_SECONDS,
   MAX_LEASE_DURATION_MINUTES,
   LEASE_DURATION_PRESETS,
+  LEASE_EXTENSION_DURATION_PRESETS,
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   snapToNearestAccessRuleDuration,
