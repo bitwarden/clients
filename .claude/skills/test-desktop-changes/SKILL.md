@@ -61,6 +61,9 @@ DevTools MCP and confirm the target:
 
 **Start the screencast now**, before exercising any change, so the whole run is recorded.
 
+If the app launches locked, unlock it before navigating — `take_snapshot` to find the unlock
+input, then `fill` the PIN and submit. The dev build's default PIN unlock is `1234`.
+
 ## Step 4 — Navigate the app and open Settings
 
 Drive the renderer with the Chrome DevTools MCP. Use `take_snapshot` to read the current UI,
