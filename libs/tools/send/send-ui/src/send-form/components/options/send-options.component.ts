@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   FormControl,
@@ -51,7 +59,7 @@ import { SendFormService } from "../../abstractions/send-form.service";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendOptionsComponent {
+export class SendOptionsComponent implements OnInit {
   protected readonly sendFormService = inject(SendFormService);
   private readonly sendPolicyService = inject(SendPolicyService);
   private readonly i18nService = inject(I18nService);
@@ -59,13 +67,10 @@ export class SendOptionsComponent {
   readonly editing = input<boolean>(false);
 
   readonly sendOptionsForm = new FormGroup({
-    maxAccessCount: new FormControl<string>(
-      this.sendFormService.updatedSendView()?.maxAccessCount?.toString() ?? "",
-      [this.isIntegerValidator(), Validators.min(1)],
-    ),
-    accessCount: new FormControl(this.sendFormService.updatedSendView()?.accessCount ?? null),
-    notes: new FormControl(this.sendFormService.updatedSendView()?.notes ?? null),
-    hideEmail: new FormControl(this.sendFormService.updatedSendView()?.hideEmail ?? null),
+    maxAccessCount: new FormControl(null, [this.isIntegerValidator(), Validators.min(1)]),
+    accessCount: new FormControl(0),
+    notes: new FormControl(""),
+    hideEmail: new FormControl(false),
   });
 
   readonly anyOptionFieldVisible = computed(
@@ -112,7 +117,7 @@ export class SendOptionsComponent {
     effect(() => {
       if (!this.editing() && this.sendFormService.originalSendView()) {
         this.sendOptionsForm.patchValue({
-          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount?.toString(),
+          maxAccessCount: this.sendFormService.originalSendView()?.maxAccessCount,
           accessCount: this.sendFormService.originalSendView()?.accessCount,
           hideEmail: this.sendFormService.originalSendView()?.hideEmail,
           notes: this.sendFormService.originalSendView()?.notes,
@@ -132,13 +137,19 @@ export class SendOptionsComponent {
       const value = this.sendOptionsForm.getRawValue();
       this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
-          maxAccessCount: value.maxAccessCount === "" ? null : Number(value.maxAccessCount),
+          maxAccessCount: value.maxAccessCount === "" ? null : value.maxAccessCount,
           accessCount: value.accessCount,
           hideEmail: value.hideEmail,
           notes: value.notes,
         });
       });
     });
+  }
+
+  ngOnInit() {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
+      this.sendOptionsForm.disable();
+    }
   }
 
   isIntegerValidator(): ValidatorFn {

@@ -13,7 +13,6 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -46,7 +45,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   providers: [],
   imports: [
     AsyncActionsModule,
-    JslibModule,
     TypographyModule,
     ItemModule,
     FormFieldModule,
@@ -98,14 +96,6 @@ export class SendFormComponent implements AfterViewInit {
   protected loading: boolean = true;
 
   SendType = SendType;
-
-  /**
-   * Whether the send being edited is disabled by policy.
-   * Used in the template to show a warning banner.
-   */
-  protected readonly sendDisabled = computed(
-    () => this.sendFormService.originalSendView()?.disabled ?? false,
-  );
 
   constructor(
     protected sendFormService: SendFormService,
