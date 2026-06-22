@@ -40,6 +40,13 @@ export class WebRegistrationFinishService
     return orgInvite.organizationName;
   }
 
+  // TODO: when invite acceptance becomes cross-client (the upcoming extension work),
+  // drop `getMasterPasswordPolicyOptsFromOrgInvite` from `RegistrationFinishService` entirely.
+  // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` (introduced
+  // for PM-35783) is cross-platform and produces the same result, so the registration-finish
+  // component can do the stash-read + projection inline against the org-invite service. The
+  // service contract method here exists only to abstract "MP requirements come from invite vs.
+  // nowhere," which collapses once every client supports invite registration.
   override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
     // If there's a deep linked org invite, use it to get the password policies
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();

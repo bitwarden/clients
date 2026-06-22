@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Ваша организација захтева јединствену пријаву."
   },
-  "welcomeBack": {
-    "message": "Добродошли назад"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Поставите јаку лозинку"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Унесите имејл свог налога и биће вам послат савет за лозинку"
   },
-  "getMasterPasswordHint": {
-    "message": "Добити савет за Главну Лозинку"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Настави"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Пријави се"
   },
-  "logInToBitwarden": {
-    "message": "Пријавите се на Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Унесите кôд послат на ваш имејл"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Потврда приступачног кључа"
   },
-  "useADifferentLogInMethod": {
-    "message": "Користи други начин пријављивања"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Чека се интеракција сигурносног кључа..."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваша нова главна лозинка не испуњава захтеве смерница."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Добијајте савете, најаве и могућности истраживања од Bitwarden-а у пријемном сандучету."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Одјави се"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Пријавите се са главном лозинком"
-  },
   "newAroundHere": {
     "message": "Нов овде?"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "Постави као подразумевано",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Акредитиви су успешно сачувани!",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

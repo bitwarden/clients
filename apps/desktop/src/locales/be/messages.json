@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Даўжыня"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Увайсці"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Атрымаць падказку да асноўнага пароля"
   },
   "emailRequired": {
     "message": "Патрабуецца адрас электроннай пошты."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "Згарнуць у вобласць апавяшчэнняў"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Пры згортванні акна, будзе паказвацца значок на панэлі заданняў."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Згарнуць у радку меню"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Пры згортванні акна, будзе паказвацца значок у радку меню."
-  },
-  "enableCloseToTray": {
-    "message": "Закрываць у вобласці апавяшчэнняў"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Пры закрыцці акна, будзе паказвацца значок на панэлі заданняў."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Закрыць у радку меню"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Пры закрыцці акна, паказваць значок у радку меню."
-  },
-  "enableTray": {
-    "message": "Уключыць значок у вобласці апавяшчэнняў"
-  },
-  "enableTrayDesc": {
-    "message": "Заўсёды паказваць значок на панэлі заданняў."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Запускаць аўтаматычна пры ўваходзе"
   },
   "openAtLoginDesc": {
     "message": "Запускаць праграму Bitwarden для камп'ютара аўтаматычна пры ўваходзе ў сістэму."
-  },
-  "alwaysShowDock": {
-    "message": "Заўсёды паказваць на панэлі Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Паказваць значок Bitwarden на панэлі Dock нават пры згортванні ў радку меню."
-  },
-  "confirmTrayTitle": {
-    "message": "Пацвердзіць адключэнне ў вобласці апавяшчэнняў"
-  },
-  "confirmTrayDesc": {
-    "message": "Адключэнне гэтай налады таксама адключыць усе іншыя налады, якія звязаны з вобласцю апавяшчэнняў."
   },
   "language": {
     "message": "Мова"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Скапіяваць код бяспекі",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Выхад"
   },
-  "showHide": {
-    "message": "Паказаць / Схаваць",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Схаваць у вобласць апавяшчэнняў"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Параметры"
-  },
-  "enableMenuBar": {
-    "message": "Паказваць значок у радку меню"
-  },
-  "enableMenuBarDesc": {
-    "message": "Заўсёды паказваць значок у радку меню."
   },
   "hideToMenuBar": {
     "message": "Схаваць у радку меню"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Падказка для пароля не можа супадаць з паролем."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Сховішча",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Увайсці з асноўным паролем"
   },
   "rememberEmail": {
     "message": "Запомніць электронную пошту"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

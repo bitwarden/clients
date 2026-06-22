@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, startWith } from "rxjs";
+import { firstValueFrom, map, Observable, startWith } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { EncString } from "@bitwarden/sdk-internal";
@@ -34,6 +37,12 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   showDescription = false;
 
   editDialogComponent = MultiStepPolicyEditDialogComponent;
+
+  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
+    return configService
+      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
+      .pipe(map((enabled) => !enabled));
+  }
 }
 
 @Component({
