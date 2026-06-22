@@ -1,25 +1,25 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import {
-  UserId,
-  CipherId,
-  EmergencyAccessId,
-  OrganizationId,
-  CollectionId,
-} from "@bitwarden/common/types/guid";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import {
   CipherView as SdkCipherView,
   CreateAttachmentRequest,
   EncString,
 } from "@bitwarden/sdk-internal";
 
+import { LogService } from "../../platform/abstractions/log.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import {
+  UserId,
+  CipherId,
+  EmergencyAccessId,
+  OrganizationId,
+  CollectionId,
+} from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
+import { Cipher } from "../models/domain/cipher";
+import { CipherView } from "../models/view/cipher.view";
+import { Fido2CredentialView } from "../models/view/fido2-credential.view";
 
 import { DefaultCipherSdkService } from "./cipher-sdk.service";
 

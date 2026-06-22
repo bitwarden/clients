@@ -1,4 +1,4 @@
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherView } from "../models/view/cipher.view";
 
 export abstract class ChangeLoginPasswordService {
   /**
