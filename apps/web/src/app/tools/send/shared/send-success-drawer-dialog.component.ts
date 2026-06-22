@@ -24,12 +24,13 @@ export class SendSuccessDrawerDialogComponent {
   readonly activeSendIcon = ActiveSendIcon;
 
   private readonly sendPolicyService = inject(SendPolicyService);
-  private readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
+  private readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   get dialogTitle(): string {
-    if (this.restrictedSendType() != null) {
+    // TODO:ME - is this necessary?
+    if (this.allowedSendTypes() != null) {
       return "createSend";
     }
     return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";

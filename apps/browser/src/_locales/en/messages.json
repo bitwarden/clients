@@ -6718,5 +6718,8 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "fieldRequiresAtLeastOneValue": {
+    "message": "This field requires at least one value to be selected"
   }
 }

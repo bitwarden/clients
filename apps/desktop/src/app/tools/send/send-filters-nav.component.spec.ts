@@ -8,7 +8,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule } from "@bitwarden/components";
@@ -41,7 +40,7 @@ describe("SendFiltersNavComponent", () => {
   let filterFormValueSubject: BehaviorSubject<{ sendType: SendType | null }>;
   let mockSendListFiltersService: Partial<SendListFiltersService>;
   let mockSendPolicyService: Partial<SendPolicyService>;
-  const restrictedSendType = new BehaviorSubject<SendTypeRestriction | null>(null);
+  const allowedSendTypes = new BehaviorSubject<SendType[]>([SendType.Text, SendType.File]);
 
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
@@ -66,7 +65,7 @@ describe("SendFiltersNavComponent", () => {
     };
 
     mockSendPolicyService = {
-      restrictedSendType$: restrictedSendType,
+      allowedSendTypes$: allowedSendTypes,
     };
 
     await TestBed.configureTestingModule({
@@ -243,7 +242,7 @@ describe("SendFiltersNavComponent", () => {
     expect(fixture.debugElement.children[0].name).toEqual("bit-nav-group");
     expect(fixture.debugElement.children[0].attributes["icon"]).toEqual("bwi-send");
 
-    restrictedSendType.next(SendTypeRestriction.TextOnly);
+    allowedSendTypes.next([SendType.Text]);
     fixture.detectChanges();
 
     expect(fixture.debugElement.children.length).toEqual(1);

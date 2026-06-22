@@ -29,8 +29,8 @@ export class SendFiltersNavComponent {
   private readonly router = inject(Router);
   private readonly currentFilter = toSignal(this.filtersService.filters$);
   private readonly sendPolicyService = inject(SendPolicyService);
-  protected readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   // Track whether current route is the send route

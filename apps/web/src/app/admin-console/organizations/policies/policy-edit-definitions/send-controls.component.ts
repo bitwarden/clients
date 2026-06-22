@@ -10,7 +10,10 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
+  FormControl,
   FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
   UntypedFormBuilder,
   ValidationErrors,
   ValidatorFn,
@@ -25,11 +28,20 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
-import { Option, SwitchComponent } from "@bitwarden/components";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import {
+  FormFieldModule,
+  Option,
+  SelectItemView,
+  SelectModule,
+  SwitchComponent,
+  CheckboxModule,
+  MultiSelectModule,
+  RadioButtonModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
@@ -49,22 +61,53 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 @Component({
   selector: "send-controls-policy-edit",
   templateUrl: "send-controls.component.html",
-  imports: [SharedModule, SwitchComponent],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    I18nPipe,
+    CheckboxModule,
+    FormFieldModule,
+    MultiSelectModule,
+    RadioButtonModule,
+    SwitchComponent,
+    SelectModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
-    new SendControlsPolicyData(),
-  );
+  readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group({
+    disableSend: false,
+    whoCanAccess: WhoCanAccessType.Any,
+    allowedDomains: null,
+    disableHideEmail: false,
+    allowedSendTypes: [[SendType.Text, SendType.File], this.atLeastOneValueValidator()],
+  });
+  readonly allowedSendTypesMultiSelectControl = new FormControl<
+    (SelectItemView & { value: SendType })[]
+  >([], { validators: [this.atLeastOneValueValidator()] });
+
   private readonly dataFormValue = toSignal(this.data.valueChanges);
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly restrictSendTypeOptions = signal<
-    { label: string; value: SendTypeRestriction | null }[]
-  >([]);
+  protected readonly allSendTypeOptions = signal<(SelectItemView & { value: SendType })[]>([
+    {
+      id: SendType.Text.toString(),
+      icon: "bwi-file-text",
+      listName: this.i18nService.t("sendTypeText"),
+      labelName: this.i18nService.t("sendTypeText"),
+      value: SendType.Text,
+    },
+    {
+      id: SendType.File.toString(),
+      icon: "bwi-file",
+      listName: this.i18nService.t("sendTypeFile"),
+      labelName: this.i18nService.t("sendTypeFile"),
+      value: SendType.File,
+    },
+  ]).asReadonly();
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -128,18 +171,23 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         this.data.enable();
       }
     });
-    this.restrictSendTypeOptions.set([
-      { label: this.i18nService.t("sendRestrictSendTypeTextAndFile"), value: null },
-      {
-        label: this.i18nService.t("sendRestrictSendTypeTextOnly"),
-        value: SendTypeRestriction.TextOnly,
-      },
-      {
-        label: this.i18nService.t("sendRestrictSendTypeFileOnly"),
-        value: SendTypeRestriction.FileOnly,
-      },
-    ]);
+    // The MultiSelectComponent outputs full SelectItemView objects in its output array, but the
+    // `allowedSendTypes` field is an array of SendTypes. We therefore bind the multi-select to a
+    // separate form control and update the policy data field whenever it changes
+    this.allowedSendTypesMultiSelectControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((values) => {
+        this.data.get("allowedSendTypes")?.patchValue((values ?? []).map<SendType>((v) => v.value));
+      });
     super.ngOnInit();
+    // The separate multi-select form control must be initialized after we've loaded the policy data
+    const currentSendTypes = this.data.get("allowedSendTypes")?.value ?? [];
+    this.allowedSendTypesMultiSelectControl.patchValue(
+      this.allSendTypeOptions().filter((asto) =>
+        currentSendTypes.some((st) => st.toString() === asto.id),
+      ),
+      { emitEvent: false },
+    );
   }
 
   /** Fetches the organization's claimed domains */
@@ -181,6 +229,24 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         return {
           multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },
         };
+      }
+      return null;
+    };
+  }
+
+  atLeastOneValueValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const errorResult: ValidationErrors = {
+        atLeastOneValueRequired: { message: this.i18nService.t("fieldRequiresAtLeastOneValue") },
+      };
+      if (control.value == null) {
+        return errorResult;
+      }
+      if (!Array.isArray(control.value)) {
+        return null;
+      }
+      if (control.value.length < 1) {
+        return errorResult;
       }
       return null;
     };

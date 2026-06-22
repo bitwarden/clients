@@ -60,7 +60,10 @@ describe("NewSendDropdownComponent", () => {
         { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: SendPolicyService,
-          useValue: { disableSend$: of(false), restrictedSendType$: of(null) },
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+          },
         },
       ],
     }).compileComponents();

@@ -8,7 +8,6 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   BadgeModule,
   ButtonModule,
-  IconModule,
   IconButtonModule,
   IconModule,
   LinkModule,

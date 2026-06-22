@@ -1,4 +1,5 @@
-import { SendTypeRestriction } from "./send-send-type-restriction";
+import { SendType } from "../send/types/send-type";
+
 import { WhoCanAccessType } from "./send-who-can-access-type";
 
 export class SendControlsPolicyData {
@@ -12,5 +13,5 @@ export class SendControlsPolicyData {
   /** When true prevent users from creating Sends with their email hidden */
   disableHideEmail: boolean = false;
   /** Specify which types of Sends can be created */
-  restrictSendType: SendTypeRestriction | null = null;
+  allowedSendTypes: SendType[] = [SendType.Text, SendType.File];
 }

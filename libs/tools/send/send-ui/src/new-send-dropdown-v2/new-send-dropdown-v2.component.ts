@@ -3,13 +3,12 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendPolicyService } from "../services/send-policy.service";
 
@@ -19,7 +18,7 @@ import { SendPolicyService } from "../services/send-policy.service";
 @Component({
   selector: "tools-new-send-dropdown-v2",
   templateUrl: "new-send-dropdown-v2.component.html",
-  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent],
+  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewSendDropdownV2Component {
@@ -35,8 +34,8 @@ export class NewSendDropdownV2Component {
   private readonly sendPolicyService = inject(SendPolicyService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
-  protected readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   protected readonly hasNoPremium = toSignal(
@@ -65,14 +64,12 @@ export class NewSendDropdownV2Component {
     }
   }
 
-  /**
-   * Called when the type is restricted — directly creates the allowed type.
-   */
+  /** Called when the type is restricted — directly creates the allowed type. */
   protected async onRestrictedClick(): Promise<void> {
-    const restriction = this.restrictedSendType();
-    if (restriction === SendTypeRestriction.FileOnly) {
+    const allowedSendTypes = this.allowedSendTypes();
+    if (allowedSendTypes[0] === SendType.File) {
       await this.onFileSendClick();
-    } else if (restriction === SendTypeRestriction.TextOnly) {
+    } else if (allowedSendTypes[0] === SendType.Text) {
       this.onTextSendClick();
     }
   }

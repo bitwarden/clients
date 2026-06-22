@@ -9,7 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ChipFilterComponent } from "@bitwarden/components";
 
@@ -25,7 +25,7 @@ describe("SendListFiltersComponent", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
   let sendPolicyService: Partial<SendPolicyService>;
-  const restrictedSendType = new BehaviorSubject<SendTypeRestriction | null>(null);
+  const allowedSendTypes = new BehaviorSubject<SendType[]>([SendType.Text, SendType.File]);
   const userId = "userId" as UserId;
 
   beforeEach(async () => {
@@ -45,7 +45,7 @@ describe("SendListFiltersComponent", () => {
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
     sendPolicyService = {
-      restrictedSendType$: restrictedSendType,
+      allowedSendTypes$: allowedSendTypes,
     };
 
     await TestBed.configureTestingModule({
@@ -88,7 +88,7 @@ describe("SendListFiltersComponent", () => {
 
   it("should hide Send filters when the Send type is restricted by policy", () => {
     expect(fixture.debugElement.children.length).toEqual(1);
-    restrictedSendType.next(SendTypeRestriction.TextOnly);
+    allowedSendTypes.next([SendType.Text]);
     fixture.detectChanges();
     expect(fixture.debugElement.children.length).toEqual(0);
   });

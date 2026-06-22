@@ -8,7 +8,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -116,18 +115,20 @@ export class SendPolicyService {
   );
 
   /**
-   * Emits the only allowed `SendType` when a "restrict send type" policy is active,
-   * or `null` when no restriction is in effect.
+   * Emits the SendTypes that are allowed by policy
    */
-  readonly restrictedSendType$: Observable<SendTypeRestriction | null> = this.flagAndUser$.pipe(
+  readonly allowedSendTypes$: Observable<SendType[]> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) => {
+      // If the feature flag is off then all Send Types are allowed
       if (!sendControlsEnabled) {
-        return of(null);
+        return of([SendType.Text, SendType.File]);
       }
       return this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
         map((policies) => {
-          const policy = policies?.find((p) => p.data?.restrictSendType != null);
-          return (policy?.data?.restrictSendType as SendTypeRestriction) ?? null;
+          const allowedSendTypes: SendType[] = policies.flatMap(
+            (p) => p.data.allowedSendTypes ?? [],
+          );
+          return [...new Set(allowedSendTypes)];
         }),
       );
     }),
@@ -138,11 +139,8 @@ export class SendPolicyService {
     if (!send.disabled) {
       return SendDisabledReason.None;
     }
-    const sendTypeRestriction = await firstValueFrom(this.restrictedSendType$);
-    if (
-      (sendTypeRestriction === SendTypeRestriction.TextOnly && send.type !== SendType.Text) ||
-      (sendTypeRestriction === SendTypeRestriction.FileOnly && send.type !== SendType.File)
-    ) {
+    const allowedSendTypes = await firstValueFrom(this.allowedSendTypes$);
+    if (allowedSendTypes && !allowedSendTypes.includes(send.type)) {
       return SendDisabledReason.RestrictedType;
     }
     return SendDisabledReason.Other;

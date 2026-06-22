@@ -4,10 +4,11 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
 import { Observable, of, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { ChipFilterComponent } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendListFiltersService } from "../services/send-list-filters.service";
 import { SendPolicyService } from "../services/send-policy.service";
@@ -17,14 +18,14 @@ import { SendPolicyService } from "../services/send-policy.service";
 @Component({
   selector: "app-send-list-filters",
   templateUrl: "./send-list-filters.component.html",
-  imports: [CommonModule, JslibModule, ChipFilterComponent, ReactiveFormsModule],
+  imports: [CommonModule, I18nPipe, ChipFilterComponent, ReactiveFormsModule],
 })
 export class SendListFiltersComponent implements OnDestroy {
   protected filterForm = this.sendListFiltersService.filterForm;
   protected sendTypes = this.sendListFiltersService.sendTypes;
   protected canAccessPremium$: Observable<boolean>;
-  readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
+  readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   constructor(

@@ -1,4 +1,4 @@
-@if (restrictedSendType() == null) {
+@if (allowedSendTypes().length > 1) {
   <bit-nav-group
     icon="bwi-send"
     [text]="'send' | i18n"

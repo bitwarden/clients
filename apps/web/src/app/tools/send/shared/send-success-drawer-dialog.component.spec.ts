@@ -88,7 +88,10 @@ describe("SendSuccessDrawerDialogComponent", () => {
         },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: ToastService, useValue: toastService },
-        { provide: SendPolicyService, useValue: { restrictedSendType$: of(null) } },
+        {
+          provide: SendPolicyService,
+          useValue: { allowedSendTypes$: of([SendType.Text, SendType.File]) },
+        },
       ],
     }).compileComponents();
 

@@ -5,7 +5,6 @@ import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
@@ -67,8 +66,8 @@ export class NewSendDropdownComponent {
   }
 
   private readonly sendPolicyService = inject(SendPolicyService);
-  protected readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
-    initialValue: null,
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   /**
@@ -104,15 +103,9 @@ export class NewSendDropdownComponent {
     return true;
   }
 
-  /**
-   * Called when the send type is restricted — directly creates the allowed type.
-   */
+  /** Called when SendType is restricted to a single type — create it immediately */
   async onRestrictedClick() {
-    const restriction = this.restrictedSendType();
-    if (restriction != null) {
-      const sendType: SendType =
-        restriction === SendTypeRestriction.FileOnly ? SendType.File : SendType.Text;
-      await this.createSend(sendType);
-    }
+    const allowedSendTypes = this.allowedSendTypes();
+    await this.createSend(allowedSendTypes[0]);
   }
 }

@@ -240,7 +240,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     const newPolicy = newPolicyData ?? {};
     return (
       Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
+      Object.keys(newPolicy).some((newKey) => {
+        const oldValue = oldPolicy[newKey];
+        const newValue = newPolicy[newKey];
+        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+          return JSON.stringify(oldValue.sort()) !== JSON.stringify(newValue.sort());
+        }
+        return oldValue !== newValue;
+      })
     );
   }
 

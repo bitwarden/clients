@@ -1,4 +1,4 @@
-@if (restrictedSendType() != null) {
+@if (allowedSendTypes().length === 1) {
   <button bitButton [buttonType]="buttonType()" type="button" (click)="onRestrictedClick()">
     @if (!hideIcon()) {
       <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
