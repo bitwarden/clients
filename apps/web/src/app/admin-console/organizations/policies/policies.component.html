@@ -30,7 +30,11 @@
         <bit-disclosure #disclosure [open]="true">
           <bit-item-group [attr.aria-label]="section.labelKey | i18n">
             @for (p of section.policies; track p.type) {
-              <bit-item>
+              <bit-item
+                [style.background-color]="
+                  activePolicy()?.type === p.type ? 'var(--color-hover-default)' : null
+                "
+              >
                 <button type="button" bit-item-content (click)="edit(p, organization)">
                   {{ p.name | i18n }}
                   <span slot="secondary">{{ p.description | i18n }}</span>

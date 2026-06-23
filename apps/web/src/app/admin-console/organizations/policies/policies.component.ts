@@ -62,6 +62,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 })
 export class PoliciesComponent {
   private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
+  protected readonly activePolicy = signal<BasePolicyEditDefinition | null>(null);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -202,7 +203,9 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
+        this.activePolicy.set(policy);
         await lastValueFrom(ref.closed);
+        this.activePolicy.set(null);
         if (triggerEl?.isConnected) {
           triggerEl.focus();
         }
