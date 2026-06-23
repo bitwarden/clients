@@ -14,8 +14,6 @@ import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
 import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
 import { AccessRequestResultResponse } from "./responses/access-request-result.response";
 import { AccessRuleResponse } from "./responses/access-rule.response";
-import { BulkRevokeResult } from "./responses/bulk-revoke.result";
-import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
 
 /**
  * Snapshot of a cipher's access state from the perspective of the current
@@ -106,23 +104,6 @@ export abstract class PamApiService {
    * shared history window.
    */
   abstract listManagedLeaseHistory(): Promise<AccessLeaseResponse[]>;
-
-  abstract getGovernanceSummary(
-    organizationId: string,
-  ): Promise<OrganizationGovernanceSummaryResponse>;
-  /**
-   * Org-wide kill switch: revokes all active leases in the organization. When
-   * `blockNewLeases` is true, it also engages a leasing freeze so no new lease
-   * can be activated until {@link unblockNewLeases} lifts it.
-   */
-  abstract bulkRevokeLeases(
-    organizationId: string,
-    blockNewLeases: boolean,
-  ): Promise<BulkRevokeResult>;
-  /** Lifts an org-wide leasing freeze so approved requests can be activated again. */
-  abstract unblockNewLeases(organizationId: string): Promise<void>;
-  /** Whether the organization is currently under a leasing freeze. */
-  abstract isLeasingFrozen(organizationId: string): Promise<boolean>;
 
   abstract listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>>;
   abstract getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse>;

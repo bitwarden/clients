@@ -51,10 +51,12 @@ instance and stay mounted across tab switches.
   `COLLECTION_ACCESS_RULE_CALLOUT` seam). The org nav group is `pam-org-nav-slot`
   — an **OSS-resident** slot in `apps/web/src/app/pam/` (see OSS seams).
 
-> **Governance dashboard + kill switch are mock-only today.** Their API methods
-> (`getGovernanceSummary`, `bulkRevokeLeases`, `unblockNewLeases`,
-> `isLeasingFrozen`) `Promise.reject` in `DefaultPamApiService` (see
-> `bitwarden_license/bit-pam/CLAUDE.md`). The components are real but only function under the mock.
+> **Governance dashboard + kill switch are mock-only today.** They inject
+> `GovernanceService` (a separate `@bitwarden/bit-pam` abstraction, _not_
+> `PamApiService`) — `getGovernanceSummary`, `bulkRevokeLeases`,
+> `unblockNewLeases`, `isLeasingFrozen`. There is no server implementation, so
+> `provide-pam.ts` binds `GovernanceService` to `MockGovernanceService`
+> unconditionally. The components are real but only function under that mock.
 
 ## The cipher-open → banner → reloader flow (the vault seam)
 
@@ -83,11 +85,12 @@ userId)` when a row is opened. Returns `"open"` (partial view — not gated, fla
 
 `provide-pam.ts` exports `providePam(): SafeProvider[]`, imported once by the
 commercial **`bit-web/app.module.ts`** (not OSS `core.module.ts` — OSS must not
-reference licensed providers). It binds `PamApiService` + `AccessEventService`
-(real or mock, chosen at factory time), the three vault tokens above,
-`LeasedCipherFetcherService`, and the OSS-seam bindings (next section):
-`PamInboxBadgeService → ApproverInboxRequestsService`, `COLLECTION_ACCESS_RULE_CALLOUT`,
-`VAULT_ROW_LEASE_BADGE`.
+reference licensed providers). It binds `PamApiService` (always the real
+`DefaultPamApiService`), `AccessEventService` (real `DefaultAccessEventService`),
+`GovernanceService` (always `MockGovernanceService` — no backend yet), the three
+vault tokens above, `LeasedCipherFetcherService`, and the OSS-seam bindings (next
+section): `PamInboxBadgeService → ApproverInboxRequestsService`,
+`COLLECTION_ACCESS_RULE_CALLOUT`, `VAULT_ROW_LEASE_BADGE`.
 
 ## OSS seams (how OSS renders PAM without importing licensed code)
 
@@ -139,15 +142,20 @@ absent and the hosts render normally.
 (demo) — revert to `FALSE` before merging upstream.** Components degrade silently
 when the flag is off (render nothing); routes redirect to `/vault`.
 
-## Mock layer (demo scaffolding)
+## Mock layer (governance only)
 
-Enabled by `localStorage.setItem("pam-mock", "true")` — `provide-pam.ts` checks
-`PamMockConfig.isEnabled()` at DI factory time and swaps in `MockPamApiService` +
-`MockAccessEventService`. `pam-mock-store.ts` is an in-memory state machine
-(auto-decides after a delay, ~20% auto-deny, lazy expiry sweep, simulates the
-freeze / kill switch); `mock-access-event.service.ts` bridges store events into
-the push stream. The mock is the only way to exercise governance / kill-switch
-today.
+`mock/mock-governance.service.ts` is the **entire** mock layer — a self-contained
+`GovernanceService` implementation holding in-memory demo state (hardcoded
+collections with member/pending/active counts, plus an org-wide leasing freeze;
+the kill switch zeroes active leases so a reload reflects it). Governance has no
+backend, so `provide-pam.ts` binds `GovernanceService` to it **unconditionally**
+(no toggle, no flag) — swap in a real impl once the server lands (provider TODO).
+
+Everything else — lease/request flows, the approver inbox, access-rule CRUD —
+always runs against the real server via `PamApiService`/`DefaultPamApiService`,
+and `AccessEventService` is always `DefaultAccessEventService`. There is no
+broader mock store, `pam-mock` localStorage toggle, or `MockPamApiService`
+anymore; the governance UI is the only thing the mock serves.
 
 ## i18n
 

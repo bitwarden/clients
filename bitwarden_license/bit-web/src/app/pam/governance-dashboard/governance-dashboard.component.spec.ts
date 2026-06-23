@@ -6,7 +6,7 @@ import { of } from "rxjs";
 import {
   CollectionGovernanceRowResponse,
   OrganizationGovernanceSummaryResponse,
-  PamApiService,
+  GovernanceService,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -38,7 +38,7 @@ function makeSummary(rows: Array<Partial<Record<string, unknown>>> = []) {
 }
 
 describe("GovernanceDashboardComponent", () => {
-  let pamApiService: MockProxy<PamApiService>;
+  let governanceService: MockProxy<GovernanceService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
 
@@ -47,7 +47,7 @@ describe("GovernanceDashboardComponent", () => {
     summary?: OrganizationGovernanceSummaryResponse;
     reject?: Error;
   }): Promise<ComponentFixture<GovernanceDashboardComponent>> {
-    pamApiService = mock<PamApiService>();
+    governanceService = mock<GovernanceService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
 
@@ -56,9 +56,9 @@ describe("GovernanceDashboardComponent", () => {
     );
 
     if (opts.reject != null) {
-      pamApiService.getGovernanceSummary.mockRejectedValue(opts.reject);
+      governanceService.getGovernanceSummary.mockRejectedValue(opts.reject);
     } else if (opts.summary != null) {
-      pamApiService.getGovernanceSummary.mockResolvedValue(opts.summary);
+      governanceService.getGovernanceSummary.mockResolvedValue(opts.summary);
     }
 
     const organizationService = mock<OrganizationService>();
@@ -75,7 +75,7 @@ describe("GovernanceDashboardComponent", () => {
     await TestBed.configureTestingModule({
       imports: [GovernanceDashboardComponent],
       providers: [
-        { provide: PamApiService, useValue: pamApiService },
+        { provide: GovernanceService, useValue: governanceService },
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: logService },
         { provide: OrganizationService, useValue: organizationService },
@@ -123,13 +123,13 @@ describe("GovernanceDashboardComponent", () => {
         ]),
       });
 
-      expect(pamApiService.getGovernanceSummary).toHaveBeenCalledWith("org-1");
+      expect(governanceService.getGovernanceSummary).toHaveBeenCalledWith("org-1");
     });
 
     it("transitions to 'error' when organizationId is missing from the route", async () => {
       const fixture = await setup({ organizationId: null });
 
-      expect(pamApiService.getGovernanceSummary).not.toHaveBeenCalled();
+      expect(governanceService.getGovernanceSummary).not.toHaveBeenCalled();
       const errorEl = fixture.nativeElement.querySelector("bit-callout[type='danger']");
       expect(errorEl).toBeTruthy();
     });
@@ -291,7 +291,7 @@ describe("GovernanceDashboardComponent", () => {
     });
 
     it("uses the row CollectionGovernanceRowResponse object directly when summaryOverride is supplied", async () => {
-      pamApiService = mock<PamApiService>();
+      governanceService = mock<GovernanceService>();
       i18nService = mock<I18nService>();
       logService = mock<LogService>();
       i18nService.t.mockImplementation((key: string) => key);
@@ -306,7 +306,7 @@ describe("GovernanceDashboardComponent", () => {
       await TestBed.configureTestingModule({
         imports: [GovernanceDashboardComponent],
         providers: [
-          { provide: PamApiService, useValue: pamApiService },
+          { provide: GovernanceService, useValue: governanceService },
           { provide: I18nService, useValue: i18nService },
           { provide: LogService, useValue: logService },
           { provide: OrganizationService, useValue: organizationService },
@@ -336,7 +336,7 @@ describe("GovernanceDashboardComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(pamApiService.getGovernanceSummary).not.toHaveBeenCalled();
+      expect(governanceService.getGovernanceSummary).not.toHaveBeenCalled();
       const membersWithAccessLink = fixture.nativeElement.querySelector(
         "[data-testid='link-members-with-access']",
       );
