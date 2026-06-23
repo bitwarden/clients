@@ -150,8 +150,10 @@ export class OrganizationData {
     this.isProviderUser = options.isProviderUser;
   }
 
-  static fromJSON(obj: Jsonify<OrganizationData>) {
+  static fromJSON(obj: Jsonify<OrganizationData> & { userIsManagedByOrganization?: boolean }) {
     return Object.assign(new OrganizationData(), obj, {
+      userIsClaimedByOrganization:
+        obj.userIsClaimedByOrganization ?? obj.userIsManagedByOrganization,
       familySponsorshipLastSyncDate:
         obj.familySponsorshipLastSyncDate != null
           ? new Date(obj.familySponsorshipLastSyncDate)
