@@ -1,3 +1,4 @@
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
@@ -6,6 +7,7 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { assertNonNullish } from "../../auth/utils";
 import { ClientType } from "../../enums";
@@ -13,6 +15,7 @@ import { ConfigService } from "../../platform/abstractions/config/config.service
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
+import { CipherService } from "../../vault/abstractions/cipher.service";
 import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
@@ -20,6 +23,7 @@ import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
 export class DefaultEncryptedMigrator implements EncryptedMigrator {
   private migrations: { name: string; migration: EncryptedMigration }[] = [];
@@ -36,6 +40,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     biometricsService: BiometricsService,
     biometricStateService: BiometricStateService,
     platformUtilsService: PlatformUtilsService,
+    userKeyRotationService: UserKeyRotationServiceAbstraction,
+    cipherService: CipherService,
+    sdkService: SdkService,
   ) {
     // Register migrations here
     this.migrations.push({
@@ -59,6 +66,22 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           biometricsService,
           biometricStateService,
           logService,
+        ),
+      });
+    }
+
+    if (platformUtilsService.getClientType() !== ClientType.Cli) {
+      this.migrations.push({
+        name: "V2 User Key Rotation Migration",
+        migration: new V2KeyRotationMigration(
+          keyService,
+          userKeyRotationService,
+          masterPasswordService,
+          syncService,
+          configService,
+          logService,
+          cipherService,
+          sdkService,
         ),
       });
     }

@@ -1,6 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -50,6 +51,7 @@ describe("DefaultSdkService", () => {
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
     let apiService!: MockProxy<ApiService>;
+    let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -65,6 +67,7 @@ describe("DefaultSdkService", () => {
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
       configService = mock<ConfigService>();
+      upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
 
       configService.serverConfig$ = new BehaviorSubject(null);
 
@@ -82,6 +85,7 @@ describe("DefaultSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
+        upgradeTokenStateService,
       );
     });
 
@@ -113,6 +117,7 @@ describe("DefaultSdkService", () => {
               },
             }),
           );
+        upgradeTokenStateService.v2UpgradeToken$.calledWith(userId).mockReturnValue(of(null));
       });
 
       describe("given no client override has been set for the user", () => {
@@ -137,8 +142,8 @@ describe("DefaultSdkService", () => {
           service.userClient$(userId).subscribe(subject_1);
           service.userClient$(userId).subscribe(subject_2);
 
-          // Wait for the next tick to ensure all async operations are done
-          await new Promise(process.nextTick);
+          // Wait for debounceTime(100) in internalClient$ plus async client initialization
+          await new Promise((resolve) => setTimeout(resolve, 150));
 
           expect(subject_1.value.take().value).toBe(mockClient);
           expect(subject_2.value.take().value).toBe(mockClient);
@@ -193,7 +198,7 @@ describe("DefaultSdkService", () => {
           keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
-          await userClientTracker.pauseUntilReceived(1);
+          await userClientTracker.pauseUntilReceived(1, 200);
 
           userKey$.next(undefined);
           await userClientTracker.pauseUntilReceived(2);
@@ -236,12 +241,12 @@ describe("DefaultSdkService", () => {
           sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
-          await userClientTracker.pauseUntilReceived(1);
+          await userClientTracker.pauseUntilReceived(1, 200);
           expect(userClientTracker.emissions[0].take().value).toBe(mockInternalClient);
 
           service.setClient(userId, mockOverrideClient);
 
-          await userClientTracker.pauseUntilReceived(2);
+          await userClientTracker.pauseUntilReceived(2, 200);
           expect(userClientTracker.emissions[1].take().value).toBe(mockOverrideClient);
         });
 
@@ -271,9 +276,13 @@ describe("DefaultSdkService", () => {
           sdkClientFactory.createSdkClient.mockResolvedValue(mockInternalClient);
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
-          await userClientTracker.pauseUntilReceived(1);
+          const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
+          // Advance past the debounceTime(100) in internalClient$ so the first emission fires
+          await jest.advanceTimersByTimeAsync(100);
+          await firstEmission;
+
           service.setClient(userId, mockOverrideClient);
-          await userClientTracker.pauseUntilReceived(2);
+          await userClientTracker.pauseUntilReceived(2, 200);
 
           expect(mockInternalClient.free).not.toHaveBeenCalled();
           await jest.advanceTimersByTimeAsync(1000);

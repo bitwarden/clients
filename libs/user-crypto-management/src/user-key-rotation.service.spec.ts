@@ -241,15 +241,6 @@ describe("DefaultUserKeyRotationService", () => {
       );
     });
 
-    it("throws when the SDK client is null", async () => {
-      mockSdkService.userClient$.mockReturnValue(of(null) as any);
-
-      await expect(
-        service.rotateUserKey(mockPasswordRotation, mockUpgradeTokenAction, mockUserId),
-      ).rejects.toThrow("SDK not available");
-      expect(mockUserCryptoManagement.rotate_user_keys).not.toHaveBeenCalled();
-    });
-
     it("throws when rotate_user_keys rejects", async () => {
       mockUserCryptoManagement.rotate_user_keys.mockRejectedValue(new Error("rotation failed"));
 

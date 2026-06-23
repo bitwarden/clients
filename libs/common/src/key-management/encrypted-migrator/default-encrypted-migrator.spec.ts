@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
 
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
@@ -8,12 +9,14 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
+import { CipherService } from "../../vault/abstractions/cipher.service";
 import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
@@ -21,9 +24,11 @@ import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
 jest.mock("./migrations/minimum-kdf-migration");
 jest.mock("./migrations/biometric-persistent-encryption-migration");
+jest.mock("./migrations/v2-key-rotation-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
@@ -36,10 +41,14 @@ describe("EncryptedMigrator", () => {
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockUserKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
+  const mockCipherService = mock<CipherService>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
   const mockBiometricMigration = mock<BiometricPersistentMigration>();
+  const mockV2KeyRotationMigration = mock<V2KeyRotationMigration>();
+  const mockSdkService = mock<SdkService>();
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockMasterPassword = "masterPassword123";
@@ -54,9 +63,14 @@ describe("EncryptedMigrator", () => {
     (
       BiometricPersistentMigration as jest.MockedClass<typeof BiometricPersistentMigration>
     ).mockImplementation(() => mockBiometricMigration);
+    (V2KeyRotationMigration as jest.MockedClass<typeof V2KeyRotationMigration>).mockImplementation(
+      () => mockV2KeyRotationMigration,
+    );
 
     // Default biometric migration to no-op so it doesn't interfere with KDF migration tests
     mockBiometricMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+    // Default v2 key rotation migration to no-op so it doesn't interfere with other tests
+    mockV2KeyRotationMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
 
     // Biometric migration is only registered on desktop
     mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
@@ -72,6 +86,9 @@ describe("EncryptedMigrator", () => {
       mockBiometricsService,
       mockBiometricStateService,
       mockPlatformUtilsService,
+      mockUserKeyRotationService,
+      mockCipherService,
+      mockSdkService,
     );
   });
 

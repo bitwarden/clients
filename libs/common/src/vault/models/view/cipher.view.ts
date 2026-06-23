@@ -149,13 +149,13 @@ export class CipherView implements View, InitializerMetadata {
 
   get hasOldAttachments(): boolean {
     if (this.hasAttachments) {
-      for (let i = 0; i < this.attachments.length; i++) {
-        if (this.attachments[i].key == null && this.attachments[i].encryptedKey == null) {
-          return true;
-        }
-      }
+      return this.attachments.some((a) => a.isLegacyAttachment());
     }
     return false;
+  }
+
+  get isUserOwnedCipher(): boolean {
+    return this.organizationId == null;
   }
 
   get hasFields(): boolean {
