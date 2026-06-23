@@ -48,7 +48,6 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
 export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   private readonly destroyRef = inject(DestroyRef);
-  private readonly discardGuardEnabled = signal(true);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -103,13 +102,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
       if (result || !this.isFormDirty()) {
         return true;
       }
-      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-      if (confirmed) {
-        // Disarm the guard so closePredicate won't prompt again when close() is called
-        // after this predicate resolves true.
-        this.discardGuardEnabled.set(false);
-      }
-      return confirmed;
+      return this.dialogService.openSimpleDialog(this.discardDialogOptions);
     };
 
     // When the vault is locked or the user is logged out, disarm the guard so the
@@ -129,7 +122,6 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        this.discardGuardEnabled.set(false);
         this.dialogRef.closePredicate = undefined;
       });
   }
