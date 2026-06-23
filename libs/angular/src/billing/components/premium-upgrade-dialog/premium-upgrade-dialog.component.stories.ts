@@ -1,12 +1,14 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
   SubscriptionCadenceIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -89,12 +91,30 @@ export default {
           provide: EnvironmentService,
           useValue: {
             cloudWebVaultUrl$: of("https://vault.bitwarden.com"),
+            environment$: of({
+              getWebVaultUrl: () => "https://vault.bitwarden.com",
+              isCloud: () => true,
+            }),
           },
         },
         {
           provide: PlatformUtilsService,
           useValue: {
             launchUri: (uri: string) => {},
+            getClientType: (): undefined => undefined,
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag: () => Promise.resolve(false),
+          },
+        },
+        {
+          provide: BillingApiServiceAbstraction,
+          useValue: {
+            createPremiumCheckoutSession: () =>
+              Promise.resolve({ checkoutSessionUrl: "https://checkout.stripe.com/session" }),
           },
         },
         {

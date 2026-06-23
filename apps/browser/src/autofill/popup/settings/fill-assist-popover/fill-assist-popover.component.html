@@ -1,0 +1,26 @@
+<button
+  type="button"
+  class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
+  [bitPopoverTriggerFor]="fillAssistPopover"
+  position="above-center"
+  [appA11yTitle]="'aboutFillAssist' | i18n"
+  bitLink
+  startIcon="bwi-question-circle"
+></button>
+
+<bit-popover [title]="'aboutFillAssist' | i18n" #fillAssistPopover>
+  <p>
+    {{ "enableFillAssistDescription" | i18n }}
+  </p>
+  <div class="tw-flex tw-gap-1.5 tw-items-center">
+    <a bitLink href="#" (click)="openLearnMore($event)" class="tw-flex">
+      {{ "learnMore" | i18n }}
+    </a>
+    <bit-icon
+      slot="end"
+      name="bwi-external-link"
+      class="tw-text-primary-600"
+      aria-hidden="true"
+    ></bit-icon>
+  </div>
+</bit-popover>

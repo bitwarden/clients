@@ -177,8 +177,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
-
   /**
    * Returns the list of copyable fields based on cipher type.
    * Used to render copy menu items dynamically.
@@ -247,6 +245,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
           { field: "middleNameLicense", title: "copyMiddleName" },
           { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
         ];
       default:
         return [];

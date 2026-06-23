@@ -730,4 +730,96 @@ describe("DomQueryService", () => {
       ).toBe(input);
     });
   });
+
+  describe("findIframeCrossing", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for selectors without an iframe boundary", () => {
+      expect(domQueryService.findIframeCrossing("#username")).toBeNull();
+    });
+
+    it("returns null when no element matches the iframe segment", () => {
+      expect(domQueryService.findIframeCrossing("iframe#nonexistent >>> #username")).toBeNull();
+    });
+
+    it("returns the iframe element and inner selector for a single-hop boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login-iframe";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#login-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.contentDocument is null (cross-origin)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const result = domQueryService.findIframeCrossing("iframe#cross-origin-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.src is empty (srcdoc / about:blank)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "srcdoc-iframe";
+      // No src or srcdoc set — leaves iframe.src as empty string
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#srcdoc-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.iframeElement.src).toBe("");
+    });
+
+    it("preserves the remaining selector for multi-hop chains", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "iframe#outer >>> iframe#inner >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("iframe#inner >>> #username");
+    });
+
+    it("walks shadow boundaries before reaching the iframe", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const iframe = document.createElement("iframe");
+      iframe.id = "inside-shadow";
+      shadowRoot.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "#shadow-host >>> iframe#inside-shadow >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns null when a pre-iframe segment cannot traverse (no shadow root, no iframe)", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.findIframeCrossing("#plain-div >>> iframe#inner >>> #x")).toBeNull();
+    });
+  });
 });

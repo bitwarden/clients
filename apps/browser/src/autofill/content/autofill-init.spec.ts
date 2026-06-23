@@ -325,6 +325,36 @@ describe("AutofillInit", () => {
         });
       });
 
+      describe("clearTargetingRulesCache", () => {
+        let collectPageDetailsSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "clearCachedTargetingRules")
+            .mockImplementation();
+          collectPageDetailsSpy = jest
+            .spyOn(autofillInit as any, "collectPageDetails")
+            .mockResolvedValue(undefined);
+        });
+
+        it("delegates to CollectAutofillContentService.clearCachedTargetingRules", () => {
+          sendMockExtensionMessage({ command: "clearTargetingRulesCache" });
+
+          expect(
+            autofillInit["collectAutofillContentService"].clearCachedTargetingRules,
+          ).toHaveBeenCalled();
+        });
+
+        it("re-collects page details so the background cache is repopulated", () => {
+          sendMockExtensionMessage({ command: "clearTargetingRulesCache" });
+
+          expect(collectPageDetailsSpy).toHaveBeenCalledWith({
+            command: "collectPageDetails",
+            sender: "autofillInit",
+          });
+        });
+      });
+
       describe("collectAutofillTriage", () => {
         const pageDetails: AutofillPageDetails = {
           title: "title",

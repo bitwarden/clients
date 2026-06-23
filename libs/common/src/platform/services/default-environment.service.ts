@@ -32,6 +32,7 @@ export class EnvironmentUrls {
   events: string = null;
   webVault: string = null;
   keyConnector: string = null;
+  send: string = null;
 }
 
 class EnvironmentState {
@@ -95,6 +96,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.com",
       events: "https://events.bitwarden.com",
       scim: "https://scim.bitwarden.com",
+      send: "https://send.bitwarden.com",
     },
   },
   {
@@ -109,6 +111,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
+      send: "https://send.bitwarden.eu",
     },
   },
 ];
@@ -240,6 +243,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
       urls.notifications = formatUrl(urls.notifications);
       urls.events = formatUrl(urls.events);
       urls.keyConnector = formatUrl(urls.keyConnector);
+      urls.send = formatUrl(urls.send);
       urls.scim = null;
 
       await this.globalState.update(() => ({
@@ -253,6 +257,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
           notifications: urls.notifications,
           events: urls.events,
           keyConnector: urls.keyConnector,
+          send: urls.send,
         },
       }));
 
@@ -374,6 +379,7 @@ abstract class UrlEnvironment implements Environment {
       events: this.urls.events,
       keyConnector: this.urls.keyConnector,
       scim: this.urls.scim,
+      send: this.urls.send,
     };
   }
 
@@ -414,15 +420,15 @@ abstract class UrlEnvironment implements Environment {
       return this.urls.scim + "/v2";
     }
 
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://scim.bitwarden.com/v2"
-      : this.getWebVaultUrl() + "/scim/v2";
+    return this.getWebVaultUrl() + "/scim/v2";
   }
 
   getSendUrl() {
-    return this.getWebVaultUrl() === "https://vault.bitwarden.com"
-      ? "https://send.bitwarden.com/#"
-      : this.getWebVaultUrl() + "/#/send/";
+    if (this.urls.send != null) {
+      return this.urls.send + "/#/";
+    }
+
+    return this.getWebVaultUrl() + "/#/send/";
   }
 
   /**

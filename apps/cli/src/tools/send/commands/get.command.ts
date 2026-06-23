@@ -42,10 +42,10 @@ export class SendGetCommand extends DownloadCommand {
     }
 
     const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
+    const sendUrl = env.getSendUrl();
     let filter = (s: SendView) => true;
     let selector = async (s: SendView): Promise<Response> =>
-      Response.success(new SendResponse(s, webVaultUrl));
+      Response.success(new SendResponse(s, sendUrl));
     if (!serveCommand && options?.text != null) {
       filter = (s) => {
         return filter(s) && s.text != null;

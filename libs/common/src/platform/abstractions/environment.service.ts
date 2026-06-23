@@ -12,6 +12,7 @@ export type Urls = {
   events?: string;
   keyConnector?: string;
   scim?: string;
+  send?: string;
 };
 
 /**

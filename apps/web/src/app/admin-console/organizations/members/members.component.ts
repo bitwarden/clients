@@ -35,8 +35,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,7 +53,7 @@ import {
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
 import {
   MemberDialogManagerService,
@@ -102,7 +100,6 @@ export class MembersComponent {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
-  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -150,7 +147,6 @@ export class MembersComponent {
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
 
   protected resetPasswordPolicyEnabled$: Observable<boolean>;
-  protected adminResetTwoFactorEnabled$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
@@ -194,10 +190,6 @@ export class MembersComponent {
             .filter((policy) => policy.type === PolicyType.ResetPassword)
             .find((p) => p.organizationId === organization.id)?.enabled ?? false,
       ),
-    );
-
-    this.adminResetTwoFactorEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AdminResetTwoFactor,
     );
 
     combineLatest([this.route.queryParams, organization$])
@@ -304,13 +296,11 @@ export class MembersComponent {
     orgUser: OrganizationUserView,
     organization: Organization,
     orgResetPasswordPolicyEnabled: boolean,
-    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     return this.memberActionsService.allowResetPassword(
       orgUser,
       organization,
       orgResetPasswordPolicyEnabled,
-      adminResetTwoFactorEnabled,
     );
   }
 

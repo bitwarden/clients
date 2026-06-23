@@ -2,6 +2,7 @@
 .DS_Store
 Thumbs.db
 .claude/worktrees/
+.worktrees/
 
 # IDEs and editors
 .idea/
