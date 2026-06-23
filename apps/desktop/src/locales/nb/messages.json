@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
-    "message": "Velkommen tilbake"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Velg en organisasjon som du ønsker å flyttet elementet til. Ved å flytte til en organisasjon, overfører du eierskapet til elementet til den organisasjonen. Du vil ikke lenger være den direkte eieren av elementet etter at den har blitt flyttet."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Lengde"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Logg på"
   },
-  "logInToBitwarden": {
-    "message": "Logg inn på Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Skriv inn koden du har fått tilsendt på e-post"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Skriv inn e-postadressen til kontoen din, så får du tilsendt et hint om passordet ditt"
-  },
-  "getMasterPasswordHint": {
-    "message": "Få et hint om hovedpassordet ditt"
   },
   "emailRequired": {
     "message": "E-postadressen er påkrevd."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "Minimer til oppgavelinjen"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Når du lukker vinduet, skal et ikon vises i oppgavelinjen i stedet."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimer til menylinjen"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Når du minimerer vinduet, vil et ikon vises i oppgavelinjen i stedet."
-  },
-  "enableCloseToTray": {
-    "message": "Lukk til oppgavelinjen"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Når du lukker vinduet, skal et ikon vises i verktøykassen i stedet."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Lukk til menylinje"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Når du lukker vinduet, vis et ikon i menylinjen i stedet."
-  },
-  "enableTray": {
-    "message": "Skru på oppgavelinjeikon"
-  },
-  "enableTrayDesc": {
-    "message": "Vis et ikon i verktøykassen til enhver tid."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Start automatisk ved innlogging"
   },
   "openAtLoginDesc": {
     "message": "Start Bitwardens skrivebordsprogram automatisk ved innlogging."
-  },
-  "alwaysShowDock": {
-    "message": "Alltid vis i dokken"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Vis Bitwarden-ikonet i dokken selv når den er minimert til menylinjen."
-  },
-  "confirmTrayTitle": {
-    "message": "Bekreft avskruing av skuffen"
-  },
-  "confirmTrayDesc": {
-    "message": "Å skru av denne innstillingen vil også skru av alle andre skufferelaterte innstillinger."
   },
   "language": {
     "message": "Språk"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopier sikkerhetskoden",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kortnummer"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Avslutt"
   },
-  "showHide": {
-    "message": "Vis/Skjul",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Skjul til oppgavelinjen"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Innstillinger"
-  },
-  "enableMenuBar": {
-    "message": "Aktiver menylinjeikon"
-  },
-  "enableMenuBarDesc": {
-    "message": "Vis alltid et ikon i menylinjen."
   },
   "hideToMenuBar": {
     "message": "Skjul til menylinjen"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Avabonner"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Passordhintet ditt kan ikke være det samme som passordet ditt."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Hvelv",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Logg inn med hovedpassord"
   },
   "rememberEmail": {
     "message": "Husk på E-postadressen"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

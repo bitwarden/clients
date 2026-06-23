@@ -11,12 +11,10 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
@@ -43,6 +41,10 @@ export enum FeatureFlag {
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
+  PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
+  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
+  PM34515_BrowserDesktopCheckout = "pm-34515-browser-desktop-checkout",
+  DebugDisableSelfHostPremiumCheck = "debug-disable-self-host-premium-check",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
@@ -64,6 +66,7 @@ export enum FeatureFlag {
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
+  ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
@@ -129,12 +132,10 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
@@ -197,6 +198,10 @@ export const DefaultFeatureFlagValue = {
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
+  [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
+  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
+  [FeatureFlag.PM34515_BrowserDesktopCheckout]: FALSE,
+  [FeatureFlag.DebugDisableSelfHostPremiumCheck]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */
@@ -209,6 +214,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
+  [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,

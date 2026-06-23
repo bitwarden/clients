@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Nie masz uprawnień do edycji elementu"
   },
-  "welcomeBack": {
-    "message": "Witaj ponownie"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Wybierz organizację, do której chcesz przenieść element. Przeniesienie spowoduje zmianę własności elementu na organizację."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Liczba znaków"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Zaloguj się"
   },
-  "logInToBitwarden": {
-    "message": "Zaloguj się do Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Wpisz kod został wysłany na adres e-mail"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wpisz adres e-mail konta. Podpowiedź do hasła zostanie wysłana na adres e-mail"
-  },
-  "getMasterPasswordHint": {
-    "message": "Uzyskaj podpowiedź do hasła głównego"
   },
   "emailRequired": {
     "message": "Adres e-mail jest wymagany."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
   },
-  "enableMinToTray": {
-    "message": "Minimalizuj do zasobnika systemowego"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Po zminimalizowaniu okna, pokaż ikonę w zasobniku systemowym."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimalizuj do paska menu"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Po zminimalizowaniu okna, pokaż ikonę w pasku zadań."
-  },
-  "enableCloseToTray": {
-    "message": "Zamknij do zasobnika systemowego"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Po zamknięciu okna, pokaż ikonę w zasobniku systemowym."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Zamknij do paska menu"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Po zamknięciu okna, pokaż ikonę w pasku menu."
-  },
-  "enableTray": {
-    "message": "Pokaż ikonę w zasobniku systemowym"
-  },
-  "enableTrayDesc": {
-    "message": "Zawsze pokazuj ikonę w zasobniku systemowym."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Uruchom automatycznie po zalogowaniu"
   },
   "openAtLoginDesc": {
     "message": "Uruchom aplikację Bitwarden automatycznie po zalogowaniu."
-  },
-  "alwaysShowDock": {
-    "message": "Zawsze pokazuj w Docku"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Pokaż ikonę Bitwarden w Docku po zminimalizowaniu do paska menu."
-  },
-  "confirmTrayTitle": {
-    "message": "Potwierdź ukrycie zasobnika systemowego"
-  },
-  "confirmTrayDesc": {
-    "message": "Wyłączenie tej opcji spowoduje wyłącznie wszystkich innych powiązanych ustawień z zasobnikiem systemowym."
   },
   "language": {
     "message": "Język"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopiuj kod zabezpieczający",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "numer karty"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Wyjdź"
   },
-  "showHide": {
-    "message": "Pokaż / ukryj",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Ukryj do zasobnika systemowego"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Ustawienia"
-  },
-  "enableMenuBar": {
-    "message": "Włącz ikonę na pasku menu"
-  },
-  "enableMenuBarDesc": {
-    "message": "Zawsze pokazuj ikonę na pasku menu."
   },
   "hideToMenuBar": {
     "message": "Ukryj do paska menu"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Anuluj subskrypcję"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Nowe hasło nie może być takie samo jak obecne."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Podpowiedź do hasła nie może być taka sama jak hasło."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Sejf",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Logowanie hasłem głównym"
   },
   "rememberEmail": {
     "message": "Zapamiętaj adres e-mail"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Weryfikacja użytkownika nie powiodła się."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Zapisz dane kont bankowych, aby mieć do nich łatwy i bezpieczny dostęp na wszystkich urządzeniach."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Pasek postępu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

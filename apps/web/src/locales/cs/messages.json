@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Potřebujete další volby?"
   },
-  "loginWithMasterPassword": {
-    "message": "Přihlásit se pomocí hlavního hesla"
-  },
   "readingPasskeyLoading": {
     "message": "Načítání přístupového klíče..."
   },
@@ -1751,7 +1748,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Ověření přístupového klíče se nezdařilo. Zkuste to znovu."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Použít jinou metodu přihlášení"
   },
   "logInWithPasskey": {
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Vaše organizace vyžaduje jednotné přihlášení."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Vítejte zpět"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Přihlásit se"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Přihlásit se do Bitwardenu"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
-  },
-  "getMasterPasswordHint": {
-    "message": "Zaslat nápovědu k hlavnímu heslu"
   },
   "emailRequired": {
     "message": "Je vyžadována e-mailová adresa."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "Jako poděkování za to, že jste dlouhodobým zákazníkem Bitwarden, bychom Vám rádi nabídli slevu $AMOUNT$ každý $INTERVAL$ na $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "Sleva $AMOUNT$ každý $INTERVAL$ byla aplikována na $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ na $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Nikdy nevyprší"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Sleva byla uplatněna"
+  },
+  "discountForOneYear": {
+    "message": "na 1 rok"
+  },
+  "discountForMonths": {
+    "message": "na $COUNT$ měsíců",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "do $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Sleva vypršela. Zkontrolujte celý košík a zkuste to znovu."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Spravuje přístup v organizaci, všechny sbírky, členy, hlášení a nastavení zabezpečení."
   },
+  "adminRoleDesc": {
+    "message": "Spravuje všechny sbírky, členy, hlášení a nastavení zabezpečení."
+  },
   "user": {
     "message": "Uživatel"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny."
+  },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
   },
   "keepEditing": {
     "message": "Pokračovat v úpravách"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Nevybrali jste žádné položky."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Přijímejte aktualizace od Bitwardenu do doručené pošty."
   },
   "subscribe": {
     "message": "Předplatné"
@@ -6957,6 +7032,21 @@
     "message": "Z důvodu podnikových zásad můžete smazat pouze existující Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Není v souladu s pravidly Send Vaší organizace",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Pro úpravu tohoto Send vytvořte kopii. Pokud tento Send vyprší v nastaveném datu smazání, není potřeba žádná akce.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v nastaveném datu smazání",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvořit kopii"
+  },
   "sendControls": {
     "message": "Ovládání Send"
   },
@@ -6964,8 +7054,9 @@
     "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Uživatelé organizace, kteří mohou spravovat zásady organizace, jsou od prosazování těchto zásad osvobozeni."
+  "sendControlsPolicyDescV2": {
+    "message": "Nastavte, co mohou členové dělat pomocí Send. Administrátoři a vlastníci jsou od tohoto pravidla osvobozeni.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Volby Send",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Vaše nové heslo nemůže být stejné jako Vaše současné heslo."
   },
+  "hint": {
+    "message": "Nápověda"
+  },
   "hintEqualsPassword": {
     "message": "Nápověda k Vašemu heslu nemůže být stejná jako Vaše heslo."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Resetovat heslo"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Pokračováním odhlásíte $NAME$ z aktuální relace, což znamená, že se bude muset znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Pokračováním odhlásíte $NAME$ z aktuální relace, což znamená, že se bude muset znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Správa obnovení účtu"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Na základě metody šifrování můžete obnovit účty v případě zapomenutí nebo ztráty hlavních hesel nebo důvěryhodných zařízení."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "U stávajících účtů s hlavními hesly se budou muset členové sami přihlásit, aby mohli správci obnovit jejich účty. Automatická registrace zapne obnovení účtu pro nové členy."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatická registrace"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Automaticky zaregistrovat nové uživatele"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "Nastavení SCIM bylo uloženo",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Je povolena jen jedna integrace tohoto typu ($TYPE$). Konfliktní integrace je: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "Sleva $AMOUNT$",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Zabezpečte Vaši infrastrukturu"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zachovejte bezpečnost Vašich položek v trezoru silnou kontrolou slabých míst."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Sledovat bezpečnostní aktivity"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "Jak budete posuzovat žádosti a přidělovat úkoly členům, bude se zde zobrazovat pokrok Vaší organizace v oblasti zlepšování bezpečnosti."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Seřadit rizika podle priority"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Projděte si všechny aplikace uložené v úložišti Vaší organizace a označte hvězdičkou ty, které mají pro Vaši bezpečnost nejvyšší prioritu."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Vyřešte svá největší rizika"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Zde budete sledovat rizika u aplikací seřazených podle priority a přidělovat členům úkoly s cílem posílit jejich hesla."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Pomozte členům se zlepšovat"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Jakmile vyberete klíčové aplikace, vyzvěte členy, aby si změnili ohrožená hesla. Zpráva se jim zobrazí v rozšíření Bitwarden."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Mějte přehled o nových rizicích"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Pravidelně aktualizujte přehledy a analýzy, abyste zachytili nová rizika a měli přehled o nejnovějších ukazatelích v souvislosti s růstem Vaší organizace."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ z $TOTAL$",
+    "message": "$CURRENT$ z $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Krok $CURRENT$ z $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "1 nebo více domén je neplatných"
+  },
+  "domainNotAllowed": {
+    "message": "Zahrnout jen následující domény: $DOMAINS$. Zkontrolujte to a zkuste to znovu",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Určuje, zda mohou členové použít Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Jakýkoli"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Toto bylo vyplněno s použitím nárokovaných domén."
+  },
   "more": {
     "message": "Více"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Váš bankovní účet musí být pro ověření tohoto upgradu ověřen. Ověřte svůj bankovní účet nebo vyberte jiný způsob platby."
-  },
-  "discardEdits": {
-    "message": "Zahodit úpravy"
   },
   "discardEditsMessage": {
     "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
@@ -14327,6 +14467,25 @@
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Povolit ovládání Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Povolit"
+  },
+  "block": {
+    "message": "Zablokovat"
+  },
+  "sendControlAccessOptions": {
+    "message": "Volby přístupu"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Vždy zobrazovat e-mailovou adresu člena s příjemci"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Heslo nastaveno členem"
+  },
   "hideMyEmail": {
     "message": "Skrýt moji e-mailovou adresu před příjemci"
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Ověření e-mailu"
+  },
+  "separateDomainsWithComma": {
+    "message": "Oddělte domény čárkou"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
