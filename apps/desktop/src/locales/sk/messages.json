@@ -1390,6 +1390,9 @@
   "iconsUrl": {
     "message": "URL servera ikon"
   },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
+  },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
   },
@@ -1823,6 +1826,15 @@
   "copySecurityCode": {
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
+  },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
   },
   "cardNumber": {
     "message": "číslo karty"
@@ -3882,6 +3894,9 @@
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4947,6 +4962,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relácie je ovládaný desktopovou aplikáciou"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
     "placeholders": {
@@ -5134,6 +5152,9 @@
   "bankAccount": {
     "message": "Bankový účet"
   },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
+  },
   "bankName": {
     "message": "Názov banky"
   },
@@ -5250,10 +5271,6 @@
     "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "viewTextSendHeader": {
     "message": "Zobraziť text"
   },
@@ -5331,5 +5348,8 @@
   },
   "licenseClass": {
     "message": "Skupina vodičského preukazu"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   }
 }

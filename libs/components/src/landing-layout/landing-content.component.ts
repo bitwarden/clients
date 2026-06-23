@@ -1,8 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
+import { LANDING_CONTENT_VERTICAL_PADDING_DEFAULT } from "./landing-defaults";
+
 export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as const;
 
 export type LandingContentMaxWidthType = (typeof LandingContentMaxWidth)[number];
+
+export type ContentVerticalPaddingType = "compact" | "default";
 
 /**
  * Main content container for landing pages with configurable max-width constraints.
@@ -46,6 +50,15 @@ export class LandingContentComponent {
    * @default "md"
    */
   readonly maxWidth = input<LandingContentMaxWidthType>("md");
+
+  /**
+   * Vertical padding of the content area. Defaults to "default".
+   *
+   * "compact" reduces the vertical padding.
+   */
+  readonly contentVerticalPadding = input<ContentVerticalPaddingType>(
+    LANDING_CONTENT_VERTICAL_PADDING_DEFAULT,
+  );
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",
