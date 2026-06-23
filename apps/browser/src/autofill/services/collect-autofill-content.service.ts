@@ -728,6 +728,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return existingAutofillField;
     }
 
+    // Capture the closest ancestor div's id/class so TOTP field qualification can
+    // upgrade ambiguous signals to strong when the container carries TOTP keywords.
+    const containerDiv = element.closest("div");
     const autofillFieldBase: AutofillField = {
       opid: element.opid,
       elementNumber: index,
@@ -740,6 +743,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
       dataSetValues: this.getDataSetValues(element),
+      containerHtmlID: containerDiv?.id ?? null,
+      containerHtmlClass: containerDiv?.className ?? null,
     };
 
     if (!autofillFieldBase.viewable) {

@@ -135,6 +135,16 @@ export default class AutofillField {
    * used for totp multiline calculations
    */
   fieldRect?: FieldRect;
+
+  /**
+   * The `id` of the closest ancestor div, used for TOTP container detection
+   */
+  containerHtmlID?: string | null;
+
+  /**
+   * The `class` of the closest ancestor div, used for TOTP container detection
+   */
+  containerHtmlClass?: string | null;
 }
 
 /** `readonly` / `disabled` from collected field data; a full {@link AutofillField} is assignable. */

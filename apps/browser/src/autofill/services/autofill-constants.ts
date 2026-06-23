@@ -79,6 +79,7 @@ export class AutoFillConstants {
   static readonly TotpFieldNames: string[] = [
     "2facode",
     "approvals_code",
+    "auth_code",
     "mfacode",
     "onetimecode",
     "onetimepassword",
@@ -93,13 +94,22 @@ export class AutoFillConstants {
     "twofa",
     "twofactor",
     "twofactorcode",
+    "tfa_code",
     "verificationcode",
     "verification code",
   ];
 
   static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
 
-  static readonly AmbiguousTotpFieldNames: string[] = ["code", "pin", "otc", "otp", "2fa", "mfa"];
+  static readonly AmbiguousTotpFieldNames: string[] = [
+    "code",
+    "pin",
+    "otc",
+    "otp",
+    "token",
+    "2fa",
+    "mfa",
+  ];
 
   static readonly SearchFieldNames: string[] = ["search", "query", "find", "go"];
 
