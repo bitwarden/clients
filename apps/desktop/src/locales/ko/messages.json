@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "이 항목을 편집할 권한이 없습니다"
   },
-  "welcomeBack": {
-    "message": "돌아온 것을 환영합니다"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "길이"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "로그인"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden 로그인"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "마스터 비밀번호 힌트 얻기"
   },
   "emailRequired": {
     "message": "이메일은 반드시 입력해야 합니다."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "알림 영역으로 최소화"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "창을 최소화하면 작업 표시줄 대신 알림 영역에 아이콘을 표시합니다."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "메뉴 막대로 최소화"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "창을 최소화하면 메뉴 막대에 아이콘을 표시합니다."
-  },
-  "enableCloseToTray": {
-    "message": "트레이 아이콘으로 닫기"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "창을 닫으면 프로그램 종료 대신 알림 영역에 아이콘으로 표시합니다."
-  },
-  "enableCloseToMenuBar": {
-    "message": "메뉴 막대로 닫기"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "창을 닫으면 메뉴 막대에 아이콘을 표시합니다."
-  },
-  "enableTray": {
-    "message": "알림 영역 아이콘 사용"
-  },
-  "enableTrayDesc": {
-    "message": "항상 알림 영역에 아이콘을 표시합니다."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "로그인할 때 자동으로 실행"
   },
   "openAtLoginDesc": {
     "message": "로그인할 때 Bitwarden 데스크톱 앱을 자동으로 실행합니다."
-  },
-  "alwaysShowDock": {
-    "message": "Dock에 항상 표시하기"
-  },
-  "alwaysShowDockDesc": {
-    "message": "메뉴 막대에 숨겨진 경우에도 Bitwarden 아이콘을 Dock에 표시합니다."
-  },
-  "confirmTrayTitle": {
-    "message": "알림 영역 비활성화 확인"
-  },
-  "confirmTrayDesc": {
-    "message": "이 설정을 끄면 알림 영역과 관련된 다른 모든 설정이 함께 꺼집니다."
   },
   "language": {
     "message": "언어(Language)"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "보안 코드 복사",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "카드 번호"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "끝내기"
   },
-  "showHide": {
-    "message": "표시 / 숨기기",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "알림 영역으로 숨기기"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "설정"
-  },
-  "enableMenuBar": {
-    "message": "메뉴 막대 아이콘 사용"
-  },
-  "enableMenuBarDesc": {
-    "message": "항상 메뉴 막대에 아이콘을 표시합니다."
   },
   "hideToMenuBar": {
     "message": "메뉴 막대에 숨기기"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "비밀번호 힌트는 비밀번호와 같을 수 없습니다."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "보관함",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "마스터 비밀번호로 로그인"
   },
   "rememberEmail": {
     "message": "이메일 기억하기"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "사용자 인증에 실패했습니다."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
