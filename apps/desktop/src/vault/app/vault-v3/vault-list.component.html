@@ -23,7 +23,7 @@
                 type="checkbox"
                 bitCheckbox
                 [disabled]="disabled() || isEmpty()"
-                (change)="$event ? toggleAll() : null"
+                (change)="toggleAll()"
                 [checked]="selection.hasValue() && isAllSelected"
                 [attr.aria-label]="'selectAll' | i18n"
               />
