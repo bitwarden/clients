@@ -227,7 +227,9 @@ export class TwoFactorSetupYubiKeyComponent
   private processResponse(response: TwoFactorYubiKeyResponse) {
     this.enabled = response.enabled;
     this.anyKeyHasNfc = response.nfc || !response.enabled;
-    this.userVerificationToken = response.userVerificationToken;
+    if (response.userVerificationToken) {
+      this.userVerificationToken = response.userVerificationToken;
+    }
     this.keys = [
       { key: response.key1, existingKey: this.padRight(response.key1) },
       { key: response.key2, existingKey: this.padRight(response.key2) },

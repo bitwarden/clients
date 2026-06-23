@@ -198,7 +198,9 @@ export class TwoFactorSetupDuoComponent
     this.clientSecret = response.clientSecret;
     this.host = response.host;
     this.enabled = response.enabled;
-    this.userVerificationToken = response.userVerificationToken;
+    if (response.userVerificationToken) {
+      this.userVerificationToken = response.userVerificationToken;
+    }
   }
 
   /**

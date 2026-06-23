@@ -185,7 +185,9 @@ export class TwoFactorSetupEmailComponent
     this.token = null;
     this.email = response.email;
     this.enabled = response.enabled;
-    this.userVerificationToken = response.userVerificationToken;
+    if (response.userVerificationToken) {
+      this.userVerificationToken = response.userVerificationToken;
+    }
     if (!this.enabled && (this.email == null || this.email === "")) {
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),

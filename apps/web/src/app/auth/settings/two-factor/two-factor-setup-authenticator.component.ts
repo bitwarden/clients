@@ -193,7 +193,9 @@ export class TwoFactorSetupAuthenticatorComponent
     this.formGroup.get("token").setValue(null);
     this.enabled = response.enabled;
     this.key = response.key;
-    this.userVerificationToken = response.userVerificationToken;
+    if (response.userVerificationToken) {
+      this.userVerificationToken = response.userVerificationToken;
+    }
 
     await this.waitForQRiousToLoadOrError().catch((error) => {
       this.logService.error(error);
