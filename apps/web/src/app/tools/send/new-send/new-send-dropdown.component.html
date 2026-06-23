@@ -6,7 +6,14 @@
   [startIcon]="!hideIcon ? 'bwi-plus' : null"
 >
   {{
-    (hideIcon ? (btnTextAddCreateFeatureFlag() ? "createSendV2" : "createSend") : "create") | i18n
+    (hideIcon
+      ? btnTextAddCreateFeatureFlag()
+        ? "createSendV2"
+        : "createSend"
+      : btnTextAddCreateFeatureFlag()
+        ? "create"
+        : "new"
+    ) | i18n
   }}
 </button>
 <bit-menu #itemOptions>
