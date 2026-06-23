@@ -309,7 +309,7 @@ export const InactiveFormControlCard: Story = {
     return {
       props: {
         formObj: formBuilder.group({
-          checkbox: [false],
+          checkbox: [true],
         }),
       },
       template: /*html*/ `

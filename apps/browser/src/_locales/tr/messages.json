@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
   },
-  "welcomeBack": {
-    "message": "Tekrar hoş geldiniz"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Giriş yap"
   },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
   },
-  "getMasterPasswordHint": {
-    "message": "Ana parola ipucunu al"
+  "hint": {
+    "message": "İpucu"
   },
   "continue": {
     "message": "Devam"
@@ -394,7 +394,7 @@
     "message": "Kaydet"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Kaydet ve doldur"
   },
   "move": {
     "message": "Taşı"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Giriş yap"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden'a giriş yapın"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Giriş yap"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-posta adresinize gönderilen kodu girin"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Doldurma yardımcısını kullan"
   },
+  "turnOnFillAssist": {
+    "message": "Doldurma yardımcısını etkinleştir"
+  },
+  "enableFillAssistDescription": {
+    "message": "Doldurma yardımcısı, desteklenen sitelerde siteye özgü kuralları kullanarak otomatik doldurma doğruluğunu artırır. Bu özelliği kullandığınızda hiçbir veri toplanmaz ve kaydedilmez."
+  },
+  "aboutFillAssist": {
+    "message": "Doldurma yardımcısı hakkında"
+  },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
   },
@@ -1705,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Geçiş anahtarı doğrulaması başarısız oldu"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Başka bir giriş yöntemi kullan"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1803,7 +1812,7 @@
     "message": "Simge sunucusu URL'si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send sunucusu URL'si"
   },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
@@ -2882,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolanız ilke gereksinimlerini karşılamıyor."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
+  "receiveMarketingEmails": {
+    "message": "Bitwarden'dan haberler e-postanıza gelsin."
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -3942,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Ana parola ile giriş yap"
-  },
   "newAroundHere": {
     "message": "Buralarda yeni misiniz?"
   },
@@ -4390,6 +4396,9 @@
   },
   "multipleInputEmails": {
     "message": "Bir veya daha fazla e-posta geçersiz"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "inputTrimValidator": {
     "message": "Girdi yalnızca boşluktan ibaret olamaz.",
@@ -4989,6 +4998,22 @@
   "makeDefault": {
     "message": "Varsayılan yap",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Kimlik bilgileri başarıyla kaydedildi!",
@@ -6667,14 +6692,36 @@
     "message": "İlerleme çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Send düzenlemeleri kaydedilemedi",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Kuruluşunuz e-postanızın görünmesini zorunlu tutuyor. Kaydetmek için \"Bu adresi gizle\" işaretini kaldırın."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birden fazla koleksiyona dahil olan öğeleri \"Öğelerim\"e aktaramazsınız"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

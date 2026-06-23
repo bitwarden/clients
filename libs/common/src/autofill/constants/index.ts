@@ -110,6 +110,7 @@ export const AutofillOverlayVisibility = {
 
 export const BrowserClientVendors = {
   Chrome: "Chrome",
+  Firefox: "Firefox",
   Opera: "Opera",
   Edge: "Edge",
   Vivaldi: "Vivaldi",
@@ -118,6 +119,7 @@ export const BrowserClientVendors = {
 
 export const BrowserShortcutsUris = {
   Chrome: "chrome://extensions/shortcuts",
+  Firefox: "https://bitwarden.com/help/keyboard-shortcuts",
   Opera: "opera://extensions/shortcuts",
   Edge: "edge://extensions/shortcuts",
   Vivaldi: "vivaldi://extensions/shortcuts",
@@ -126,6 +128,7 @@ export const BrowserShortcutsUris = {
 
 export const DisablePasswordManagerUris = {
   Chrome: "chrome://settings/autofill",
+  Firefox: "https://bitwarden.com/help/disable-browser-autofill/",
   Opera: "opera://settings/autofill",
   Edge: "edge://settings/passwords",
   Vivaldi: "vivaldi://settings/autofill",

@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Vaša organizácia vyžaduje jednotné prihlasovanie."
   },
-  "welcomeBack": {
-    "message": "Vitajte späť"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Prihlásiť sa"
   },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "getMasterPasswordHint": {
-    "message": "Získať nápoveď k hlavnému heslu"
+  "hint": {
+    "message": "Nápoveď"
   },
   "continue": {
     "message": "Pokračovať"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Prihlásiť sa"
   },
-  "logInToBitwarden": {
-    "message": "Prihlásenie do Bitwardenu"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Prihlásiť sa"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Zadajte kód zaslaný na váš e-mail"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Pomáhať pri vypĺňaní"
   },
+  "turnOnFillAssist": {
+    "message": "Zapnúť pomoc pri vypĺňaní"
+  },
+  "enableFillAssistDescription": {
+    "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
+  },
+  "aboutFillAssist": {
+    "message": "Info o pomoci pri vypĺňaní"
+  },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
   },
@@ -1705,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Overenie prístupovým kľúčom zlyhalo"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
   "awaitingSecurityKeyInteraction": {
@@ -2882,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové heslo nespĺňa pravidlá."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Dostávať aktualizácie od Bitwardenu do e-mailovej schránky."
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -3942,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Prihlásenie pomocou hlavného hesla"
-  },
   "newAroundHere": {
     "message": "Ste tu nový?"
   },
@@ -4390,6 +4396,9 @@
   },
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
   },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
@@ -4989,6 +4998,22 @@
   "makeDefault": {
     "message": "Nastaviť ako predvolený",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Nastaviť Bitwarden ako predvolený správca hesiel v prehliadači"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "z výzvy prehliadača, v ktorej sa žiada o udelenie povolenia pre Bitwarden na zmenu vašich nastavení."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Vypneme integrovaného správcu hesiel v prehliadači, aby ste sa mohli bezpečne prihlásiť."
+  },
+  "allow": {
+    "message": "Povoliť",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Preskočiť"
   },
   "saveCipherAttemptSuccess": {
     "message": "Prihlasovacie údaje boli úspešne uložené!",
@@ -6667,14 +6692,36 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
   },
+  "domainNotAllowed": {
+    "message": "Zahrnúť iba nasledujúce domény: $DOMAINS$. Skontrolujte to a skúste to znova",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nie je v súlade s pravidlami Sendu vašej organizácie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvoriť kópiu"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   }
 }

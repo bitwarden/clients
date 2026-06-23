@@ -1,4 +1,4 @@
-import { MasterPasswordAuthenticationData } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import { MasterPasswordAuthenticationData } from "../../../key-management/master-password/types/master-password.types";
 
 export class SecretVerificationRequest {
   masterPasswordHash?: string;
