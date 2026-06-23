@@ -9263,9 +9263,6 @@
   "turnOn": {
     "message": "Turn on"
   },
-  "enablePolicy": {
-    "message": "Enable policy"
-  },
   "on": {
     "message": "On"
   },
