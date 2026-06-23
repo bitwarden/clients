@@ -1,4 +1,4 @@
-import { StoryObj } from "@storybook/angular";
+import { Meta, StoryObj } from "@storybook/angular";
 
 import {
   PolicyDrawerStoryArgs,
@@ -7,10 +7,12 @@ import {
 
 import { FreeFamiliesSponsorshipPolicy } from "./free-families-sponsorship.component";
 
-export default policyDrawerMeta(
-  "Admin Console/Organizations/Policies/Free Families Sponsorship",
-  new FreeFamiliesSponsorshipPolicy(),
-);
+export default {
+  ...policyDrawerMeta(
+    "Admin Console/Organizations/Policies/Free Families Sponsorship",
+    new FreeFamiliesSponsorshipPolicy(),
+  ),
+} satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;
 
