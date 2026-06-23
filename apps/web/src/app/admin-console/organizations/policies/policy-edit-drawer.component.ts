@@ -163,6 +163,10 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     this.policyComponent.set(component);
     this.policyEnabled.set(policyResponse.enabled);
 
+    if (!policyResponse.canToggleState) {
+      this._saveDisabled.set(true);
+    }
+
     if (component.data) {
       component.data.statusChanges
         .pipe(
