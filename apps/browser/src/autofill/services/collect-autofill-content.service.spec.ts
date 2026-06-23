@@ -364,6 +364,7 @@ describe("CollectAutofillContentService", () => {
             selectInfo: null,
             form: "__form__0",
             "aria-hidden": false,
+            "aria-describedby": null,
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
@@ -397,6 +398,7 @@ describe("CollectAutofillContentService", () => {
             selectInfo: null,
             form: "__form__0",
             "aria-hidden": false,
+            "aria-describedby": null,
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
@@ -970,6 +972,7 @@ describe("CollectAutofillContentService", () => {
       expect(autofillFieldsPromise).toBeInstanceOf(Promise);
       expect(autofillFieldsData).toStrictEqual([
         {
+          "aria-describedby": null,
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
@@ -1003,6 +1006,7 @@ describe("CollectAutofillContentService", () => {
           dataSetValues: "",
         },
         {
+          "aria-describedby": null,
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
@@ -1475,6 +1479,7 @@ describe("CollectAutofillContentService", () => {
       );
 
       expect(autofillFieldItem).toEqual({
+        "aria-describedby": null,
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
@@ -1561,6 +1566,7 @@ describe("CollectAutofillContentService", () => {
       );
 
       expect(autofillFieldItem).toEqual({
+        "aria-describedby": null,
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
