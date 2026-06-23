@@ -1,36 +1,46 @@
 <bit-dialog dialogSize="large" [title]="'bulkConfirmStatus' | i18n">
   <ng-container bitDialogContent>
-    <div class="tw-text-center" *ngIf="loading">
-      <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
-      {{ "loading" | i18n }}
-    </div>
-    <bit-table *ngIf="!loading">
-      <ng-container header>
-        <tr>
-          <th colspan="2" bitCell>{{ "user" | i18n }}</th>
-          <th bitCell>{{ "status" | i18n }}</th>
-        </tr>
-      </ng-container>
-      <ng-template body>
-        <tr bitRow *ngFor="let item of users">
-          <td width="30" bitCell>
-            <bit-avatar [text]="item.user | userName" [id]="item.user.id"></bit-avatar>
-          </td>
-          <td bitCell>
-            {{ item.user.email }}
-            <small class="tw-text-muted tw-block" *ngIf="item.user.name">{{
-              item.user.name
-            }}</small>
-          </td>
-          <td class="tw-text-danger" *ngIf="item.error" bitCell>
-            {{ item.message }}
-          </td>
-          <td *ngIf="!item.error" bitCell>
-            {{ item.message }}
-          </td>
-        </tr>
-      </ng-template>
-    </bit-table>
+    @if (loading()) {
+      <div class="tw-text-center">
+        <i class="bwi bwi-spinner bwi-spin" title="{{ 'loading' | i18n }}" aria-hidden="true"></i>
+        {{ "loading" | i18n }}
+      </div>
+    }
+    @if (!loading()) {
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th colspan="2" bitCell>{{ "user" | i18n }}</th>
+            <th bitCell>{{ "status" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (item of users() ?? []; track item.user.id) {
+            <tr bitRow>
+              <td width="30" bitCell>
+                <bit-avatar [text]="item.user | userName" [id]="item.user.id"></bit-avatar>
+              </td>
+              <td bitCell>
+                {{ item.user.email }}
+                @if (item.user.name) {
+                  <small class="tw-text-muted tw-block">{{ item.user.name }}</small>
+                }
+              </td>
+              @if (item.error) {
+                <td class="tw-text-danger" bitCell>
+                  {{ item.message }}
+                </td>
+              }
+              @if (!item.error) {
+                <td bitCell>
+                  {{ item.message }}
+                </td>
+              }
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton type="button" buttonType="secondary" bitDialogClose>

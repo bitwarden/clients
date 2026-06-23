@@ -23,9 +23,11 @@
                 <div>
                   {{ u | userName }}
                 </div>
-                <div class="tw-text-sm tw-text-muted" *ngIf="u.name">
-                  {{ u.email }}
-                </div>
+                @if (u.name) {
+                  <div class="tw-text-sm tw-text-muted">
+                    {{ u.email }}
+                  </div>
+                }
               </div>
             </div>
           </td>
