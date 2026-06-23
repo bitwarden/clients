@@ -4,8 +4,9 @@ import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/mode
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/models/request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
@@ -313,7 +314,7 @@ export abstract class TwoFactorApiService {
    * @param request The request containing the email address and verification token for two-factor setup.
    * @returns A promise that resolves when the verification email has been sent.
    */
-  abstract postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmailSetup(request: TwoFactorEmailSetupRequest): Promise<any>;
 
   /**
    * Sends a two-factor authentication code via email during the login flow.
@@ -324,5 +325,5 @@ export abstract class TwoFactorApiService {
    * @param request The request to send the two-factor code, optionally including SSO or auth request tokens.
    * @returns A promise that resolves when the authentication email has been sent.
    */
-  abstract postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmail(request: TwoFactorEmailLoginRequest): Promise<any>;
 }

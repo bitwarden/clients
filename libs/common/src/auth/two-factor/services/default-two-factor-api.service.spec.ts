@@ -7,8 +7,9 @@ import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/mode
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/models/request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
@@ -191,9 +192,9 @@ describe("TwoFactorApiService", () => {
 
     describe("postTwoFactorEmailSetup", () => {
       it("sends verification code to email address during two-factor setup", async () => {
-        const request = new TwoFactorEmailRequest();
+        const request = new TwoFactorEmailSetupRequest();
         request.email = "user@example.com";
-        request.masterPasswordHash = "master-password-hash";
+        request.userVerificationToken = "user-verification-token";
 
         await twoFactorApiService.postTwoFactorEmailSetup(request);
 
@@ -209,9 +210,8 @@ describe("TwoFactorApiService", () => {
 
     describe("postTwoFactorEmail", () => {
       it("sends two-factor authentication code during login flow", async () => {
-        const request = new TwoFactorEmailRequest();
+        const request = new TwoFactorEmailLoginRequest();
         request.email = "user@example.com";
-        // Note: masterPasswordHash not required for login flow
 
         await twoFactorApiService.postTwoFactorEmail(request);
 

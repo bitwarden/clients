@@ -5,8 +5,9 @@ import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/mode
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/models/request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
@@ -103,11 +104,11 @@ export class DefaultTwoFactorApiService implements TwoFactorApiService {
     return new TwoFactorEmailResponse(response);
   }
 
-  async postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
+  async postTwoFactorEmailSetup(request: TwoFactorEmailSetupRequest): Promise<any> {
     return this.apiService.send("POST", "/two-factor/send-email", request, true, false);
   }
 
-  async postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
+  async postTwoFactorEmail(request: TwoFactorEmailLoginRequest): Promise<any> {
     return this.apiService.send("POST", "/two-factor/send-email-login", request, false, false);
   }
 

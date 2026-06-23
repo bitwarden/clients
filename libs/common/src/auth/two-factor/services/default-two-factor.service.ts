@@ -15,8 +15,9 @@ import { TwoFactorAuthenticatorUpdateRequest } from "../../models/request/two-fa
 import { TwoFactorDuoDeleteRequest } from "../../models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "../../models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "../../models/request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "../../models/request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "../../models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "../../models/request/two-factor-email-update.request";
-import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "../../models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "../../models/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "../../models/request/two-factor-web-authn-delete.request";
@@ -287,11 +288,11 @@ export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
     return this.twoFactorApiService.deleteTwoFactorWebAuthnAll(request);
   }
 
-  postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any> {
+  postTwoFactorEmailSetup(request: TwoFactorEmailSetupRequest): Promise<any> {
     return this.twoFactorApiService.postTwoFactorEmailSetup(request);
   }
 
-  postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any> {
+  postTwoFactorEmail(request: TwoFactorEmailLoginRequest): Promise<any> {
     return this.twoFactorApiService.postTwoFactorEmail(request);
   }
 }

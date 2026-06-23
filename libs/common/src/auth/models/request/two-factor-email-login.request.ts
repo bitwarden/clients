@@ -2,10 +2,9 @@
 // @ts-strict-ignore
 import { SecretVerificationRequest } from "./secret-verification.request";
 
-export class TwoFactorEmailRequest extends SecretVerificationRequest {
+export class TwoFactorEmailLoginRequest extends SecretVerificationRequest {
   email: string;
   deviceIdentifier: string;
   authRequestId: string;
   ssoEmail2FaSessionToken?: string;
-  userVerificationToken?: string;
 }

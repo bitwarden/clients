@@ -7,8 +7,9 @@ import { TwoFactorAuthenticatorUpdateRequest } from "../../models/request/two-fa
 import { TwoFactorDuoDeleteRequest } from "../../models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "../../models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "../../models/request/two-factor-email-delete.request";
+import { TwoFactorEmailLoginRequest } from "../../models/request/two-factor-email-login.request";
+import { TwoFactorEmailSetupRequest } from "../../models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "../../models/request/two-factor-email-update.request";
-import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "../../models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "../../models/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "../../models/request/two-factor-web-authn-delete.request";
@@ -513,11 +514,10 @@ export abstract class TwoFactorService {
    * Requires user verification via master password or OTP.
    * Used for settings management.
    *
-   * @param request The {@link TwoFactorEmailRequest} to prove authentication.
+   * @param request The {@link TwoFactorEmailSetupRequest} to prove authentication.
    * @returns A promise that resolves when the verification email has been sent.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract postTwoFactorEmailSetup(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmailSetup(request: TwoFactorEmailSetupRequest): Promise<any>;
 
   /**
    * Sends a two-factor authentication code via email during the login flow.
@@ -526,9 +526,8 @@ export abstract class TwoFactorService {
    * May be called without authentication for login scenarios.
    * Used during authentication flows.
    *
-   * @param request The {@link TwoFactorEmailRequest} to prove authentication.
+   * @param request The {@link TwoFactorEmailLoginRequest} to prove authentication.
    * @returns A promise that resolves when the authentication email has been sent.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
-  abstract postTwoFactorEmail(request: TwoFactorEmailRequest): Promise<any>;
+  abstract postTwoFactorEmail(request: TwoFactorEmailLoginRequest): Promise<any>;
 }
