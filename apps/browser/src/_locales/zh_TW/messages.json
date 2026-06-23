@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的組織要求使用單一登入。"
   },
-  "welcomeBack": {
-    "message": "歡迎回來"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "設定一組高強度密碼"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "複製護照號碼"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "複製身分證字號"
+  },
   "copyFirstName": {
     "message": "複製名字"
   },
@@ -211,8 +214,13 @@
     "message": "填入",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "自動填入"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "自動填入登入資料"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "getMasterPasswordHint": {
-    "message": "取得主密碼提示"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "繼續"
@@ -350,7 +358,7 @@
     "message": "來自 Bitwarden 的更多產品"
   },
   "continueToBitwardenDotCom": {
-    "message": "接下來到 bitwarden.com？"
+    "message": "前往 bitwarden.com？"
   },
   "bitwardenForBusiness": {
     "message": "Bitwarden 商業版"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "儲存"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "移動"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "登入"
   },
-  "logInToBitwarden": {
-    "message": "登入 Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "輸入傳送到您電子郵件信箱的驗證碼"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "使用填寫輔助"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
   },
@@ -1532,7 +1552,7 @@
     "message": "檔案"
   },
   "fileToShare": {
-    "message": "要分享的文件"
+    "message": "要分享的檔案"
   },
   "selectFile": {
     "message": "選取檔案"
@@ -1694,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "通行金鑰驗證失敗"
   },
-  "useADifferentLogInMethod": {
-    "message": "使用其他登入方式"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全金鑰操作中……"
@@ -1777,7 +1797,7 @@
     "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
-    "message": "API 伺服器網址"
+    "message": "API 伺服器 URL"
   },
   "webVaultUrl": {
     "message": "網頁版密碼庫伺服器 URL"
@@ -1790,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "圖示伺服器 URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "環境 URL 已儲存"
@@ -1823,7 +1846,19 @@
     "message": "確認自動填入"
   },
   "confirmAutofillDesc": {
-    "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
+    "message": "此網站與您儲存的登入資訊不符。在自動填入登入憑證前，請確認這是您信任的網站。"
+  },
+  "loginNeverMatchTitle": {
+    "message": "登入資訊不符"
+  },
+  "loginNeverMatchDesc": {
+    "message": "此網站與您儲存的登入資訊不符。請先確認您位於可信任的網站，再進行自動填入。"
+  },
+  "uriMatchRule": {
+    "message": "URI 比對規則"
+  },
+  "neverMatch": {
+    "message": "永不比對"
   },
   "loginHasNoSiteSaved": {
     "message": "此登入尚未儲存網站"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "發卡組織"
   },
+  "birthDay": {
+    "message": "出生日期"
+  },
+  "birthMonth": {
+    "message": "出生月份"
+  },
+  "birthYear": {
+    "message": "出生年份"
+  },
+  "expirationDay": {
+    "message": "到期日"
+  },
   "expirationMonth": {
     "message": "到期月份"
   },
   "expirationYear": {
     "message": "到期年份"
+  },
+  "issueDay": {
+    "message": "簽發日期"
+  },
+  "issueMonth": {
+    "message": "簽發月份"
+  },
+  "issueYear": {
+    "message": "簽發年份"
   },
   "monthly": {
     "message": "月"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "護照號碼"
   },
+  "dateOfBirth": {
+    "message": "出生日期"
+  },
+  "sex": {
+    "message": "性別"
+  },
+  "copySex": {
+    "message": "複製性別"
+  },
+  "birthPlace": {
+    "message": "出生地"
+  },
+  "copyBirthPlace": {
+    "message": "複製出生地"
+  },
+  "nationality": {
+    "message": "國籍"
+  },
+  "copyNationality": {
+    "message": "複製國籍"
+  },
+  "issuingCountry": {
+    "message": "簽發國家"
+  },
+  "copyIssuingCountry": {
+    "message": "複製簽發國家"
+  },
+  "passportType": {
+    "message": "護照類型"
+  },
+  "copyPassportType": {
+    "message": "複製護照類型"
+  },
+  "nationalIdentificationNumber": {
+    "message": "身分證字號"
+  },
+  "issuingAuthority": {
+    "message": "簽發機關"
+  },
+  "copyIssuingAuthority": {
+    "message": "複製簽發機關／單位"
+  },
+  "issueDate": {
+    "message": "簽發日期"
+  },
   "licenseNumber": {
     "message": "駕照號碼"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "銀行帳戶"
   },
+  "bankAccountDetails": {
+    "message": "銀行帳戶詳細資訊"
+  },
   "typeNote": {
     "message": "備註"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "銀行資料"
   },
+  "typePassport": {
+    "message": "護照"
+  },
+  "passportDetails": {
+    "message": "護照詳細資訊"
+  },
+  "passportAdded": {
+    "message": "護照已新增"
+  },
+  "typePassportSubtitle": {
+    "message": "旅行證件"
+  },
   "typeDriversLicense": {
     "message": "駕照"
   },
@@ -2197,46 +2313,13 @@
     "message": "駕照或身分證件"
   },
   "driversLicenseDetails": {
-    "message": "License details"
-  },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
+    "message": "駕照詳細資訊"
   },
   "issuingState": {
-    "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
+    "message": "簽發州／省"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "駕照類別"
   },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "清除",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "已選擇"
+  },
+  "bulkActionsBar": {
+    "message": "大量操作"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "已清除選取項目"
+  },
+  "additionalActions": {
+    "message": "其他操作"
   },
   "checkPassword": {
     "message": "檢查密碼是否已外洩。"
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密碼未符合政策要求。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "取消訂閱"
@@ -2892,22 +3000,10 @@
     "message": "生物辨識解鎖現在無法使用。請稍後重試。"
   },
   "biometricsFailedTitle": {
-    "message": "生物特徵辨識失敗"
+    "message": "生物辨識失敗"
   },
   "biometricsFailedDesc": {
     "message": "生物特徵辨識無法完成，請考慮使用主密碼或登出。若仍無法解決，請聯絡 Bitwarden 客服。"
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "未提供權限"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "若未取得與 Bitwarden 桌面應用程式通訊的權限，無法在瀏覽器擴充套件中提供生物辨識。請再試一次。"
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "權限要求錯誤"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "此動作無法在側邊欄中執行，請在快顯視窗或彈出視窗中重試此動作。"
   },
   "personalOwnershipSubmitError": {
     "message": "由於企業政策限制，您無法將項目儲存至個人密碼庫。請將「所有權」選項變更為組織，並從可用的集合中選擇。"
@@ -3077,7 +3173,7 @@
     "message": "啟用自動填入"
   },
   "turnedOnAutofill": {
-    "message": "停用自動填入"
+    "message": "已啟用自動填入"
   },
   "dismiss": {
     "message": "忽略"
@@ -3149,7 +3245,7 @@
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
-    "message": "默認隱藏文字"
+    "message": "預設隱藏文字"
   },
   "expired": {
     "message": "已逾期"
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密碼登入"
-  },
   "newAroundHere": {
     "message": "第一次使用？"
   },
@@ -4004,10 +4097,10 @@
     "message": "自動填入快速鍵"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "修改鍵盤快速鍵"
+    "message": "變更快速鍵"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "管理鍵盤快速鍵"
+    "message": "管理快速鍵"
   },
   "autofillShortcut": {
     "message": "自動填入鍵盤快速鍵"
@@ -4170,7 +4263,7 @@
     "message": "並繼續建立您的帳號"
   },
   "noEmail": {
-    "message": "沒有電子郵件？"
+    "message": "沒收到電子郵件？"
   },
   "goBack": {
     "message": "返回"
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "一或多個電子郵件地址無效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "輸入內容不得僅包含空白字元。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "將頁面載入時使用自動填入功能設定為預設。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "無法自動填入"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "預設比對方式為「完全相符」。目前的網站與此項目的已儲存登入資料不完全相符。"
   },
   "okay": {
     "message": "確定"
@@ -4557,7 +4647,7 @@
     "message": "彈出擴充套件視窗"
   },
   "launchDuo": {
-    "message": "開啟Duo"
+    "message": "啟動 Duo"
   },
   "importFormatError": {
     "message": "資料格式不正確。請檢查匯入檔案後再試一次。"
@@ -4909,6 +4999,22 @@
     "message": "設為預設",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
+  },
   "saveCipherAttemptSuccess": {
     "message": "憑證資訊成功儲存！",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5061,6 +5167,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "未輸入任何值",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "沒有資料可以複製"
   },
@@ -5071,7 +5181,7 @@
     "message": "複製電子郵件地址"
   },
   "copyPhone": {
-    "message": "複製電話"
+    "message": "複製電話號碼"
   },
   "copyAddress": {
     "message": "複製地址"
@@ -5207,7 +5317,7 @@
     "message": "擁有者： 您"
   },
   "linked": {
-    "message": "連結"
+    "message": "已連結"
   },
   "copySuccessful": {
     "message": "複製成功"
@@ -5306,7 +5416,7 @@
     "message": "身份"
   },
   "contactInfo": {
-    "message": "聯繫資訊"
+    "message": "聯絡資訊"
   },
   "downloadAttachment": {
     "message": "下載 - $ITEMNAME$",
@@ -5353,7 +5463,7 @@
     "message": "刪除網站"
   },
   "defaultLabel": {
-    "message": "預設 （$VALUE$）",
+    "message": "預設（$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5363,7 +5473,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "預設 （$VALUE$）",
+    "message": "預設（$VALUE$）",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "下一步"
   },
+  "breadcrumbs": {
+    "message": "導覽路徑",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "更多導覽階層",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6207,7 +6321,7 @@
     "message": "正在載入密碼庫"
   },
   "vaultLoaded": {
-    "message": "已載入密碼庫"
+    "message": "密碼庫已載入"
   },
   "settingDisabledByPolicy": {
     "message": "此設定已被你的組織原則停用。",
@@ -6244,7 +6358,7 @@
     "message": "組織已驗證"
   },
   "domainVerified": {
-    "message": "已驗證網域"
+    "message": "網域已驗證"
   },
   "leaveOrganizationContent": {
     "message": "若您未驗證組織，將會被撤銷對該組織的存取權限。"
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "sharedUnlock": {
+    "message": "共享解鎖"
+  },
+  "sharedUnlockDescription": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，此裝置上的所有應用程式將共用解鎖狀態。若要在不同瀏覽器之間同步，需安裝桌面應用程式。"
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Safari 中的 Bitwarden 網頁保管庫共用。"
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Bitwarden 桌面應用程式共用。"
+  },
   "enterMonth": {
     "message": "請輸入月份。"
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "搜尋銀行帳戶"
   },
+  "searchPassport": {
+    "message": "搜尋護照"
+  },
   "copyAccountNumber": {
     "message": "複製帳號"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "複製 IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "複製帳戶名稱"
+  },
+  "copyBranchNumber": {
+    "message": "複製分行代碼"
+  },
+  "copySwiftCode": {
+    "message": "複製 SWIFT 代碼"
   },
   "bankAccountTypeChecking": {
     "message": "支票帳戶"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "下載失敗"
+  },
+  "more": {
+    "message": "更多"
   },
   "maxAccessCount": {
     "message": "最大存取次數",
@@ -6551,11 +6692,36 @@
     "message": "進度條",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "儲存 Send 編輯失敗",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

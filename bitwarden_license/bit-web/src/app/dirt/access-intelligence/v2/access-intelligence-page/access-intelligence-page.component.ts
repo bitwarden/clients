@@ -11,11 +11,24 @@ import {
   ChangeDetectionStrategy,
   Injector,
   isDevMode,
+  effect,
+  afterNextRender,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, finalize, skip } from "rxjs/operators";
+import {
+  combineLatest,
+  concat,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
+import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -25,7 +38,6 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
   MemberRegistryEntryView,
-  ApplicationHealthView,
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -41,17 +53,22 @@ import {
   DialogRef,
   DialogService,
   IconComponent,
+  PopoverModule,
   TabsModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
-import { WelcomeModalDialogComponent } from "../../onboarding/welcome-modal-dialog.component";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
+import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "../../shared/dev-menu.component";
 import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { NewApplicationsDialogV2Component } from "../activity-tab/new-applications-dialog-v2/new-applications-dialog-v2.component";
 import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
 import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
@@ -74,6 +91,7 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     ActivityTabComponent,
     AllApplicationsTabComponent,
     ApplicationsTabComponent,
@@ -86,6 +104,7 @@ type ProgressStep = ReportProgress | null;
     JslibModule,
     HeaderModule,
     PageLoadingComponent,
+    PopoverModule,
     TabsModule,
     ReportLoadingComponent,
     DevMenuComponent,
@@ -101,6 +120,7 @@ type ProgressStep = ReportProgress | null;
 })
 export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
 
   protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
@@ -166,6 +186,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
   protected readonly isDevMode = signal<boolean>(isDevMode());
 
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -176,6 +208,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
     private readonly injector: Injector,
+    private readonly coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -213,6 +246,39 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    effect(() => {
+      // determine if we need to begin the post import tour
+      // wait for the report generation to complete (but only if we came via the post Import flow, indicated by mustBeginPostImportTour)
+      // when report generation is complete (i.e. this.currentProgressStep() is null)
+      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import)
+      if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
+        this.mustBeginPostImportTour.set(false);
+
+        // open the dialog only after the rendering of the report is complete
+        afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+      }
+    });
+
+    effect(() => {
+      // coachmarks are running, so set tab index to the coachmark's required tab
+      const tabIndex = this.coachmarkService.requiredTabIndex();
+      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
+        this.tabIndex.set(tabIndex);
+      }
+    });
+
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const report = this.report();
+      if (!report) {
+        return;
+      }
+      NewApplicationsDialogV2Component.open(this.dialogService, {
+        newApplications: report.getNewApplications(),
+        organizationId: this.organizationId(),
+        hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
+      });
+    });
   }
 
   async ngOnInit() {
@@ -235,6 +301,25 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     // Close any open dialogs (happens when navigating between orgs)
     void this.currentDialogRef()?.close();
+
+    // determine if we need to launch the new admin welcome tour
+    // launch when there are no reports and no ciphers.
+    combineLatest([
+      toObservable(this.hasReportData, { injector: this.injector }),
+      toObservable(this.hasCiphers, { injector: this.injector }),
+      toObservable(this.initializing, { injector: this.injector }),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([_, __, initializing]) => !initializing), // Wait until initialization is complete
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
 
     if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
       await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
@@ -318,19 +403,28 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
               return null;
           }
         }),
+        switchMap((content) => {
+          if (!content) {
+            void this.currentDialogRef()?.close();
+            return EMPTY;
+          }
+
+          return from(
+            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            }),
+          ).pipe(
+            tap((drawerRef) => this.currentDialogRef.set(drawerRef)),
+            // Reset drawer state whenever the dialog closes (X, ESC, or programmatic close) so
+            // re-clicking the same invoker reopens it. Without this, the state stays "open" and
+            // the re-open is filtered out by distinctUntilChanged.
+            switchMap((drawerRef) => drawerRef?.closed ?? EMPTY),
+            tap(() => this.drawerStateService.closeDrawer()),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((content) => {
-        if (content) {
-          void this.dialogService
-            .openDrawer(AccessIntelligenceDrawerV2Component, {
-              data: content,
-            })
-            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
-        } else {
-          void this.currentDialogRef()?.close();
-        }
-      });
+      .subscribe();
   }
 
   /**
@@ -349,7 +443,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return {
       type: DrawerType.AppAtRiskMembers,
       applicationName: app.applicationName,
-      members: this.mapMembersToDrawerData(members, report, app),
+      members: this.mapMembersToDrawerData(members, report),
     };
   }
 
@@ -388,7 +482,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         email: member.email,
         userName: member.userName ?? "",
         userGuid: member.id,
-        atRiskPasswordCount: report.getCriticalAtRiskPasswordCountForMember(member.id),
+        atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id, {
+          criticalOnly: true,
+        }),
       })),
     };
   }
@@ -412,15 +508,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private mapMembersToDrawerData(
     members: MemberRegistryEntryView[],
     report: AccessReportView,
-    app?: ApplicationHealthView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
       userName: member.userName ?? "",
       userGuid: member.id,
-      atRiskPasswordCount:
-        app?.getAtRiskPasswordCountForMember(member.id) ??
-        report.getAtRiskPasswordCountForMember(member.id),
+      atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id),
     }));
   }
 
@@ -430,7 +523,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): Promise<void> {
     if (source === "import" && status === "success") {
       this.generateReport();
-      await this.beginOnboardingTour();
+      this.mustBeginPostImportTour.set(true);
     }
 
     this.clearQueryParams(this.router, this.route, ["source", "status"]);
@@ -446,9 +539,30 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected async beginOnboardingTour(): Promise<void> {
+  protected async beginPostImportTour(): Promise<void> {
     if (this.adoptionUxImprovementsEnabled()) {
-      await WelcomeModalDialogComponent.showWelcomeDialog(this.injector, this.dialogService);
+      this.mustBeginPostImportTour.set(false);
+      await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await this.coachmarkService.startTour(this.organizationId());
     }
   }
 }

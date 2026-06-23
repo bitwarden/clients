@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
@@ -114,8 +126,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
-    "message": "மீண்டும் வருக"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "இந்த பொருளை நீங்கள் எந்த அமைப்புக்கு நகர்த்த விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும். ஒரு அமைப்புக்கு நகர்த்துவது அந்தப் பொருளின் உரிமையை அந்த அமைப்புக்கு மாற்றும். நீங்கள் இந்த பொருளை நகர்த்தியவுடன் அதன் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்."
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "View bank account",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "View license",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "View license",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "கடவுச்சீட்டு எண்"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "உரிமம் எண்"
@@ -838,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "நீளம்"
   },
@@ -1011,8 +1064,8 @@
   "logIn": {
     "message": "உள்நுழை"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden க்கு உள்நுழை"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
@@ -1120,9 +1173,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "உங்கள் கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடவும், உங்கள் கடவுச்சொல் குறிப்பு உங்களுக்கு அனுப்பப்படும்"
   },
-  "getMasterPasswordHint": {
-    "message": "முதன்மை கடவுச்சொல் குறிப்பைப் பெறவும்"
-  },
   "emailRequired": {
     "message": "மின்னஞ்சல் முகவரி தேவை."
   },
@@ -1180,6 +1230,10 @@
   },
   "noItemsInList": {
     "message": "பட்டியலிட உருப்படிகள் எதுவும் இல்லை."
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "உங்கள் மின்னஞ்சலுக்கு ஒரு சரிபார்ப்புக் குறியீட்டை அனுப்பவும்"
@@ -1341,6 +1395,9 @@
   },
   "iconsUrl": {
     "message": "சின்னங்கள் சேவையக URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "சூழல் URL-கள் சேமிக்கப்பட்டன"
@@ -1629,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "ட்ராய் ஐகானுக்கு சுருக்கவும்"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கவும்"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToTray": {
-    "message": "ட்ராய் ஐகானுக்கு மூடவும்"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு மூடவும்"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableTray": {
-    "message": "ட்ராய் ஐகானைக் காட்டு"
-  },
-  "enableTrayDesc": {
-    "message": "கணினி ட்ராயில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "உள்நுழைவில் தானாகவே தொடங்கவும்"
   },
   "openAtLoginDesc": {
     "message": "Bitwarden டெஸ்க்டாப் செயலியை உள்நுழையும்போது தானாகவே தொடங்கவும்."
-  },
-  "alwaysShowDock": {
-    "message": "டாக்கில் எப்போதும் காட்டவும்"
-  },
-  "alwaysShowDockDesc": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கும்போதும் டாக்கில் Bitwarden ஐகானைக் காட்டவும்."
-  },
-  "confirmTrayTitle": {
-    "message": "ட்ராய்-ஐ மறைப்பதை உறுதிப்படுத்தவும்"
-  },
-  "confirmTrayDesc": {
-    "message": "இந்த அமைப்பை முடக்குவது மற்ற அனைத்து ட்ராய் தொடர்பான அமைப்புகளையும் முடக்கும்."
   },
   "language": {
     "message": "மொழி"
@@ -1908,6 +1932,31 @@
   "selectAll": {
     "message": "அனைத்தையும் தேர்ந்தெடு"
   },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
+  },
   "zoomIn": {
     "message": "பெரிதாக்கு"
   },
@@ -2044,9 +2093,9 @@
   "exit": {
     "message": "வெளியேறு"
   },
-  "showHide": {
-    "message": "காட்டு / மறை",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "ட்ராய்-க்கு மறை"
@@ -2229,6 +2278,12 @@
   "deleteAccountWarning": {
     "message": "உங்கள் கணக்கை நீக்குவது நிரந்தரமானது. அதை செயல்தவிர்க்க முடியாது."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "கணக்கை நீக்க முடியாது"
   },
@@ -2243,12 +2298,6 @@
   },
   "preferences": {
     "message": "விருப்பத்தேர்வுகள்"
-  },
-  "enableMenuBar": {
-    "message": "பட்டிப் பட்டி ஐகானைக் காட்டு"
-  },
-  "enableMenuBarDesc": {
-    "message": "பட்டிப் பட்டியில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
   },
   "hideToMenuBar": {
     "message": "பட்டிப் பட்டியக்கு மறை"
@@ -2494,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "உங்கள் இன்பாக்ஸில் Bitwarden-இலிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறவும்."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "சந்தாவை நீக்கு"
@@ -2539,9 +2588,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Microsoft Store பதிப்பில் ஆதரிக்கப்படவில்லை."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது லினக்ஸ் பதிப்பில் ஆதரிக்கப்படவில்லை."
-  },
   "enableHardwareAcceleration": {
     "message": "வன்பொருள் முடுக்கத்தைப் பயன்படுத்தவும்"
   },
@@ -2583,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "உங்கள் புதிய கடவுச்சொல் உங்கள் தற்போதைய கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "உங்கள் கடவுச்சொல் குறிப்பு உங்கள் கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
@@ -3358,9 +3407,6 @@
     "message": "வால்ட்",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "முதன்மை கடவுச்சொல்லுடன் உள்நுழைக"
-  },
   "rememberEmail": {
     "message": "மின்னஞ்சலை நினைவில் கொள்க"
   },
@@ -3805,6 +3851,9 @@
   },
   "multipleInputEmails": {
     "message": "1 அல்லது அதற்கு மேற்பட்ட மின்னஞ்சல்கள் செல்லாதவை"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "inputTrimValidator": {
     "message": "உள்ளிட்டத்தில் வெறும் வெற்று இடங்கள் மட்டும் இருக்கக்கூடாது.",
@@ -4670,6 +4719,10 @@
   "invalidShortcut": {
     "message": "Invalid shortcut"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4867,6 +4920,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5030,6 +5086,17 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -5050,6 +5117,9 @@
   },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank name"
@@ -5088,6 +5158,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -5100,6 +5173,15 @@
   "copyIban": {
     "message": "Copy IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
     "message": "Copy first name"
   },
@@ -5111,6 +5193,9 @@
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5139,21 +5224,20 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5188,6 +5272,24 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "License details"
@@ -5230,5 +5332,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

@@ -422,6 +422,134 @@ describe("OverlayBackground", () => {
     });
   });
 
+  describe("when enableFillAssist is turned off", () => {
+    const targetedTabId = 1;
+    const heuristicTabId = 2;
+
+    function seedPageDetailsEntry(tabId: number, frameId: number, isTargeted: boolean) {
+      const field = createAutofillFieldMock(isTargeted ? { targeted: true } : {});
+      const entry = {
+        frameId,
+        tab: createChromeTabMock({ id: tabId }),
+        details: createAutofillPageDetailsMock({ fields: [field] }),
+      };
+      const existing = pageDetailsForTabSpy[tabId];
+      if (existing) {
+        existing.set(frameId, entry);
+      } else {
+        pageDetailsForTabSpy[tabId] = new Map([[frameId, entry]]);
+      }
+    }
+
+    beforeEach(async () => {
+      // Initial state is `false`; flip to `true` so the subsequent toggle to
+      // `false` produces a `true` -> `false` transition the subscription will act on.
+      await domainSettingsService.setEnableFillAssist(true);
+    });
+
+    it("does not sweep or broadcast when the setting goes from default (false) to true", async () => {
+      // The outer `beforeEach` already toggled false→true. If the subscription
+      // weren't gated on a true→false transition, that flip would have swept
+      // the cache and broadcast to all tabs.
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      seedPageDetailsEntry(targetedTabId, 0, true);
+      tabsSendMessageSpy.mockClear();
+
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
+    });
+
+    it("removes cached page-detail entries that contain targeted fields", async () => {
+      seedPageDetailsEntry(targetedTabId, 0, true);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeUndefined();
+    });
+
+    it("leaves cached page-detail entries without targeted fields intact", async () => {
+      seedPageDetailsEntry(heuristicTabId, 0, false);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[heuristicTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[heuristicTabId].size).toBe(1);
+    });
+
+    it("removes only the targeted frame from a tab that mixes targeted and heuristic frames", async () => {
+      const mixedTabId = 3;
+      seedPageDetailsEntry(mixedTabId, 0, true);
+      seedPageDetailsEntry(mixedTabId, 1, false);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[mixedTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[mixedTabId].has(0)).toBe(false);
+      expect(pageDetailsForTabSpy[mixedTabId].has(1)).toBe(true);
+    });
+
+    it("does not sweep the cache when the setting transitions to true", async () => {
+      // Flip back to false first so transitioning to true is an actual change.
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+      seedPageDetailsEntry(targetedTabId, 0, true);
+
+      await domainSettingsService.setEnableFillAssist(true);
+      await flushPromises();
+
+      expect(pageDetailsForTabSpy[targetedTabId]).toBeDefined();
+      expect(pageDetailsForTabSpy[targetedTabId].size).toBe(1);
+    });
+
+    it("broadcasts a targeting-rules cache invalidation message to every tab", async () => {
+      const tabs = [
+        createChromeTabMock({ id: 11 }),
+        createChromeTabMock({ id: 12 }),
+        createChromeTabMock({ id: 13 }),
+      ];
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue(tabs);
+
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+
+      for (const tab of tabs) {
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(tab, {
+          command: "clearTargetingRulesCache",
+        });
+      }
+    });
+
+    it("does not broadcast when the setting transitions to true", async () => {
+      const tabsQuerySpy = jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 11 })]);
+      await domainSettingsService.setEnableFillAssist(false);
+      await flushPromises();
+      tabsQuerySpy.mockClear();
+      tabsSendMessageSpy.mockClear();
+
+      await domainSettingsService.setEnableFillAssist(true);
+      await flushPromises();
+
+      expect(tabsQuerySpy).not.toHaveBeenCalled();
+      expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ command: "clearTargetingRulesCache" }),
+      );
+    });
+  });
+
   describe("re-positioning the inline menu within sub frames", () => {
     const tabId = 1;
     const topFrameId = 0;
@@ -2221,6 +2349,54 @@ describe("OverlayBackground", () => {
             command: "showSaveLoginInlineMenuList",
           });
         });
+
+        it("does not show the save login menu on a password-generation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on a password-generation field once the new-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+          formData.password = "";
+          formData.newPassword = "generated";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
+
+        it("shows the save login menu on an account-creation field when only the current-password field has a value", async () => {
+          focusedFieldData.inlineMenuFillType = CipherType.Login;
+          formData.password = "current-password";
+          formData.newPassword = "";
+
+          sendMockExtensionMessage(
+            { command: "updateFocusedFieldData", focusedFieldData, focusedFieldHasValue: true },
+            sender,
+          );
+          await flushPromises();
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "showSaveLoginInlineMenuList",
+          });
+        });
       });
     });
 
@@ -2913,6 +3089,154 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage({ command: "fido2AbortRequest" }, sender);
 
         expect(updateOverlayCiphersSpy).toHaveBeenCalledWith(false);
+      });
+    });
+
+    describe("routeTargetedFieldsToFrame", () => {
+      const tab = mock<chrome.tabs.Tab>({ id: 10 });
+      const sender = mock<chrome.runtime.MessageSender>({ tab });
+      const iframeTargetedFields = [{ selector: "#username", fieldType: "username" }];
+
+      beforeEach(() => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 5,
+            url: "https://example.com/iframe",
+          }),
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 6,
+            url: "https://example.com/other",
+          }),
+        ]);
+      });
+
+      it("sends applyTargetedFields to the matching frame", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "applyTargetedFields", iframeTargetedFields },
+          { frameId: 5 },
+        );
+      });
+
+      it("does nothing when no frame matches iframeSrc", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/nonexistent",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          tab,
+          expect.objectContaining({ command: "applyTargetedFields" }),
+          expect.anything(),
+        );
+      });
+
+      it("does nothing when iframeSrc is missing", async () => {
+        sendMockExtensionMessage(
+          { command: "routeTargetedFieldsToFrame", iframeTargetedFields },
+          sender,
+        );
+        await flushPromises();
+
+        expect(BrowserApi.getAllFrameDetails).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when iframeTargetedFields is empty", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields: [],
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(BrowserApi.getAllFrameDetails).not.toHaveBeenCalled();
+      });
+
+      it("matches a frame whose URL drops a trailing slash present in iframeSrc", async () => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 7,
+            url: "https://example.com/iframe",
+          }),
+        ]);
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe/",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "applyTargetedFields", iframeTargetedFields },
+          { frameId: 7 },
+        );
+      });
+
+      it("does not send when multiple frames match the same iframeSrc (ambiguous)", async () => {
+        jest.spyOn(BrowserApi, "getAllFrameDetails").mockResolvedValue([
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 5,
+            url: "https://example.com/iframe",
+          }),
+          mock<chrome.webNavigation.GetAllFrameResultDetails>({
+            frameId: 8,
+            url: "https://example.com/iframe",
+          }),
+        ]);
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          tab,
+          expect.objectContaining({ command: "applyTargetedFields" }),
+          expect.anything(),
+        );
+      });
+
+      it("does not throw when tabSendMessage rejects (e.g. sandboxed iframe)", async () => {
+        tabsSendMessageSpy.mockRejectedValueOnce(new Error("Could not establish connection"));
+
+        sendMockExtensionMessage(
+          {
+            command: "routeTargetedFieldsToFrame",
+            iframeSrc: "https://example.com/iframe",
+            iframeTargetedFields,
+          },
+          sender,
+        );
+
+        await expect(flushPromises()).resolves.not.toThrow();
       });
     });
   });
@@ -3789,6 +4113,44 @@ describe("OverlayBackground", () => {
           focusedFieldOpid: undefined,
           inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
         });
+      });
+
+      it("keeps targeted newPassword fields that would fail the heuristic isNewPasswordField check", async () => {
+        const newPasswordField = createAutofillFieldMock({
+          opid: "targeted_field_0_newPassword_0",
+          type: "password",
+          htmlName: "newPassword",
+          targeted: true,
+          fieldQualifier: "newPassword",
+        });
+        // `confirmPassword` is one token, so the keyword "confirm password" (with a space)
+        // misses it via the heuristic; the targeted flag must override that.
+        const confirmPasswordField = createAutofillFieldMock({
+          opid: "targeted_field_0_newPassword_1",
+          type: "password",
+          htmlName: "confirmPassword",
+          targeted: true,
+          fieldQualifier: "newPassword",
+        });
+        const pageDetail = createPageDetailMock({
+          details: createAutofillPageDetailsMock({
+            fields: [newPasswordField, confirmPasswordField],
+          }),
+        });
+        overlayBackground["pageDetailsForTab"][sender.tab!.id!]!.set(sender.frameId!, pageDetail);
+
+        sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
+        await flushPromises();
+
+        const passedPageDetails = (autofillService.doAutoFill as jest.Mock).mock.calls[0][0]
+          .pageDetails;
+        const filteredOpids = passedPageDetails[0].details.fields
+          .map((f: { opid: string }) => f.opid)
+          .sort();
+        expect(filteredOpids).toEqual([
+          "targeted_field_0_newPassword_0",
+          "targeted_field_0_newPassword_1",
+        ]);
       });
     });
   });

@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Ваша организация требует единого входа."
   },
-  "welcomeBack": {
-    "message": "С возвращением"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Войти"
   },
   "setAStrongPassword": {
     "message": "Задайте надежный пароль"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Скопировать национальный идентификационный номер"
+  },
   "copyFirstName": {
     "message": "Скопировать имя"
   },
@@ -211,8 +214,13 @@
     "message": "Заполнить",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автозаполнение"
+  "autofillNoun": {
+    "message": "Автозаполнение",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автозаполнение",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Автозаполнение логина"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "getMasterPasswordHint": {
-    "message": "Получить подсказку к мастер-паролю"
+  "hint": {
+    "message": "Подсказка"
   },
   "continue": {
     "message": "Продолжить"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Сохранить"
+  },
+  "saveAndFill": {
+    "message": "Сохранить и заполнить"
   },
   "move": {
     "message": "Переместить"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "Войти"
   },
-  "logInToBitwarden": {
-    "message": "Войти в Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Войти"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введите код, отправленный на ваш email"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Использовать помощник по заполнению"
   },
+  "turnOnFillAssist": {
+    "message": "Включить помощник по заполнению"
+  },
+  "enableFillAssistDescription": {
+    "message": "Функция помощник по заполнению повышает точность автозаполнения на поддерживаемых сайтах за счет использования правил, специфичных для конкретного сайта. При использовании этой функции данные не собираются и не сохраняются."
+  },
+  "aboutFillAssist": {
+    "message": "О помощнике по заполнению"
+  },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
   },
@@ -1694,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Не удалось выполнить аутентификацию с помощью passkey"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Использовать другой способ авторизации"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL сервера значков"
   },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
+  },
   "environmentSaved": {
     "message": "URL окружения сохранены"
   },
@@ -1824,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Логин не совпадает"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Перед автозаполнением убедитесь, что вы находитесь на надежном сайте."
+  },
+  "uriMatchRule": {
+    "message": "Правило сопоставления URI"
+  },
+  "neverMatch": {
+    "message": "Никогда не сопоставлять"
   },
   "loginHasNoSiteSaved": {
     "message": "Для логина не сохранен сайт"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "Тип карты"
   },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
   "expirationMonth": {
     "message": "Месяц"
   },
   "expirationYear": {
     "message": "Год"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
   },
   "monthly": {
     "message": "месяц"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "Номер паспорта"
   },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "sex": {
+    "message": "Пол"
+  },
+  "copySex": {
+    "message": "Скопировать пол"
+  },
+  "birthPlace": {
+    "message": "Место рождения"
+  },
+  "copyBirthPlace": {
+    "message": "Скопировать место рождения"
+  },
+  "nationality": {
+    "message": "Гражданство"
+  },
+  "copyNationality": {
+    "message": "Скопировать гражданство"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "copyIssuingCountry": {
+    "message": "Скопировать страну выдачи"
+  },
+  "passportType": {
+    "message": "Тип паспорта"
+  },
+  "copyPassportType": {
+    "message": "Скопировать тип паспорта"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Национальный идентификационный номер"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "copyIssuingAuthority": {
+    "message": "Скопировать выдавший орган / учреждение"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
   "licenseNumber": {
     "message": "Номер водительского удостоверения"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Банковский счет"
   },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
+  },
   "typeNote": {
     "message": "Заметка"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typePassport": {
+    "message": "Паспорт"
+  },
+  "passportDetails": {
+    "message": "Паспортные данные"
+  },
+  "passportAdded": {
+    "message": "Паспорт добавлен"
+  },
+  "typePassportSubtitle": {
+    "message": "Документ для поездок"
+  },
   "typeDriversLicense": {
     "message": "Водительское удостоверение"
   },
@@ -2199,41 +2315,8 @@
   "driversLicenseDetails": {
     "message": "Детали водительского удостоверения"
   },
-  "dateOfBirth": {
-    "message": "Дата рождения"
-  },
-  "birthMonth": {
-    "message": "Месяц рождения"
-  },
-  "birthDay": {
-    "message": "День рождения"
-  },
-  "birthYear": {
-    "message": "Год рождения"
-  },
-  "issuingCountry": {
-    "message": "Страна выдачи"
-  },
   "issuingState": {
     "message": "Республика / область выдачи"
-  },
-  "issuingAuthority": {
-    "message": "Выдавший орган"
-  },
-  "issueDate": {
-    "message": "Дата выдачи"
-  },
-  "issueMonth": {
-    "message": "Месяц выдачи"
-  },
-  "issueDay": {
-    "message": "День выдачи"
-  },
-  "issueYear": {
-    "message": "Год выдачи"
-  },
-  "expirationDay": {
-    "message": "Срок действия"
   },
   "licenseClass": {
     "message": "Категории водительского удостоверения"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "Очистить",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Выбрано"
+  },
+  "bulkActionsBar": {
+    "message": "Массовые действия"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Выбрано $COUNT$ элемент(ов). В нижней части экрана появилась панель массовых действий. Нажмите $SHORTCUTBINDING$, чтобы переключить фокус на панель массовых действий.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Выбор отменен"
+  },
+  "additionalActions": {
+    "message": "Дополнительные действия"
   },
   "checkPassword": {
     "message": "Проверьте, не скомпрометирован ли пароль."
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
+  "receiveMarketingEmails": {
+    "message": "Получать новости от Bitwarden в свой почтовый ящик."
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Не удалось выполнить биометрическую идентификацию, попробуйте использовать мастер-пароль или выполнить выход. Если ситуация не изменится, обратитесь в службу поддержки Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Разрешение не представлено"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Без разрешения на взаимодействие с Bitwarden для компьютера биометрия в расширении браузера работать не сможет. Попробуйте еще раз."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Ошибка при запросе разрешения"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Это действие невозможно выполнить в боковой панели. Попробуйте снова в всплывающем или отдельном окне."
   },
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Войти с мастер-паролем"
-  },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
   },
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "inputTrimValidator": {
     "message": "Введенные данные не должны содержать только пробелы.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Не удалось заполнить"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
   },
   "okay": {
     "message": "OK"
@@ -4909,6 +4999,22 @@
     "message": "Установить по умолчанию",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Сделайте Bitwarden менеджером паролей вашего браузера по умолчанию"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "из запроса браузера, чтобы дать Bitwarden разрешение на изменение ваших настроек."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Мы отключим встроенный менеджер паролей вашего браузера, чтобы вы могли насладиться безопасной авторизацией."
+  },
+  "allow": {
+    "message": "Разрешить",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Пропустить"
+  },
   "saveCipherAttemptSuccess": {
     "message": "Учетные данные успешно сохранены!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Значение не введено",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Нет значений для копирования"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "Далее"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Дополнительная навигация",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "sharedUnlock": {
+    "message": "Совместная разблокировка"
+  },
+  "sharedUnlockDescription": {
+    "message": "Обеспечьте синхронизацию ваших приложений Bitwarden. Если эта функция включена, состояние разблокировки будет совместно использоваться всеми приложениями на этом компьютере. Для синхронизации между различными браузерами требуется приложение для компьютера."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано приложению Bitwarden."
+  },
   "enterMonth": {
     "message": "Введите месяц."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Поиск банковского счета"
   },
+  "searchPassport": {
+    "message": "Поиск паспорта"
+  },
   "copyAccountNumber": {
     "message": "Скопировать номер счета"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "Скопировать IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Скопировать имя держателя счета"
+  },
+  "copyBranchNumber": {
+    "message": "Скопировать номер филиала"
+  },
+  "copySwiftCode": {
+    "message": "Скопировать код SWIFT"
   },
   "bankAccountTypeChecking": {
     "message": "Проверка"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "Не удалось загрузить."
+  },
+  "more": {
+    "message": "Еще"
   },
   "maxAccessCount": {
     "message": "Максимум обращений",
@@ -6551,11 +6692,36 @@
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Сохранить изменения Send не удалось",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
+  },
+  "domainNotAllowed": {
+    "message": "Включить только следующие домены: $DOMAINS$. Пожалуйста, проверьте и повторите попытку",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не соответствует политике Send вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Для редактирования этой Send, сделайте копию. Если эта Send может истечь к дате удаления, никаких действий не требуется",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Эта Send автоматически истечет после установки даты удаления",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Сделать копию"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }

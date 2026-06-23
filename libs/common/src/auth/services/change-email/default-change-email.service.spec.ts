@@ -1,20 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import {
-  MasterKeyWrappedUserKey,
-  MasterPasswordAuthenticationData,
-  MasterPasswordAuthenticationHash,
-  MasterPasswordSalt,
-  MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // Marked for removal when PM-30811 feature flag is unwound.
@@ -25,6 +11,21 @@ import {
   KdfConfigService,
   KeyService,
 } from "@bitwarden/key-management";
+
+import { ApiService } from "../../../abstractions/api.service";
+import { FakeMasterPasswordService } from "../../../key-management/master-password/services/fake-master-password.service";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "../../../key-management/master-password/types/master-password.types";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CsprngArray } from "../../../types/csprng";
+import { UserId } from "../../../types/guid";
+import { MasterKey, UserKey } from "../../../types/key";
 
 import { DefaultChangeEmailService } from "./default-change-email.service";
 

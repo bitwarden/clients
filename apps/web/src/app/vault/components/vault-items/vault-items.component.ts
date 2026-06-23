@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   Observable,
   combineLatest,
@@ -32,7 +32,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService, VaultItem } from "@bitwarden/vault";
+import { RoutedVaultFilterService, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -43,8 +43,8 @@ import {
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75;
-export const RowHeightClass = `tw-h-[75px]`;
+export const RowHeight = 76.5;
+export const RowHeightClass = `tw-h-[76.5px]`;
 
 const MaxSelectionCount = 500;
 
@@ -151,9 +151,20 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
+  protected readonly batchBarService = inject(VaultBatchBarService, {
+    optional: true,
+  }) as VaultBatchBarService<C> | null;
+  protected readonly batchBarFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  private readonly _localSelection = new SelectionModel<VaultItem<C>>(true, [], true);
+  get selection(): SelectionModel<VaultItem<C>> {
+    return this.batchBarService?.selection ?? this._localSelection;
+  }
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
@@ -236,21 +247,23 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       }),
     );
 
-    this.routedVaultFilterService.filter$
-      .pipe(
-        distinctUntilChanged(
-          (prev, curr) =>
-            prev.organizationId === curr.organizationId &&
-            prev.collectionId === curr.collectionId &&
-            prev.folderId === curr.folderId &&
-            prev.type === curr.type &&
-            prev.organizationIdParamType === curr.organizationIdParamType,
-        ),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => {
-        this.clearSelection();
-      });
+    if (!this.batchBarService) {
+      this.routedVaultFilterService.filter$
+        .pipe(
+          distinctUntilChanged(
+            (prev, curr) =>
+              prev.organizationId === curr.organizationId &&
+              prev.collectionId === curr.collectionId &&
+              prev.folderId === curr.folderId &&
+              prev.type === curr.type &&
+              prev.organizationIdParamType === curr.organizationIdParamType,
+          ),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => {
+          this.clearSelection();
+        });
+    }
   }
 
   clearSelection() {
@@ -278,21 +291,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
-    if (
-      this.selection.selected.length === 0 ||
-      !this.userCanArchive ||
-      hasCollectionsSelected ||
-      this.showBulkTrashOptions
-    ) {
+    const selectedCiphers = this.selection.selected.filter((item) => item.cipher !== undefined);
+    if (selectedCiphers.length === 0 || !this.userCanArchive || this.showBulkTrashOptions) {
       return false;
     }
 
     return (
       this.userCanArchive &&
-      !this.selection.selected.find(
-        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-      )
+      !selectedCiphers.find((item) => item.cipher && item.cipher.archivedDate)
     );
   }
 
@@ -302,9 +308,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return false;
     }
 
-    return !this.selection.selected.find(
-      (item) => !item.cipher?.archivedDate || item.cipher?.organizationId,
-    );
+    return !this.selection.selected.find((item) => !item.cipher?.archivedDate);
   }
 
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.

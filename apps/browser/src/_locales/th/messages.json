@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "องค์กรของคุณบังคับใช้ Single Sign-On"
   },
-  "welcomeBack": {
-    "message": "ยินดีต้อนรับกลับ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "ตั้งรหัสผ่านที่รัดกุม"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "คัดลอกเลขหนังสือเดินทาง"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
   "copyFirstName": {
     "message": "Copy first name"
   },
@@ -211,8 +214,13 @@
     "message": "ป้อน",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "ป้อนอัตโนมัติ"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "ป้อนข้อมูลเข้าสู่ระบบอัตโนมัติ"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "กรอกอีเมลบัญชี แล้วระบบจะส่งคำใบ้รหัสผ่านไปให้"
   },
-  "getMasterPasswordHint": {
-    "message": "รับคำใบ้รหัสผ่านหลัก"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "ดำเนินการต่อ"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "บันทึก"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "ย้าย"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "เข้าสู่ระบบ"
   },
-  "logInToBitwarden": {
-    "message": "เข้าสู่ระบบ Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "ป้อนรหัสที่ส่งไปยังอีเมลของคุณ"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Use fill assist"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "แสดงตัวเลือกเมนูบริบท"
   },
@@ -1694,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "การยืนยันตัวตนด้วยพาสคีย์ล้มเหลว"
   },
-  "useADifferentLogInMethod": {
-    "message": "ใช้วิธีเข้าสู่ระบบอื่น"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "กำลังรอการตอบสนองจากคีย์ความปลอดภัย..."
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL เซิร์ฟเวอร์ไอคอน"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "บันทึก URL สภาพแวดล้อมแล้ว"
   },
@@ -1820,10 +1843,22 @@
     "message": "ปิดการป้อนอัตโนมัติ"
   },
   "confirmAutofill": {
-    "message": "ยืนยันการป้อนอัตโนมัติ"
+    "message": "Confirm autofill"
   },
   "confirmAutofillDesc": {
-    "message": "เว็บไซต์นี้ไม่ตรงกับรายละเอียดการเข้าสู่ระบบที่คุณบันทึกไว้ ก่อนป้อนข้อมูล โปรดตรวจสอบให้แน่ใจว่าเป็นเว็บไซต์ที่เชื่อถือได้"
+    "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "แบรนด์"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "เดือนที่หมดอายุ"
   },
   "expirationYear": {
     "message": "ปีที่หมดอายุ"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "monthly": {
     "message": "เดือน"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "หมายเลขหนังสือเดินทาง"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "หมายเลขใบขับขี่"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "typeNote": {
     "message": "โน้ต"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "typeDriversLicense": {
     "message": "License"
   },
@@ -2199,41 +2315,8 @@
   "driversLicenseDetails": {
     "message": "License details"
   },
-  "dateOfBirth": {
-    "message": "Date of birth"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "issuingCountry": {
-    "message": "Issuing country"
-  },
   "issuingState": {
     "message": "Issuing state / province"
-  },
-  "issuingAuthority": {
-    "message": "Issuing authority"
-  },
-  "issueDate": {
-    "message": "Issue date"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueYear": {
-    "message": "Issue year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
   },
   "licenseClass": {
     "message": "License class"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "ล้าง",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "ตรวจสอบว่ารหัสผ่านรั่วไหลหรือไม่"
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "รหัสผ่านหลักใหม่ของคุณไม่ตรงตามข้อกำหนดของนโยบาย"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "รับคำแนะนำ ประกาศ และโอกาสในการทำวิจัยจาก Bitwarden ทางอีเมล"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "ยกเลิกการรับข่าวสาร"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "ไม่สามารถดำเนินการไบโอเมตริกให้เสร็จสิ้นได้ โปรดพิจารณาใช้รหัสผ่านหลักหรือออกจากระบบ หากปัญหายังคงอยู่ โปรดติดต่อฝ่ายสนับสนุน Bitwarden"
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "ไม่ได้รับอนุญาต"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "เราไม่สามารถให้บริการไบโอเมตริกในส่วนขยายเบราว์เซอร์ได้หากไม่ได้รับอนุญาตให้สื่อสารกับแอปพลิเคชัน Bitwarden บนเดสก์ท็อป โปรดลองอีกครั้ง"
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "ข้อผิดพลาดในการขอสิทธิ์"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "ไม่สามารถดำเนินการนี้ในแถบด้านข้างได้ โปรดลองดำเนินการอีกครั้งในป๊อปอัปหรือหน้าต่างแยก"
   },
   "personalOwnershipSubmitError": {
     "message": "เนื่องจากนโยบายองค์กร คุณถูกจำกัดไม่ให้บันทึกรายการลงในตู้นิรภัยส่วนตัว เปลี่ยนตัวเลือกความเป็นเจ้าของเป็นองค์กรและเลือกคอลเลกชันที่มีอยู่"
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "เข้าสู่ระบบด้วยรหัสผ่านหลัก"
-  },
   "newAroundHere": {
     "message": "เพิ่งเคยใช้งานใช่หรือไม่"
   },
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "อีเมลอย่างน้อย 1 รายการไม่ถูกต้อง"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "ข้อมูลต้องไม่ประกอบด้วยช่องว่างเพียงอย่างเดียว",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "ตั้งค่าการป้อนอัตโนมัติเมื่อโหลดหน้าเว็บเป็นค่าเริ่มต้นแล้ว",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "ไม่สามารถป้อนอัตโนมัติได้"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "การจับคู่เริ่มต้นตั้งค่าไว้ที่ 'ตรงกันทุกตัวอักษร' เว็บไซต์ปัจจุบันไม่ตรงกับรายละเอียดข้อมูลเข้าสู่ระบบที่บันทึกไว้สำหรับรายการนี้อย่างถูกต้อง"
   },
   "okay": {
     "message": "ตกลง"
@@ -4909,6 +4999,22 @@
     "message": "ตั้งเป็นค่าเริ่มต้น",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
+  },
   "saveCipherAttemptSuccess": {
     "message": "บันทึกข้อมูลเข้าสู่ระบบสำเร็จแล้ว!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "ไม่มีค่าให้คัดลอก"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "ถัดไป"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Breadcrumbs เพิ่มเติม",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
   },
   "maxAccessCount": {
     "message": "Maximum access count",
@@ -6551,11 +6692,36 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

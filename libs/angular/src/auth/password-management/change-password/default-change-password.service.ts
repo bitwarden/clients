@@ -1,10 +1,15 @@
+import { firstValueFrom } from "rxjs";
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -29,6 +34,8 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected masterPasswordUnlockService: MasterPasswordUnlockService,
+    protected policyService: PolicyService,
+    protected organizationInviteService: OrganizationInviteService,
   ) {}
 
   async changePasswordAndRotateUserKey(
@@ -163,5 +170,32 @@ export class DefaultChangePasswordService implements ChangePasswordService {
    */
   shouldNavigateToRoot(): boolean {
     return false;
+  }
+
+  async resolveMasterPasswordPolicyOptions(
+    userId: UserId,
+  ): Promise<MasterPasswordPolicyOptions | undefined> {
+    // Get existing MP policy options from state for any orgs the user is in (accepted / confirmed)
+    const statePasswordPolicyOptions = await firstValueFrom(
+      this.policyService.masterPasswordPolicyOptions$(userId),
+    );
+
+    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+    const invitePasswordPolicyOptions = orgInvite
+      ? await this.organizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)
+      : undefined;
+
+    // Short-circuit when one source has no MP policy so the strictness merge gets two real inputs.
+    if (statePasswordPolicyOptions == null) {
+      return invitePasswordPolicyOptions;
+    }
+    if (invitePasswordPolicyOptions == null) {
+      return statePasswordPolicyOptions;
+    }
+    // Both sources have MP requirements - merge into the strictest set across joined orgs + invite.
+    return this.policyService.combineMasterPasswordPolicyOptions(
+      statePasswordPolicyOptions,
+      invitePasswordPolicyOptions,
+    );
   }
 }

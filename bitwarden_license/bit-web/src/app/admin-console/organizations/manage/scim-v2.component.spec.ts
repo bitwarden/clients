@@ -8,6 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-config.api";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -17,6 +18,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+import { ScimBannerService } from "./scim-banner.service";
 import { ScimV2Component } from "./scim-v2.component";
 
 describe("ScimV2Component", () => {
@@ -31,6 +33,8 @@ describe("ScimV2Component", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let configService: MockProxy<ConfigService>;
+  let scimBannerService: MockProxy<ScimBannerService>;
   let mockEnv: MockProxy<Environment>;
   let environment$: BehaviorSubject<Environment>;
 
@@ -59,11 +63,17 @@ describe("ScimV2Component", () => {
     environmentService = mock<EnvironmentService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
+    configService = mock<ConfigService>();
+    scimBannerService = mock<ScimBannerService>();
 
     mockEnv = mock<Environment>();
     mockEnv.getScimUrl.mockReturnValue(scimUrl);
     environment$ = new BehaviorSubject<Environment>(mockEnv);
     environmentService.environment$ = environment$;
+
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+    scimBannerService.bannerSeen$.mockReturnValue(of(false));
+    scimBannerService.markBannerSeen.mockResolvedValue();
 
     i18nService.t.mockImplementation((key: string) => key);
 
@@ -85,6 +95,8 @@ describe("ScimV2Component", () => {
         { provide: EnvironmentService, useValue: environmentService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
+        { provide: ConfigService, useValue: configService },
+        { provide: ScimBannerService, useValue: scimBannerService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

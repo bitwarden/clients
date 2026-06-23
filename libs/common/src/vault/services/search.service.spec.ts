@@ -1,9 +1,9 @@
 import { BehaviorSubject } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { LogService } from "../../platform/abstractions/log.service";
+import { UserId } from "../../types/guid";
+import { CipherView } from "../models/view/cipher.view";
 
 import { SearchService } from "./search.service";
 
@@ -30,6 +30,7 @@ describe("SearchService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLocale$.next("en");
     service = new SearchService(
       mockLogService as unknown as LogService,
       mockI18nService as unknown as I18nService,
@@ -58,6 +59,18 @@ describe("SearchService", () => {
       const result = await service.isSearchable("test");
       expect(result).toBe(false);
     });
+
+    it("returns true if a single-character query contains a CJK character", async () => {
+      const result = await service.isSearchable("密");
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false if a single-character query does not contain a CJK character", async () => {
+      const result = await service.isSearchable("p");
+
+      expect(result).toBe(false);
+    });
   });
 
   describe("searchCiphers", () => {
@@ -77,6 +90,14 @@ describe("SearchService", () => {
       const result = await service.searchCiphers(userId, null, "", ciphers);
 
       expect(result).toEqual(ciphers);
+    });
+
+    it("finds ciphers with single-character CJK queries", async () => {
+      const ciphers = [createCipherView("cipher-1", "密碼"), createCipherView("cipher-2", "Login")];
+
+      const result = await service.searchCiphers(userId, null, "密", ciphers);
+
+      expect(result).toEqual([ciphers[0]]);
     });
   });
 });
