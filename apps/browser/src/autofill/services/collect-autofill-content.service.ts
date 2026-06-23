@@ -783,6 +783,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         ? this.getSelectElementOptions(element as HTMLSelectElement)
         : null,
       form: fieldFormElement ? this.getPropertyOrAttribute(fieldFormElement, "opid") : null,
+      "aria-describedby": this.getPropertyOrAttribute(
+        element,
+        AUTOFILL_ATTRIBUTES.ARIA_DESCRIBEDBY,
+      ),
       "aria-hidden": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HIDDEN, true),
       "aria-disabled": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_DISABLED, true),
       "aria-haspopup": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HASPOPUP, true),
