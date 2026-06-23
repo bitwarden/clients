@@ -11,9 +11,9 @@
       target="_blank"
       rel="noopener noreferrer"
       class="tw-mb-3 tw-flex tw-items-center tw-gap-1"
+      endIcon="bwi-external-link"
     >
       {{ "learnMore" | i18n }}
-      <i class="bwi bwi-external-link tw-text-sm" aria-hidden="true"></i>
     </a>
   }
 
@@ -30,7 +30,7 @@
       }
       <button bitButton buttonType="primary" type="button" (click)="service.goToNextStep()">
         {{
-          service.currentStepNumber() === service.totalSteps() ? ("close" | i18n) : ("next" | i18n)
+          service.currentStepNumber() === service.totalSteps() ? ("done" | i18n) : ("next" | i18n)
         }}
       </button>
     </div>
