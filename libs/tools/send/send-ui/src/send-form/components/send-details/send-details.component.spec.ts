@@ -12,6 +12,11 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  asDatePreset,
+  isDatePreset,
+  SendDeletionDatePreset,
+} from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -19,23 +24,22 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import { LogService } from "@bitwarden/logging";
 
-import { DatePreset, isDatePreset, asDatePreset } from "../../../models/date-preset";
 import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
 import { SendDetailsComponent } from "./send-details.component";
 
-describe("SendDetails DatePreset utilities", () => {
+describe("SendDetails SendDeletionDatePreset utilities", () => {
   it("accepts all defined numeric presets", () => {
     const presets: Array<any> = [
-      DatePreset.OneHour,
-      DatePreset.OneDay,
-      DatePreset.TwoDays,
-      DatePreset.ThreeDays,
-      DatePreset.SevenDays,
-      DatePreset.FourteenDays,
-      DatePreset.ThirtyDays,
+      SendDeletionDatePreset.OneHour,
+      SendDeletionDatePreset.OneDay,
+      SendDeletionDatePreset.TwoDays,
+      SendDeletionDatePreset.ThreeDays,
+      SendDeletionDatePreset.SevenDays,
+      SendDeletionDatePreset.FourteenDays,
+      SendDeletionDatePreset.ThirtyDays,
     ];
     presets.forEach((p) => {
       expect(isDatePreset(p)).toBe(true);

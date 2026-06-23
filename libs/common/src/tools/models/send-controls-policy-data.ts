@@ -1,5 +1,3 @@
-import { DatePreset } from "@bitwarden/send-ui";
-
 import { WhoCanAccessType } from "./send-who-can-access-type";
 
 export class SendControlsPolicyData {
@@ -13,5 +11,5 @@ export class SendControlsPolicyData {
   /** When true prevent users from creating Sends with their email hidden */
   disableHideEmail: boolean = false;
   /** Specify the deletion interval that new Sends must have when created */
-  deletionHours: DatePreset | null = null;
+  deletionHours: number | null = null;
 }

@@ -10,7 +10,6 @@ import {
   ButtonModule,
   IconModule,
   IconButtonModule,
-  IconModule,
   LinkModule,
   MenuModule,
   TableDataSource,

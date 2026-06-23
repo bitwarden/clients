@@ -1,11 +1,10 @@
-<bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch" class="tw-mt-4">
-  <bit-label class="tw-text-sm" for="enableSendControlsPolicySwitch">{{
-    "sendControlsPolicySwitchLabel" | i18n
-  }}</bit-label>
-</bit-switch>
+<bit-form-control class="tw-mt-4">
+  <bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch"></bit-switch>
+  <bit-label class="tw-text-sm">{{ "sendControlsPolicySwitchLabel" | i18n }}</bit-label>
+</bit-form-control>
 
 <div [formGroup]="data">
-  <bit-hint class="tw-mt-4 tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
+  <bit-hint class="tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
   <bit-radio-group formControlName="disableSend" [block]="true">
     <bit-radio-button [value]="false">
       <bit-label>{{ "allow" | i18n }}</bit-label>
@@ -40,7 +39,7 @@
         <bit-label>{{ "sendDeletionDate" | i18n }}</bit-label>
         <bit-select formControlName="deletionHours">
           @for (option of deletionHoursOptions; track option.value) {
-            <bit-option [value]="option.value" [label]="option.name"></bit-option>
+            <bit-option [value]="option.value" [label]="option.label"></bit-option>
           }
         </bit-select>
       </bit-form-field>
