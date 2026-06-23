@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Başqa bir seçimə ehtiyacınız var?"
   },
-  "loginWithMasterPassword": {
-    "message": "Ana parolla giriş et"
-  },
   "readingPasskeyLoading": {
     "message": "Keçid açarı oxunur..."
   },
@@ -1751,8 +1748,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Keçid açarı kimlik doğrulaması uğursuzdur. Lütfən yenidən sınayın."
   },
-  "useADifferentLogInMethod": {
-    "message": "Fərqli bir giriş üsulu istifadə edin"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "logInWithPasskey": {
     "message": "Keçid açarı ilə giriş et"
@@ -1763,8 +1760,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Təşkilatınız, vahid daxil olma tələb edir."
   },
-  "welcomeBack": {
-    "message": "Yenidən xoş gəlmisiniz"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Yararsız keçid açarı. Lütfən yenidən sınayın."
@@ -1865,8 +1862,8 @@
   "logIn": {
     "message": "Giriş et"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden-ə giriş edin"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-poçtunuza göndərilən kodu daxil edin"
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
-  },
-  "getMasterPasswordHint": {
-    "message": "Ana parol üçün məsləhət alın"
   },
   "emailRequired": {
     "message": "E-poçt ünvanı lazımdır."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "As a thank-you for being a long-time Bitwarden customer, we'd like to offer you $AMOUNT$ off each $INTERVAL$ for the next $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "$AMOUNT$ off each $INTERVAL$ has been applied for the next $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ for $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Heç vaxt bitmir"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Endirim tətbiq olundu"
+  },
+  "discountForOneYear": {
+    "message": "for 1 year"
+  },
+  "discountForMonths": {
+    "message": "for $COUNT$ months",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "through $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Endirimin müddəti bitdi. Lütfən səbətin cəmini yoxlayıb yenidən sınayın."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Təşkilat erişimini, bütün kolleksiyaları, üzvləri, hesabatları və təhlükəsizlik ayarlarını idarə edə bilər"
   },
+  "adminRoleDesc": {
+    "message": "Manage all collections, members, reporting, and security settings"
+  },
   "user": {
     "message": "İstifadəçi"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Bu görünüşü bağlasanız, saxlanılmamış düzəlişləriniz silinəcək."
+  },
+  "discardEdits": {
+    "message": "Düzəlişləri sil"
   },
   "keepEditing": {
     "message": "Düzəlişə davam"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Heç nə seçmədiniz."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "subscribe": {
     "message": "Abunə ol"
@@ -6957,6 +7032,21 @@
     "message": "Müəssisə siyasətinə görə, yalnız mövcud \"Send\"i silə bilərsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "sendControls": {
     "message": "Send kontrolları"
   },
@@ -6964,8 +7054,9 @@
     "message": "Send yaratma və düzəliş seçimlərini ayarla. Send-ləri xaric etmə imkanı da var.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Təşkilatın siyasətlərini idarə edə bilən təşkilat üzvləri, bu siyasətin tətbiqindən azaddırlar."
+  "sendControlsPolicyDescV2": {
+    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Send seçimləri",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
   },
+  "hint": {
+    "message": "Hint"
+  },
   "hintEqualsPassword": {
     "message": "Parol məsləhəti, parolunuzla eyni ola bilməz."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Parol sıfırlama"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Davam etsəniz, $NAME$ üçün hazırkı seans bitəcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Davam etsəniz, $NAME$ üçün hazırkı seans bitəcək, təkrar giriş etməsi tələb olunacaq. Digər cihazlardakı aktiv seanslar, bir saata qədər aktiv qalmağa davam edə bilər.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Hesab geri qaytarma administrasiyası"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Şifrələmə üsuluna əsasən, ana parollar və güvənilən cihazlar unudulduqda və ya itirildikdə hesabları geri qaytarın."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Ana parolları olan mövcud hesablar, administratorların öz hesablarını geri qaytara bilməsi üçün üzvlərin öz-özünə yazılmalarını tələb edəcək. Avto-yazılma, yeni üzvlər üçün hesabın geri qaytarılmasını işə salacaq."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Avtomatik qeydiyyat"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Yeni istifadəçiləri avtomatik qeydiyyata al"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Bu təşkilat, sizi \"parol sıfırlama\"da avtomatik olaraq qeydiyyata alan Enterprise siyasətinə sahibdir. Qeydiyyat, təşkilat inzibatçılarına ana parolunuzu dəyişdirmə icazəsi verəcək."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "SCIM ayarları saxlanıldı",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Bu növdə ($TYPE$) olan yalnız bir inteqrasiyaya icazə verilir. Ziddiyyətli inteqrasiya: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ Discount",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "İnfrastrukturunuzu qoruyun"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Zəiflik hesabatları vasitəsilə seyfinizdəki elementlərin təhlükəsizliyini gücləndirin."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Monitor security activity"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "As you review applications and assign member tasks, your org's progress on security improvements will show up here."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Prioritize risks"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Review every application stored in your org vault and star ones that are the highest priority to your security."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Fix your biggest risks"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "You'll track risks for prioritized applications here and assign tasks to members to strengthen their passwords."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Help members improve"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Once you've selected critical applications, prompt members to change at-risk passwords. They'll receive a message in their Bitwarden extension."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Stay on top of new risks"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$/$TOTAL$",
+    "message": "$CURRENT$/$TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Step $CURRENT$ of $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "One or more domains are invalid"
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Control whether members can use Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Any"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "This was filled in using claimed domains."
+  },
   "more": {
     "message": "Daha çox"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Bu yüksəltmə üçün bank hesabınızın doğrulanması lazımdır. Lütfən bank hesabınızı doğrulayın və ya fərqli bir ödəniş üsulu seçin."
-  },
-  "discardEdits": {
-    "message": "Düzəlişləri sil"
   },
   "discardEditsMessage": {
     "message": "Bu görünüşü bağlasanız, saxlanılmamış düzəlişləriniz silinəcək"
@@ -14327,6 +14467,25 @@
     "message": "Send-də saxlanılmamış düzəlişlər var. Tərk etmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Enable Send controls",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Allow"
+  },
+  "block": {
+    "message": "Block"
+  },
+  "sendControlAccessOptions": {
+    "message": "Access options"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Always show member's email address with recipients"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Password set by member"
+  },
   "hideMyEmail": {
     "message": "E-poçt ünvanımı alıcılardan gizlət."
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "separateDomainsWithComma": {
+    "message": "Separate domains with a comma"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"

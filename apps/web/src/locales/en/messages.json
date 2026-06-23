@@ -1203,6 +1203,10 @@
     "message": "New Note",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1247,10 @@
     "message": "Edit Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1290,10 @@
   "viewItemHeaderNote": {
     "message": "View Note",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
@@ -1739,9 +1751,6 @@
   "needAnotherOptionV1": {
     "message": "Need another option?"
   },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
-  },
   "readingPasskeyLoading": {
     "message": "Reading passkey..."
   },
@@ -1751,8 +1760,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey authentication failed. Please try again."
   },
-  "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
@@ -1763,7 +1772,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Your organization requires single sign-on."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1874,7 @@
   "logIn": {
     "message": "Log in"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1976,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Get master password hint"
   },
   "emailRequired": {
     "message": "Email address is required."
@@ -5901,8 +5907,8 @@
   "nothingSelected": {
     "message": "You have not selected anything."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "subscribe": {
     "message": "Subscribe"
@@ -5977,6 +5983,18 @@
   },
   "and": {
     "message": "and"
+  },
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "You cannot log in with SSO until you have accepted an invitation to join $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
@@ -6893,6 +6911,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. Learn more about "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Give all users a dedicated “My Items” space for managing their own logins."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Prompt users to move their vault items to the organization"
+  },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -7374,6 +7404,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Your password hint cannot be the same as your password."
@@ -9058,6 +9091,10 @@
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
@@ -14596,6 +14633,27 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "paymentSuccessful": {
+    "message": "Payment successful"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plan purchased"
+  },
+  "renewalDate": {
+    "message": "Renewal date"
+  },
+  "upgradeStatus": {
+    "message": "Upgrade status"
+  },
+  "processing": {
+    "message": "Processing"
+  },
+  "managePlanInWebApp": {
+    "message": "Manage plan in web app"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
