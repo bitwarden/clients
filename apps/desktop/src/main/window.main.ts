@@ -34,6 +34,7 @@ export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
   isClosing = false;
+  private isReloading = false;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -52,6 +53,7 @@ export class WindowMain {
     private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
+    private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
   init(show: boolean = true): Promise<any> {
@@ -63,22 +65,38 @@ export class WindowMain {
         return;
       }
 
-      this.logService.info("Reloading render process");
-      // User might have changed theme, ensure the window is updated.
-      this.win.setBackgroundColor(await this.getBackgroundColor());
-
-      // By default some linux distro collect core dumps on crashes which gets written to disk.
-      if (this.enableRendererProcessForceCrashReload) {
-        const crashEvent = once(this.win.webContents, "render-process-gone");
-        this.win.webContents.forcefullyCrashRenderer();
-        await crashEvent;
+      // LockService can fire reload-process concurrently for each user account.
+      // Skip duplicates so we don't race the crash + reload sequence with itself.
+      if (this.isReloading) {
+        this.logService.info("Reload already in progress, skipping duplicate request");
+        return;
       }
+      this.isReloading = true;
+      try {
+        this.logService.info("Reloading render process");
+        // User might have changed theme, ensure the window is updated.
+        this.win.setBackgroundColor(await this.getBackgroundColor());
 
-      this.win.webContents.reloadIgnoringCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.session.clearCache();
-      this.logService.info("Render process reloaded");
+        // By default some linux distro collect core dumps on crashes which gets written to disk.
+        if (this.enableRendererProcessForceCrashReload) {
+          const crashEvent = once(this.win.webContents, "render-process-gone");
+          this.win.webContents.forcefullyCrashRenderer();
+          await crashEvent;
+
+          // Workaround for electron/electron#48661: yielding one event-loop tick
+          // before reloading lets the crashed renderer fully tear down so the
+          // subsequent reloadIgnoringCache() reliably spawns a new renderer.
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+
+        this.win.webContents.reloadIgnoringCache();
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.session.clearCache();
+        this.logService.info("Render process reloaded");
+      } finally {
+        this.isReloading = false;
+      }
     });
 
     ipcMain.on("window-focus", () => {
@@ -134,8 +152,11 @@ export class WindowMain {
             return;
           } else {
             app.on("second-instance", (event, argv, workingDirectory) => {
-              // Someone tried to run a second instance, we should focus our window.
-              if (this.win != null) {
+              // Someone tried to run a second instance (e.g. launching from the desktop
+              // icon or terminal while already running). Always bring us to the foreground.
+              if (this.focusWindowCallback != null) {
+                void this.focusWindowCallback();
+              } else if (this.win != null) {
                 if (this.win.isMinimized() || !this.win.isVisible()) {
                   this.win.show();
                 }
@@ -211,7 +232,9 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win == null) {
+          if (this.focusWindowCallback != null) {
+            await this.focusWindowCallback();
+          } else if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon

@@ -17,6 +17,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ClearClipboardDelaySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -135,20 +136,13 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly isWindows: boolean;
   protected readonly isLinux: boolean;
   protected readonly isMac: boolean;
-  protected readonly requireEnableTray: boolean;
   protected readonly showOpenAtLoginOption: boolean;
   protected readonly showDuckDuckGoIntegrationOption: boolean;
-  protected readonly enableTrayText: string;
-  protected readonly enableTrayDescText: string;
-  protected readonly enableMinToTrayText: string;
-  protected readonly enableMinToTrayDescText: string;
-  protected readonly enableCloseToTrayText: string;
-  protected readonly enableCloseToTrayDescText: string;
+  protected readonly runInBackgroundText: string;
+  protected readonly runInBackgroundDescText: string;
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
-  protected readonly showMinToTray: boolean;
-  protected readonly showAlwaysShowDock: boolean;
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -181,11 +175,8 @@ export class SettingsDialogComponent implements OnInit {
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     // App Settings
-    enableTray: false,
-    enableMinToTray: false,
-    enableCloseToTray: false,
+    runInBackground: false,
     openAtLogin: false,
-    alwaysShowDock: false,
     enableBrowserIntegration: false,
     enableHardwareAcceleration: true,
     enableSshAgent: false,
@@ -205,23 +196,11 @@ export class SettingsDialogComponent implements OnInit {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
-    this.showMinToTray = !this.isLinux;
-    this.showAlwaysShowDock = this.isMac;
 
-    // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
-    this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
-
-    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
-    this.enableTrayText = this.i18nService.t(trayKey);
-    this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
-
-    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
-    this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
-    this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
-
-    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
-    this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
-    this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
+    this.runInBackgroundText = this.i18nService.t("runInBackground");
+    this.runInBackgroundDescText = this.i18nService.t(
+      this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+    );
 
     this.showOpenAtLoginOption = this.showAutostartSetting();
 
@@ -289,15 +268,14 @@ export class SettingsDialogComponent implements OnInit {
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         this.currentUserId(),
       )),
-      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(this.currentUserId()),
+      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
-      enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
-      enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
-      alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
         this.desktopSettingsService.browserIntegrationEnabled$,
       ),
@@ -364,28 +342,28 @@ export class SettingsDialogComponent implements OnInit {
 
     this.form.controls.clearClipboard.valueChanges
       .pipe(
-        concatMap(async () => this.saveClearClipboard()),
+        concatMap(async (value: ClearClipboardDelaySetting) => this.saveClearClipboard(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.sshAgentPromptBehavior.valueChanges
       .pipe(
-        concatMap(async () => this.saveSshAgentPromptBehavior()),
+        concatMap(async (value: SshAgentPromptType) => this.saveSshAgentPromptBehavior(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.theme.valueChanges
       .pipe(
-        concatMap(async () => this.saveTheme()),
+        concatMap(async (value: Theme) => this.saveTheme(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
 
     this.form.controls.locale.valueChanges
       .pipe(
-        concatMap(async () => this.saveLocale()),
+        concatMap(async (value: string) => this.saveLocale(value)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
@@ -460,7 +438,7 @@ export class SettingsDialogComponent implements OnInit {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
       await this.keyService.refreshAdditionalKeys(activeUserId);
       return;
     }
@@ -481,11 +459,11 @@ export class SettingsDialogComponent implements OnInit {
       return;
     }
 
-    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
@@ -497,7 +475,7 @@ export class SettingsDialogComponent implements OnInit {
     } else if (this.isLinux) {
       // Similar to Windows
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -507,7 +485,7 @@ export class SettingsDialogComponent implements OnInit {
       BiometricsStatus.Available;
     this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
     if (!biometricSet) {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
     }
   }
 
@@ -543,10 +521,11 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async updateAutoPromptBiometrics() {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.form.value.autoPromptBiometrics) {
-      await this.biometricStateService.setPromptAutomatically(true);
+      await this.biometricStateService.setPromptAutomatically(true, activeUserId);
     } else {
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
   }
 
@@ -555,52 +534,16 @@ export class SettingsDialogComponent implements OnInit {
     this.messagingService.send("refreshCiphers");
   }
 
-  protected async saveMinToTray() {
-    await this.desktopSettingsService.setMinimizeToTray(this.form.value.enableMinToTray);
+  protected async saveRunInBackground() {
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
-  protected async saveCloseToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
+  private async saveLocale(newValue: string) {
+    await this.i18nService.setLocale(newValue);
   }
 
-  protected async saveTray() {
-    if (
-      this.requireEnableTray &&
-      !this.form.value.enableTray &&
-      this.form.value.enableCloseToTray
-    ) {
-      const confirm = await this.dialogService.openSimpleDialog({
-        title: { key: "confirmTrayTitle" },
-        content: { key: "confirmTrayDesc" },
-        type: "warning",
-      });
-
-      if (confirm) {
-        this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-      } else {
-        this.form.controls.enableTray.setValue(true);
-      }
-
-      return;
-    }
-
-    await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
-    this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  protected async saveLocale() {
-    await this.i18nService.setLocale(this.form.value.locale);
-  }
-
-  protected async saveTheme() {
-    await this.themeStateService.setSelectedTheme(this.form.value.theme);
+  private async saveTheme(newValue: Theme) {
+    await this.themeStateService.setSelectedTheme(newValue);
   }
 
   protected async saveMinOnCopyToClipboard() {
@@ -610,19 +553,14 @@ export class SettingsDialogComponent implements OnInit {
     );
   }
 
-  protected async saveClearClipboard() {
-    await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
-  }
-
-  protected async saveAlwaysShowDock() {
-    await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
+  private async saveClearClipboard(newValue: ClearClipboardDelaySetting) {
+    await this.autofillSettingsService.setClearClipboardDelay(newValue);
   }
 
   private showAutostartSetting(): boolean {
     // Windows store does not support autostart
     // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    // Snap store has auto-start enabled through electron-builder ALWAYS
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   protected async saveOpenAtLogin() {
@@ -703,10 +641,8 @@ export class SettingsDialogComponent implements OnInit {
     await this.desktopSettingsService.setSshAgentEnabled(this.form.value.enableSshAgent);
   }
 
-  protected async saveSshAgentPromptBehavior() {
-    await this.desktopSettingsService.setSshAgentPromptBehavior(
-      this.form.value.sshAgentPromptBehavior,
-    );
+  private async saveSshAgentPromptBehavior(newValue: SshAgentPromptType) {
+    await this.desktopSettingsService.setSshAgentPromptBehavior(newValue);
   }
 
   protected async savePreventScreenshots() {

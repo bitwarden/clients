@@ -1,8 +1,4 @@
 import {
-  UriMatchStrategy,
-  UriMatchStrategySetting,
-} from "@bitwarden/common/models/domain/domain-service";
-import {
   CardListView,
   CipherListView,
   CopyableCipherFields,
@@ -10,6 +6,7 @@ import {
   LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";

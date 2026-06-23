@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A szervezet egyszeri bejelentkezést igényel."
   },
-  "welcomeBack": {
-    "message": "Üdvözlet újra"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Erős jelszó beállítása"
@@ -214,8 +214,13 @@
     "message": "Kitöltés",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatikus kitöltés"
+  "autofillNoun": {
+    "message": "Automatikus kitöltés",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatikus kitöltés",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automatikus kitöltés bejelentkezés"
@@ -284,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "getMasterPasswordHint": {
-    "message": "Kérj mesterjelszó emlékeztetőt"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Folytatás"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Mentés"
+  },
+  "saveAndFill": {
+    "message": "Mentés és kitöltés"
   },
   "move": {
     "message": "Áthelyezés"
@@ -970,8 +978,8 @@
   "logIn": {
     "message": "Bejelentkezés"
   },
-  "logInToBitwarden": {
-    "message": "Bejelentkezés a Bitwardenbe"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Adjuk meg az email címre elküldött kódot."
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Kitöltési segédlet használata"
   },
+  "turnOnFillAssist": {
+    "message": "Kitöltési segéd bekapcsolása"
+  },
+  "enableFillAssistDescription": {
+    "message": "A kitöltési segédl a webhely specifikus szabályok használatával javítja az automatikus kitöltési pontosságot a támogatott webhelyeken. A funkció használatakor nincs adat gyűjtés vagy mentés."
+  },
+  "aboutFillAssist": {
+    "message": "A kitöltési segédről"
+  },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
   },
@@ -1697,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
   },
-  "useADifferentLogInMethod": {
-    "message": "Más bejelentkezési mód használata"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Várakozás a biztonsági kulcs interakciójára..."
@@ -1793,6 +1810,9 @@
   },
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
+  },
+  "sendUrl": {
+    "message": "Send szerver webcím"
   },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
@@ -2871,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Tanácsokat, bejelentéseket, kutatási lehetőségeket kaphat a Bitwarden-től a postaládájába."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -3931,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Bejelentkezés mesterjelszóval"
-  },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
   },
@@ -4379,6 +4396,9 @@
   },
   "multipleInputEmails": {
     "message": "1 vagy több email cím érvénytelen."
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Az email címzett lista nem haladhatja meg a 2500 karaktert. Távolítsunk el egy vagy több címzettet a folytatáshoz."
   },
   "inputTrimValidator": {
     "message": "A bevitel nem tartalmazhat csak fehér szóköz karaktert.",
@@ -4978,6 +4998,22 @@
   "makeDefault": {
     "message": "Legyen alapértelmezett",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "A hitelesítések sikeresen mentésre kerültek.",
@@ -6501,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "sharedUnlock": {
+    "message": "Megosztott feloldás"
+  },
+  "sharedUnlockDescription": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot a gépen az összes alkalmazás megosztja. Az asztali alkalmazás szükséges a különböző böngészők közötti szinkronizáláshoz."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot megosztásra kerül a Bitwarden webes széfeivel a Safariban."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Tartsuk szinkronban a Bitwarden alkalmazásainkat. Engedélyezve a feloldási állapot megosztásra kerül a Bitwarden asztali alkalmazással."
+  },
   "enterMonth": {
     "message": "A hónap megadása."
   },
@@ -6644,14 +6692,36 @@
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "A Send elem szerkesztések mentése nem sikerült.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
   }
 }

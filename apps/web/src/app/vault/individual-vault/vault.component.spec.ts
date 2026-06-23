@@ -1,4 +1,5 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { SelectionModel } from "@angular/cdk/collections";
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
@@ -50,12 +51,20 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
 import {
+  ASSIGN_COLLECTIONS_DIALOG,
+  AssignCollectionsDialogRef,
+  AssignCollectionsResult,
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogResult,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  VaultBatchBarService,
   VaultFilter,
   VaultFilterServiceAbstraction,
+  VaultItem,
   VaultItemDialogComponent,
   VaultItemDialogResult,
   VaultItemEvent,
@@ -291,6 +300,34 @@ describe("VaultComponent", () => {
             {
               provide: VaultItemsTransferService,
               useValue: mock<VaultItemsTransferService>(),
+            },
+            {
+              provide: VaultBatchBarService,
+              useValue: {
+                completed$: EMPTY,
+                selection: new SelectionModel<VaultItem<any>>(true, [], true),
+                setConfig: jest.fn(),
+                bulkArchive: jest.fn(),
+                bulkUnarchive: jest.fn(),
+                bulkRestore: jest.fn(),
+                bulkDelete: jest.fn(),
+                bulkMoveToFolder: jest.fn(),
+                bulkAssignToCollections: jest.fn(),
+                enabled: signal(false),
+                barVisible: signal(false),
+              },
+            },
+            {
+              provide: ASSIGN_COLLECTIONS_DIALOG,
+              useValue: {
+                open: jest.fn().mockResolvedValue(AssignCollectionsResult.Canceled),
+              } satisfies AssignCollectionsDialogRef,
+            },
+            {
+              provide: BULK_DELETE_DIALOG,
+              useValue: {
+                open: jest.fn().mockResolvedValue(BulkDeleteDialogResult.Canceled),
+              } satisfies BulkDeleteDialogRef,
             },
           ],
         },

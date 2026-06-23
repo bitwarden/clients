@@ -1,24 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-export type RendererMenuItem = {
-  label?: string;
-  type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-  click?: () => any;
-};
-
-export function invokeMenu(menu: RendererMenuItem[]) {
-  const menuWithoutClick = menu.map((m) => {
-    return { label: m.label, type: m.type };
-  });
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  ipc.platform.openContextMenu(menuWithoutClick).then((i: number) => {
-    if (i !== -1) {
-      menu[i].click();
-    }
-  });
-}
-
 export function isDev() {
   return BIT_ENVIRONMENT === "development";
 }
@@ -67,6 +48,30 @@ export function isFlatpak() {
 
 export function isWindowsPortable() {
   return isWindows() && process.env.PORTABLE_EXECUTABLE_DIR != null;
+}
+
+/**
+ * Overrides the access token location
+ */
+export const EnvAccessTokenLocation = Object.freeze({
+  Disk: "DISK",
+  Default: "DEFAULT",
+} as const);
+export type EnvAccessTokenLocation =
+  (typeof EnvAccessTokenLocation)[keyof typeof EnvAccessTokenLocation];
+
+/**
+ * Reads the `ACCESS_TOKEN_LOCATION` env var. `DISK` forces the access token to be stored
+ * unencrypted on disk (bypassing the OS keyring); anything else (including unset) keeps the
+ * default keyring-backed secure storage.
+ *
+ * This is useful on systems where the keyring is unreliable (KDE/Kwallet) where the user
+ * otherwise experiences periodic logouts.
+ */
+export function accessTokenLocation(): EnvAccessTokenLocation {
+  return process.env.ACCESS_TOKEN_LOCATION?.toUpperCase() === EnvAccessTokenLocation.Disk
+    ? EnvAccessTokenLocation.Disk
+    : EnvAccessTokenLocation.Default;
 }
 
 /**

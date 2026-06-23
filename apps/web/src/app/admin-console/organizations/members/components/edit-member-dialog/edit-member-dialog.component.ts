@@ -126,8 +126,10 @@ export class EditMemberDialogComponent {
 
   protected readonly formGroup = this.formBuilder.group({
     type: this.formBuilder.nonNullable.control(OrganizationUserType.User),
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
-    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
+    // set to readonly in the template
+    externalId: this.formBuilder.control({ value: "", disabled: false }),
+    // set to readonly in the template
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
