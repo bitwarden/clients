@@ -42,8 +42,13 @@ export class ToggleGroupComponent<TValue = unknown> {
 
   readonly toggles = contentChildren(ToggleComponent);
 
-  readonly activeIndex = computed(() =>
-    this.toggles().findIndex((t) => t.value() === this.selected()),
+  readonly activeIndex = computed(() => {
+    const index = this.toggles().findIndex((t) => t.value() === this.selected());
+    return index < 0 ? 0 : index;
+  });
+
+  readonly hasActiveToggle = computed(() =>
+    this.toggles().some((t) => t.value() === this.selected()),
   );
 
   /**
@@ -80,6 +85,16 @@ export class ToggleGroupComponent<TValue = unknown> {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    afterRenderEffect(() => {
+      const toggles = this.toggles();
+      if (toggles.length === 0) {
+        return;
+      }
+      if (untracked(this.selected) === undefined) {
+        this.selected.set(toggles[0].value());
+      }
+    });
+
     const el = this.el.nativeElement;
     let naturalWidth = 0;
     let observerStarted = false;
@@ -188,6 +203,7 @@ export class ToggleGroupComponent<TValue = unknown> {
       "after:tw-duration-[225ms]",
       "after:tw-rounded-xl",
       "after:tw-bg-bg-brand-stronger",
+      this.hasActiveToggle() ? "after:tw-opacity-100" : "after:tw-opacity-0",
       ...(isFullWidth
         ? ["tw-grid", "tw-w-full", "[&>*]:tw-flex-1"]
         : this.inline()

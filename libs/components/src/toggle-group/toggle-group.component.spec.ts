@@ -51,6 +51,22 @@ describe("Button", () => {
       .map((e) => e.nativeElement);
   });
 
+  it("auto-selects the first toggle when selected is undefined", () => {
+    expect(testAppComponent.selected()).toBe("first");
+    expect(buttonElements[0].selected()).toBe(true);
+  });
+
+  it("hides the active-pill indicator and clamps --active-toggle to 0 when selected does not match any toggle", () => {
+    testAppComponent.selected.set("nope");
+    fixture.detectChanges();
+
+    const host = fixture.debugElement.query(By.css("bit-toggle-group"))
+      .nativeElement as HTMLElement;
+    expect(host.classList.contains("after:tw-opacity-0")).toBe(true);
+    expect(host.classList.contains("after:tw-opacity-100")).toBe(false);
+    expect(host.style.getPropertyValue("--active-toggle")).toBe("0");
+  });
+
   it("should select second element when setting selected to second", () => {
     testAppComponent.selected.set("second");
     fixture.detectChanges();

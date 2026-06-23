@@ -112,6 +112,23 @@ export const Inline: Story = {
   },
 };
 
+export const UnsetSelection: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <bit-toggle-group [(selected)]="selected" label="People list filter">
+        <bit-toggle value="all"> All </bit-toggle>
+        <bit-toggle value="invited"> Invited </bit-toggle>
+        <bit-toggle value="accepted"> Accepted </bit-toggle>
+        <bit-toggle value="deactivated"> Deactivated </bit-toggle>
+      </bit-toggle-group>
+    `,
+  }),
+  args: {
+    selected: undefined,
+  },
+};
+
 export const Overflow: Story = {
   render: (args) => ({
     props: args,
