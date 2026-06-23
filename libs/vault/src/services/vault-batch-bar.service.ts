@@ -18,6 +18,8 @@ import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/mode
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -93,6 +95,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly configService = inject(ConfigService);
   private readonly assignCollectionsDialog =
     inject<AssignCollectionsDialogRef>(ASSIGN_COLLECTIONS_DIALOG);
   private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG);
@@ -146,6 +149,17 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   });
 
   readonly selectedCount = computed(() => this.selected().length);
+
+  private readonly batchBarFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
+  /** True when the batch bar feature flag is enabled. */
+  readonly enabled = computed(() => this.batchBarFlag());
+
+  /** True when the batch bar is actively visible: feature flag on and at least one item selected. */
+  readonly barVisible = computed(() => this.batchBarFlag() && this.selectedCount() > 0);
 
   /** Selected items that are ciphers. */
   readonly selectedCiphers = computed(() =>

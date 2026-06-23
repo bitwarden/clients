@@ -268,7 +268,9 @@ export class SettingsDialogComponent implements OnInit {
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         this.currentUserId(),
       )),
-      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(this.currentUserId()),
+      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
@@ -436,7 +438,7 @@ export class SettingsDialogComponent implements OnInit {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
       await this.keyService.refreshAdditionalKeys(activeUserId);
       return;
     }
@@ -457,11 +459,11 @@ export class SettingsDialogComponent implements OnInit {
       return;
     }
 
-    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword() && !this.userHasPinSet()) {
@@ -473,7 +475,7 @@ export class SettingsDialogComponent implements OnInit {
     } else if (this.isLinux) {
       // Similar to Windows
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -483,7 +485,7 @@ export class SettingsDialogComponent implements OnInit {
       BiometricsStatus.Available;
     this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
     if (!biometricSet) {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
     }
   }
 
@@ -519,10 +521,11 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async updateAutoPromptBiometrics() {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (this.form.value.autoPromptBiometrics) {
-      await this.biometricStateService.setPromptAutomatically(true);
+      await this.biometricStateService.setPromptAutomatically(true, activeUserId);
     } else {
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
   }
 

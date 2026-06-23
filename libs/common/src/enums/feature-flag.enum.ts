@@ -15,7 +15,6 @@ export enum FeatureFlag {
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
@@ -23,7 +22,6 @@ export enum FeatureFlag {
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM30806_SelfServiceChangeEmailCommand = "pm-30806-self-service-change-email-command",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
-  UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
   PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
@@ -68,6 +66,7 @@ export enum FeatureFlag {
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
+  ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
@@ -137,7 +136,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
@@ -193,7 +191,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM30806_SelfServiceChangeEmailCommand]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
-  [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
   [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
@@ -217,6 +214,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
+  [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
