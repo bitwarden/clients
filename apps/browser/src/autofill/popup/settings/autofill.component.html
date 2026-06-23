@@ -7,25 +7,46 @@
 
   <div class="tw-bg-background-alt">
     @if (showSpotlightNudge$ | async) {
-      <div class="tw-mb-6">
-        <bit-callout
-          [title]="'autofillSpotlightTitle' | i18n"
-          [icon]="null"
-          (dismiss)="dismissSpotlight()"
-        >
-          {{ "autofillSpotlightDesc" | i18n }}
-          <button
-            slot="end"
-            bitButton
-            type="button"
-            buttonType="primary"
-            [endIcon]="browserClientIsUnknown ? 'bwi-external-link' : undefined"
-            (click)="disableBrowserAutofillSettingsFromNudge($event)"
+      @if (canOverrideBrowserAutofillSetting) {
+        <div class="tw-mb-4">
+          <bit-callout
+            [title]="'defaultPasswordManagerCalloutTitle' | i18n"
+            [icon]="null"
+            (dismiss)="dismissSpotlight()"
           >
-            {{ spotlightButtonText }}
-          </button>
-        </bit-callout>
-      </div>
+            {{ "defaultPasswordManagerCalloutDesc" | i18n: browserClientVendorExtended }}
+            <button
+              slot="end"
+              bitButton
+              type="button"
+              buttonType="primary"
+              (click)="disableBrowserAutofillSettingsFromNudge($event)"
+            >
+              {{ "continue" | i18n }}
+            </button>
+          </bit-callout>
+        </div>
+      } @else {
+        <div class="tw-mb-6">
+          <bit-callout
+            [title]="'autofillSpotlightTitle' | i18n"
+            [icon]="null"
+            (dismiss)="dismissSpotlight()"
+          >
+            {{ "autofillSpotlightDesc" | i18n }}
+            <button
+              slot="end"
+              bitButton
+              type="button"
+              buttonType="primary"
+              [endIcon]="browserClientIsUnknown ? 'bwi-external-link' : undefined"
+              (click)="disableBrowserAutofillSettingsFromNudge($event)"
+            >
+              {{ spotlightButtonText }}
+            </button>
+          </bit-callout>
+        </div>
+      }
     }
     @if (showClipboardNotificationThisSession) {
       <div class="tw-mb-4">
