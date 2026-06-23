@@ -1,6 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { distinctUntilChanged, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -156,40 +164,33 @@ export class DefaultEnvironmentService implements EnvironmentService {
       .getGlobal(GLOBAL_ENVIRONMENT_KEY)
       .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
-    // The current environment emitted by environment$ can come from two sources: the "global" environment,
-    // which represents the environment used by the application before a user authenticates, and the "user" environment,
-    // which represents the environment of an authenticated account using the application.
-    // We preference the user environment, only falling back to the global environment if a user is not logged in.
-    // However, there does exist the possibility that - due to timing of state updates - the active userId state may
-    // be cleared after the user environment state.
-    // To handle this, we fall back to the global state as a last resort, if the user state is not set.
-    const globalEnvState$ = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
+    // Strict source-of-truth invariants:
+    //   - While account$ has a userId, environment$ emits ONLY from USER_ENVIRONMENT_KEY.
+    //   - While account$ is null, environment$ emits ONLY from GLOBAL_ENVIRONMENT_KEY.
+    // The logged-in branch filters out null state so a transient clear (clearOn: ["logout"])
+    // cannot cause global state to be served while the user is still logged in. shareReplay
+    // holds the last good value across the transition window so late subscribers receive the
+    // correct environment immediately rather than a stale or default emission.
     this.environment$ = account$.pipe(
       switchMap((userId) => {
         if (!userId) {
-          return globalEnvState$;
+          return this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
         }
         return this.stateProvider
           .getUser(userId, USER_ENVIRONMENT_KEY)
-          .state$.pipe(
-            switchMap((userState) => (userState != null ? of(userState) : globalEnvState$)),
-          );
+          .state$.pipe(filter((state) => state != null));
       }),
-      map((state) => {
-        return this.buildEnvironment(state?.region, state?.urls);
-      }),
+      map((state) => this.buildEnvironment(state?.region, state?.urls)),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
-    const globalCloudRegionState$ = this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
     this.cloudWebVaultUrl$ = account$.pipe(
       switchMap((userId) => {
         if (!userId) {
-          return globalCloudRegionState$;
+          return this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
         }
         return this.stateProvider
           .getUser(userId, USER_CLOUD_REGION_KEY)
-          .state$.pipe(
-            switchMap((userState) => (userState != null ? of(userState) : globalCloudRegionState$)),
-          );
+          .state$.pipe(filter((region) => region != null));
       }),
       map((region) => {
         if (region != null) {
@@ -201,6 +202,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
         }
         return DEFAULT_REGION_CONFIG.urls.webVault;
       }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 

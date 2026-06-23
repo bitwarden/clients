@@ -136,47 +136,171 @@ describe("EnvironmentService", () => {
       },
     );
 
-    describe("logout race condition: USER_ENVIRONMENT_KEY cleared before activeAccountId$ switches to null", () => {
-      // The race: background clears USER_ENVIRONMENT_KEY ("logout" state event) before
-      // the popup's activeAccountId$ receives the null emission from accountService.clean().
-      // If the USER_ENVIRONMENT_KEY clear propagates first, environment$ watches USER state while
-      // setEnvironment() writes only to GLOBAL, causing the selector to fall back to the default (US) immediately.
+    describe("strict source-of-truth invariants", () => {
+      // Invariant 1: while a user is logged in (activeAccount$ has an id), environment$ MUST
+      // emit only from USER_ENVIRONMENT_KEY for that user. Global state must never be served.
+      //
+      // Invariant 2: while no user is logged in (activeAccount$ is null), environment$ MUST
+      // emit only from GLOBAL_ENVIRONMENT_KEY. A previously-active user's environment must
+      // never leak across the logout boundary.
 
-      it("falls back to global when user environment state is cleared mid-logout", async () => {
-        setGlobalData(Region.EU, new EnvironmentUrls());
-        setUserData(Region.EU, new EnvironmentUrls());
-        await switchUser(testUser);
-
-        // Storage event arrives: USER_ENVIRONMENT_KEY = null (logout cleared it)
-        // but activeAccountId$ still emits testUser (account not yet cleaned up)
-        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
-        await awaitAsync();
-
-        const env = await firstValueFrom(sut.environment$);
-        // Without fix: null USER state → buildEnvironment(null, null) → US (default)
-        // With fix: falls back to GLOBAL → EU
-        expect(env.getRegion()).toBe(Region.EU);
-      });
-
-      it("reflects setEnvironment call when user environment state is null mid-logout", async () => {
-        // GLOBAL is US (never explicitly set to EU on this context)
-        // USER was EU (seeded at login time)
+      it("does not serve global environment while a user is logged in", async () => {
+        // user state = EU, global state = US. While logged in, must serve EU regardless of global.
         setGlobalData(Region.US, new EnvironmentUrls());
         setUserData(Region.EU, new EnvironmentUrls());
         await switchUser(testUser);
 
-        // Race: USER_ENVIRONMENT_KEY clear arrives before activeAccountId$ → null
-        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
-        await awaitAsync();
+        const env = await firstValueFrom(sut.environment$);
+        expect(env.getRegion()).toBe(Region.EU);
+      });
 
-        // User clicks EU in the environment selector → setEnvironment(EU) → writes GLOBAL
-        // Without fix: environment$ watches USER state (which is null and defaults to US) and ignores GLOBAL write and the value stays US
-        // With fix: environment$ falls back to GLOBAL, so setEnvironment(EU) updates GLOBAL and emits EU
-        await sut.setEnvironment(Region.EU);
+      it("ignores changes to global state while a user is logged in", async () => {
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        // While logged in, mutate global to SelfHosted. environment$ must NOT emit SelfHosted.
+        const selfHostedUrls = new EnvironmentUrls();
+        selfHostedUrls.base = "https://self-hosted.example.com";
+        setGlobalData(Region.SelfHosted, selfHostedUrls);
         await awaitAsync();
 
         const env = await firstValueFrom(sut.environment$);
         expect(env.getRegion()).toBe(Region.EU);
+      });
+
+      it("holds the last user environment when user state is cleared mid-logout", async () => {
+        // Distinguishes the new behavior from the old "fall back to global" behavior:
+        // setting global to US and user to EU, then clearing user state — old code would
+        // emit US (global fallback); new code holds EU (last buffered user value).
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        const before = await firstValueFrom(sut.environment$);
+        expect(before.getRegion()).toBe(Region.EU);
+
+        // USER_ENVIRONMENT_KEY is asynchronously cleared by the logout event handler,
+        // but activeAccount$ has not yet transitioned to null.
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        // Strict invariant: still logged in, so global must not be served. Last user value
+        // (EU) is held by shareReplay; the null state is filtered out before mapping.
+        const after = await firstValueFrom(sut.environment$);
+        expect(after.getRegion()).toBe(Region.EU);
+      });
+
+      it("does not leak a prior user's environment after logout", async () => {
+        // User logged in with EU, global is US. After logout, environment$ must emit US.
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        const loggedIn = await firstValueFrom(sut.environment$);
+        expect(loggedIn.getRegion()).toBe(Region.EU);
+
+        // Logout: activeAccount$ → null. (clearOn handles user state on its own track.)
+        accountService.activeAccountSubject.next(null);
+        await awaitAsync();
+
+        const loggedOut = await firstValueFrom(sut.environment$);
+        expect(loggedOut.getRegion()).toBe(Region.US);
+      });
+
+      it("does not leak a prior user's environment after logout even if user state survives", async () => {
+        // Defense in depth: even if USER_ENVIRONMENT_KEY were NOT cleared by clearOn (e.g.,
+        // race where activeAccount$ → null arrives first), environment$ must still read
+        // from global once activeAccount$ is null.
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        accountService.activeAccountSubject.next(null);
+        // Intentionally do NOT clear USER_ENVIRONMENT_KEY here.
+        await awaitAsync();
+
+        const env = await firstValueFrom(sut.environment$);
+        expect(env.getRegion()).toBe(Region.US);
+      });
+
+      it("serves the buffered user environment to a late subscriber mid-logout", async () => {
+        // Reproduces the PM-39218 self-hosted dialog pattern: take(1) + filter for SelfHosted.
+        // The dialog subscribes after a logout-clear has fired but before activeAccount$ → null.
+        // Without shareReplay, take(1) could capture a null/default emission; with shareReplay,
+        // the late subscriber receives the last buffered user value immediately.
+        const userUrls = new EnvironmentUrls();
+        userUrls.base = "https://self-hosted.example.com";
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.SelfHosted, userUrls);
+        await switchUser(testUser);
+
+        // Prime shareReplay by ensuring environment$ has emitted at least once.
+        const primed = await firstValueFrom(sut.environment$);
+        expect(primed.getRegion()).toBe(Region.SelfHosted);
+
+        // Logout-clear arrives but activeAccount$ has not yet transitioned.
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        // Late subscriber simulating the self-hosted dialog ngOnInit pattern.
+        const env = await firstValueFrom(sut.environment$);
+        expect(env.getRegion()).toBe(Region.SelfHosted);
+      });
+
+      it("switches cleanly between users without emitting global in between", async () => {
+        // User A: EU, User B: US, Global: SelfHosted. Switching A → B must never expose
+        // the global SelfHosted value to a downstream subscriber.
+        const globalUrls = new EnvironmentUrls();
+        globalUrls.base = "https://self-hosted.example.com";
+        setGlobalData(Region.SelfHosted, globalUrls);
+        setUserData(Region.EU, new EnvironmentUrls(), testUser);
+        setUserData(Region.US, new EnvironmentUrls(), alternateTestUser);
+
+        await switchUser(testUser);
+        const a = await firstValueFrom(sut.environment$);
+        expect(a.getRegion()).toBe(Region.EU);
+
+        await switchUser(alternateTestUser);
+        const b = await firstValueFrom(sut.environment$);
+        expect(b.getRegion()).toBe(Region.US);
+      });
+
+      it("ignores user state changes after logout", async () => {
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        accountService.activeAccountSubject.next(null);
+        await awaitAsync();
+
+        const loggedOut = await firstValueFrom(sut.environment$);
+        expect(loggedOut.getRegion()).toBe(Region.US);
+
+        // Some background process resurrects user state. environment$ must not pick it up.
+        setUserData(Region.EU, new EnvironmentUrls());
+        await awaitAsync();
+
+        const stillLoggedOut = await firstValueFrom(sut.environment$);
+        expect(stillLoggedOut.getRegion()).toBe(Region.US);
+      });
+
+      it("emits the new user environment on login, not the prior global", async () => {
+        // Pre-auth global is US. User has SelfHosted in their user state.
+        // On login, environment$ must transition from global US to user SelfHosted —
+        // it must not stay on global.
+        const userUrls = new EnvironmentUrls();
+        userUrls.base = "https://self-hosted.example.com";
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.SelfHosted, userUrls);
+
+        const preLogin = await firstValueFrom(sut.environment$);
+        expect(preLogin.getRegion()).toBe(Region.US);
+
+        await switchUser(testUser);
+
+        const postLogin = await firstValueFrom(sut.environment$);
+        expect(postLogin.getRegion()).toBe(Region.SelfHosted);
       });
     });
 
