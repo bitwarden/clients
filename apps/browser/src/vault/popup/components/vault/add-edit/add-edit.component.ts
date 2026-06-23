@@ -12,6 +12,8 @@ import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/p
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -26,11 +28,11 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 import {
   AsyncActionsModule,
   ButtonModule,
+  ChipActionComponent,
   SearchModule,
   IconButtonModule,
   DialogService,
   ToastService,
-  BadgeModule,
 } from "@bitwarden/components";
 import {
   CipherFormComponent,
@@ -56,6 +58,7 @@ import { PopupCloseWarningService } from "../../../../../popup/services/popup-cl
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   fido2PopoutSessionData$,
   Fido2SessionData,
@@ -91,6 +94,7 @@ class QueryParams {
     this.name = params.name;
     this.prefillNameAndURIFromTab = params.prefillNameAndURIFromTab;
     this.routeAfterDeletion = params.routeAfterDeletion ?? ROUTES_AFTER_EDIT_DELETION.tabsVault;
+    this.fillAfterSave = params.fillAfterSave === "true";
   }
 
   /**
@@ -149,6 +153,12 @@ class QueryParams {
    * @default "/tabs/vault"
    */
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
+
+  /**
+   * When true, the cipher should be autofilled into the originating tab after saving.
+   * Set when the add-edit form is opened from the inline menu context.
+   */
+  fillAfterSave?: boolean;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -176,17 +186,20 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     CipherFormModule,
     AsyncActionsModule,
+    ChipActionComponent,
     PopOutComponent,
     IconButtonModule,
-    BadgeModule,
   ],
 })
 export class AddEditComponent implements OnInit, OnDestroy {
   readonly cipherFormComponent = viewChild(CipherFormComponent);
+
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
   routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
+  protected saveAndFillEnabled = false;
+  private fillOnSuccessfulSave = false;
 
   get loading() {
     return this.config == null;
@@ -232,6 +245,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private archiveService: CipherArchiveService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private configService: ConfigService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
   ) {
     this.subscribeToParams();
   }
@@ -337,7 +352,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     if (this.inSingleActionPopout) {
-      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      if (this.fillOnSuccessfulSave) {
+        await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
+      }
+      if (this.saveAndFillEnabled) {
+        await this.showLoginSavedNotification(cipher);
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
+      } else {
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      }
       return;
     }
 
@@ -358,6 +381,28 @@ export class AddEditComponent implements OnInit, OnDestroy {
     await BrowserApi.sendMessage("addEditCipherSubmitted");
   }
 
+  private async showLoginSavedNotification(cipher: CipherView): Promise<void> {
+    const senderTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
+    if (!senderTab) {
+      return;
+    }
+
+    await BrowserApi.sendMessage("showLoginSavedNotification", {
+      cipherId: cipher.id,
+      itemName: cipher.name,
+      senderTabId: senderTab.id,
+    });
+  }
+
+  submitAndFill = async () => {
+    this.fillOnSuccessfulSave = true;
+    try {
+      await this.cipherFormComponent()?.submit();
+    } finally {
+      this.fillOnSuccessfulSave = false;
+    }
+  };
+
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
@@ -369,6 +414,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
             mode = "add";
           } else {
             mode = params.clone ? "clone" : "edit";
+          }
+
+          if (params.fillAfterSave) {
+            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
+              FeatureFlag.PM29968_FillAfterSave,
+            );
           }
           const config = await this.addEditFormConfigService.buildConfig(
             mode,

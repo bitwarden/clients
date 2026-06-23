@@ -55,7 +55,6 @@ import { SendOptionsComponent } from "../options/send-options.component";
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
-
 /** The types of authorization that Sends are able to use */
 const sendAuthTypes = Object.freeze([
   { nameKey: "noAuth", value: AuthType.None },
@@ -256,7 +255,11 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+          emailsControl.setValidators([
+            Validators.required,
+            this.emailsMaxLengthValidator(),
+            this.emailListValidator(),
+          ]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
@@ -279,6 +282,17 @@ export class SendDetailsComponent implements OnInit {
         emailsControl.updateValueAndValidity();
       });
 
+    const emailsControl = this.sendDetailsForm.get("emails");
+    emailsControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      if (typeof value === "string" && value.length >= 2500) {
+        // bitInput's input handler marks the control untouched on every keystroke
+        // (input.directive.ts), which hides bit-error. Defer to the next macrotask
+        // so markAsTouched lands after that, surfacing the cap-reached error while
+        // the user is still in the field.
+        setTimeout(() => emailsControl.markAsTouched(), 0);
+      }
+    });
+
     effect(() => {
       if (!this.editing()) {
         if (this.sendFormService.originalSendView()) {
@@ -286,6 +300,8 @@ export class SendDetailsComponent implements OnInit {
         }
       }
     });
+
+    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
   }
 
   async ngOnInit() {
@@ -369,6 +385,19 @@ export class SendDetailsComponent implements OnInit {
       }
 
       return null;
+    };
+  }
+
+  emailsMaxLengthValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      if (typeof control.value !== "string" || control.value.length < 2500) {
+        return null;
+      }
+      return {
+        emailsMaxLength: {
+          message: this.i18nService.t("sendEmailsCharacterLimitReached"),
+        },
+      };
     };
   }
 

@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Vaša organizácia vyžaduje jednotné prihlasovanie."
   },
-  "welcomeBack": {
-    "message": "Vitajte späť"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Prihlásiť sa"
   },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Kopírovať číslo pasu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovať rodné číslo"
+  },
   "copyFirstName": {
     "message": "Kopírovať krstné meno"
   },
@@ -211,8 +214,13 @@
     "message": "Vyplniť",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatické vypĺňanie"
+  "autofillNoun": {
+    "message": "Automatické vypĺňanie",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automaticky vyplniť",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automatické vyplnenie prihlasovacích údajov"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "getMasterPasswordHint": {
-    "message": "Získať nápoveď k hlavnému heslu"
+  "hint": {
+    "message": "Nápoveď"
   },
   "continue": {
     "message": "Pokračovať"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Uložiť"
+  },
+  "saveAndFill": {
+    "message": "Uložiť a vyplniť"
   },
   "move": {
     "message": "Presunúť"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "Prihlásiť sa"
   },
-  "logInToBitwarden": {
-    "message": "Prihlásenie do Bitwardenu"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Prihlásiť sa"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Zadajte kód zaslaný na váš e-mail"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Pomáhať pri vypĺňaní"
   },
+  "turnOnFillAssist": {
+    "message": "Zapnúť pomoc pri vypĺňaní"
+  },
+  "enableFillAssistDescription": {
+    "message": "Pomoc pri vypĺňaní zvyšuje presnosť automatického vypĺňania na podporovaných stránkach pomocou pravidiel špecifických pre danú stránku. Pri používaní tejto funkcie sa nezhromažďujú ani neukladajú žiadne údaje."
+  },
+  "aboutFillAssist": {
+    "message": "Info o pomoci pri vypĺňaní"
+  },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
   },
@@ -1694,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Overenie prístupovým kľúčom zlyhalo"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL servera ikon"
   },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
+  },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
   },
@@ -1824,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Táto stránka nezodpovedá vašim uloženým prihlasovacím údajom. Pred vyplnením prihlasovacích údajov sa uistite, že ide o dôveryhodnú stránku."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Prihlásenie sa nezhoduje"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Táto stránka nezodpovedá vašim uloženým prihlasovacím údajom. Pred automatickým vyplnením sa uistite, že ste na dôveryhodnej stránke."
+  },
+  "uriMatchRule": {
+    "message": "Pravidlo mapovania URI"
+  },
+  "neverMatch": {
+    "message": "Nikdy na nezhoduje"
   },
   "loginHasNoSiteSaved": {
     "message": "Prihlásenie nemá uloženú žiadnu stránku"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "Značka"
   },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
   "expirationMonth": {
     "message": "Mesiac exspirácie"
   },
   "expirationYear": {
     "message": "Rok exspirácie"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
   },
   "monthly": {
     "message": "mesačne"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "Číslo pasu"
   },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "sex": {
+    "message": "Pohlavie"
+  },
+  "copySex": {
+    "message": "Kopírovať pohlavie"
+  },
+  "birthPlace": {
+    "message": "Miesto narodenia"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovať miesto narodenia"
+  },
+  "nationality": {
+    "message": "Národnosť"
+  },
+  "copyNationality": {
+    "message": "Kopírovať národnosť"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovať vydávajúcu krajinu"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovať typ pasu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovať  vydávajúci orgán/úrad"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
   "licenseNumber": {
     "message": "Licenčné číslo"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Bankový účet"
   },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
+  },
   "typeNote": {
     "message": "Poznámka"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Podrobnosti o pase"
+  },
+  "passportAdded": {
+    "message": "Pas bol pridaný"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovný doklad"
+  },
   "typeDriversLicense": {
     "message": "Vodičský preukaz"
   },
@@ -2199,41 +2315,8 @@
   "driversLicenseDetails": {
     "message": "Podrobnosti o vodičskom preukaze"
   },
-  "dateOfBirth": {
-    "message": "Dátum narodenia"
-  },
-  "birthMonth": {
-    "message": "Mesiac narodenia"
-  },
-  "birthDay": {
-    "message": "Deň narodenia"
-  },
-  "birthYear": {
-    "message": "Rok narodenia"
-  },
-  "issuingCountry": {
-    "message": "Vydávajúca krajina"
-  },
   "issuingState": {
     "message": "Vydávajúci štát/provincia"
-  },
-  "issuingAuthority": {
-    "message": "Vydávajúci orgán"
-  },
-  "issueDate": {
-    "message": "Dátum vydania"
-  },
-  "issueMonth": {
-    "message": "Mesiac vydania"
-  },
-  "issueDay": {
-    "message": "Deň vydania"
-  },
-  "issueYear": {
-    "message": "Rok vydania"
-  },
-  "expirationDay": {
-    "message": "Deň exspirácie"
   },
   "licenseClass": {
     "message": "Skupina vodičského preukazu"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "Vyčistiť",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Vybrané"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné operácie"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Vybrané položky: $COUNT$. Panel hromadných operácií je teraz k dispozícii v spodnej časti obrazovky. Stlačte $SHORTCUTBINDING$, aby ste presunuli fokus na panel hromadných operácií.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výber bol zrušený"
+  },
+  "additionalActions": {
+    "message": "Ďalšie akcie"
   },
   "checkPassword": {
     "message": "Overiť či došlo k úniku hesla."
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové heslo nespĺňa pravidlá."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Dostávať aktualizácie od Bitwardenu do e-mailovej schránky."
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometria nebola dokončená. Zvážte použitie hlavného hesla, alebo sa odhláste. Ak tento problém pretrváva, kontaktujte podporu Bitwarden."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Povolenie nebolo udelené"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez oprávnenia komunikovať s aplikáciou Bitwarden Desktop nemôžeme poskytnúť biometriu v rozšírení prehliadača. Skúste to znova."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Chyba žiadosti o povolenie"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Túto akciu nie je možné vykonať na bočnom paneli. Skúste to znova vo vyskakovacom alebo samostatnom okne."
   },
   "personalOwnershipSubmitError": {
     "message": "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok."
@@ -3289,7 +3385,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Skopírujte a zdieľajte tento odkaz na Send. Send bude dostupný každému, kto má odkaz, počas nasledujúcich $TIME$.",
+    "message": "Skopírujte a zdieľajte tento odkaz na Send. Send bude dostupný každému, kto má odkaz, počas nasledujúceho obdobia: $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Prihlásenie pomocou hlavného hesla"
-  },
   "newAroundHere": {
     "message": "Ste tu nový?"
   },
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodné nastavenie.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Automatické vypĺňanie nie je možné"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Predvolená zhoda je nastavená na \"Presná zhoda\". Aktuálna webová stránka sa presne nezhoduje s uloženými prihlasovacími údajmi pre túto položku."
   },
   "okay": {
     "message": "OK"
@@ -4909,6 +4999,22 @@
     "message": "Nastaviť ako predvolený",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Nastaviť Bitwarden ako predvolený správca hesiel v prehliadači"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "z výzvy prehliadača, v ktorej sa žiada o udelenie povolenia pre Bitwarden na zmenu vašich nastavení."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Vypneme integrovaného správcu hesiel v prehliadači, aby ste sa mohli bezpečne prihlásiť."
+  },
+  "allow": {
+    "message": "Povoliť",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Preskočiť"
+  },
   "saveCipherAttemptSuccess": {
     "message": "Prihlasovacie údaje boli úspešne uložené!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Hodnota nie je zadaná",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Nie je čo kopírovať"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "Ďalej"
   },
+  "breadcrumbs": {
+    "message": "Omrvinková navigácia",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "sharedUnlock": {
+    "message": "Zdieľané odomknutie"
+  },
+  "sharedUnlockDescription": {
+    "message": "Synchronizujte svoje aplikácie Bitwarden. Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať vo všetkých aplikáciách v tomto zariadení. Na synchronizáciu medzi rôznymi prehliadačmi je potrebná desktopová aplikácia."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Synchronizujte svoje aplikácie Bitwarden. Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s webovými trezormi Bitwarden v Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Synchronizujte svoje aplikácie Bitwarden. Ak je táto funkcia zapnutá, stav odomknutia sa bude zdieľať s desktopovou aplikáciou Bitwarden."
+  },
   "enterMonth": {
     "message": "Zadajte mesiac."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Vyhľadať bankový účet"
   },
+  "searchPassport": {
+    "message": "Vyhľadať pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovať číslo účtu"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "Kopírovať IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Kopírovať meno na účte"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovať číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovať SWIFT kód"
   },
   "bankAccountTypeChecking": {
     "message": "Bežný účet"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "Sťahovanie zlyhalo."
+  },
+  "more": {
+    "message": "Viac"
   },
   "maxAccessCount": {
     "message": "Maximálny počet prístupov",
@@ -6551,11 +6692,36 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
+  },
+  "domainNotAllowed": {
+    "message": "Zahrnúť iba nasledujúce domény: $DOMAINS$. Skontrolujte to a skúste to znova",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nie je v súlade s pravidlami Sendu vašej organizácie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvoriť kópiu"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   }
 }

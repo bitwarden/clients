@@ -116,6 +116,9 @@ export class SendAddEditComponent {
   private readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
 
+  protected readonly showCopyButton = signal(false);
+  protected readonly showTrashIconButton = signal(false);
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -219,6 +222,12 @@ export class SendAddEditComponent {
         this.config = config;
         this.editing.set(config.mode === "add");
         this.headerText = this.getHeaderText(config.mode, config.sendType);
+        this.showCopyButton.set(
+          this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+        );
+        this.showTrashIconButton.set(
+          this.showCopyButton() || (!config.originalSend?.disabled && config?.mode !== "add"),
+        );
       });
   }
 

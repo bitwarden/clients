@@ -145,6 +145,16 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
+  /**
+   * Whether to show the "Make a copy" button or not
+   */
+  protected readonly showCopyButton = signal(false);
+
+  /**
+   * Whether to show the trash icon button on the far right of the footer
+   */
+  protected readonly showTrashIconButton = signal(false);
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -156,8 +166,18 @@ export class SendAddEditDialogComponent {
     private sendPolicyService: SendPolicyService,
   ) {
     this.config = params.formConfig;
-    this.disableForm = params.disableForm ?? this.config.originalSend?.disabled ?? false;
+    this.init();
+  }
+
+  init() {
+    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
     this.editing.set(this.config.mode === "add");
+    this.showCopyButton.set(
+      this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+    );
+    this.showTrashIconButton.set(
+      this.showCopyButton() || (!this.config.originalSend?.disabled && this.config?.mode !== "add"),
+    );
   }
 
   /**
@@ -328,26 +348,25 @@ export class SendAddEditDialogComponent {
     }
     const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
     const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
-    await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig: {
-        areSendsAllowed: true,
-        mode: "add",
-        sendType: originalSendView.type,
-        originalSend: null,
-        presetSendFields: {
-          name: originalSendView.name,
-          text: originalSendView.text,
-          maxAccessCount: originalSendView.maxAccessCount,
-          hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
-          notes: originalSendView.notes,
-          authType:
-            whoCanAccess === WhoCanAccessType.SpecificPeople
-              ? AuthType.Email
-              : whoCanAccess === WhoCanAccessType.PasswordProtected
-                ? AuthType.Password
-                : AuthType.None,
-        },
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
       },
-    });
+    };
+    this.init();
   }
 }

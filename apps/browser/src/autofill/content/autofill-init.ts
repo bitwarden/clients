@@ -29,6 +29,8 @@ class AutofillInit implements AutofillInitInterface {
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
     fillForm: ({ message }) => this.fillForm(message),
+    applyTargetedFields: ({ message }) => this.applyTargetedFields(message),
+    clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
   };
 
   /**
@@ -164,6 +166,28 @@ class AutofillInit implements AutofillInitInterface {
         }),
       250,
     );
+  }
+
+  /**
+   * Applies targeted fields dispatched from the background for this frame.
+   * Called when the top-level frame has detected that a targeting rule crosses
+   * into this iframe and has routed the inner selectors here.
+   *
+   * @param message - The extension message containing iframe targeted fields.
+   */
+  private applyTargetedFields(message: AutofillExtensionMessage): Promise<void> {
+    return this.collectAutofillContentService.applyExternalTargetedFields(
+      message.iframeTargetedFields ?? [],
+    );
+  }
+
+  /**
+   * Drops cached targeting rules in this frame and re-collects page details so
+   * the background's `pageDetailsForTab` is repopulated with the new strategy.
+   */
+  private handleClearTargetingRulesCache(): void {
+    this.collectAutofillContentService.clearCachedTargetingRules();
+    void this.collectPageDetails({ command: "collectPageDetails", sender: "autofillInit" });
   }
 
   /**
