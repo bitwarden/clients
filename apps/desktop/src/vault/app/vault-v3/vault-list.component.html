@@ -12,7 +12,12 @@
     </bit-callout>
   </div>
 }
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout>
+<cdk-virtual-scroll-viewport
+  [itemSize]="RowHeight"
+  bitScrollLayout
+  class="tw-transition-[padding-bottom] tw-duration-300 tw-ease-in-out"
+  [ngClass]="barVisible() ? 'tw-pb-[9rem]' : 'tw-pb-0'"
+>
   <div class="tw-mb-4 tw-px-6 tw-@container">
     <bit-table [dataSource]="dataSource" layout="fixed">
       <ng-container header>

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, Observable, of, switchMap } from "rxjs";
@@ -61,6 +61,7 @@ type EmptyStateItem = {
     TableModule,
     I18nPipe,
     AsyncPipe,
+    NgClass,
     MenuModule,
     ButtonModule,
     IconButtonModule,
@@ -109,6 +110,10 @@ export class VaultListComponent<C extends CipherViewLike> {
       this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
     ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
     { initialValue: false },
+  );
+
+  protected readonly barVisible = computed(
+    () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
   );
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
