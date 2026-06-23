@@ -17,6 +17,7 @@ import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, combineLatest, of, startWith } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -61,17 +62,15 @@ export type PolicyEditDialogResult = "saved";
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
-  protected readonly authService = inject(AuthService);
-  private readonly cdkDialogRef = inject(CdkDialogRef);
-  private readonly configService = inject(ConfigService);
+  private readonly discardGuardEnabled = signal(false);
 
+  protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
   protected readonly policyEnabled = signal(false);
   private readonly _saveDisabled = signal(true);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
-  protected readonly discardGuardEnabled = signal(false);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
@@ -80,21 +79,24 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
     protected readonly accountService: AccountService,
-    private readonly policyApiService: PolicyApiServiceAbstraction,
+    protected readonly policyApiService: PolicyApiServiceAbstraction,
     protected readonly i18nService: I18nService,
     private readonly cdr: ChangeDetectorRef,
     private readonly formBuilder: FormBuilder,
     protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
     protected readonly toastService: ToastService,
-    private readonly keyService: KeyService,
+    protected readonly keyService: KeyService,
     protected readonly dialogService: DialogService,
+    protected readonly cdkDialogRef: CdkDialogRef,
+    protected readonly configService: ConfigService,
+    private readonly authService: AuthService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 
-  protected isFormDirty(): boolean {
+  private isFormDirty(): boolean {
     const component = this.policyComponent();
     if (!component) {
       return false;
@@ -102,7 +104,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return component.enabled.dirty || (component.data?.dirty ?? false);
   }
 
-  protected readonly discardDialogOptions = {
+  private readonly discardDialogOptions = {
     title: { key: "discardEditsTitle" },
     content: { key: "discardEditsConfirmation" },
     type: "danger" as const,
@@ -181,7 +183,16 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   protected readonly cancel = async () => {
-    await this.dialogRef.close();
+    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
+      await this.dialogRef.close();
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+    if (confirmed) {
+      // Clear the predicate first so close() doesn't show a second dialog.
+      this.dialogRef.closePredicate = undefined;
+      await this.dialogRef.close();
+    }
   };
 
   async ngAfterViewInit() {
@@ -223,8 +234,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       )
       .subscribe((disabled) => this._saveDisabled.set(disabled));
 
-    await this.setupDiscardGuard();
     this.cdr.detectChanges();
+    await this.setupDiscardGuard();
   }
 
   private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {

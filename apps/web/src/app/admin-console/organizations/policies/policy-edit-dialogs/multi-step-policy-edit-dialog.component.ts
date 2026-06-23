@@ -1,3 +1,4 @@
+import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -11,13 +12,14 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { filter, map, of, startWith, switchMap } from "rxjs";
+import { map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -103,6 +105,9 @@ export class MultiStepPolicyEditDialogComponent
     toastService: ToastService,
     keyService: KeyService,
     dialogService: DialogService,
+    cdkDialogRef: CdkDialogRef,
+    configService: ConfigService,
+    authService: AuthService,
   ) {
     super(
       data,
@@ -115,60 +120,11 @@ export class MultiStepPolicyEditDialogComponent
       toastService,
       keyService,
       dialogService,
+      cdkDialogRef,
+      configService,
+      authService,
     );
   }
-
-  protected override readonly discardDialogOptions = {
-    title: { key: "discardEditsTitle" },
-    content: { key: "discardEditsConfirmation" },
-    type: "danger" as const,
-    hideIcon: true,
-    acceptButtonText: { key: "discardEdits" },
-    cancelButtonText: { key: "backToEditing" },
-  };
-
-  protected override async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled.set(true);
-    this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
-      if (result || !this.isFormDirty()) {
-        return true;
-      }
-      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-      if (confirmed) {
-        this.discardGuardEnabled.set(false);
-      }
-      return confirmed;
-    };
-
-    this.accountService.activeAccount$
-      .pipe(
-        switchMap((account) => {
-          if (account?.id == null) {
-            return of(null);
-          }
-          return this.authService
-            .authStatusFor$(account.id)
-            .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.discardGuardEnabled.set(false);
-        this.dialogRef.closePredicate = undefined;
-      });
-  }
-
-  protected override readonly cancel = async () => {
-    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
-      await this.dialogRef.close();
-      return;
-    }
-    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-    if (confirmed) {
-      this.dialogRef.closePredicate = undefined;
-      await this.dialogRef.close();
-    }
-  };
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
@@ -193,9 +149,7 @@ export class MultiStepPolicyEditDialogComponent
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
 
-    if (this.dialogRef.isDrawer) {
-      await this.setupDiscardGuard();
-    }
+    await this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -246,7 +200,7 @@ export class MultiStepPolicyEditDialogComponent
     );
   };
 
-  static readonly openDrawer = (
+  static override readonly openDrawer = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
