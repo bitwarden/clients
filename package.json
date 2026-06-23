@@ -50,7 +50,7 @@
     "@angular-eslint/schematics": "21.3.1",
     "@angular/cli": "21.2.9",
     "@angular/compiler-cli": "21.2.11",
-    "@babel/core": "7.29.0",
+    "@babel/core": "7.29.6",
     "@babel/preset-env": "7.29.2",
     "@compodoc/compodoc": "1.2.1",
     "@electron/notarize": "3.0.1",
