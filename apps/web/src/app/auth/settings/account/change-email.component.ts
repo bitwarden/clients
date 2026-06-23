@@ -1,6 +1,7 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, Signal, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, from } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -17,19 +18,20 @@ import { ToastService } from "@bitwarden/components";
 
 import { SharedModule } from "../../../shared";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-change-email",
   templateUrl: "change-email.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {
-  tokenSent = false;
-  showTwoFactorEmailWarning = false;
-  userId: UserId | undefined;
+  protected readonly tokenSent = signal(false);
+  protected readonly showTwoFactorEmailWarning = signal(false);
+  protected readonly userId = signal<UserId | undefined>(undefined);
 
-  formGroup = this.formBuilder.group({
+  protected readonly selfServiceChangeEmailEnabled: Signal<boolean>;
+
+  readonly formGroup = this.formBuilder.group({
     step1: this.formBuilder.group({
       masterPassword: ["", [Validators.required]],
       newEmail: ["", [Validators.required, Validators.email]],
@@ -38,34 +40,40 @@ export class ChangeEmailComponent implements OnInit {
   });
 
   constructor(
-    private accountService: AccountService,
-    private twoFactorService: TwoFactorService,
-    private i18nService: I18nService,
-    private messagingService: MessagingService,
-    private formBuilder: FormBuilder,
-    private toastService: ToastService,
-    private changeEmailService: ChangeEmailService,
-    private configService: ConfigService,
-  ) {}
-
-  async ngOnInit() {
-    this.userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    const twoFactorProviders = await this.twoFactorService.getEnabledTwoFactorProviders();
-    this.showTwoFactorEmailWarning = twoFactorProviders.data.some(
-      (p) => p.type === TwoFactorProviderType.Email && p.enabled,
+    private readonly accountService: AccountService,
+    private readonly twoFactorService: TwoFactorService,
+    private readonly i18nService: I18nService,
+    private readonly messagingService: MessagingService,
+    private readonly formBuilder: FormBuilder,
+    private readonly toastService: ToastService,
+    private readonly changeEmailService: ChangeEmailService,
+    private readonly configService: ConfigService,
+  ) {
+    this.selfServiceChangeEmailEnabled = toSignal(
+      from(this.configService.getFeatureFlag(FeatureFlag.PM30806_SelfServiceChangeEmailCommand)),
+      { initialValue: false },
     );
   }
 
-  submit = async () => {
-    if (this.userId == null) {
+  async ngOnInit() {
+    this.userId.set(await firstValueFrom(getUserId(this.accountService.activeAccount$)));
+
+    const twoFactorProviders = await this.twoFactorService.getEnabledTwoFactorProviders();
+    this.showTwoFactorEmailWarning.set(
+      twoFactorProviders.data.some((p) => p.type === TwoFactorProviderType.Email && p.enabled),
+    );
+  }
+
+  readonly submit = async () => {
+    const userId = this.userId();
+    if (userId == null) {
       throw new Error("Can't find user");
     }
 
     // This form has multiple steps, so we need to mark all the groups as touched.
     this.formGroup.controls.step1.markAllAsTouched();
 
-    if (this.tokenSent) {
+    if (this.tokenSent()) {
       this.formGroup.controls.token.markAllAsTouched();
     }
 
@@ -82,8 +90,8 @@ export class ChangeEmailComponent implements OnInit {
     assertNonNullish(newEmail, "email", ctx);
     assertNonNullish(masterPassword, "password", ctx);
 
-    if (!this.tokenSent) {
-      await this.changeEmailService.requestEmailToken(masterPassword, newEmail, this.userId);
+    if (!this.tokenSent()) {
+      await this.changeEmailService.requestEmailToken(masterPassword, newEmail, userId);
       this.activateStep2();
     } else {
       const token = this.formGroup.value.token;
@@ -91,17 +99,16 @@ export class ChangeEmailComponent implements OnInit {
         throw new Error("Missing token");
       }
 
-      await this.changeEmailService.confirmEmailChange(
-        masterPassword,
-        newEmail,
-        token,
-        this.userId,
-      );
+      await this.changeEmailService.confirmEmailChange(masterPassword, newEmail, token, userId);
       this.reset();
-      const selfServiceChangeEmailEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM30806_SelfServiceChangeEmailCommand,
-      );
-      if (!selfServiceChangeEmailEnabled) {
+      if (this.selfServiceChangeEmailEnabled()) {
+        await this.accountService.setAccountEmail(userId, newEmail);
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("emailChanged"),
+          message: "",
+        });
+      } else {
         this.toastService.showToast({
           variant: "success",
           title: this.i18nService.t("emailChanged"),
@@ -117,7 +124,7 @@ export class ChangeEmailComponent implements OnInit {
     this.formGroup.controls.step1.disable();
     this.formGroup.controls.token.enable();
 
-    this.tokenSent = true;
+    this.tokenSent.set(true);
   }
 
   // Reset form and re-enable step1
@@ -126,6 +133,6 @@ export class ChangeEmailComponent implements OnInit {
     this.formGroup.controls.step1.enable();
     this.formGroup.controls.token.disable();
 
-    this.tokenSent = false;
+    this.tokenSent.set(false);
   }
 }

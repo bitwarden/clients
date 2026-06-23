@@ -25,11 +25,14 @@ describe("ChangeEmailComponent", () => {
   let changeEmailService: MockProxy<ChangeEmailService>;
   let twoFactorService: MockProxy<TwoFactorService>;
   let accountService: FakeAccountService;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     changeEmailService = mock<ChangeEmailService>();
     twoFactorService = mock<TwoFactorService>();
     accountService = mockAccountServiceWith("UserId" as UserId);
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, SharedModule, ChangeEmailComponent],
@@ -41,7 +44,7 @@ describe("ChangeEmailComponent", () => {
         { provide: FormBuilder, useClass: FormBuilder },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: ChangeEmailService, useValue: changeEmailService },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -63,7 +66,7 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes userId", async () => {
       await component.ngOnInit();
-      expect(component.userId).toBe("UserId");
+      expect(component["userId"]()).toBe("UserId");
     });
 
     it("errors if there is no active user", async () => {
@@ -76,13 +79,13 @@ describe("ChangeEmailComponent", () => {
 
     it("initializes showTwoFactorEmailWarning", async () => {
       await component.ngOnInit();
-      expect(component.showTwoFactorEmailWarning).toBe(true);
+      expect(component["showTwoFactorEmailWarning"]()).toBe(true);
     });
   });
 
   describe("submit", () => {
     beforeEach(() => {
-      component.userId = "UserId" as UserId;
+      component["userId"].set("UserId" as UserId);
       component.formGroup.controls.step1.setValue({
         masterPassword: "password",
         newEmail: "test@example.com",
@@ -90,7 +93,7 @@ describe("ChangeEmailComponent", () => {
     });
 
     it("throws if userId is null on submit", async () => {
-      component.userId = undefined;
+      component["userId"].set(undefined);
 
       await expect(component.submit()).rejects.toThrow("Can't find user");
     });
@@ -116,7 +119,7 @@ describe("ChangeEmailComponent", () => {
           "UserId" as UserId,
         );
         // should activate step 2
-        expect(component.tokenSent).toBe(true);
+        expect(component["tokenSent"]()).toBe(true);
         expect(component.formGroup.controls.step1.disabled).toBe(true);
         expect(component.formGroup.controls.token.enabled).toBe(true);
       });
@@ -124,7 +127,7 @@ describe("ChangeEmailComponent", () => {
 
     describe("step 2", () => {
       beforeEach(() => {
-        component.tokenSent = true;
+        component["tokenSent"].set(true);
         component.formGroup.controls.step1.disable();
         component.formGroup.controls.token.enable();
         component.formGroup.controls.token.setValue("token");
