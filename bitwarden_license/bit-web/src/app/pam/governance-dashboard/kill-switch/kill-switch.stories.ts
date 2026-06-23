@@ -2,7 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
+import { BulkRevokeResult, GovernanceService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,7 +12,7 @@ import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests"
 import { KillSwitchDialogResult } from "./kill-switch-dialog.component";
 import { KillSwitchComponent } from "./kill-switch.component";
 
-class StubPamApiService {
+class StubGovernanceService {
   bulkRevokeLeases(_orgId: string): Promise<BulkRevokeResult> {
     return new Promise(() => undefined);
   }
@@ -45,7 +45,7 @@ export default {
     moduleMetadata({
       imports: [KillSwitchComponent],
       providers: [
-        { provide: PamApiService, useClass: StubPamApiService },
+        { provide: GovernanceService, useClass: StubGovernanceService },
         { provide: ConfigService, useClass: StubConfigService },
         { provide: I18nService, useClass: StubI18nService },
         { provide: LogService, useClass: StubLogService },
@@ -74,7 +74,7 @@ export const Success: Story = {
     moduleMetadata({
       providers: [
         {
-          provide: PamApiService,
+          provide: GovernanceService,
           useValue: {
             bulkRevokeLeases: async (): Promise<BulkRevokeResult> => ({
               kind: "ok",
@@ -99,7 +99,7 @@ export const PartialFailure: Story = {
     moduleMetadata({
       providers: [
         {
-          provide: PamApiService,
+          provide: GovernanceService,
           useValue: {
             bulkRevokeLeases: async (): Promise<BulkRevokeResult> => ({
               kind: "partial",

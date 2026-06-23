@@ -6,6 +6,7 @@ export {
   parseAccessConditions,
 } from "./abstractions/access-rule";
 export { CipherAccessState, PamApiService } from "./abstractions/pam-api.service";
+export { GovernanceService } from "./abstractions/governance.service";
 export {
   AccessApprovalMode,
   AccessPreCheckResponse,

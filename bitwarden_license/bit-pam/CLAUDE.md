@@ -98,10 +98,13 @@ wrapper):
 | `POST /leases/{id}/revoke`                                       | End an active lease (`AccessLeaseRevokeRequest`).                                                                              |
 | `GET·POST·PUT·DELETE /organizations/{orgId}/access-rules[/{id}]` | Rule CRUD.                                                                                                                     |
 
-**Not yet implemented server-side:** `getGovernanceSummary`, `bulkRevokeLeases`,
-`unblockNewLeases`, `isLeasingFrozen` all `Promise.reject(...)` in
-`DefaultPamApiService`. The governance dashboard and kill-switch surfaces
-therefore only function under the **mock** today (see the web `CLAUDE.md`).
+**Governance is a separate abstraction.** `getGovernanceSummary`,
+`bulkRevokeLeases`, `unblockNewLeases`, and `isLeasingFrozen` live on their own
+`GovernanceService` abstract class (`src/abstractions/governance.service.ts`),
+**not** `PamApiService` — the governance dashboard and kill switch inject it
+directly. It has no server implementation yet, so the web `provide-pam.ts` binds
+it to a `MockGovernanceService` unconditionally (see the web `CLAUDE.md`); those
+surfaces only function under that mock today.
 
 **Refresh model.** `mutations$` is a `Subject` pumped after every successful
 _write_ (submit, cancel, decide, activate, revoke, extend) — not after reads or
@@ -130,7 +133,8 @@ human (non-automatic) decision for display.
 ## Library layout
 
 - `abstractions/` — interfaces, enums, and `responses/` DTOs (server → client).
-  Includes the abstract `PamApiService` and `AccessEventService`. (The
+  Includes the abstract `PamApiService`, `GovernanceService`, and
+  `AccessEventService`. (The
   `PamInboxBadgeService` nav-badge seam lives in `apps/web/src/app/pam/`, **not
   here** — OSS code consumes it, so it stays outside `bitwarden_license/`.)
 - `services/requests/` — `requests/` (client → server DTOs) only. The `Default*`

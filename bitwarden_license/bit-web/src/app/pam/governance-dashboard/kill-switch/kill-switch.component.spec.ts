@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
+import { BulkRevokeResult, GovernanceService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,7 +12,7 @@ import { KillSwitchDialogComponent, KillSwitchDialogResult } from "./kill-switch
 import { KillSwitchComponent } from "./kill-switch.component";
 
 describe("KillSwitchComponent", () => {
-  let pamApiService: MockProxy<PamApiService>;
+  let governanceService: MockProxy<GovernanceService>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
@@ -20,7 +20,7 @@ describe("KillSwitchComponent", () => {
   let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
-    pamApiService = mock<PamApiService>();
+    governanceService = mock<GovernanceService>();
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
@@ -34,7 +34,7 @@ describe("KillSwitchComponent", () => {
     await TestBed.configureTestingModule({
       imports: [KillSwitchComponent],
       providers: [
-        { provide: PamApiService, useValue: pamApiService },
+        { provide: GovernanceService, useValue: governanceService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
@@ -105,7 +105,7 @@ describe("KillSwitchComponent", () => {
       button.click();
       await fixture.whenStable();
 
-      expect(pamApiService.bulkRevokeLeases).not.toHaveBeenCalled();
+      expect(governanceService.bulkRevokeLeases).not.toHaveBeenCalled();
     });
   });
 
@@ -114,7 +114,7 @@ describe("KillSwitchComponent", () => {
       const openSpy = jest.spyOn(KillSwitchDialogComponent, "open");
       openSpy.mockReturnValue({ closed: of(KillSwitchDialogResult.Confirmed) } as any);
       const result: BulkRevokeResult = { kind: "ok", revokedCount: 7 };
-      pamApiService.bulkRevokeLeases.mockResolvedValue(result);
+      governanceService.bulkRevokeLeases.mockResolvedValue(result);
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
@@ -129,7 +129,7 @@ describe("KillSwitchComponent", () => {
       );
       expect(callout).toBeTruthy();
       // The block-new-leases toggle defaults to off; the kill switch passes it through.
-      expect(pamApiService.bulkRevokeLeases).toHaveBeenCalledWith("org-1", false);
+      expect(governanceService.bulkRevokeLeases).toHaveBeenCalledWith("org-1", false);
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
@@ -145,7 +145,7 @@ describe("KillSwitchComponent", () => {
         revokedCount: 5,
         failedCount: 2,
       };
-      pamApiService.bulkRevokeLeases.mockResolvedValue(result);
+      governanceService.bulkRevokeLeases.mockResolvedValue(result);
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(
@@ -167,7 +167,7 @@ describe("KillSwitchComponent", () => {
       const openSpy = jest.spyOn(KillSwitchDialogComponent, "open");
       openSpy.mockReturnValue({ closed: of(KillSwitchDialogResult.Confirmed) } as any);
       const err = new Error("network error");
-      pamApiService.bulkRevokeLeases.mockRejectedValue(err);
+      governanceService.bulkRevokeLeases.mockRejectedValue(err);
 
       const fixture = await setup({ killSwitchEnabled: true });
       const button: HTMLButtonElement = fixture.nativeElement.querySelector(

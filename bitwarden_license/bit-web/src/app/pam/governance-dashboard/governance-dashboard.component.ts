@@ -16,8 +16,8 @@ import { filter, switchMap } from "rxjs";
 import {
   AccessCondition,
   formatCondition,
+  GovernanceService,
   OrganizationGovernanceSummaryResponse,
-  PamApiService,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -100,7 +100,7 @@ export class GovernanceDashboardComponent implements OnInit {
   readonly organizationNameOverride = input<string | null>(null);
 
   private readonly route = inject(ActivatedRoute);
-  private readonly pamApiService = inject(PamApiService);
+  private readonly governanceService = inject(GovernanceService);
   private readonly organizationService = inject(OrganizationService);
   private readonly accountService = inject(AccountService);
   private readonly i18nService = inject(I18nService);
@@ -132,9 +132,9 @@ export class GovernanceDashboardComponent implements OnInit {
   // Sibling route paths under `/organizations/{id}/`.
   // Use `../` to leave the `pam/` segment without depending on the parent
   // organizationId param resolving inside the click handler.
-  protected readonly membersUrl = ["..", "..", "members"];
-  protected readonly pendingUrl = ["..", "..", "pam", "requests"];
-  protected readonly activeUrl = ["..", "..", "pam", "leases"];
+  protected readonly membersUrl = "../../members";
+  protected readonly pendingUrl = "../../pam/requests";
+  protected readonly activeUrl = "../../pam/leases";
 
   async ngOnInit(): Promise<void> {
     const override = this.summaryOverride();
@@ -167,7 +167,7 @@ export class GovernanceDashboardComponent implements OnInit {
       .subscribe((org) => this.organizationName.set(org.name));
 
     try {
-      const summary = await this.pamApiService.getGovernanceSummary(organizationId);
+      const summary = await this.governanceService.getGovernanceSummary(organizationId);
       this.summary.set(summary);
       this.status.set(summary.collections.length === 0 ? "empty" : "ready");
     } catch (e) {

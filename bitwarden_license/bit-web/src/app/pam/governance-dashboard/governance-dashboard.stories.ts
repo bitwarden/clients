@@ -7,7 +7,7 @@ import { of } from "rxjs";
 import {
   CollectionGovernanceRowResponse,
   OrganizationGovernanceSummaryResponse,
-  PamApiService,
+  GovernanceService,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -22,7 +22,7 @@ import { GovernanceDashboardComponent } from "./governance-dashboard.component";
  * Storybook stories for the PAM credential-leasing governance dashboard
  * (PM-37277). Covers requirement N6 visual states.
  */
-class StubPamApiService {
+class StubGovernanceService {
   /** Never resolves — the override input drives the rendered state. */
   getGovernanceSummary(): Promise<OrganizationGovernanceSummaryResponse> {
     return new Promise(() => undefined);
@@ -86,7 +86,7 @@ export default {
     moduleMetadata({
       imports: [GovernanceDashboardComponent, RouterTestingModule],
       providers: [
-        { provide: PamApiService, useClass: StubPamApiService },
+        { provide: GovernanceService, useClass: StubGovernanceService },
         { provide: OrganizationService, useClass: StubOrganizationService },
         { provide: AccountService, useClass: StubAccountService },
         { provide: ConfigService, useClass: StubConfigService },

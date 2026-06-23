@@ -1,4 +1,4 @@
-import { AccessEventService, PamApiService } from "@bitwarden/bit-pam";
+import { AccessEventService, GovernanceService, PamApiService } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
@@ -13,10 +13,8 @@ import { CipherLeaseBannerComponent } from "./cipher-lease-banner/cipher-lease-b
 import { PamCipherOpenGate } from "./cipher-open-gate.service";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
-// DEMO ONLY: mock layer for the PAM API surface.
-import { MockAccessEventService } from "./mock/mock-access-event.service";
-import { MockPamApiService } from "./mock/mock-pam-api.service";
-import { PamMockConfig } from "./mock/pam-mock-config";
+// DEMO ONLY: governance has no backend yet, so it is always mocked (see provider TODO).
+import { MockGovernanceService } from "./mock/mock-governance.service";
 import { DefaultAccessEventService } from "./services/default-access-event.service";
 import { DefaultPamApiService } from "./services/default-pam-api.service";
 import { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
@@ -30,31 +28,30 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-l
  * collection-callout / vault-row-badge component tokens) to their commercial
  * implementations.
  *
- * DEMO ONLY: when `localStorage.pam-mock === "true"` the mock layer is swapped
- * in so a fraction of ciphers prompt for access and pending requests
- * auto-decide after a short delay. See `./mock/pam-mock-config.ts`.
+ * The governance dashboard + kill switch (`GovernanceService`) have no backend
+ * yet, so they are bound to `MockGovernanceService` unconditionally — swap in a
+ * real implementation once the server lands (see the provider TODO). Every other
+ * PAM call (`PamApiService`) always hits the real server.
  */
 export function providePam(): SafeProvider[] {
   return [
     safeProvider({
       provide: PamApiService,
-      useFactory: (
-        apiService: ApiService,
-        accessEvents: AccessEventService,
-        mock: MockPamApiService,
-      ) => (PamMockConfig.isEnabled() ? mock : new DefaultPamApiService(apiService, accessEvents)),
-      deps: [ApiService, AccessEventService, MockPamApiService],
+      useFactory: (apiService: ApiService, accessEvents: AccessEventService) =>
+        new DefaultPamApiService(apiService, accessEvents),
+      deps: [ApiService, AccessEventService],
+    }),
+    safeProvider({
+      provide: GovernanceService,
+      // TODO: Replace with real GovernanceService when backend is implemented.
+      useClass: MockGovernanceService,
+      deps: [],
     }),
     safeProvider({
       provide: AccessEventService,
-      useFactory: (
-        notificationsService: ServerNotificationsService,
-        mock: MockAccessEventService,
-      ) =>
-        PamMockConfig.isEnabled()
-          ? mock
-          : new DefaultAccessEventService(notificationsService.notifications$),
-      deps: [ServerNotificationsService, MockAccessEventService],
+      useFactory: (notificationsService: ServerNotificationsService) =>
+        new DefaultAccessEventService(notificationsService.notifications$),
+      deps: [ServerNotificationsService],
     }),
     safeProvider({
       provide: CIPHER_OPEN_GATE,

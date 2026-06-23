@@ -12,10 +12,8 @@ import {
   AccessRequestResultResponse,
   AccessRuleRequest,
   AccessRuleResponse,
-  BulkRevokeResult,
   CipherAccessState,
   CipherAccessStateResponse,
-  OrganizationGovernanceSummaryResponse,
   PamApiService,
 } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -149,22 +147,6 @@ export class DefaultPamApiService implements PamApiService {
   async listManagedLeaseHistory(): Promise<AccessLeaseResponse[]> {
     const r = await this.send("GET", "/leases/history", null, true);
     return new ListResponse(r, AccessLeaseResponse).data;
-  }
-
-  getGovernanceSummary(_organizationId: string): Promise<OrganizationGovernanceSummaryResponse> {
-    return Promise.reject(new Error("getGovernanceSummary is not implemented yet"));
-  }
-
-  bulkRevokeLeases(_organizationId: string, _blockNewLeases: boolean): Promise<BulkRevokeResult> {
-    return Promise.reject(new Error("bulkRevokeLeases is not implemented yet"));
-  }
-
-  unblockNewLeases(_organizationId: string): Promise<void> {
-    return Promise.reject(new Error("unblockNewLeases is not implemented yet"));
-  }
-
-  isLeasingFrozen(_organizationId: string): Promise<boolean> {
-    return Promise.reject(new Error("isLeasingFrozen is not implemented yet"));
   }
 
   async cancelAccessRequest(id: string): Promise<void> {

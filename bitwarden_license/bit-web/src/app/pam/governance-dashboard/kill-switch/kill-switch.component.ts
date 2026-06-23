@@ -11,7 +11,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { lastValueFrom } from "rxjs";
 
-import { BulkRevokeResult, PamApiService } from "@bitwarden/bit-pam";
+import { BulkRevokeResult, GovernanceService } from "@bitwarden/bit-pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -52,7 +52,7 @@ export class KillSwitchComponent implements OnInit {
   readonly organizationId = input.required<string>();
   readonly organizationName = input.required<string>();
 
-  private readonly pamApiService = inject(PamApiService);
+  private readonly governanceService = inject(GovernanceService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -97,7 +97,9 @@ export class KillSwitchComponent implements OnInit {
 
   private async refreshFreezeState(): Promise<void> {
     try {
-      this.isFrozen.set(Boolean(await this.pamApiService.isLeasingFrozen(this.organizationId())));
+      this.isFrozen.set(
+        Boolean(await this.governanceService.isLeasingFrozen(this.organizationId())),
+      );
     } catch (e) {
       this.logService.error(e);
     }
@@ -106,7 +108,7 @@ export class KillSwitchComponent implements OnInit {
   protected async unblockNewLeases(): Promise<void> {
     this.unblocking.set(true);
     try {
-      await this.pamApiService.unblockNewLeases(this.organizationId());
+      await this.governanceService.unblockNewLeases(this.organizationId());
       await this.refreshFreezeState();
       this.toastService.showToast({
         variant: "success",
@@ -141,7 +143,7 @@ export class KillSwitchComponent implements OnInit {
   private async executeKillSwitch(): Promise<void> {
     this.submitting.set(true);
     try {
-      const result: BulkRevokeResult = await this.pamApiService.bulkRevokeLeases(
+      const result: BulkRevokeResult = await this.governanceService.bulkRevokeLeases(
         this.organizationId(),
         this.blockNewLeases.value,
       );
