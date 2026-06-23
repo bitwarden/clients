@@ -138,11 +138,12 @@ export class TwoFactorSetupDuoComponent
   };
 
   protected async enable() {
-    const request = new TwoFactorDuoUpdateRequest();
-    request.clientId = this.clientId;
-    request.clientSecret = this.clientSecret;
-    request.host = this.host;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorDuoUpdateRequest(
+      this.clientId,
+      this.clientSecret,
+      this.host,
+      this.userVerificationToken,
+    );
 
     let response: TwoFactorDuoResponse;
 
@@ -171,12 +172,10 @@ export class TwoFactorSetupDuoComponent
     }
 
     if (this.organizationId != null) {
-      const request = new TwoFactorOrganizationDuoDeleteRequest();
-      request.userVerificationToken = this.userVerificationToken;
+      const request = new TwoFactorOrganizationDuoDeleteRequest(this.userVerificationToken);
       await this.twoFactorService.deleteTwoFactorOrganizationDuo(this.organizationId, request);
     } else {
-      const request = new TwoFactorDuoDeleteRequest();
-      request.userVerificationToken = this.userVerificationToken;
+      const request = new TwoFactorDuoDeleteRequest(this.userVerificationToken);
       await this.twoFactorService.deleteTwoFactorDuo(request);
     }
 

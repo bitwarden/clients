@@ -181,15 +181,15 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
           switch (type) {
             case TwoFactorProviderType.Yubikey: {
               const response = await this.twoFactorService.getTwoFactorYubiKey(getRequest);
-              const deleteRequest = new TwoFactorYubiKeyDeleteRequest();
-              deleteRequest.userVerificationToken = response.userVerificationToken;
+              const deleteRequest = new TwoFactorYubiKeyDeleteRequest(
+                response.userVerificationToken,
+              );
               await this.twoFactorService.deleteTwoFactorYubiKey(deleteRequest);
               break;
             }
             case TwoFactorProviderType.Duo: {
               const response = await this.twoFactorService.getTwoFactorDuo(getRequest);
-              const deleteRequest = new TwoFactorDuoDeleteRequest();
-              deleteRequest.userVerificationToken = response.userVerificationToken;
+              const deleteRequest = new TwoFactorDuoDeleteRequest(response.userVerificationToken);
               await this.twoFactorService.deleteTwoFactorDuo(deleteRequest);
               break;
             }

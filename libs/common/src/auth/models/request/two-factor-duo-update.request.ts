@@ -1,6 +1,8 @@
 export class TwoFactorDuoUpdateRequest {
-  clientId!: string;
-  clientSecret!: string;
-  host!: string;
-  userVerificationToken!: string;
+  constructor(
+    public clientId: string,
+    public clientSecret: string,
+    public host: string,
+    public userVerificationToken: string,
+  ) {}
 }

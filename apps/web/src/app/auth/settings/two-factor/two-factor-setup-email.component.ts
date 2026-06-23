@@ -135,19 +135,18 @@ export class TwoFactorSetupEmailComponent
   }
 
   sendEmail = async () => {
-    const request = new TwoFactorEmailSetupRequest();
-    request.email = this.email;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorEmailSetupRequest(this.email, this.userVerificationToken);
     this.emailPromise = this.twoFactorService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
   };
 
   protected async enable() {
-    const request = new TwoFactorEmailUpdateRequest();
-    request.email = this.email;
-    request.token = this.token;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorEmailUpdateRequest(
+      this.token,
+      this.email,
+      this.userVerificationToken,
+    );
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
     await this.processResponse(response);
@@ -165,8 +164,7 @@ export class TwoFactorSetupEmailComponent
       return;
     }
 
-    const request = new TwoFactorEmailDeleteRequest();
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorEmailDeleteRequest(this.userVerificationToken);
     await this.twoFactorService.deleteTwoFactorEmail(request);
     this.enabled = false;
     this.toastService.showToast({

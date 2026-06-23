@@ -168,14 +168,15 @@ export class TwoFactorSetupYubiKeyComponent
       return;
     }
     const keys = this.formGroup.controls.formKeys.value;
-    const request = new TwoFactorYubiKeyUpdateRequest();
-    request.key1 = keys != null && keys.length > 0 ? (keys[0]?.key ?? "") : "";
-    request.key2 = keys != null && keys.length > 1 ? (keys[1]?.key ?? "") : "";
-    request.key3 = keys != null && keys.length > 2 ? (keys[2]?.key ?? "") : "";
-    request.key4 = keys != null && keys.length > 3 ? (keys[3]?.key ?? "") : "";
-    request.key5 = keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "";
-    request.nfc = this.formGroup.value.anyKeyHasNfc ?? false;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorYubiKeyUpdateRequest(
+      keys != null && keys.length > 0 ? (keys[0]?.key ?? "") : "",
+      keys != null && keys.length > 1 ? (keys[1]?.key ?? "") : "",
+      keys != null && keys.length > 2 ? (keys[2]?.key ?? "") : "",
+      keys != null && keys.length > 3 ? (keys[3]?.key ?? "") : "",
+      keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "",
+      this.formGroup.value.anyKeyHasNfc ?? false,
+      this.userVerificationToken,
+    );
 
     this.processResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
     this.refreshFormArrayData();
@@ -198,8 +199,7 @@ export class TwoFactorSetupYubiKeyComponent
       return;
     }
 
-    const request = new TwoFactorYubiKeyDeleteRequest();
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorYubiKeyDeleteRequest(this.userVerificationToken);
     await this.twoFactorService.deleteTwoFactorYubiKey(request);
     this.enabled = false;
     this.toastService.showToast({

@@ -113,9 +113,7 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorAuthenticator", () => {
       it("enables authenticator after validating the provided token", async () => {
-        const request = new TwoFactorAuthenticatorUpdateRequest();
-        request.token = "123456";
-        request.key = "MFRGGZDFMZTWQ2LK";
+        const request = new TwoFactorAuthenticatorUpdateRequest("123456", "MFRGGZDFMZTWQ2LK", "");
         const mockResponse = {
           Enabled: true,
           Key: "MFRGGZDFMZTWQ2LK",
@@ -139,9 +137,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorAuthenticator", () => {
       it("disables authenticator two-factor authentication", async () => {
-        const request = new DeleteTwoFactorAuthenticatorRequest();
-        request.userVerificationToken = "uv-token";
-        request.key = "MFRGGZDFMZTWQ2LK";
+        const request = new DeleteTwoFactorAuthenticatorRequest("MFRGGZDFMZTWQ2LK", "uv-token");
         const mockResponse = {
           Enabled: false,
           Type: 0,
@@ -192,9 +188,10 @@ describe("TwoFactorApiService", () => {
 
     describe("postTwoFactorEmailSetup", () => {
       it("sends verification code to email address during two-factor setup", async () => {
-        const request = new TwoFactorEmailSetupRequest();
-        request.email = "user@example.com";
-        request.userVerificationToken = "user-verification-token";
+        const request = new TwoFactorEmailSetupRequest(
+          "user@example.com",
+          "user-verification-token",
+        );
 
         await twoFactorApiService.postTwoFactorEmailSetup(request);
 
@@ -227,9 +224,11 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorEmail", () => {
       it("enables email two-factor after validating the verification code", async () => {
-        const request = new TwoFactorEmailUpdateRequest();
-        request.email = "user@example.com";
-        request.token = "verification-code";
+        const request = new TwoFactorEmailUpdateRequest(
+          "verification-code",
+          "user@example.com",
+          "",
+        );
         const mockResponse = {
           Enabled: true,
           Email: "user@example.com",
@@ -317,10 +316,12 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorDuo", () => {
       it("enables Duo two-factor for premium user with valid integration details", async () => {
-        const request = new TwoFactorDuoUpdateRequest();
-        request.host = "api-abc123.duosecurity.com";
-        request.clientId = "DI9ABC1DEFGH2JKL";
-        request.clientSecret = "client-secret-value-here";
+        const request = new TwoFactorDuoUpdateRequest(
+          "DI9ABC1DEFGH2JKL",
+          "client-secret-value-here",
+          "api-abc123.duosecurity.com",
+          "",
+        );
         const mockResponse = {
           Enabled: true,
           Host: "api-abc123.duosecurity.com",
@@ -343,10 +344,12 @@ describe("TwoFactorApiService", () => {
     describe("putTwoFactorOrganizationDuo", () => {
       it("enables organization-level Duo with policy management permissions", async () => {
         const organizationId = "org-123";
-        const request = new TwoFactorDuoUpdateRequest();
-        request.host = "api-xyz789.duosecurity.com";
-        request.clientId = "DI4XYZ9MNOP3QRS";
-        request.clientSecret = "orgcli-secret-value-here";
+        const request = new TwoFactorDuoUpdateRequest(
+          "DI4XYZ9MNOP3QRS",
+          "orgcli-secret-value-here",
+          "api-xyz789.duosecurity.com",
+          "",
+        );
         const mockResponse = {
           Enabled: true,
           Host: "api-xyz789.duosecurity.com",
@@ -406,9 +409,15 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorYubiKey", () => {
       it("enables YubiKey two-factor for premium user after validating device OTPs", async () => {
-        const request = new TwoFactorYubiKeyUpdateRequest();
-        request.key1 = "ccccccccccccjkhbhbhrkcitringjkrjirfjuunlnlvcghnkrtgfj";
-        request.key2 = "ddddddddddddvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv";
+        const request = new TwoFactorYubiKeyUpdateRequest(
+          "ccccccccccccjkhbhbhrkcitringjkrjirfjuunlnlvcghnkrtgfj",
+          "ddddddddddddvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+          "",
+          "",
+          "",
+          false,
+          "",
+        );
         const mockResponse = {
           Enabled: true,
           Key1: "cccccccccccc",
@@ -520,9 +529,12 @@ describe("TwoFactorApiService", () => {
           getClientExtensionResults: jest.fn().mockReturnValue({}),
         };
 
-        const request = new TwoFactorWebAuthnUpdateRequest();
-        request.deviceResponse = mockCredential as PublicKeyCredential;
-        request.name = "My Security Key";
+        const request = new TwoFactorWebAuthnUpdateRequest(
+          mockCredential as PublicKeyCredential,
+          "My Security Key",
+          0,
+          "",
+        );
 
         const mockResponse = {
           Enabled: true,
@@ -572,9 +584,12 @@ describe("TwoFactorApiService", () => {
           getClientExtensionResults: jest.fn().mockReturnValue({}),
         };
 
-        const request = new TwoFactorWebAuthnUpdateRequest();
-        request.deviceResponse = mockCredential as PublicKeyCredential;
-        request.name = "My Security Key";
+        const request = new TwoFactorWebAuthnUpdateRequest(
+          mockCredential as PublicKeyCredential,
+          "My Security Key",
+          0,
+          "",
+        );
 
         const originalDeviceResponse = request.deviceResponse;
         apiService.send.mockResolvedValue({ enabled: true, keys: [] });
@@ -589,9 +604,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorWebAuthn", () => {
       it("removes specific WebAuthn credential while preserving other registered keys", async () => {
-        const request = new TwoFactorWebAuthnDeleteRequest();
-        request.id = 1;
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorWebAuthnDeleteRequest(1, "uv-token");
         const mockResponse = {
           Enabled: true,
           Keys: [{ Name: "Security Key", Id: 2, Migrated: true }], // Key with id:1 removed
@@ -643,8 +656,7 @@ describe("TwoFactorApiService", () => {
   describe("Per-provider Delete APIs", () => {
     describe("deleteTwoFactorYubiKey", () => {
       it("removes YubiKey two-factor enrollment for the current user", async () => {
-        const request = new TwoFactorYubiKeyDeleteRequest();
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorYubiKeyDeleteRequest("uv-token");
         const mockResponse = { Enabled: false, Type: 3 }; // YubiKey
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -665,8 +677,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorDuo", () => {
       it("removes Duo two-factor enrollment for the current user", async () => {
-        const request = new TwoFactorDuoDeleteRequest();
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorDuoDeleteRequest("uv-token");
         const mockResponse = { Enabled: false, Type: 2 }; // Duo
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -687,8 +698,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorEmail", () => {
       it("removes email two-factor enrollment for the current user", async () => {
-        const request = new TwoFactorEmailDeleteRequest();
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorEmailDeleteRequest("uv-token");
         const mockResponse = { Enabled: false, Type: 1 }; // Email
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -710,8 +720,7 @@ describe("TwoFactorApiService", () => {
     describe("deleteTwoFactorOrganizationDuo", () => {
       it("removes Duo two-factor enrollment for an organization with policy management permissions", async () => {
         const organizationId = "org-123";
-        const request = new TwoFactorOrganizationDuoDeleteRequest();
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorOrganizationDuoDeleteRequest("uv-token");
         const mockResponse = { Enabled: false, Type: 6 }; // OrganizationDuo
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -735,8 +744,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorWebAuthnAll", () => {
       it("removes the entire WebAuthn enrollment in a single round-trip", async () => {
-        const request = new TwoFactorWebAuthnDeleteAllRequest();
-        request.userVerificationToken = "uv-token";
+        const request = new TwoFactorWebAuthnDeleteAllRequest("uv-token");
         const mockResponse = { Enabled: false, Type: 7 }; // WebAuthn
         apiService.send.mockResolvedValue(mockResponse);
 

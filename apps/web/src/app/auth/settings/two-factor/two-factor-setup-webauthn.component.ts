@@ -127,11 +127,12 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       throw new Error("WebAuthn response or key ID is missing");
     }
 
-    const request = new TwoFactorWebAuthnUpdateRequest();
-    request.deviceResponse = this.webAuthnResponse;
-    request.id = this.keyIdAvailable;
-    request.name = this.formGroup.value.name || "";
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorWebAuthnUpdateRequest(
+      this.webAuthnResponse,
+      this.formGroup.value.name || "",
+      this.keyIdAvailable,
+      this.userVerificationToken,
+    );
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
     this.processResponse(response);
@@ -164,8 +165,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
     // Server's per-credential DELETE refuses to remove the last registered credential
     // (lockout-prevention), so the only path to disable WebAuthn entirely is the bulk endpoint.
-    const request = new TwoFactorWebAuthnDeleteAllRequest();
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorWebAuthnDeleteAllRequest(this.userVerificationToken);
     await this.twoFactorService.deleteTwoFactorWebAuthnAll(request);
     this.enabled = false;
     this.toastService.showToast({
@@ -191,9 +191,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (!confirmed) {
       return;
     }
-    const request = new TwoFactorWebAuthnDeleteRequest();
-    request.id = key.id;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorWebAuthnDeleteRequest(key.id, this.userVerificationToken);
     try {
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;

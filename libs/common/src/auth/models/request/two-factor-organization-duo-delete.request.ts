@@ -1,3 +1,3 @@
 export class TwoFactorOrganizationDuoDeleteRequest {
-  userVerificationToken!: string;
+  constructor(public userVerificationToken: string) {}
 }

@@ -155,10 +155,11 @@ export class TwoFactorSetupAuthenticatorComponent
   };
 
   protected async enable() {
-    const request = new TwoFactorAuthenticatorUpdateRequest();
-    request.token = this.formGroup.value.token;
-    request.key = this.key;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new TwoFactorAuthenticatorUpdateRequest(
+      this.formGroup.value.token,
+      this.key,
+      this.userVerificationToken,
+    );
 
     const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
     await this.processResponse(response);
@@ -176,9 +177,7 @@ export class TwoFactorSetupAuthenticatorComponent
       return;
     }
 
-    const request = new DeleteTwoFactorAuthenticatorRequest();
-    request.key = this.key;
-    request.userVerificationToken = this.userVerificationToken;
+    const request = new DeleteTwoFactorAuthenticatorRequest(this.key, this.userVerificationToken);
     await this.twoFactorService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({

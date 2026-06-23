@@ -1,3 +1,3 @@
 export class TwoFactorEmailDeleteRequest {
-  userVerificationToken!: string;
+  constructor(public userVerificationToken: string) {}
 }

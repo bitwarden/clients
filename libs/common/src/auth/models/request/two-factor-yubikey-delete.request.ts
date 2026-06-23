@@ -1,3 +1,3 @@
 export class TwoFactorYubiKeyDeleteRequest {
-  userVerificationToken!: string;
+  constructor(public userVerificationToken: string) {}
 }

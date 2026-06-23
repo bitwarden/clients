@@ -1,4 +1,6 @@
 export class TwoFactorEmailSetupRequest {
-  email!: string;
-  userVerificationToken!: string;
+  constructor(
+    public email: string,
+    public userVerificationToken: string,
+  ) {}
 }

@@ -1,5 +1,7 @@
 export class TwoFactorAuthenticatorUpdateRequest {
-  token!: string;
-  key!: string;
-  userVerificationToken!: string;
+  constructor(
+    public token: string,
+    public key: string,
+    public userVerificationToken: string,
+  ) {}
 }

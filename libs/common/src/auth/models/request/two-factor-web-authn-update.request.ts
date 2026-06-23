@@ -1,6 +1,8 @@
 export class TwoFactorWebAuthnUpdateRequest {
-  deviceResponse!: PublicKeyCredential;
-  name!: string;
-  id!: number;
-  userVerificationToken!: string;
+  constructor(
+    public deviceResponse: PublicKeyCredential,
+    public name: string,
+    public id: number,
+    public userVerificationToken: string,
+  ) {}
 }

@@ -1,9 +1,11 @@
 export class TwoFactorYubiKeyUpdateRequest {
-  key1!: string;
-  key2!: string;
-  key3!: string;
-  key4!: string;
-  key5!: string;
-  nfc!: boolean;
-  userVerificationToken!: string;
+  constructor(
+    public key1: string,
+    public key2: string,
+    public key3: string,
+    public key4: string,
+    public key5: string,
+    public nfc: boolean,
+    public userVerificationToken: string,
+  ) {}
 }

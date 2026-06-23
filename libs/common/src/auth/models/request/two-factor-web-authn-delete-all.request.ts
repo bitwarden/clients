@@ -1,3 +1,3 @@
 export class TwoFactorWebAuthnDeleteAllRequest {
-  userVerificationToken!: string;
+  constructor(public userVerificationToken: string) {}
 }

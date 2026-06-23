@@ -1,4 +1,6 @@
 export class DeleteTwoFactorAuthenticatorRequest {
-  userVerificationToken!: string;
-  key!: string;
+  constructor(
+    public key: string,
+    public userVerificationToken: string,
+  ) {}
 }
