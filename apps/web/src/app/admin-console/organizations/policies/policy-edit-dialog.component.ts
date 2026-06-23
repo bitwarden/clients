@@ -74,7 +74,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly _saveDisabled = signal(true);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
-  protected readonly policyEnabled = signal(false);
 
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
