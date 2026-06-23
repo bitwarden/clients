@@ -83,6 +83,12 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
+   * If true, the dialog header shows an On/Off badge reflecting the saved policy state
+   * and uses the policy name as the sole title (no "Edit policy" label).
+   */
+  showEnabledBadge: boolean = false;
+
+  /**
    * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
    * above the policy form.
    */
