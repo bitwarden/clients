@@ -45,31 +45,31 @@
               <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
             </span>
           </div>
-          <div class="empty:tw-hidden tw-flex tw-gap-3 tw-items-start tw-shrink-0">
+          <div class="tw-flex tw-gap-3 tw-items-start tw-shrink-0">
             <ng-content select="[slot='actions']"></ng-content>
+            @if (isDismissible()) {
+              <button
+                type="button"
+                bitIconButton="bwi-close"
+                buttonType="primaryGhost"
+                size="small"
+                (click)="onDismiss()"
+                [label]="'close' | i18n"
+                class="tw-hidden @3xl:tw-block"
+              ></button>
+              <div class="tw-absolute tw-end-2 tw-top-3 tw-block @3xl:tw-hidden">
+                <button
+                  type="button"
+                  bitIconButton="bwi-close"
+                  buttonType="primaryGhost"
+                  size="small"
+                  (click)="onDismiss()"
+                  [label]="'close' | i18n"
+                ></button>
+              </div>
+            }
           </div>
         </div>
-        @if (isDismissible()) {
-          <button
-            type="button"
-            bitIconButton="bwi-close"
-            buttonType="primaryGhost"
-            size="small"
-            (click)="onDismiss()"
-            [label]="'close' | i18n"
-            class="tw-hidden @3xl:tw-block"
-          ></button>
-          <div class="tw-absolute tw-end-2 tw-top-3 tw-block @3xl:tw-hidden">
-            <button
-              type="button"
-              bitIconButton="bwi-close"
-              buttonType="primaryGhost"
-              size="small"
-              (click)="onDismiss()"
-              [label]="'close' | i18n"
-            ></button>
-          </div>
-        }
       </div>
     </div>
   } @else {
