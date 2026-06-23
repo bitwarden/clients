@@ -22,7 +22,7 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   description = "accountRecoveryPolicyDescV2";
   type = PolicyType.ResetPassword;
   category = PolicyCategory.Authentication;
-  priority = 20;
+  priority = 10;
   component = ResetPasswordPolicyComponent;
 
   override display$(organization: Organization): Observable<boolean> {

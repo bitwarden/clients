@@ -27,6 +27,8 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   DialogRef,
   DialogService,
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
   ItemModule,
   SectionHeaderComponent,
 } from "@bitwarden/components";
@@ -42,7 +44,14 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    SectionHeaderComponent,
+    ItemModule,
+    DisclosureComponent,
+    DisclosureTriggerForDirective,
+  ],
   providers: [
     safeProvider({
       provide: PolicyListService,

@@ -14,7 +14,7 @@ export class DesktopAutotypeDefaultSettingPolicy extends BasePolicyEditDefinitio
   description = "desktopAutotypePolicyDesc";
   type = PolicyType.AutotypeDefaultSetting;
   category = PolicyCategory.VaultManagement;
-  priority = 70;
+  priority = 40;
   component = DesktopAutotypeDefaultSettingPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {
