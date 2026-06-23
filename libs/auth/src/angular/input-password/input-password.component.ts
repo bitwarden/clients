@@ -472,22 +472,49 @@ export class InputPasswordComponent implements OnInit {
     passwordStrengthScore: PasswordStrengthScore,
     checkForBreaches: boolean,
   ): Promise<boolean> {
-    // Check if the password is breached, weak, or both
-    const passwordIsBreached =
-      checkForBreaches && (await this.auditService.passwordLeaked(newPassword)) > 0;
+    // Blocklist check
+    const blockedPasswords = new Set([
+      "Password12345",
+      "Bitwarden123",
+      "Summer2024!1",
+      "Welcome1!",
+      "Qwertz123!",
+    ]);
+    const passwordIsBlocked = blockedPasswords.has(newPassword);
 
-    const passwordIsWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
-
-    if (passwordIsBreached && passwordIsWeak) {
+    if (passwordIsBlocked) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
-        title: { key: "weakAndExposedMasterPassword" },
-        content: { key: "weakAndBreachedMasterPasswordDesc" },
+        title: { key: "blockedPassword" },
+        content: { key: "blockedPasswordDesc" },
         type: "warning",
       });
 
       if (!userAcceptedDialog) {
         return false;
       }
+    }
+
+    // Check if the password is breached, weak, or both
+    // if the first checkForBreaches is false -> skip, otherwise check HIBP. >0 number of finds
+    const passwordIsBreached =
+      checkForBreaches && (await this.auditService.passwordLeaked(newPassword)) > 0;
+
+    // score is 0-4, 0 = very weak, 1 = weak, 2 = mid, 3 = good, 4 = strong. Score gets calculated live during typing in the masterpassword
+    // < 3 = weak or mid -> passwordIsWeak = true
+    const passwordIsWeak = passwordStrengthScore != null && passwordStrengthScore < 3;
+
+    // password is weak and exposed
+    if (passwordIsBreached && passwordIsWeak) {
+      const userAcceptedDialog = await this.dialogService.openSimpleDialog({
+        title: { key: "weakAndExposedMasterPassword" },
+        content: { key: "weakAndBreachedMasterPasswordDesc" },
+        type: "warning",
+      });
+      // user can decide if he wants to continue with the passwords, if he decline the dialog, the submit gets canceled
+      if (!userAcceptedDialog) {
+        return false;
+      }
+      // passwords is just weak
     } else if (passwordIsWeak) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
         title: { key: "weakMasterPassword" },
@@ -498,6 +525,7 @@ export class InputPasswordComponent implements OnInit {
       if (!userAcceptedDialog) {
         return false;
       }
+      // password is exposed
     } else if (passwordIsBreached) {
       const userAcceptedDialog = await this.dialogService.openSimpleDialog({
         title: { key: "exposedMasterPassword" },
@@ -511,6 +539,7 @@ export class InputPasswordComponent implements OnInit {
     }
 
     // Check if password meets org policy requirements
+    // if the password is to short eg. there is no dialog and the user cant continue with this password
     if (
       this.masterPasswordPolicyOptions != null &&
       !this.policyService.evaluateMasterPassword(
@@ -527,8 +556,9 @@ export class InputPasswordComponent implements OnInit {
 
       return false;
     }
-
+    // the passwords passed every four checks and can be used as a Masterpassword
     return true;
+    // submit() is starting with hashing
   }
 
   protected async rotateUserKeyClicked() {

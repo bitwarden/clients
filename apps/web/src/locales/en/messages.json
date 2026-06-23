@@ -6093,6 +6093,12 @@
   "weakMasterPasswordDesc": {
     "message": "Weak password identified. Use a strong password to protect your account. Are you sure you want to use a weak password?"
   },
+  "blockedPassword": {
+  "message": "Blocked Password"
+  },
+  "blockedPasswordDesc": {
+  "message": "This password is not allowed. Do you want to use it anyway?"
+  },
   "rotateAccountEncKey": {
     "message": "Also rotate my account's encryption key"
   },
