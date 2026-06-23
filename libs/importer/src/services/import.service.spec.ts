@@ -12,6 +12,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -43,6 +44,7 @@ describe("ImportService", () => {
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
@@ -54,6 +56,7 @@ describe("ImportService", () => {
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
+    configService = mock<ConfigService>();
 
     importService = new ImportService(
       cipherService,
@@ -66,7 +69,12 @@ describe("ImportService", () => {
       keyGenerationService,
       accountService,
       restrictedItemTypesService,
+      configService,
     );
+
+    // Feature flags are only used by certain specific importers, not the base
+    // import service, so we can disable them all for the purpose of these tests.
+    configService.getFeatureFlag.mockResolvedValue(false);
   });
 
   describe("getImporterInstance", () => {
