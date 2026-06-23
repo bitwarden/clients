@@ -830,6 +830,15 @@
   "deleteItem": {
     "message": "Delete item"
   },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteFolder": {
     "message": "Delete folder"
   },
@@ -1977,6 +1986,10 @@
   "selected": {
     "message": "Selected"
   },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
     "message": "Bulk actions"
   },
@@ -2428,8 +2441,20 @@
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
   },
+  "permanentlyDeleteItemsCount": {
+    "message": "Permanently delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "permanentlyDeleteItemConfirmation": {
     "message": "Are you sure you want to permanently delete this item?"
+  },
+  "permanentlyDeleteItemsConfirmation": {
+    "message": "Are you sure you want to permanently delete these items?"
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
@@ -2457,6 +2482,12 @@
   },
   "deletedCollections": {
     "message": "Deleted collections"
+  },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
   },
   "movedItems": {
     "message": "Items moved"
@@ -4700,6 +4731,12 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
+  },
   "nothingSelected": {
     "message": "You have not selected anything."
   },
@@ -5442,6 +5479,30 @@
       "count": {
         "content": "$1",
         "example": "150"
+      }
+    }
+  },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionConfirmation": {
+    "message": "Are you sure you want to delete this collection?"
+  },
+  "deleteCollectionsConfirmation": {
+    "message": "Are you sure you want to delete $COUNT$ collections?",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
       }
     }
   },

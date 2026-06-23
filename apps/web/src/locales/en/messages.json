@@ -6086,6 +6086,10 @@
   "selected": {
     "message": "Selected"
   },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "recommended": {
     "message": "Recommended"
   },
