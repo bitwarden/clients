@@ -67,6 +67,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   protected readonly loading = signal(true);
   protected readonly enabled = false;
+  protected readonly policyEnabled = signal(false);
   private readonly _saveDisabled = signal(true);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
@@ -185,6 +186,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
+    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormRef();
