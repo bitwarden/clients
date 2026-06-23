@@ -6757,6 +6757,9 @@
   "staged": {
     "message": "Staged"
   },
+  "stagedMemberTooltip": {
+    "message": "Admin needs to send an invite"
+  },
   "sendLink": {
     "message": "Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

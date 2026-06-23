@@ -44,10 +44,12 @@
           <bit-berry [value]="dataSource.activeUserCount"></bit-berry>
         </bit-toggle>
 
-        <bit-toggle [value]="userStatusType.Staged">
-          {{ "staged" | i18n }}
-          <bit-berry [value]="dataSource.stagedUserCount"></bit-berry>
-        </bit-toggle>
+        @if (dataSource.stagedUserCount > 0) {
+          <bit-toggle [value]="userStatusType.Staged">
+            {{ "staged" | i18n }}
+            <bit-berry [value]="dataSource.stagedUserCount"></bit-berry>
+          </bit-toggle>
+        }
 
         <bit-toggle [value]="userStatusType.Invited">
           {{ "invited" | i18n }}
@@ -230,7 +232,15 @@
                           {{ u.name ?? u.email }}
                         </button>
                         @if (u.status === userStatusType.Staged) {
-                          <span bitBadge class="tw-text-xs" variant="secondary">
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="'stagedMemberTooltip' | i18n"
+                            tooltipPosition="below-center"
+                          >
                             {{ "staged" | i18n }}
                           </span>
                         }
@@ -281,7 +291,16 @@
                       <div class="tw-flex tw-flex-row tw-gap-2">
                         <span>{{ u.name ?? u.email }}</span>
                         @if (u.status === userStatusType.Staged) {
-                          <span bitBadge class="tw-text-xs" variant="secondary">
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="'stagedMemberTooltip' | i18n"
+                            [addTooltipToDescribedby]="true"
+                            tooltipPosition="below-center"
+                          >
                             {{ "staged" | i18n }}
                           </span>
                         }
