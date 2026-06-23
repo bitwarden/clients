@@ -623,6 +623,10 @@ export class AppComponent implements OnInit, OnDestroy {
             desktopAddDevices: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
             ),
+            // TODO: PM-34580 - remove pm32009NewItemTypes flag read and MenuAccount field population
+            pm32009NewItemTypes: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+            ),
           };
         }
       }

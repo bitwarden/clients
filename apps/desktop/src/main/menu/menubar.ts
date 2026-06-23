@@ -81,6 +81,9 @@ export class Menubar {
     // TODO: PM-34438 - remove desktopAddDevices variable and the parameter passed to AccountMenu
     const desktopAddDevices =
       updateRequest?.accounts?.[updateRequest.activeUserId]?.desktopAddDevices ?? false;
+    // TODO: PM-34580 - remove pm32009NewItemTypes variable and the parameter passed to FileMenu
+    const pm32009NewItemTypes =
+      updateRequest?.accounts?.[updateRequest.activeUserId]?.pm32009NewItemTypes ?? false;
 
     this.items = [
       new FileMenu(
@@ -92,6 +95,7 @@ export class Menubar {
         isLocked,
         isLockable,
         updateRequest?.restrictedCipherTypes,
+        pm32009NewItemTypes,
       ),
       new EditMenu(i18nService, messagingService, isLocked),
       new ViewMenu(i18nService, messagingService, isLocked, windowMain),
