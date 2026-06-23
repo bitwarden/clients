@@ -133,19 +133,6 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
       });
   }
 
-  protected readonly cancel = async () => {
-    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
-      await this.dialogRef.close();
-      return;
-    }
-    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-    if (confirmed) {
-      // Clear the predicate first so close() doesn't show a second dialog.
-      this.dialogRef.closePredicate = undefined;
-      await this.dialogRef.close();
-    }
-  };
-
   async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
