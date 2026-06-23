@@ -184,5 +184,8 @@ async function addElectronFuses(context) {
     // This can be done by defining a custom app:// protocol and loading the bundle from there,
     // but then any requests to the server will be blocked by CORS policy
     [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+
+    // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
+    [FuseV1Options.WasmTrapHandlers]: true,
   });
 }
