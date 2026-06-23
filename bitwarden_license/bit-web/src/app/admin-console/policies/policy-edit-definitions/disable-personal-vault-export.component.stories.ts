@@ -7,10 +7,12 @@ import {
 
 import { DisablePersonalVaultExportPolicy } from "./disable-personal-vault-export.component";
 
-export default policyDrawerMeta(
-  "Admin Console/Organizations/Policies/Disable Personal Vault Export",
-  new DisablePersonalVaultExportPolicy(),
-);
+export default {
+  ...policyDrawerMeta(
+    "Admin Console/Organizations/Policies/Disable Personal Vault Export",
+    new DisablePersonalVaultExportPolicy(),
+  ),
+};
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;
 

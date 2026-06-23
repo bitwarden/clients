@@ -1,5 +1,10 @@
 import { importProvidersFrom } from "@angular/core";
-import { applicationConfig, Meta, moduleMetadata } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+} from "@storybook/angular";
 import { of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -7,6 +12,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -38,6 +44,10 @@ export function policyDrawerMeta(
       enabled: { control: "boolean" },
     },
     decorators: [
+      componentWrapperDecorator(
+        (story) =>
+          `<div class="tw-h-screen tw-w-[32rem] tw-border tw-border-solid tw-border-secondary-100 tw-overflow-hidden tw-relative">${story}</div>`,
+      ),
       moduleMetadata({
         providers: [
           {
@@ -46,7 +56,11 @@ export function policyDrawerMeta(
           },
           {
             provide: DialogRef,
-            useValue: { close: () => Promise.resolve(), closePredicate: undefined },
+            useValue: { close: () => Promise.resolve(), closePredicate: undefined, isDrawer: true },
+          },
+          {
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: () => of(true) },
           },
           {
             provide: AccountService,
