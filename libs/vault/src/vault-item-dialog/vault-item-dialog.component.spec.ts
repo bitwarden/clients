@@ -145,7 +145,10 @@ describe("VaultItemDialogComponent", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         { provide: CipherArchiveService, useValue: mockArchiveService },
-        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })

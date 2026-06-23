@@ -15,7 +15,6 @@ export enum FeatureFlag {
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
-  PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
@@ -67,6 +66,7 @@ export enum FeatureFlag {
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
+  ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
@@ -137,7 +137,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
-  [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
@@ -217,6 +216,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
+  [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,

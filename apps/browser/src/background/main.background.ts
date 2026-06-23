@@ -930,6 +930,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(

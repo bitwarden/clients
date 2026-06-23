@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, map, Observable, startWith } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { SwitchComponent } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
@@ -31,31 +32,30 @@ type OrganizationDataOwnershipPolicyData = {
   enableIndividualItemsTransfer: boolean;
 };
 
-export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
+export class OrganizationDataOwnershipPolicyV2 extends BasePolicyEditDefinition {
   name = "centralizeDataOwnership";
   description = "centralizeDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
   priority = 20;
-  component = OrganizationDataOwnershipPolicyComponent;
+  component = OrganizationDataOwnershipPolicyV2Component;
   showDescription = false;
+  showEnabledBadge = true;
 
   editDialogComponent = MultiStepPolicyEditDialogComponent;
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
-      .pipe(map((enabled) => !enabled));
+    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);
   }
 }
 
 @Component({
-  selector: "organization-data-ownership-policy-edit",
-  templateUrl: "organization-data-ownership.component.html",
-  imports: [SharedModule],
+  selector: "organization-data-ownership-policy-v2-edit",
+  templateUrl: "organization-data-ownership-v2.component.html",
+  imports: [SharedModule, SwitchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrganizationDataOwnershipPolicyComponent
+export class OrganizationDataOwnershipPolicyV2Component
   extends BasePolicyEditComponent
   implements OnInit
 {
@@ -88,11 +88,6 @@ export class OrganizationDataOwnershipPolicyComponent
   readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
   });
-
-  protected readonly enableIndividualItemsTransfer = toSignal(
-    this.data.controls.enableIndividualItemsTransfer.valueChanges.pipe(startWith(false)),
-    { initialValue: false },
-  );
 
   override async ngOnInit(): Promise<void> {
     super.ngOnInit();
