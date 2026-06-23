@@ -15,6 +15,7 @@ import {
   Injector,
   effect,
   computed,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -186,10 +187,19 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       });
 
     effect(() => {
-      // coachmarks are running, so set tab index to the coachmark's required tab
-      const tabIndex = this.coachmarkService.requiredTabIndex();
-      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
-        this.tabIndex.set(tabIndex);
+      const requiredTabIndex = this.coachmarkService.requiredTabIndex();
+      if (requiredTabIndex !== null && requiredTabIndex !== this.tabIndex()) {
+        this.tabIndex.set(requiredTabIndex);
+
+        // Reset drawer state and close drawer when tabs are changed
+        // we need to ensure that the popover is closed before the tab is changed,
+        // otherwise the popover will be hidden behind the new tab content
+        const activeStepId = untracked(() => this.coachmarkService.activeStepId());
+        this.coachmarkService.activeStepId.set(null); // close all popovers now
+
+        // setTimeout defers re-activation to after Angular's CD + rendering completes,
+        // so the tab button is un-hidden before the popover measures its position.
+        setTimeout(() => this.coachmarkService.activeStepId.set(activeStepId));
       }
     });
 
