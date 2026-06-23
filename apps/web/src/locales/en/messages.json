@@ -9248,9 +9248,6 @@
   "launchDuo": {
     "message": "Launch Duo"
   },
-  "enablePolicy": {
-    "message": "Enable policy"
-  },
   "turnOn": {
     "message": "Turn on"
   },
