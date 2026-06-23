@@ -26,6 +26,15 @@
         </select>
       </bit-form-field>
     }
+    @if (formGroup.value.reason === "other") {
+      <bit-form-field class="-tw-mt-1">
+        <input
+          bitInput
+          formControlName="otherFeedback"
+          [placeholder]="'cancelSurveyOtherPlaceholder' | i18n"
+        />
+      </bit-form-field>
+    }
     <bit-form-field>
       <bit-label>
         {{ "additionalDetails" | i18n }}
@@ -41,7 +50,7 @@
       type="submit"
       [disabled]="!formGroup.value.reason"
     >
-      {{ "cancelSubscription" | i18n }}
+      {{ "completeCancelation" | i18n }}
     </button>
     <button bitButton buttonType="secondary" type="button" [bitDialogClose]="ResultType.Closed">
       {{ "close" | i18n }}

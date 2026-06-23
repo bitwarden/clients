@@ -74,27 +74,27 @@ export class OffboardingSurveyComponent {
     {
       value: "missing_features",
       labelKey: "cancelSurveyMissingFeaturesLabel",
-      hintKey: "cancelSurveyMissingFeaturesHint",
+      hintKey: "cancelSurveyMissingFeaturesHintV2",
     },
     {
       value: "switched_service",
       labelKey: "cancelSurveyTooComplexLabel",
-      hintKey: "cancelSurveyTooComplexHint",
+      hintKey: "cancelSurveyTooComplexHintV2",
     },
     {
       value: "too_complex",
-      labelKey: "cancelSurveyNotEnoughValueLabel",
-      hintKey: "cancelSurveyNotEnoughValueHint",
+      labelKey: "cancelSurveyNotEnoughValueLabelV2",
+      hintKey: "cancelSurveyNotEnoughValueHintV2",
     },
     {
       value: "unused",
       labelKey: "cancelSurveyNotEnoughUsageLabel",
-      hintKey: "cancelSurveyNotEnoughUsageHint",
+      hintKey: "cancelSurveyNotEnoughUsageHintV2",
     },
     {
       value: "too_expensive",
       labelKey: "cancelSurveyNeedsChangedLabel",
-      hintKey: "cancelSurveyNeedsChangedHint",
+      hintKey: "cancelSurveyNeedsChangedHintV2",
     },
     {
       value: "poor_service",
@@ -113,6 +113,7 @@ export class OffboardingSurveyComponent {
   protected formGroup = this.formBuilder.group({
     reason: [null],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
+    otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
   constructor(
@@ -162,9 +163,14 @@ export class OffboardingSurveyComponent {
       return;
     }
 
+    const isOther = this.formGroup.value.reason === "other";
+    const feedbackParts = isOther
+      ? [this.formGroup.value.otherFeedback, this.formGroup.value.feedback]
+      : [this.formGroup.value.feedback];
+
     const request = {
       reason: this.formGroup.value.reason,
-      feedback: this.formGroup.value.feedback,
+      feedback: feedbackParts.filter(Boolean).join("\n"),
     };
 
     this.dialogParams.type === "Organization"
