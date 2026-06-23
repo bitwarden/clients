@@ -7,8 +7,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
+import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -144,7 +144,7 @@ export class TwoFactorSetupEmailComponent
   };
 
   protected async enable() {
-    const request = new UpdateTwoFactorEmailRequest();
+    const request = new TwoFactorEmailUpdateRequest();
     request.email = this.email;
     request.token = this.token;
     request.userVerificationToken = this.userVerificationToken;

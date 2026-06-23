@@ -12,7 +12,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
+import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-update.request";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -168,7 +168,7 @@ export class TwoFactorSetupYubiKeyComponent
       return;
     }
     const keys = this.formGroup.controls.formKeys.value;
-    const request = new UpdateTwoFactorYubikeyOtpRequest();
+    const request = new TwoFactorYubiKeyUpdateRequest();
     request.key1 = keys != null && keys.length > 0 ? (keys[0]?.key ?? "") : "";
     request.key2 = keys != null && keys.length > 1 ? (keys[1]?.key ?? "") : "";
     request.key3 = keys != null && keys.length > 2 ? (keys[2]?.key ?? "") : "";

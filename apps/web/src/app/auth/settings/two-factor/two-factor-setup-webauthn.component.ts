@@ -7,8 +7,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn.request";
+import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
+import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-update.request";
 import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-challenge.response";
 import {
   ChallengeResponse,
@@ -127,7 +127,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       throw new Error("WebAuthn response or key ID is missing");
     }
 
-    const request = new UpdateTwoFactorWebAuthnRequest();
+    const request = new TwoFactorWebAuthnUpdateRequest();
     request.deviceResponse = this.webAuthnResponse;
     request.id = this.keyIdAvailable;
     request.name = this.formGroup.value.name || "";
@@ -191,7 +191,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (!confirmed) {
       return;
     }
-    const request = new UpdateTwoFactorWebAuthnDeleteRequest();
+    const request = new TwoFactorWebAuthnDeleteRequest();
     request.id = key.id;
     request.userVerificationToken = this.userVerificationToken;
     try {

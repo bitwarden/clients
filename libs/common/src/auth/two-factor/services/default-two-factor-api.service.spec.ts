@@ -3,18 +3,18 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/delete-two-factor-authenticator.request";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
+import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
+import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
+import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete-all.request";
+import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
+import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-update.request";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
+import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-update.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
@@ -112,7 +112,7 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorAuthenticator", () => {
       it("enables authenticator after validating the provided token", async () => {
-        const request = new UpdateTwoFactorAuthenticatorRequest();
+        const request = new TwoFactorAuthenticatorUpdateRequest();
         request.token = "123456";
         request.key = "MFRGGZDFMZTWQ2LK";
         const mockResponse = {
@@ -227,7 +227,7 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorEmail", () => {
       it("enables email two-factor after validating the verification code", async () => {
-        const request = new UpdateTwoFactorEmailRequest();
+        const request = new TwoFactorEmailUpdateRequest();
         request.email = "user@example.com";
         request.token = "verification-code";
         const mockResponse = {
@@ -317,7 +317,7 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorDuo", () => {
       it("enables Duo two-factor for premium user with valid integration details", async () => {
-        const request = new UpdateTwoFactorDuoRequest();
+        const request = new TwoFactorDuoUpdateRequest();
         request.host = "api-abc123.duosecurity.com";
         request.clientId = "DI9ABC1DEFGH2JKL";
         request.clientSecret = "client-secret-value-here";
@@ -343,7 +343,7 @@ describe("TwoFactorApiService", () => {
     describe("putTwoFactorOrganizationDuo", () => {
       it("enables organization-level Duo with policy management permissions", async () => {
         const organizationId = "org-123";
-        const request = new UpdateTwoFactorDuoRequest();
+        const request = new TwoFactorDuoUpdateRequest();
         request.host = "api-xyz789.duosecurity.com";
         request.clientId = "DI4XYZ9MNOP3QRS";
         request.clientSecret = "orgcli-secret-value-here";
@@ -406,7 +406,7 @@ describe("TwoFactorApiService", () => {
 
     describe("putTwoFactorYubiKey", () => {
       it("enables YubiKey two-factor for premium user after validating device OTPs", async () => {
-        const request = new UpdateTwoFactorYubikeyOtpRequest();
+        const request = new TwoFactorYubiKeyUpdateRequest();
         request.key1 = "ccccccccccccjkhbhbhrkcitringjkrjirfjuunlnlvcghnkrtgfj";
         request.key2 = "ddddddddddddvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv";
         const mockResponse = {
@@ -520,7 +520,7 @@ describe("TwoFactorApiService", () => {
           getClientExtensionResults: jest.fn().mockReturnValue({}),
         };
 
-        const request = new UpdateTwoFactorWebAuthnRequest();
+        const request = new TwoFactorWebAuthnUpdateRequest();
         request.deviceResponse = mockCredential as PublicKeyCredential;
         request.name = "My Security Key";
 
@@ -572,7 +572,7 @@ describe("TwoFactorApiService", () => {
           getClientExtensionResults: jest.fn().mockReturnValue({}),
         };
 
-        const request = new UpdateTwoFactorWebAuthnRequest();
+        const request = new TwoFactorWebAuthnUpdateRequest();
         request.deviceResponse = mockCredential as PublicKeyCredential;
         request.name = "My Security Key";
 
@@ -589,7 +589,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorWebAuthn", () => {
       it("removes specific WebAuthn credential while preserving other registered keys", async () => {
-        const request = new UpdateTwoFactorWebAuthnDeleteRequest();
+        const request = new TwoFactorWebAuthnDeleteRequest();
         request.id = 1;
         request.userVerificationToken = "uv-token";
         const mockResponse = {

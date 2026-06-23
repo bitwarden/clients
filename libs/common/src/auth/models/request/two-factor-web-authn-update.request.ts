@@ -1,4 +1,4 @@
-export class UpdateTwoFactorWebAuthnRequest {
+export class TwoFactorWebAuthnUpdateRequest {
   deviceResponse!: PublicKeyCredential;
   name!: string;
   id!: number;

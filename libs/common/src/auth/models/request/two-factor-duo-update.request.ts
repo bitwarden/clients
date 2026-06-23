@@ -1,4 +1,4 @@
-export class UpdateTwoFactorDuoRequest {
+export class TwoFactorDuoUpdateRequest {
   clientId!: string;
   clientSecret!: string;
   host!: string;

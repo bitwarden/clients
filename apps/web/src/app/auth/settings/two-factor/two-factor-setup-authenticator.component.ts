@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/delete-two-factor-authenticator.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-authenticator-update.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -155,7 +155,7 @@ export class TwoFactorSetupAuthenticatorComponent
   };
 
   protected async enable() {
-    const request = new UpdateTwoFactorAuthenticatorRequest();
+    const request = new TwoFactorAuthenticatorUpdateRequest();
     request.token = this.formGroup.value.token;
     request.key = this.key;
     request.userVerificationToken = this.userVerificationToken;

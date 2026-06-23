@@ -5,8 +5,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
+import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
-import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -138,7 +138,7 @@ export class TwoFactorSetupDuoComponent
   };
 
   protected async enable() {
-    const request = new UpdateTwoFactorDuoRequest();
+    const request = new TwoFactorDuoUpdateRequest();
     request.clientId = this.clientId;
     request.clientSecret = this.clientSecret;
     request.host = this.host;
