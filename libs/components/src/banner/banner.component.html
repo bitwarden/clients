@@ -4,6 +4,10 @@
   <ng-content></ng-content>
 </ng-template>
 
+<ng-template #actionsContent>
+  <ng-content select="[slot='actions']"></ng-content>
+</ng-template>
+
 <div
   class="tw-relative tw-border-solid tw-border-b tw-border-0 tw-p-4"
   [class]="bannerClass()"
@@ -46,7 +50,7 @@
             </span>
           </div>
           <div class="tw-hidden @3xl:tw-flex tw-gap-3 tw-items-start tw-shrink-0">
-            <ng-content select="[slot='actions']"></ng-content>
+            <ng-container *ngTemplateOutlet="actionsContent"></ng-container>
             @if (isDismissible()) {
               <button
                 type="button"
@@ -59,7 +63,7 @@
             }
           </div>
           <div class="empty:tw-hidden @3xl:tw-hidden tw-flex tw-gap-3 tw-items-start tw-shrink-0">
-            <ng-content select="[slot='actions']"></ng-content>
+            <ng-container *ngTemplateOutlet="actionsContent"></ng-container>
           </div>
         </div>
         @if (isDismissible()) {
