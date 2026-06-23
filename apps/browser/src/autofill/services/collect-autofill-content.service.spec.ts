@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { FormContent } from "@bitwarden/common/autofill/types";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
@@ -433,7 +435,7 @@ describe("CollectAutofillContentService", () => {
       const element = document.getElementById("username") as ElementWithOpId<FormFieldElement>;
       expect(collectAutofillContentService["autofillFieldElements"].has(element)).toBe(true);
       expect(
-        collectAutofillContentService["autofillFieldsByOpid"].has("targeted_field_0_username"),
+        collectAutofillContentService["autofillFieldsByOpid"].has("targeted_field_0_username_0"),
       ).toBe(true);
     });
 
@@ -465,62 +467,6 @@ describe("CollectAutofillContentService", () => {
         expect.objectContaining({ command: "collectPageDetailsResponse" }),
         expect.any(Function),
       );
-    });
-  });
-
-  describe("getTargetedPageDetails cached-field fallback", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
-        .mockImplementation((command: string) => {
-          if (command === "getUrlAutofillTargetingRules") {
-            return Promise.resolve({
-              result: [
-                {
-                  fields: {
-                    username: ["iframe#nonexistent >>> #username"],
-                  },
-                },
-              ],
-            });
-          }
-          return Promise.resolve(undefined);
-        });
-      jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
-        });
-    });
-
-    it("returns empty page details when no local fields match and autofillFieldElements is empty", async () => {
-      document.body.innerHTML = `<input type="text" id="username" />`;
-
-      const pageDetails = await collectAutofillContentService.getPageDetails();
-
-      expect(pageDetails.fields).toHaveLength(0);
-    });
-
-    it("returns cached page details from applyExternalTargetedFields when no local fields match", async () => {
-      document.body.innerHTML = `<input type="text" id="username" />`;
-
-      const targetedFields = [{ selector: "#username", fieldType: "username" }];
-      jest
-        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
-        .mockImplementation((command: string) => {
-          if (command === "getUrlAutofillTargetingRules") {
-            return Promise.resolve({
-              result: [{ fields: { username: ["iframe#nonexistent >>> #username"] } }],
-            });
-          }
-          return Promise.resolve(undefined);
-        });
-      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
-
-      const pageDetails = await collectAutofillContentService.getPageDetails();
-
-      expect(pageDetails.fields).toHaveLength(1);
-      expect(pageDetails.fields[0].opid).toBe("targeted_field_0_username");
     });
   });
 
@@ -661,6 +607,293 @@ describe("CollectAutofillContentService", () => {
         expect.objectContaining({ command: "collectPageDetailsResponse" }),
         expect.any(Function),
       );
+    });
+  });
+
+  describe("getTargetedPageDetails (container resolution)", () => {
+    const mockTargetingRules = (rules: FormContent[] | null) => {
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: unknown) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: rules });
+          }
+          return Promise.resolve({ result: null });
+        });
+      jest
+        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
+        .mockImplementationOnce(() => {
+          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
+        });
+    };
+
+    it("builds an AutofillForm from a <form> container and associates fields with it", async () => {
+      document.body.innerHTML = `
+        <form id="login-form" name="login" action="/sign-in" method="post" class="auth">
+          <input id="user" type="text" />
+          <input id="pw" type="password" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input#user"],
+            password: ["input#pw"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(Object.keys(pageDetails.forms)).toEqual(["targeted_form_0"]);
+      const form = pageDetails.forms["targeted_form_0"];
+      expect(form.htmlID).toBe("login-form");
+      expect(form.htmlName).toBe("login");
+      expect(form.htmlClass).toBe("auth");
+      expect(form.htmlMethod).toBe("post");
+      expect(form.htmlAction).toBe(new URL("/sign-in", globalThis.location.href).href);
+      expect(form.htmlAncestorHeadings).toEqual([]);
+      expect(pageDetails.fields).toHaveLength(2);
+      expect(pageDetails.fields.every((f) => f.form === "targeted_form_0")).toBe(true);
+    });
+
+    it("builds an AutofillForm from a role='form' container with empty action/method", async () => {
+      document.body.innerHTML = `
+        <div role="form" id="login-card" class="auth-card">
+          <input id="user" type="text" />
+          <input id="pw" type="password" />
+        </div>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["div[role='form']#login-card"],
+          fields: {
+            username: ["input#user"],
+            password: ["input#pw"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const form = pageDetails.forms["targeted_form_0"];
+      expect(form.htmlID).toBe("login-card");
+      expect(form.htmlClass).toBe("auth-card");
+      expect(form.htmlAction).toBe("");
+      expect(form.htmlMethod).toBe("");
+      expect(pageDetails.fields.every((f) => f.form === "targeted_form_0")).toBe(true);
+    });
+
+    it("uses the first matching alternative when multiple container selectors are provided", async () => {
+      document.body.innerHTML = `
+        <form id="actual-form">
+          <input id="user" type="text" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#does-not-exist", "form#actual-form"],
+          fields: {
+            username: ["input#user"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms["targeted_form_0"].htmlID).toBe("actual-form");
+      expect(pageDetails.fields[0].form).toBe("targeted_form_0");
+    });
+
+    it("creates no form record and leaves fields unassociated when the container does not resolve", async () => {
+      document.body.innerHTML = `
+        <div>
+          <input id="user" type="text" />
+        </div>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#missing-container"],
+          fields: {
+            username: ["input#user"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms).toEqual({});
+      expect(pageDetails.fields).toHaveLength(1);
+      expect(pageDetails.fields[0].form).toBeNull();
+    });
+
+    it("creates no form record when the container property is omitted", async () => {
+      document.body.innerHTML = `
+        <div>
+          <input id="user" type="text" />
+        </div>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          fields: {
+            username: ["input#user"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms).toEqual({});
+      expect(pageDetails.fields[0].form).toBeNull();
+    });
+
+    it("skips array (sequence) entries in the container array without throwing", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user" type="text" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: [["input#never-applies"] as any, "form#login-form"],
+          fields: {
+            username: ["input#user"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.forms["targeted_form_0"].htmlID).toBe("login-form");
+    });
+
+    it("routes fields to their own form when multiple FormContent entries have distinct containers", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="login-user" type="text" />
+          <input id="login-pw" type="password" />
+        </form>
+        <form id="signup-form">
+          <input id="signup-user" type="text" />
+          <input id="signup-pw" type="password" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input#login-user"],
+            password: ["input#login-pw"],
+          },
+        },
+        {
+          category: "account-creation",
+          container: ["form#signup-form"],
+          fields: {
+            username: ["input#signup-user"],
+            newPassword: ["input#signup-pw"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(Object.keys(pageDetails.forms).sort()).toEqual(["targeted_form_0", "targeted_form_1"]);
+      const loginFields = pageDetails.fields.filter((f) => f.form === "targeted_form_0");
+      const signupFields = pageDetails.fields.filter((f) => f.form === "targeted_form_1");
+      expect(loginFields.map((f) => f.opid).sort()).toEqual([
+        "targeted_field_0_username_0",
+        "targeted_field_1_password_0",
+      ]);
+      expect(signupFields.map((f) => f.opid).sort()).toEqual([
+        "targeted_field_2_username_0",
+        "targeted_field_3_newPassword_0",
+      ]);
+    });
+
+    it("collects up to two newPassword matches from a single selector array (re-entry pattern)", async () => {
+      document.body.innerHTML = `
+        <form id="change-password">
+          <input id="new-pw" type="password" name="newPassword" />
+          <input id="confirm-pw" type="password" name="confirmPassword" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-update",
+          container: ["form#change-password"],
+          fields: {
+            newPassword: ["input[name='newPassword']", "input[name='confirmPassword']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const newPasswordFields = pageDetails.fields.filter(
+        (f) => f.fieldQualifier === "newPassword",
+      );
+      expect(newPasswordFields).toHaveLength(2);
+      expect(newPasswordFields.map((f) => f.opid).sort()).toEqual([
+        "targeted_field_0_newPassword_0",
+        "targeted_field_0_newPassword_1",
+      ]);
+    });
+
+    it("stops at the first match for non-newPassword field types", async () => {
+      document.body.innerHTML = `
+        <form id="login-form">
+          <input id="user-1" type="text" name="username" />
+          <input id="user-2" type="text" name="email" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-login",
+          container: ["form#login-form"],
+          fields: {
+            username: ["input[name='username']", "input[name='email']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const usernameFields = pageDetails.fields.filter((f) => f.fieldQualifier === "username");
+      expect(usernameFields).toHaveLength(1);
+      expect(usernameFields[0].opid).toBe("targeted_field_0_username_0");
+    });
+
+    it("dedupes by element identity when two newPassword selectors resolve to the same node", async () => {
+      document.body.innerHTML = `
+        <form id="change-password">
+          <input id="new-pw" type="password" name="newPassword" data-test="new" />
+        </form>
+      `;
+      mockTargetingRules([
+        {
+          category: "account-update",
+          container: ["form#change-password"],
+          fields: {
+            newPassword: ["input[name='newPassword']", "input[data-test='new']"],
+          },
+        },
+      ]);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      const newPasswordFields = pageDetails.fields.filter(
+        (f) => f.fieldQualifier === "newPassword",
+      );
+      expect(newPasswordFields).toHaveLength(1);
     });
   });
 

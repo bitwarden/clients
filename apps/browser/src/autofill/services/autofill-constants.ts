@@ -1,6 +1,20 @@
 import { AutofillTargetingRuleTypes } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 
+const targetingRuleTypeValues: ReadonlySet<string> = new Set(
+  Object.values(AutofillTargetingRuleTypes),
+);
+
+/**
+ * Type guard for `AutofillTargetingRuleType`. Use at boundaries where a value
+ * typed more loosely (e.g. `AutofillField.fieldQualifier`, which can carry
+ * either heuristic or targeting-rule qualifiers) needs to be narrowed before
+ * being compared against targeting-rule-specific groupings.
+ */
+export function isAutofillTargetingRuleType(value: unknown): value is AutofillTargetingRuleType {
+  return typeof value === "string" && targetingRuleTypeValues.has(value);
+}
+
 export const loginQualifiers: AutofillTargetingRuleType[] = [
   AutofillTargetingRuleTypes.username,
   AutofillTargetingRuleTypes.password,
