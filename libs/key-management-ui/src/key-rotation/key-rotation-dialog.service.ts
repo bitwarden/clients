@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -17,6 +18,7 @@ export class KeyRotationDialogService {
   private readonly userKeyRotationService = inject(UserKeyRotationServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly syncService = inject(SyncService);
   private readonly logoutService = inject(LogoutService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
@@ -53,6 +55,9 @@ export class KeyRotationDialogService {
     );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -93,6 +98,9 @@ export class KeyRotationDialogService {
     );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -123,6 +131,9 @@ export class KeyRotationDialogService {
     );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
