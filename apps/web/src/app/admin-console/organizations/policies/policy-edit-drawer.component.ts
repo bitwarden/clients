@@ -49,7 +49,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   private readonly destroyRef = inject(DestroyRef);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
-  private readonly guardArmed = true;
+  private guardArmed = true;
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
