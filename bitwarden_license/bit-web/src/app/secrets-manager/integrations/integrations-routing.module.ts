@@ -23,7 +23,7 @@ const sdksTabData: SmIntegrationsTabData = {
   ariaKey: "smSdkAriaLabel",
 };
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: "",
     component: IntegrationsComponent,
