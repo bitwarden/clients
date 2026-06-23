@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
@@ -40,8 +41,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   protected formGroup = new FormGroup({
     name: new FormControl(null),
-    email: new FormControl(null),
   });
+
+  protected readonly email = toSignal(
+    this.accountService.activeAccount$.pipe(map((account) => account?.email ?? "")),
+  );
 
   constructor(
     private apiService: ApiService,
@@ -78,7 +82,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       );
 
     this.formGroup.get("name").setValue(this.profile.name);
-    this.formGroup.get("email").setValue(this.profile.email);
 
     this.formGroup
       .get("name")
