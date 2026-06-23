@@ -1619,6 +1619,15 @@
   "deleteItem": {
     "message": "Delete item"
   },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "deleteFolder": {
     "message": "Delete folder"
   },
@@ -2279,6 +2288,27 @@
   },
   "deleteSelectedConfirmation": {
     "message": "Are you sure you want to continue?"
+  },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionsConfirmation": {
+    "message": "Are you sure you want to delete $COUNT$ collections?",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "moveSelectedItemsDesc": {
     "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
@@ -4866,6 +4896,12 @@
   "deletedCollections": {
     "message": "Deleted collections"
   },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
   "deletedCollectionId": {
     "message": "Deleted collection $ID$.",
     "placeholders": {
@@ -6062,6 +6098,10 @@
   "selected": {
     "message": "Selected"
   },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "recommended": {
     "message": "Recommended"
   },
@@ -6303,8 +6343,20 @@
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
   },
+  "permanentlyDeleteItemsCount": {
+    "message": "Permanently delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "permanentlyDeleteItemConfirmation": {
     "message": "Are you sure you want to permanently delete this item?"
+  },
+  "permanentlyDeleteItemsConfirmation": {
+    "message": "Are you sure you want to permanently delete these items?"
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
@@ -10945,6 +10997,9 @@
   "editedCollections": {
     "message": "Edited collections"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
   "baseUrl": {
     "message": "Server URL"
   },
@@ -11323,6 +11378,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
