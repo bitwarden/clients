@@ -45,6 +45,7 @@ export class NewSendDropdownComponent {
   private readonly configService = inject(ConfigService);
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
   );
 
   /** SendType provided for the markup to pass back the selected type of Send */
