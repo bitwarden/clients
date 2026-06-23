@@ -43,9 +43,12 @@ export class KeyRotationDialogService {
       return false;
     }
 
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force regular rotation to behave as an
+    // SDK upgrade rotation ("CreateIfNeeded") that does not require a logout, to validate that
+    // mobile continues to validly access the account after a client-initiated rotation.
     const success = await this.userKeyRotationService.rotateUserKey(
       { Password: { password: masterPassword } },
-      "Skip",
+      "CreateIfNeeded",
       userId,
     );
 
@@ -57,7 +60,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
     return false;
@@ -82,9 +85,10 @@ export class KeyRotationDialogService {
       throw new Error("Key Connector URL not found in user decryption options");
     }
 
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force upgrade rotation without logout.
     const success = await this.userKeyRotationService.rotateUserKey(
       { KeyConnector: { key_connector_url: keyConnectorUrl } },
-      "Skip",
+      "CreateIfNeeded",
       userId,
     );
 
@@ -96,7 +100,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
     return false;
@@ -111,7 +115,12 @@ export class KeyRotationDialogService {
   async rotateKeysForTDE(userId: UserId): Promise<boolean> {
     // TDE keys are rotated as a part of standard key rotation.
     // The call only needs to indicate we're using TDE with no additional metadata required.
-    const success = await this.userKeyRotationService.rotateUserKey("Tde", "Skip", userId);
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force upgrade rotation without logout.
+    const success = await this.userKeyRotationService.rotateUserKey(
+      "Tde",
+      "CreateIfNeeded",
+      userId,
+    );
 
     if (success) {
       this.toastService.showToast({
@@ -121,7 +130,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
 
