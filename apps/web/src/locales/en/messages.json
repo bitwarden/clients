@@ -979,6 +979,9 @@
   "close": {
     "message": "Close"
   },
+  "done": {
+    "message": "Done"
+  },
   "delete": {
     "message": "Delete"
   },
