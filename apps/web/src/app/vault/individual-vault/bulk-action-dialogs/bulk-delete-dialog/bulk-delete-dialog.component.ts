@@ -11,9 +11,11 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { BulkDeleteDialogParams, BulkDeleteDialogResult } from "@bitwarden/vault";
-
-import { BulkDeleteService } from "../services/bulk-delete.service";
+import {
+  BulkDeleteDialogParams,
+  BulkDeleteDialogResult,
+  BulkDeleteService,
+} from "@bitwarden/vault";
 
 export { BulkDeleteDialogParams, BulkDeleteDialogResult };
 

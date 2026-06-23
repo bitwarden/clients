@@ -10,10 +10,10 @@ import {
   BulkDeleteDialogParams,
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
+  BulkDeleteService,
 } from "@bitwarden/vault";
 
 import { openBulkDeleteDialog } from "./bulk-delete-dialog/bulk-delete-dialog.component";
-import { BulkDeleteService } from "./services/bulk-delete.service";
 
 @Injectable()
 export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {

@@ -58,6 +58,7 @@ export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstracti
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export * from "./services/bulk-delete.service";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,

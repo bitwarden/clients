@@ -1,6 +1,7 @@
 import { Injectable, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
