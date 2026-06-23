@@ -114,7 +114,7 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
 
   private async continueFirefoxPopout(): Promise<void> {
     const permissionGranted = BrowserApi.requestPermission({ permissions: ["privacy"] });
-    await this.dismissPrompt();
+    await this.defaultPasswordManagerPromptService.setPromptDismissed();
 
     if (await permissionGranted) {
       await applyDefaultPasswordManagerOverride();
@@ -126,12 +126,12 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   }
 
   private async continueFirefoxPopup(): Promise<void> {
-    await this.dismissPrompt();
+    await this.defaultPasswordManagerPromptService.setPromptDismissed();
     await this.autofillBrowserSettingsService.completeFirefoxPopupPermissionFlow(window);
   }
 
   private async continueWithDefaultPasswordManagerApply(): Promise<void> {
-    await this.dismissPrompt();
+    await this.defaultPasswordManagerPromptService.setPromptDismissed();
 
     if (
       (await this.autofillBrowserSettingsService.disableBrowserAutofillAsDefaultPasswordManager()) ===
@@ -144,12 +144,8 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   }
 
   protected async onSkip(): Promise<void> {
-    await this.dismissPrompt();
-    await this.navigateToNextScreen();
-  }
-
-  private async dismissPrompt(): Promise<void> {
     await this.defaultPasswordManagerPromptService.setPromptDismissed();
+    await this.navigateToNextScreen();
   }
 
   private async showPrivacyPermissionDeniedDialog(): Promise<void> {

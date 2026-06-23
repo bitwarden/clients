@@ -91,14 +91,14 @@ describe("AutofillBrowserSettingsService", () => {
       expect(setDefaultPasswordManagerSessionStateMock).toHaveBeenCalledWith(null);
     });
 
-    it("applies override when pending, granted, and browser autofill is not overridden", async () => {
+    it("returns true and applies override when pending, granted, and not yet overridden", async () => {
       getDefaultPasswordManagerSessionStateMock.mockResolvedValue("pending");
       jest.mocked(BrowserApi.permissionsGranted).mockResolvedValue(true);
       jest.mocked(BrowserApi.browserAutofillSettingsOverridden).mockResolvedValue(false);
 
       await expect(
         service.resumeGrantedPendingDefaultPasswordManagerApply(BrowserClientVendors.Chrome),
-      ).resolves.toBe(false);
+      ).resolves.toBe(true);
 
       expect(applyDefaultPasswordManagerOverrideMock).toHaveBeenCalled();
     });

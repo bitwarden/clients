@@ -70,7 +70,7 @@ export class AutofillBrowserSettingsService {
       await setDefaultPasswordManagerSessionState(null);
     }
 
-    return this.isBrowserAutofillSettingOverridden(browserClient);
+    return true;
   }
 
   async completeFirefoxPopupPermissionFlow(window: Window): Promise<void> {
@@ -86,13 +86,13 @@ export class AutofillBrowserSettingsService {
       return true;
     }
 
+    await setDefaultPasswordManagerSessionState("pending");
+
     if (BrowserApi.isFirefox) {
       this.requestPrivacyPermissionFromUserGesture();
-      await setDefaultPasswordManagerSessionState("pending");
       return false;
     }
 
-    await setDefaultPasswordManagerSessionState("pending");
     const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
 
     if ((await getDefaultPasswordManagerSessionState()) === "pending") {

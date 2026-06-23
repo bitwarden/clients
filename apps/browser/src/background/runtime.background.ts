@@ -517,8 +517,6 @@ export default class RuntimeBackground {
             }
             await this.browserInitialInstallService.setExtensionInstalled(true);
           }
-        } else {
-          await this.defaultPasswordManagerPromptStateAccessor.dismissPrompt();
         }
 
         this.onInstalledReason = null;
