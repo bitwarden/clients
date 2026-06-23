@@ -48,6 +48,8 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
 export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   private readonly destroyRef = inject(DestroyRef);
+  /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
+  private readonly guardArmed = true;
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -105,8 +107,17 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
       return this.dialogService.openSimpleDialog(this.discardDialogOptions);
     };
 
-    // When the vault is locked or the user is logged out, disarm the guard so the
-    // closePredicate won't show the discard dialog during the subsequent router teardown.
+    // Guard against browser refresh / tab close while edits are pending.
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (this.guardArmed && this.isFormDirty()) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    this.destroyRef.onDestroy(() => window.removeEventListener("beforeunload", onBeforeUnload));
+
+    // When the vault is locked or the user is logged out, disarm both guards so neither
+    // closePredicate nor beforeunload prompts during the subsequent router teardown.
     // If the active account becomes null (switchAccount(null) during logout), treat that
     // as a non-Unlocked state and disarm as well.
     this.accountService.activeAccount$
@@ -122,6 +133,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
+        this.guardArmed = false;
         this.dialogRef.closePredicate = undefined;
       });
   }
