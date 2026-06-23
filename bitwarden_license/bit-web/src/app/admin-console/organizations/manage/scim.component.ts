@@ -3,7 +3,7 @@
 import { Component, OnInit } from "@angular/core";
 import { UntypedFormBuilder, FormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
@@ -14,9 +14,11 @@ import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
+import { ScimBannerService } from "./scim-banner.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -34,6 +36,8 @@ export class ScimComponent implements OnInit {
   showScimKey = false;
   private cachedApiKey: string | undefined;
 
+  protected bannerSeen$: Observable<boolean>;
+
   formData = this.formBuilder.group({
     endpointUrl: new FormControl(""),
     clientSecret: new FormControl(""),
@@ -48,12 +52,14 @@ export class ScimComponent implements OnInit {
     private environmentService: EnvironmentService,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private bannerService: ScimBannerService,
   ) {}
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
+      this.bannerSeen$ = this.bannerService.bannerSeen$(this.organizationId as OrganizationId);
       await this.load();
     });
   }
@@ -129,6 +135,10 @@ export class ScimComponent implements OnInit {
   };
 
   submit = async () => {
+    if (this.enabled.value === true && !this.showScimSettings) {
+      await this.bannerService.markBannerSeen(this.organizationId as OrganizationId);
+    }
+
     const request = new OrganizationConnectionRequest(
       this.organizationId,
       OrganizationConnectionType.Scim,
@@ -185,6 +195,7 @@ export class ScimComponent implements OnInit {
     this.cachedApiKey = undefined;
     this.showScimKey = false;
     if (connection !== null && connection.config?.enabled) {
+      await this.bannerService.markBannerSeen(this.organizationId as OrganizationId);
       this.showScimSettings = true;
       this.enabled.setValue(true);
       this.formData.setValue({
