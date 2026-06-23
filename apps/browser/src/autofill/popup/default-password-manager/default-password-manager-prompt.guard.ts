@@ -18,6 +18,10 @@ export const DefaultPasswordManagerPromptGuard = async () => {
     return true;
   }
 
+  if (!(await defaultPasswordManagerPromptService.isEnabled())) {
+    return true;
+  }
+
   const isFreshInstallEligible = await firstValueFrom(
     defaultPasswordManagerPromptService.freshInstallEligible$,
   );

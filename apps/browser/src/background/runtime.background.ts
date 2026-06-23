@@ -25,6 +25,7 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
@@ -273,6 +274,10 @@ export default class RuntimeBackground {
       return;
     }
 
+    if (!(await isDefaultPasswordManagerPromptFeatureEnabled(this.configService))) {
+      return;
+    }
+
     try {
       await completePendingDefaultPasswordManagerApply();
     } catch (error) {
@@ -503,7 +508,9 @@ export default class RuntimeBackground {
 
       if (this.onInstalledReason != null) {
         if (this.onInstalledReason === "install") {
-          await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
+          if (await isDefaultPasswordManagerPromptFeatureEnabled(this.configService)) {
+            await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
+          }
 
           if (!(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))) {
             await this.browserInitialInstallService.displayWelcomePage();

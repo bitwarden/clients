@@ -1,6 +1,8 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 
 import {
@@ -12,6 +14,9 @@ import {
   providedIn: "root",
 })
 export class DefaultPasswordManagerPromptService {
+  private configService = inject(ConfigService);
+  private stateProvider = inject(StateProvider);
+
   private promptDismissedState: GlobalState<boolean> = this.stateProvider.getGlobal(
     DEFAULT_PASSWORD_MANAGER_PROMPT_DISMISSED,
   );
@@ -28,7 +33,9 @@ export class DefaultPasswordManagerPromptService {
     map((eligible) => eligible ?? false),
   );
 
-  constructor(private stateProvider: StateProvider) {}
+  async isEnabled(): Promise<boolean> {
+    return this.configService.getFeatureFlag(FeatureFlag.DefaultPasswordManagerPrompt);
+  }
 
   async setPromptDismissed(): Promise<void> {
     await this.promptDismissedState.update(() => true);

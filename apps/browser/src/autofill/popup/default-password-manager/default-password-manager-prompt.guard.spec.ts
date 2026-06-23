@@ -15,6 +15,7 @@ describe("DefaultPasswordManagerPromptGuard", () => {
     isDefaultPasswordManagerPromptFlowComplete: jest.fn().mockResolvedValue(false),
   };
   const mockDefaultPasswordManagerPromptService = {
+    isEnabled: jest.fn().mockResolvedValue(true),
     freshInstallEligible$: of(true),
     promptDismissed$: of(false),
     setPromptDismissed: jest.fn().mockResolvedValue(undefined),
@@ -23,6 +24,7 @@ describe("DefaultPasswordManagerPromptGuard", () => {
 
   beforeEach(() => {
     createUrlTree.mockClear();
+    mockDefaultPasswordManagerPromptService.isEnabled.mockResolvedValue(true);
     mockAutofillBrowserSettingsService.isDefaultPasswordManagerPromptFlowComplete.mockResolvedValue(
       false,
     );
@@ -48,6 +50,16 @@ describe("DefaultPasswordManagerPromptGuard", () => {
     jest.restoreAllMocks();
   });
 
+  it("should return true when the feature flag is disabled", async () => {
+    mockDefaultPasswordManagerPromptService.isEnabled.mockResolvedValue(false);
+
+    const result = await TestBed.runInInjectionContext(
+      async () => await DefaultPasswordManagerPromptGuard(),
+    );
+    expect(result).toBe(true);
+    expect(createUrlTree).not.toHaveBeenCalled();
+  });
+
   it("should redirect to default-password-manager-prompt on fresh install", async () => {
     await TestBed.runInInjectionContext(async () => await DefaultPasswordManagerPromptGuard());
     expect(createUrlTree).toHaveBeenCalledWith(["/default-password-manager-prompt"]);
@@ -56,6 +68,7 @@ describe("DefaultPasswordManagerPromptGuard", () => {
   it("should return true when not a fresh install", async () => {
     TestBed.overrideProvider(DefaultPasswordManagerPromptService, {
       useValue: {
+        isEnabled: jest.fn().mockResolvedValue(true),
         freshInstallEligible$: of(false),
         promptDismissed$: of(false),
         setPromptDismissed: jest.fn().mockResolvedValue(undefined),
@@ -85,6 +98,7 @@ describe("DefaultPasswordManagerPromptGuard", () => {
   it("should return true when prompt is already dismissed", async () => {
     TestBed.overrideProvider(DefaultPasswordManagerPromptService, {
       useValue: {
+        isEnabled: jest.fn().mockResolvedValue(true),
         freshInstallEligible$: of(true),
         promptDismissed$: of(true),
         setPromptDismissed: jest.fn().mockResolvedValue(undefined),
