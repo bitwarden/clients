@@ -437,7 +437,10 @@ module.exports.buildConfig = function buildConfig(params) {
       );
     }
 
-    // Chrome-only: side panel placeholder page (disabled by default, enabled per-tab for triage)
+    // Chrome-only: side panel placeholder page (disabled by default, enabled per-tab for triage).
+    // Excluded from Vivaldi: the side_panel manifest entry is stripped for Vivaldi builds
+    // (see __vivaldi__side_panel: null in manifest.v3.json) to prevent Vivaldi from
+    // automatically opening the extension Web Panel on every service worker start.
     if (browser === "chrome") {
       mainConfig.plugins.push(
         new HtmlWebpackPlugin({

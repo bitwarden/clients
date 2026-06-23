@@ -114,6 +114,25 @@
   "__chrome__side_panel": {
     "default_path": "sidepanel-disabled.html"
   },
+  "__vivaldi__side_panel": null,
+  "__vivaldi__permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardRead",
+    "clipboardWrite",
+    "contextMenus",
+    "idle",
+    "nativeMessaging",
+    "offscreen",
+    "scripting",
+    "storage",
+    "tabs",
+    "unlimitedStorage",
+    "webNavigation",
+    "webRequest",
+    "webRequestAuthProvider",
+    "notifications"
+  ],
   "commands": {
     "_execute_action": {
       "suggested_key": {

@@ -1432,6 +1432,16 @@ export default class MainBackground {
     const systemUtilsServiceReloadCallback = async () => {
       await this.taskSchedulerService.clearAllScheduledTasks();
 
+      // Vivaldi re-opens the side panel (sidebar Web Panel) on every service worker restart
+      // because it treats chrome.runtime.reload() as an extension reload event, which causes
+      // an unwanted toolbar window to appear every time the vault is locked.
+      // Decrypted state is already wiped by wipeDecryptedState() before reaching this point,
+      // so skipping the hard reload is safe — remaining memory clears naturally when the
+      // service worker goes idle (~5 min in MV3).
+      if (this.platformUtilsService.isVivaldi()) {
+        return;
+      }
+
       // Close browser action popup before reloading to prevent zombie popup with invalidated context.
       // The 'reloadProcess' message is sent by ProcessReloadService before this callback runs,
       // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
@@ -1796,7 +1806,11 @@ export default class MainBackground {
     // Disable the side panel globally on startup so Bitwarden does not appear in
     // Chrome's side panel picker. It is enabled per-tab on demand when the user
     // triggers autofill triage via the context menu.
-    if (BrowserApi.isSidePanelApiSupported) {
+    // Restricted to Chrome and Edge: on Vivaldi (and potentially other Chromium-based
+    // browsers) calling setOptions({ enabled: false }) causes the browser to open the
+    // side panel and display sidepanel-disabled.html as an unwanted toolbar window on
+    // every service worker start (including after vault lock).
+    if (BrowserApi.isSidePanelApiSupported && !this.platformUtilsService.isVivaldi()) {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
