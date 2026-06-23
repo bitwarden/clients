@@ -62,6 +62,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
   private readonly discardGuardEnabled = signal(false);
+  /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
+  private readonly guardArmed = signal(false);
   private readonly useDrawer = toSignal(
     inject(ConfigService).getFeatureFlag$(FeatureFlag.PolicyDrawers),
     { initialValue: false },
@@ -116,32 +118,25 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   };
 
   /**
-   * Installs the discard-edits guard for drawer dialogs.
-   * Has no effect when the flag is off or when opened as a modal.
+   * Installs the discard-edits guard.
+   * - `beforeunload` fires for both modals and drawers (browser refresh / tab close).
+   * - `closePredicate` fires for drawers only (clicking the drawer's close button).
    * Call this once the child policy component has been initialised.
    */
   protected setupDiscardGuard(): void {
-    if (!this.useDrawer() || !this.dialogRef.isDrawer) {
-      return;
-    }
+    this.guardArmed.set(true);
 
-    this.discardGuardEnabled.set(true);
-    this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
-      // A truthy result means an intentional close (e.g. after a successful save) — always allow.
-      if (result || !this.isFormDirty()) {
-        return true;
+    // Guard against browser refresh / tab close while edits are pending.
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (this.guardArmed() && this.isFormDirty()) {
+        event.preventDefault();
       }
-      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-      if (confirmed) {
-        // Disarm the guard so closePredicate won't prompt again when close() is called
-        // after this predicate resolves true.
-        this.discardGuardEnabled.set(false);
-      }
-      return confirmed;
     };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    this.destroyRef.onDestroy(() => window.removeEventListener("beforeunload", onBeforeUnload));
 
-    // When the vault is locked or the user is logged out, disarm the guard so the
-    // closePredicate won't show the discard dialog during the subsequent router teardown.
+    // When the vault is locked or the user is logged out, disarm both guards so neither
+    // closePredicate nor beforeunload prompts during the subsequent router teardown.
     // If the active account becomes null (switchAccount(null) during logout), treat that
     // as a non-Unlocked state and disarm as well.
     this.accountService.activeAccount$
@@ -157,9 +152,28 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
+        this.guardArmed.set(false);
         this.discardGuardEnabled.set(false);
         this.dialogRef.closePredicate = undefined;
       });
+
+    // For modals, only the beforeunload guard is needed — closePredicate is drawer-only.
+    if (!this.useDrawer() || !this.dialogRef.isDrawer) {
+      return;
+    }
+
+    this.discardGuardEnabled.set(true);
+    this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
+      // A truthy result means an intentional close (e.g. after a successful save) — always allow.
+      if (result || !this.isFormDirty()) {
+        return true;
+      }
+      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      if (confirmed) {
+        this.discardGuardEnabled.set(false);
+      }
+      return confirmed;
+    };
   }
 
   protected readonly cancel = async () => {
