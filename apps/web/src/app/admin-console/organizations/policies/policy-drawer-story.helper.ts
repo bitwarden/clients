@@ -1,5 +1,10 @@
 import { importProvidersFrom } from "@angular/core";
-import { applicationConfig, Meta, moduleMetadata } from "@storybook/angular";
+import {
+  applicationConfig,
+  componentWrapperDecorator,
+  Meta,
+  moduleMetadata,
+} from "@storybook/angular";
 import { of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -37,7 +42,21 @@ export function policyDrawerMeta(
     argTypes: {
       enabled: { control: "boolean" },
     },
+    parameters: {
+      layout: "fullscreen",
+    },
     decorators: [
+      componentWrapperDecorator(
+        (story) =>
+          `<div class="tw-h-screen tw-flex tw-flex-row tw-bg-background">` +
+          `<div class="tw-flex-1 tw-p-8 tw-bg-background-alt tw-text-muted">` +
+          `<p>Policy management view</p>` +
+          `</div>` +
+          `<div class="tw-w-[32rem] tw-h-full tw-flex tw-flex-col tw-border-0 tw-border-l tw-border-solid tw-border-secondary-300">` +
+          `${story}` +
+          `</div>` +
+          `</div>`,
+      ),
       moduleMetadata({
         providers: [
           {
@@ -46,7 +65,7 @@ export function policyDrawerMeta(
           },
           {
             provide: DialogRef,
-            useValue: { close: () => Promise.resolve(), closePredicate: undefined },
+            useValue: { isDrawer: true, close: () => Promise.resolve(), closePredicate: undefined },
           },
           {
             provide: AccountService,

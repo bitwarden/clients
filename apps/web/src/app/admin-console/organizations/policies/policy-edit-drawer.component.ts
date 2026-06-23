@@ -40,6 +40,7 @@ import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 
 @Component({
+  selector: "app-policy-edit-drawer",
   templateUrl: "policy-edit-drawer.component.html",
   imports: [SharedModule, SpinnerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
