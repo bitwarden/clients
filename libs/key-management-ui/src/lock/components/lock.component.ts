@@ -10,6 +10,7 @@ import {
   mergeMap,
   Subject,
   switchMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -106,6 +107,7 @@ const BIOMETRIC_UNLOCK_TEMPORARY_UNAVAILABLE_STATUSES = [
 })
 export class LockComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private activeAccountChange$ = new Subject<void>();
   protected loading = true;
 
   activeAccount: Account | null = null;
@@ -294,9 +296,19 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled();
     }
+
+    this.lockComponentService
+      .getExternalUnlock$(activeAccount.id)
+      .pipe(take(1), takeUntil(this.activeAccountChange$), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.ngZone.run((): void => {
+          void this.doContinue({});
+        });
+      });
   }
 
   private resetDataOnActiveAccountChange() {
+    this.activeAccountChange$.next();
     this.defaultUnlockOptionSetForUser = false;
     this.unlockOptions = null;
     this.activeUnlockOption = null;
