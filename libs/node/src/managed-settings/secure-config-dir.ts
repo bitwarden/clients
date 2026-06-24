@@ -71,6 +71,7 @@ function isSecure(
     if (lstatSync(filePath).isSymbolicLink()) {
       return { secure: false, reason: "is a symlink" };
     }
+    // lstat above confirmed this is not a symlink, so statSync sees the same file (no redirection).
     const file = statSync(filePath);
     if (file.uid !== 0) {
       return { secure: false, reason: `is not owned by root (uid ${file.uid})` };

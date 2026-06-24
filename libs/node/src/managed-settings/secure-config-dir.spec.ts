@@ -60,6 +60,7 @@ describe("readSecureManagedConfigDir (posix)", () => {
 
     expect(readSecureManagedConfigDir("/etc/bitwarden/policies", "linux", logger)).toEqual({});
     expect(logger.warning).toHaveBeenCalled();
+    expect(mockFs.readFileSync).not.toHaveBeenCalled();
   });
 
   it("returns empty and does not warn when the directory is absent", () => {
