@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Нужен другой вариант?"
   },
-  "loginWithMasterPassword": {
-    "message": "Войти с мастер-паролем"
-  },
   "readingPasskeyLoading": {
     "message": "Чтение passkey..."
   },
@@ -1751,7 +1748,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Не удалось выполнить аутентификацию с помощью passkey. Попробуйте еще раз."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Использовать другой способ авторизации"
   },
   "logInWithPasskey": {
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Ваша организация требует единого входа."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "С возвращением"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Войти"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Войти в Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
-  },
-  "getMasterPasswordHint": {
-    "message": "Получить подсказку к мастер-паролю"
   },
   "emailRequired": {
     "message": "Необходимо указать email."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "В знак благодарности за то, что вы уже давно пользуетесь услугами Bitwarden, мы хотели бы предложить вам скидку в размере $AMOUNT$ каждые $INTERVAL$ в течение следующих $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "Скидка в размере $AMOUNT$ за каждый $INTERVAL$ будет действовать в течение следующих $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "Скидка $DISCOUNT$ для $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Никогда не истекает"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Скидка применена"
+  },
+  "discountForOneYear": {
+    "message": "на 1 год"
+  },
+  "discountForMonths": {
+    "message": "на $COUNT$ месяцев",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "через $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Срок действия скидки истек. Просмотрите сумму корзины и повторите попытку."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Управление доступом к организации, всеми коллекциями, пользователями, отчетностью и настройками безопасности"
   },
+  "adminRoleDesc": {
+    "message": "Управление коллекциями, пользователями, отчетами и настройками безопасности"
+  },
   "user": {
     "message": "Пользователь"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
+  },
+  "discardEdits": {
+    "message": "Отменить изменения"
   },
   "keepEditing": {
     "message": "Продолжить редактирование"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
+  "receiveMarketingEmails": {
+    "message": "Получать новости от Bitwarden в свой почтовый ящик."
   },
   "subscribe": {
     "message": "Подписаться"
@@ -6957,6 +7032,21 @@
     "message": "В соответствии с корпоративной политикой вы можете удалить только существующую Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не соответствует политике Send вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Для редактирования этой Send, сделайте копию. Если эта Send может истечь к дате удаления, никаких действий не требуется",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Эта Send автоматически истечет после установки даты удаления",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Сделать копию"
+  },
   "sendControls": {
     "message": "Управление Send"
   },
@@ -6964,8 +7054,9 @@
     "message": "Настройте параметры создания и редактирования Send, включая возможность их удаления.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Политики не распространяются на пользователей организации, которые могут ими управлять."
+  "sendControlsPolicyDescV2": {
+    "message": "Настройте что пользователи могут делать при использовании Send. Администраторы и владельцы исключены из этой политики.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Параметры Send",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Ваш новый пароль не может быть таким же, как текущий."
   },
+  "hint": {
+    "message": "Подсказка"
+  },
   "hintEqualsPassword": {
     "message": "Подсказка для пароля не может совпадать с паролем."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Сбросить пароль"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "В случае продолжения сессия $NAME$ будет завершена, что потребует повторной авторизации. Сессии на других устройствах могут оставаться активными до одного часа.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "В случае продолжения сессия $NAME$ будет завершена, что потребует повторной авторизации. Сессии на других устройствах могут оставаться активными до одного часа.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Управление восстановлением аккаунта"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "На основе метода шифрования вы можете восстановить учетные записи, если мастер-пароли или доверенные устройства будут забыты или утеряны."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Существующие аккаунты с мастер-паролями потребуют от участников самостоятельной регистрации, перед восстановлением администраторами их учетных записей. Автоматическая регистрация включит восстановление учетных записей для новых участников."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматическое регистрация"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Автоматически регистрировать новых пользователей"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "В этой организации действует корпоративная политика, которая автоматически зарегистрирует вас на сброс пароля. Регистрация позволит администраторам организации изменить ваш мастер-пароль."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "Настройки SCIM успешно сохранены",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Допускается только одна интеграция данного типа ($TYPE$). Конфликтующая интеграция: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "Скидка $AMOUNT$",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Защитите вашу инфраструктуру"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Обеспечьте надежную защиту элементов в своем хранилище, проверяя отчеты на наличие уязвимостей."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Отслеживать безопасность"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "По мере того как вы будете просматривать заявки и назначать задачи участникам, здесь будет отображаться прогресс вашей организации в улучшении безопасности."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Приоритет рисков"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Просмотрите все приложения, которые хранятся в хранилище вашей организации, и отметьте те, которые являются наиболее приоритетными для вашей защищенности."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Устраните свои самые большие риски"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Здесь вы сможете отслеживать риски, связанные с приоритетными приложениями, и назначать пользователям задания для повышения надежности их паролей."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Помогайте пользователям совершенствоваться"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "После того как вы выбрали критически важные приложения, предложите участникам сменить пароли, подверженные риску. Они получат сообщение в своем расширении Bitwarden."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Будьте в курсе новых рисков"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Регулярно обновляйте отчеты и аналитическую информацию, чтобы выявлять новые риски и просматривать последние показатели по мере роста вашей организации."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ из $TOTAL$",
+    "message": "$CURRENT$ из $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Шаг $CURRENT$ из $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "Один или несколько доменов недействительны"
+  },
+  "domainNotAllowed": {
+    "message": "Включить только следующие домены: $DOMAINS$. Пожалуйста, проверьте и повторите попытку",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Контролируйте, могут ли пользователи использовать функцию Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Любой"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Эта информация была заполнена с использованием заявленных доменов."
+  },
   "more": {
     "message": "Еще"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Прежде чем использовать этот способ оплаты, необходимо подтвердить ваш банковский счет. Пожалуйста, подтвердите его, либо выберите другой способ оплаты."
-  },
-  "discardEdits": {
-    "message": "Отменить изменения"
   },
   "discardEditsMessage": {
     "message": "Если вы закроете это окно, ваши несохраненные изменения будут утрачены"
@@ -14327,6 +14467,25 @@
     "message": "Send имеет несохраненные изменения. Вы действительно хотите выйти?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Включить управление Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Разрешить"
+  },
+  "block": {
+    "message": "Заблокировать"
+  },
+  "sendControlAccessOptions": {
+    "message": "Параметры доступа"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Всегда показывать адрес email пользователя получателям"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Пароль установлен пользователем"
+  },
   "hideMyEmail": {
     "message": "Скрыть мой адрес email от получателей."
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Подтверждение email"
+  },
+  "separateDomainsWithComma": {
+    "message": "Разделять домены запятыми"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
