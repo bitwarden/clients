@@ -94,7 +94,7 @@ export default {
 type Story = StoryObj<BulkRestoreRevokeComponent>;
 
 /**
- * Revoke mode — shows a warning description and a "Revoke Members" action.
+ * In revoke mode, shows a warning description and a "Revoke Members" action.
  */
 export const Revoke: Story = {
   render: () => ({
@@ -115,7 +115,7 @@ export const Revoke: Story = {
 };
 
 /**
- * Restore mode — shows a "Restore Members" action without the revoke warning.
+ * In restore mode, shows a "Restore Members" action without the revoke warning.
  */
 export const Restore: Story = {
   render: () => ({
@@ -136,7 +136,7 @@ export const Restore: Story = {
 };
 
 /**
- * Restore mode with users who have no master password — shows the Details column warning.
+ * In restore mode with users who have no master password, shows the Details column warning.
  */
 export const RestoreWithNoMasterPasswordWarning: Story = {
   render: () => ({
@@ -172,7 +172,7 @@ export const RestoreWithNoMasterPasswordWarning: Story = {
 };
 
 /**
- * Empty selection — shows the "no applicable users" callout.
+ * When the selection is empty, shows the "no applicable users" callout.
  */
 export const EmptySelection: Story = {
   render: () => ({

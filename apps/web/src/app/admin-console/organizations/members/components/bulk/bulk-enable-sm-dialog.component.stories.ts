@@ -63,6 +63,10 @@ export default {
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: ToastService, useValue: mockToastService },
         { provide: DialogRef, useValue: mockDialogRef },
+        {
+          provide: DIALOG_DATA,
+          useValue: { orgId: "org-1", users: mockUsers },
+        },
       ],
     }),
     applicationConfig({
@@ -74,18 +78,11 @@ export default {
 type Story = StoryObj<BulkEnableSecretsManagerDialogComponent>;
 
 /**
- * Default state — lists members who will have Secrets Manager access enabled.
+ * Lists the members who will have Secrets Manager access enabled.
  */
 export const Default: Story = {
+  name: "Default",
   render: () => ({
-    moduleMetadata: {
-      providers: [
-        {
-          provide: DIALOG_DATA,
-          useValue: { orgId: "org-1", users: mockUsers },
-        },
-      ],
-    },
     template: `<member-bulk-enable-sm-dialog></member-bulk-enable-sm-dialog>`,
   }),
 };

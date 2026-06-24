@@ -52,7 +52,7 @@ export default {
 type Story = StoryObj<BulkStatusComponent>;
 
 /**
- * All operations succeeded — every member shows the success message.
+ * All operations succeeded and every member shows the success message.
  */
 export const AllSucceeded: Story = {
   render: () => ({
@@ -78,7 +78,7 @@ export const AllSucceeded: Story = {
 };
 
 /**
- * Mixed results — some members succeeded and some encountered errors.
+ * Some members succeeded and some encountered errors.
  */
 export const MixedResults: Story = {
   render: () => ({
@@ -104,7 +104,7 @@ export const MixedResults: Story = {
 };
 
 /**
- * Filtered users — some users were skipped (not in filteredUsers) and show the filtered message.
+ * Some users were skipped because they were not in filteredUsers, so they show the filtered message.
  */
 export const WithFilteredUsers: Story = {
   render: () => ({

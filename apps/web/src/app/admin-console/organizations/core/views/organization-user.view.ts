@@ -16,7 +16,7 @@ export class OrganizationUserView {
   status: OrganizationUserStatusType;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean = false;
-  name: string;
+  name: string | undefined;
   email: string;
   avatarColor: string;
   twoFactorEnabled: boolean = false;
@@ -43,7 +43,7 @@ export class OrganizationUserView {
     status: OrganizationUserStatusType;
     permissions: PermissionsApi;
     avatarColor: string;
-    name: string;
+    name: string | undefined;
   }) {
     this.id = c.id;
     this.userId = c.userId;

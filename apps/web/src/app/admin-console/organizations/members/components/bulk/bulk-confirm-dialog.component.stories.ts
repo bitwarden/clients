@@ -106,10 +106,8 @@ export default {
 
 type Story = StoryObj<BulkConfirmDialogComponent>;
 
-/**
- * Pre-confirm state — shows fingerprints for accepted members and "not applicable" for non-accepted.
- */
 export const WithFingerprints: Story = {
+  name: "With fingerprints",
   render: () => ({
     moduleMetadata: {
       providers: [
@@ -127,29 +125,10 @@ export const WithFingerprints: Story = {
 };
 
 /**
- * Mixed accepted/non-accepted users — accepted users show fingerprints, invited user is excluded.
- */
-export const WithMixedStatuses: Story = {
-  render: () => ({
-    moduleMetadata: {
-      providers: [
-        {
-          provide: DIALOG_DATA,
-          useValue: {
-            organization: mockOrg,
-            users: [...mockUsers, invitedUser],
-          },
-        },
-      ],
-    },
-    template: `<member-bulk-comfirm-dialog></member-bulk-comfirm-dialog>`,
-  }),
-};
-
-/**
- * No accepted users — shows the "no applicable users" callout immediately.
+ * When there are no accepted users, the dialog shows the "no applicable users" callout right away.
  */
 export const NoAcceptedUsers: Story = {
+  name: "No accepted users",
   render: () => ({
     moduleMetadata: {
       providers: [

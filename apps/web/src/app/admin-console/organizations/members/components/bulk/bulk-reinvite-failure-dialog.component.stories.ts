@@ -20,7 +20,7 @@ import { BulkActionResult } from "../../services/member-actions/member-actions.t
 
 import { BulkReinviteFailureDialogComponent } from "./bulk-reinvite-failure-dialog.component";
 
-function makeUser(id: string, name: string, email: string): OrganizationUserView {
+function makeUser(id: string, name: string | undefined, email: string): OrganizationUserView {
   return new OrganizationUserView({
     id: id as Guid,
     userId: `${id}-uid` as UserId,
@@ -36,7 +36,7 @@ function makeUser(id: string, name: string, email: string): OrganizationUserView
 
 const allUsers: OrganizationUserView[] = [
   makeUser("user-1", "Alice Smith", "alice@example.com"),
-  makeUser("user-2", "", "bob@example.com"),
+  makeUser("user-2", undefined, "bob@example.com"),
   makeUser("user-3", "Carol Jones", "carol@example.com"),
 ];
 
@@ -75,9 +75,10 @@ export default {
 type Story = StoryObj<BulkReinviteFailureDialogComponent>;
 
 /**
- * Single invitation failed — shows singular title and one member in the table.
+ * When a single invitation fails, shows the singular title with one member in the table.
  */
 export const SingleFailure: Story = {
+  name: "Single failure",
   render: () => ({
     moduleMetadata: {
       providers: [
@@ -96,9 +97,10 @@ export const SingleFailure: Story = {
 };
 
 /**
- * Multiple invitations failed — shows plural title and all failed members in the table.
+ * When multiple invitations fail, shows the plural title with all failed members in the table.
  */
 export const MultipleFailures: Story = {
+  name: "Multiple failures",
   render: () => ({
     moduleMetadata: {
       providers: [

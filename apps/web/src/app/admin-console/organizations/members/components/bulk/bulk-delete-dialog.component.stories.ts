@@ -73,7 +73,7 @@ export default {
 type Story = StoryObj<BulkDeleteDialogComponent>;
 
 /**
- * Pre-submit state — lists members to be deleted with a warning description.
+ * Before submitting, lists the members to be deleted along with a warning description.
  */
 export const Default: Story = {
   render: () => ({
@@ -90,7 +90,7 @@ export const Default: Story = {
 };
 
 /**
- * Empty selection — shows the "no applicable members" callout instead of a table.
+ * When the selection is empty, shows the "no applicable members" callout instead of a table.
  */
 export const EmptySelection: Story = {
   render: () => ({

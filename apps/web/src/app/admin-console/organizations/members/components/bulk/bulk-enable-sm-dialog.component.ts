@@ -1,5 +1,4 @@
-import { AsyncPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -13,7 +12,6 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  TableDataSource,
   TableModule,
   ToastService,
 } from "@bitwarden/components";
@@ -33,7 +31,6 @@ export type BulkEnableSecretsManagerDialogData = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
-    AsyncPipe,
     AvatarModule,
     ButtonModule,
     DialogModule,
@@ -50,16 +47,16 @@ export class BulkEnableSecretsManagerDialogComponent {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly dataSource = new TableDataSource<OrganizationUserView>();
+  protected readonly users = signal<OrganizationUserView[]>([]);
 
   constructor() {
-    this.dataSource.data = this.data.users;
+    this.users.set(this.data.users);
   }
 
   readonly submit = async () => {
     await this.organizationUserApiService.putOrganizationUserBulkEnableSecretsManager(
       this.data.orgId,
-      this.dataSource.data.map((u) => u.id),
+      this.users().map((u) => u.id),
     );
     this.toastService.showToast({
       variant: "success",

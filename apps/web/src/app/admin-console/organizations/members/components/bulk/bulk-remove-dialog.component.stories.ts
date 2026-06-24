@@ -64,7 +64,7 @@ export default {
 type Story = StoryObj<BulkRemoveDialogComponent>;
 
 /**
- * Pre-submit state — shows warning callout and member list.
+ * Before submitting, shows the warning callout and member list.
  */
 export const Default: Story = {
   render: () => ({
@@ -81,7 +81,7 @@ export const Default: Story = {
 };
 
 /**
- * With members who have no master password — shows the Details column with a warning icon.
+ * When some members have no master password, shows the Details column with a warning icon.
  */
 export const WithNoMasterPasswordWarning: Story = {
   render: () => ({
@@ -116,7 +116,7 @@ export const WithNoMasterPasswordWarning: Story = {
 };
 
 /**
- * Empty selection — shows the "no applicable users" callout.
+ * When the selection is empty, shows the "no applicable users" callout.
  */
 export const EmptySelection: Story = {
   render: () => ({
