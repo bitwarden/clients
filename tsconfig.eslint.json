@@ -5,6 +5,7 @@
     ".storybook/manager.js",
     ".storybook/test-runner.ts",
     ".storybook/format-args-for-code-snippet.ts",
+    ".storybook/format-args-for-code-snippet.spec.ts",
     "apps/browser/src/autofill/content/components/.lit-storybook/main.ts"
   ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
