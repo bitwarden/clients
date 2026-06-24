@@ -749,6 +749,7 @@ export default class MainBackground {
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
       this.accountService,
+      this.managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
     this.biometricStateService = new DefaultBiometricStateService(this.stateProvider);

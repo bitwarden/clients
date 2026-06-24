@@ -796,7 +796,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EnvironmentService,
     useClass: DefaultEnvironmentService,
-    deps: [StateProvider, AccountServiceAbstraction, ENV_ADDITIONAL_REGIONS],
+    deps: [
+      StateProvider,
+      AccountServiceAbstraction,
+      ManagedSettingsService,
+      ENV_ADDITIONAL_REGIONS,
+    ],
   }),
   safeProvider({
     provide: InternalUserDecryptionOptionsServiceAbstraction,

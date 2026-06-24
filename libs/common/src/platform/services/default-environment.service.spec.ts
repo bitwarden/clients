@@ -1,9 +1,11 @@
+import { mock } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { FakeStateProvider, awaitAsync, mockAccountInfoWith } from "../../../spec";
 import { FakeAccountService } from "../../../spec/fake-account-service";
 import { UserId } from "../../types/guid";
 import { CloudRegion, Region } from "../abstractions/environment.service";
+import { ManagedSettingsService } from "../managed-settings/managed-settings.service";
 
 import {
   GLOBAL_ENVIRONMENT_KEY,
@@ -20,6 +22,7 @@ import {
 describe("EnvironmentService", () => {
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
+  let managedSettings: ManagedSettingsService;
 
   let sut: DefaultEnvironmentService;
 
@@ -38,8 +41,9 @@ describe("EnvironmentService", () => {
       }),
     });
     stateProvider = new FakeStateProvider(accountService);
+    managedSettings = mock<ManagedSettingsService>();
 
-    sut = new DefaultEnvironmentService(stateProvider, accountService);
+    sut = new DefaultEnvironmentService(stateProvider, accountService, managedSettings);
   });
 
   const switchUser = async (userId: UserId) => {
@@ -321,6 +325,24 @@ describe("EnvironmentService", () => {
   });
 
   describe("setEnvironment", () => {
+    it("setEnvironment throws when the environment is managed", async () => {
+      const managed = mock<ManagedSettingsService>();
+      managed.isManaged.mockImplementation((key) => key === "environment.base");
+      const sutManaged = new DefaultEnvironmentService(stateProvider, accountService, managed);
+
+      await expect(
+        sutManaged.setEnvironment(Region.SelfHosted, { base: "https://x" }),
+      ).rejects.toThrow(/managed/i);
+    });
+
+    it("setEnvironment writes normally when not managed", async () => {
+      const managed = mock<ManagedSettingsService>();
+      managed.isManaged.mockReturnValue(false);
+      const sutUnmanaged = new DefaultEnvironmentService(stateProvider, accountService, managed);
+
+      await expect(sutUnmanaged.setEnvironment(Region.US)).resolves.toBeNull();
+    });
+
     it("self-hosted with base-url", async () => {
       await sut.setEnvironment(Region.SelfHosted, {
         base: "base.example.com",

@@ -13,6 +13,7 @@ import {
   Urls,
   CloudRegion,
 } from "../abstractions/environment.service";
+import { ManagedSettingsService } from "../managed-settings/managed-settings.service";
 import { Utils } from "../misc/utils";
 import {
   ENVIRONMENT_DISK,
@@ -142,6 +143,7 @@ export class DefaultEnvironmentService implements EnvironmentService {
   constructor(
     private stateProvider: StateProvider,
     private accountService: AccountService,
+    private managedSettings: ManagedSettingsService,
     private additionalRegionConfigs: RegionConfig[] = [],
   ) {
     this.globalState = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY);
@@ -216,6 +218,13 @@ export class DefaultEnvironmentService implements EnvironmentService {
   }
 
   async setEnvironment(region: Region, urls?: Urls): Promise<Urls> {
+    // The environment is administrator-managed and forced; "base" is the required anchor of a
+    // managed environment (see managed_schema.json). Reads are overlaid regardless; reject the
+    // write so callers/UI do not believe a change took effect.
+    if (this.managedSettings.isManaged("environment.base")) {
+      throw new Error("The environment is managed by your organization and cannot be changed.");
+    }
+
     // Unknown regions are treated as self-hosted
     if (this.getRegionConfig(region) == null) {
       region = Region.SelfHosted;

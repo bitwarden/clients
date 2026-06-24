@@ -477,9 +477,12 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
     );
 
+    const managedSettingsService = new DefaultManagedSettingsService();
+
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
       this.accountService,
+      managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
@@ -684,7 +687,6 @@ export class ServiceContainer {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new CliSdkLoadService();
-    const managedSettingsService = new DefaultManagedSettingsService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,

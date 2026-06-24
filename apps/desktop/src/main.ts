@@ -20,6 +20,7 @@ import {
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -211,6 +212,7 @@ export class Main {
     this.environmentService = new DefaultEnvironmentService(
       stateProvider,
       accountService,
+      new DefaultManagedSettingsService(),
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
