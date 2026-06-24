@@ -179,6 +179,7 @@ import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/pla
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
+import { ManagedOverlayStateProvider } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
@@ -373,7 +374,7 @@ import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
-import { flagEnabled } from "../platform/flags";
+import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
 /* eslint-disable no-restricted-imports */
@@ -717,6 +718,16 @@ export default class MainBackground {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+    this.managedSettingsService = new DefaultManagedSettingsService();
+    this.stateProvider = new ManagedOverlayStateProvider(
+      this.stateProvider,
+      this.managedSettingsService,
+    );
+    if (devFlagEnabled("managedSettings")) {
+      this.managedSettingsService.pushExplicit(
+        devFlagValue("managedSettings") as Record<string, unknown>,
+      );
+    }
 
     this.taskSchedulerService = new BackgroundTaskSchedulerService(
       this.logService,
@@ -922,7 +933,6 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
-    this.managedSettingsService = new DefaultManagedSettingsService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,

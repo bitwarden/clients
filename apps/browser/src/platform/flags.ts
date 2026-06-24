@@ -14,6 +14,8 @@ export type Flags = SharedFlags;
 // required to avoid linting errors when there are no flags
 export type DevFlags = {
   managedEnvironment?: GroupPolicyEnvironment;
+  /** Dev-only: an in-code managed-settings map (dotted key -> value) pushed at boot. */
+  managedSettings?: Record<string, unknown>;
 } & SharedDevFlags;
 
 export function flagEnabled(flag: keyof Flags): boolean {

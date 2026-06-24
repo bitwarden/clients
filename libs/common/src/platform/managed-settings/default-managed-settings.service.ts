@@ -46,9 +46,9 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
   }
 
   pushExplicit(values: Record<string, unknown>): void {
-    const settings: Record<string, string> = {};
+    const settings = new Map<string, string>();
     for (const [k, v] of Object.entries(values)) {
-      settings[k] = JSON.stringify(v);
+      settings.set(k, JSON.stringify(v));
     }
     this.updateProfile({ version: 1, updatedAt: Math.floor(Date.now() / 1000), settings });
   }
