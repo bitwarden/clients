@@ -38,6 +38,11 @@ export class ManagedOverlayStateProvider extends StateProvider {
     return this.inner.activeUserId$;
   }
 
+  // NOTE: getUserState$ / getUserStateOrDefault$ delegate to the inner provider and are
+  // NOT overlaid. The honored managed read path is the holder-based getGlobal/getUser/
+  // getActive(KEY).state$ (the inner provider's getUserState$ resolves its own getUser, not
+  // this overlay's). No consumer reads a managed key through these today; if one ever does,
+  // route them through this overlay's getUser/getActive. Tracked for the first real-consumer plan.
   getUserState$<T>(keyDefinition: UserKeyDefinition<T>, userId?: UserId): Observable<T> {
     return this.inner.getUserState$(keyDefinition, userId);
   }
