@@ -1664,6 +1664,9 @@
   "deleteItemsPermanentlyDesc": {
     "message": "You will not be able to recover these items."
   },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
   "deleteItemsAndCollectionsDesc": {
     "message": "The selected items and collections will be permanently deleted."
   },

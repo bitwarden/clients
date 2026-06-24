@@ -137,11 +137,10 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     const cipherIds = params.cipherIds ?? [];
     const unassignedCiphers = params.unassignedCiphers ?? [];
     const collections = params.collections ?? [];
-    const totalCount = cipherIds.length + unassignedCiphers.length + collections.length;
 
     const confirmed = await this.dialogService.openSimpleDialog({
       type: "danger",
-      title: { key: "deleteItemsCount", placeholders: [totalCount] },
+      title: { key: "deleteSelection" },
       content: { key: "deleteItemsAndCollectionsDesc" },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
