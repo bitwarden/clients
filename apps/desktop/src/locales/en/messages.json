@@ -5502,8 +5502,53 @@
   "addToFolder": {
     "message": "Add to folder"
   },
-  "deleteSelected": {
-    "message": "Delete selected"
+  "deleteSelectedPlural": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteSelectedSingular": {
+    "message": "Delete $COUNT$ item",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "deleteSelectedCiphersPlural": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteSelectedCiphersSingular": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "permanentlyDeleteSelectedPlural": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "permanentlyDeleteSelectedSingular": {
+    "message": "Delete $COUNT$ item permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "permanentlyDeleteSelectedCiphersPlural": {
+    "message": "You will not be able to recover these items."
+  },
+  "permanentlyDeleteSelectedCiphersSingular": {
+    "message": "You will not be able to recover this item."
   },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ item(s) will be sent to trash.",
