@@ -128,6 +128,7 @@ import {
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ActionsService } from "@bitwarden/common/platform/actions";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -209,6 +210,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
+import { BrowserManagedConfigReader } from "../../platform/managed-settings/browser-managed-config-reader";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
 import { ForegroundServerNotificationsService } from "../../platform/notifications/foreground-server-notifications.service";
@@ -268,6 +270,15 @@ const safeProviders: SafeProvider[] = [
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
+    useFactory: (managedSettings: ManagedSettingsService, logService: LogService) => () =>
+      flagEnabled("managedSettings")
+        ? new BrowserManagedConfigReader(managedSettings, logService).start()
+        : Promise.resolve(),
+    deps: [ManagedSettingsService, LogService],
     multi: true,
   }),
   safeProvider({
