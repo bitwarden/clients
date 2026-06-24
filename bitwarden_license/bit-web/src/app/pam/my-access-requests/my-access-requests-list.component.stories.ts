@@ -197,6 +197,11 @@ const i18nMock = () =>
     pamStartLeaseButton: "Start access",
     pamActivateWithin: "Activate within __$1__",
     pamExtendedBadge: "Extended +__$1__ · until __$2__",
+    pamEndLeaseTitle: "End lease",
+    pamEndLeaseConfirm: "Are you sure you want to end this lease?",
+    pamEndLeaseButton: "End lease",
+    pamEndLeaseSuccess: "Lease ended",
+    errorOccurred: "An error has occurred.",
     actions: "Actions",
   });
 

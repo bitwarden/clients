@@ -26,6 +26,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
   ButtonModule,
+  DialogService,
   NoItemsModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -82,6 +83,7 @@ export class MyAccessRequestsListComponent implements OnInit {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
 
@@ -89,6 +91,8 @@ export class MyAccessRequestsListComponent implements OnInit {
   protected readonly cancelling = signal<Set<string>>(new Set<string>());
   /** Ids of approved requests currently being activated (prevents double-click). */
   protected readonly starting = signal<Set<string>>(new Set<string>());
+  /** Ids of active leases currently being ended (prevents double-click). */
+  protected readonly ending = signal<Set<string>>(new Set<string>());
   /** Ticks once a second so the redemption countdown stays live. */
   private readonly nowMs = signal(Date.now());
 
@@ -251,6 +255,50 @@ export class MyAccessRequestsListComponent implements OnInit {
   /** A live "ends in X" label for an active lease. */
   protected leaseRemainingLabel(lease: LeaseRow): string {
     return formatRemaining(lease.notAfter.getTime() - this.nowMs());
+  }
+
+  protected isEnding(id: string): boolean {
+    return this.ending().has(id);
+  }
+
+  /**
+   * End (revoke) an active lease early. Confirms first — the same warning the cipher-view banner
+   * shows — then hands off to the service, which removes the lease optimistically and rolls back on
+   * failure. Reuses the banner's copy so the affordance reads identically in both places.
+   */
+  protected async endLease(lease: LeaseRow): Promise<void> {
+    if (this.isEnding(lease.id)) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamEndLeaseTitle" },
+      content: { key: "pamEndLeaseConfirm" },
+      acceptButtonText: { key: "pamEndLeaseButton" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    this.ending.update((s) => new Set([...s, lease.id]));
+    try {
+      await this.myRequests.endLease(lease.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamEndLeaseSuccess"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("errorOccurred"),
+      });
+    } finally {
+      this.ending.update((s) => {
+        const next = new Set(s);
+        next.delete(lease.id);
+        return next;
+      });
+    }
   }
 
   /** "+2h"-style label for the total time an extension added; shared by lease and history rows. */

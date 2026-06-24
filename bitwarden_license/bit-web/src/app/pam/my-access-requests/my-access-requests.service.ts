@@ -17,6 +17,7 @@ import {
 
 import {
   AccessLeaseResponse,
+  AccessLeaseRevokeRequest,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   PamApiService,
@@ -132,6 +133,28 @@ export class MyAccessRequestsService {
     } catch (e) {
       Object.assign(target, snapshot);
       this._responses$.next([...current]);
+      throw e;
+    }
+  }
+
+  /**
+   * End (revoke) an active lease the caller holds. Removes the lease row optimistically so it
+   * leaves Active leases — and, because History keys "still active?" off this set, the activating
+   * request reappears there — then calls the API; on failure restores the row and rethrows so the
+   * caller can toast. The API impl's `mutations$` pump reconciles server truth on the next refresh.
+   */
+  async endLease(leaseId: string): Promise<void> {
+    const current = this._leases$.value;
+    const target = current.find((l) => l.id === leaseId);
+    if (target == null) {
+      await this.pamApi.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
+      return;
+    }
+    this._leases$.next(current.filter((l) => l.id !== leaseId));
+    try {
+      await this.pamApi.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
+    } catch (e) {
+      this._leases$.next(current);
       throw e;
     }
   }

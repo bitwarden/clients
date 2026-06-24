@@ -4,6 +4,7 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import {
   AccessLeaseResponse,
+  AccessLeaseRevokeRequest,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   PamApiService,
@@ -26,6 +27,19 @@ function response(id: string, status: AccessRequestStatus): AccessRequestDetails
     Status: status,
     RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-05-01T00:00:00Z",
+  });
+}
+
+function lease(id: string): AccessLeaseResponse {
+  return new AccessLeaseResponse({
+    Id: id,
+    RequestId: `req-${id}`,
+    CipherId: `cipher-${id}`,
+    CollectionId: "col-1",
+    GranteeUserId: "me",
+    NotBefore: "2026-06-10T10:00:00Z",
+    NotAfter: "2026-06-10T12:00:00Z",
+    Status: "active",
   });
 }
 
@@ -179,5 +193,30 @@ describe("MyAccessRequestsService", () => {
     expect(pamApi.activateLease).toHaveBeenCalledWith("a1");
     // activate() reloads exactly once on success.
     expect(pamApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+  });
+
+  it("ends a lease optimistically and calls the API", async () => {
+    pamApi.listActiveLeases.mockResolvedValue([lease("lease-1")]);
+    pamApi.revokeAccessLease.mockResolvedValue(undefined);
+    await service.load();
+
+    await service.endLease("lease-1");
+
+    expect(pamApi.revokeAccessLease).toHaveBeenCalledWith(
+      "lease-1",
+      expect.any(AccessLeaseRevokeRequest),
+    );
+    expect(await firstValueFrom(service.leases$)).toEqual([]);
+  });
+
+  it("restores the lease when ending it fails", async () => {
+    pamApi.listActiveLeases.mockResolvedValue([lease("lease-1")]);
+    pamApi.revokeAccessLease.mockRejectedValue(new Error("boom"));
+    await service.load();
+
+    await expect(service.endLease("lease-1")).rejects.toThrow("boom");
+
+    const leases = await firstValueFrom(service.leases$);
+    expect(leases.map((l) => l.id)).toEqual(["lease-1"]);
   });
 });
