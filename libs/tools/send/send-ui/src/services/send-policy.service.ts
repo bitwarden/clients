@@ -125,7 +125,7 @@ export class SendPolicyService {
   readonly deletionDatePolicyInfo$: Observable<{
     deletionHours: SendDeletionDatePreset | null;
     orgId: OrganizationId | null;
-  } | null> = this.flagAndUser$.pipe(
+  }> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
@@ -136,7 +136,7 @@ export class SendPolicyService {
               return { deletionHours, orgId };
             }),
           )
-        : of(null),
+        : of({ deletionHours: null, orgId: null }),
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
