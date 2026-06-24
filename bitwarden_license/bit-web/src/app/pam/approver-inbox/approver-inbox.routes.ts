@@ -7,6 +7,7 @@ import { ApprovalsTabComponent } from "./approvals-tab.component";
 import { ApproverInboxComponent } from "./approver-inbox.component";
 import { ApproverInboxService } from "./approver-inbox.service";
 import { AuditLogTabComponent } from "./audit-log-tab.component";
+import { canViewApprovalsGuard } from "./can-view-approvals.guard";
 
 /**
  * Routable Access-requests tabs, shared by both mounts (end-user OSS routing and the Admin Console
@@ -25,6 +26,7 @@ export const approverInboxRoutes: Routes = [
       {
         path: "approvals",
         component: ApprovalsTabComponent,
+        canActivate: [canViewApprovalsGuard],
         data: { titleId: "pamTabApprovals" },
       },
       {

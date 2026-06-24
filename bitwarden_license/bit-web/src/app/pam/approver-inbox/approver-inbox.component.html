@@ -1,8 +1,10 @@
 <app-header [title]="'pamInboxTitle' | i18n">
   <bit-tab-nav-bar slot="tabs" [label]="'pamInboxTitle' | i18n">
-    <bit-tab-link route="approvals" [berryValue]="pendingApprovalsCount()">{{
-      "pamTabApprovals" | i18n
-    }}</bit-tab-link>
+    @if (canViewApprovals()) {
+      <bit-tab-link route="approvals" [berryValue]="pendingApprovalsCount()">{{
+        "pamTabApprovals" | i18n
+      }}</bit-tab-link>
+    }
     <bit-tab-link route="my-requests" [berryValue]="myPendingCount()">{{
       "pamTabMyRequests" | i18n
     }}</bit-tab-link>
