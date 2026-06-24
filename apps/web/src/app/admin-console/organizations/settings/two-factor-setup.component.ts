@@ -14,9 +14,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -93,9 +92,8 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         const twoFactorVerifyDialogRef = TwoFactorVerifyComponent.open(this.dialogService, {
           data: { type: type, organizationId: this.organizationId },
         });
-        const result: AuthResponse<TwoFactorOrganizationDuoResponse> = await lastValueFrom(
-          twoFactorVerifyDialogRef.closed,
-        );
+        const result: TwoFactorSetupDialogData<TwoFactorOrganizationDuoResponse> =
+          await lastValueFrom(twoFactorVerifyDialogRef.closed);
         if (!result) {
           return;
         }

@@ -22,7 +22,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService, TwoFactorProviders } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorProviders , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";
@@ -30,7 +30,6 @@ import { TwoFactorDuoResponse } from "@bitwarden/common/auth/two-factor/response
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email.response";
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -225,7 +224,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
 
     switch (type) {
       case TwoFactorProviderType.Authenticator: {
-        const result: AuthResponse<TwoFactorAuthenticatorResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorAuthenticatorResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -243,7 +242,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         break;
       }
       case TwoFactorProviderType.Yubikey: {
-        const result: AuthResponse<TwoFactorYubiKeyResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorYubiKeyResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -260,7 +259,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         break;
       }
       case TwoFactorProviderType.Duo: {
-        const result: AuthResponse<TwoFactorDuoResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorDuoResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -282,7 +281,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         break;
       }
       case TwoFactorProviderType.Email: {
-        const result: AuthResponse<TwoFactorEmailResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorEmailResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;
@@ -302,7 +301,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         break;
       }
       case TwoFactorProviderType.WebAuthn: {
-        const result: AuthResponse<TwoFactorWebAuthnResponse> =
+        const result: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse> =
           await this.callTwoFactorVerifyDialog(type);
         if (!result) {
           return;

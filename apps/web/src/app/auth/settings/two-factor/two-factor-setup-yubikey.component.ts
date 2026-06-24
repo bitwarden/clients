@@ -11,13 +11,12 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
 import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-update.request";
 import { TwoFactorYubiKeyDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key-details.response";
 import { TwoFactorYubiKeyUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key-update.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -94,7 +93,7 @@ export class TwoFactorSetupYubiKeyComponent
   }
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorYubiKeyResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorYubiKeyResponse>,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -139,7 +138,7 @@ export class TwoFactorSetupYubiKeyComponent
     });
   }
 
-  auth(authResponse: AuthResponse<TwoFactorYubiKeyResponse>) {
+  auth(authResponse: TwoFactorSetupDialogData<TwoFactorYubiKeyResponse>) {
     super.auth(authResponse);
     this.processGetResponse(authResponse.response);
   }
@@ -260,11 +259,11 @@ export class TwoFactorSetupYubiKeyComponent
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorYubiKeyResponse>>,
   ) {
-    return dialogService.open<boolean, AuthResponse<TwoFactorYubiKeyResponse>>(
+    return dialogService.open<boolean, TwoFactorSetupDialogData<TwoFactorYubiKeyResponse>>(
       TwoFactorSetupYubiKeyComponent,
-      config as DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>, boolean>,
+      config as DialogConfig<TwoFactorSetupDialogData<TwoFactorYubiKeyResponse>, boolean>,
     );
   }
 }

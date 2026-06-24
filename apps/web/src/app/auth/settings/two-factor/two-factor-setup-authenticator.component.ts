@@ -9,12 +9,11 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator-update.response";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -97,7 +96,7 @@ export class TwoFactorSetupAuthenticatorComponent
   });
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorAuthenticatorResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorAuthenticatorResponse>,
     private dialogRef: DialogRef,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
@@ -137,7 +136,7 @@ export class TwoFactorSetupAuthenticatorComponent
     this.formGroup.controls.token.markAsTouched();
   }
 
-  async auth(authResponse: AuthResponse<TwoFactorAuthenticatorResponse>) {
+  async auth(authResponse: TwoFactorSetupDialogData<TwoFactorAuthenticatorResponse>) {
     super.auth(authResponse);
     return this.processGetResponse(authResponse.response);
   }
@@ -245,7 +244,7 @@ export class TwoFactorSetupAuthenticatorComponent
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorAuthenticatorResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorAuthenticatorResponse>>,
   ) {
     return dialogService.open<boolean>(TwoFactorSetupAuthenticatorComponent, config);
   }

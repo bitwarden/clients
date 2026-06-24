@@ -6,14 +6,13 @@ import { firstValueFrom, map } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-delete.request";
 import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-update.request";
 import { TwoFactorEmailDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email-details.response";
 import { TwoFactorEmailUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email-update.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -73,7 +72,7 @@ export class TwoFactorSetupEmailComponent
   });
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorEmailResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorEmailResponse>,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -112,7 +111,7 @@ export class TwoFactorSetupEmailComponent
     await this.auth(this.data);
   }
 
-  auth(authResponse: AuthResponse<TwoFactorEmailResponse>) {
+  auth(authResponse: TwoFactorSetupDialogData<TwoFactorEmailResponse>) {
     super.auth(authResponse);
     return this.processGetResponse(authResponse.response);
   }
@@ -207,11 +206,11 @@ export class TwoFactorSetupEmailComponent
    */
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorEmailResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorEmailResponse>>,
   ) {
-    return dialogService.open<boolean, AuthResponse<TwoFactorEmailResponse>>(
+    return dialogService.open<boolean, TwoFactorSetupDialogData<TwoFactorEmailResponse>>(
       TwoFactorSetupEmailComponent,
-      config as DialogConfig<AuthResponse<TwoFactorEmailResponse>, boolean>,
+      config as DialogConfig<TwoFactorSetupDialogData<TwoFactorEmailResponse>, boolean>,
     );
   }
 }

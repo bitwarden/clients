@@ -7,7 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-update.request";
@@ -16,7 +16,6 @@ import { TwoFactorWebAuthnDeleteResponse } from "@bitwarden/common/auth/two-fact
 import { TwoFactorWebAuthnDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-details.response";
 import { TwoFactorWebAuthnUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-update.response";
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -84,7 +83,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   protected formGroup: FormGroup;
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorWebAuthnResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>,
     private dialogRef: DialogRef,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
@@ -110,7 +109,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.auth(data);
   }
 
-  auth(authResponse: AuthResponse<TwoFactorWebAuthnResponse>) {
+  auth(authResponse: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>) {
     super.auth(authResponse);
     this.processGetResponse(authResponse.response);
   }
@@ -323,11 +322,11 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>>,
   ) {
-    return dialogService.open<boolean, AuthResponse<TwoFactorWebAuthnResponse>>(
+    return dialogService.open<boolean, TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>>(
       TwoFactorSetupWebAuthnComponent,
-      config as DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>, boolean>,
+      config as DialogConfig<TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>, boolean>,
     );
   }
 }

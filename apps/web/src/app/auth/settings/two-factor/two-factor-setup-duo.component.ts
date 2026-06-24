@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-organization-duo-delete.request";
@@ -13,7 +13,6 @@ import { TwoFactorDuoUpdateResponse } from "@bitwarden/common/auth/two-factor/re
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-duo.response";
 import { TwoFactorOrganizationDuoUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo-update.response";
 import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo.response";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -234,6 +233,6 @@ export class TwoFactorSetupDuoComponent
 }
 
 type TwoFactorDuoComponentConfig = {
-  authResponse: AuthResponse<TwoFactorDuoResponseUnion>;
+  authResponse: TwoFactorSetupDialogData<TwoFactorDuoResponseUnion>;
   organizationId?: string;
 };

@@ -4,8 +4,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponseBase } from "@bitwarden/common/auth/types/auth-response";
+import { TwoFactorService , TwoFactorUserVerificationResult } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -45,9 +44,9 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     protected toastService: ToastService,
   ) {}
 
-  protected auth(authResponse: AuthResponseBase) {
-    this.secret = authResponse.secret;
-    this.verificationType = authResponse.verificationType;
+  protected auth(verificationResult: TwoFactorUserVerificationResult) {
+    this.secret = verificationResult.secret;
+    this.verificationType = verificationResult.verificationType;
     this.authed = true;
   }
 
