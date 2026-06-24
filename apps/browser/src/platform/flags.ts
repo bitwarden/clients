@@ -8,8 +8,14 @@ import {
 
 import { GroupPolicyEnvironment } from "../admin-console/types/group-policy-environment";
 
-// required to avoid linting errors when there are no flags
-export type Flags = SharedFlags;
+export type Flags = {
+  /**
+   * Client rollout gate for managed-settings OS acquisition. Network-free
+   * (build-time); defaults off via config/base.json. Distinct from the
+   * `managedSettings` DevFlag (an in-code map for local emulation).
+   */
+  managedSettings?: boolean;
+} & SharedFlags;
 
 // required to avoid linting errors when there are no flags
 export type DevFlags = {
