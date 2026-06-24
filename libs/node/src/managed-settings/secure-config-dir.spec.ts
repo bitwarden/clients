@@ -21,7 +21,7 @@ describe("readSecureManagedConfigDir (posix)", () => {
   beforeEach(() => jest.resetAllMocks());
 
   it("reads a root-owned, non-writable JSON file", () => {
-    mockFs.readdirSync.mockReturnValue(["policy.json"] as unknown as fs.Dirent[]);
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
     mockFs.lstatSync.mockReturnValue(statLike({}));
     mockFs.statSync.mockImplementation(() => statLike({ uid: 0, mode: 0o644 }));
     mockFs.readFileSync.mockReturnValue('{"environment":{"base":"https://x"}}');
@@ -33,7 +33,7 @@ describe("readSecureManagedConfigDir (posix)", () => {
   });
 
   it("skips and warns on a non-root-owned file", () => {
-    mockFs.readdirSync.mockReturnValue(["policy.json"] as unknown as fs.Dirent[]);
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
     mockFs.lstatSync.mockReturnValue(statLike({}));
     mockFs.statSync.mockImplementation(() => statLike({ uid: 1000, mode: 0o644 }));
 
@@ -45,7 +45,7 @@ describe("readSecureManagedConfigDir (posix)", () => {
   });
 
   it("skips and warns on a group/world-writable file", () => {
-    mockFs.readdirSync.mockReturnValue(["policy.json"] as unknown as fs.Dirent[]);
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
     mockFs.lstatSync.mockReturnValue(statLike({}));
     mockFs.statSync.mockImplementation(() => statLike({ uid: 0, mode: 0o646 }));
 
@@ -55,7 +55,7 @@ describe("readSecureManagedConfigDir (posix)", () => {
   });
 
   it("skips and warns on a symlinked file", () => {
-    mockFs.readdirSync.mockReturnValue(["policy.json"] as unknown as fs.Dirent[]);
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
     mockFs.lstatSync.mockReturnValue(statLike({ isSymbolicLink: () => true }));
 
     expect(readSecureManagedConfigDir("/etc/bitwarden/policies", "linux", logger)).toEqual({});
@@ -81,7 +81,7 @@ describe("readSecureManagedConfigDir (win32)", () => {
 
   it("reads a regular file under the canonical ProgramData dir without a posix check", () => {
     const dir = "C:\\ProgramData\\Bitwarden\\policies";
-    mockFs.readdirSync.mockReturnValue(["policy.json"] as unknown as fs.Dirent[]);
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
     mockFs.lstatSync.mockReturnValue(statLike({ isFile: () => true }));
     mockFs.readFileSync.mockReturnValue('{"environment":{"base":"https://x"}}');
 
