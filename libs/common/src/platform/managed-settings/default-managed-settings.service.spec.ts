@@ -24,7 +24,7 @@ jest.mock("@bitwarden/sdk-internal", () => {
 
   // SdkLoadService imports LogLevel and init_sdk from this module.
   const LogLevel = { Trace: 0, Debug: 1, Info: 2, Warn: 3, Error: 4 };
-  const init_sdk = () => undefined;
+  const init_sdk = (): undefined => undefined;
 
   return { ManagedSettingsClient, LogLevel, init_sdk };
 });

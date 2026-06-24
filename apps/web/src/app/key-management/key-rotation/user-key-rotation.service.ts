@@ -38,7 +38,7 @@ import {
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
-import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
+import { ManagedSettingsClient, PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
@@ -332,8 +332,13 @@ export class UserKeyRotationService {
     masterKeySalt: string,
     cryptographicStateParameters: V1CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
-    // Initialize an SDK with the current cryptographic state
-    const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
+    // Initialize an SDK with the current cryptographic state. Key rotation crypto
+    // is not gated by managed settings, so pass an empty managed-settings handle.
+    const sdk = await this.sdkClientFactory.createSdkClient(
+      new NoopTokenProvider(),
+      undefined,
+      new ManagedSettingsClient(),
+    );
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
@@ -360,8 +365,13 @@ export class UserKeyRotationService {
     masterKeySalt: string,
     cryptographicStateParameters: V2CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
-    // Initialize an SDK with the current cryptographic state
-    const sdk = await this.sdkClientFactory.createSdkClient(new NoopTokenProvider());
+    // Initialize an SDK with the current cryptographic state. Key rotation crypto
+    // is not gated by managed settings, so pass an empty managed-settings handle.
+    const sdk = await this.sdkClientFactory.createSdkClient(
+      new NoopTokenProvider(),
+      undefined,
+      new ManagedSettingsClient(),
+    );
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
