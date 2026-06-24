@@ -74,6 +74,9 @@ export class BitManagedDirective implements OnInit {
     if (this.badgeRef != null) {
       return;
     }
+    // The label is captured once as a text node, not bound. Acceptable because the
+    // consumer's translated string is constant for the session (a language change
+    // reloads the app); a control that toggles managed re-creates the badge anyway.
     const text = this.renderer.createText(this.bitManagedLabel());
     this.badgeRef = this.viewContainerRef.createComponent(BadgeComponent, {
       projectableNodes: [[text]],
