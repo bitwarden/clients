@@ -26,6 +26,9 @@ jest.mock("electron", () => ({
     unregister: jest.fn(),
     isRegistered: jest.fn(),
   },
+  protocol: {
+    registerSchemesAsPrivileged: jest.fn(),
+  },
 }));
 
 // Mock desktop-napi
