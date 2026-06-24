@@ -3,7 +3,7 @@ import { FSWatcher, watch } from "fs";
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { windows_registry } from "@bitwarden/desktop-napi";
+import { managed_settings, windows_registry } from "@bitwarden/desktop-napi";
 import { readSecureManagedConfigDir } from "@bitwarden/node/managed-settings/secure-config-dir";
 
 import { WindowMain } from "../../main/window.main";
@@ -25,7 +25,12 @@ export class ManagedSettingsMain {
     if (this.platform === "linux") {
       this.watchLinux();
     }
-    // Windows registry-change and macOS poll watchers are wired in Tasks 5 and 6.
+    if (this.platform === "win32") {
+      void managed_settings.watchRegistry("SOFTWARE\\Policies\\Bitwarden", () => {
+        clearTimeout(this.debounce);
+        this.debounce = setTimeout(() => void this.notifyRenderer(), 200);
+      });
+    }
   }
 
   /** Read the OS source into a raw config bag. Never throws. */

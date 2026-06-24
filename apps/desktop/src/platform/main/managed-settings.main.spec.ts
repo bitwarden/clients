@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 
-import { windows_registry } from "@bitwarden/desktop-napi";
+import { managed_settings, windows_registry } from "@bitwarden/desktop-napi";
 import * as secure from "@bitwarden/node/managed-settings/secure-config-dir";
 
 import { ManagedSettingsMain } from "./managed-settings.main";
@@ -10,6 +10,7 @@ jest.mock("electron", () => ({
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
+  managed_settings: { watchRegistry: jest.fn().mockResolvedValue(undefined) },
   windows_registry: { readValues: jest.fn().mockResolvedValue({}) },
 }));
 
@@ -44,6 +45,15 @@ describe("ManagedSettingsMain (linux)", () => {
     expect(windows_registry.readValues).toHaveBeenCalledWith(
       "HKLM",
       "SOFTWARE\\Policies\\Bitwarden",
+    );
+  });
+
+  it("starts the registry watcher on win32", () => {
+    const sut = new ManagedSettingsMain(windowMain, logService, "win32");
+    sut.init();
+    expect(managed_settings.watchRegistry).toHaveBeenCalledWith(
+      "SOFTWARE\\Policies\\Bitwarden",
+      expect.any(Function),
     );
   });
 });

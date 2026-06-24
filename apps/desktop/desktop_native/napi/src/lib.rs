@@ -17,6 +17,7 @@ pub mod chromium_importer;
 pub mod clipboards;
 pub mod ipc;
 pub mod logging;
+pub mod managed_settings;
 pub mod passkey_authenticator;
 pub mod passwords;
 pub mod powermonitors;
