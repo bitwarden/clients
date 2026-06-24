@@ -179,6 +179,7 @@ import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/pla
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -536,6 +537,7 @@ export default class MainBackground {
   sdkService: SdkService;
   registerSdkService: RegisterSdkService;
   sdkLoadService: SdkLoadService;
+  managedSettingsService: ManagedSettingsService;
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
@@ -920,6 +922,7 @@ export default class MainBackground {
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
     this.sdkLoadService = new BrowserSdkLoadService(this.logService);
+    this.managedSettingsService = new DefaultManagedSettingsService();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
@@ -932,7 +935,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
-      new DefaultManagedSettingsService(),
+      this.managedSettingsService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -943,7 +946,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
-      new DefaultManagedSettingsService(),
+      this.managedSettingsService,
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(
