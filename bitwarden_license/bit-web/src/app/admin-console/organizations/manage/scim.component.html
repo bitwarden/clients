@@ -1,5 +1,11 @@
 <app-header></app-header>
 
+@if (!showScimSettings && !(bannerSeen$ | async)) {
+  <bit-callout type="info">
+    {{ "scimProvisioningBannerInfo" | i18n }}
+  </bit-callout>
+}
+
 <p bitTypography="body1">
   {{ "scimIntegrationDescription" | i18n }}
   <a

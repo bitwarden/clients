@@ -24,13 +24,20 @@ class AutofillInit implements AutofillInitInterface {
   private readonly insertAutofillContentService: InsertAutofillContentService;
   private collectPageDetailsOnLoadTimeout: number | NodeJS.Timeout | undefined;
   private lastContextMenuClickedElement: HTMLElement | null = null;
+  private isMonitoring = false;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
-    collectPageDetails: ({ message }) => this.collectPageDetails(message),
-    collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
-    collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
-    fillForm: ({ message }) => this.fillForm(message),
-    applyTargetedFields: ({ message }) => this.applyTargetedFields(message),
+    collectPageDetails: ({ message }) =>
+      this.isMonitoring ? this.collectPageDetails(message) : undefined,
+    collectPageDetailsImmediately: ({ message }) =>
+      this.isMonitoring ? this.collectPageDetails(message, true) : undefined,
+    collectAutofillTriage: () =>
+      this.isMonitoring ? this.collectPageDetailsForContextMenu() : undefined,
+    fillForm: ({ message }) => (this.isMonitoring ? this.fillForm(message) : undefined),
+    applyTargetedFields: ({ message }) =>
+      this.isMonitoring ? this.applyTargetedFields(message) : undefined,
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
+    startAutofillMonitors: () => this.startMonitoring(),
+    stopAutofillMonitors: () => this.stopMonitoring(),
   };
 
   /**
@@ -68,8 +75,37 @@ class AutofillInit implements AutofillInitInterface {
    */
   init() {
     this.setupExtensionMessageListeners();
-    this.autofillOverlayContentService?.init();
+  }
+
+  /**
+   * Attaches monitoring-scoped listeners (contextmenu, LOAD) and fans
+   * out to each sub-monitor. Idempotent.
+   */
+  startMonitoring(): void {
+    if (this.isMonitoring) {
+      return;
+    }
+    this.isMonitoring = true;
+
+    // Start sub-monitors first so any page-details collection triggered
+    // by this controller below sees a fully wired-up service graph.
+    this.collectAutofillContentService.startMonitoring();
+    this.autofillOverlayContentService?.startMonitoring();
+    this.autofillInlineMenuContentService?.startMonitoring();
     this.collectPageDetailsOnLoad();
+  }
+
+  /**
+   * Detaches monitoring-scoped listeners, cancels the LOAD timeout,
+   * and fans out to each sub-monitor. Idempotent.
+   */
+  stopMonitoring(): void {
+    this.isMonitoring = false;
+    this.clearCollectPageDetailsOnLoadTimeout();
+    globalThis.removeEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
+    this.collectAutofillContentService.stopMonitoring();
+    this.autofillOverlayContentService?.stopMonitoring();
+    this.autofillInlineMenuContentService?.stopMonitoring();
   }
 
   /**
@@ -279,11 +315,10 @@ class AutofillInit implements AutofillInitInterface {
    * listeners, timeouts, and object instances to prevent memory leaks.
    */
   destroy() {
-    this.clearCollectPageDetailsOnLoadTimeout();
-    globalThis.removeEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
+    this.stopMonitoring();
     globalThis.document.removeEventListener("contextmenu", this.handleContextMenuClick);
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
-    this.collectAutofillContentService.destroy();
+    this.lastContextMenuClickedElement = null;
     this.autofillOverlayContentService?.destroy();
     this.autofillInlineMenuContentService?.destroy();
     this.overlayNotificationsContentService?.destroy();
