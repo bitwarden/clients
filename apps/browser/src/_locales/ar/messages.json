@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "يتطلب مؤسستك تسجيل دخول واحد."
   },
-  "welcomeBack": {
-    "message": "مرحبًا بعودتك"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "تسجيل الدخول"
   },
   "setAStrongPassword": {
     "message": "أنشئ كلمة مرور قوية"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "أدخل عنوان البريد الإلكتروني لحسابك وسيُرسل تلميح كلمة المرور الخاصة بك إليك"
   },
-  "getMasterPasswordHint": {
-    "message": "احصل على تلميح كلمة المرور الرئيسية"
+  "hint": {
+    "message": "تلميح"
   },
   "continue": {
     "message": "متابعة"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "تسجيل الدخول"
   },
-  "logInToBitwarden": {
-    "message": "تسجيل الدخول إلى Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "تسجيل دخول"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "أدخل الرمز المرسل إلى بريدك الإلكتروني"
@@ -1714,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "فشل المصادقة على كلمة المرور"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "استخدام طريقة تسجيل دخول مختلفة"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1775,7 +1775,7 @@
     "message": "البيئة المستضافة ذاتيا"
   },
   "selfHostedBaseUrlHint": {
-    "message": "حدد عنوان URL الأساسي لمبانيك التي استضافت تثبيت بتواردن على سبيل المثال: https://bitwarden.company.com"
+    "message": "حدد عنوان URL الأساسي لمبانيك التي استضافت تثبيت بتواردن على سبيل المثال: https://bitwarden.company.com "
   },
   "selfHostedCustomEnvHeader": {
     "message": "للتكوين المتقدم، يمكنك تحديد عنوان URL الأساسي لكل خدمة بشكل مستقل."
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "كلمة المرور الرئيسية الجديدة لا تفي بمتطلبات السياسة العامة."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "احصل على النصائح والإعلانات وفرص البحوث من Bitwarden في صندوق الوارد الخاص بك."
+  "receiveMarketingEmails": {
+    "message": "تلقّي تحديثات Bitwarden في بريدك الإلكتروني."
   },
   "unsubscribe": {
     "message": "إلغاء الاشتراك"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "تسجيل الدخول باستخدام كلمة المرور الرئيسية"
-  },
   "newAroundHere": {
     "message": "هل أنت جديد هنا؟"
   },
@@ -4515,7 +4512,7 @@
     "description": "Aria label for the totp seconds displayed in the inline menu for autofill"
   },
   "fillCredentialsFor": {
-    "message": "ملء بيانات الاعتماد لـ",
+    "message": "ملء بيانات الحساب لـ",
     "description": "Screen reader text for when overlay item is in focused"
   },
   "partialUsername": {
@@ -4855,7 +4852,7 @@
     "message": "في انتظار مصادقة SSO"
   },
   "awaitingSSODesc": {
-    "message": "الرجاء الاستمرار في تسجيل الدخول باستخدام بيانات اعتماد الشركة الخاصة بك."
+    "message": "الرجاء الاستمرار في تسجيل الدخول باستخدام بيانات حساب الشركة الخاصة بك."
   },
   "seeDetailedInstructions": {
     "message": "راجع التعليمات المفصلة في موقع المساعدة الخاص بنا في",
@@ -4939,11 +4936,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"التعبير النمطي\" خيار متقدم يزيد من خطر كشف بياناتك السرية.",
+    "message": "\"التعبير النمطي\" خيار متقدم يزيد من خطر كشف بيانات الحساب.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"يبدأ بـ\" خيار متقدم يزيد من خطر كشف بياناتك السرية.",
+    "message": "\"يبدأ بـ\" خيار متقدم يزيد من خطر كشف بيانات الحساب.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -5002,8 +4999,24 @@
     "message": "تعيين كافتراضي",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "تعيين Bitwarden كمدير كلمات المرور الافتراضي لديك"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "من نافذة المتصفح المنبثقة لمنح Bitwarden الإذن بتغيير إعداداتك."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "سنقوم بإيقاف مدير كلمات المرور المدمج في متصفحك لتستمتع بتجربة تسجيل دخول آمنة."
+  },
+  "allow": {
+    "message": "السماح",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "تخطي"
+  },
   "saveCipherAttemptSuccess": {
-    "message": "تم حفظ بيانات حسابك بنجاح!",
+    "message": "تم حفظ بيانات الحساب بنجاح!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "passwordSaved": {
@@ -5011,7 +5024,7 @@
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
-    "message": "تم تحديث بيانات حسابك بنجاح!",
+    "message": "تم تحديث بيانات الحساب بنجاح!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "passwordUpdated": {
@@ -5019,7 +5032,7 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
-    "message": "خطأ في حفظ بيانات حسابك. راجع وحدة التحكم للتفاصيل.",
+    "message": "خطأ في حفظ بيانات الحساب. راجع وحدة التحكم للتفاصيل.",
     "description": "Notification message for when saving credentials has failed."
   },
   "success": {
@@ -6093,7 +6106,7 @@
     "message": "الأمان، أولوية قصوى"
   },
   "securityPrioritizedBody": {
-    "message": "احفظ بيانات حسابك، البطاقات، والهويات في خزنتك الآمنة. يعتمد Bitwarden على تشفير شامل بمعرفة صفرية لحماية بياناتك المهمة."
+    "message": "احفظ بيانات الحساب، البطاقات، والهويات في خزنتك الآمنة. يعتمد Bitwarden على تشفير شامل بمعرفة صفرية لحماية بياناتك المهمة."
   },
   "quickLogin": {
     "message": "تسجيل دخول سريع وسهل"
@@ -6120,7 +6133,7 @@
     "message": "استيراد كلمات المرور الحالية"
   },
   "emptyVaultNudgeBody": {
-    "message": "استخدم أداة الاستيراد لنقل بيانات حساباتك بسرعة إلى Bitwarden دون إضافتها يدوياً."
+    "message": "استخدم أداة الاستيراد لنقل بيانات الحساب بسرعة إلى Bitwarden دون إضافتها يدوياً."
   },
   "emptyVaultNudgeButton": {
     "message": "إستيراد الآن"
@@ -6269,7 +6282,7 @@
     "message": "تأكيد نطاق Key Connector"
   },
   "atRiskLoginsSecured": {
-    "message": "أحسنت! لقد أمّنت بيانات حساباتك المعرضة للخطر!"
+    "message": "أحسنت! لقد أمّنت بيانات الحساب المعرضة للخطر!"
   },
   "upgradeNow": {
     "message": "اشترك الآن"
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "تشترط منظمتك إظهار البريد الإلكتروني. ألغِ تحديد \"إخفاء بريدك الإلكتروني عن المشاهدين\" للحفظ."
+  },
+  "domainNotAllowed": {
+    "message": "يرجى إدراج النطاقات التالية فقط: $DOMAINS$. يرجى المراجعة والمحاولة مرة أخرى",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "غير متوافق مع سياسة Send الخاصة بمنظمتك",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "لتعديل هذا الـ Send، أنشئ نسخة منه. إذا كان من الممكن أن ينتهي هذا الـ Send في تاريخ الحذف المحدد، فلا حاجة لأي إجراء",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "سينتهي هذا الـ Send تلقائيا في تاريخ الحذف المحدد",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "إنشاء نسخة"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "لا يمكنك استيراد عناصر إلى \"عناصري\" إذا كانت ضمن مجموعات متعددة"

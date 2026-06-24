@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "No tienes permiso para editar este elemento"
   },
-  "welcomeBack": {
-    "message": "Bienvenido de nuevo"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Elige una organización a la que deseas mover este objeto. Moviendo a una organización transfiere la propiedad del objeto a esa organización. Ya no serás el dueño directo de este objeto una vez que haya sido movido."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Longitud"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Identificarse"
   },
-  "logInToBitwarden": {
-    "message": "Iniciar sesión en Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Introduce el código enviado a tu correo electrónico"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduce la dirección de correo electrónico de tu cuenta y se te enviará la pista de tu contraseña"
-  },
-  "getMasterPasswordHint": {
-    "message": "Obtener pista de la contraseña maestra"
   },
   "emailRequired": {
     "message": "Correo electrónico requerido."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Mostrar iconos del sitio web y recuperar URL para cambiar contraseña"
   },
-  "enableMinToTray": {
-    "message": "Minimizar a icono en la bandeja"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Cuando se minimiza la ventana, se muestra un icono en la bandeja del sistema."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimizar a la barra de menú"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Al minimizar la ventana, muestra un icono en la barra de menú."
-  },
-  "enableCloseToTray": {
-    "message": "Cerrar a icono de la bandeja"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Cuando se cierre la ventana, mostrar un icono en la bandeja de sistema."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Cerrar a la barra de menú"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Al cerrar la ventana, muestra un icono en la barra de menú."
-  },
-  "enableTray": {
-    "message": "Activar icono en bandeja"
-  },
-  "enableTrayDesc": {
-    "message": "Mostrar siempre el icono de la bandeja del sistema."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Arranca automáticamente al iniciar sesión"
   },
   "openAtLoginDesc": {
     "message": "Arranca la aplicación Bitwarden Desktop automáticamente tras iniciar sesión."
-  },
-  "alwaysShowDock": {
-    "message": "Mostrar siempre en el Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Muestra el icono de Bitwarden en el Dock incluso cuando se minimiza a la barra de menú."
-  },
-  "confirmTrayTitle": {
-    "message": "Confirmar deshabilitar en bandeja del sistema"
-  },
-  "confirmTrayDesc": {
-    "message": "Deshabilitar esta opción también desactivará todas las demás opciones relacionadas con la bandeja."
   },
   "language": {
     "message": "Idioma"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Copiar código de seguridad",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "número de tarjeta"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Salir"
   },
-  "showHide": {
-    "message": "Mostrar / Ocultar",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Ocultar en bandeja"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Preferencias"
-  },
-  "enableMenuBar": {
-    "message": "Activar ícono de barra de menú"
-  },
-  "enableMenuBarDesc": {
-    "message": "Mostrar siempre un ícono en la barra de menú."
   },
   "hideToMenuBar": {
     "message": "Ocultar en la barra de menú"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Una o más políticas de organización requieren que la contraseña maestra cumpla con los siguientes requisitos:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Obtén consejos, anuncios y oportunidades de investigación de Bitwarden en tu bandeja de entrada."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Darse de baja"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Tu nueva contraseña no puede ser la misma que tu contraseña actual."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "La pista para la contraseña no puede ser igual que la contraseña."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Caja fuerte",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Iniciar sesión con contraseña maestra"
   },
   "rememberEmail": {
     "message": "Recordar email"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Verificación de usuario fallida."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Más"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Guarde la información de su cuenta bancaria para acceder a ella de forma fácil y segura a través de sus dispositivos."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": ""
   },
-  "discardEditsMessage": {
-    "message": "Si cierras esta vista, se perderán los cambios que no hayas guardado"
-  },
-  "backToEditing": {
-    "message": "Volver a editar"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "El mensaje contiene cambios sin guardar. ¿De verdad quieres salir?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Barra de progreso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "No puede importar artículos en Mis elementos que son parte de múltiples colecciones"

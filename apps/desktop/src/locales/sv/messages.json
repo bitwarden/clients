@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Du har inte behörighet att redigera detta objekt"
   },
-  "welcomeBack": {
-    "message": "Välkommen tillbaka"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Välj en organisation som du vill flytta detta objektet till. Flytt till en organisation överför ägandet av objektet till den organisationen. Du kommer inte längre att vara direkt ägare till detta objekt när det har flyttats."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Längd"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Logga in"
   },
-  "logInToBitwarden": {
-    "message": "Logga in på Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Ange koden som skickats till din e-post"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Ange din e-postadress för kontot så skickas en lösenordshint till dig"
-  },
-  "getMasterPasswordHint": {
-    "message": "Hämta huvudlösenordsledtråd"
   },
   "emailRequired": {
     "message": "E-postadress krävs."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Visa webbplatsikoner och URLer för lösenordsändringar"
   },
-  "enableMinToTray": {
-    "message": "Minimera till systemfältsikon"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "När fönstret minimeras, visa en ikon i systemfältet istället."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimera till aktivitetsfältet"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "När fönstret minimeras, visa en ikon i aktivitetsfältet istället."
-  },
-  "enableCloseToTray": {
-    "message": "Stäng till systemfältsikon"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "När fönstret stängs, visa en ikon i systemfältet istället."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Stäng till aktivitetsfältet"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "När fönstret stängs, visa en ikon i aktivitetsfältet istället."
-  },
-  "enableTray": {
-    "message": "Visa systemfältsikon"
-  },
-  "enableTrayDesc": {
-    "message": "Visa alltid en ikon i systemfältet."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Starta automatiskt vid inloggning"
   },
   "openAtLoginDesc": {
     "message": "Starta Bitwardens skrivbordsprogram automatiskt vid inloggning."
-  },
-  "alwaysShowDock": {
-    "message": "Visa alltid i dockan"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Visa Bitwarden-ikonen i dockan även om den minimeras till aktivitetsfältet."
-  },
-  "confirmTrayTitle": {
-    "message": "Bekräfta inaktivering av fält"
-  },
-  "confirmTrayDesc": {
-    "message": "Om den här inställningen inaktiveras kommer alla andra fältrelaterade inställningar också inaktiveras."
   },
   "language": {
     "message": "Språk"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopiera säkerhetskod",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "kortnummer"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Avsluta"
   },
-  "showHide": {
-    "message": "Visa / Dölj",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Minimera till systemfältet"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Inställningar"
-  },
-  "enableMenuBar": {
-    "message": "Aktivera aktivitetsfältsikon"
-  },
-  "enableMenuBarDesc": {
-    "message": "Visa alltid en ikon i aktivitetsfältet."
   },
   "hideToMenuBar": {
     "message": "Minimera till aktivitetsfältet"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Få råd, tillkännagivanden och forskningsmöjligheter från Bitwarden i din inkorg."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Avsluta prenumeration"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Ditt nya lösenord får inte vara samma som ditt aktuella lösenord."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Din lösenordsledtråd får inte vara samma som ditt lösenord."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Valv",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Logga in med huvudlösenord"
   },
   "rememberEmail": {
     "message": "Kom ihåg e-postadress"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "Verifiering av användare misslyckades."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
