@@ -1013,6 +1013,7 @@ dependencies = [
  "autotype",
  "chromium_importer",
  "desktop_core",
+ "desktop_objc",
  "napi",
  "napi-build",
  "napi-derive",
@@ -1034,6 +1035,7 @@ dependencies = [
  "anyhow",
  "cc",
  "glob",
+ "serde_json",
  "tokio",
  "tracing",
 ]

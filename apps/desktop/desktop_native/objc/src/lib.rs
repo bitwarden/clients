@@ -73,6 +73,7 @@ mod objc {
     unsafe extern "C" {
         pub unsafe fn runCommand(context: *mut c_void, value: *const c_char);
         pub unsafe fn freeObjCString(value: &ObjCString);
+        pub unsafe fn readManagedPreferences(app_id: *const c_char) -> ObjCString;
     }
 
     /// This function is called from the ObjC code to return the output of the command
@@ -122,4 +123,17 @@ pub async fn run_command(input: String) -> Result<String> {
     // let objc_output = output.try_into()?;
 
     Ok(objc_output)
+}
+
+pub fn read_managed_preferences(app_id: &str) -> Result<std::collections::HashMap<String, String>> {
+    let c_app_id = CString::new(app_id)
+        .context("Failed to convert app_id to CString for readManagedPreferences")?;
+
+    let objc_string = unsafe { objc::readManagedPreferences(c_app_id.as_ptr()) };
+    let json: String = objc_string.try_into()?;
+
+    let map: std::collections::HashMap<String, String> = serde_json::from_str(&json)
+        .context("Failed to parse managed preferences JSON from ObjC")?;
+
+    Ok(map)
 }

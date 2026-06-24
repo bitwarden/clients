@@ -13,6 +13,8 @@ const LINUX_POLICY_DIR = "/etc/bitwarden/policies";
 export class ManagedSettingsMain {
   private watcher?: FSWatcher;
   private debounce?: ReturnType<typeof setTimeout>;
+  private poll?: ReturnType<typeof setInterval>;
+  private lastBag?: string;
 
   constructor(
     private readonly windowMain: WindowMain,
@@ -28,8 +30,12 @@ export class ManagedSettingsMain {
     if (this.platform === "win32") {
       void managed_settings.watchRegistry("SOFTWARE\\Policies\\Bitwarden", () => {
         clearTimeout(this.debounce);
-        this.debounce = setTimeout(() => void this.notifyRenderer(), 200);
+        this.debounce = setTimeout(() => void this.notifyIfChanged(), 200);
       });
+    }
+    if (this.platform === "darwin") {
+      // The managed-prefs change notification is unreliable; poll and diff at low frequency.
+      this.poll = setInterval(() => void this.notifyIfChanged(), 60_000);
     }
   }
 
@@ -42,6 +48,9 @@ export class ManagedSettingsMain {
       if (this.platform === "win32") {
         return await windows_registry.readValues("HKLM", "SOFTWARE\\Policies\\Bitwarden");
       }
+      if (this.platform === "darwin") {
+        return await managed_settings.readPreferences("com.bitwarden.desktop");
+      }
       return {};
     } catch (e) {
       this.logService.error(`Failed to read managed settings: ${String(e)}`);
@@ -49,16 +58,21 @@ export class ManagedSettingsMain {
     }
   }
 
-  /** Push the current bag to the renderer. */
-  private async notifyRenderer(): Promise<void> {
-    this.windowMain.win?.webContents.send("managedSettingsUpdated", await this.read());
+  /** Re-reads and notifies the renderer only when the bag has changed. */
+  private async notifyIfChanged(): Promise<void> {
+    const bag = await this.read();
+    const serialized = JSON.stringify(bag);
+    if (serialized !== this.lastBag) {
+      this.lastBag = serialized;
+      this.windowMain.win?.webContents.send("managedSettingsUpdated", bag);
+    }
   }
 
   private watchLinux(): void {
     try {
       this.watcher = watch(LINUX_POLICY_DIR, { persistent: false }, () => {
         clearTimeout(this.debounce);
-        this.debounce = setTimeout(() => this.notifyRenderer(), 200);
+        this.debounce = setTimeout(() => void this.notifyIfChanged(), 200);
       });
       this.watcher.on("error", (e) =>
         this.logService.warning(`Managed config watch error: ${String(e)}`),

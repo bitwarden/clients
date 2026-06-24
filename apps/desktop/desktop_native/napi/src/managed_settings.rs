@@ -90,6 +90,19 @@ pub mod managed_settings {
     }
 }
 
-#[cfg(not(windows))]
+#[cfg(target_os = "macos")]
+#[napi]
+pub mod managed_settings {
+    #[allow(clippy::unused_async)]
+    #[napi]
+    pub async fn read_preferences(
+        app_id: String,
+    ) -> napi::Result<std::collections::HashMap<String, String>> {
+        desktop_objc::read_managed_preferences(&app_id)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
 #[napi]
 pub mod managed_settings {}

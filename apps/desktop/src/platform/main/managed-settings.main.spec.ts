@@ -10,7 +10,10 @@ jest.mock("electron", () => ({
 }));
 
 jest.mock("@bitwarden/desktop-napi", () => ({
-  managed_settings: { watchRegistry: jest.fn().mockResolvedValue(undefined) },
+  managed_settings: {
+    watchRegistry: jest.fn().mockResolvedValue(undefined),
+    readPreferences: jest.fn().mockResolvedValue({}),
+  },
   windows_registry: { readValues: jest.fn().mockResolvedValue({}) },
 }));
 
@@ -55,5 +58,34 @@ describe("ManagedSettingsMain (linux)", () => {
       "SOFTWARE\\Policies\\Bitwarden",
       expect.any(Function),
     );
+  });
+
+  it("reads managed preferences on darwin", async () => {
+    (managed_settings.readPreferences as jest.Mock).mockResolvedValue({
+      DisableAddLoginNotification: "true",
+    });
+    const sut = new ManagedSettingsMain(windowMain, logService, "darwin");
+    sut.init();
+
+    const handler = (ipcMain.handle as jest.Mock).mock.calls.find(
+      (c) => c[0] === "managedSettings",
+    )?.[1];
+    expect(handler).toBeDefined();
+    expect(await handler()).toEqual({ DisableAddLoginNotification: "true" });
+    expect(managed_settings.readPreferences).toHaveBeenCalledWith("com.bitwarden.desktop");
+  });
+
+  it("does not emit on darwin when the bag is unchanged between two reads", async () => {
+    (managed_settings.readPreferences as jest.Mock).mockResolvedValue({ key: "val" });
+    const sut = new ManagedSettingsMain(windowMain, logService, "darwin");
+
+    // Access the private notifyIfChanged via type assertion to test diff logic directly.
+    const notifyIfChanged = (sut as any).notifyIfChanged.bind(sut);
+
+    await notifyIfChanged();
+    await notifyIfChanged();
+
+    // First call stores the bag and emits; second call sees no change.
+    expect(send).toHaveBeenCalledTimes(1);
   });
 });

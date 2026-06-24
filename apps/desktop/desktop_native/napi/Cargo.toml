@@ -28,6 +28,9 @@ tokio = { workspace = true, features = ["time"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+desktop_objc = { path = "../objc" }
+
 [target.'cfg(windows)'.dependencies]
 windows = { workspace = true, features = ["Win32_System_Registry", "Win32_Foundation", "Win32_System_Threading"] }
 windows-registry = { workspace = true }

@@ -341,6 +341,7 @@ export declare namespace sshagent_v2 {
 
 export declare namespace managed_settings {
   export function watchRegistry(subkey: string, callback: (...args: any[]) => any): Promise<void>
+  export function readPreferences(appId: string): Promise<Record<string, string>>
 }
 
 export declare namespace windows_registry {
