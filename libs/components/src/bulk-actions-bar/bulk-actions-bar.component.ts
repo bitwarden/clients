@@ -203,7 +203,22 @@ export class BulkActionsBarComponent {
     // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
     const previousMinWidth = barEl.style.minWidth;
     barEl.style.minWidth = "max-content";
+
+    // While `compact` is true, the close + primary button labels are
+    // `display: none` via `tw-hidden`. Reading the width with those applied
+    // would capture the compact width and trap the bar in compact mode
+    // forever (the threshold would never be exceeded by a widening
+    // wrapper). Force them visible for the read; the additional-actions
+    // trigger is intentionally always icon-only, so we exclude it. Mutate
+    // → measure → restore happens synchronously, so the browser never
+    // paints with labels visible.
+    const trigger = this.additionalActionsTrigger();
+    const labeledButtons = this.primaryButtons().filter((btn) => btn !== trigger);
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
+
     const barWidth = Math.ceil(barEl.getBoundingClientRect().width);
+
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(false));
     barEl.style.minWidth = previousMinWidth;
 
     // Guard against unmeasurable layouts (detached element, jsdom) so we
