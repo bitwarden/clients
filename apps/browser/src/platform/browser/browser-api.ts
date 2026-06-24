@@ -20,6 +20,7 @@ export class BrowserApi {
   static isChromeApi: boolean = !BrowserApi.isSafariApi && typeof chrome !== "undefined";
   static isFirefoxOnAndroid: boolean =
     navigator.userAgent.indexOf("Firefox/") !== -1 && navigator.userAgent.indexOf("Android") !== -1;
+  static isFirefox: boolean = navigator.userAgent.indexOf("Firefox/") !== -1;
 
   static get manifestVersion() {
     return chrome.runtime.getManifest().manifest_version;
@@ -233,6 +234,9 @@ export class BrowserApi {
       case DeviceType.VivaldiExtension:
       case DeviceType.VivaldiBrowser:
         return BrowserClientVendors.Vivaldi;
+      case DeviceType.FirefoxExtension:
+      case DeviceType.FirefoxBrowser:
+        return BrowserClientVendors.Firefox;
       default:
         return BrowserClientVendors.Unknown;
     }
@@ -925,6 +929,16 @@ export class BrowserApi {
     const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResult<boolean>) =>
       details.levelOfControl === "controlled_by_this_extension" && !details.value;
 
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    if (BrowserApi.isFirefox) {
+      return passwordSavingOverridden;
+    }
+
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
         resolve(checkOverrideStatus(details)),
@@ -933,12 +947,6 @@ export class BrowserApi {
 
     const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
-        resolve(checkOverrideStatus(details)),
-      ),
-    );
-
-    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
-      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
         resolve(checkOverrideStatus(details)),
       ),
     );
@@ -952,6 +960,16 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    if (BrowserApi.isFirefox) {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
+      } else {
+        await chrome.privacy.services.passwordSavingEnabled.set({ value });
+      }
+
+      return;
+    }
+
     await chrome.privacy.services.autofillAddressEnabled.set({ value });
     await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     await chrome.privacy.services.passwordSavingEnabled.set({ value });

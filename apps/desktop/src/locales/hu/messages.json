@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Nincs jogosulltság ezen elem szerkesztéséhez."
   },
-  "welcomeBack": {
-    "message": "Üdvözlet újra"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Személyes kulcs másolása"
+  },
+  "copyPublicKey": {
+    "message": "Nyilvános kulcs másolása"
+  },
+  "copyFingerprint": {
+    "message": "Ujjlenyomat másolása"
+  },
   "length": {
     "message": "Hossz"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Bejelentkezés"
   },
-  "logInToBitwarden": {
-    "message": "Bejelentkezés a Bitwardenbe"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Adjuk meg az email címre elküldött kódot."
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
-  },
-  "getMasterPasswordHint": {
-    "message": "Mesterjelszó emlékeztető kérése"
   },
   "emailRequired": {
     "message": "Az email cím megadása kötelező."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Webhelyikonok megjelenítése és jelszó webcímek módosításának lekérése"
   },
-  "enableMinToTray": {
-    "message": "Kicsinyítés tálcaikonná"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Az ablak minimalizálásakor helyette egy ikon jelenik meg a rendszertálcán."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Kicsinyítés a menüsávra"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Az ablak minimalizálásakor helyette egy ikon jelenik meg a rendszertálcán."
-  },
-  "enableCloseToTray": {
-    "message": "Bezárás tálcaikonba"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Az ablak bezárásakor helyette egy ikon jelenik meg a rendszertálcán."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Befejezés a menüsávnál"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Az ablak bezárásakor helyette egy ikon jelenik meg a menüsávon."
-  },
-  "enableTray": {
-    "message": "Tálcaikon engedélyezése"
-  },
-  "enableTrayDesc": {
-    "message": "Ikon folyamatos megjelenítése a rendszertálcán."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Automatikus indítás bejelentkezéskor"
   },
   "openAtLoginDesc": {
     "message": "A Bitwarden asztali alkalmazás automatikus indítása bejelentkezéskor."
-  },
-  "alwaysShowDock": {
-    "message": "Mindig megjelenik a dokk elemen"
-  },
-  "alwaysShowDockDesc": {
-    "message": "A Bitwarden ikon megjelenítése a dokk elemben még akkor is, ha a menüsorra van kicsinyítve."
-  },
-  "confirmTrayTitle": {
-    "message": "Tálca letiltás megerősítése"
-  },
-  "confirmTrayDesc": {
-    "message": "Ennek a beállításnak a kikapcsolásával az összes többi tálcával kapcsolatos beállítás is letiltásra kerül."
   },
   "language": {
     "message": "Nyelv"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Személyes kulcs másolása"
-  },
-  "copyPublicKey": {
-    "message": "Nyilvános kulcs másolása"
-  },
-  "copyFingerprint": {
-    "message": "Ujjlenyomat másolása"
   },
   "cardNumber": {
     "message": "kártya szám"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Kilépés"
   },
-  "showHide": {
-    "message": "Megjelenítés / Elrejtés",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Elrejtés a tálcára"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Beállítások"
-  },
-  "enableMenuBar": {
-    "message": "Menüsáv ikon engedélyezése"
-  },
-  "enableMenuBarDesc": {
-    "message": "Mindig jelenjen meg az ikon a menüsávban."
   },
   "hideToMenuBar": {
     "message": "Elrejtés a menüsávon"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Az új jelszó nem lehet azonos a jelenlegi jelszóval."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "A jelszavas tipp nem lehet azonos a jelszóval."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Széf",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Bejelentkezés mesterjelszóval"
   },
   "rememberEmail": {
     "message": "Email megjegyzése"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Továbbiak"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Mentsük el a bankszámla adatokat, hogy könnyen és biztonságosan hozzáférhessünk az eszközökhöz."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Szerkesztések elvetése"
   },
-  "discardEditsMessage": {
-    "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
-  },
-  "backToEditing": {
-    "message": "Vissza a szerkesztéshez"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."

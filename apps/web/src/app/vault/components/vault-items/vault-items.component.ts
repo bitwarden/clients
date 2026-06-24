@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   Observable,
   combineLatest,
@@ -154,10 +154,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected readonly batchBarService = inject(VaultBatchBarService, {
     optional: true,
   }) as VaultBatchBarService<C> | null;
-  protected readonly batchBarFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
