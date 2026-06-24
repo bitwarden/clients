@@ -88,19 +88,22 @@ export function historyStatusLabelFor(
       ? "pamInboxHistoryStatusAwaitingStart"
       : "pamInboxHistoryGroupFuture";
   }
-  // A produced lease that has ended is labelled by the lease outcome, not the request status (which
-  // stays "activated"): distinguish a manually revoked lease from one that lapsed.
-  if (item.producedLeaseStatus === AccessLeaseStatus.Revoked) {
-    return "pamInboxHistoryStatusRevoked";
-  }
-  if (item.producedLeaseStatus === AccessLeaseStatus.Expired) {
+  // A produced lease that has reached Past has ended; label it by the lease outcome, not the request
+  // status (which stays "activated" forever and reads as "Active"). The holder cancelling and an
+  // operator revoking are distinct end states; anything else has lapsed — including a lease the
+  // server still reports "active" (v1 has no autonomous expiry) — so show Expired.
+  if (item.producedLeaseId != null) {
+    if (item.producedLeaseStatus === AccessLeaseStatus.Cancelled) {
+      return "pamInboxHistoryStatusCancelled";
+    }
+    if (item.producedLeaseStatus === AccessLeaseStatus.Revoked) {
+      return "pamInboxHistoryStatusRevoked";
+    }
     return "pamInboxHistoryStatusExpired";
   }
   switch (item.status) {
     case AccessRequestStatus.Approved:
       return "pamInboxHistoryStatusApproved";
-    case AccessRequestStatus.Activated:
-      return "pamInboxHistoryStatusActivated";
     case AccessRequestStatus.Denied:
       return "pamInboxHistoryStatusDenied";
     case AccessRequestStatus.Expired:

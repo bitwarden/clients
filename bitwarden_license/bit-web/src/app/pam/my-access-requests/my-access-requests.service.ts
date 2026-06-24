@@ -18,6 +18,7 @@ import {
 import {
   AccessLeaseResponse,
   AccessLeaseRevokeRequest,
+  AccessLeaseStatus,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   PamApiService,
@@ -138,23 +139,31 @@ export class MyAccessRequestsService {
   }
 
   /**
-   * End (revoke) an active lease the caller holds. Removes the lease row optimistically so it
-   * leaves Active leases — and, because History keys "still active?" off this set, the activating
-   * request reappears there — then calls the API; on failure restores the row and rethrows so the
-   * caller can toast. The API impl's `mutations$` pump reconciles server truth on the next refresh.
+   * End the caller's own active lease — a self-cancel. Optimistically drops the lease from Active
+   * leases and marks its originating request's produced lease "cancelled", so the grant reappears in
+   * History labelled "Cancelled" (not "Expired") immediately; then calls the API and, on failure,
+   * restores both and rethrows so the caller can toast. The API impl's `mutations$` pump reconciles
+   * server truth on the next refresh.
    */
   async endLease(leaseId: string): Promise<void> {
-    const current = this._leases$.value;
-    const target = current.find((l) => l.id === leaseId);
-    if (target == null) {
-      await this.pamApi.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
-      return;
+    const currentLeases = this._leases$.value;
+    const currentResponses = this._responses$.value;
+    const producing = currentResponses.find((r) => r.producedLeaseId === leaseId);
+    const priorLeaseStatus = producing?.producedLeaseStatus ?? null;
+
+    this._leases$.next(currentLeases.filter((l) => l.id !== leaseId));
+    if (producing != null) {
+      producing.producedLeaseStatus = AccessLeaseStatus.Cancelled;
+      this._responses$.next([...currentResponses]);
     }
-    this._leases$.next(current.filter((l) => l.id !== leaseId));
     try {
       await this.pamApi.revokeAccessLease(leaseId, new AccessLeaseRevokeRequest({}));
     } catch (e) {
-      this._leases$.next(current);
+      this._leases$.next(currentLeases);
+      if (producing != null) {
+        producing.producedLeaseStatus = priorLeaseStatus;
+        this._responses$.next([...currentResponses]);
+      }
       throw e;
     }
   }

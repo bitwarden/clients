@@ -4,6 +4,8 @@ export const AccessLeaseStatus = Object.freeze({
   Active: "active",
   Expired: "expired",
   Revoked: "revoked",
+  /** The holder ended their own lease early, as opposed to {@link Revoked} (an operator ended it). */
+  Cancelled: "cancelled",
 } as const);
 export type AccessLeaseStatus = (typeof AccessLeaseStatus)[keyof typeof AccessLeaseStatus];
 

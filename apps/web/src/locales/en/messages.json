@@ -15593,6 +15593,9 @@
   "pamStatusPending": {
     "message": "Pending"
   },
+  "pamStatusRevoked": {
+    "message": "Revoked"
+  },
   "pamWindowTtlSeconds": {
     "message": "$SECONDS$s",
     "placeholders": {

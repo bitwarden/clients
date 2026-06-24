@@ -175,6 +175,7 @@ const i18nMock = () =>
     pamStatusDenied: "Denied",
     pamStatusCancelled: "Cancelled",
     pamStatusExpired: "Expired",
+    pamStatusRevoked: "Revoked",
     pamColumnItem: "Item",
     pamColumnRequestedWindow: "Requested window",
     pamColumnSubmitted: "Submitted",

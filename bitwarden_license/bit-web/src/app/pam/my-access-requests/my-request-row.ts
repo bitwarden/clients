@@ -1,5 +1,6 @@
 import {
   AccessLeaseResponse,
+  AccessLeaseStatus,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   Decision,
@@ -112,6 +113,35 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 }
 
 /**
+ * Display status + badge for a row. A request's status stays "activated" for the life of the grant,
+ * so an ended lease would read as "Active". The status column only renders in History, which never
+ * shows a row whose lease is still live (that one is in Active leases) — so label an activated grant
+ * by its lease outcome instead: Cancelled if the holder ended it, Revoked if an operator did,
+ * otherwise Expired (covering a lease the server still reports "active", since v1 has no autonomous
+ * expiry). Exported for tests.
+ */
+export function historyDisplayStatus(
+  response: Pick<
+    AccessRequestDetailsResponse,
+    "status" | "producedLeaseId" | "producedLeaseStatus"
+  >,
+): Pick<MyRequestRow, "statusLabelKey" | "statusVariant"> {
+  if (response.status === AccessRequestStatus.Activated && response.producedLeaseId != null) {
+    if (response.producedLeaseStatus === AccessLeaseStatus.Cancelled) {
+      return { statusLabelKey: "pamStatusCancelled", statusVariant: "subtle" };
+    }
+    if (response.producedLeaseStatus === AccessLeaseStatus.Revoked) {
+      return { statusLabelKey: "pamStatusRevoked", statusVariant: "subtle" };
+    }
+    return { statusLabelKey: "pamStatusExpired", statusVariant: "warning" };
+  }
+  return {
+    statusLabelKey: statusLabelKey(response.status),
+    statusVariant: statusBadgeVariant(response.status),
+  };
+}
+
+/**
  * Resolve who actioned a request.
  *
  * The API surfaces the request's decision log. A system / access-rule decision has
@@ -150,8 +180,7 @@ export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
     cipherName: response.cipherName,
     collectionName: response.collectionName,
     status: response.status,
-    statusVariant: statusBadgeVariant(response.status),
-    statusLabelKey: statusLabelKey(response.status),
+    ...historyDisplayStatus(response),
     submittedAt: new Date(response.submittedAt),
     resolvedAt: response.resolvedAt == null ? null : new Date(response.resolvedAt),
     requestedNotBefore:
