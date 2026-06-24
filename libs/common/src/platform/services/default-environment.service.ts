@@ -35,7 +35,7 @@ export class EnvironmentUrls {
   send: string = null;
 }
 
-class EnvironmentState {
+export class EnvironmentState {
   region: Region;
   urls: EnvironmentUrls;
 
