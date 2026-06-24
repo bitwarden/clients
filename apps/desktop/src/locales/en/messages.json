@@ -4716,14 +4716,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organisation. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organisation. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
