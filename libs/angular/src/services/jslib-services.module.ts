@@ -16,12 +16,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
-import {
-  ChangePasswordService,
-  DefaultChangePasswordService,
-} from "@bitwarden/angular/auth/password-management/change-password";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -120,6 +114,8 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
+import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -137,8 +133,6 @@ import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/defau
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -433,6 +427,12 @@ import {
 } from "@bitwarden/vault-export-core";
 
 import { AccountDeletionService } from "../auth/account-deletion/account-deletion.service";
+import { DefaultDeviceManagementComponentService } from "../auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "../auth/device-management/device-management-component.service.abstraction";
+import {
+  ChangePasswordService,
+  DefaultChangePasswordService,
+} from "../auth/password-management/change-password";
 import { DefaultSetInitialPasswordService } from "../auth/password-management/set-initial-password/default-set-initial-password.service.implementation";
 import { SetInitialPasswordService } from "../auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { DeviceTrustToastService as DeviceTrustToastServiceAbstraction } from "../auth/services/device-trust-toast.service.abstraction";
@@ -575,6 +575,9 @@ const safeProviders: SafeProvider[] = [
       BiometricsService,
       BiometricStateService,
       PlatformUtilsServiceAbstraction,
+      UserKeyRotationServiceAbstraction,
+      CipherServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1749,7 +1752,19 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteService,
     useClass: DefaultOrganizationInviteService,
-    deps: [],
+    deps: [
+      ApiServiceAbstraction,
+      AuthServiceAbstraction,
+      KeyService,
+      EncryptService,
+      PolicyApiServiceAbstraction,
+      InternalPolicyService,
+      LogService,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserApiService,
+      I18nServiceAbstraction,
+      GlobalStateProvider,
+    ],
   }),
   safeProvider({
     provide: SetInitialPasswordService,
@@ -1842,6 +1857,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       StateProvider,
       ConfigService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
@@ -1965,6 +1981,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
     ],
   }),
   safeProvider({

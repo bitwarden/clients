@@ -346,7 +346,7 @@ export class InputPasswordComponent implements OnInit {
       // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
       // this component only collects the password for those flows. Salt determination
       // is handled by the parent caller's service, which supplies the target user's email to
-      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.recoverAccount).
       //
       // TODO: PM-32059 — When salt is disconnected from email (Stage 3), replace
       // this.masterPasswordService.emailToSalt(this.email) with a KM-originated salt.

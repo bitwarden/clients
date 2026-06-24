@@ -2,6 +2,7 @@ import { provideLocationMocks } from "@angular/common/testing";
 import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { AccessIntelligenceDataService } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import {
   createApplication,
   createMemberRegistry,
@@ -12,11 +13,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import {
   buildActivityTabProviders,
+  MockAccessIntelligenceCoachmarkService,
   createAccessIntelligenceI18nMock,
   MockToastService,
   populatedTrendData,
+  MockAccessIntelligenceDataService,
 } from "../testing";
 
 import { ActivityTabComponent } from "./activity-tab.component";
@@ -32,6 +36,11 @@ export default {
       providers: [
         { provide: I18nService, useFactory: createAccessIntelligenceI18nMock },
         { provide: ToastService, useClass: MockToastService },
+        { provide: AccessIntelligenceDataService, useClass: MockAccessIntelligenceDataService },
+        {
+          provide: AccessIntelligenceCoachmarkService,
+          useClass: MockAccessIntelligenceCoachmarkService,
+        },
       ],
     }),
     applicationConfig({

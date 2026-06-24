@@ -8,8 +8,9 @@ import {
   ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { Storage, StorageCardComponent } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Storage, StorageCardComponent } from "../..";
 
 export default {
   title: "Billing/Storage Card",
