@@ -1,6 +1,7 @@
 {
   "flags": {
-    "sdk": true
+    "sdk": true,
+    "managedSettings": false
   },
   "devFlags": {}
 }

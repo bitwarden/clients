@@ -106,6 +106,7 @@ import { StateService as StateServiceAbstraction } from "@bitwarden/common/platf
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -182,6 +183,7 @@ import {
   ServerCommunicationConfigRepository,
 } from "../../platform/services/server-communication-config";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
+import { fromIpcManagedSettings } from "../../platform/utils/from-ipc-managed-settings";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
@@ -233,6 +235,16 @@ const safeProviders: SafeProvider[] = [
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+    useFactory: (managedSettings: ManagedSettingsService) => () => {
+      if (flagEnabled("managedSettings")) {
+        fromIpcManagedSettings().subscribe((bag) => managedSettings.pushExplicit(bag));
+      }
+    },
+    deps: [ManagedSettingsService],
     multi: true,
   }),
   safeProvider({
