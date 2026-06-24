@@ -13,7 +13,6 @@ import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
 import {
   CLIENT_TYPE,
   DEFAULT_VAULT_TIMEOUT,
-  ENV_ADDITIONAL_REGIONS,
   INTRAPROCESS_MESSAGING_SUBJECT,
   MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
@@ -219,7 +218,6 @@ import { PopupCompactModeService } from "../../platform/popup/layout/popup-compa
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
-import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
@@ -284,15 +282,6 @@ const safeProviders: SafeProvider[] = [
       return new ConsoleLogService(isDev);
     },
     deps: [],
-  }),
-  safeProvider({
-    provide: EnvironmentService,
-    useExisting: BrowserEnvironmentService,
-  }),
-  safeProvider({
-    provide: BrowserEnvironmentService,
-    useClass: BrowserEnvironmentService,
-    deps: [LogService, StateProvider, AccountServiceAbstraction, ENV_ADDITIONAL_REGIONS],
   }),
   safeProvider({
     provide: I18nServiceAbstraction,

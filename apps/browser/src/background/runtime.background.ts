@@ -9,6 +9,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
@@ -32,7 +33,6 @@ import {
   setPendingDefaultPasswordManagerApply,
 } from "../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 
@@ -50,7 +50,7 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private processReloadService: ProcessReloadServiceAbstraction,
-    private environmentService: BrowserEnvironmentService,
+    private environmentService: EnvironmentService,
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigService,
@@ -518,9 +518,6 @@ export default class RuntimeBackground {
             AutofillOverlayVisibility.OnFieldFocus,
           );
 
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
-          }
           await this.browserInitialInstallService.setExtensionInstalled(true);
         }
 

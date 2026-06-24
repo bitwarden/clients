@@ -6,8 +6,6 @@ import {
   SharedDevFlags,
 } from "@bitwarden/common/platform/misc/flags";
 
-import { GroupPolicyEnvironment } from "../admin-console/types/group-policy-environment";
-
 export type Flags = {
   /**
    * Client rollout gate for managed-settings OS acquisition. Network-free
@@ -19,7 +17,6 @@ export type Flags = {
 
 // required to avoid linting errors when there are no flags
 export type DevFlags = {
-  managedEnvironment?: GroupPolicyEnvironment;
   /** Dev-only: an in-code managed-settings map (dotted key -> value) pushed at boot. */
   managedSettings?: Record<string, unknown>;
 } & SharedDevFlags;

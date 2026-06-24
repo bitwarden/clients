@@ -9,7 +9,7 @@ jest.mock("../flags", () => ({
 }));
 
 class TestClass {
-  @devFlag("managedEnvironment") test() {
+  @devFlag("managedSettings") test() {
     return "test";
   }
 }
