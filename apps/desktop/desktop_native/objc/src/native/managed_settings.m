@@ -36,14 +36,11 @@ struct ObjCString readManagedPreferences(char *appID) {
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
     for (NSString *path in candidates) {
-      NSFileManager *fm = [NSFileManager defaultManager];
-      if (![fm fileExistsAtPath:path]) {
-        continue;
-      }
-
       // Trust only root-owned files.  /Library/Managed Preferences/ is
       // OS/root-protected, but an explicit check closes the TOCTOU window and
       // rejects any attacker-writable file that might appear at the path.
+      // isRootOwned() uses lstat, which returns NO for non-existent files, so
+      // the existence check is redundant.
       if (!isRootOwned(path)) {
         continue;
       }
