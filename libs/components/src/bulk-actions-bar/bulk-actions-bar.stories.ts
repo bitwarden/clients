@@ -155,7 +155,7 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              selected: "selected",
+              selectedLowercase: "selected",
               selectionCleared: "Selection cleared",
               clear: "Clear",
               bulkActionsBar: "Bulk actions",

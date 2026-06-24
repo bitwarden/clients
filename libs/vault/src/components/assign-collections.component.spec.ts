@@ -14,6 +14,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -103,6 +104,7 @@ describe("AssignCollectionsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 

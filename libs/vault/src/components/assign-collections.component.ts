@@ -40,6 +40,8 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -215,6 +217,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private formBuilder: FormBuilder,
     private toastService: ToastService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -294,10 +297,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         ? this.updateAssignedCollections(this.editableItems[0], activeUserId)
         : this.bulkUpdateCollections(cipherIds, activeUserId));
 
+      const batchBarEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM37785_VaultBatchBar,
+      );
+      const assignedMessage = batchBarEnabled
+        ? this.i18nService.t(
+            this.params.ciphers.length === 1
+              ? "itemAssignedToCollections"
+              : "itemsAssignedToCollections",
+          )
+        : this.i18nService.t("successfullyAssignedCollections");
+
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("successfullyAssignedCollections"),
+        message: assignedMessage,
       });
     }
 
