@@ -38,7 +38,8 @@
     "icons:build": "ts-node scripts/material-icons/build-with-bwi-names.ts",
     "icons:migrate": "ts-node scripts/material-icons/migrate-icon-names.ts",
     "icons:reverse-migrate": "ts-node scripts/material-icons/reverse-migrate-icon-names.ts",
-    "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts"
+    "dev:reverse-proxy": "node --experimental-strip-types scripts/reverse-proxy-emulator/index.ts",
+    "managed:schema": "ts-node scripts/generate-managed-schema.ts"
   },
   "workspaces": [
     "apps/*",

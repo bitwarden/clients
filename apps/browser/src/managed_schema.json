@@ -6,14 +6,103 @@
       "properties": {
         "base": {
           "type": "string",
-          "description": "Base url, typically only this value needs to be set"
+          "description": "Base URL; typically only this value needs to be set."
         },
-        "webVault": { "type": "string" },
-        "api": { "type": "string" },
-        "identity": { "type": "string" },
-        "icons": { "type": "string" },
-        "notifications": { "type": "string" },
-        "events": { "type": "string" }
+        "webVault": {
+          "type": "string",
+          "description": "Web vault URL."
+        },
+        "api": {
+          "type": "string",
+          "description": "API URL."
+        },
+        "identity": {
+          "type": "string",
+          "description": "Identity URL."
+        },
+        "icons": {
+          "type": "string",
+          "description": "Icons URL."
+        },
+        "notifications": {
+          "type": "string",
+          "description": "Notifications URL."
+        },
+        "events": {
+          "type": "string",
+          "description": "Events URL."
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "object",
+          "properties": {
+            "lowercase": {
+              "type": "boolean",
+              "description": "Force including lowercase characters."
+            },
+            "uppercase": {
+              "type": "boolean",
+              "description": "Force including uppercase characters."
+            },
+            "numbers": {
+              "type": "boolean",
+              "description": "Force including numbers."
+            },
+            "special": {
+              "type": "boolean",
+              "description": "Force including special characters."
+            },
+            "avoidAmbiguous": {
+              "type": "boolean",
+              "description": "Force avoiding ambiguous characters."
+            },
+            "length": {
+              "type": "integer",
+              "description": "Force password length."
+            },
+            "minLowercase": {
+              "type": "integer",
+              "description": "Force the minimum number of lowercase characters."
+            },
+            "minUppercase": {
+              "type": "integer",
+              "description": "Force the minimum number of uppercase characters."
+            },
+            "minNumber": {
+              "type": "integer",
+              "description": "Force the minimum number of numeric characters."
+            },
+            "minSpecial": {
+              "type": "integer",
+              "description": "Force the minimum number of special characters."
+            }
+          }
+        },
+        "passphrase": {
+          "type": "object",
+          "properties": {
+            "numWords": {
+              "type": "integer",
+              "description": "Force the number of words."
+            },
+            "wordSeparator": {
+              "type": "string",
+              "description": "Force the word separator."
+            },
+            "capitalize": {
+              "type": "boolean",
+              "description": "Force capitalization."
+            },
+            "includeNumber": {
+              "type": "boolean",
+              "description": "Force including a number."
+            }
+          }
+        }
       }
     }
   }
