@@ -7,18 +7,18 @@ import { DefaultManagedSettingsService } from "./default-managed-settings.servic
 // Factory must be self-contained because jest.mock is hoisted before class declarations.
 jest.mock("@bitwarden/sdk-internal", () => {
   class ManagedSettingsClient {
-    private _settings: Record<string, string> = {};
+    private _settings = new Map<string, string>();
 
     is_managed(key: string): boolean {
-      return Object.prototype.hasOwnProperty.call(this._settings, key);
+      return this._settings.has(key);
     }
 
     get(key: string): string | undefined {
-      return this._settings[key];
+      return this._settings.get(key);
     }
 
-    update_profile(profile?: { settings?: Record<string, string> } | null): void {
-      this._settings = profile?.settings ?? {};
+    update_profile(profile?: { settings?: Map<string, string> } | null): void {
+      this._settings = profile?.settings ?? new Map<string, string>();
     }
   }
 
