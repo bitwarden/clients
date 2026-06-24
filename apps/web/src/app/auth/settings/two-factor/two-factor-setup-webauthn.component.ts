@@ -10,10 +10,11 @@ import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/models
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-update.request";
 import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-challenge.response";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { TwoFactorWebAuthnDeleteResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-delete.response";
+import { TwoFactorWebAuthnDetailsResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-details.response";
+import { TwoFactorWebAuthnUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-update.response";
+import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -43,7 +44,7 @@ interface Key {
   name: string;
   configured: boolean;
   migrated?: boolean;
-  removePromise: Promise<TwoFactorWebAuthnResponse> | null;
+  removePromise: Promise<TwoFactorWebAuthnDeleteResponse> | null;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -111,7 +112,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
   auth(authResponse: AuthResponse<TwoFactorWebAuthnResponse>) {
     super.auth(authResponse);
-    this.processResponse(authResponse.response);
+    this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -135,13 +136,13 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     );
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
-    this.processResponse(response);
+    this.processUpdateResponse(response);
     this.toastService.showToast({
       title: this.i18nService.t("success"),
       message: this.i18nService.t("twoFactorProviderEnabled"),
       variant: "success",
     });
-    this.onUpdated.emit(response.enabled);
+    this.onUpdated.emit(response.webAuthn.enabled);
   }
 
   disable = async () => {
@@ -196,7 +197,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
       key.removePromise = null;
-      await this.processResponse(response);
+      this.processDeleteResponse(response);
     } catch (e) {
       this.logService.error(e);
     }
@@ -217,7 +218,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.readDevice(wrappedChallenge.options);
   };
 
-  private readDevice(webAuthnChallenge: ChallengeResponse) {
+  private readDevice(webAuthnChallenge: WebAuthnChallengeResponse) {
     // eslint-disable-next-line
     console.log("listening for key...");
     this.resetWebAuthn(true);
@@ -259,9 +260,22 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     throw new Error("Unable to find next available key ID");
   }
 
-  private processResponse(response: TwoFactorWebAuthnResponse) {
-    if (!response.keys || response.keys.length === 0) {
-      response.keys = [];
+  private processGetResponse(response: TwoFactorWebAuthnResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    this.applyWebAuthnState(response.webAuthn);
+  }
+
+  private processUpdateResponse(response: TwoFactorWebAuthnUpdateResponse) {
+    this.applyWebAuthnState(response.webAuthn);
+  }
+
+  private processDeleteResponse(response: TwoFactorWebAuthnDeleteResponse) {
+    this.applyWebAuthnState(response.webAuthn);
+  }
+
+  private applyWebAuthnState(webAuthn: TwoFactorWebAuthnDetailsResponse) {
+    if (!webAuthn.keys || webAuthn.keys.length === 0) {
+      webAuthn.keys = [];
     }
     this.resetWebAuthn();
     this.keys = [];
@@ -274,7 +288,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.keysConfiguredCount = 0;
 
     // Build configured keys
-    for (const key of response.keys) {
+    for (const key of webAuthn.keys) {
       this.keysConfiguredCount++;
       this.keys.push({
         id: key.id,
@@ -291,7 +305,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     // While we don't have any technical constraints _at this time_, we should avoid
     // unbounded growth of key IDs over time as users add/remove keys;
     // this strategy gap-fills key IDs.
-    const existingIds = new Set(response.keys.map((k) => k.id));
+    const existingIds = new Set(webAuthn.keys.map((k) => k.id));
     const nextId = this.findNextAvailableKeyId(existingIds);
 
     // Add unconfigured slot, which can be used to add a new key
@@ -303,10 +317,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     });
     this.keyIdAvailable = nextId;
 
-    this.enabled = response.enabled;
-    if (response.userVerificationToken) {
-      this.userVerificationToken = response.userVerificationToken;
-    }
+    this.enabled = webAuthn.enabled;
     this.onUpdated.emit(this.enabled);
   }
 

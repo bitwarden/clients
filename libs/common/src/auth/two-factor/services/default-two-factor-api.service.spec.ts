@@ -16,13 +16,21 @@ import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/re
 import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-web-authn-update.request";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
 import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-update.request";
+import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator-update.response";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
+import { TwoFactorDuoUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-duo-update.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
+import { TwoFactorEmailUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-email-update.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
+import { TwoFactorOrganizationDuoUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-organization-duo-update.response";
+import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-organization-duo.response";
 import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
 import { TwoFactorRecoverResponse } from "@bitwarden/common/auth/models/response/two-factor-recover.response";
 import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnDeleteResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-delete.response";
+import { TwoFactorWebAuthnUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn-update.response";
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key-update.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
@@ -92,8 +100,11 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: false,
-          Key: "MFRGGZDFMZTWQ2LK",
+          Authenticator: {
+            Enabled: false,
+            Key: "MFRGGZDFMZTWQ2LK",
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -107,7 +118,9 @@ describe("TwoFactorApiService", () => {
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorAuthenticatorResponse);
-        expect(result.enabled).toBe(false);
+        expect(result.authenticator.enabled).toBe(false);
+        expect(result.authenticator.key).toBe("MFRGGZDFMZTWQ2LK");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -115,8 +128,10 @@ describe("TwoFactorApiService", () => {
       it("enables authenticator after validating the provided token", async () => {
         const request = new TwoFactorAuthenticatorUpdateRequest("123456", "MFRGGZDFMZTWQ2LK", "");
         const mockResponse = {
-          Enabled: true,
-          Key: "MFRGGZDFMZTWQ2LK",
+          Authenticator: {
+            Enabled: true,
+            Key: "MFRGGZDFMZTWQ2LK",
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -129,33 +144,25 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorAuthenticatorResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.key).toBeDefined();
+        expect(result).toBeInstanceOf(TwoFactorAuthenticatorUpdateResponse);
+        expect(result.authenticator.enabled).toBe(true);
+        expect(result.authenticator.key).toBeDefined();
       });
     });
 
     describe("deleteTwoFactorAuthenticator", () => {
-      it("disables authenticator two-factor authentication", async () => {
+      it("disables authenticator two-factor authentication and expects no body", async () => {
         const request = new DeleteTwoFactorAuthenticatorRequest("MFRGGZDFMZTWQ2LK", "uv-token");
-        const mockResponse = {
-          Enabled: false,
-          Type: 0,
-        };
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorAuthenticator(request);
+        await twoFactorApiService.deleteTwoFactorAuthenticator(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/two-factor/authenticator",
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(0); // Authenticator
       });
     });
   });
@@ -166,8 +173,11 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: true,
-          Email: "user@example.com",
+          Email: {
+            Enabled: true,
+            Email: "user@example.com",
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -181,8 +191,9 @@ describe("TwoFactorApiService", () => {
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorEmailResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.email).toBeDefined();
+        expect(result.email.enabled).toBe(true);
+        expect(result.email.email).toBe("user@example.com");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -230,8 +241,10 @@ describe("TwoFactorApiService", () => {
           "",
         );
         const mockResponse = {
-          Enabled: true,
-          Email: "user@example.com",
+          Email: {
+            Enabled: true,
+            Email: "user@example.com",
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -244,9 +257,9 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorEmailResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.email).toBeDefined();
+        expect(result).toBeInstanceOf(TwoFactorEmailUpdateResponse);
+        expect(result.email.enabled).toBe(true);
+        expect(result.email.email).toBe("user@example.com");
       });
     });
   });
@@ -257,10 +270,13 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: true,
-          Host: "api-abc123.duosecurity.com",
-          ClientId: "DI9ABC1DEFGH2JKL",
-          ClientSecret: "client******",
+          Duo: {
+            Enabled: true,
+            Host: "api-abc123.duosecurity.com",
+            ClientId: "DI9ABC1DEFGH2JKL",
+            ClientSecret: "client******",
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -274,10 +290,11 @@ describe("TwoFactorApiService", () => {
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorDuoResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.host).toBeDefined();
-        expect(result.clientId).toBeDefined();
-        expect(result.clientSecret).toContain("******");
+        expect(result.duo.enabled).toBe(true);
+        expect(result.duo.host).toBe("api-abc123.duosecurity.com");
+        expect(result.duo.clientId).toBe("DI9ABC1DEFGH2JKL");
+        expect(result.duo.clientSecret).toContain("******");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -287,10 +304,13 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: true,
-          Host: "api-xyz789.duosecurity.com",
-          ClientId: "DI4XYZ9MNOP3QRS",
-          ClientSecret: "orgcli******",
+          Duo: {
+            Enabled: true,
+            Host: "api-xyz789.duosecurity.com",
+            ClientId: "DI4XYZ9MNOP3QRS",
+            ClientSecret: "orgcli******",
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -306,11 +326,12 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorDuoResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.host).toBeDefined();
-        expect(result.clientId).toBeDefined();
-        expect(result.clientSecret).toContain("******");
+        expect(result).toBeInstanceOf(TwoFactorOrganizationDuoResponse);
+        expect(result.duo.enabled).toBe(true);
+        expect(result.duo.host).toBe("api-xyz789.duosecurity.com");
+        expect(result.duo.clientId).toBe("DI4XYZ9MNOP3QRS");
+        expect(result.duo.clientSecret).toContain("******");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -323,21 +344,23 @@ describe("TwoFactorApiService", () => {
           "",
         );
         const mockResponse = {
-          Enabled: true,
-          Host: "api-abc123.duosecurity.com",
-          ClientId: "DI9ABC1DEFGH2JKL",
-          ClientSecret: "client******",
+          Duo: {
+            Enabled: true,
+            Host: "api-abc123.duosecurity.com",
+            ClientId: "DI9ABC1DEFGH2JKL",
+            ClientSecret: "client******",
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
         const result = await twoFactorApiService.putTwoFactorDuo(request);
 
         expect(apiService.send).toHaveBeenCalledWith("PUT", "/two-factor/duo", request, true, true);
-        expect(result).toBeInstanceOf(TwoFactorDuoResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.host).toBeDefined();
-        expect(result.clientId).toBeDefined();
-        expect(result.clientSecret).toContain("******");
+        expect(result).toBeInstanceOf(TwoFactorDuoUpdateResponse);
+        expect(result.duo.enabled).toBe(true);
+        expect(result.duo.host).toBeDefined();
+        expect(result.duo.clientId).toBeDefined();
+        expect(result.duo.clientSecret).toContain("******");
       });
     });
 
@@ -351,10 +374,12 @@ describe("TwoFactorApiService", () => {
           "",
         );
         const mockResponse = {
-          Enabled: true,
-          Host: "api-xyz789.duosecurity.com",
-          ClientId: "DI4XYZ9MNOP3QRS",
-          ClientSecret: "orgcli******",
+          Duo: {
+            Enabled: true,
+            Host: "api-xyz789.duosecurity.com",
+            ClientId: "DI4XYZ9MNOP3QRS",
+            ClientSecret: "orgcli******",
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -370,11 +395,11 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorDuoResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.host).toBeDefined();
-        expect(result.clientId).toBeDefined();
-        expect(result.clientSecret).toContain("******");
+        expect(result).toBeInstanceOf(TwoFactorOrganizationDuoUpdateResponse);
+        expect(result.duo.enabled).toBe(true);
+        expect(result.duo.host).toBeDefined();
+        expect(result.duo.clientId).toBeDefined();
+        expect(result.duo.clientSecret).toContain("******");
       });
     });
   });
@@ -385,9 +410,12 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: true,
-          Key1: "cccccccccccc",
-          Key2: "dddddddddddd",
+          YubiKey: {
+            Enabled: true,
+            Key1: "cccccccccccc",
+            Key2: "dddddddddddd",
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -401,9 +429,10 @@ describe("TwoFactorApiService", () => {
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorYubiKeyResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.key1).toBeDefined();
-        expect(result.key2).toBeDefined();
+        expect(result.yubiKey.enabled).toBe(true);
+        expect(result.yubiKey.key1).toBe("cccccccccccc");
+        expect(result.yubiKey.key2).toBe("dddddddddddd");
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -419,10 +448,12 @@ describe("TwoFactorApiService", () => {
           "",
         );
         const mockResponse = {
-          Enabled: true,
-          Key1: "cccccccccccc",
-          Key2: "dddddddddddd",
-          Nfc: false,
+          YubiKey: {
+            Enabled: true,
+            Key1: "cccccccccccc",
+            Key2: "dddddddddddd",
+            Nfc: false,
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -435,10 +466,10 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorYubiKeyResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.key1).toBeDefined();
-        expect(result.key2).toBeDefined();
+        expect(result).toBeInstanceOf(TwoFactorYubiKeyUpdateResponse);
+        expect(result.yubiKey.enabled).toBe(true);
+        expect(result.yubiKey.key1).toBeDefined();
+        expect(result.yubiKey.key2).toBeDefined();
       });
     });
   });
@@ -449,11 +480,14 @@ describe("TwoFactorApiService", () => {
         const request = new SecretVerificationRequest();
         request.masterPasswordHash = "master-password-hash";
         const mockResponse = {
-          Enabled: true,
-          Keys: [
-            { Name: "YubiKey 5", Id: 1, Migrated: false },
-            { Name: "Security Key", Id: 2, Migrated: true },
-          ],
+          WebAuthn: {
+            Enabled: true,
+            Keys: [
+              { Name: "YubiKey 5", Id: 1, Migrated: false },
+              { Name: "Security Key", Id: 2, Migrated: true },
+            ],
+          },
+          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -467,13 +501,14 @@ describe("TwoFactorApiService", () => {
           true,
         );
         expect(result).toBeInstanceOf(TwoFactorWebAuthnResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.keys).toHaveLength(2);
-        result.keys.forEach((key) => {
+        expect(result.webAuthn.enabled).toBe(true);
+        expect(result.webAuthn.keys).toHaveLength(2);
+        result.webAuthn.keys.forEach((key) => {
           expect(key).toHaveProperty("name");
           expect(key).toHaveProperty("id");
           expect(key).toHaveProperty("migrated");
         });
+        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 
@@ -537,8 +572,10 @@ describe("TwoFactorApiService", () => {
         );
 
         const mockResponse = {
-          Enabled: true,
-          Keys: [{ Name: "My Security Key", Id: 1, Migrated: false }],
+          WebAuthn: {
+            Enabled: true,
+            Keys: [{ Name: "My Security Key", Id: 1, Migrated: false }],
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -563,12 +600,12 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorWebAuthnResponse);
-        expect(result.enabled).toBe(true);
-        expect(result.keys).toHaveLength(1);
-        expect(result.keys[0].name).toBeDefined();
-        expect(result.keys[0].id).toBeDefined();
-        expect(result.keys[0].migrated).toBeDefined();
+        expect(result).toBeInstanceOf(TwoFactorWebAuthnUpdateResponse);
+        expect(result.webAuthn.enabled).toBe(true);
+        expect(result.webAuthn.keys).toHaveLength(1);
+        expect(result.webAuthn.keys[0].name).toBeDefined();
+        expect(result.webAuthn.keys[0].id).toBeDefined();
+        expect(result.webAuthn.keys[0].migrated).toBeDefined();
       });
 
       it("preserves original request object without mutation during serialization", async () => {
@@ -592,7 +629,7 @@ describe("TwoFactorApiService", () => {
         );
 
         const originalDeviceResponse = request.deviceResponse;
-        apiService.send.mockResolvedValue({ enabled: true, keys: [] });
+        apiService.send.mockResolvedValue({ WebAuthn: { Enabled: true, Keys: [] } });
 
         await twoFactorApiService.putTwoFactorWebAuthn(request);
 
@@ -606,8 +643,10 @@ describe("TwoFactorApiService", () => {
       it("removes specific WebAuthn credential while preserving other registered keys", async () => {
         const request = new TwoFactorWebAuthnDeleteRequest(1, "uv-token");
         const mockResponse = {
-          Enabled: true,
-          Keys: [{ Name: "Security Key", Id: 2, Migrated: true }], // Key with id:1 removed
+          WebAuthn: {
+            Enabled: true,
+            Keys: [{ Name: "Security Key", Id: 2, Migrated: true }], // Key with id:1 removed
+          },
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -620,9 +659,9 @@ describe("TwoFactorApiService", () => {
           true,
           true,
         );
-        expect(result).toBeInstanceOf(TwoFactorWebAuthnResponse);
-        expect(result.keys).toHaveLength(1);
-        expect(result.keys[0].id).toBe(2);
+        expect(result).toBeInstanceOf(TwoFactorWebAuthnDeleteResponse);
+        expect(result.webAuthn.keys).toHaveLength(1);
+        expect(result.webAuthn.keys[0].id).toBe(2);
       });
     });
   });
@@ -655,111 +694,83 @@ describe("TwoFactorApiService", () => {
 
   describe("Per-provider Delete APIs", () => {
     describe("deleteTwoFactorYubiKey", () => {
-      it("removes YubiKey two-factor enrollment for the current user", async () => {
+      it("removes YubiKey two-factor enrollment for the current user and expects no body", async () => {
         const request = new TwoFactorYubiKeyDeleteRequest("uv-token");
-        const mockResponse = { Enabled: false, Type: 3 }; // YubiKey
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorYubiKey(request);
+        await twoFactorApiService.deleteTwoFactorYubiKey(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/two-factor/yubikey",
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(3);
       });
     });
 
     describe("deleteTwoFactorDuo", () => {
-      it("removes Duo two-factor enrollment for the current user", async () => {
+      it("removes Duo two-factor enrollment for the current user and expects no body", async () => {
         const request = new TwoFactorDuoDeleteRequest("uv-token");
-        const mockResponse = { Enabled: false, Type: 2 }; // Duo
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorDuo(request);
+        await twoFactorApiService.deleteTwoFactorDuo(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/two-factor/duo",
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(2);
       });
     });
 
     describe("deleteTwoFactorEmail", () => {
-      it("removes email two-factor enrollment for the current user", async () => {
+      it("removes email two-factor enrollment for the current user and expects no body", async () => {
         const request = new TwoFactorEmailDeleteRequest("uv-token");
-        const mockResponse = { Enabled: false, Type: 1 }; // Email
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorEmail(request);
+        await twoFactorApiService.deleteTwoFactorEmail(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/two-factor/email",
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(1);
       });
     });
 
     describe("deleteTwoFactorOrganizationDuo", () => {
-      it("removes Duo two-factor enrollment for an organization with policy management permissions", async () => {
+      it("removes Duo two-factor enrollment for an organization and expects no body", async () => {
         const organizationId = "org-123";
         const request = new TwoFactorOrganizationDuoDeleteRequest("uv-token");
-        const mockResponse = { Enabled: false, Type: 6 }; // OrganizationDuo
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorOrganizationDuo(
-          organizationId,
-          request,
-        );
+        await twoFactorApiService.deleteTwoFactorOrganizationDuo(organizationId, request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           `/organizations/${organizationId}/two-factor/duo`,
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(6);
       });
     });
 
     describe("deleteTwoFactorWebAuthnAll", () => {
-      it("removes the entire WebAuthn enrollment in a single round-trip", async () => {
+      it("removes the entire WebAuthn enrollment in a single round-trip and expects no body", async () => {
         const request = new TwoFactorWebAuthnDeleteAllRequest("uv-token");
-        const mockResponse = { Enabled: false, Type: 7 }; // WebAuthn
-        apiService.send.mockResolvedValue(mockResponse);
 
-        const result = await twoFactorApiService.deleteTwoFactorWebAuthnAll(request);
+        await twoFactorApiService.deleteTwoFactorWebAuthnAll(request);
 
         expect(apiService.send).toHaveBeenCalledWith(
           "DELETE",
           "/two-factor/webauthn/all",
           request,
           true,
-          true,
+          false,
         );
-        expect(result).toBeInstanceOf(TwoFactorProviderResponse);
-        expect(result.enabled).toBe(false);
-        expect(result.type).toBe(7);
       });
     });
   });

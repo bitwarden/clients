@@ -7,7 +7,11 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-duo-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-organization-duo-delete.request";
+import { TwoFactorDuoDetailsResponse } from "@bitwarden/common/auth/models/response/two-factor-duo-details.response";
+import { TwoFactorDuoUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-duo-update.response";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
+import { TwoFactorOrganizationDuoUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-organization-duo-update.response";
+import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-organization-duo.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -31,6 +35,11 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
+
+type TwoFactorDuoResponseUnion = TwoFactorDuoResponse | TwoFactorOrganizationDuoResponse;
+type TwoFactorDuoUpdateResponseUnion =
+  | TwoFactorDuoUpdateResponse
+  | TwoFactorOrganizationDuoUpdateResponse;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -116,7 +125,7 @@ export class TwoFactorSetupDuoComponent
     }
 
     super.auth(this.data.authResponse);
-    this.processResponse(this.data.authResponse.response);
+    this.processGetResponse(this.data.authResponse.response);
 
     if (this.data.organizationId) {
       this.type = TwoFactorProviderType.OrganizationDuo;
@@ -145,7 +154,7 @@ export class TwoFactorSetupDuoComponent
       this.userVerificationToken,
     );
 
-    let response: TwoFactorDuoResponse;
+    let response: TwoFactorDuoUpdateResponseUnion;
 
     if (this.organizationId != null) {
       response = await this.twoFactorService.putTwoFactorOrganizationDuo(
@@ -156,7 +165,7 @@ export class TwoFactorSetupDuoComponent
       response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
-    this.processResponse(response);
+    this.processUpdateResponse(response);
     this.onUpdated.emit(true);
   }
 
@@ -192,14 +201,20 @@ export class TwoFactorSetupDuoComponent
     void this.dialogRef.close(this.enabled);
   };
 
-  private processResponse(response: TwoFactorDuoResponse) {
-    this.clientId = response.clientId;
-    this.clientSecret = response.clientSecret;
-    this.host = response.host;
-    this.enabled = response.enabled;
-    if (response.userVerificationToken) {
-      this.userVerificationToken = response.userVerificationToken;
-    }
+  private processGetResponse(response: TwoFactorDuoResponseUnion) {
+    this.userVerificationToken = response.userVerificationToken;
+    this.applyDuoState(response.duo);
+  }
+
+  private processUpdateResponse(response: TwoFactorDuoUpdateResponseUnion) {
+    this.applyDuoState(response.duo);
+  }
+
+  private applyDuoState(duo: TwoFactorDuoDetailsResponse) {
+    this.clientId = duo.clientId;
+    this.clientSecret = duo.clientSecret;
+    this.host = duo.host;
+    this.enabled = duo.enabled;
   }
 
   /**
@@ -219,6 +234,6 @@ export class TwoFactorSetupDuoComponent
 }
 
 type TwoFactorDuoComponentConfig = {
-  authResponse: AuthResponse<TwoFactorDuoResponse>;
+  authResponse: AuthResponse<TwoFactorDuoResponseUnion>;
   organizationId?: string;
 };

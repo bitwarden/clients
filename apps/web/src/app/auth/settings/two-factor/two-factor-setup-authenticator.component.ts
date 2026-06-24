@@ -11,6 +11,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/delete-two-factor-authenticator.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-authenticator-update.request";
+import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator-update.response";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -85,7 +86,7 @@ export class TwoFactorSetupAuthenticatorComponent
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;
-  private userVerificationToken: string;
+  private userVerificationToken!: string;
 
   override componentName = "app-two-factor-authenticator";
   qrScriptError = false;
@@ -138,7 +139,7 @@ export class TwoFactorSetupAuthenticatorComponent
 
   async auth(authResponse: AuthResponse<TwoFactorAuthenticatorResponse>) {
     super.auth(authResponse);
-    return this.processResponse(authResponse.response);
+    return this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -162,7 +163,7 @@ export class TwoFactorSetupAuthenticatorComponent
     );
 
     const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
-    await this.processResponse(response);
+    await this.processUpdateResponse(response);
     this.onUpdated.emit(true);
   }
 
@@ -188,13 +189,19 @@ export class TwoFactorSetupAuthenticatorComponent
     this.onUpdated.emit(false);
   }
 
-  private async processResponse(response: TwoFactorAuthenticatorResponse) {
+  private async processGetResponse(response: TwoFactorAuthenticatorResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    await this.applyAuthenticatorState(response.authenticator.enabled, response.authenticator.key);
+  }
+
+  private async processUpdateResponse(response: TwoFactorAuthenticatorUpdateResponse) {
+    await this.applyAuthenticatorState(response.authenticator.enabled, response.authenticator.key);
+  }
+
+  private async applyAuthenticatorState(enabled: boolean, key: string) {
     this.formGroup.get("token").setValue(null);
-    this.enabled = response.enabled;
-    this.key = response.key;
-    if (response.userVerificationToken) {
-      this.userVerificationToken = response.userVerificationToken;
-    }
+    this.enabled = enabled;
+    this.key = key;
 
     await this.waitForQRiousToLoadOrError().catch((error) => {
       this.logService.error(error);

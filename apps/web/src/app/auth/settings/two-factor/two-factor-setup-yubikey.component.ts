@@ -13,6 +13,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-delete.request";
 import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-yubikey-update.request";
+import { TwoFactorYubiKeyDetailsResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key-details.response";
+import { TwoFactorYubiKeyUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key-update.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -139,7 +141,7 @@ export class TwoFactorSetupYubiKeyComponent
 
   auth(authResponse: AuthResponse<TwoFactorYubiKeyResponse>) {
     super.auth(authResponse);
-    this.processResponse(authResponse.response);
+    this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -178,7 +180,7 @@ export class TwoFactorSetupYubiKeyComponent
       this.userVerificationToken,
     );
 
-    this.processResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
+    this.processUpdateResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
     this.refreshFormArrayData();
     this.toastService.showToast({
       title: this.i18nService.t("success"),
@@ -224,18 +226,24 @@ export class TwoFactorSetupYubiKeyComponent
     });
   }
 
-  private processResponse(response: TwoFactorYubiKeyResponse) {
-    this.enabled = response.enabled;
-    this.anyKeyHasNfc = response.nfc || !response.enabled;
-    if (response.userVerificationToken) {
-      this.userVerificationToken = response.userVerificationToken;
-    }
+  private processGetResponse(response: TwoFactorYubiKeyResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    this.applyYubiKeyState(response.yubiKey);
+  }
+
+  private processUpdateResponse(response: TwoFactorYubiKeyUpdateResponse) {
+    this.applyYubiKeyState(response.yubiKey);
+  }
+
+  private applyYubiKeyState(yubiKey: TwoFactorYubiKeyDetailsResponse) {
+    this.enabled = yubiKey.enabled;
+    this.anyKeyHasNfc = yubiKey.nfc || !yubiKey.enabled;
     this.keys = [
-      { key: response.key1, existingKey: this.padRight(response.key1) },
-      { key: response.key2, existingKey: this.padRight(response.key2) },
-      { key: response.key3, existingKey: this.padRight(response.key3) },
-      { key: response.key4, existingKey: this.padRight(response.key4) },
-      { key: response.key5, existingKey: this.padRight(response.key5) },
+      { key: yubiKey.key1, existingKey: this.padRight(yubiKey.key1) },
+      { key: yubiKey.key2, existingKey: this.padRight(yubiKey.key2) },
+      { key: yubiKey.key3, existingKey: this.padRight(yubiKey.key3) },
+      { key: yubiKey.key4, existingKey: this.padRight(yubiKey.key4) },
+      { key: yubiKey.key5, existingKey: this.padRight(yubiKey.key5) },
     ];
   }
 

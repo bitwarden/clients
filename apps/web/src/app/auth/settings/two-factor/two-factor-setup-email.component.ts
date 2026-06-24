@@ -9,6 +9,8 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/models/request/two-factor-email-delete.request";
 import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/models/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/models/request/two-factor-email-update.request";
+import { TwoFactorEmailDetailsResponse } from "@bitwarden/common/auth/models/response/two-factor-email-details.response";
+import { TwoFactorEmailUpdateResponse } from "@bitwarden/common/auth/models/response/two-factor-email-update.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
@@ -112,7 +114,7 @@ export class TwoFactorSetupEmailComponent
 
   auth(authResponse: AuthResponse<TwoFactorEmailResponse>) {
     super.auth(authResponse);
-    return this.processResponse(authResponse.response);
+    return this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -149,7 +151,7 @@ export class TwoFactorSetupEmailComponent
     );
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
-    await this.processResponse(response);
+    await this.processUpdateResponse(response);
     this.onUpdated.emit(true);
   }
 
@@ -179,13 +181,19 @@ export class TwoFactorSetupEmailComponent
     void this.dialogRef.close(this.enabled);
   };
 
-  private async processResponse(response: TwoFactorEmailResponse) {
+  private async processGetResponse(response: TwoFactorEmailResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    await this.applyEmailState(response.email);
+  }
+
+  private async processUpdateResponse(response: TwoFactorEmailUpdateResponse) {
+    await this.applyEmailState(response.email);
+  }
+
+  private async applyEmailState(emailData: TwoFactorEmailDetailsResponse) {
     this.token = null;
-    this.email = response.email;
-    this.enabled = response.enabled;
-    if (response.userVerificationToken) {
-      this.userVerificationToken = response.userVerificationToken;
-    }
+    this.email = emailData.email;
+    this.enabled = emailData.enabled;
     if (!this.enabled && (this.email == null || this.email === "")) {
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
