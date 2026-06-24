@@ -5,6 +5,7 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Guid, UserId } from "@bitwarden/common/types/guid";
@@ -17,26 +18,26 @@ import { BulkEnableSecretsManagerDialogComponent } from "./bulk-enable-sm-dialog
 
 function makeUser(
   id: string,
-  name: string | null,
+  name: string,
   email: string,
   type: OrganizationUserType,
 ): OrganizationUserView {
   return new OrganizationUserView({
     id: id as Guid,
     userId: `${id}-uid` as UserId,
-    name: name ?? "",
+    name,
     email,
     type,
-    revocationReason: null,
+    revocationReason: RevocationReasonType.Unknown,
     status: OrganizationUserStatusType.Confirmed,
     permissions: new PermissionsApi(),
-    avatarColor: null,
+    avatarColor: "",
   });
 }
 
 const mockUsers: OrganizationUserView[] = [
   makeUser("user-1", "Alice Smith", "alice@example.com", OrganizationUserType.User),
-  makeUser("user-2", null, "bob@example.com", OrganizationUserType.Admin),
+  makeUser("user-2", "", "bob@example.com", OrganizationUserType.Admin),
   makeUser("user-3", "Carol Jones", "carol@example.com", OrganizationUserType.Custom),
 ];
 

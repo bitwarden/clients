@@ -45,7 +45,7 @@ const mockUsers: BulkUserDetails[] = [
 
 const invitedUser: BulkUserDetails = {
   id: "user-3",
-  name: null,
+  name: "",
   email: "bob@example.com",
   status: OrganizationUserStatusType.Invited,
   hasMasterPassword: false,

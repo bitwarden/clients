@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -19,23 +20,23 @@ import { BulkActionResult } from "../../services/member-actions/member-actions.t
 
 import { BulkReinviteFailureDialogComponent } from "./bulk-reinvite-failure-dialog.component";
 
-function makeUser(id: string, name: string | null, email: string): OrganizationUserView {
+function makeUser(id: string, name: string, email: string): OrganizationUserView {
   return new OrganizationUserView({
     id: id as Guid,
     userId: `${id}-uid` as UserId,
-    name: name ?? "",
+    name,
     email,
     type: OrganizationUserType.User,
-    revocationReason: null,
+    revocationReason: RevocationReasonType.Unknown,
     status: OrganizationUserStatusType.Invited,
     permissions: new PermissionsApi(),
-    avatarColor: null,
+    avatarColor: "",
   });
 }
 
 const allUsers: OrganizationUserView[] = [
   makeUser("user-1", "Alice Smith", "alice@example.com"),
-  makeUser("user-2", null, "bob@example.com"),
+  makeUser("user-2", "", "bob@example.com"),
   makeUser("user-3", "Carol Jones", "carol@example.com"),
 ];
 
