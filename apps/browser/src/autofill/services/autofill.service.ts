@@ -49,7 +49,12 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import {
+  AutofillLifecycleCommand,
+  AutofillMessageCommand,
+  AutofillMessageSender,
+  AutofillerCommand,
+} from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
@@ -206,6 +211,12 @@ export default class AutofillService implements AutofillServiceInterface {
       .subscribe(([previousSetting, currentSetting]) =>
         this.handleInlineMenuVisibilitySettingsChange(previousSetting, currentSetting),
       );
+
+    this.authService.activeAccountStatus$
+      .pipe(startWith(undefined), pairwise())
+      .subscribe(([previousStatus, currentStatus]) =>
+        this.handleAuthStatusTransition(previousStatus, currentStatus),
+      );
   }
 
   /**
@@ -276,6 +287,31 @@ export default class AutofillService implements AutofillServiceInterface {
           frame: frameId,
         },
       });
+    }
+
+    // The injection awaits above yield the event loop, and a logout
+    // can complete in that window; sending the start signal off the stale
+    // snapshot would leave this frame's monitors running on a logged-out
+    // account.
+    //
+    // FIXME: A race condition can still occur here. There is no happens-before
+    // relationship between an `activeAccountStatus$` logout emission and this
+    // send. A logout landing just after this check triggers
+    // `handleAuthStatusTransition`, which stops connected ports. A frame whose
+    // port hasn't yet registered can still slip through. This may be eliminated
+    // by using rx to fully sequence script injections.
+    const accountIsLoggedIn =
+      (await firstValueFrom(this.authService.activeAccountStatus$)) !==
+      AuthenticationStatus.LoggedOut;
+    if (accountIsLoggedIn) {
+      // Fire-and-forget: the bootstrap is already injected at this point,
+      // and awaiting the send only matters if the caller needs a response,
+      // which it does not. Errors are reported rather than swallowed.
+      BrowserApi.tabSendMessage(
+        tab,
+        { command: AutofillLifecycleCommand.start },
+        { frameId },
+      ).catch((error) => this.logService.error(error));
     }
   }
 
@@ -3161,5 +3197,68 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     await this.reloadAutofillScripts();
+  }
+
+  /**
+   * Broadcasts monitor lifecycle commands to every currently-connected
+   * autofill content script when the active account's authentication
+   * status crosses the `LoggedOut` boundary. On `LoggedOut → logged-in`,
+   * sends `startAutofillMonitors`. On `logged-in → LoggedOut`, sends
+   * both `stopAutofillMonitors` and `disableAutofiller` so any
+   * already-running autofiller actor is halted. Lock and unlock
+   * transitions emit no broadcast — monitors run across the lock
+   * boundary, and a running autofiller survives a lock (its fill
+   * requests are ignored by the background until unlock).
+   */
+  private handleAuthStatusTransition(
+    previousStatus: AuthenticationStatus | undefined,
+    currentStatus: AuthenticationStatus | undefined,
+  ) {
+    if (previousStatus === undefined || previousStatus === currentStatus) {
+      // The first emission paired with `startWith(undefined)` is not a
+      // transition — it's the seed. Skip it so a service-worker boot
+      // into any auth state is silent.
+      return;
+    }
+    const wasLoggedOut = previousStatus === AuthenticationStatus.LoggedOut;
+    const isLoggedOut = currentStatus === AuthenticationStatus.LoggedOut;
+    if (wasLoggedOut && !isLoggedOut) {
+      this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.start });
+      return;
+    }
+    if (!wasLoggedOut && isLoggedOut) {
+      this.broadcastToInjectedScripts({ command: AutofillLifecycleCommand.stop });
+      this.broadcastToInjectedScripts({ command: AutofillerCommand.disable });
+    }
+  }
+
+  /**
+   * Sends a one-way message to each `(tab, frame)` pair currently tracked
+   * in `autofillScriptPortsSet`. Each `(tab, frame)` may have multiple
+   * ports (bootstrap and autofiller register independently); the message
+   * is sent once per unique pair. Stale ports are skipped silently.
+   */
+  private broadcastToInjectedScripts(message: { command: string }) {
+    // The dedup key collapses ports for the same (tab, frameId). When a
+    // sender unexpectedly reports `frameId` as undefined alongside another
+    // with a real number for the same tab, the two entries deliver twice
+    // — once tab-wide, once frame-specific. The lifecycle commands sent
+    // here are all idempotent on the receivers, so the duplicate is benign.
+    const targets = new Map<string, { tab: chrome.tabs.Tab; frameId: number | undefined }>();
+    this.autofillScriptPortsSet.forEach((port) => {
+      const tab = port.sender?.tab;
+      const frameId = port.sender?.frameId;
+      if (!tab?.id) {
+        return;
+      }
+      targets.set(`${tab.id}:${frameId ?? -1}`, { tab, frameId });
+    });
+    targets.forEach(({ tab, frameId }) => {
+      BrowserApi.tabSendMessage(
+        tab,
+        message,
+        frameId !== undefined ? { frameId } : undefined,
+      ).catch((error) => this.logService.error(error));
+    });
   }
 }
