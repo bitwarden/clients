@@ -55,7 +55,7 @@ export class ProfileComponent implements OnInit {
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.organizationService.organizations$(userId)),
-      map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+      map((organizations) => organizations.find((o) => o.userIsClaimedByOrganization === true)),
     ),
   );
 
