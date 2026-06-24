@@ -56,7 +56,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
   avatarColor: string;
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
 
   constructor(response: any) {
     super(response);
@@ -65,7 +65,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
     this.avatarColor = this.getResponseProperty("AvatarColor");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
 
     if (this.email == null) {
       throw new Error("Missing required property: email");
@@ -74,12 +74,12 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
 }
 
 export class OrganizationUserDetailsResponse extends OrganizationUserResponse {
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
   ssoExternalId: string;
 
   constructor(response: any) {
     super(response);
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
     this.ssoExternalId = this.getResponseProperty("SsoExternalId");
   }
 }

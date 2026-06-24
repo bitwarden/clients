@@ -49,22 +49,22 @@ export class AccountComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
 
-    const userIsManagedByOrganization$ = this.organizationService
+    const userIsClaimedByOrganization$ = this.organizationService
       .organizations$(userId)
       .pipe(
-        map((organizations) => organizations.some((o) => o.userIsManagedByOrganization === true)),
+        map((organizations) => organizations.some((o) => o.userIsClaimedByOrganization === true)),
       );
 
     const hasMasterPassword$ = this.userDecryptionOptionsService.hasMasterPasswordById$(userId);
 
     this.showChangeEmail$ = hasMasterPassword$;
 
-    this.showPurgeVault$ = userIsManagedByOrganization$.pipe(
-      map((userIsManagedByOrganization) => !userIsManagedByOrganization),
+    this.showPurgeVault$ = userIsClaimedByOrganization$.pipe(
+      map((userIsClaimedByOrganization) => !userIsClaimedByOrganization),
     );
 
-    this.showDeleteAccount$ = userIsManagedByOrganization$.pipe(
-      map((userIsManagedByOrganization) => !userIsManagedByOrganization),
+    this.showDeleteAccount$ = userIsClaimedByOrganization$.pipe(
+      map((userIsClaimedByOrganization) => !userIsClaimedByOrganization),
     );
 
     this.accountService.accountVerifyNewDeviceLogin$

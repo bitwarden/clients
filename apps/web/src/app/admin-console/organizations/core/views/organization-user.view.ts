@@ -26,7 +26,7 @@ export class OrganizationUserView {
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
   accessSecretsManager: boolean = false;
-  managedByOrganization: boolean = false;
+  claimedByOrganization: boolean = false;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
@@ -74,7 +74,7 @@ export class OrganizationUserView {
     view.usesKeyConnector = response.usesKeyConnector;
     view.hasMasterPassword = response.hasMasterPassword;
     view.accessSecretsManager = response.accessSecretsManager;
-    view.managedByOrganization = response.managedByOrganization;
+    view.claimedByOrganization = response.claimedByOrganization;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));

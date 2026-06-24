@@ -21,7 +21,7 @@ export interface BulkUserDetails {
   email: string;
   status: OrganizationUserStatusType | ProviderUserStatusType;
   hasMasterPassword?: boolean;
-  managedByOrganization?: boolean;
+  claimedByOrganization?: boolean;
 }
 
 type BulkStatusEntry = {

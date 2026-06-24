@@ -94,7 +94,7 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   name: string;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
-  managedByOrganization?: boolean;
+  claimedByOrganization?: boolean;
   initialTab: MemberDialogTab;
 }
 
@@ -556,7 +556,7 @@ export class MemberDialogComponent implements OnDestroy {
       accessSecretsManager: this.formGroup.value.accessSecretsManager,
       resetPasswordEnrolled: false,
       hasMasterPassword: false,
-      managedByOrganization: false,
+      claimedByOrganization: false,
     });
 
     return userView;
