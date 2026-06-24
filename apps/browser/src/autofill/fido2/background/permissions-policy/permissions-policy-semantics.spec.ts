@@ -153,11 +153,11 @@ describe("getEffectiveAllowlist", () => {
     );
   });
 
-  it("returns the default `self`-only allowlist when the directive is absent", () => {
+  it("returns the default wildcard allowlist when the directive is absent (matches MDN for publickey-credentials-*)", () => {
     const policy = policyOf();
 
     expect(getEffectiveAllowlist(policy, WebAuthnPermissionsPolicyFeature.Create)).toEqual([
-      { type: "self" },
+      { type: "wildcard" },
     ]);
   });
 

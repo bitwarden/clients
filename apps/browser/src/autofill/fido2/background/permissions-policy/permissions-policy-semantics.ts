@@ -2,11 +2,21 @@ import { AllowlistItem, ParsedPermissionsPolicy, PermissionsPolicyDirective } fr
 
 /**
  * Default allowlist for `publickey-credentials-*` features when no directive is
- * present in the document's Permissions Policy: `self`. This matches the spec's
- * declared default allowlist for these features (Permissions Policy §default-allowlist).
+ * present in the document's Permissions Policy: `*` (any origin). This matches
+ * the MDN-documented defaults for both `publickey-credentials-create` and
+ * `publickey-credentials-get`, and matches observable Chromium behavior — a
+ * top-level page with no header allows WebAuthn in same-origin and properly
+ * delegated cross-origin iframes alike.
+ *
+ * Note that this default applies to the **document's own** Permissions Policy
+ * (i.e. its response header). The default for an iframe's **container** policy
+ * (the parent's `allow=` attribute on this iframe element) is `self` — that's
+ * where VULN-398's "cross-origin iframe without `allow=` is denied" property
+ * comes from, and it's enforced by the frame-chain delegation algorithm rather
+ * than by this default.
  */
 const DEFAULT_ALLOWLIST_FOR_WEBAUTHN: readonly AllowlistItem[] = Object.freeze([
-  { type: "self" } as const,
+  { type: "wildcard" } as const,
 ]);
 
 /**
