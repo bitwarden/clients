@@ -27,3 +27,8 @@ export function lookupOverlay(
 export function registeredOverlays(): ReadonlyArray<ManagedOverlay<unknown>> {
   return overlays;
 }
+
+/** Test-only: clears the registry. Not part of the public API. */
+export function __resetOverlaysForTests(): void {
+  overlays.length = 0;
+}
