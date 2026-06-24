@@ -434,6 +434,10 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
       this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id!) as CipherId),
     );
 
+    if (!cipherView) {
+      return;
+    }
+
     await this.vaultPopupAutofillService.doAutofill(cipherView);
   }
 

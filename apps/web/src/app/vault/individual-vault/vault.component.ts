@@ -1669,7 +1669,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const cipherView = await firstValueFrom(
       this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id) as CipherId),
     );
-    return cipherView.login.password;
+    return cipherView?.login.password;
   }
 }
 
