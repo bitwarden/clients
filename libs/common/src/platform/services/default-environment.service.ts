@@ -111,7 +111,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
-      send: "https://send.bitwarden.eu",
+      send: "https://vault.bitwarden.eu",
     },
   },
 ];
@@ -427,8 +427,9 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      // Bitwarden production cloud environments don't include a trailing forward-slash
-      if (this.urls.send.endsWith(".bitwarden.com") || this.urls.send.endsWith(".bitwarden.eu")) {
+      // Bitwarden production US cloud environment uses a web page on a vanity url
+      // to redirect to the correct full send path
+      if (this.urls.send === "https://send.bitwarden.com") {
         return this.urls.send + "/#";
       }
 
