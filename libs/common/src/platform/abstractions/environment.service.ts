@@ -120,6 +120,11 @@ export abstract class EnvironmentService {
 
   /**
    * Set the global environment.
+   *
+   * Rejects when the environment is administrator-managed (forced via managed settings):
+   * a managed environment cannot be changed, and reads are overlaid with the managed value
+   * regardless. Callers that may run while a managed environment is active must handle the
+   * rejection (the environment-selection UI disables the control in that case).
    */
   abstract setEnvironment(region: Region, urls?: Urls): Promise<Urls>;
 

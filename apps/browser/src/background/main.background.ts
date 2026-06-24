@@ -726,9 +726,10 @@ export default class MainBackground {
       this.managedSettingsService,
     );
     if (devFlagEnabled("managedSettings")) {
-      this.managedSettingsService.pushExplicit(
-        devFlagValue("managedSettings") as Record<string, unknown>,
-      );
+      const devProfile = devFlagValue("managedSettings");
+      if (devProfile != null && typeof devProfile === "object" && !Array.isArray(devProfile)) {
+        this.managedSettingsService.pushExplicit(devProfile);
+      }
     } else if (flagEnabled("managedSettings")) {
       void new BrowserManagedConfigReader(this.managedSettingsService, this.logService).start();
     }
