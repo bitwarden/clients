@@ -29,11 +29,13 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     );
 
     if (batchBarEnabled) {
-      // Mixed selections (items + collections) fall through to the legacy dialog, which itemizes them.
-      if (this.isCollectionsOnly(params) && !params.permanent) {
+      if (this.hasItems(params) && this.hasCollections(params)) {
+        return this.confirmAndDeleteMixed(params);
+      }
+      if (this.hasCollections(params)) {
         return this.confirmAndDeleteCollections(params);
       }
-      if (this.isItemsOnly(params)) {
+      if (this.hasItems(params)) {
         return this.confirmAndDeleteItems(params);
       }
     }
@@ -42,57 +44,12 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     return lastValueFrom(dialog.closed.pipe(map((r) => r ?? BulkDeleteDialogResult.Canceled)));
   }
 
-  /** True when the selection is collections only (no ciphers). */
-  private isCollectionsOnly(params: BulkDeleteDialogParams): boolean {
-    return (
-      (params.collections?.length ?? 0) > 0 &&
-      !params.cipherIds?.length &&
-      !params.unassignedCiphers?.length
-    );
+  private hasItems(params: BulkDeleteDialogParams): boolean {
+    return (params.cipherIds?.length ?? 0) + (params.unassignedCiphers?.length ?? 0) > 0;
   }
 
-  /** True when the selection is items only (no collections). */
-  private isItemsOnly(params: BulkDeleteDialogParams): boolean {
-    return (
-      (params.cipherIds?.length ?? 0) + (params.unassignedCiphers?.length ?? 0) > 0 &&
-      !params.collections?.length
-    );
-  }
-
-  /**
-   * Confirms via the standard danger dialog, then deletes the collections. Permission checks are
-   * performed upstream by the batch bar before the dialog is opened.
-   */
-  private async confirmAndDeleteCollections(
-    params: BulkDeleteDialogParams,
-  ): Promise<BulkDeleteDialogResult> {
-    const collections = params.collections ?? [];
-    const count = collections.length;
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      type: "danger",
-      title:
-        count === 1
-          ? { key: "deleteCollection" }
-          : { key: "deleteCollectionsCount", placeholders: [count] },
-      content:
-        count === 1
-          ? { key: "deleteCollectionConfirmation" }
-          : { key: "deleteCollectionsConfirmation", placeholders: [count] },
-    });
-
-    if (!confirmed) {
-      return BulkDeleteDialogResult.Canceled;
-    }
-
-    await this.bulkDelete.deleteCollections(collections);
-
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t(count === 1 ? "collectionDeleted" : "collectionsDeleted"),
-    });
-
-    return BulkDeleteDialogResult.Deleted;
+  private hasCollections(params: BulkDeleteDialogParams): boolean {
+    return (params.collections?.length ?? 0) > 0;
   }
 
   /**
@@ -111,6 +68,8 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
       type: "danger",
       title: this.itemDeleteTitle(permanent, count),
       content: this.itemDeleteContent(permanent, count),
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
     });
 
     if (!confirmed) {
@@ -132,22 +91,104 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
     return BulkDeleteDialogResult.Deleted;
   }
 
+  /**
+   * Confirms via the standard danger dialog, then deletes the collections. Permission checks are
+   * performed upstream by the batch bar before the dialog is opened.
+   */
+  private async confirmAndDeleteCollections(
+    params: BulkDeleteDialogParams,
+  ): Promise<BulkDeleteDialogResult> {
+    const collections = params.collections ?? [];
+    const count = collections.length;
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      type: "danger",
+      title:
+        count === 1
+          ? { key: "deleteCollection" }
+          : { key: "deleteCollectionsCount", placeholders: [count] },
+      content: { key: count === 1 ? "deleteCollectionDesc" : "deleteCollectionsDesc" },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+    });
+
+    if (!confirmed) {
+      return BulkDeleteDialogResult.Canceled;
+    }
+
+    await this.bulkDelete.deleteCollections(collections);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t(count === 1 ? "collectionDeleted" : "collectionsDeleted"),
+    });
+
+    return BulkDeleteDialogResult.Deleted;
+  }
+
+  /**
+   * Confirms via the standard danger dialog, then deletes the selected items and collections.
+   * Items are sent to the trash; collections are permanently deleted. Permission checks are
+   * performed upstream by the batch bar before the dialog is opened.
+   */
+  private async confirmAndDeleteMixed(
+    params: BulkDeleteDialogParams,
+  ): Promise<BulkDeleteDialogResult> {
+    const cipherIds = params.cipherIds ?? [];
+    const unassignedCiphers = params.unassignedCiphers ?? [];
+    const collections = params.collections ?? [];
+    const totalCount = cipherIds.length + unassignedCiphers.length + collections.length;
+
+    const confirmed = await this.dialogService.openSimpleDialog({
+      type: "danger",
+      title: { key: "deleteItemsCount", placeholders: [totalCount] },
+      content: { key: "deleteItemsAndCollectionsDesc" },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+    });
+
+    if (!confirmed) {
+      return BulkDeleteDialogResult.Canceled;
+    }
+
+    await Promise.all([
+      this.bulkDelete.deleteCiphers({
+        cipherIds,
+        unassignedCiphers,
+        permanent: false,
+        organization: params.organization,
+      }),
+      this.bulkDelete.deleteCollections(collections),
+    ]);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("deletedItems"),
+    });
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t(
+        collections.length === 1 ? "collectionDeleted" : "collectionsDeleted",
+      ),
+    });
+
+    return BulkDeleteDialogResult.Deleted;
+  }
+
   private itemDeleteTitle(permanent: boolean, count: number): Translation {
     if (count === 1) {
-      return { key: permanent ? "permanentlyDeleteItem" : "deleteItem" };
+      return { key: permanent ? "deleteItemPermanently" : "deleteItem" };
     }
     return {
-      key: permanent ? "permanentlyDeleteItemsCount" : "deleteItemsCount",
+      key: permanent ? "deleteItemsPermanentlyCount" : "deleteItemsCount",
       placeholders: [count],
     };
   }
 
   private itemDeleteContent(permanent: boolean, count: number): Translation {
-    if (!permanent) {
-      return { key: "deleteItemConfirmation" };
+    if (permanent) {
+      return { key: count === 1 ? "deleteItemPermanentlyDesc" : "deleteItemsPermanentlyDesc" };
     }
-    return {
-      key: count === 1 ? "permanentlyDeleteItemConfirmation" : "permanentlyDeleteItemsConfirmation",
-    };
+    return { key: count === 1 ? "deleteItemDesc" : "deleteItemsDesc" };
   }
 }
