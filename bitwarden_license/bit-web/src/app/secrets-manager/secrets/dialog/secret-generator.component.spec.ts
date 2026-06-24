@@ -1,52 +1,45 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { map, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ToastService } from "@bitwarden/components";
-import { CredentialGeneratorService, GenerateRequest, Profile } from "@bitwarden/generator-core";
+import { GeneratorClient, PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { SecretGeneratorComponent } from "./secret-generator.component";
 
 describe("SecretGeneratorComponent", () => {
   let component: SecretGeneratorComponent;
   let fixture: ComponentFixture<SecretGeneratorComponent>;
-  let generatorService: MockProxy<CredentialGeneratorService>;
-  let settingsNext: jest.Mock;
+  let generator: MockProxy<GeneratorClient>;
+  let toastService: MockProxy<ToastService>;
 
   beforeEach(async () => {
-    generatorService = mock<CredentialGeneratorService>();
-    const accountService = mock<AccountService>();
-    accountService.activeAccount$ = of({ id: "user-1" } as any);
+    generator = mock<GeneratorClient>();
+    generator.password.mockReturnValue("generated-password");
 
-    settingsNext = jest.fn();
-    generatorService.settings.mockReturnValue({
-      withConstraints$: of({
-        state: { length: 14, uppercase: true, lowercase: true, number: true, special: false },
-        constraints: { length: { min: 5, max: 128 } },
-      }),
-      next: settingsNext,
-    } as any);
+    const client = mock<PasswordManagerClient>();
+    client.generator.mockReturnValue(generator);
 
-    generatorService.generate$.mockImplementation(({ on$ }: any) =>
-      on$.pipe(
-        map((req: GenerateRequest) => ({ credential: `gen-${req.algorithm}-${req.profile}` })),
-      ),
-    );
+    const sdkService = mock<SdkService>();
+    // BehaviorSubject, not of(client): the mock client auto-stubs Symbol.observable, which
+    // makes of() treat it as an observable-input and subscribe into it instead of emitting it.
+    sdkService.client$ = new BehaviorSubject(client).asObservable();
+
+    toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [NoopAnimationsModule, SecretGeneratorComponent],
       providers: [
-        { provide: CredentialGeneratorService, useValue: generatorService },
-        { provide: AccountService, useValue: accountService },
+        { provide: SdkService, useValue: sdkService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: toastService },
       ],
     }).compileComponents();
 
@@ -60,20 +53,31 @@ describe("SecretGeneratorComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("seeds length boundaries from the generator constraints", () => {
-    expect(component["lengthMin"]()).toBe(5);
-    expect(component["lengthMax"]()).toBe(128);
+  it("exposes the configured length boundaries", () => {
+    expect(component["lengthMin"]).toBe(5);
+    expect(component["lengthMax"]).toBe(128);
   });
 
-  it("scopes settings to the Secrets Manager profile, isolated from the account profile", () => {
-    expect(generatorService.settings).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      Profile.secretsManager,
+  it("generates via the SDK with the mapped request", async () => {
+    component["settingsForm"].patchValue({ length: 20, special: true });
+
+    await component["generate"]();
+
+    expect(generator.password).toHaveBeenCalledWith(
+      expect.objectContaining({
+        length: 20,
+        lowercase: true,
+        uppercase: true,
+        numbers: true,
+        special: true,
+        avoidAmbiguous: false,
+        minSpecial: 1,
+      }),
     );
+    expect(component["preview"]()).toBe("generated-password");
   });
 
-  it("emits the generated value only on Use value, generated under the Secrets Manager profile", async () => {
+  it("emits the generated value only on Use value", async () => {
     const emitted: string[] = [];
     component.valueGenerated.subscribe((v) => emitted.push(v));
 
@@ -82,7 +86,20 @@ describe("SecretGeneratorComponent", () => {
 
     component["useValue"]();
 
-    expect(emitted).toEqual(["gen-password-secretsManager"]);
+    expect(emitted).toEqual(["generated-password"]);
+  });
+
+  it("shows an error toast and leaves the preview empty when generation fails", async () => {
+    generator.password.mockImplementation(() => {
+      throw new Error("sdk failure");
+    });
+
+    await component["generate"]();
+
+    expect(toastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error" }),
+    );
+    expect(component["preview"]()).toBe("");
   });
 
   it("disables generation when no character set is selected", () => {
@@ -100,10 +117,11 @@ describe("SecretGeneratorComponent", () => {
     expect(component["isOpen"]()).toBe(false);
 
     component["toggle"]();
-    await fixture.whenStable();
+    // Flush the microtasks from toggle()'s fire-and-forget generate().
+    await new Promise((resolve) => setTimeout(resolve));
 
     expect(component["isOpen"]()).toBe(true);
-    expect(component["preview"]()).toBe("gen-password-secretsManager");
+    expect(component["preview"]()).toBe("generated-password");
   });
 
   it("closes the panel when toggled while open", async () => {
@@ -114,15 +132,4 @@ describe("SecretGeneratorComponent", () => {
     component["toggle"]();
     expect(component["isOpen"]()).toBe(false);
   });
-
-  it("writes the updated settings back to the generator when the form changes", fakeAsync(() => {
-    settingsNext.mockClear();
-
-    component["settingsForm"].patchValue({ length: 20, special: true });
-    tick(100);
-
-    expect(settingsNext).toHaveBeenCalledWith(
-      expect.objectContaining({ length: 20, special: true, minSpecial: 1 }),
-    );
-  }));
 });
