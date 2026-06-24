@@ -110,6 +110,9 @@ class AutofillInit implements AutofillInitInterface {
     message: AutofillExtensionMessage,
     sendDetailsInResponse = false,
   ): Promise<AutofillPageDetails | void> {
+    // Explicit request (key command, popup, background) — the user's intent must
+    // not depend on passive shadow DOM discovery having already succeeded.
+    this.collectAutofillContentService.prepareForExplicitCollection();
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
     if (sendDetailsInResponse) {
@@ -127,6 +130,7 @@ class AutofillInit implements AutofillInitInterface {
    * Collects page details and returns them directly in the response for autofill triage.
    */
   private async collectPageDetailsForContextMenu(): Promise<AutofillTriageResponse> {
+    this.collectAutofillContentService.prepareForExplicitCollection();
     const pageDetails = await this.collectAutofillContentService.getPageDetails();
 
     let targetFieldRef: string | undefined;
