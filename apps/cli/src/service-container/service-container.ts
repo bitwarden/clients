@@ -239,6 +239,7 @@ import { CliProcessReloadService } from "../key-management/cli-process-reload.se
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
+import { readCliManagedConfig } from "../platform/services/cli-managed-config.reader";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -478,6 +479,10 @@ export class ServiceContainer {
     );
 
     const managedSettingsService = new DefaultManagedSettingsService();
+
+    if (flagEnabled("managedSettings")) {
+      managedSettingsService.pushExplicit(readCliManagedConfig(process.platform, this.logService));
+    }
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
