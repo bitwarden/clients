@@ -3,6 +3,8 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -12,6 +14,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";
 
+import { hasApprovalPrivileges$ } from "./approval-privileges";
 import { ApproverInboxService } from "./approver-inbox.service";
 
 /**
@@ -40,7 +43,19 @@ export class ApproverInboxComponent implements OnInit {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly syncService = inject(SyncService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Whether to show the Approvals tab. Only users with approval privileges (Admin/Owner in some
+   * organization) can act on others' access requests; everyone else uses the inbox solely for their
+   * own requests and audit log. See {@link hasApprovalPrivileges$}.
+   */
+  protected readonly canViewApprovals = toSignal(
+    hasApprovalPrivileges$(this.accountService, this.organizationService),
+    { initialValue: false },
+  );
 
   /** Pending-approval count for the Approvals tab berry. */
   protected readonly pendingApprovalsCount = toSignal(this.inbox.badgeCount$, { initialValue: 0 });

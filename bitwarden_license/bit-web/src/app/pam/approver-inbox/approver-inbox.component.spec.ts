@@ -5,6 +5,8 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -37,6 +39,7 @@ describe("ApproverInboxComponent", () => {
   let badgeCount$: BehaviorSubject<number>;
   let inboxLoadError$: Subject<unknown>;
   let myPendingCount$: BehaviorSubject<number>;
+  let organizations$: BehaviorSubject<{ canManageAccessRules: boolean }[]>;
 
   beforeEach(async () => {
     toastService = mock<ToastService>();
@@ -44,6 +47,10 @@ describe("ApproverInboxComponent", () => {
     badgeCount$ = new BehaviorSubject<number>(0);
     inboxLoadError$ = new Subject<unknown>();
     myPendingCount$ = new BehaviorSubject<number>(0);
+    // Default to a user with approval privileges so the base case renders all three tabs.
+    organizations$ = new BehaviorSubject<{ canManageAccessRules: boolean }[]>([
+      { canManageAccessRules: true },
+    ]);
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -61,6 +68,11 @@ describe("ApproverInboxComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SyncService, useValue: syncService },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: new BehaviorSubject({ id: "user-1" }) },
+        },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
       ],
     })
       .overrideComponent(ApproverInboxComponent, {
@@ -84,6 +96,22 @@ describe("ApproverInboxComponent", () => {
     expect(text).toContain("pamTabApprovals");
     expect(text).toContain("pamTabMyRequests");
     expect(text).toContain("pamTabAuditLog");
+  });
+
+  it("hides the Approvals tab for users without approval privileges", async () => {
+    organizations$.next([{ canManageAccessRules: false }]);
+    await init();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+    expect(text).not.toContain("pamTabApprovals");
+    expect(text).toContain("pamTabMyRequests");
+    expect(text).toContain("pamTabAuditLog");
+  });
+
+  it("shows the Approvals tab when the user can manage access rules in any organization", async () => {
+    organizations$.next([{ canManageAccessRules: false }, { canManageAccessRules: true }]);
+    await init();
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? "";
+    expect(text).toContain("pamTabApprovals");
   });
 
   it("kicks a sync on init so vault state warms for name resolution", async () => {
