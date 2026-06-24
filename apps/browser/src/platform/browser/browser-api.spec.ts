@@ -1,6 +1,10 @@
 import { mock } from "jest-mock-extended";
 
+import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { DeviceType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/logging";
+
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 import { BrowserApi } from "./browser-api";
 import { ExtensionInstallType } from "./extension-install-type";
@@ -1024,6 +1028,37 @@ describe("BrowserApi", () => {
 
       expect(result).toBe(false);
     });
+
+    it("returns true if password saving is overridden on Firefox", async () => {
+      const originalIsFirefox = BrowserApi.isFirefox;
+      BrowserApi.isFirefox = true;
+
+      const mockFn = jest.fn<
+        void,
+        [
+          details: chrome.types.ChromeSettingGetDetails,
+          callback: (details: chrome.types.ChromeSettingGetResult<boolean>) => void,
+        ],
+        never
+      >((details, callback) => {
+        callback({
+          value: false,
+          levelOfControl: "controlled_by_this_extension",
+        });
+      });
+      const addressGet = jest.fn();
+      chrome.privacy.services.passwordSavingEnabled.get = mockFn as unknown as ChromeSettingsGet;
+      chrome.privacy.services.autofillAddressEnabled.get =
+        addressGet as unknown as ChromeSettingsGet;
+
+      const result = await BrowserApi.browserAutofillSettingsOverridden();
+
+      expect(result).toBe(true);
+      expect(mockFn).toHaveBeenCalled();
+      expect(addressGet).not.toHaveBeenCalled();
+
+      BrowserApi.isFirefox = originalIsFirefox;
+    });
   });
 
   describe("updateDefaultBrowserAutofillSettings", () => {
@@ -1039,6 +1074,39 @@ describe("BrowserApi", () => {
       expect(chrome.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
         value: false,
       });
+    });
+
+    it("only sets passwordSavingEnabled on Firefox", async () => {
+      const originalIsFirefox = BrowserApi.isFirefox;
+      const originalIsWebExtensionsApi = BrowserApi.isWebExtensionsApi;
+      BrowserApi.isFirefox = true;
+      BrowserApi.isWebExtensionsApi = true;
+      globalThis.browser = mock<typeof browser>({
+        privacy: { services: { passwordSavingEnabled: { set: jest.fn() } } },
+      });
+
+      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
+
+      expect(browser.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
+        value: false,
+      });
+      expect(chrome.privacy.services.autofillAddressEnabled.set).not.toHaveBeenCalled();
+      expect(chrome.privacy.services.autofillCreditCardEnabled.set).not.toHaveBeenCalled();
+
+      BrowserApi.isFirefox = originalIsFirefox;
+      BrowserApi.isWebExtensionsApi = originalIsWebExtensionsApi;
+      delete (global as any).browser;
+    });
+  });
+
+  describe("getBrowserClientVendor", () => {
+    it.each([
+      [DeviceType.FirefoxExtension, BrowserClientVendors.Firefox],
+      [DeviceType.FirefoxBrowser, BrowserClientVendors.Firefox],
+    ])("returns Firefox for %s device", (deviceType, expected) => {
+      jest.spyOn(BrowserPlatformUtilsService, "getDevice").mockReturnValue(deviceType);
+
+      expect(BrowserApi.getBrowserClientVendor(window)).toBe(expected);
     });
   });
 

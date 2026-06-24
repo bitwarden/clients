@@ -115,6 +115,7 @@ import {
   VaultBatchActionComponent,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -157,6 +158,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [
+    VaultOrganizationUserNotificationsComponent,
     VaultHeaderComponent,
     VaultOnboardingComponent,
     VaultBannersComponent,

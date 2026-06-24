@@ -76,7 +76,11 @@ export declare namespace autofill {
 }
 
 export declare namespace autostart {
-  export function setAutostart(autostart: boolean, params: Array<string>): Promise<void>
+  export interface AutostartConfig {
+    execPath: string
+    autostartFlag: string
+  }
+  export function setAutostart(enabled: boolean, config: AutostartConfig): Promise<void>
 }
 
 export declare namespace autotype {

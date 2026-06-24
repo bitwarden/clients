@@ -647,7 +647,7 @@ export default tseslint.config(
   {
     files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
     rules: {
-      "@bitwarden/platform/no-self-package-import": "warn",
+      "@bitwarden/platform/no-self-package-import": "off",
     },
   },
 
