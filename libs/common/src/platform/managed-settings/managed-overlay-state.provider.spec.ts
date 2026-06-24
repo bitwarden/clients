@@ -8,24 +8,25 @@ import { ManagedOverlayStateProvider } from "./managed-overlay-state.provider";
 const SD = new StateDefinition("overlayProviderTest", "disk");
 const LEN = new KeyDefinition<number>(SD, "len", { deserializer: (v) => v });
 defineManagedOverlay({
-  managedKey: "test.len",
   keyDefinition: LEN,
-  coerce: (raw) => JSON.parse(raw) as number,
+  coerce: (get) => {
+    const raw = get("test.len");
+    return raw == null ? null : (JSON.parse(raw) as number);
+  },
 });
 
 describe("ManagedOverlayStateProvider", () => {
-  function build(managed: { isManaged: boolean; value?: string }) {
+  function build(managed: { value?: string }) {
     const stored$ = new BehaviorSubject(12);
     const innerGlobal: GlobalState<number> = { state$: stored$, update: jest.fn() } as any;
     const inner = { getGlobal: () => innerGlobal } as unknown as StateProvider;
 
     let changes!: (v: void) => void;
-    const changes$ = new Observable((s) => {
+    const changes$ = new Observable<void>((s) => {
       changes = (v) => s.next(v);
     });
     const managedSettings = {
       changes$,
-      isManaged: () => managed.isManaged,
       get: () => managed.value,
     } as any;
 
@@ -36,22 +37,21 @@ describe("ManagedOverlayStateProvider", () => {
   }
 
   it("emits the stored value when the key is not managed", async () => {
-    const { provider } = build({ isManaged: false });
+    const { provider } = build({});
     expect(await firstValueFrom(provider.getGlobal(LEN).state$)).toBe(12);
   });
 
   it("emits the managed value when the key is managed", async () => {
-    const { provider } = build({ isManaged: true, value: "20" });
+    const { provider } = build({ value: "20" });
     expect(await firstValueFrom(provider.getGlobal(LEN).state$)).toBe(20);
   });
 
   it("re-emits the managed value when changes$ fires", () => {
-    const managed = { isManaged: false, value: undefined as string | undefined };
+    const managed = { value: undefined as string | undefined };
     const { provider, fireChange } = build(managed);
     const emissions: Array<number | null> = [];
     const sub = provider.getGlobal(LEN).state$.subscribe((v) => emissions.push(v));
 
-    managed.isManaged = true;
     managed.value = "20";
     fireChange();
     sub.unsubscribe();
@@ -62,7 +62,7 @@ describe("ManagedOverlayStateProvider", () => {
 
   it("passes through state for unregistered keys unchanged", async () => {
     const OTHER = new KeyDefinition<number>(SD, "other", { deserializer: (v) => v });
-    const { provider } = build({ isManaged: true, value: "20" });
+    const { provider } = build({ value: "20" });
     // inner returns the same stub for any key in this harness; unregistered → stored value
     expect(await firstValueFrom(provider.getGlobal(OTHER).state$)).toBe(12);
   });

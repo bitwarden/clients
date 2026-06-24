@@ -95,16 +95,8 @@ export class ManagedOverlayStateProvider extends StateProvider {
       this.managedSettings.changes$.pipe(startWith(undefined as void)),
     ]).pipe(
       map(([stored]) => {
-        if (!this.managedSettings.isManaged(overlay.managedKey)) {
-          return stored;
-        }
-        const raw = this.managedSettings.get(overlay.managedKey);
-        if (raw == null) {
-          return stored;
-        }
-        const coerced = overlay.coerce(raw);
-        // A null coercion means "skip this override" per the ManagedOverlay.coerce
-        // contract (e.g. a malformed admin value) — fall back to the stored value.
+        // coerce reads whatever managed keys it owns; null means "not managed / skip".
+        const coerced = overlay.coerce((key) => this.managedSettings.get(key));
         return coerced == null ? stored : coerced;
       }),
     );
