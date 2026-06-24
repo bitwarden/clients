@@ -218,11 +218,11 @@ export class TwoFactorSetupDuoComponent
     this.applyDuoState(response.duo);
   }
 
-  private applyDuoState(details: TwoFactorDuoDetailsResponse) {
-    this.clientId = details.clientId;
-    this.clientSecret = details.clientSecret;
-    this.host = details.host;
-    this.enabled = details.enabled;
+  private applyDuoState(duoDetails: TwoFactorDuoDetailsResponse) {
+    this.clientId = duoDetails.clientId;
+    this.clientSecret = duoDetails.clientSecret;
+    this.host = duoDetails.host;
+    this.enabled = duoDetails.enabled;
   }
 
   /**

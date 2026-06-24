@@ -279,9 +279,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.applyWebAuthnState(response.webAuthn);
   }
 
-  private applyWebAuthnState(details: TwoFactorWebAuthnDetailsResponse) {
-    if (!details.keys || details.keys.length === 0) {
-      details.keys = [];
+  private applyWebAuthnState(webAuthnDetails: TwoFactorWebAuthnDetailsResponse) {
+    if (!webAuthnDetails.keys || webAuthnDetails.keys.length === 0) {
+      webAuthnDetails.keys = [];
     }
     this.resetWebAuthn();
     this.keys = [];
@@ -294,7 +294,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.keysConfiguredCount = 0;
 
     // Build configured keys
-    for (const key of details.keys) {
+    for (const key of webAuthnDetails.keys) {
       this.keysConfiguredCount++;
       this.keys.push({
         id: key.id,
@@ -311,7 +311,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     // While we don't have any technical constraints _at this time_, we should avoid
     // unbounded growth of key IDs over time as users add/remove keys;
     // this strategy gap-fills key IDs.
-    const existingIds = new Set(details.keys.map((k) => k.id));
+    const existingIds = new Set(webAuthnDetails.keys.map((k) => k.id));
     const nextId = this.findNextAvailableKeyId(existingIds);
 
     // Add unconfigured slot, which can be used to add a new key
@@ -323,7 +323,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     });
     this.keyIdAvailable = nextId;
 
-    this.enabled = details.enabled;
+    this.enabled = webAuthnDetails.enabled;
     this.onUpdated.emit(this.enabled);
   }
 
