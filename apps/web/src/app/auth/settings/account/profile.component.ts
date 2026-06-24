@@ -48,7 +48,7 @@ export class ProfileComponent implements OnInit {
 
   protected readonly avatarUser = computed(() => ({
     name: this.enteredName(),
-    email: this.profile()?.email,
+    email: this.email(),
   }));
 
   protected readonly managingOrganization = toSignal(
