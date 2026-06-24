@@ -51,7 +51,12 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
-import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import {
+  AutofillerCommand,
+  AutofillLifecycleCommand,
+  AutofillMessageCommand,
+  AutofillMessageSender,
+} from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
@@ -534,6 +539,226 @@ describe("AutofillService", () => {
         frameId: 0,
         ...defaultExecuteScriptOptions,
       });
+    });
+
+    describe("post-injection start follow-up", () => {
+      let tabSendMessageSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+      });
+
+      afterEach(() => {
+        tabSendMessageSpy.mockRestore();
+      });
+
+      it("sends startAutofillMonitors after injection when the user is unlocked", async () => {
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: AutofillLifecycleCommand.start },
+          { frameId: sender.frameId },
+        );
+      });
+
+      it("sends startAutofillMonitors after injection when the user is locked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: AutofillLifecycleCommand.start },
+          { frameId: sender.frameId },
+        );
+      });
+
+      it("does not send startAutofillMonitors after injection when the user is logged out", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          { command: AutofillLifecycleCommand.start },
+          expect.anything(),
+        );
+      });
+
+      it("does not send startAutofillMonitors when the user logs out during injection", async () => {
+        // The injection awaits yield the event loop; simulate a logout
+        // completing in that window. The start gate must reflect the auth
+        // status at send time, not the snapshot taken before injection.
+        const injectSpy = jest
+          .spyOn(scriptInjectorService, "inject")
+          .mockImplementation(async () => {
+            activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+          });
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        // Guard the race itself: the logout must have landed mid-injection,
+        // otherwise this degrades into the already-logged-out case above.
+        expect(injectSpy).toHaveBeenCalled();
+        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          { command: AutofillLifecycleCommand.start },
+          expect.anything(),
+        );
+      });
+    });
+  });
+
+  describe("handleAuthStatusTransition", () => {
+    let port: chrome.runtime.Port;
+    let tabSendMessageSpy: jest.SpyInstance;
+
+    beforeEach(async () => {
+      port = mock<chrome.runtime.Port>();
+      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
+      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+
+      // Stub per-tab injection — its own post-injection start message would
+      // pollute the spy before any auth transition under test fires.
+      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      // The first emission of the auth subscription pairs [undefined, Unlocked]
+      // and does not broadcast. Clear any setup-side calls before the test.
+      tabSendMessageSpy.mockClear();
+    });
+
+    afterEach(() => {
+      tabSendMessageSpy.mockRestore();
+    });
+
+    it("broadcasts startAutofillMonitors when leaving LoggedOut for Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.start },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts startAutofillMonitors when leaving LoggedOut for Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.start },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.stop },
+        { frameId: 0 },
+      );
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillerCommand.disable },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.stop },
+        { frameId: 0 },
+      );
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillerCommand.disable },
+        { frameId: 0 },
+      );
+    });
+
+    it("does not broadcast on Unlocked → Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast on Locked → Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast when the status repeats", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("auth subscription seed", () => {
+    // These cases require a different seed for the activeAccountStatus subject
+    // than the outer beforeEach sets up, so they reseed before the
+    // loadAutofillScriptsOnInstall subscription runs.
+    let port: chrome.runtime.Port;
+    let tabSendMessageSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      port = mock<chrome.runtime.Port>();
+      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
+      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      tabSendMessageSpy.mockRestore();
+    });
+
+    it("does not broadcast when the service worker boots into LoggedOut", async () => {
+      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.LoggedOut);
+      authService.activeAccountStatus$ = activeAccountStatusMock$;
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast when the service worker boots into Locked", async () => {
+      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Locked);
+      authService.activeAccountStatus$ = activeAccountStatusMock$;
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
     });
   });
 
