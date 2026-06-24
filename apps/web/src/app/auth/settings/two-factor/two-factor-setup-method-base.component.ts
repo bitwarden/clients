@@ -4,7 +4,10 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { TwoFactorService , TwoFactorUserVerificationResult } from "@bitwarden/common/auth/two-factor";
+import {
+  TwoFactorService,
+  TwoFactorUserVerificationResult,
+} from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -50,6 +53,7 @@ export abstract class TwoFactorSetupMethodBaseComponent {
     this.authed = true;
   }
 
+  // TODO: PM-39385 - For each subclass, rename disable as delete since they are hard deletes.
   protected abstract disableMethod(): Promise<void>;
 
   protected async buildRequestModel<T extends SecretVerificationRequest>(
