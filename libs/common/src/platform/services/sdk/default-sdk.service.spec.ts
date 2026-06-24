@@ -5,7 +5,7 @@ import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upg
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
-import { PasswordManagerClient } from "@bitwarden/sdk-internal";
+import { ManagedSettingsClient, PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -25,6 +25,7 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { ManagedSettingsService } from "../../managed-settings/managed-settings.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
@@ -52,6 +53,7 @@ describe("DefaultSdkService", () => {
     let fakeStateProvider!: FakeStateProvider;
     let apiService!: MockProxy<ApiService>;
     let upgradeTokenStateService!: MockProxy<V2UpgradeTokenStateService>;
+    let managedSettingsService!: MockProxy<ManagedSettingsService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -68,6 +70,8 @@ describe("DefaultSdkService", () => {
       fakeStateProvider = new FakeStateProvider(accountService);
       configService = mock<ConfigService>();
       upgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+      managedSettingsService = mock<ManagedSettingsService>();
+      managedSettingsService.handle$ = new BehaviorSubject({} as ManagedSettingsClient);
 
       configService.serverConfig$ = new BehaviorSubject(null);
 
@@ -86,6 +90,7 @@ describe("DefaultSdkService", () => {
         fakeStateProvider,
         configService,
         upgradeTokenStateService,
+        managedSettingsService,
       );
     });
 

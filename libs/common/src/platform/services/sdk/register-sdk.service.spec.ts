@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { BitwardenClient } from "@bitwarden/sdk-internal";
+import { BitwardenClient, ManagedSettingsClient } from "@bitwarden/sdk-internal";
 
 import {
   ObservableTracker,
@@ -18,6 +18,7 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
+import { ManagedSettingsService } from "../../managed-settings/managed-settings.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
 
@@ -40,6 +41,7 @@ describe("DefaultRegisterSdkService", () => {
     let accountService!: FakeAccountService;
     let fakeStateProvider!: FakeStateProvider;
     let apiService!: MockProxy<ApiService>;
+    let managedSettingsService!: MockProxy<ManagedSettingsService>;
 
     beforeEach(async () => {
       await new TestSdkLoadService().loadAndInit();
@@ -52,6 +54,8 @@ describe("DefaultRegisterSdkService", () => {
       accountService = mockAccountServiceWith(mockUserId);
       fakeStateProvider = new FakeStateProvider(accountService);
       configService = mock<ConfigService>();
+      managedSettingsService = mock<ManagedSettingsService>();
+      managedSettingsService.handle$ = new BehaviorSubject({} as ManagedSettingsClient);
 
       configService.serverConfig$ = new BehaviorSubject(null);
 
@@ -66,6 +70,7 @@ describe("DefaultRegisterSdkService", () => {
         apiService,
         fakeStateProvider,
         configService,
+        managedSettingsService,
       );
     });
 

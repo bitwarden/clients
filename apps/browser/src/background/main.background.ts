@@ -178,6 +178,7 @@ import {
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
+import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -931,6 +932,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      new DefaultManagedSettingsService(),
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -941,6 +943,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      new DefaultManagedSettingsService(),
     );
 
     this.collectionEncryptionService = new DefaultCollectionEncryptionService(

@@ -126,6 +126,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
+import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
@@ -695,6 +696,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.v2UpgradeTokenStateService,
+      new DefaultManagedSettingsService(),
       customUserAgent,
     );
 
@@ -706,6 +708,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      new DefaultManagedSettingsService(),
       customUserAgent,
     );
 
