@@ -209,6 +209,31 @@ describe("MyAccessRequestsService", () => {
     expect(await firstValueFrom(service.leases$)).toEqual([]);
   });
 
+  it("marks the originating request's lease cancelled so history reads 'Cancelled', not 'Expired'", async () => {
+    pamApi.listMyAccessRequests.mockResolvedValue([
+      new AccessRequestDetailsResponse({
+        Id: "r1",
+        CipherId: "cipher-r1",
+        CollectionId: "col-1",
+        RequesterUserId: "me",
+        Status: "activated",
+        RequestedTtlSeconds: 3600,
+        SubmittedAt: "2026-05-01T00:00:00Z",
+        ProducedLeaseId: "lease-1",
+        ProducedLeaseStatus: "active",
+      }),
+    ]);
+    pamApi.listActiveLeases.mockResolvedValue([lease("lease-1")]);
+    pamApi.revokeAccessLease.mockResolvedValue(undefined);
+    await service.load();
+
+    await service.endLease("lease-1");
+
+    const rows = await firstValueFrom(service.rows$);
+    expect(rows.find((r) => r.id === "r1")?.statusLabelKey).toBe("pamStatusCancelled");
+    expect(await firstValueFrom(service.leases$)).toEqual([]);
+  });
+
   it("restores the lease when ending it fails", async () => {
     pamApi.listActiveLeases.mockResolvedValue([lease("lease-1")]);
     pamApi.revokeAccessLease.mockRejectedValue(new Error("boom"));

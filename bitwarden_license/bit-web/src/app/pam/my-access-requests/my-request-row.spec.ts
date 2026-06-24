@@ -4,6 +4,7 @@ import { humanDecision } from "../testing/decision-builders";
 
 import {
   buildMyRequestRows,
+  historyDisplayStatus,
   resolveResolver,
   statusBadgeVariant,
   statusLabelKey,
@@ -45,6 +46,65 @@ describe("statusLabelKey", () => {
     expect(statusLabelKey("cancelled")).toBe("pamStatusCancelled");
     expect(statusLabelKey("expired")).toBe("pamStatusExpired");
     expect(statusLabelKey("pending")).toBe("pamStatusPending");
+  });
+});
+
+describe("historyDisplayStatus", () => {
+  // An activated request keeps that status for the life of the grant, so the History row must read
+  // the lease outcome instead — otherwise an ended lease shows "Active" (pamStatusActivated).
+  it("labels a holder-cancelled lease 'Cancelled', not 'Revoked'", () => {
+    expect(
+      historyDisplayStatus(
+        request({
+          Status: "activated",
+          ProducedLeaseId: "lease-1",
+          ProducedLeaseStatus: "cancelled",
+        }),
+      ),
+    ).toEqual({ statusLabelKey: "pamStatusCancelled", statusVariant: "subtle" });
+  });
+
+  it("labels an operator-revoked lease 'Revoked'", () => {
+    expect(
+      historyDisplayStatus(
+        request({
+          Status: "activated",
+          ProducedLeaseId: "lease-1",
+          ProducedLeaseStatus: "revoked",
+        }),
+      ),
+    ).toEqual({ statusLabelKey: "pamStatusRevoked", statusVariant: "subtle" });
+  });
+
+  it("labels an explicitly expired lease 'Expired'", () => {
+    expect(
+      historyDisplayStatus(
+        request({
+          Status: "activated",
+          ProducedLeaseId: "lease-1",
+          ProducedLeaseStatus: "expired",
+        }),
+      ),
+    ).toEqual({ statusLabelKey: "pamStatusExpired", statusVariant: "warning" });
+  });
+
+  it("labels a lapsed lease the server still reports active as 'Expired', not 'Active'", () => {
+    expect(
+      historyDisplayStatus(
+        request({ Status: "activated", ProducedLeaseId: "lease-1", ProducedLeaseStatus: "active" }),
+      ),
+    ).toEqual({ statusLabelKey: "pamStatusExpired", statusVariant: "warning" });
+  });
+
+  it("falls back to the request status for a row that never minted a lease", () => {
+    expect(historyDisplayStatus(request({ Status: "denied", ProducedLeaseId: null }))).toEqual({
+      statusLabelKey: "pamStatusDenied",
+      statusVariant: "danger",
+    });
+    expect(historyDisplayStatus(request({ Status: "cancelled", ProducedLeaseId: null }))).toEqual({
+      statusLabelKey: "pamStatusCancelled",
+      statusVariant: "subtle",
+    });
   });
 });
 

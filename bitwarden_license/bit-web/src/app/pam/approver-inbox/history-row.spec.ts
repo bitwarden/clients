@@ -126,6 +126,37 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusRevoked");
   });
 
+  it("labels a holder-cancelled lease 'Cancelled', not 'Revoked'", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "cancelled",
+    });
+    expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusCancelled");
+  });
+
+  it("labels an explicitly expired lease 'Expired'", () => {
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "expired",
+    });
+    expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusExpired");
+  });
+
+  it("labels a lapsed lease the server still reports active as 'Expired', not 'Active'", () => {
+    // v1 has no autonomous expiry, so a window-lapsed lease arrives as "active" and drops to Past.
+    const item = historyRow({
+      status: "activated",
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+      requestedNotBefore: "2026-06-10T09:00:00Z",
+      requestedNotAfter: "2026-06-10T10:00:00Z",
+    });
+    expect(bucketOf(item)).toBe("past");
+    expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusExpired");
+  });
+
   it("labels a scheduled minted lease 'Upcoming'", () => {
     const item = historyRow({
       status: "activated",
@@ -181,6 +212,26 @@ describe("flattenHistory", () => {
   it("offers Revoke on an active managed lease", () => {
     const rows = flattenHistory([activatedRow("a", "active")], now);
     expect(rows[0].canRevoke).toBe(true);
+  });
+
+  it("labels a window-lapsed lease the server still reports active as Expired, not Active", () => {
+    const lapsed = new AccessRequestDetailsResponse({
+      Id: "a",
+      CipherId: "cipher-1",
+      CollectionId: "col-1",
+      RequesterId: "user-2",
+      Status: "activated",
+      RequestedNotBefore: "2026-06-10T09:00:00Z",
+      RequestedNotAfter: "2026-06-10T10:00:00Z",
+      RequestedTtlSeconds: 3600,
+      SubmittedAt: "2026-06-10T08:00:00Z",
+      ProducedLeaseId: "lease-a",
+      ProducedLeaseStatus: "active",
+    });
+    const rows = flattenHistory([lapsed], now);
+    expect(rows[0].bucket).toBe("past");
+    expect(rows[0].statusLabel).toBe("pamInboxHistoryStatusExpired");
+    expect(rows[0].canRevoke).toBe(false);
   });
 
   it("withholds actions when canActOn returns false (rows the viewer can only see)", () => {

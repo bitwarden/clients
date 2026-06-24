@@ -6,6 +6,7 @@ import { Subject, of } from "rxjs";
 
 import {
   AccessLeaseResponse,
+  AccessLeaseStatus,
   AccessRequestDetailsResponse,
   AccessRequestStatus,
   PamApiService,
@@ -51,6 +52,7 @@ type ResponseFixture = {
   requestedNotAfter?: string | null;
   requestedTtlSeconds?: number;
   producedLeaseId?: string | null;
+  producedLeaseStatus?: AccessLeaseStatus | null;
   extensionOfLeaseId?: string | null;
 };
 
@@ -90,6 +92,7 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
                 },
           ],
     ProducedLeaseId: fixture.producedLeaseId ?? null,
+    ProducedLeaseStatus: fixture.producedLeaseStatus ?? null,
     ExtensionOfLeaseId: fixture.extensionOfLeaseId ?? null,
   });
 }
@@ -135,6 +138,7 @@ describe("MyAccessRequestsListComponent", () => {
     pamStatusDenied: "Denied",
     pamStatusCancelled: "Cancelled",
     pamStatusExpired: "Expired",
+    pamStatusRevoked: "Revoked",
     pamColumnItem: "Item",
     pamColumnRequestedWindow: "Requested window",
     pamColumnSubmitted: "Submitted",
@@ -399,6 +403,24 @@ describe("MyAccessRequestsListComponent", () => {
     ) as HTMLElement;
     expect(badge).not.toBeNull();
     expect(badge.textContent).toContain("Extended +30m");
+  }));
+
+  it("labels an ended lease in History by its outcome (Revoked), not 'Active'", fakeAsync(() => {
+    // No active leases passed, so the activated request sits in History; its lease was revoked.
+    const fixture = create([
+      makeResponse({
+        id: "r1",
+        status: "activated",
+        resolvedAt: new Date().toISOString(),
+        producedLeaseId: "lease-1",
+        producedLeaseStatus: "revoked",
+      }),
+    ]);
+    const badge = fixture.nativeElement.querySelector(
+      '[data-testid="my-requests-status-r1"]',
+    ) as HTMLElement;
+    expect(badge.textContent).toContain("Revoked");
+    expect(badge.textContent).not.toContain("Active");
   }));
 
   it("offers Start for an approved request whose window can still produce access", fakeAsync(() => {

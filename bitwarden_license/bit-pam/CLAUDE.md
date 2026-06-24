@@ -53,7 +53,7 @@ server-side. Server tests: `dotnet test test/Core.Test/Core.Test.csproj --filter
 - **AccessRequest** — member-submitted; status flows `pending` → `approved` →
   `activated`, or to `denied` / `cancelled` / `expired`. An `approved` request is
   a **single-use grant** — no lease exists yet.
-- **AccessLease** — minted on activation; status `active` → `expired` / `revoked`.
+- **AccessLease** — minted on activation; status `active` → `expired` / `revoked` (operator-ended) / `cancelled` (holder-ended).
 - **LeasingFreeze** — org-wide block on starting new leases (the kill switch's
   optional "block new leases").
 
@@ -122,7 +122,7 @@ All in `src/abstractions/`. Codes matter (they cross the wire):
 - `AccessApprovalMode` — `Automatic: 0`, `Human: 1`.
 - `AccessDeciderKind` — `Human: "human"`, `Automatic: "automatic"`.
 - `AccessRequestStatus` — `pending | approved | activated | denied | cancelled | expired`.
-- `AccessLeaseStatus` — `active | expired | revoked`.
+- `AccessLeaseStatus` — `active | expired | revoked | cancelled` (`cancelled` = the holder ended their own lease; `revoked` = an operator ended it).
 - `ConditionKind` — `human_approval | ip_allowlist`.
 - `GatedState` (`helpers/gated-state.ts`) — `unleased | gated_no_lease | gated_active_lease`.
 
