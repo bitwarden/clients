@@ -49,13 +49,27 @@ export function environmentCoerce(
   }
 
   const urls = new EnvironmentUrls();
-  urls.base = base;
-  urls.webVault = webVault;
-  urls.api = api;
-  urls.identity = identity;
-  urls.icons = icons;
-  urls.notifications = notifications;
-  urls.events = events;
+  if (base != null) {
+    urls.base = base;
+  }
+  if (webVault != null) {
+    urls.webVault = webVault;
+  }
+  if (api != null) {
+    urls.api = api;
+  }
+  if (identity != null) {
+    urls.identity = identity;
+  }
+  if (icons != null) {
+    urls.icons = icons;
+  }
+  if (notifications != null) {
+    urls.notifications = notifications;
+  }
+  if (events != null) {
+    urls.events = events;
+  }
 
   const state = new EnvironmentState();
   state.region = Region.SelfHosted;
