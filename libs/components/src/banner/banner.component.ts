@@ -47,15 +47,6 @@ const bannerColors: Record<BannerVariant, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
-  private readonly actionsRef = viewChild<ElementRef<HTMLElement>>("actionsRef");
-
-  constructor() {
-    afterNextRender(() => {
-      const el = this.actionsRef()?.nativeElement;
-      this.hasActionsContent.set(!!el && el.children.length > 0);
-    });
-  }
-
   /**
    * The variant of banner, which determines its color scheme.
    */
@@ -85,7 +76,6 @@ export class BannerComponent implements OnInit {
    */
   readonly dismiss = outputFromObservable(this.dismiss$);
   protected readonly isDismissible = signal(false);
-  protected readonly hasActionsContent = signal(false);
 
   ngOnInit() {
     this.isDismissible.set(this.dismiss$.observed);
