@@ -656,6 +656,30 @@ export class BrowserApi {
   }
 
   /**
+   * Reads the entire administrator-managed storage area, the OS device-management
+   * channel for the extension (`chrome.storage.managed` / `browser.storage.managed`).
+   * Resolves null when the area is unavailable — no managed policy is set, or the
+   * browser does not expose it — which callers treat as "no managed config".
+   */
+  static getManagedStorage(): Promise<Record<string, unknown> | null> {
+    return new Promise((resolve, reject) => {
+      if (chrome.storage.managed == null) {
+        resolve(null);
+        return;
+      }
+
+      chrome.storage.managed.get(null, (items) => {
+        const error = chrome.runtime.lastError;
+        if (error != null) {
+          reject(error);
+          return;
+        }
+        resolve(items as Record<string, unknown>);
+      });
+    });
+  }
+
+  /**
    * Adds a callback to the given chrome event in a cross-browser platform manner.
    *
    * **Important:** All event listeners in the browser extension popup context must

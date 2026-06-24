@@ -1250,6 +1250,41 @@ describe("BrowserApi", () => {
     },
   );
 
+  describe("getManagedStorage", () => {
+    afterEach(() => {
+      delete (chrome.storage as any).managed;
+      (chrome.runtime as any).lastError = undefined;
+    });
+
+    it("returns null when the managed area is unavailable", async () => {
+      expect((chrome.storage as any).managed).toBeUndefined();
+      await expect(BrowserApi.getManagedStorage()).resolves.toBeNull();
+    });
+
+    it("resolves the managed object when present", async () => {
+      (chrome.storage as any).managed = {
+        get: jest.fn((keys: unknown, cb: (items: Record<string, unknown>) => void) =>
+          cb({ environment: { base: "https://x" } }),
+        ),
+      };
+
+      await expect(BrowserApi.getManagedStorage()).resolves.toEqual({
+        environment: { base: "https://x" },
+      });
+    });
+
+    it("rejects on a runtime error", async () => {
+      (chrome.storage as any).managed = {
+        get: jest.fn((keys: unknown, cb: (items: Record<string, unknown>) => void) => {
+          (chrome.runtime as any).lastError = { message: "denied" };
+          cb({});
+        }),
+      };
+
+      await expect(BrowserApi.getManagedStorage()).rejects.toEqual({ message: "denied" });
+    });
+  });
+
   describe("isSidePanelApiSupported", () => {
     it("returns true when chrome.sidePanel is defined", () => {
       (chrome as any).sidePanel = {};
