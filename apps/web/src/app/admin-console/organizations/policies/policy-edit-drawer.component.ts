@@ -49,7 +49,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   private readonly destroyRef = inject(DestroyRef);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
-  private guardArmed = true;
+  private readonly guardArmed = signal(true);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -109,7 +109,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
 
     // Guard against browser refresh / tab close while edits are pending.
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (this.guardArmed && this.isFormDirty()) {
+      if (this.guardArmed() && this.isFormDirty()) {
         event.preventDefault();
       }
     };
@@ -133,7 +133,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        this.guardArmed = false;
+        this.guardArmed.set(false);
         this.dialogRef.closePredicate = undefined;
       });
   }
