@@ -23,6 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import {
   DialogRef,
   AsyncActionsModule,
+  BitManagedDirective,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -101,6 +102,7 @@ function onlyHttpsValidator(): ValidatorFn {
     ReactiveFormsModule,
     FormFieldModule,
     AsyncActionsModule,
+    BitManagedDirective,
   ],
 })
 export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {

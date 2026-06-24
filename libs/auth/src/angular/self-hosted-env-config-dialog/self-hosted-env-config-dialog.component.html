@@ -8,6 +8,8 @@
         bitInput
         type="text"
         formControlName="baseUrl"
+        [bitManaged]="'environment.base'"
+        [bitManagedLabel]="'managedByYourOrganization' | i18n"
         appAutofocus
         appInputVerbatim
       />

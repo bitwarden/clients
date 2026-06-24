@@ -4147,6 +4147,9 @@
   "manageDevices": {
     "message": "Manage devices"
   },
+  "managedByYourOrganization": {
+    "message": "Managed by your organization"
+  },
   "currentSession": {
     "message": "Current session"
   },
