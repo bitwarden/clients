@@ -86,16 +86,19 @@ export class ManagedOverlayStateProvider extends StateProvider {
     holder: H,
     keyDefinition: KeyDefinition<unknown> | UserKeyDefinition<unknown>,
   ): H {
-    const overlay = lookupOverlay(keyDefinition);
-    if (overlay == null) {
-      return holder;
-    }
     const overlaid$ = combineLatest([
       holder.state$,
       this.managedSettings.changes$.pipe(startWith(undefined as void)),
     ]).pipe(
       map(([stored]) => {
-        // coerce reads whatever managed keys it owns; null means "not managed / skip".
+        // Resolve the overlay per emission, not once at getGlobal/getActive/getUser time:
+        // a consumer (e.g. EnvironmentService) may capture this holder before the overlay
+        // is registered (Angular APP_INITIALIZER eager-construction order). Per-emission
+        // lookup makes late registration take effect.
+        const overlay = lookupOverlay(keyDefinition);
+        if (overlay == null) {
+          return stored;
+        }
         const coerced = overlay.coerce((key) => this.managedSettings.get(key));
         return coerced == null ? stored : coerced;
       }),
