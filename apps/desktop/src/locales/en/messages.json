@@ -839,6 +839,36 @@
       }
     }
   },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
+  },
   "deleteFolder": {
     "message": "Delete folder"
   },
@@ -2441,20 +2471,8 @@
   "permanentlyDeleteItem": {
     "message": "Permanently delete item"
   },
-  "permanentlyDeleteItemsCount": {
-    "message": "Permanently delete $COUNT$ items",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
   "permanentlyDeleteItemConfirmation": {
     "message": "Are you sure you want to permanently delete this item?"
-  },
-  "permanentlyDeleteItemsConfirmation": {
-    "message": "Are you sure you want to permanently delete these items?"
   },
   "permanentlyDeletedItem": {
     "message": "Item permanently deleted"
@@ -4902,7 +4920,7 @@
   "unArchiveAndSave": {
     "message": "Unarchive and save"
   },
-   "archiveItemsPlural": {
+  "archiveItemsPlural": {
     "message": "Archive $NUM$ items",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
@@ -4921,9 +4939,6 @@
         "example": "1"
       }
     }
-  },
-  "archiveItemsSingularDescription": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveItemsPluralDescription": {
     "message": "Once archived, these items will be excluded from search results and autofill suggestions."
@@ -5502,72 +5517,6 @@
   "addToFolder": {
     "message": "Add to folder"
   },
-  "deleteSelectedPlural": {
-    "message": "Delete $COUNT$ items",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
-  },
-  "deleteSelectedSingular": {
-    "message": "Delete $COUNT$ item",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "deleteSelectedCiphersPlural": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
-  },
-  "deleteSelectedCiphersSingular": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
-  },
-  "permanentlyDeleteSelectedPlural": {
-    "message": "Delete $COUNT$ items permanently",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
-  },
-  "permanentlyDeleteSelectedSingular": {
-    "message": "Delete $COUNT$ item permanently",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
-  },
-  "permanentlyDeleteSelectedCiphersPlural": {
-    "message": "You will not be able to recover these items."
-  },
-  "permanentlyDeleteSelectedCiphersSingular": {
-    "message": "You will not be able to recover this item."
-  },
-  "deleteSelectedItemsDesc": {
-    "message": "$COUNT$ item(s) will be sent to trash.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
-  },
-  "deleteSelectedCollectionsDesc": {
-    "message": "$COUNT$ collection(s) will be permanently deleted.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
-  },
   "deleteCollection": {
     "message": "Delete collection"
   },
@@ -5580,31 +5529,10 @@
       }
     }
   },
-  "deleteCollectionConfirmation": {
-    "message": "Are you sure you want to delete this collection?"
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
   },
-  "deleteCollectionsConfirmation": {
-    "message": "Are you sure you want to delete $COUNT$ collections?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "deleteSelectedConfirmation": {
-    "message": "Are you sure you want to continue?"
-  },
-  "permanentlyDeleteSelected": {
-    "message": "Permanently delete selected"
-  },
-  "permanentlyDeleteSelectedItemsDesc": {
-    "message": "You have selected $COUNT$ item(s) to permanently delete. Are you sure you want to permanently delete all of these items?",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "150"
-      }
-    }
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
   }
 }

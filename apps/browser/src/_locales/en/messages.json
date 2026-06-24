@@ -634,9 +634,6 @@
       }
     }
   },
-  "archiveItemsSingularDescription": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
-  },
   "archiveItemsPluralDescription": {
     "message": "Once archived, these items will be excluded from search results and autofill suggestions."
   },
