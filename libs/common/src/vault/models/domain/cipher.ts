@@ -42,7 +42,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   id: string = "";
   organizationId?: string;
   folderId?: string;
-  name: EncString = new EncString("");
+  name?: EncString;
   notes?: EncString;
   type: CipherType = CipherType.Login;
   favorite: boolean = false;
@@ -81,7 +81,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.id = obj.id;
     this.organizationId = obj.organizationId;
     this.folderId = obj.folderId;
-    this.name = new EncString(obj.name);
+    this.name = conditionalEncString(obj.name);
     this.notes = conditionalEncString(obj.notes);
     this.type = obj.type;
     this.favorite = obj.favorite;
@@ -385,7 +385,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     domain.revisionDate = new Date(obj.revisionDate);
     domain.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     domain.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
-    domain.name = EncString.fromJSON(obj.name);
+    domain.name = encStringFrom(obj.name);
     domain.notes = encStringFrom(obj.notes);
     domain.key = encStringFrom(obj.key);
     domain.data = obj.data;
@@ -459,7 +459,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),
       key: this.key?.toSdk(),
-      name: this.name.toSdk(),
+      name: this.name?.toSdk(),
       notes: this.notes?.toSdk(),
       type: this.type,
       favorite: this.favorite,
@@ -559,7 +559,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.folderId = sdkCipher.folderId ? uuidAsString(sdkCipher.folderId) : undefined;
     cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidAsString) : [];
     cipher.key = encStringFrom(sdkCipher.key);
-    cipher.name = EncString.fromJSON(sdkCipher.name);
+    cipher.name = encStringFrom(sdkCipher.name);
     cipher.notes = encStringFrom(sdkCipher.notes);
     cipher.type = sdkCipher.type;
     cipher.favorite = sdkCipher.favorite;
