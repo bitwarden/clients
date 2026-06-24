@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::{bail, Result};
 
 fn convert_key(key: &str) -> Result<&'static windows_registry::Key> {
@@ -26,4 +28,22 @@ pub fn delete_key(key: &str, subkey: &str) -> Result<()> {
     key.remove_tree(subkey)?;
 
     Ok(())
+}
+
+pub fn read_values(key: &str, subkey: &str) -> Result<HashMap<String, String>> {
+    let root = convert_key(key)?;
+    let opened = match root.open(subkey) {
+        Ok(k) => k,
+        // An absent policy key is the normal "no managed settings" case, not an error.
+        Err(_) => return Ok(HashMap::new()),
+    };
+
+    let mut out = HashMap::new();
+    for (name, value) in opened.values()? {
+        // Only string values are part of the managed profile; ignore other types.
+        if let Ok(s) = String::try_from(value) {
+            out.insert(name, s);
+        }
+    }
+    Ok(out)
 }

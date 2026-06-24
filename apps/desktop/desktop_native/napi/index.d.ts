@@ -342,4 +342,5 @@ export declare namespace sshagent_v2 {
 export declare namespace windows_registry {
   export function createKey(key: string, subkey: string, value: string): Promise<void>
   export function deleteKey(key: string, subkey: string): Promise<void>
+  export function readValues(key: string, subkey: string): Promise<Record<string, string>>
 }

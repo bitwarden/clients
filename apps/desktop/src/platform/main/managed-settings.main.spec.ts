@@ -1,11 +1,16 @@
 import { ipcMain } from "electron";
 
+import { windows_registry } from "@bitwarden/desktop-napi";
 import * as secure from "@bitwarden/node/managed-settings/secure-config-dir";
 
 import { ManagedSettingsMain } from "./managed-settings.main";
 
 jest.mock("electron", () => ({
   ipcMain: { handle: jest.fn() },
+}));
+
+jest.mock("@bitwarden/desktop-napi", () => ({
+  windows_registry: { readValues: jest.fn().mockResolvedValue({}) },
 }));
 
 describe("ManagedSettingsMain (linux)", () => {
@@ -29,12 +34,16 @@ describe("ManagedSettingsMain (linux)", () => {
     expect(await handler()).toEqual({ environment: { base: "https://x" } });
   });
 
-  it("returns an empty bag on non-linux until native readers land", async () => {
+  it("returns registry values on win32 (mocked to empty)", async () => {
     const sut = new ManagedSettingsMain(windowMain, logService, "win32");
     sut.init();
     const handler = (ipcMain.handle as jest.Mock).mock.calls.find(
       (c) => c[0] === "managedSettings",
     )?.[1];
     expect(await handler()).toEqual({});
+    expect(windows_registry.readValues).toHaveBeenCalledWith(
+      "HKLM",
+      "SOFTWARE\\Policies\\Bitwarden",
+    );
   });
 });

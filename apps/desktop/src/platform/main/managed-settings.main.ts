@@ -3,6 +3,7 @@ import { FSWatcher, watch } from "fs";
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { windows_registry } from "@bitwarden/desktop-napi";
 import { readSecureManagedConfigDir } from "@bitwarden/node/managed-settings/secure-config-dir";
 
 import { WindowMain } from "../../main/window.main";
@@ -28,10 +29,13 @@ export class ManagedSettingsMain {
   }
 
   /** Read the OS source into a raw config bag. Never throws. */
-  read(): Record<string, unknown> {
+  async read(): Promise<Record<string, unknown>> {
     try {
       if (this.platform === "linux") {
         return readSecureManagedConfigDir(LINUX_POLICY_DIR, this.platform, this.logService);
+      }
+      if (this.platform === "win32") {
+        return await windows_registry.readValues("HKLM", "SOFTWARE\\Policies\\Bitwarden");
       }
       return {};
     } catch (e) {
@@ -41,8 +45,8 @@ export class ManagedSettingsMain {
   }
 
   /** Push the current bag to the renderer. */
-  private notifyRenderer(): void {
-    this.windowMain.win?.webContents.send("managedSettingsUpdated", this.read());
+  private async notifyRenderer(): Promise<void> {
+    this.windowMain.win?.webContents.send("managedSettingsUpdated", await this.read());
   }
 
   private watchLinux(): void {

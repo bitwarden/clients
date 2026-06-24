@@ -11,4 +11,13 @@ pub mod windows_registry {
     pub async fn delete_key(key: String, subkey: String) -> napi::Result<()> {
         Ok(crate::registry::delete_key(&key, &subkey)?)
     }
+
+    #[allow(clippy::unused_async)]
+    #[napi]
+    pub async fn read_values(
+        key: String,
+        subkey: String,
+    ) -> napi::Result<std::collections::HashMap<String, String>> {
+        Ok(crate::registry::read_values(&key, &subkey)?)
+    }
 }
