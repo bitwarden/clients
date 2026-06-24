@@ -45,6 +45,21 @@ describe("ManagedOverlayStateProvider", () => {
     expect(await firstValueFrom(provider.getGlobal(LEN).state$)).toBe(20);
   });
 
+  it("re-emits the managed value when changes$ fires", () => {
+    const managed = { isManaged: false, value: undefined as string | undefined };
+    const { provider, fireChange } = build(managed);
+    const emissions: Array<number | null> = [];
+    const sub = provider.getGlobal(LEN).state$.subscribe((v) => emissions.push(v));
+
+    managed.isManaged = true;
+    managed.value = "20";
+    fireChange();
+    sub.unsubscribe();
+
+    expect(emissions[0]).toBe(12); // initial: unmanaged → stored value
+    expect(emissions[emissions.length - 1]).toBe(20); // after changes$: managed value
+  });
+
   it("passes through state for unregistered keys unchanged", async () => {
     const OTHER = new KeyDefinition<number>(SD, "other", { deserializer: (v) => v });
     const { provider } = build({ isManaged: true, value: "20" });

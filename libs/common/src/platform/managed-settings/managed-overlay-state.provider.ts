@@ -85,20 +85,21 @@ export class ManagedOverlayStateProvider extends StateProvider {
     if (overlay == null) {
       return holder;
     }
-    const managedSettings = this.managedSettings;
     const overlaid$ = combineLatest([
       holder.state$,
-      managedSettings.changes$.pipe(startWith(undefined as void)),
+      this.managedSettings.changes$.pipe(startWith(undefined as void)),
     ]).pipe(
       map(([stored]) => {
-        if (!managedSettings.isManaged(overlay.managedKey)) {
+        if (!this.managedSettings.isManaged(overlay.managedKey)) {
           return stored;
         }
-        const raw = managedSettings.get(overlay.managedKey);
+        const raw = this.managedSettings.get(overlay.managedKey);
         if (raw == null) {
           return stored;
         }
         const coerced = overlay.coerce(raw);
+        // A null coercion means "skip this override" per the ManagedOverlay.coerce
+        // contract (e.g. a malformed admin value) — fall back to the stored value.
         return coerced == null ? stored : coerced;
       }),
     );
