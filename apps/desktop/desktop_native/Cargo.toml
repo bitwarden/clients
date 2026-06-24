@@ -91,3 +91,13 @@ print_stdout = "deny"
 string_slice = "warn"
 unused_async = "deny"
 unwrap_used = "deny"
+
+# Pinned binary cargo tools used by CI, scripts/lint.sh, and build.js.
+# Bootstrap once with `cargo install cargo-run-bin --locked`, then invoke any
+# tool via `cargo bin <tool> <args>`.
+[workspace.metadata.bin]
+cargo-deny = { version = "0.19.4", locked = true }
+cargo-sort = { version = "2.0.2", locked = true }
+cargo-udeps = { version = "0.1.57", locked = true }
+cargo-llvm-cov = { version = "0.6.16", locked = true }
+cargo-xwin = { version = "0.20.2", locked = true }
