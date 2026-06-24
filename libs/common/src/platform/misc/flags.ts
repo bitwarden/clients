@@ -4,7 +4,6 @@
 export type SharedFlags = {
   sdk?: boolean;
   prereleaseBuild?: boolean;
-  managedSettings?: boolean;
 };
 
 // required to avoid linting errors when there are no flags

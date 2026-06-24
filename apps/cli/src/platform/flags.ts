@@ -7,7 +7,10 @@ import {
 } from "@bitwarden/common/platform/misc/flags";
 
 // required to avoid linting errors when there are no flags
-export type Flags = {} & SharedFlags;
+export type Flags = {
+  /** Client rollout gate for managed-settings acquisition. Network-free; default off via config/base.json. */
+  managedSettings?: boolean;
+} & SharedFlags;
 
 // required to avoid linting errors when there are no flags
 export type DevFlags = {} & SharedDevFlags;
