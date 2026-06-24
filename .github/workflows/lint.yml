@@ -122,8 +122,11 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         # Use the exact toolchain installed above (Renovate manages the version
         # via the `with: toolchain:` input) so the invoked toolchain can never
-        # drift from the installed one.
-        run: cargo +${{ steps.rust-nightly.outputs.name }} fmt --check
+        # drift from the installed one. Passed through env rather than
+        # interpolated into the run script to satisfy the template-injection rule.
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
@@ -140,7 +143,9 @@ jobs:
 
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +${{ steps.rust-nightly.outputs.name }} udeps --workspace --all-features --all-targets
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" udeps --workspace --all-features --all-targets
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native
