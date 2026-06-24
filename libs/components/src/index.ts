@@ -33,6 +33,7 @@ export * from "./item";
 export * from "./landing-layout";
 export * from "./layout";
 export * from "./link";
+export * from "./managed";
 export * from "./menu";
 export * from "./multi-select";
 export * from "./navigation";
