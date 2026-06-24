@@ -1,6 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -73,4 +74,16 @@ export abstract class ChangePasswordService {
    * Optional method that indicates if we should navigate to the root page of the app after a password change.
    */
   abstract shouldNavigateToRoot(): boolean;
+
+  /**
+   * Resolves the master-password policy options that must be enforced for this user's
+   * password change. Combines policies for orgs the user has joined (Accepted/Confirmed
+   * members, sourced from synced state) with any in-flight organization invite the user
+   * has not yet accepted (fetched via the invite token).
+   * @param userId the active user's `userId`
+   * @returns the combined MP requirements, or undefined when no policy applies.
+   */
+  abstract resolveMasterPasswordPolicyOptions(
+    userId: UserId,
+  ): Promise<MasterPasswordPolicyOptions | undefined>;
 }

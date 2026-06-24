@@ -1,17 +1,16 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { UserId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/common/vault/enums";
-
+import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums";
+import { Organization } from "../../admin-console/models/domain/organization";
+import { Policy } from "../../admin-console/models/domain/policy";
+import { Account, AccountService } from "../../auth/abstractions/account.service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { Utils } from "../../platform/misc/utils";
+import { UserId } from "../../types/guid";
+import { CipherType } from "../enums";
 import { CipherLike } from "../types/cipher-like";
 
 import { RestrictedItemTypesService, RestrictedCipherType } from "./restricted-item-types.service";

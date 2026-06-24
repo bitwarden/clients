@@ -59,6 +59,22 @@ export class MultiStepPolicyEditDialogComponent
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  protected readonly dialogTitle = computed(() => {
+    if (this.currentStepConfig()?.titleContent?.()) {
+      return undefined;
+    }
+    return this.policy.showEnabledBadge
+      ? this.i18nService.t(this.policy.name)
+      : this.i18nService.t("editPolicy");
+  });
+
+  protected readonly dialogSubtitle = computed(() => {
+    if (this.currentStepConfig()?.titleContent?.() || this.policy.showEnabledBadge) {
+      return undefined;
+    }
+    return this.i18nService.t(this.policy.name);
+  });
+
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
       switchMap((stepConfig) => {
@@ -112,6 +128,7 @@ export class MultiStepPolicyEditDialogComponent
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
+    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormViewRef();

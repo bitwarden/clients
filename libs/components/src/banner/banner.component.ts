@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  OnInit,
-  afterNextRender,
-  computed,
-  input,
-  signal,
-  viewChild,
-} from "@angular/core";
+import { NgTemplateOutlet } from "@angular/common";
+import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
 import { outputFromObservable } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
 
@@ -47,7 +38,7 @@ const bannerColors: Record<BannerVariant, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
+  imports: [NgTemplateOutlet, IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
     // Account for bit-layout's padding
     class:
@@ -56,15 +47,6 @@ const bannerColors: Record<BannerVariant, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
-  private readonly actionsRef = viewChild<ElementRef<HTMLElement>>("actionsRef");
-
-  constructor() {
-    afterNextRender(() => {
-      const el = this.actionsRef()?.nativeElement;
-      this.hasActionsContent.set(!!el && el.children.length > 0);
-    });
-  }
-
   /**
    * The variant of banner, which determines its color scheme.
    */
@@ -94,7 +76,6 @@ export class BannerComponent implements OnInit {
    */
   readonly dismiss = outputFromObservable(this.dismiss$);
   protected readonly isDismissible = signal(false);
-  protected readonly hasActionsContent = signal(false);
 
   ngOnInit() {
     this.isDismissible.set(this.dismiss$.observed);
@@ -103,11 +84,6 @@ export class BannerComponent implements OnInit {
   protected onDismiss(): void {
     this.dismiss$.next();
   }
-
-  /**
-   * Actions slot only renders when a title is present.
-   */
-  protected readonly showActions = computed(() => !!this.title());
 
   /**
    * The computed icon to display, falling back to the default icon for the variant.
@@ -120,11 +96,5 @@ export class BannerComponent implements OnInit {
     return this.icon() ?? defaultIcon[this.variant()];
   });
 
-  protected readonly alignClass = computed(() =>
-    this.showActions() ? "tw-items-start" : "tw-items-center @3xl:tw-justify-center",
-  );
-
-  protected readonly bannerClass = computed(
-    () => `${this.alignClass()} ${bannerColors[this.variant()]}`,
-  );
+  protected readonly bannerClass = computed(() => bannerColors[this.variant()]);
 }
