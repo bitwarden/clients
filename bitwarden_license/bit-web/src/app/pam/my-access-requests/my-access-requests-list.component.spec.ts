@@ -20,7 +20,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { I18nMockService, ToastService } from "@bitwarden/components";
+import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 
 import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
@@ -111,6 +111,7 @@ function makeLease(id: string, cipherId: string): AccessLeaseResponse {
 describe("MyAccessRequestsListComponent", () => {
   let pamApi: MockProxy<PamApiService>;
   let toast: MockProxy<ToastService>;
+  let dialog: MockProxy<DialogService>;
   let nameResolver: MockProxy<AccessRequestNameResolver>;
 
   const i18n = new I18nMockService({
@@ -151,6 +152,11 @@ describe("MyAccessRequestsListComponent", () => {
     pamStartLeaseError: "Start error",
     pamActivateWithin: "Activate within __$1__",
     pamExtendedBadge: "Extended +__$1__ · until __$2__",
+    pamEndLeaseTitle: "End lease",
+    pamEndLeaseConfirm: "Are you sure you want to end this lease?",
+    pamEndLeaseButton: "End lease",
+    pamEndLeaseSuccess: "Lease ended",
+    errorOccurred: "An error has occurred.",
     actions: "Actions",
   });
 
@@ -162,6 +168,10 @@ describe("MyAccessRequestsListComponent", () => {
     (pamApi as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
 
     toast = mock<ToastService>();
+
+    dialog = mock<DialogService>();
+    // Default: the user confirms the end-lease warning. Tests that need a dismissal override this.
+    dialog.openSimpleDialog.mockResolvedValue(true);
 
     nameResolver = mock<AccessRequestNameResolver>();
     nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
@@ -177,6 +187,7 @@ describe("MyAccessRequestsListComponent", () => {
         { provide: AccessRequestNameResolver, useValue: nameResolver },
         { provide: I18nService, useValue: i18n },
         { provide: ToastService, useValue: toast },
+        { provide: DialogService, useValue: dialog },
         { provide: LogService, useValue: { error: jest.fn() } },
         { provide: ServerNotificationsService, useValue: { notifications$: new Subject() } },
         // `app-vault-icon` dependencies — only exercised by rows that resolve a cipher.
@@ -467,6 +478,77 @@ describe("MyAccessRequestsListComponent", () => {
     // Row reverted to pending.
     expect(
       fixture.nativeElement.querySelector('[data-testid="my-requests-pending-row-p1"]'),
+    ).not.toBeNull();
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  }));
+
+  it("ends an active lease after confirmation, removing it optimistically and calling the API", fakeAsync(() => {
+    pamApi.listActiveLeases.mockResolvedValue([makeLease("lease-1", "cipher-1")]);
+    pamApi.revokeAccessLease.mockResolvedValue(undefined);
+
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      '[data-testid="my-leases-end-lease-1"]',
+    ) as HTMLButtonElement;
+    expect(button).not.toBeNull();
+    button.click();
+    flush();
+    fixture.detectChanges();
+
+    expect(dialog.openSimpleDialog).toHaveBeenCalled();
+    expect(pamApi.revokeAccessLease).toHaveBeenCalledWith("lease-1", expect.anything());
+    // Optimistically removed from Active leases.
+    expect(fixture.nativeElement.querySelector('[data-testid="my-leases-row-lease-1"]')).toBeNull();
+    expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+  }));
+
+  it("does not end the lease when the confirmation is dismissed", fakeAsync(() => {
+    dialog.openSimpleDialog.mockResolvedValue(false);
+    pamApi.listActiveLeases.mockResolvedValue([makeLease("lease-1", "cipher-1")]);
+
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-testid="my-leases-end-lease-1"]',
+      ) as HTMLButtonElement
+    ).click();
+    flush();
+    fixture.detectChanges();
+
+    expect(pamApi.revokeAccessLease).not.toHaveBeenCalled();
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-leases-row-lease-1"]'),
+    ).not.toBeNull();
+  }));
+
+  it("reverts the optimistic end and toasts when the API call fails", fakeAsync(() => {
+    pamApi.listActiveLeases.mockResolvedValue([makeLease("lease-1", "cipher-1")]);
+    pamApi.revokeAccessLease.mockRejectedValue(new Error("boom"));
+
+    const fixture = TestBed.createComponent(MyAccessRequestsListComponent);
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector(
+        '[data-testid="my-leases-end-lease-1"]',
+      ) as HTMLButtonElement
+    ).click();
+    flush();
+    fixture.detectChanges();
+
+    // Row restored after rollback.
+    expect(
+      fixture.nativeElement.querySelector('[data-testid="my-leases-row-lease-1"]'),
     ).not.toBeNull();
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
   }));

@@ -25,6 +25,9 @@
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
             <th bitCell>{{ "window" | i18n }}</th>
             <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnRemaining" | i18n }}</th>
+            <th bitCell class="tw-w-32">
+              <span class="tw-sr-only">{{ "actions" | i18n }}</span>
+            </th>
           </tr>
         </ng-container>
         <ng-template body let-rows$>
@@ -68,6 +71,20 @@
             </td>
             <td bitCell>
               <span bitBadge variant="success">{{ leaseRemainingLabel(lease) }}</span>
+            </td>
+            <td bitCell>
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [loading]="isEnding(lease.id)"
+                [disabled]="isEnding(lease.id)"
+                (click)="endLease(lease)"
+                [attr.data-testid]="'my-leases-end-' + lease.id"
+              >
+                {{ "pamEndLeaseButton" | i18n }}
+              </button>
             </td>
           </tr>
         </ng-template>
