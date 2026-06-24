@@ -56,7 +56,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdUSUrls.scim + "/v2";
-      const expectedSendUrl = PROD_US_REGION.urls.send + "/#/";
+      const expectedSendUrl = PROD_US_REGION.urls.send + "/#";
 
       const prodUSEnv = new WebCloudEnvironment(PROD_US_REGION, {
         ...expectedProdUSUrls,
@@ -148,7 +148,7 @@ describe("WebEnvironmentService", () => {
           ...expectedProdUSUrls,
           send: customSendUrl,
         });
-        expect(env.getSendUrl()).toEqual(customSendUrl + "/#/");
+        expect(env.getSendUrl()).toEqual(customSendUrl + "/#");
       });
     });
 
@@ -176,7 +176,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = prodEURegionConfig.urls.send + "/#/";
+      const expectedSendUrl = prodEURegionConfig.urls.send + "/#";
 
       const prodEUEnv = new WebCloudEnvironment(prodEURegionConfig, {
         ...expectedProdEUUrls,

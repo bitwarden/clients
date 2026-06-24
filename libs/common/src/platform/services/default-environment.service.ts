@@ -427,12 +427,12 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      return this.urls.send + "/#/";
+      return this.urls.send + "/#";
     }
 
     const webVaultUrl = this.getWebVaultUrl();
     if (webVaultUrl === "https://vault.bitwarden.com") {
-      return "https://send.bitwarden.com/#/";
+      return "https://send.bitwarden.com/#";
     }
     return webVaultUrl + "/#/send/";
   }

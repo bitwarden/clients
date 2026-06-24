@@ -117,7 +117,7 @@ describe("EnvironmentService", () => {
         expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
         expect(env.getEventsUrl()).toBe(expectedUrls.events);
         expect(env.getScimUrl()).toBe(expectedUrls.scim);
-        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
+        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#");
         expect(env.getKeyConnectorUrl()).toBe(undefined);
         expect(env.isCloud()).toBe(true);
         expect(env.getUrls()).toEqual({
@@ -234,6 +234,32 @@ describe("EnvironmentService", () => {
     });
   });
 
+  describe("getSendUrl URL format", () => {
+    it("returns the dedicated send domain with no trailing slash when urls.send is set", async () => {
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.send = "https://send.bitwarden.com";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
+
+      await switchUser(testUser);
+
+      const env = await firstValueFrom(sut.environment$);
+
+      expect(env.getSendUrl()).toBe("https://send.bitwarden.com/#");
+    });
+
+    it("returns the dedicated send domain with no trailing slash via the hardcoded cloud webVault fallback", async () => {
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.webVault = "https://vault.bitwarden.com";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
+
+      await switchUser(testUser);
+
+      const env = await firstValueFrom(sut.environment$);
+
+      expect(env.getSendUrl()).toBe("https://send.bitwarden.com/#");
+    });
+  });
+
   describe("without user", () => {
     it.each(REGION_SETUP)("gets default urls %s", async ({ region, expectedUrls }) => {
       setGlobalData(region, new EnvironmentUrls());
@@ -247,7 +273,7 @@ describe("EnvironmentService", () => {
       expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
       expect(env.getEventsUrl()).toBe(expectedUrls.events);
       expect(env.getScimUrl()).toBe(expectedUrls.scim);
-      expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
+      expect(env.getSendUrl()).toBe(expectedUrls.send + "/#");
       expect(env.getKeyConnectorUrl()).toBe(undefined);
       expect(env.isCloud()).toBe(true);
       expect(env.getUrls()).toEqual({
