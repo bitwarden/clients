@@ -15,9 +15,10 @@ export class LogMeOnceCsvImporter extends BaseImporter implements Importer {
     }
 
     results.forEach((value) => {
-      if (value.length < 4) {
+      if (!value.name) {
         return;
       }
+
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(value.name, "--");
       cipher.login.username = this.getValueOrDefault(value.username);
