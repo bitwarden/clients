@@ -198,11 +198,6 @@ enum AddAccessStatusType {
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy {
-  protected readonly btnTextAddCreateFeatureFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
-    { initialValue: false },
-  );
-
   protected Unassigned = Unassigned;
 
   trashCleanupWarning: string = this.i18nService.t(
@@ -258,6 +253,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   protected readonly vaultBatchBarFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
     { initialValue: false },
@@ -295,7 +295,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationWarningsService: OrganizationWarningsService,
     private collectionService: CollectionService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
   ) {
     this.userId$ = this.accountService.activeAccount$.pipe(getUserId);
     this.filter$ = this.routedVaultFilterService.filter$;
