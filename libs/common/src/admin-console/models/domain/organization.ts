@@ -37,6 +37,7 @@ export class Organization {
   useResetPassword: boolean;
   useSecretsManager: boolean;
   usePasswordManager: boolean;
+  usePam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -128,6 +129,7 @@ export class Organization {
     this.useResetPassword = obj.useResetPassword;
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
+    this.usePam = obj.usePam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;

@@ -126,6 +126,11 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     requestId: string,
     messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {
+    const featureName = permissionsPolicyFeatureForCommand(command);
+    if (featureName != null && !isWebAuthnFeatureAllowed(featureName)) {
+      return Promise.reject(buildPermissionsPolicyError(featureName));
+    }
+
     const data: CreateCredentialParams | AssertCredentialParams = {
       ...messageData,
       origin: globalContext.location.origin,
@@ -139,6 +144,86 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     }
 
     return Promise.resolve({ type, result });
+  }
+
+  /**
+   * Maps the background-bound command name to the corresponding Permissions Policy
+   * feature name. Returns `undefined` for commands that don't have a policy gate.
+   */
+  function permissionsPolicyFeatureForCommand(command: string): string | undefined {
+    if (command === "fido2RegisterCredentialRequest") {
+      return "publickey-credentials-create";
+    }
+    if (command === "fido2GetCredentialRequest") {
+      return "publickey-credentials-get";
+    }
+    return undefined;
+  }
+
+  /**
+   * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
+   *
+   * This check runs in the content script's isolated world, so its view of
+   * `document.permissionsPolicy` / `document.featurePolicy` and the `self`/`top`
+   * references cannot be tampered with by page-world script — the precondition
+   * for the VULN-582 / VULN-398 attacker model.
+   *
+   * Prefers the standardized `document.permissionsPolicy` API; falls back to the older
+   * `document.featurePolicy`. No shipping browser exposes `permissionsPolicy` as of writing,
+   * but the WICG spec defines it as the standardized form, so we check it first for
+   * forward-compatibility.
+   *
+   * When neither API is available (Safari, default-config Firefox where the IDL is gated
+   * behind `dom.security.featurePolicy.webidl.enabled`), we fall back to a defense-in-depth
+   * check: deny when we're in a cross-origin iframe, since the spec default allowlist for
+   * `publickey-credentials-*` is `self`. This over-rejects iframes that legitimately received
+   * `allow=publickey-credentials-*` from their parent, which we can't introspect without the
+   * policy API.
+   *
+   * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
+   */
+  function isWebAuthnFeatureAllowed(featureName: string): boolean {
+    try {
+      const policyHolder = globalContext.document as Document & {
+        permissionsPolicy?: { allowsFeature(feature: string): boolean };
+        featurePolicy?: { allowsFeature(feature: string): boolean };
+      };
+      const policy = policyHolder.permissionsPolicy ?? policyHolder.featurePolicy;
+      if (policy != null && typeof policy.allowsFeature === "function") {
+        return policy.allowsFeature(featureName);
+      }
+    } catch {
+      // Fall through to the defense-in-depth check.
+    }
+
+    return !isCrossOriginIframe();
+  }
+
+  /**
+   * Best-effort detection of whether this document is loaded in a cross-origin iframe.
+   * Used as a defense-in-depth fallback when the Permissions Policy JS API is unavailable.
+   */
+  function isCrossOriginIframe(): boolean {
+    try {
+      if (globalContext.self === globalContext.top) {
+        return false;
+      }
+      return globalContext.top?.location.origin !== globalContext.self.location.origin;
+    } catch {
+      // SecurityError reading top.location → top is a different origin.
+      return true;
+    }
+  }
+
+  /**
+   * Builds a DOMException that mirrors the error the browser raises when a Permissions
+   * Policy denies a WebAuthn ceremony.
+   */
+  function buildPermissionsPolicyError(featureName: string): DOMException {
+    return new DOMException(
+      `The '${featureName}' feature is not enabled in this document. Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.`,
+      "NotAllowedError",
+    );
   }
 
   /**

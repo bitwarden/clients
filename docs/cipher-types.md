@@ -159,15 +159,15 @@ Three apps maintain independent locale files. Each new cipher type needs i18n ke
 
 ## 7. Import/Export
 
-| Concern                    | File                                                                                               |
-| -------------------------- | -------------------------------------------------------------------------------------------------- |
-| Type-specific export class | `libs/common/src/models/export/ssh-key.export.ts` (example)                                        |
-| Main export container      | `libs/common/src/models/export/cipher.export.ts`                                                   |
-| CSV export service         | `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`       |
-| Individual vault export    | `libs/tools/export/vault-export/vault-export-core/src/services/individual-vault-export.service.ts` |
-| Org vault export           | `libs/tools/export/vault-export/vault-export-core/src/services/org-vault-export.service.ts`        |
-| Import service             | `libs/importer/src/services/import.service.ts`                                                     |
-| Base importer              | `libs/importer/src/importers/base-importer.ts`                                                     |
+| Concern                    | File                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Type-specific export class | `libs/common/src/models/export/ssh-key.export.ts` (example)                    |
+| Main export container      | `libs/common/src/models/export/cipher.export.ts`                               |
+| CSV export service         | `libs/tools/export-vault-core/src/services/base-vault-export.service.ts`       |
+| Individual vault export    | `libs/tools/export-vault-core/src/services/individual-vault-export.service.ts` |
+| Org vault export           | `libs/tools/export-vault-core/src/services/org-vault-export.service.ts`        |
+| Import service             | `libs/importer/src/services/import.service.ts`                                 |
+| Base importer              | `libs/importer/src/importers/base-importer.ts`                                 |
 
 > The CSV export service (`base-vault-export.service.ts`) currently only exports Login and SecureNote types. New types may need explicit CSV column mappings or may only support JSON export.
 
@@ -323,23 +323,23 @@ In the view model, properties that can be linked are decorated with `@linkedFiel
 
 ## 13. Tests
 
-| Test Area                     | File(s)                                                                                                 |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Cipher type enum              | `libs/common/src/vault/enums/cipher-type.spec.ts`                                                       |
-| Domain model                  | `libs/common/src/vault/models/domain/cipher.spec.ts`                                                    |
-| Domain type-specific (SshKey) | `libs/common/src/vault/models/domain/ssh-key.spec.ts`                                                   |
-| View model                    | `libs/common/src/vault/models/view/cipher.view.spec.ts`                                                 |
-| Cipher service                | `libs/common/src/vault/services/cipher.service.spec.ts`                                                 |
-| Cipher SDK service            | `libs/common/src/vault/services/cipher-sdk.service.spec.ts`                                             |
-| Cipher encryption service     | `libs/common/src/vault/services/default-cipher-encryption.service.spec.ts`                              |
-| Icon builder                  | `libs/common/src/vault/icon/build-cipher-icon.spec.ts`                                                  |
-| Export model                  | `libs/common/src/models/export/cipher.export.spec.ts`                                                   |
-| Cipher form component         | `libs/vault/src/cipher-form/components/cipher-form.component.spec.ts`                                   |
-| Cipher view component         | `libs/vault/src/cipher-view/cipher-view.component.spec.ts`                                              |
-| Restricted types              | `libs/common/src/vault/services/restricted-item-types.service.spec.ts`                                  |
-| CLI restricted types          | `apps/cli/src/vault/services/cli-restricted-item-types.service.spec.ts`                                 |
-| Import service                | `libs/importer/src/services/import.service.spec.ts`                                                     |
-| Export services               | `libs/tools/export/vault-export/vault-export-core/src/services/individual-vault-export.service.spec.ts` |
+| Test Area                     | File(s)                                                                             |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| Cipher type enum              | `libs/common/src/vault/enums/cipher-type.spec.ts`                                   |
+| Domain model                  | `libs/common/src/vault/models/domain/cipher.spec.ts`                                |
+| Domain type-specific (SshKey) | `libs/common/src/vault/models/domain/ssh-key.spec.ts`                               |
+| View model                    | `libs/common/src/vault/models/view/cipher.view.spec.ts`                             |
+| Cipher service                | `libs/common/src/vault/services/cipher.service.spec.ts`                             |
+| Cipher SDK service            | `libs/common/src/vault/services/cipher-sdk.service.spec.ts`                         |
+| Cipher encryption service     | `libs/common/src/vault/services/default-cipher-encryption.service.spec.ts`          |
+| Icon builder                  | `libs/common/src/vault/icon/build-cipher-icon.spec.ts`                              |
+| Export model                  | `libs/common/src/models/export/cipher.export.spec.ts`                               |
+| Cipher form component         | `libs/vault/src/cipher-form/components/cipher-form.component.spec.ts`               |
+| Cipher view component         | `libs/vault/src/cipher-view/cipher-view.component.spec.ts`                          |
+| Restricted types              | `libs/common/src/vault/services/restricted-item-types.service.spec.ts`              |
+| CLI restricted types          | `apps/cli/src/vault/services/cli-restricted-item-types.service.spec.ts`             |
+| Import service                | `libs/importer/src/services/import.service.spec.ts`                                 |
+| Export services               | `libs/tools/export-vault-core/src/services/individual-vault-export.service.spec.ts` |
 
 ---
 
@@ -414,7 +414,7 @@ In the view model, properties that can be linked are decorated with `@linkedFiel
 
 **Import/Export:**
 
-- [ ] `libs/tools/export/vault-export/vault-export-core/src/services/base-vault-export.service.ts`
+- [ ] `libs/tools/export-vault-core/src/services/base-vault-export.service.ts`
 
 **Linked fields (if applicable):**
 

@@ -1,6 +1,6 @@
 import * as path from "path";
 
-import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification } from "electron";
+import { app, dialog, ipcMain, nativeTheme, Notification } from "electron";
 
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender, CommandDefinition } from "@bitwarden/common/platform/messaging";
@@ -10,7 +10,6 @@ import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { WindowMain } from "../main/window.main";
 import { SafeShell } from "../platform/main/safe-shell.main";
-import { RendererMenuItem } from "../utils";
 
 export class ElectronMainMessagingService implements MessageSender {
   constructor(
@@ -27,29 +26,6 @@ export class ElectronMainMessagingService implements MessageSender {
 
     ipcMain.handle("showMessageBox", (event, options) => {
       return dialog.showMessageBox(this.windowMain.win, options);
-    });
-
-    ipcMain.handle("openContextMenu", (event, options: { menu: RendererMenuItem[] }) => {
-      return new Promise((resolve) => {
-        const menu = new Menu();
-        options.menu.forEach((m, index) => {
-          menu.append(
-            new MenuItem({
-              label: m.label,
-              type: m.type,
-              click: () => {
-                resolve(index);
-              },
-            }),
-          );
-        });
-        menu.popup({
-          window: windowMain.win,
-          callback: () => {
-            resolve(-1);
-          },
-        });
-      });
     });
 
     ipcMain.handle("windowVisible", () => {

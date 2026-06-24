@@ -1,5 +1,3 @@
-import { mergeMap } from "rxjs";
-
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
@@ -10,44 +8,42 @@ const IPC_CONTENT_SCRIPT_FILE = "content/ipc-content-script.js";
 const IPC_CONTENT_SCRIPT_MATCHES = ["https://*/*"];
 
 export class IpcContentScriptManagerService {
-  constructor(configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {}
+
+  async init() {
     if (!BrowserApi.isManifestVersion(3)) {
       // IPC not supported on MV2
       return;
     }
 
-    configService
-      .getFeatureFlag$(FeatureFlag.ContentScriptIpcChannelFramework)
-      .pipe(
-        mergeMap(async (enabled) => {
-          if (!enabled) {
-            return;
-          }
+    const enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ContentScriptIpcChannelFramework,
+    );
+    if (!enabled) {
+      return;
+    }
 
-          try {
-            await BrowserApi.unregisterContentScriptsMv3({ ids: [IPC_CONTENT_SCRIPT_ID] });
-          } catch {
-            // Ignore errors
-          }
+    try {
+      await BrowserApi.unregisterContentScriptsMv3({ ids: [IPC_CONTENT_SCRIPT_ID] });
+    } catch {
+      // Ignore errors
+    }
 
-          await BrowserApi.registerContentScriptsMv3([
-            {
-              id: IPC_CONTENT_SCRIPT_ID,
-              matches: IPC_CONTENT_SCRIPT_MATCHES,
-              js: [IPC_CONTENT_SCRIPT_FILE],
-            },
-          ]);
+    await BrowserApi.registerContentScriptsMv3([
+      {
+        id: IPC_CONTENT_SCRIPT_ID,
+        matches: IPC_CONTENT_SCRIPT_MATCHES,
+        js: [IPC_CONTENT_SCRIPT_FILE],
+      },
+    ]);
 
-          // Registration only injects on future page loads. Tabs already open
-          // when the (re)started service worker runs this code still hold a
-          // content-script instance bound to the previous extension context
-          // (its chrome.runtime is invalidated after `chrome.runtime.reload()`
-          // on process reload). Re-inject so they get a fresh runtime handle;
-          // the old instance tears itself down via its port's onDisconnect.
-          await this.reinjectIntoOpenTabs();
-        }),
-      )
-      .subscribe();
+    // Registration only injects on future page loads. Tabs already open
+    // when the (re)started service worker runs this code still hold a
+    // content-script instance bound to the previous extension context
+    // (its chrome.runtime is invalidated after `chrome.runtime.reload()`
+    // on process reload). Re-inject so they get a fresh runtime handle;
+    // the old instance tears itself down via its port's onDisconnect.
+    await this.reinjectIntoOpenTabs();
   }
 
   private async reinjectIntoOpenTabs() {

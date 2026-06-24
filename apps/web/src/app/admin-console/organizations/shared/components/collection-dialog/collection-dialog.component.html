@@ -36,7 +36,7 @@
 
         <bit-form-field *ngIf="isExternalIdVisible">
           <bit-label>{{ "externalId" | i18n }}</bit-label>
-          <input bitInput formControlName="externalId" />
+          <input bitInput formControlName="externalId" readonly />
           <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
         </bit-form-field>
 

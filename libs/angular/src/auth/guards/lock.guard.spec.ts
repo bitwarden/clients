@@ -4,7 +4,6 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { EmptyComponent } from "@bitwarden/angular/platform/guard/feature-flag.guard.spec";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -19,6 +18,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+
+import { EmptyComponent } from "../../platform/guard/feature-flag.guard.spec";
 
 import { lockGuard } from "./lock.guard";
 

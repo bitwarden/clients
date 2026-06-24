@@ -1,13 +1,13 @@
 import { EMPTY, catchError, concatMap, firstValueFrom, map } from "rxjs";
 
-import { UserKey } from "@bitwarden/common/types/key";
-import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { CipherEncryptionService } from "../abstractions/cipher-encryption.service";
+import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
@@ -24,10 +24,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
@@ -54,10 +50,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
 
           const results = await ref.value
@@ -87,10 +79,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
@@ -122,10 +110,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
           const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
 
@@ -151,10 +135,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
           const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
 
@@ -200,10 +180,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
           using ref = sdk.take();
 
           const successful: CipherView[] = [];
@@ -265,10 +241,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK is undefined");
-          }
-
           using ref = sdk.take();
 
           const result: DecryptCipherListResult = await ref.value
@@ -306,10 +278,6 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
-          if (!sdk) {
-            throw new Error("SDK is undefined");
-          }
-
           using ref = sdk.take();
 
           return ref.value

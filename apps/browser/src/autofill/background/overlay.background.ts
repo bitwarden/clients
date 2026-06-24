@@ -7,6 +7,7 @@ import {
   map,
   merge,
   Observable,
+  pairwise,
   ReplaySubject,
   skip,
   Subject,
@@ -23,6 +24,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -86,6 +88,7 @@ import {
   specialCharacterToKeyMap,
 } from "../utils";
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
+import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
@@ -364,6 +367,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     merge(this.startInlineMenuFadeIn$.pipe(debounceTime(150)), this.cancelInlineMenuFadeIn$)
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
+
+    // Dump targeting rules' cached page details when Fill Assist becomes
+    // disabled, and signal content scripts to drop their own targeting-rules
+    // caches so the next page-details collection re-evaluates which strategy
+    // to use (targeted vs heuristic). Only act on a `true` -> `false`
+    // transition so service-worker cold starts (where the replayed initial
+    // value is `false`) don't broadcast.
+    this.domainSettingsService.resolvedEnableFillAssist$
+      .pipe(
+        pairwise(),
+        filter(([previous, current]) => previous && !current),
+      )
+      .subscribe(() => {
+        this.clearCachedTargetedPageDetails();
+        void this.broadcastTargetingRulesCacheInvalidation();
+      });
   }
 
   /**
@@ -384,6 +403,42 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
+  }
+
+  /**
+   * Removes cached page-detail entries that were produced by the
+   * targeting-rules path.
+   */
+  private clearCachedTargetedPageDetails() {
+    for (const tabIdKey of Object.keys(this.pageDetailsForTab)) {
+      const tabId = Number(tabIdKey);
+      const frameMap = this.pageDetailsForTab[tabId];
+      if (!frameMap) {
+        continue;
+      }
+      for (const [frameId, entry] of frameMap) {
+        // `targeted` fields are mutually-exclusive from heuristically-gathered fields
+        // and should not appear in the same pageDetails
+        if (entry.details?.fields?.some((field) => field.targeted === true)) {
+          frameMap.delete(frameId);
+        }
+      }
+      if (frameMap.size === 0) {
+        delete this.pageDetailsForTab[tabId];
+      }
+    }
+  }
+
+  /**
+   * Notifies all tab content scripts to drop any per-frame targeting-rules
+   * cache so the next page-details collection re-evaluates the gate. Tabs
+   * without a content script (e.g. chrome:// pages) will silently no-op.
+   */
+  private async broadcastTargetingRulesCacheInvalidation(): Promise<void> {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (const tab of tabs) {
+      void BrowserApi.tabSendMessage(tab, { command: "clearTargetingRulesCache" });
+    }
   }
 
   /**
@@ -1104,10 +1159,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Routes targeted fields to the content script running in the iframe identified
-   * by `message.iframeSrc`. Looks up the matching frame via webNavigation and
-   * dispatches `applyTargetedFields` so the iframe's own content script can build
-   * its AutofillFields and report back with the correct sub-frame `frameId`.
+   * Routes targeted fields to the iframe identified by `message.iframeSrc`.
+   * Looks up the frame via webNavigation and dispatches `applyTargetedFields`
+   * to its content script.
+   *
+   * Matching uses a URL variation set so normalization differences between
+   * the iframe's `src` and the URL webNavigation reports don't prevent a match.
+   * Ambiguous matches are dropped. Send failures are logged; the destination
+   * frame is expected to self-gate.
    *
    * @param tab - The tab the message originated from
    * @param message - The message containing `iframeSrc` and `iframeTargetedFields`
@@ -1126,15 +1185,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const targetFrame = frames.find((f) => f.url === iframeSrc);
-    if (!targetFrame) {
+    const variations = getSubFrameUrlVariations(iframeSrc);
+    const candidates = variations
+      ? frames.filter((f) => variations.has(f.url))
+      : frames.filter((f) => f.url === iframeSrc);
+
+    if (candidates.length === 0) {
+      this.logService.debug(
+        `[OverlayBackground] No frame matched iframeSrc for targeted field routing: ${iframeSrc}`,
+      );
+      return;
+    }
+
+    if (candidates.length > 1) {
+      this.logService.debug(
+        `[OverlayBackground] Ambiguous frame match for targeted field routing: ${iframeSrc}`,
+      );
       return;
     }
 
     await BrowserApi.tabSendMessage(
       tab,
       { command: "applyTargetedFields", iframeTargetedFields },
-      { frameId: targetFrame.frameId },
+      { frameId: candidates[0].frameId },
+    ).catch((error) =>
+      this.logService.debug(
+        `[OverlayBackground] Failed to send applyTargetedFields to frame: ${(error as Error)?.message ?? error}`,
+      ),
     );
   }
 
@@ -2172,10 +2249,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       // If our currently focused field is for a login form, we want to fill the current password field.
       // Otherwise, map over all page details and filter out fields that are not new password fields.
+      // Targeted fields qualified as `newPassword` by targeting rules bypass the heuristic
+      // check; the rules represent an explicit assertion that the field is a new-password
+      // field, and heuristic keyword tokenization can miss compact names like `confirmPassword`.
       if (!this.focusedFieldMatchesFillType(CipherType.Login)) {
         pageDetails = this.getFilteredPageDetails(
           pageDetails,
-          this.inlineMenuFieldQualificationService.isNewPasswordField,
+          (field) =>
+            (field.targeted === true &&
+              field.fieldQualifier === AutofillTargetingRuleTypes.newPassword) ||
+            this.inlineMenuFieldQualificationService.isNewPasswordField(field),
         );
       }
 
@@ -2230,10 +2313,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
+    // On password-generation fields the save prompt should only fire once a
+    // new password has actually been entered. Gating on `loginData.password`
+    // here would surface the prompt as soon as the *current* password field
+    // on an update form is filled, which isn't a "save new login" signal.
+    const hasAnyPassword = !!(loginData.password || loginData.newPassword);
+    const hasNewPassword = !!loginData.newPassword;
+
     return (
-      (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
-      !!(loginData.password || loginData.newPassword)
+      (hasAnyPassword && this.shouldShowInlineMenuAccountCreation()) ||
+      (hasNewPassword && this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration))
     );
   }
 
@@ -2827,6 +2916,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.openAddEditVaultItemPopout(sender.tab, {
           cipherId: cipherView.id,
           cipherType: addNewCipherType ?? CipherType.Login,
+          fillAfterSave: true,
         });
       }
     } catch (error) {

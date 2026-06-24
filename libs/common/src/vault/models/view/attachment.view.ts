@@ -106,4 +106,12 @@ export class AttachmentView implements View {
 
     return view;
   }
+
+  /**
+   * Determines if the attachment is a legacy attachment without a per-attachment key.
+   * In this case, the attachment is encrypted with the user's user-key
+   */
+  isLegacyAttachment(): boolean {
+    return this.key == null && this.encryptedKey == null;
+  }
 }

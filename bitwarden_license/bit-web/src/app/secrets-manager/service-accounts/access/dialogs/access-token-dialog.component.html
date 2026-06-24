@@ -8,7 +8,7 @@
 
     <bit-form-field class="tw-mb-0">
       <bit-label>{{ "accessToken" | i18n }}</bit-label>
-      <textarea bitInput disabled rows="4">{{ data.accessToken }}</textarea>
+      <textarea bitInput readonly rows="4">{{ data.accessToken }}</textarea>
     </bit-form-field>
     {{ "expiresOnAccessToken" | i18n }}
     {{ data.expirationDate === null ? ("never" | i18n) : (data.expirationDate | date: "medium") }}

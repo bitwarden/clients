@@ -1,10 +1,11 @@
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { NO_ERRORS_SCHEMA, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
+  DrawerState,
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
@@ -24,6 +25,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -64,6 +66,9 @@ describe("AccessIntelligencePageComponent", () => {
     queryParams: BehaviorSubject<any>;
   };
   let hasCiphersSubject: BehaviorSubject<boolean>;
+  let drawerStateSignal: WritableSignal<DrawerState>;
+  let drawerClosed$: Subject<unknown>;
+  let mockCoachmarkService: jest.Mocked<AccessIntelligenceCoachmarkService>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -102,18 +107,31 @@ describe("AccessIntelligencePageComponent", () => {
       hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
+    // Real signal + faithful open/close impls mirror DefaultDrawerStateService so the drawer
+    // subscription pipeline can be driven end-to-end in tests.
+    drawerStateSignal = signal<DrawerState>({ open: false, type: DrawerType.None, invokerId: "" });
     mockDrawerStateService = {
-      drawerState: jest.fn().mockReturnValue({ open: false, type: null, invokerId: "" }),
-      openDrawer: jest.fn(),
-      closeDrawer: jest.fn(),
+      drawerState: drawerStateSignal,
+      toggleDrawer: jest.fn((type: DrawerType, invokerId: string) => {
+        const current = drawerStateSignal();
+        if (current.open && current.type === type && current.invokerId === invokerId) {
+          drawerStateSignal.set({ open: false, type: DrawerType.None, invokerId: "" });
+        } else {
+          drawerStateSignal.set({ open: true, type, invokerId });
+        }
+      }),
+      closeDrawer: jest.fn(() =>
+        drawerStateSignal.set({ open: false, type: DrawerType.None, invokerId: "" }),
+      ),
     } as any;
 
     mockI18nService = {
       t: jest.fn((key: string, ...args: any[]) => key),
     } as any;
 
+    drawerClosed$ = new Subject<unknown>();
     mockDialogService = {
-      openDrawer: jest.fn().mockReturnValue({ close: jest.fn() }),
+      openDrawer: jest.fn().mockResolvedValue({ close: jest.fn(), closed: drawerClosed$ }),
     } as any;
 
     mockLogService = {
@@ -135,6 +153,14 @@ describe("AccessIntelligencePageComponent", () => {
       queryParams: new BehaviorSubject({}),
     };
 
+    mockCoachmarkService = {
+      activeStepId: jest.fn().mockReturnValue(null),
+      tourCompleted$: new Subject<boolean>(),
+      requiredTabIndex: jest.fn().mockReturnValue(0),
+      isRunning: jest.fn().mockReturnValue(false),
+      skipTour: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     await TestBed.configureTestingModule({
       imports: [AccessIntelligencePageComponent],
       providers: [
@@ -146,6 +172,7 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     })
@@ -361,12 +388,16 @@ describe("AccessIntelligencePageComponent", () => {
       expect(content).toBeNull();
     });
 
-    it("should derive OrgAtRiskMembers content", () => {
-      const content = component["getOrgAtRiskMembersContent"](testReport);
+    it("should derive OrgAtRiskMembers content with each member's at-risk application count", () => {
+      const content = component["getOrgAtRiskMembersContent"](testReport) as OrgAtRiskMembersData;
 
-      expect(content).toBeDefined();
-      expect((content as OrgAtRiskMembersData).type).toBe(DrawerType.OrgAtRiskMembers);
-      expect((content as OrgAtRiskMembersData).members.length).toBeGreaterThan(0);
+      expect(content.type).toBe(DrawerType.OrgAtRiskMembers);
+      // u1 (Alice) is at-risk in github.com; u2 (Bob) is at-risk in gitlab.com — one at-risk app each.
+      expect(content.members).toHaveLength(2);
+      const alice = content.members.find((m) => m.email === "alice@example.com");
+      const bob = content.members.find((m) => m.email === "bob@example.com");
+      expect(alice?.atRiskApplicationCount).toBe(1);
+      expect(bob?.atRiskApplicationCount).toBe(1);
     });
 
     it("should derive OrgAtRiskApps content", () => {
@@ -377,12 +408,16 @@ describe("AccessIntelligencePageComponent", () => {
       expect((content as OrgAtRiskAppsData).applications).toHaveLength(2); // Both apps have at-risk passwords
     });
 
-    it("should derive CriticalAtRiskMembers content", () => {
-      const content = component["getCriticalAtRiskMembersContent"](testReport);
+    it("should derive CriticalAtRiskMembers content counting only critical at-risk applications", () => {
+      const content = component["getCriticalAtRiskMembersContent"](
+        testReport,
+      ) as CriticalAtRiskMembersData;
 
-      expect(content).toBeDefined();
-      expect((content as CriticalAtRiskMembersData).type).toBe(DrawerType.CriticalAtRiskMembers);
-      expect((content as CriticalAtRiskMembersData).members.length).toBeGreaterThan(0);
+      expect(content.type).toBe(DrawerType.CriticalAtRiskMembers);
+      // Only github.com is critical, and u1 (Alice) is its only at-risk member.
+      expect(content.members).toHaveLength(1);
+      expect(content.members[0].email).toBe("alice@example.com");
+      expect(content.members[0].atRiskApplicationCount).toBe(1);
     });
 
     it("should derive CriticalAtRiskApps content", () => {
@@ -396,11 +431,51 @@ describe("AccessIntelligencePageComponent", () => {
       );
     });
 
-    it("should use view model method for member password counts", () => {
+    it("should use view model method for member at-risk application counts", () => {
       const content = component["getAppAtRiskMembersContent"](testReport, "github.com");
 
-      expect((content as AppAtRiskMembersData).members[0].atRiskPasswordCount).toBeGreaterThan(0);
+      expect((content as AppAtRiskMembersData).members[0].atRiskApplicationCount).toBeGreaterThan(
+        0,
+      );
     });
+  });
+
+  // ==================== Drawer Reopen Tests (PM-38286) ====================
+
+  describe("Drawer Reopen", () => {
+    beforeEach(async () => {
+      testReport.recomputeSummary();
+      mockAccessIntelligenceService.report$.next(testReport);
+      await component.ngOnInit();
+      fixture.detectChanges();
+    });
+
+    it("resets drawer state when the dialog closes so the same drawer can reopen", fakeAsync(() => {
+      // Open the org at-risk members drawer
+      mockDrawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      fixture.detectChanges();
+      tick();
+
+      const opensAfterFirstClick = mockDialogService.openDrawer.mock.calls.length;
+      expect(opensAfterFirstClick).toBeGreaterThan(0);
+
+      // User closes the drawer via the X button (or ESC) — dialog emits on `closed`
+      drawerClosed$.next(undefined);
+      tick();
+
+      // State must be reset, otherwise re-clicking the same button is a no-op
+      expect(mockDrawerStateService.closeDrawer).toHaveBeenCalled();
+      fixture.detectChanges();
+      tick();
+
+      // Re-clicking the same button reopens the drawer (the bug: nothing happened until a
+      // different drawer was opened first)
+      mockDrawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "org-card");
+      fixture.detectChanges();
+      tick();
+
+      expect(mockDialogService.openDrawer.mock.calls.length).toBeGreaterThan(opensAfterFirstClick);
+    }));
   });
 
   // ==================== Empty State Tests ====================

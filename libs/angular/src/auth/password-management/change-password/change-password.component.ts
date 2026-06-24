@@ -14,11 +14,10 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutService } from "@bitwarden/auth/common";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -79,7 +78,6 @@ export class ChangePasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private organizationInviteService: OrganizationInviteService,
     private messagingService: MessagingService,
-    private policyService: PolicyService,
     private toastService: ToastService,
     private dialogService: DialogService,
     private logService: LogService,
@@ -101,9 +99,8 @@ export class ChangePasswordComponent implements OnInit {
       throw new Error("userId not found");
     }
 
-    this.masterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(this.userId),
-    );
+    this.masterPasswordPolicyOptions =
+      await this.changePasswordService.resolveMasterPasswordPolicyOptions(this.userId);
 
     this.forceSetPasswordReason = await firstValueFrom(
       this.masterPasswordService.forceSetPasswordReason$(this.userId),
@@ -136,7 +133,7 @@ export class ChangePasswordComponent implements OnInit {
     });
 
     if (confirmed) {
-      await this.organizationInviteService.clearOrganizationInvitation();
+      await this.organizationInviteService.clearOrganizationInvite();
 
       if (this.changePasswordService.clearDeeplinkState) {
         await this.changePasswordService.clearDeeplinkState();

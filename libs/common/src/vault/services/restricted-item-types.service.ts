@@ -1,14 +1,13 @@
 import { combineLatest, map, of, Observable } from "rxjs";
 import { switchMap, distinctUntilChanged, shareReplay } from "rxjs/operators";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
-
+import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { getOptionalUserId } from "../../auth/services/account.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { CipherType } from "../enums";
 import { CipherLike } from "../types/cipher-like";
 import { CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 

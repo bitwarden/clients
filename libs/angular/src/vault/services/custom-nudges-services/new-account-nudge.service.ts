@@ -2,13 +2,13 @@ import { Injectable } from "@angular/core";
 import { Observable, combineLatest, from, map, of } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
+import { VaultProfileService } from "../vault-profile.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 

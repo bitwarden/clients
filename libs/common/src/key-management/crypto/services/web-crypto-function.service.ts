@@ -1,8 +1,8 @@
 import * as forge from "node-forge";
 
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
 import { CsprngArray } from "../../../types/csprng";
 import { UnsignedPublicKey } from "../../types";

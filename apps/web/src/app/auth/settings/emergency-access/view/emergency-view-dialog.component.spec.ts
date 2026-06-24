@@ -78,7 +78,10 @@ describe("EmergencyViewDialogComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: mock<BillingAccountProfileStateService>(),
         },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(false) },
+        },
         {
           provide: VaultSettingsService,
           useValue: mock<VaultSettingsService>({

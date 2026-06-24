@@ -1,5 +1,6 @@
-import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { Storage } from "@bitwarden/subscription";
+
+import { BaseResponse } from "../../../models/response/base.response";
 
 export class StorageResponse extends BaseResponse implements Storage {
   available: number;

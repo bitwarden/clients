@@ -66,13 +66,9 @@
               <input
                 type="checkbox"
                 bitCheckbox
-                class="tw-mr-1"
                 (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
-                id="selectAll"
+                [attr.aria-label]="'selectAll' | i18n"
               />
-              <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">
-                {{ "all" | i18n }}
-              </label>
             </th>
             <th bitCell bitSortable="email" default>{{ "name" | i18n }}</th>
             <th bitCell bitSortable="type">{{ "role" | i18n }}</th>

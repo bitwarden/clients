@@ -72,6 +72,17 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     return Policy.fromListResponse(new ListResponse(r, PolicyResponse));
   }
 
+  async getPoliciesByInviteLinkCode(code: string): Promise<Policy[] | undefined> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/invite-link/policies",
+      { code },
+      false,
+      true,
+    );
+    return Policy.fromListResponse(new ListResponse(r, PolicyResponse));
+  }
+
   private async getMasterPasswordPolicyResponseForOrgUser(
     organizationId: string,
   ): Promise<PolicyResponse> {

@@ -24,7 +24,7 @@ import { VaultCarouselModule } from "@bitwarden/vault";
 
 import { OnboardingService } from "./services/onboarding.service";
 
-export type WelcomeCarouselDialogData = {
+export type NewAdminWelcomeCarouselDialogData = {
   organizationId: OrganizationId;
 };
 
@@ -40,7 +40,7 @@ export class NewAdminWelcomeDialogComponent {
   private readonly dialogRef = inject(DialogRef<NewAdminWelcomeDialogComponent>);
   private readonly router = inject(Router);
   private readonly onboardingService = inject(OnboardingService);
-  private readonly data = inject<WelcomeCarouselDialogData>(DIALOG_DATA);
+  private readonly data = inject<NewAdminWelcomeCarouselDialogData>(DIALOG_DATA);
 
   protected readonly currentSlide = signal(0);
   protected readonly isFirstSlide = computed(() => this.currentSlide() === 0);
@@ -81,7 +81,7 @@ export class NewAdminWelcomeDialogComponent {
       }
 
       const dialog = dialogService.open(NewAdminWelcomeDialogComponent, {
-        data: { organizationId } satisfies WelcomeCarouselDialogData,
+        data: { organizationId } satisfies NewAdminWelcomeCarouselDialogData,
         width: "600px",
         disableClose: true,
       });

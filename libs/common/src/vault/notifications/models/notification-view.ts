@@ -1,4 +1,4 @@
-import { NotificationId, SecurityTaskId } from "@bitwarden/common/types/guid";
+import { NotificationId, SecurityTaskId } from "../../../types/guid";
 
 export class NotificationView {
   id: NotificationId;

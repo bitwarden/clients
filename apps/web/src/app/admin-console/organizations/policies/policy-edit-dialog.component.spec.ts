@@ -1,7 +1,13 @@
 import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  UntypedFormGroup,
+  Validators,
+} from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
 
@@ -18,6 +24,7 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { KeyService } from "@bitwarden/key-management";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "./base-policy-edit.component";
+import { PolicyCategory } from "./pipes/policy-category";
 import { PolicyEditDialogComponent, PolicyEditDialogData } from "./policy-edit-dialog.component";
 
 const ORG_ID = "org1" as OrganizationId;
@@ -30,6 +37,8 @@ const dialogData: PolicyEditDialogData = {
     component: class {} as any,
     showDescription: true,
     display$: () => of(true),
+    category: PolicyCategory.DataControl,
+    priority: 1,
   } as BasePolicyEditDefinition,
   organization: { id: ORG_ID } as Organization,
 };
@@ -74,15 +83,14 @@ describe("PolicyEditDialogComponent", () => {
    * inject our own data FormGroup without rendering the real child component.
    */
   async function runNgAfterViewInitWith(
-    dataGroup: UntypedFormGroup,
-    canToggleState: boolean,
+    enabledForm: FormControl<boolean | null>,
+    dataGroup: UntypedFormGroup | undefined,
+    existingPolicy: PolicyResponse,
   ): Promise<void> {
-    policyApiService.getPolicy.mockResolvedValue(
-      new PolicyResponse({ Enabled: true, CanToggleState: canToggleState }),
-    );
+    policyApiService.getPolicy.mockResolvedValue(existingPolicy);
 
     const mockComponentRef = {
-      instance: { data: dataGroup } as Partial<BasePolicyEditComponent>,
+      instance: { enabled: enabledForm, data: dataGroup } as Partial<BasePolicyEditComponent>,
       setInput: jest.fn(),
     };
 
@@ -94,24 +102,67 @@ describe("PolicyEditDialogComponent", () => {
   }
 
   describe("saveDisabled", () => {
-    it("is false when form status is DISABLED", async () => {
-      const fb = new FormBuilder();
-      const dataGroup = fb.group({ autoEnrollEnabled: [{ value: false, disabled: true }] });
+    it("is false when policy enabled field has changed", async () => {
+      const enabledForm = new FormControl(false);
 
-      await runNgAfterViewInitWith(dataGroup, true);
+      await runNgAfterViewInitWith(
+        enabledForm,
+        undefined,
+        new PolicyResponse({ Enabled: true, CanToggleState: true }),
+      );
 
-      // Trigger a status change: DISABLED → VALID → DISABLED
-      dataGroup.controls.autoEnrollEnabled.enable();
-      dataGroup.controls.autoEnrollEnabled.disable();
+      enabledForm.setValue(false);
 
       expect(component.saveDisabled()).toBe(false);
+    });
+
+    it("is false when policy data field has changed", async () => {
+      const fb = new FormBuilder();
+      const dataGroup = fb.group({ autoEnrollEnabled: [{ value: false, disabled: true }] });
+      await runNgAfterViewInitWith(
+        new FormControl(true),
+        dataGroup,
+        new PolicyResponse({
+          Enabled: true,
+          CanToggleState: true,
+          Data: { autoEnrollEnabled: false },
+        }),
+      );
+
+      dataGroup.controls.autoEnrollEnabled.setValue(true);
+
+      expect(component.saveDisabled()).toBe(false);
+    });
+
+    it("is true if neither enabled field nor policy data have changed", async () => {
+      const fb = new FormBuilder();
+      const dataGroup = fb.group({ autoEnrollEnabled: [{ value: false, disabled: true }] });
+      await runNgAfterViewInitWith(
+        new FormControl(true),
+        dataGroup,
+        new PolicyResponse({
+          Enabled: true,
+          CanToggleState: true,
+          Data: { autoEnrollEnabled: false },
+        }),
+      );
+
+      expect(component.saveDisabled()).toBe(true);
     });
 
     it("is true when form status is INVALID", async () => {
       const fb = new FormBuilder();
       const dataGroup = fb.group({ autoEnrollEnabled: [null, Validators.required] });
 
-      await runNgAfterViewInitWith(dataGroup, true);
+      await runNgAfterViewInitWith(
+        new FormControl(true),
+        dataGroup,
+        new PolicyResponse({
+          Enabled: true,
+          CanToggleState: true,
+          Data: { autoEnrollEnabled: false },
+        }),
+      );
 
       // Trigger a status change: INVALID → VALID → INVALID
       dataGroup.controls.autoEnrollEnabled.setValue("value");
@@ -124,7 +175,15 @@ describe("PolicyEditDialogComponent", () => {
       const fb = new FormBuilder();
       const dataGroup = fb.group({ autoEnrollEnabled: [null, Validators.required] });
 
-      await runNgAfterViewInitWith(dataGroup, false);
+      await runNgAfterViewInitWith(
+        new FormControl(true),
+        dataGroup,
+        new PolicyResponse({
+          Enabled: true,
+          CanToggleState: false,
+          Data: { autoEnrollEnabled: false },
+        }),
+      );
 
       // Trigger a status change: INVALID → VALID
       dataGroup.controls.autoEnrollEnabled.setValue("value");

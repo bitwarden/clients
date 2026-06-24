@@ -19,6 +19,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/abstractions/event-collection.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -144,6 +145,10 @@ describe("VaultItemDialogComponent", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
         { provide: CipherArchiveService, useValue: mockArchiveService },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
       ],
     })
       .overrideProvider(DialogService, { useValue: mockDialogService })

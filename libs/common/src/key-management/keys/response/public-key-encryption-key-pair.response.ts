@@ -1,5 +1,4 @@
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-
+import { Utils } from "../../../platform/misc/utils";
 import { SignedPublicKey, UnsignedPublicKey, WrappedPrivateKey } from "../../types";
 
 export class PublicKeyEncryptionKeyPairResponse {

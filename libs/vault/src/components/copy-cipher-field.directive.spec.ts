@@ -6,7 +6,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BitIconButtonComponent, MenuItemComponent } from "@bitwarden/components";
-import { CopyCipherFieldService } from "@bitwarden/vault";
+
+import { CopyCipherFieldService } from "..";
 
 import { CopyCipherFieldDirective } from "./copy-cipher-field.directive";
 

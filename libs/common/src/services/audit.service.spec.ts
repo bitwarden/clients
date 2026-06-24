@@ -72,6 +72,16 @@ describe("AuditService", () => {
     expect(mockApi.nativeFetch).toHaveBeenCalledTimes(4);
   });
 
+  it("should include Add-Padding header when checking leaked passwords", async () => {
+    const result = await auditService.passwordLeaked("password");
+
+    expect(result).toBe(4);
+    expect(mockApi.nativeFetch).toHaveBeenCalledTimes(1);
+    const request = mockApi.nativeFetch.mock.calls[0][0] as any;
+    expect(request.url).toBe("https://api.pwnedpasswords.com/range/AABBC");
+    expect(request.headers).toEqual(expect.objectContaining({ "Add-Padding": "true" }));
+  });
+
   it("should return empty array for breachedAccounts when no breaches found", async () => {
     // Server returns 200 with empty array (correct REST semantics)
     mockHibpApi.getHibpBreach.mockResolvedValueOnce([]);

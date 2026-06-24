@@ -31,16 +31,16 @@ const focusRing = [
 ];
 
 const inactiveStyles = [
-  "disabled:tw-bg-bg-disabled",
+  "disabled:tw-bg-bg-inactive",
   "disabled:tw-border-border-base",
-  "disabled:tw-text-fg-disabled",
-  "disabled:hover:tw-bg-bg-disabled",
+  "disabled:tw-text-fg-inactive",
+  "disabled:hover:tw-bg-bg-inactive",
   "disabled:tw-pointer-events-none",
-  "aria-disabled:tw-bg-bg-disabled",
+  "aria-disabled:tw-bg-bg-inactive",
   "aria-disabled:tw-border-border-base",
-  "aria-disabled:tw-text-fg-disabled",
-  "aria-disabled:hover:tw-bg-bg-disabled",
-  "aria-disabled:focus-visible:tw-bg-bg-disabled",
+  "aria-disabled:tw-text-fg-inactive",
+  "aria-disabled:hover:tw-bg-bg-inactive",
+  "aria-disabled:focus-visible:tw-bg-bg-inactive",
   "aria-disabled:tw-pointer-events-none",
 ];
 

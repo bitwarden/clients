@@ -54,6 +54,7 @@
   border: none;
   height: 100%;
   align-items: center;
+  border-radius: 11px;
 }
 .ng-select .ng-select-container:hover {
   box-shadow: none;

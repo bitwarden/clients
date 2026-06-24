@@ -5,8 +5,10 @@ import {
   InvalidCurrentPasswordError,
 } from "@bitwarden/angular/auth/password-management/change-password";
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
@@ -24,6 +26,8 @@ describe("WebChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let policyService: MockProxy<PolicyService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let syncService: MockProxy<SyncService>;
   let userKeyRotationService: MockProxy<UserKeyRotationService>;
   let routerService: MockProxy<RouterService>;
@@ -45,6 +49,8 @@ describe("WebChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    policyService = mock<PolicyService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     syncService = mock<SyncService>();
     userKeyRotationService = mock<UserKeyRotationService>();
     routerService = mock<RouterService>();
@@ -54,6 +60,8 @@ describe("WebChangePasswordService", () => {
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
       syncService,
       userKeyRotationService,
       routerService,

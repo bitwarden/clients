@@ -10,7 +10,7 @@ import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -88,7 +88,7 @@ export class WebSetInitialPasswordService
      * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
      */
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvite();
   }
 
   override async initializePasswordJitPasswordUserV2Encryption(
@@ -99,6 +99,6 @@ export class WebSetInitialPasswordService
 
     // TODO: Investigate refactoring the following logic in https://bitwarden.atlassian.net/browse/PM-22615
     await this.routerService.getAndClearLoginRedirectUrl();
-    await this.organizationInviteService.clearOrganizationInvitation();
+    await this.organizationInviteService.clearOrganizationInvite();
   }
 }

@@ -105,7 +105,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
-import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -175,6 +175,7 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { IpcRendererService } from "../../platform/services/ipc-renderer.service";
 import {
   DefaultServerCommunicationConfigService,
   ServerCommunicationConfigPlatformApiService,
@@ -260,8 +261,15 @@ const safeProviders: SafeProvider[] = [
     //
     // Note: Portable mode does not use secure storage for read/write/clear operations,
     // preventing any collision with tokens from a regular desktop installation.
+    //
+    // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
+    // behavior on any platform, for environments where the OS keyring is unavailable or
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE && !ipc.platform.isWindowsPortable,
+    useValue:
+      ELECTRON_SUPPORTS_SECURE_STORAGE &&
+      !ipc.platform.isWindowsPortable &&
+      !ipc.platform.forceDiskAccessTokenStorage,
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
@@ -674,11 +682,10 @@ const safeProviders: SafeProvider[] = [
       DialogService,
     ],
   }),
-
   safeProvider({
     provide: IpcService,
-    useClass: NoopIpcService,
-    deps: [LogServiceAbstraction],
+    useClass: IpcRendererService,
+    deps: [],
   }),
 ];
 

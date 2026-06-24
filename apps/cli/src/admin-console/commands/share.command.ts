@@ -1,7 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -14,6 +16,8 @@ export class ShareCommand {
   constructor(
     private cipherService: CipherService,
     private accountService: AccountService,
+    private collectionService: CollectionService,
+    private organizationService: OrganizationService,
   ) {}
 
   async run(id: string, organizationId: string, requestJson: string): Promise<Response> {
@@ -57,6 +61,24 @@ export class ShareCommand {
     }
     if (cipher.organizationId != null) {
       return Response.badRequest("This item already belongs to an organization.");
+    }
+
+    const allCollections = await firstValueFrom(
+      this.collectionService.decryptedCollections$(activeUserId),
+    );
+    const orgCollections = allCollections.filter((c) => c.organizationId === organizationId);
+
+    const org = await firstValueFrom(
+      this.organizationService
+        .organizations$(activeUserId)
+        .pipe(map((orgs) => orgs.find((o) => o.id === organizationId))),
+    );
+
+    for (const collectionId of req) {
+      const collection = orgCollections.find((c) => c.id === collectionId);
+      if (collection == null || !collection.canEditItems(org)) {
+        return Response.badRequest("You do not have permission to add items to this collection.");
+      }
     }
 
     const cipherView = await this.cipherService.decrypt(cipher, activeUserId);

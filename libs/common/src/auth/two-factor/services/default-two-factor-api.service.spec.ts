@@ -1,27 +1,27 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DisableTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/disable-two-factor-authenticator.request";
-import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { TwoFactorProviderRequest } from "@bitwarden/common/auth/models/request/two-factor-provider.request";
-import { UpdateTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/models/request/update-two-factor-authenticator.request";
-import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
-import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn.request";
-import { UpdateTwoFactorYubikeyOtpRequest } from "@bitwarden/common/auth/models/request/update-two-factor-yubikey-otp.request";
-import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
-import { TwoFactorProviderResponse } from "@bitwarden/common/auth/models/response/two-factor-provider.response";
-import { TwoFactorRecoverResponse } from "@bitwarden/common/auth/models/response/two-factor-recover.response";
+import { ApiService } from "../../../abstractions/api.service";
+import { ListResponse } from "../../../models/response/list.response";
+import { DisableTwoFactorAuthenticatorRequest } from "../../models/request/disable-two-factor-authenticator.request";
+import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
+import { TwoFactorEmailRequest } from "../../models/request/two-factor-email.request";
+import { TwoFactorProviderRequest } from "../../models/request/two-factor-provider.request";
+import { UpdateTwoFactorAuthenticatorRequest } from "../../models/request/update-two-factor-authenticator.request";
+import { UpdateTwoFactorDuoRequest } from "../../models/request/update-two-factor-duo.request";
+import { UpdateTwoFactorEmailRequest } from "../../models/request/update-two-factor-email.request";
+import { UpdateTwoFactorWebAuthnDeleteRequest } from "../../models/request/update-two-factor-web-authn-delete.request";
+import { UpdateTwoFactorWebAuthnRequest } from "../../models/request/update-two-factor-web-authn.request";
+import { UpdateTwoFactorYubikeyOtpRequest } from "../../models/request/update-two-factor-yubikey-otp.request";
+import { TwoFactorAuthenticatorResponse } from "../../models/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "../../models/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "../../models/response/two-factor-email.response";
+import { TwoFactorProviderResponse } from "../../models/response/two-factor-provider.response";
+import { TwoFactorRecoverResponse } from "../../models/response/two-factor-recover.response";
 import {
   TwoFactorWebAuthnResponse,
   ChallengeResponse,
-} from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response/two-factor-yubi-key.response";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
+} from "../../models/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "../../models/response/two-factor-yubi-key.response";
 
 import { DefaultTwoFactorApiService } from "./default-two-factor-api.service";
 

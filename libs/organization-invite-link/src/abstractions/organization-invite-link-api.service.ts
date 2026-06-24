@@ -1,3 +1,4 @@
+import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
@@ -38,4 +39,7 @@ export abstract class OrganizationInviteLinkApiService {
 
   /** Get the public status of an invite link by its code (anonymous) */
   abstract getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel>;
+
+  /** Accept an invite link, joining the authenticated user to the organization */
+  abstract accept(request: OrganizationInviteLinkAcceptRequest): Promise<void>;
 }

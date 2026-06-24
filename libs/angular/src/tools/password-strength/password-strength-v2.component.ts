@@ -11,10 +11,11 @@ import {
   SimpleChanges,
 } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { ProgressBarComponent, FormFieldModule } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 export interface PasswordColorText {
   color: BackgroundTypes;

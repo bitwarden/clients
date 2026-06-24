@@ -359,7 +359,7 @@ export class ApplicationsTabComponent {
    * Uses DrawerStateService to manage drawer state.
    */
   readonly showAppAtRiskMembers = async (applicationName: string) => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   protected readonly onCheckboxChange = ({

@@ -22,14 +22,6 @@ export class DefaultDrawerStateService implements DrawerStateService {
 
   readonly drawerState: Signal<DrawerState> = this._drawerState.asReadonly();
 
-  openDrawer(type: DrawerType, invokerId: string): void {
-    this._drawerState.set({
-      open: true,
-      type,
-      invokerId,
-    });
-  }
-
   closeDrawer(): void {
     this._drawerState.set({
       open: false,
@@ -50,13 +42,11 @@ export class DefaultDrawerStateService implements DrawerStateService {
     }
   }
 
-  isActiveDrawerType(type: DrawerType): boolean {
-    const current = this._drawerState();
-    return current.open && current.type === type;
-  }
-
-  isDrawerOpenForInvoker(invokerId: string): boolean {
-    const current = this._drawerState();
-    return current.open && current.invokerId === invokerId;
+  private openDrawer(type: DrawerType, invokerId: string): void {
+    this._drawerState.set({
+      open: true,
+      type,
+      invokerId,
+    });
   }
 }

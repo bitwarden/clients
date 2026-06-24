@@ -1,8 +1,8 @@
-import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
-import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherType } from "../../vault/enums";
+import { CipherView } from "../../vault/models/view/cipher.view";
 
+import { CipherExport } from "./cipher.export";
+import { SecureNoteExport } from "./secure-note.export";
 import { SshKeyExport } from "./ssh-key.export";
 
 describe("Cipher Export", () => {

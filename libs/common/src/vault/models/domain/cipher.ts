@@ -1,8 +1,8 @@
 import { Jsonify } from "type-fest";
 
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
+import { assertNonNullish } from "../../../auth/utils";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";

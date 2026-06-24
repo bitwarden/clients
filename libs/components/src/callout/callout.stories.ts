@@ -1,8 +1,8 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LinkModule, SvgModule, ButtonModule } from "@bitwarden/components";
 
+import { LinkModule, SvgModule, ButtonModule } from "..";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { CalloutComponent } from "./callout.component";

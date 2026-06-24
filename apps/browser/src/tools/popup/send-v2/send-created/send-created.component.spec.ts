@@ -63,7 +63,13 @@ describe("SendCreatedComponent", () => {
 
     Object.defineProperty(environmentService, "environment$", {
       configurable: true,
-      get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
+      get: () =>
+        of(
+          new SelfHostedEnvironment({
+            webVault: "https://example.com",
+            base: "https://example.com",
+          }),
+        ),
     });
 
     activatedRoute.snapshot = {

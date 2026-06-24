@@ -55,6 +55,7 @@
             bitButton
             [buttonType]="cardDetails.button.type"
             [block]="true"
+            [loading]="upgrading()"
             (click)="upgrade()"
             type="button"
             [startIcon]="

@@ -1,7 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { CipherId, OrganizationId, SecurityTaskId } from "@bitwarden/common/types/guid";
-
+import { CipherId, OrganizationId, SecurityTaskId } from "../../../types/guid";
 import { SecurityTaskStatus, SecurityTaskType } from "../enums";
 
 import { SecurityTaskResponse } from "./security-task.response";

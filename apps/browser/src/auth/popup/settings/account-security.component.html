@@ -131,12 +131,16 @@
             <h2 bitTypography="h6">{{ "phishingBlocker" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
-            <bit-switch formControlName="enablePhishingDetection" id="phishingDetectionAction">
+            <bit-form-control disableMargin>
+              <bit-switch
+                formControlName="enablePhishingDetection"
+                id="phishingDetectionAction"
+              ></bit-switch>
               <bit-label for="phishingDetectionAction">{{
                 "enablePhishingDetection" | i18n
               }}</bit-label>
               <bit-hint>{{ "enablePhishingDetectionDesc" | i18n }}</bit-hint>
-            </bit-switch>
+            </bit-form-control>
           </bit-card>
         </bit-section>
       }

@@ -1,10 +1,10 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { CollectionId, OrganizationId } from "../../../types/guid";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";

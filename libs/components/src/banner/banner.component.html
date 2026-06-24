@@ -1,64 +1,99 @@
+@let icon = displayIcon();
+
+<ng-template #defaultContent>
+  <ng-content></ng-content>
+</ng-template>
+
 <div
-  class="tw-flex tw-gap-3 tw-border-solid tw-border-b tw-border-0 tw-p-4"
+  class="tw-relative tw-border-solid tw-border-b tw-border-0 tw-p-4"
   [class]="bannerClass()"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  <div class="tw-flex tw-flex-1 tw-gap-3" [class]="alignClass()">
-    @if (displayIcon(); as icon) {
-      <!-- Two icon tiles are needed here because `size` is a TypeScript input — it can't change in
-           response to a CSS container query. We use two elements with opposing visibility classes
-           to swap between sm and lg at the @3xl breakpoint. -->
-      <bit-icon-tile
-        [icon]="icon"
-        [variant]="variant()"
-        size="sm"
-        [class]="showActions() ? '@3xl:tw-hidden' : ''"
-        aria-hidden="true"
-      />
-      @if (showActions()) {
-        <bit-icon-tile
-          [icon]="icon"
-          [variant]="variant()"
-          size="lg"
-          class="tw-hidden @3xl:tw-block"
-          aria-hidden="true"
-        />
-      }
-    }
-    <div
-      class="tw-flex tw-flex-col @3xl:tw-flex-row tw-gap-1 @3xl:tw-gap-3 tw-min-w-0"
-      [class]="showActions() ? '@3xl:tw-flex-1' : ''"
-    >
-      <div
-        class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0"
-        [class]="showActions() ? '@3xl:tw-flex-1' : ''"
-      >
-        @if (title()) {
-          <div class="!tw-text-sm @3xl:!tw-text-lg tw-text-main tw-font-medium @3xl:!tw-leading-6">
-            {{ title() }}
-          </div>
+  @if (title()) {
+    <div>
+      <div class="tw-flex tw-gap-3 tw-w-full">
+        @if (icon) {
+          <!-- Two icon tiles are needed here because `size` is a TypeScript input — it can't change in
+                       response to a CSS container query. We use two elements with opposing visibility classes
+                       to swap between sm and lg at the @3xl breakpoint. -->
+          <bit-icon-tile
+            [icon]="icon"
+            [variant]="variant()"
+            size="sm"
+            class="@3xl:tw-hidden"
+            aria-hidden="true"
+          />
+          <bit-icon-tile
+            [icon]="icon"
+            [variant]="variant()"
+            size="lg"
+            class="tw-hidden @3xl:tw-block"
+            aria-hidden="true"
+          />
         }
-        <span bitTypography="body2" class="tw-max-w-[800px]">
-          <ng-content></ng-content>
+        <div
+          class="tw-flex tw-justify-between tw-flex-col tw-gap-3 @3xl:tw-flex-row tw-pe-6 @3xl:tw-pe-0 tw-w-full"
+        >
+          <div>
+            <div
+              class="!tw-text-sm @3xl:!tw-text-lg tw-text-main tw-font-medium @3xl:!tw-leading-6"
+            >
+              {{ title() }}
+            </div>
+            <span bitTypography="body2" class="tw-max-w-[800px]">
+              <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+            </span>
+          </div>
+          <div class="tw-flex tw-gap-3 tw-items-start tw-shrink-0">
+            <ng-content select="[slot='actions']"></ng-content>
+            @if (isDismissible()) {
+              <button
+                type="button"
+                bitIconButton="bwi-close"
+                buttonType="primaryGhost"
+                size="small"
+                (click)="onDismiss()"
+                [label]="'close' | i18n"
+                class="tw-hidden @3xl:tw-block"
+              ></button>
+              <div class="tw-absolute tw-end-2 tw-top-3 tw-block @3xl:tw-hidden">
+                <button
+                  type="button"
+                  bitIconButton="bwi-close"
+                  buttonType="primaryGhost"
+                  size="small"
+                  (click)="onDismiss()"
+                  [label]="'close' | i18n"
+                ></button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div [class]="isDismissible() ? 'tw-pe-6' : ''">
+      <div class="tw-flex tw-items-start tw-gap-3 @3xl:tw-justify-center">
+        @if (icon) {
+          <bit-icon-tile [icon]="icon" [variant]="variant()" size="sm" aria-hidden="true" />
+        }
+        <span bitTypography="body2" class="tw-mt-0.5 tw-max-w-[800px]">
+          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
         </span>
       </div>
-      @if (showActions()) {
-        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0">
-          <ng-content select="[slot='actions']"></ng-content>
+      @if (isDismissible()) {
+        <div class="tw-absolute tw-end-2 tw-top-3">
+          <button
+            type="button"
+            bitIconButton="bwi-close"
+            buttonType="primaryGhost"
+            size="small"
+            (click)="onDismiss()"
+            [label]="'close' | i18n"
+          ></button>
         </div>
       }
     </div>
-  </div>
-
-  @if (isDismissible()) {
-    <button
-      type="button"
-      bitIconButton="bwi-close"
-      buttonType="primaryGhost"
-      size="small"
-      (click)="onDismiss()"
-      [label]="'close' | i18n"
-    ></button>
   }
 </div>

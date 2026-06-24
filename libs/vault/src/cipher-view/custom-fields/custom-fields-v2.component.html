@@ -10,7 +10,7 @@
         data-testid="custom-field"
       >
         @if (field.type === fieldType.Text) {
-          <bit-form-field [disableReadOnlyBorder]="last">
+          <bit-form-field>
             <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
             <textarea
               readonly
@@ -35,7 +35,7 @@
           </bit-form-field>
         }
         @if (field.type === fieldType.Hidden) {
-          <bit-form-field [disableReadOnlyBorder]="last">
+          <bit-form-field>
             <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
             @if (!revealedHiddenFields.includes(i)) {
               <input
@@ -120,7 +120,7 @@
           </bit-form-control>
         }
         @if (field.type === fieldType.Linked) {
-          <bit-form-field [disableReadOnlyBorder]="last">
+          <bit-form-field>
             <bit-label> {{ "cfTypeLinked" | i18n }}: {{ field.name }} </bit-label>
             <input
               readonly

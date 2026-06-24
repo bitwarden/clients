@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { View } from "@bitwarden/common/models/view/view";
+import { View } from "../../../models/view/view";
 
 export class LoginViaAuthRequestView implements View {
   id: string | undefined = undefined;

@@ -1,5 +1,5 @@
 ﻿:root {
-  --header-height: 54px;
+  --header-height: 0px;
 }
 
 html.os_macos {
@@ -15,6 +15,8 @@ html.os_macos {
   .vault > .groupings > .content > .inner-content {
     padding-top: 0;
   }
+
+  --header-height: 40px;
 
   --bit-sidenav-extra-top-padding: var(--header-height);
 }

@@ -1,8 +1,7 @@
 import { Observable } from "rxjs";
 
-import { OtherDeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
-
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
+import { OtherDeviceKeysUpdateRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
 import { EncString } from "../../crypto/models/enc-string";

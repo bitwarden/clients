@@ -1,6 +1,7 @@
-import { SdkRecordMapper } from "@bitwarden/common/platform/services/sdk/client-managed-state";
-import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal";
+
+import { SdkRecordMapper } from "../platform/services/sdk/client-managed-state";
+import { UserKeyDefinition } from "../platform/state";
 
 import { PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL } from "./pin/pin.state";
 

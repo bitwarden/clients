@@ -18,6 +18,8 @@ const IPC_SESSIONS = KeyDefinition.record<object, string>(IPC_MEMORY, "ipcSessio
  * For more information see IPC docs.
  *
  * Interface uses `any` type as defined by the SDK until we get a concrete session type.
+ *
+ * NOTE: Currently not used. In-memory sessions are used instead.
  */
 export class IpcSessionRepository implements SdkIpcSessionRepository {
   private states: GlobalState<Record<string, any>>;

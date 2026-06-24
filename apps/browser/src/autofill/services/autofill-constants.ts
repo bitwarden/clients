@@ -95,6 +95,7 @@ export class AutoFillConstants {
     "twofactorcode",
     "verificationcode",
     "verification code",
+    "otc-confirmation",
   ];
 
   static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
