@@ -221,7 +221,7 @@ describe("WebEnvironmentService", () => {
         expect(env.getEventsUrl()).toEqual(expectedProdEUUrls.events);
 
         expect(env.getScimUrl()).toEqual(expectedModifiedScimUrl);
-        expect(env.getSendUrl()).toEqual(expectedSendUrl);
+        expect(env.getSendUrl()).toEqual(expectedSendUrl + "/send/");
 
         expect(env.getHostname()).toEqual(prodEURegionConfig.domain);
       });
