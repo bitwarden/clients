@@ -11,9 +11,10 @@ export function readCliManagedConfig(
   platform: NodeJS.Platform,
   logger: Logger,
 ): Record<string, unknown> {
+  // Canonical ProgramData; do not trust process.env.ProgramData (user-settable -> spoofable).
   const dir =
     platform === "win32"
-      ? win32.join(process.env.ProgramData ?? "C:\\ProgramData", "Bitwarden", "policies")
+      ? win32.join("C:\\ProgramData", "Bitwarden", "policies")
       : "/etc/bitwarden/policies";
   return readSecureManagedConfigDir(dir, platform, logger);
 }

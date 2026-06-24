@@ -18,12 +18,9 @@ describe("readCliManagedConfig", () => {
 
   it("reads the Windows ProgramData policy directory", () => {
     const spy = jest.spyOn(secure, "readSecureManagedConfigDir").mockReturnValue({});
-    const prev = process.env.ProgramData;
-    process.env.ProgramData = "C:\\ProgramData";
 
     readCliManagedConfig("win32", logger);
 
     expect(spy).toHaveBeenCalledWith("C:\\ProgramData\\Bitwarden\\policies", "win32", logger);
-    process.env.ProgramData = prev;
   });
 });

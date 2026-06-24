@@ -55,6 +55,7 @@ import { ChromiumImporterService } from "./main/tools/import/chromium-importer.s
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
+import { flagEnabled } from "./platform/flags";
 import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
@@ -356,7 +357,9 @@ export class Main {
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
 
-    new ManagedSettingsMain(this.windowMain, this.logService).init();
+    if (flagEnabled("managedSettings")) {
+      new ManagedSettingsMain(this.windowMain, this.logService).init();
+    }
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,
