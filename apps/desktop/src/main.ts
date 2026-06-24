@@ -59,6 +59,7 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { ManagedSettingsMain } from "./platform/main/managed-settings.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
@@ -354,6 +355,8 @@ export class Main {
 
     this.nativeAutofillMain = new NativeAutofillMain(this.logService, this.windowMain);
     void this.nativeAutofillMain.init();
+
+    new ManagedSettingsMain(this.windowMain, this.logService).init();
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
       this.logService,

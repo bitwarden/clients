@@ -153,6 +153,13 @@ export default {
     ipcRenderer.on("systemThemeUpdated", (_event, theme: ThemeType) => callback(theme));
   },
 
+  getManagedSettings: (): Promise<Record<string, unknown>> => ipcRenderer.invoke("managedSettings"),
+  onManagedSettingsUpdated: (callback: (bag: Record<string, unknown>) => void) => {
+    ipcRenderer.on("managedSettingsUpdated", (_event, bag: Record<string, unknown>) =>
+      callback(bag),
+    );
+  },
+
   isWindowVisible: (): Promise<boolean> => ipcRenderer.invoke("windowVisible"),
 
   getLanguageFile: (formattedLocale: string): Promise<object> =>
