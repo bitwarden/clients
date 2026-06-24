@@ -425,7 +425,7 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      return this.urls.send + "/#/";
+      return this.urls.send + "/#";
     }
 
     return this.getWebVaultUrl() + "/#/send/";
