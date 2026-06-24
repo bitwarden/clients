@@ -429,7 +429,13 @@ abstract class UrlEnvironment implements Environment {
       if (this.urls.send.endsWith(".bitwarden.com") || this.urls.send.endsWith(".bitwarden.eu")) {
         return this.urls.send + "/#";
       }
-      // However, self-hosted environments with custom send URLs do
+      
+      // If using a custom send url with full send path, don't modify anything and return it
+      if (this.urls.send.endsWith("/#/send/")) {
+        return this.urls.send;
+      }
+      
+      // If using a custom send url with just the domain, complete the send url path
       return this.urls.send + "/#/send/";
     }
     // This line is only reached by self-hosted environments (or lower Bitwarden environments)
