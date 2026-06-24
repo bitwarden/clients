@@ -1,4 +1,4 @@
-import { Observable, ReplaySubject, Subject, from, shareReplay, switchMap } from "rxjs";
+import { Observable, Subject, from, of, shareReplay, switchMap } from "rxjs";
 
 import { ManagedSettingsClient, ManagementProfile } from "@bitwarden/sdk-internal";
 
@@ -14,9 +14,7 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
   readonly handle$: Observable<ManagedSettingsClient> = from(SdkLoadService.Ready).pipe(
     switchMap(() => {
       this._handle ??= new ManagedSettingsClient();
-      const subject = new ReplaySubject<ManagedSettingsClient>(1);
-      subject.next(this._handle);
-      return subject;
+      return of(this._handle);
     }),
     shareReplay({ bufferSize: 1, refCount: false }),
   );
@@ -25,7 +23,9 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
 
   constructor() {
     super();
-    // Eagerly trigger handle creation so reads work as soon as wasm is up.
+    // Eagerly create the handle so synchronous reads work once wasm resolves.
+    // shareReplay({ refCount: false }) keeps it alive for the app's lifetime;
+    // no teardown by design (process-lifetime singleton service).
     this.handle$.subscribe();
   }
 
@@ -34,11 +34,14 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
   }
 
   get(key: string): string | undefined {
-    return this._handle?.get(key) ?? undefined;
+    return this._handle?.get(key);
   }
 
   updateProfile(profile: ManagementProfile | undefined): void {
-    this._handle?.update_profile(profile);
+    if (this._handle == null) {
+      return;
+    }
+    this._handle.update_profile(profile);
     this._changes.next();
   }
 
