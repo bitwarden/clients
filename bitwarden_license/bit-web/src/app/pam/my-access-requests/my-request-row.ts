@@ -58,6 +58,8 @@ export type MyRequestRow = {
 /** An active lease the viewer holds, with names resolved from local vault state. */
 export type LeaseRow = {
   id: string;
+  /** The request that produced this lease, so the row can link to that request's page. */
+  requestId: string;
   cipherId: string;
   collectionId: string;
   cipherName: string | null;
@@ -274,6 +276,7 @@ export function toLeaseRow(
   const extended = extension != null && extension.latestEndMs > 0;
   return {
     id: lease.id,
+    requestId: lease.requestId,
     cipherId: lease.cipherId,
     collectionId: lease.collectionId,
     cipherName: names.cipherNameById.get(lease.cipherId) ?? null,

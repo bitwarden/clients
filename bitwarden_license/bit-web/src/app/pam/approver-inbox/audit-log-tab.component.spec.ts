@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, Subject } from "rxjs";
 
@@ -97,6 +98,7 @@ describe("AuditLogTabComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AuditLogTabComponent, NoopAnimationsModule],
       providers: [
+        provideRouter([]),
         ApproverInboxService,
         MyAccessRequestsService,
         {

@@ -74,7 +74,9 @@
                  CipherView in local vault; use a generic credential icon for now. -->
             <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
             <div class="tw-min-w-0">
-              <span class="tw-font-medium">{{ row.cipherName }}</span>
+              <a [routerLink]="['/pam/requests', row.request.id]" class="tw-font-medium">{{
+                row.cipherName
+              }}</a>
               <a
                 [routerLink]="['/vault']"
                 [queryParams]="{ action: 'view', cipherId: row.request.cipherId }"

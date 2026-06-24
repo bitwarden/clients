@@ -37,7 +37,9 @@
       <ng-template body let-rows$>
         <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'audit-log-row'">
           <td bitCell>
-            <span class="tw-font-medium">{{ row.item.cipherName ?? row.item.cipherId }}</span>
+            <a [routerLink]="['/pam/requests', row.item.id]" class="tw-font-medium">{{
+              row.item.cipherName ?? row.item.cipherId
+            }}</a>
             @if (row.item.collectionName) {
               <div class="tw-text-xs tw-text-muted">
                 {{ "pamInboxInCollection" | i18n: row.item.collectionName }}

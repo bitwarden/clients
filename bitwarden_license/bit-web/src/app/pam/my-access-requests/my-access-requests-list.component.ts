@@ -11,6 +11,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -67,6 +68,7 @@ export type { LeaseRow, MyRequestRow } from "./my-request-row";
   templateUrl: "./my-access-requests-list.component.html",
   imports: [
     CommonModule,
+    RouterModule,
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,

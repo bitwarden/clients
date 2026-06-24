@@ -89,6 +89,14 @@ export abstract class PamApiService {
   abstract activateLease(requestId: string): Promise<AccessLeaseResponse>;
   abstract revokeAccessLease(id: string, request: AccessLeaseRevokeRequest): Promise<void>;
 
+  /**
+   * Returns one access request's full details (the same projection the list reads return) for the dedicated request
+   * page reached via a shareable link. The server returns it to the requester or a managing approver of its
+   * collection, and 404s otherwise (so an unauthorized caller can't tell a hidden request from a missing one) — the
+   * 404 surfaces as a rejected promise the caller renders as a not-found state.
+   */
+  abstract getAccessRequest(id: string): Promise<AccessRequestDetailsResponse>;
+
   abstract listInboxRequests(): Promise<AccessRequestDetailsResponse[]>;
   abstract listInboxHistory(): Promise<AccessRequestDetailsResponse[]>;
   abstract listMyAccessRequests(): Promise<AccessRequestDetailsResponse[]>;

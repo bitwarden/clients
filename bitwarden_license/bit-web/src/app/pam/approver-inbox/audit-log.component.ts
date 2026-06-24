@@ -8,6 +8,7 @@ import {
   output,
   signal,
 } from "@angular/core";
+import { RouterModule } from "@angular/router";
 
 import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import {
@@ -37,6 +38,7 @@ import { FlatHistoryRow, HistoryFilter, flattenHistory } from "./history-row";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
+    RouterModule,
     I18nPipe,
     ButtonModule,
     TableModule,

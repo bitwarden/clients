@@ -119,6 +119,12 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
+  async getAccessRequest(id: string): Promise<AccessRequestDetailsResponse> {
+    return new AccessRequestDetailsResponse(
+      await this.send("GET", `/access-requests/${id}`, null, true),
+    );
+  }
+
   async listInboxRequests(): Promise<AccessRequestDetailsResponse[]> {
     const r = await this.send("GET", "/access-requests/inbox", null, true);
     return new ListResponse(r, AccessRequestDetailsResponse).data;
