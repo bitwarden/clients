@@ -1,10 +1,10 @@
-import { TwoFactorAuthenticatorResponse } from "../models/response/two-factor-authenticator.response";
-import { TwoFactorDuoResponse } from "../models/response/two-factor-duo.response";
-import { TwoFactorEmailResponse } from "../models/response/two-factor-email.response";
-import { TwoFactorOrganizationDuoResponse } from "../models/response/two-factor-organization-duo.response";
-import { TwoFactorRecoverResponse } from "../models/response/two-factor-recover.response";
-import { TwoFactorWebAuthnResponse } from "../models/response/two-factor-web-authn.response";
-import { TwoFactorYubiKeyResponse } from "../models/response/two-factor-yubi-key.response";
+import { TwoFactorAuthenticatorResponse } from "../two-factor/response/two-factor-authenticator.response";
+import { TwoFactorDuoResponse } from "../two-factor/response/two-factor-duo.response";
+import { TwoFactorEmailResponse } from "../two-factor/response/two-factor-email.response";
+import { TwoFactorOrganizationDuoResponse } from "../two-factor/response/two-factor-organization-duo.response";
+import { TwoFactorRecoverResponse } from "../two-factor/response/two-factor-recover.response";
+import { TwoFactorWebAuthnResponse } from "../two-factor/response/two-factor-web-authn.response";
+import { TwoFactorYubiKeyResponse } from "../two-factor/response/two-factor-yubi-key.response";
 
 export type TwoFactorResponse =
   | TwoFactorRecoverResponse

@@ -1,6 +1,5 @@
 import { BaseResponse } from "../../../models/response/base.response";
-
-import { WebAuthnChallengeResponse } from "./web-authn-challenge.response";
+import { WebAuthnChallengeResponse } from "../../models/response/web-authn-challenge.response";
 
 /**
  * Wrapper around {@link WebAuthnChallengeResponse} that adds the user-verification token minted by
