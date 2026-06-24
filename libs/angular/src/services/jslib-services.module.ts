@@ -258,7 +258,9 @@ import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/co
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
+import { ManagedOverlayStateProvider } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
+import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -1631,7 +1633,7 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: StateProvider,
+    provide: DefaultStateProvider,
     useClass: DefaultStateProvider,
     deps: [
       ActiveUserStateProvider,
@@ -1639,6 +1641,17 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       DerivedStateProvider,
     ],
+  }),
+  safeProvider({
+    provide: StateProvider,
+    useClass: ManagedOverlayStateProvider,
+    deps: [DefaultStateProvider, ManagedSettingsService],
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+    useFactory: () => () => registerEnvironmentOverlay(),
+    deps: [],
+    multi: true,
   }),
   safeProvider({
     provide: OrganizationBillingServiceAbstraction,
