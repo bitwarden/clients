@@ -1,41 +1,63 @@
-#import <CoreFoundation/CoreFoundation.h>
+#import <Foundation/Foundation.h>
+#import <sys/stat.h>
 #import "interop.h"
 #import "utils.h"
 
+/// Returns YES if the file at `path` is owned by uid 0 (root).
+/// Symlinks are NOT followed — `lstat` is used so a symlink to a non-root file
+/// cannot spoof ownership.
+static BOOL isRootOwned(NSString *path) {
+  struct stat st;
+  if (lstat([path fileSystemRepresentation], &st) != 0) {
+    return NO;
+  }
+  return st.st_uid == 0;
+}
+
 /// [Callable from Rust]
-/// Reads string-valued managed preferences for `appID` and returns them as a
-/// JSON-encoded ObjCString (e.g. {"key":"value",...}). Non-string values are
-/// skipped. The caller is responsible for freeing the returned ObjCString via
-/// freeObjCString. Returns an empty-object JSON string when no keys exist.
+/// Reads string-valued managed preferences for `appID` from the macOS managed-
+/// preferences plist files and returns them as a JSON-encoded ObjCString
+/// (e.g. {"key":"value",...}).  Non-string values are skipped.  The caller is
+/// responsible for freeing the returned ObjCString via freeObjCString.
+/// Returns an empty-object JSON string when no managed preferences exist.
 struct ObjCString readManagedPreferences(char *appID) {
   @autoreleasepool {
     NSString *appIDString = cStringToNSString(appID);
-    CFStringRef cfAppID = (__bridge CFStringRef)appIDString;
 
-    CFArrayRef keys = CFPreferencesCopyKeyList(
-      cfAppID,
-      kCFPreferencesCurrentUser,
-      kCFPreferencesAnyHost
-    );
+    // Build candidate paths: computer-level (device-forced) then user-level.
+    NSString *computerPath = [NSString stringWithFormat:@"/Library/Managed Preferences/%@.plist", appIDString];
+    NSString *userName = NSUserName();
+    NSString *userPath   = [NSString stringWithFormat:@"/Library/Managed Preferences/%@/%@.plist", userName, appIDString];
+
+    // Computer-level entries are the device-forced baseline; user-level entries
+    // take precedence (last-write-wins merge).
+    NSArray<NSString *> *candidates = @[computerPath, userPath];
 
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
-    if (keys != NULL) {
-      CFIndex count = CFArrayGetCount(keys);
-      for (CFIndex i = 0; i < count; i++) {
-        CFStringRef cfKey = (CFStringRef)CFArrayGetValueAtIndex(keys, i);
-        CFPropertyListRef cfValue = CFPreferencesCopyAppValue(cfKey, cfAppID);
-        if (cfValue != NULL) {
-          if (CFGetTypeID(cfValue) == CFStringGetTypeID()) {
-            NSString *key = (__bridge NSString *)cfKey;
-            NSString *value = (__bridge_transfer NSString *)cfValue;
-            result[key] = value;
-          } else {
-            CFRelease(cfValue);
-          }
-        }
+    for (NSString *path in candidates) {
+      NSFileManager *fm = [NSFileManager defaultManager];
+      if (![fm fileExistsAtPath:path]) {
+        continue;
       }
-      CFRelease(keys);
+
+      // Trust only root-owned files.  /Library/Managed Preferences/ is
+      // OS/root-protected, but an explicit check closes the TOCTOU window and
+      // rejects any attacker-writable file that might appear at the path.
+      if (!isRootOwned(path)) {
+        continue;
+      }
+
+      NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:path];
+      if (plist == nil) {
+        continue;
+      }
+
+      [plist enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop __unused) {
+        if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSString class]]) {
+          result[key] = obj;
+        }
+      }];
     }
 
     NSError *jsonError = nil;
