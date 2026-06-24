@@ -22,7 +22,7 @@ function makeOrg(overrides: Partial<Organization> = {}): Organization {
   org.isMember = true;
   org.status = OrganizationUserStatusType.Confirmed;
   org.productTierType = ProductTierType.Free;
-  org.userIsManagedByOrganization = false;
+  org.userIsClaimedByOrganization = false;
   Object.assign(org, overrides);
   return org;
 }
@@ -58,9 +58,9 @@ describe("AccountDeletionService", () => {
     jest.restoreAllMocks();
   });
 
-  describe("when the user is managed by an organization", () => {
+  describe("when the user is claimed by an organization", () => {
     beforeEach(() => {
-      organizations$.next([makeOrg({ userIsManagedByOrganization: true })]);
+      organizations$.next([makeOrg({ userIsClaimedByOrganization: true })]);
     });
 
     it("shows a blocking error dialog", async () => {

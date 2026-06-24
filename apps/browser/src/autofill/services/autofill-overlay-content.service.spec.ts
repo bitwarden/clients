@@ -103,14 +103,21 @@ describe("AutofillOverlayContentService", () => {
   });
 
   afterEach(() => {
+    // Disconnect observers and detach listeners so JSDOM can tear down
+    // cleanly between tests.
+    autofillInit?.destroy();
     jest.clearAllMocks();
+    // Tests that opt into fake timers leak the configuration across cases;
+    // reset so subsequent tests' microtask-based mocks (e.g. the
+    // IntersectionObserver mock in test.setup.ts) work as expected.
+    jest.useRealTimers();
   });
 
   afterAll(() => {
     mockQuerySelectorAll.mockRestore();
   });
 
-  describe("init", () => {
+  describe("startMonitoring", () => {
     let setupGlobalEventListenersSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -128,7 +135,7 @@ describe("AutofillOverlayContentService", () => {
         writable: true,
       });
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "DOMContentLoaded",
@@ -143,7 +150,7 @@ describe("AutofillOverlayContentService", () => {
         "handleVisibilityChangeEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "visibilitychange",
@@ -157,12 +164,27 @@ describe("AutofillOverlayContentService", () => {
         "handleWindowFocusOutEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(window.addEventListener).toHaveBeenCalledWith(
         "focusout",
         handleWindowFocusOutEventSpy,
       );
+    });
+
+    it("is idempotent across repeated calls", () => {
+      const sendExtensionMessageSpyForStart = jest.spyOn(
+        autofillOverlayContentService as any,
+        "sendExtensionMessage",
+      );
+
+      autofillOverlayContentService.startMonitoring();
+      autofillOverlayContentService.startMonitoring();
+
+      const cardsVisibilityCalls = sendExtensionMessageSpyForStart.mock.calls.filter(
+        ([command]) => command === "getInlineMenuCardsVisibility",
+      );
+      expect(cardsVisibilityCalls).toHaveLength(1);
     });
   });
 
@@ -172,6 +194,7 @@ describe("AutofillOverlayContentService", () => {
     let pageDetailsMock: AutofillPageDetails;
 
     beforeEach(() => {
+      autofillInit.startMonitoring();
       document.body.innerHTML = `
       <form id="validFormId">
         <input type="text" id="username-field" placeholder="username" />
@@ -1873,6 +1896,10 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("handleOverlayRepositionEvent", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+    });
+
     const repositionEvents = [EVENTS.SCROLL, EVENTS.RESIZE];
     repositionEvents.forEach((repositionEvent) => {
       it(`sends a message trigger overlay reposition message to the background when a ${repositionEvent} event occurs`, async () => {
@@ -1918,6 +1945,14 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("extension onMessage handlers", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+      // startMonitoring triggers `getInlineMenuCardsVisibility` /
+      // `getInlineMenuIdentitiesVisibility` sends; clear them so the
+      // per-handler assertions reflect only message-driven calls.
+      sendExtensionMessageSpy.mockClear();
+    });
+
     describe("generatedPasswordModifyLogin", () => {
       it("relays a message regarding password generation to store modified login data", async () => {
         const formFieldData: ModifyLoginCipherFormData = {
@@ -2405,7 +2440,7 @@ describe("AutofillOverlayContentService", () => {
 
       describe("calculateSubFramePositioning", () => {
         beforeEach(() => {
-          autofillOverlayContentService.init();
+          autofillOverlayContentService.startMonitoring();
           jest.spyOn(globalThis.parent, "postMessage");
           document.body.innerHTML = ``;
         });
@@ -2481,13 +2516,19 @@ describe("AutofillOverlayContentService", () => {
           jest
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // `calculateSubFramePositioning` calls `getCurrentTabFrameId` via
+          // `sendExtensionMessage`; that response is appended to
+          // `parentFrameIds`. The outer beforeEach mocks the spy to resolve
+          // `undefined`, so without an explicit override here the push is
+          // skipped and the assertion below fails.
+          sendExtensionMessageSpy.mockResolvedValue(4);
           const subFrameData = {
             url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
-            subFrameDepth: expect.any(Number),
+            subFrameDepth: 0,
           };
 
           postWindowMessage(
@@ -2758,7 +2799,7 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(globalThis.removeEventListener).toHaveBeenCalledWith(
         EVENTS.FOCUSOUT,
-        autofillOverlayContentService["handleFormFieldBlurEvent"],
+        autofillOverlayContentService["handleWindowFocusOutEvent"],
       );
       expect(
         autofillOverlayContentService["removeOverlayRepositionEventListeners"],
@@ -2768,7 +2809,7 @@ describe("AutofillOverlayContentService", () => {
     it("de-registers any event listeners that are attached to the form field elements", () => {
       jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
       jest.spyOn(autofillFieldElement, "removeEventListener");
-      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
+      jest.spyOn(autofillOverlayContentService["formFieldElements"], "clear");
 
       autofillOverlayContentService.destroy();
 
@@ -2783,9 +2824,7 @@ describe("AutofillOverlayContentService", () => {
         EVENTS.KEYUP,
         autofillOverlayContentService["handleFormFieldKeyupEventAsListener"],
       );
-      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
-        autofillFieldElement,
-      );
+      expect(autofillOverlayContentService["formFieldElements"].clear).toHaveBeenCalled();
     });
 
     it("clears all existing timeouts", () => {

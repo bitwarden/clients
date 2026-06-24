@@ -101,6 +101,26 @@ export const TitleBannerBase: Story = {
   },
 };
 
+export const TitleBannerNoActions: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <bit-banner
+          [variant]="variant"
+          title="Integration is the key"
+          (dismiss)="dismiss($event)"
+        >
+          Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
+        </bit-banner>
+      `,
+    };
+  },
+  args: {
+    variant: "primary",
+  },
+};
+
 export const TitleBannerBaseLargeText: Story = {
   render: (args) => {
     return {

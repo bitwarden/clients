@@ -18,7 +18,7 @@ export class OrganizationUserAdminView {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
@@ -39,7 +39,7 @@ export class OrganizationUserAdminView {
     accessSecretsManager: boolean;
     resetPasswordEnrolled: boolean;
     hasMasterPassword: boolean;
-    managedByOrganization: boolean;
+    claimedByOrganization: boolean;
   }) {
     this.id = c.id;
     this.userId = c.userId;
@@ -54,7 +54,7 @@ export class OrganizationUserAdminView {
     this.accessSecretsManager = c.accessSecretsManager;
     this.resetPasswordEnrolled = c.resetPasswordEnrolled;
     this.hasMasterPassword = c.hasMasterPassword;
-    this.managedByOrganization = c.managedByOrganization;
+    this.claimedByOrganization = c.claimedByOrganization;
   }
 
   static fromResponse(
@@ -80,7 +80,7 @@ export class OrganizationUserAdminView {
       accessSecretsManager: response.accessSecretsManager ?? false,
       resetPasswordEnrolled: response.resetPasswordEnrolled ?? false,
       hasMasterPassword: response.hasMasterPassword ?? false,
-      managedByOrganization: response.managedByOrganization ?? false,
+      claimedByOrganization: response.claimedByOrganization ?? false,
     });
 
     return view;

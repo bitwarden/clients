@@ -102,7 +102,7 @@ describe("MembersComponent", () => {
     name: "Test User",
     resetPasswordEnrolled: false,
     accessSecretsManager: false,
-    managedByOrganization: false,
+    claimedByOrganization: false,
     twoFactorEnabled: false,
     usesKeyConnector: false,
     hasMasterPassword: true,

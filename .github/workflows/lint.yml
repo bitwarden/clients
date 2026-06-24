@@ -106,6 +106,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Install Rust nightly
+        id: rust-nightly
         uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           toolchain: nightly-2026-06-23
@@ -119,7 +120,13 @@ jobs:
 
       - name: Run cargo fmt
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly fmt --check
+        # Use the exact toolchain installed above (Renovate manages the version
+        # via the `with: toolchain:` input) so the invoked toolchain can never
+        # drift from the installed one. Passed through env rather than
+        # interpolated into the run script to satisfy the template-injection rule.
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" fmt --check
 
       - name: Run Clippy
         working-directory: ./apps/desktop/desktop_native
@@ -136,7 +143,9 @@ jobs:
 
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
-        run: cargo +nightly udeps --workspace --all-features --all-targets
+        env:
+          RUST_NIGHTLY: ${{ steps.rust-nightly.outputs.name }}
+        run: cargo +"$RUST_NIGHTLY" udeps --workspace --all-features --all-targets
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native

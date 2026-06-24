@@ -22,9 +22,9 @@ export class AccountDeletionService {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
 
-    const userIsManaged = organizations.some((o) => o.userIsManagedByOrganization === true);
+    const userIsClaimed = organizations.some((o) => o.userIsClaimedByOrganization === true);
 
-    if (userIsManaged) {
+    if (userIsClaimed) {
       await this.dialogService.openSimpleDialog({
         title: { key: "cannotDeleteAccount" },
         content: { key: "cannotDeleteAccountDesc" },

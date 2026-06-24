@@ -293,7 +293,7 @@
           {{ "revoke" | i18n }}
         </button>
       }
-      @if (this.editMode && !(editParams$ | async)?.managedByOrganization) {
+      @if (this.editMode && !(editParams$ | async)?.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"
@@ -305,7 +305,7 @@
           {{ "remove" | i18n }}
         </button>
       }
-      @if (this.editMode && (editParams$ | async)?.managedByOrganization) {
+      @if (this.editMode && (editParams$ | async)?.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"

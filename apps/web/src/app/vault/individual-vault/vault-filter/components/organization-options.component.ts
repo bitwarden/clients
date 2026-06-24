@@ -89,7 +89,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     const managingOrg$ = this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.organizationService.organizations$(userId)),
-      map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+      map((organizations) => organizations.find((o) => o.userIsClaimedByOrganization === true)),
     );
 
     combineLatest([

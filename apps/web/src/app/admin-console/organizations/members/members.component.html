@@ -477,7 +477,7 @@
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
-                    @if (!u.managedByOrganization) {
+                    @if (!u.claimedByOrganization) {
                       <button
                         type="button"
                         bitMenuItem

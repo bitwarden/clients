@@ -58,7 +58,7 @@ describe("CollectAutofillContentService", () => {
       domQueryService,
       autofillOverlayContentService,
     );
-    window.IntersectionObserver = jest.fn(() => mockIntersectionObserver);
+    window.IntersectionObserver = jest.fn(() => mockIntersectionObserver) as any;
   });
 
   afterEach(() => {
@@ -81,18 +81,6 @@ describe("CollectAutofillContentService", () => {
             return Promise.resolve({ result: null });
           }
         });
-      jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
-        });
-    });
-
-    it("sets up the mutation observer the first time getPageDetails is called", async () => {
-      await collectAutofillContentService.getPageDetails();
-      await collectAutofillContentService.getPageDetails();
-
-      expect(collectAutofillContentService["setupMutationObserver"]).toHaveBeenCalledTimes(1);
     });
 
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
@@ -486,11 +474,6 @@ describe("CollectAutofillContentService", () => {
           }
           return Promise.resolve(undefined);
         });
-      jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
-        });
     });
 
     it("returns empty page details when no local fields match and autofillFieldElements is empty", async () => {
@@ -525,14 +508,6 @@ describe("CollectAutofillContentService", () => {
   });
 
   describe("getTargetedPageDetails iframe routing", () => {
-    beforeEach(() => {
-      jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
-        });
-    });
-
     const mockTargetingRules = (selector: string) =>
       jest
         .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
@@ -2571,14 +2546,61 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("setupMutationObserver", () => {
-    it("sets up a mutation observer and observes the document element", () => {
-      jest.spyOn(MutationObserver.prototype, "observe");
+  describe("startMonitoring / stopMonitoring", () => {
+    it("observes the document element on start", () => {
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"], "observe");
 
-      collectAutofillContentService["setupMutationObserver"]();
+      collectAutofillContentService.startMonitoring();
 
-      expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
-      expect(collectAutofillContentService["mutationObserver"].observe).toHaveBeenCalled();
+      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, expect.any(Object));
+    });
+
+    it("is idempotent on repeated start calls", () => {
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"], "observe");
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService.startMonitoring();
+
+      expect(observeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("disconnects observers and clears caches on stop", () => {
+      const mutationDisconnect = jest.spyOn(
+        collectAutofillContentService["mutationObserver"],
+        "disconnect",
+      );
+      const intersectionDisconnect = jest.spyOn(
+        collectAutofillContentService["intersectionObserver"],
+        "disconnect",
+      );
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService["_autofillFormElements"].set(
+        document.createElement("form") as any,
+        {} as any,
+      );
+      collectAutofillContentService.stopMonitoring();
+
+      expect(mutationDisconnect).toHaveBeenCalled();
+      expect(intersectionDisconnect).toHaveBeenCalled();
+      expect(collectAutofillContentService["_autofillFormElements"].size).toBe(0);
+    });
+
+    it("is idempotent across repeated stop calls", () => {
+      const mutationObserve = jest.spyOn(
+        collectAutofillContentService["mutationObserver"],
+        "observe",
+      );
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService.stopMonitoring();
+      collectAutofillContentService.stopMonitoring();
+      // A successful restart after repeated stops proves the start
+      // guard cleared; behavior check rather than touching the private
+      // `isMonitoring` flag directly.
+      collectAutofillContentService.startMonitoring();
+
+      expect(mutationObserve).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -3400,7 +3422,6 @@ describe("CollectAutofillContentService", () => {
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
       isElementViewableSpy.mockReturnValueOnce(true);
-      collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
@@ -3417,7 +3438,6 @@ describe("CollectAutofillContentService", () => {
       ] as unknown as IntersectionObserverEntry[];
       isElementViewableSpy.mockReturnValueOnce(true);
       collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
-      collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
@@ -3490,13 +3510,14 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("destroy", () => {
+  describe("stopMonitoring (deferred work cleanup)", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService.startMonitoring();
       const callbackId = setTimeout(jest.fn, 100);
       collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
 
-      collectAutofillContentService.destroy();
+      collectAutofillContentService.stopMonitoring();
 
       expect(clearTimeout).toHaveBeenCalledWith(callbackId);
     });
@@ -3509,6 +3530,7 @@ describe("CollectAutofillContentService", () => {
         "input",
       ) as ElementWithOpId<FormFieldElement>;
       const clearTimeoutSpy = jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService.startMonitoring();
       collectAutofillContentService["pendingOverlaySetup"].set(
         formFieldElement1,
         setTimeout(jest.fn, 100),
@@ -3518,7 +3540,7 @@ describe("CollectAutofillContentService", () => {
         setTimeout(jest.fn, 100),
       );
 
-      collectAutofillContentService.destroy();
+      collectAutofillContentService.stopMonitoring();
 
       expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
       expect(collectAutofillContentService["pendingOverlaySetup"].size).toBe(0);
