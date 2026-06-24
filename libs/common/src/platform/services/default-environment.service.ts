@@ -425,20 +425,14 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      return this.urls.send + "/#";
+      // Bitwarden cloud environments don't include a trailing forward-slash
+      // However, custom send URLs do and should fall-through to the outer logic
+      if (this.urls.send.endsWith(".bitwarden.com") || this.urls.send.endsWith(".bitwarden.eu")) {
+        return this.urls.send + "/#";
+      }
     }
-
-    const url = this.getWebVaultUrl();
-
-    if (url === "https://vault.bitwarden.com") {
-      return "https://send.bitwarden.com/#";
-    }
-
-    if (url === "https://vault.bitwarden.eu") {
-      return "https://send.bitwarden.eu/#";
-    }
-
-    return url + "/#/send/";
+    // This line is only reached by Bitwarden lower environments and self hosted environments that don't use a custom domain
+    return this.getWebVaultUrl() + "/#/send/";
   }
 
   /**

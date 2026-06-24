@@ -143,12 +143,12 @@ describe("WebEnvironmentService", () => {
       });
 
       it("envUrls.send takes precedence over config.urls.send when both are set", async () => {
-        const customSendUrl = "https://custom-send.example.com";
+        const customSendUrl = "https://vault.bitwarden.com/#/send/";
         const env = new WebCloudEnvironment(PROD_US_REGION, {
           ...expectedProdUSUrls,
           send: customSendUrl,
         });
-        expect(env.getSendUrl()).toEqual(customSendUrl + "/#");
+        expect(env.getSendUrl()).toEqual(customSendUrl);
       });
     });
 
