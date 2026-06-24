@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-organization-duo-delete.request";
@@ -74,7 +74,14 @@ export class TwoFactorSetupDuoComponent
     host: ["", [Validators.required]],
   });
   override componentName = "app-two-factor-duo";
-  private userVerificationToken!: string;
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
@@ -150,7 +157,7 @@ export class TwoFactorSetupDuoComponent
       this.clientId,
       this.clientSecret,
       this.host,
-      this.userVerificationToken,
+      this.requireUserVerificationToken(),
     );
 
     let response: TwoFactorDuoUpdateResponseUnion;
@@ -180,10 +187,12 @@ export class TwoFactorSetupDuoComponent
     }
 
     if (this.organizationId != null) {
-      const request = new TwoFactorOrganizationDuoDeleteRequest(this.userVerificationToken);
+      const request = new TwoFactorOrganizationDuoDeleteRequest(
+        this.requireUserVerificationToken(),
+      );
       await this.twoFactorService.deleteTwoFactorOrganizationDuo(this.organizationId, request);
     } else {
-      const request = new TwoFactorDuoDeleteRequest(this.userVerificationToken);
+      const request = new TwoFactorDuoDeleteRequest(this.requireUserVerificationToken());
       await this.twoFactorService.deleteTwoFactorDuo(request);
     }
 

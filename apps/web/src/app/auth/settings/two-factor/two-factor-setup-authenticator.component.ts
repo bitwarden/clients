@@ -9,7 +9,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator-update.response";
@@ -85,7 +85,7 @@ export class TwoFactorSetupAuthenticatorComponent
   @Output() onChangeStatus = new EventEmitter<boolean>();
   type = TwoFactorProviderType.Authenticator;
   key: string;
-  private userVerificationToken!: string;
+  private userVerificationToken: string | undefined;
 
   override componentName = "app-two-factor-authenticator";
   qrScriptError = false;

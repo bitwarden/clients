@@ -11,7 +11,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
 import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-update.request";
 import { TwoFactorYubiKeyDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key-details.response";
@@ -74,7 +74,14 @@ export class TwoFactorSetupYubiKeyComponent
   type = TwoFactorProviderType.Yubikey;
   keys: Key[] = [];
   anyKeyHasNfc = false;
-  private userVerificationToken!: string;
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
 
   override componentName = "app-two-factor-yubikey";
   formGroup:
@@ -176,7 +183,7 @@ export class TwoFactorSetupYubiKeyComponent
       keys != null && keys.length > 3 ? (keys[3]?.key ?? "") : "",
       keys != null && keys.length > 4 ? (keys[4]?.key ?? "") : "",
       this.formGroup.value.anyKeyHasNfc ?? false,
-      this.userVerificationToken,
+      this.requireUserVerificationToken(),
     );
 
     this.processUpdateResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
@@ -200,7 +207,7 @@ export class TwoFactorSetupYubiKeyComponent
       return;
     }
 
-    const request = new TwoFactorYubiKeyDeleteRequest(this.userVerificationToken);
+    const request = new TwoFactorYubiKeyDeleteRequest(this.requireUserVerificationToken());
     await this.twoFactorService.deleteTwoFactorYubiKey(request);
     this.enabled = false;
     this.toastService.showToast({

@@ -7,7 +7,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-update.request";
@@ -76,7 +76,14 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   webAuthnListening: boolean = false;
   webAuthnResponse: PublicKeyCredential | null = null;
   challengePromise: Promise<TwoFactorWebAuthnChallengeResponse> | undefined;
-  private userVerificationToken!: string;
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
 
   override componentName = "app-two-factor-webauthn";
 
@@ -131,7 +138,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       this.webAuthnResponse,
       this.formGroup.value.name || "",
       this.keyIdAvailable,
-      this.userVerificationToken,
+      this.requireUserVerificationToken(),
     );
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
@@ -165,7 +172,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
     // Server's per-credential DELETE refuses to remove the last registered credential
     // (lockout-prevention), so the only path to disable WebAuthn entirely is the bulk endpoint.
-    const request = new TwoFactorWebAuthnDeleteAllRequest(this.userVerificationToken);
+    const request = new TwoFactorWebAuthnDeleteAllRequest(this.requireUserVerificationToken());
     await this.twoFactorService.deleteTwoFactorWebAuthnAll(request);
     this.enabled = false;
     this.toastService.showToast({
@@ -191,7 +198,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (!confirmed) {
       return;
     }
-    const request = new TwoFactorWebAuthnDeleteRequest(key.id, this.userVerificationToken);
+    const request = new TwoFactorWebAuthnDeleteRequest(key.id, this.requireUserVerificationToken());
     try {
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;

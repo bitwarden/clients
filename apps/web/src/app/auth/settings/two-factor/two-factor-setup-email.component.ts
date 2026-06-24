@@ -6,7 +6,7 @@ import { firstValueFrom, map } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-delete.request";
 import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-update.request";
@@ -65,7 +65,14 @@ export class TwoFactorSetupEmailComponent
   sentEmail: string = "";
   emailPromise: Promise<unknown> | undefined;
   override componentName = "app-two-factor-email";
-  private userVerificationToken!: string;
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
   formGroup = this.formBuilder.group({
     token: ["", [Validators.required]],
     email: ["", [Validators.email, Validators.required]],
@@ -136,7 +143,7 @@ export class TwoFactorSetupEmailComponent
   }
 
   sendEmail = async () => {
-    const request = new TwoFactorEmailSetupRequest(this.email, this.userVerificationToken);
+    const request = new TwoFactorEmailSetupRequest(this.email, this.requireUserVerificationToken());
     this.emailPromise = this.twoFactorService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
@@ -146,7 +153,7 @@ export class TwoFactorSetupEmailComponent
     const request = new TwoFactorEmailUpdateRequest(
       this.token,
       this.email,
-      this.userVerificationToken,
+      this.requireUserVerificationToken(),
     );
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
@@ -165,7 +172,7 @@ export class TwoFactorSetupEmailComponent
       return;
     }
 
-    const request = new TwoFactorEmailDeleteRequest(this.userVerificationToken);
+    const request = new TwoFactorEmailDeleteRequest(this.requireUserVerificationToken());
     await this.twoFactorService.deleteTwoFactorEmail(request);
     this.enabled = false;
     this.toastService.showToast({
