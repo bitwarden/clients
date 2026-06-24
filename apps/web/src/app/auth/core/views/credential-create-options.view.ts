@@ -1,8 +1,8 @@
-import { ChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
+import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
 
 export class CredentialCreateOptionsView {
   constructor(
-    readonly options: ChallengeResponse,
+    readonly options: WebAuthnChallengeResponse,
     readonly token: string,
   ) {}
 }
