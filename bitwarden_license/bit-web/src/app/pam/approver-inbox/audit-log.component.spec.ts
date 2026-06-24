@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { provideRouter } from "@angular/router";
 
 import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -65,7 +66,7 @@ describe("AuditLogComponent", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AuditLogComponent, NoopAnimationsModule],
-      providers: [{ provide: I18nService, useValue: i18n }],
+      providers: [provideRouter([]), { provide: I18nService, useValue: i18n }],
     }).compileComponents();
   });
 

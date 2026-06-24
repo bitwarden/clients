@@ -14946,6 +14946,24 @@
   "pamAccessRequestTitle": {
     "message": "Access request"
   },
+  "pamAccessRequestDetailsTitle": {
+    "message": "Request details"
+  },
+  "pamAccessRequestLeaseTitle": {
+    "message": "Access"
+  },
+  "pamAccessRequestDecisionLogTitle": {
+    "message": "Decision log"
+  },
+  "pamAccessRequestNotFound": {
+    "message": "Access request not available"
+  },
+  "pamAccessRequestNotFoundDescription": {
+    "message": "This access request isn't available to you, or it no longer exists."
+  },
+  "pamAccessRequestLoadError": {
+    "message": "Couldn't load this access request."
+  },
   "pamInboxSubtitle": {
     "message": "Review and act on access requests, and manage who has temporary access to your collections."
   },

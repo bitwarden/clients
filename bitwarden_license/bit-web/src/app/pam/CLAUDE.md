@@ -21,7 +21,7 @@ non-licensed paths):
 
 - **End-user**, in `bitwarden_license/bit-web/src/app/app-routing.module.ts`:
   - `/pam/approver-inbox` → lazy `pam/approver-inbox/approver-inbox.routes.ts`
-  - `/leasing/requests/:id` → `pam/access-request-route` (email deep-link; forwards to the inbox)
+  - `/pam/requests/:id` → `pam/access-request-route` (the dedicated single-request page; shareable link)
   - both guarded by `canAccessFeature(FeatureFlag.Pam, true, "/vault")`.
 - **Admin**, mounted at `/organizations/:orgId/pam` via bit-web's
   `admin-console/organizations/organizations-routing.module.ts` → `pam/pam-routing.module.ts`:

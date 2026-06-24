@@ -1,0 +1,238 @@
+<app-header [title]="'pamAccessRequestTitle' | i18n"></app-header>
+
+@if (loading() && request() == null && !notFound() && !loadError()) {
+  <p bitTypography="body1" class="tw-text-muted">{{ "loading" | i18n }}</p>
+} @else if (request(); as r) {
+  <bit-section>
+    <bit-section-header>
+      <h2 bitTypography="h4">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
+    </bit-section-header>
+
+    <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-3">
+      <!-- Item -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnItem" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">
+          <div class="tw-flex tw-items-center tw-gap-3">
+            @if (cipherFor(r.cipherId); as cipher) {
+              <app-vault-icon [cipher]="cipher" />
+            } @else {
+              <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
+            }
+            <div>
+              <div>{{ r.cipherName ?? r.cipherId }}</div>
+              @if (r.collectionName) {
+                <div class="tw-text-xs tw-text-muted">
+                  {{ "pamInboxInCollection" | i18n: r.collectionName }}
+                </div>
+              }
+            </div>
+          </div>
+        </dd>
+      </div>
+
+      <!-- Status -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnStatus" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">
+          @if (badge(); as b) {
+            <span bitBadge [variant]="b.statusVariant">{{ b.statusLabelKey | i18n }}</span>
+          }
+        </dd>
+      </div>
+
+      <!-- Requester -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamInboxRequester" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">{{ requesterDisplay() }}</dd>
+      </div>
+
+      <!-- Requested window -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnRequestedWindow" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">
+          <span [bitTooltip]="exactWindowText()">
+            @if (duration(); as d) {
+              {{ d.key | i18n: d.value }}
+            }
+            @if (start(); as s) {
+              <span class="tw-text-muted">&nbsp;·&nbsp;{{ s.key | i18n: s.value }}</span>
+            }
+          </span>
+          @if (r.requestedNotBefore && r.requestedNotAfter) {
+            <div class="tw-text-xs tw-text-muted">
+              {{ r.requestedNotBefore | date: "short" }} &ndash;
+              {{ r.requestedNotAfter | date: "short" }}
+            </div>
+          }
+        </dd>
+      </div>
+
+      <!-- Reason -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamInboxReason" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">
+          @if (reason()) {
+            {{ reason() }}
+          } @else {
+            <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+          }
+        </dd>
+      </div>
+
+      <!-- Submitted -->
+      <div class="tw-flex tw-gap-4">
+        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnSubmitted" | i18n }}</dt>
+        <dd class="tw-m-0 tw-flex-1">{{ r.submittedAt | date: "medium" }}</dd>
+      </div>
+
+      <!-- Resolved -->
+      @if (r.resolvedAt) {
+        <div class="tw-flex tw-gap-4">
+          <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnResolved" | i18n }}</dt>
+          <dd class="tw-m-0 tw-flex-1">{{ r.resolvedAt | date: "medium" }}</dd>
+        </div>
+      }
+    </dl>
+  </bit-section>
+
+  <!-- Lease -->
+  @if (r.producedLeaseId) {
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h4">{{ "pamAccessRequestLeaseTitle" | i18n }}</h2>
+      </bit-section-header>
+      <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-3">
+        <div class="tw-flex tw-gap-4">
+          <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnStatus" | i18n }}</dt>
+          <dd class="tw-m-0 tw-flex-1">
+            @if (leaseActive()) {
+              <span bitBadge variant="success">{{ "pamStatusActivated" | i18n }}</span>
+            } @else if (badge(); as b) {
+              <span bitBadge [variant]="b.statusVariant">{{ b.statusLabelKey | i18n }}</span>
+            }
+          </dd>
+        </div>
+        @if (leaseRemaining(); as remaining) {
+          <div class="tw-flex tw-gap-4">
+            <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnRemaining" | i18n }}</dt>
+            <dd class="tw-m-0 tw-flex-1">{{ remaining }}</dd>
+          </div>
+        }
+      </dl>
+    </bit-section>
+  }
+
+  <!-- Decision log -->
+  @if (decisions().length > 0) {
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h4">{{ "pamAccessRequestDecisionLogTitle" | i18n }}</h2>
+      </bit-section-header>
+      <ul class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-p-0">
+        @for (decision of decisions(); track $index) {
+          <li class="tw-flex tw-flex-col tw-gap-1">
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <span bitBadge [variant]="decision.approved ? 'success' : 'danger'">
+                {{ (decision.approved ? "pamStatusApproved" : "pamStatusDenied") | i18n }}
+              </span>
+              <span>
+                @if (decision.automatic) {
+                  {{ "pamResolverAccessRule" | i18n }}
+                } @else {
+                  {{ decision.who }}
+                }
+              </span>
+              <span class="tw-text-xs tw-text-muted">{{
+                decision.decidedAt | date: "medium"
+              }}</span>
+            </div>
+            @if (decision.comment) {
+              <div class="tw-text-xs tw-text-muted">{{ decision.comment }}</div>
+            }
+          </li>
+        }
+      </ul>
+    </bit-section>
+  }
+
+  <!-- Actions -->
+  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+    @if (canDecide()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="access-request_button_approve"
+        [loading]="deciding()"
+        [disabled]="deciding()"
+        (click)="openDecision(approve)"
+      >
+        {{ "pamInboxApprove" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request_button_deny"
+        [loading]="deciding()"
+        [disabled]="deciding()"
+        (click)="openDecision(deny)"
+      >
+        {{ "pamInboxDeny" | i18n }}
+      </button>
+    }
+    @if (canStart()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        id="access-request_button_start"
+        [loading]="starting()"
+        [disabled]="starting()"
+        (click)="startAccess()"
+      >
+        {{ "pamStartLeaseButton" | i18n }}
+      </button>
+      @if (redemptionRemaining(); as remaining) {
+        <span class="tw-text-xs tw-text-muted">{{ "pamActivateWithin" | i18n: remaining }}</span>
+      }
+    }
+    @if (canCancel()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request_button_cancel"
+        [loading]="cancelling()"
+        [disabled]="cancelling()"
+        (click)="cancel()"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    }
+    @if (canEndLease()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        id="access-request_button_end-lease"
+        [loading]="ending()"
+        [disabled]="ending()"
+        (click)="endLease()"
+      >
+        {{ "pamEndLeaseButton" | i18n }}
+      </button>
+    }
+  </div>
+} @else if (notFound()) {
+  <bit-no-items>
+    <span slot="title" class="tw-mt-4 tw-block">{{ "pamAccessRequestNotFound" | i18n }}</span>
+    <span slot="description">{{ "pamAccessRequestNotFoundDescription" | i18n }}</span>
+    <a slot="button" bitButton buttonType="secondary" routerLink="/pam/approver-inbox">
+      {{ "pamInboxTitle" | i18n }}
+    </a>
+  </bit-no-items>
+} @else {
+  <p bitTypography="body1" class="tw-text-muted">{{ "pamAccessRequestLoadError" | i18n }}</p>
+}
