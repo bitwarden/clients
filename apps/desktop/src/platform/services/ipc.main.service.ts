@@ -8,6 +8,11 @@ import {
   IpcService,
   isIpcMessage,
 } from "@bitwarden/common/platform/ipc";
+import {
+  isReachabilityPing,
+  ReachabilityPong,
+  ReachabilityTracker,
+} from "@bitwarden/common/platform/ipc/reachability";
 import { ipc } from "@bitwarden/desktop-napi";
 import {
   IncomingMessage,
@@ -24,6 +29,8 @@ import { isDev } from "../../utils";
 
 export class IpcMainService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
+  // Records liveness of connected browser-extension clients from their reachability pings.
+  private reachability = new ReachabilityTracker();
 
   constructor(
     private logService: LogService,
@@ -91,6 +98,16 @@ export class IpcMainService extends IpcService {
           // A malformed native message must not tear down the subscription, which would
           // break IPC for all subsequent messages.
           this.logService.error("[IPC] Failed to parse native message", e);
+          return;
+        }
+
+        // Answer reachability pings from the browser extension (desktop is the top leader). Reply
+        // with a plaintext pong over native messaging; this never enters the crypto pipeline.
+        if (isReachabilityPing(ipcMessage)) {
+          this.reachability.record({ BrowserBackground: { id: { Id: nativeMessage.clientId } } });
+          this.nativeMessaging.sendTo(nativeMessage.clientId, {
+            type: "bitwarden-reachability-pong",
+          } satisfies ReachabilityPong);
           return;
         }
 

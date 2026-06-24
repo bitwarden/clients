@@ -220,7 +220,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
+  [FeatureFlag.BiometricsSDKIPC]: true,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,

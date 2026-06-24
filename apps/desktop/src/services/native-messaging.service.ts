@@ -1,6 +1,11 @@
 import { Injectable } from "@angular/core";
 
-import { isForwardedIpcMessage, isIpcMessage } from "@bitwarden/common/platform/ipc";
+import {
+  isForwardedIpcMessage,
+  isIpcMessage,
+  isReachabilityPing,
+  isReachabilityPong,
+} from "@bitwarden/common/platform/ipc";
 
 import { LegacyMessageWrapper } from "../models/native-messaging/legacy-message-wrapper";
 import { Message } from "../models/native-messaging/message";
@@ -22,8 +27,13 @@ export class NativeMessagingService {
   private async messageHandler(msg: LegacyMessageWrapper | Message) {
     const outerMessage = msg as Message;
 
-    // Ignore SDK IPC messages here
-    if (isIpcMessage(msg) || isForwardedIpcMessage(msg)) {
+    // Ignore SDK IPC + reachability keepalive messages here
+    if (
+      isIpcMessage(msg) ||
+      isForwardedIpcMessage(msg) ||
+      isReachabilityPing(msg) ||
+      isReachabilityPong(msg)
+    ) {
       return;
     }
 
