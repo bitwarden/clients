@@ -60,18 +60,24 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   // Angular Method Implementations
 
   async ngOnInit(): Promise<void> {
+    const domainNameValidators = [
+      Validators.required,
+      domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
+    ];
+
+    // Only check uniqueness when creating — when editing, the domain name is readonly
+    // and is already present in existingDomainNames, so the validator would always fail.
+    if (!this.data.orgDomain) {
+      domainNameValidators.push(
+        uniqueInArrayValidator(
+          this.data.existingDomainNames,
+          this.i18nService.t("duplicateDomainError"),
+        ),
+      );
+    }
+
     this.domainForm = this.formBuilder.group({
-      domainName: [
-        "",
-        [
-          Validators.required,
-          domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
-          uniqueInArrayValidator(
-            this.data.existingDomainNames,
-            this.i18nService.t("duplicateDomainError"),
-          ),
-        ],
-      ],
+      domainName: ["", domainNameValidators],
       txt: [null],
     });
     // If we have data.orgDomain, then editing, otherwise creating new domain
