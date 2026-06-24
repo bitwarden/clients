@@ -28,6 +28,34 @@ const TS_KEYS = [
   "environment.events",
 ];
 
+// Pins every key's JSON type. The SDK generator types mirror the readers in
+// crates/bitwarden-generators/src/managed_overrides.rs (read_bool -> boolean,
+// read_u8_clamped -> integer, read_string_nonempty -> string); a hand-mirror type
+// error is the highest-risk drift, so it must be deliberate.
+const KEY_TYPES: Record<string, "string" | "boolean" | "integer"> = {
+  "environment.base": "string",
+  "environment.webVault": "string",
+  "environment.api": "string",
+  "environment.identity": "string",
+  "environment.icons": "string",
+  "environment.notifications": "string",
+  "environment.events": "string",
+  "generator.password.lowercase": "boolean",
+  "generator.password.uppercase": "boolean",
+  "generator.password.numbers": "boolean",
+  "generator.password.special": "boolean",
+  "generator.password.avoidAmbiguous": "boolean",
+  "generator.password.length": "integer",
+  "generator.password.minLowercase": "integer",
+  "generator.password.minUppercase": "integer",
+  "generator.password.minNumber": "integer",
+  "generator.password.minSpecial": "integer",
+  "generator.passphrase.numWords": "integer",
+  "generator.passphrase.wordSeparator": "string",
+  "generator.passphrase.capitalize": "boolean",
+  "generator.passphrase.includeNumber": "boolean",
+};
+
 describe("MANAGED_KEY_CATALOG", () => {
   it("pins the SDK-consumed key set (mirror of managed_overrides.rs)", () => {
     const sdk = MANAGED_KEY_CATALOG.filter((d) => d.origin === "sdk").map((d) => d.key);
@@ -42,6 +70,11 @@ describe("MANAGED_KEY_CATALOG", () => {
   it("has no duplicate keys", () => {
     const keys = MANAGED_KEY_CATALOG.map((d) => d.key);
     expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("pins each key's JSON type so a hand-mirror type error is deliberate", () => {
+    const actual = Object.fromEntries(MANAGED_KEY_CATALOG.map((d) => [d.key, d.type]));
+    expect(actual).toEqual(KEY_TYPES);
   });
 });
 
