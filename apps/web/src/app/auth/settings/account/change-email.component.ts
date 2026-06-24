@@ -25,18 +25,18 @@ import { SharedModule } from "../../../shared";
   imports: [SharedModule],
 })
 export class ChangeEmailComponent implements OnInit {
-  protected readonly tokenSent = signal(false);
+  protected readonly userVerificationSuccessful = signal(false);
   protected readonly showTwoFactorEmailWarning = signal(false);
   protected readonly userId = signal<UserId | undefined>(undefined);
 
   protected readonly selfServiceChangeEmailEnabled: Signal<boolean>;
 
   readonly formGroup = this.formBuilder.group({
-    step1: this.formBuilder.group({
+    userVerificationAndNewEmail: this.formBuilder.group({
       masterPassword: ["", [Validators.required]],
       newEmail: ["", [Validators.required, Validators.email]],
     }),
-    token: [{ value: "", disabled: true }, [Validators.required]],
+    emailOwnershipVerification: [{ value: "", disabled: true }, [Validators.required]],
   });
 
   constructor(
@@ -71,36 +71,35 @@ export class ChangeEmailComponent implements OnInit {
     }
 
     // This form has multiple steps, so we need to mark all the groups as touched.
-    this.formGroup.controls.step1.markAllAsTouched();
+    this.formGroup.controls.userVerificationAndNewEmail.markAllAsTouched();
 
-    if (this.tokenSent()) {
-      this.formGroup.controls.token.markAllAsTouched();
+    if (this.userVerificationSuccessful()) {
+      this.formGroup.controls.emailOwnershipVerification.markAllAsTouched();
     }
 
-    // Exit if the form is invalid.
     if (this.formGroup.invalid) {
       return;
     }
 
-    const step1Value = this.formGroup.controls.step1.value;
-    const newEmail = step1Value.newEmail?.trim().toLowerCase();
-    const masterPassword = step1Value.masterPassword;
+    const userVerificationForm = this.formGroup.controls.userVerificationAndNewEmail.value;
+    const newEmail = userVerificationForm.newEmail?.trim().toLowerCase();
+    const masterPassword = userVerificationForm.masterPassword;
 
     const ctx = "Could not update email.";
     assertNonNullish(newEmail, "email", ctx);
     assertNonNullish(masterPassword, "password", ctx);
 
-    if (!this.tokenSent()) {
+    if (!this.userVerificationSuccessful()) {
       await this.changeEmailService.requestEmailToken(masterPassword, newEmail, userId);
-      this.activateStep2();
+      this.disableUserVerificationAndNewEmailForm();
     } else {
-      const token = this.formGroup.value.token;
-      if (token == null) {
+      const emailOtp = this.formGroup.value.emailOwnershipVerification;
+      if (emailOtp == null) {
         throw new Error("Missing token");
       }
 
-      await this.changeEmailService.confirmEmailChange(masterPassword, newEmail, token, userId);
-      this.reset();
+      await this.changeEmailService.confirmEmailChange(masterPassword, newEmail, emailOtp, userId);
+      this.resetFormsToInitialState();
       if (this.selfServiceChangeEmailEnabled()) {
         await this.accountService.setAccountEmail(userId, newEmail);
         this.toastService.showToast({
@@ -119,20 +118,18 @@ export class ChangeEmailComponent implements OnInit {
     }
   };
 
-  // Disable step1 and enable token
-  activateStep2() {
-    this.formGroup.controls.step1.disable();
-    this.formGroup.controls.token.enable();
+  disableUserVerificationAndNewEmailForm() {
+    this.formGroup.controls.userVerificationAndNewEmail.disable();
+    this.formGroup.controls.emailOwnershipVerification.enable();
 
-    this.tokenSent.set(true);
+    this.userVerificationSuccessful.set(true);
   }
 
-  // Reset form and re-enable step1
-  reset() {
+  resetFormsToInitialState() {
     this.formGroup.reset();
-    this.formGroup.controls.step1.enable();
-    this.formGroup.controls.token.disable();
+    this.formGroup.controls.userVerificationAndNewEmail.enable();
+    this.formGroup.controls.emailOwnershipVerification.disable();
 
-    this.tokenSent.set(false);
+    this.userVerificationSuccessful.set(false);
   }
 }

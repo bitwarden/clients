@@ -86,7 +86,7 @@ describe("ChangeEmailComponent", () => {
   describe("submit", () => {
     beforeEach(() => {
       component["userId"].set("UserId" as UserId);
-      component.formGroup.controls.step1.setValue({
+      component.formGroup.controls.userVerificationAndNewEmail.setValue({
         masterPassword: "password",
         newEmail: "test@example.com",
       });
@@ -98,9 +98,9 @@ describe("ChangeEmailComponent", () => {
       await expect(component.submit()).rejects.toThrow("Can't find user");
     });
 
-    describe("step 1", () => {
-      it("does not submit if step 1 is invalid", async () => {
-        component.formGroup.controls.step1.setValue({
+    describe("user verification and new email", () => {
+      it("does not submit if user verification and new email are invalid", async () => {
+        component.formGroup.controls.userVerificationAndNewEmail.setValue({
           masterPassword: "",
           newEmail: "",
         });
@@ -110,7 +110,7 @@ describe("ChangeEmailComponent", () => {
         expect(changeEmailService.requestEmailToken).not.toHaveBeenCalled();
       });
 
-      it("sends email token in step 1 if tokenSent is false", async () => {
+      it("requests an email token when user verification has not succeeded yet", async () => {
         await component.submit();
 
         expect(changeEmailService.requestEmailToken).toHaveBeenCalledWith(
@@ -118,30 +118,30 @@ describe("ChangeEmailComponent", () => {
           "test@example.com",
           "UserId" as UserId,
         );
-        // should activate step 2
-        expect(component["tokenSent"]()).toBe(true);
-        expect(component.formGroup.controls.step1.disabled).toBe(true);
-        expect(component.formGroup.controls.token.enabled).toBe(true);
+        // should advance to email ownership verification
+        expect(component["userVerificationSuccessful"]()).toBe(true);
+        expect(component.formGroup.controls.userVerificationAndNewEmail.disabled).toBe(true);
+        expect(component.formGroup.controls.emailOwnershipVerification.enabled).toBe(true);
       });
     });
 
-    describe("step 2", () => {
+    describe("email ownership verification", () => {
       beforeEach(() => {
-        component["tokenSent"].set(true);
-        component.formGroup.controls.step1.disable();
-        component.formGroup.controls.token.enable();
-        component.formGroup.controls.token.setValue("token");
+        component["userVerificationSuccessful"].set(true);
+        component.formGroup.controls.userVerificationAndNewEmail.disable();
+        component.formGroup.controls.emailOwnershipVerification.enable();
+        component.formGroup.controls.emailOwnershipVerification.setValue("token");
       });
 
       it("does not post email if token is missing on submit", async () => {
-        component.formGroup.controls.token.setValue("");
+        component.formGroup.controls.emailOwnershipVerification.setValue("");
 
         await component.submit();
 
         expect(changeEmailService.confirmEmailChange).not.toHaveBeenCalled();
       });
 
-      it("submits if step 2 is valid", async () => {
+      it("confirms the email change when email ownership verification is valid", async () => {
         await component.submit();
 
         expect(changeEmailService.confirmEmailChange).toHaveBeenCalledWith(

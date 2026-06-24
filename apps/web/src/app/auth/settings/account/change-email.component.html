@@ -5,7 +5,7 @@
     </bit-callout>
   }
 
-  <div class="@3xl:tw-w-1/2 tw-pr-2" formGroupName="step1">
+  <div class="@3xl:tw-w-1/2 tw-pr-2" formGroupName="userVerificationAndNewEmail">
     <bit-form-field>
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
       <input
@@ -28,9 +28,11 @@
     </bit-form-field>
   </div>
 
-  @if (tokenSent()) {
+  @if (userVerificationSuccessful()) {
     <hr />
-    <p>{{ "changeEmailDesc" | i18n: formGroup.controls.step1.value.newEmail }}</p>
+    <p>
+      {{ "changeEmailDesc" | i18n: formGroup.controls.userVerificationAndNewEmail.value.newEmail }}
+    </p>
     @if (!selfServiceChangeEmailEnabled()) {
       <bit-callout type="warning">{{ "loggedOutWarning" | i18n }}</bit-callout>
     }
@@ -38,17 +40,22 @@
     <div class="tw-w-1/2 tw-pr-2">
       <bit-form-field>
         <bit-label>{{ "code" | i18n }}</bit-label>
-        <input id="change-email_input_token" bitInput type="text" formControlName="token" />
+        <input
+          id="change-email_input_token"
+          bitInput
+          type="text"
+          formControlName="emailOwnershipVerification"
+        />
       </bit-form-field>
     </div>
   }
 
   <div class="tw-flex tw-gap-2">
     <button type="submit" bitButton buttonType="primary" bitFormButton>
-      {{ (tokenSent() ? "changeEmail" : "continue") | i18n }}
+      {{ (userVerificationSuccessful() ? "changeEmail" : "continue") | i18n }}
     </button>
-    @if (tokenSent()) {
-      <button type="button" bitButton (click)="reset()">
+    @if (userVerificationSuccessful()) {
+      <button type="button" bitButton (click)="resetFormsToInitialState()">
         {{ "cancel" | i18n }}
       </button>
     }
