@@ -3142,6 +3142,18 @@
       }
     }
   },
+  "reviewXAtRiskPassword": {
+    "message": "Review one at-risk password"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Review $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "changeAtRiskPasswordsFaster": {
     "message": "Change at-risk passwords faster"
   },
