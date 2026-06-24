@@ -104,11 +104,24 @@
         ></a>
       </bit-label>
       <bit-select formControlName="type" data-testid="role">
-        <bit-option [value]="organizationUserType.User" [label]="'user' | i18n"></bit-option>
-        <bit-option [value]="organizationUserType.Admin" [label]="'admin' | i18n"></bit-option>
-        <bit-option [value]="organizationUserType.Owner" [label]="'owner' | i18n"></bit-option>
+        <bit-option
+          [value]="organizationUserType.User"
+          [description]="'userDesc' | i18n"
+          [label]="'user' | i18n"
+        ></bit-option>
+        <bit-option
+          [value]="organizationUserType.Admin"
+          [description]="'adminRoleDesc' | i18n"
+          [label]="'admin' | i18n"
+        ></bit-option>
+        <bit-option
+          [value]="organizationUserType.Owner"
+          [description]="'ownerDesc' | i18n"
+          [label]="'owner' | i18n"
+        ></bit-option>
         <bit-option
           [value]="organizationUserType.Custom"
+          [description]="'customDesc' | i18n"
           [label]="'custom' | i18n"
           [disabled]="!organization.useCustomPermissions"
         ></bit-option>

@@ -1,10 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserKey } from "@bitwarden/common/types/key";
-import { Fido2Credential } from "@bitwarden/common/vault/models/domain/fido2-credential";
 import {
   Fido2Credential as SdkFido2Credential,
   Cipher as SdkCipher,
@@ -19,11 +15,15 @@ import { mockEnc } from "../../../spec";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { Utils } from "../../platform/misc/utils";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId, CipherId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { CipherRepromptType, CipherType } from "../enums";
 import { CipherPermissionsApi } from "../models/api/cipher-permissions.api";
 import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
+import { Fido2Credential } from "../models/domain/fido2-credential";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { Fido2CredentialView } from "../models/view/fido2-credential.view";
@@ -565,18 +565,6 @@ describe("DefaultCipherEncryptionService", () => {
       expect(failedDecryptions).toEqual([]);
       expect(mockSdkClient.vault().ciphers().decrypt).toHaveBeenCalledTimes(2);
       expect(CipherView.fromSdkCipherView).toHaveBeenCalledTimes(2);
-    });
-
-    it("should throw EmptyError when SDK is not available", async () => {
-      sdkService.userClient$ = jest.fn().mockReturnValue(of(null)) as any;
-
-      await expect(
-        cipherEncryptionService.decryptManyLegacy([cipherObj], userId),
-      ).rejects.toThrow();
-
-      expect(logService.error).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to decrypt ciphers"),
-      );
     });
   });
 

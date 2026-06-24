@@ -161,28 +161,6 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     );
   }
 
-  /**
-   * Sets a user's master password through account recovery.
-   * Intended for organization admins.
-   *
-   * @deprecated Use `recoverAccount` instead.
-   */
-  async resetMasterPassword(
-    newMasterPassword: string,
-    email: string,
-    orgUserId: string,
-    orgId: OrganizationId,
-  ): Promise<void> {
-    return this.recoverAccount({
-      organizationUserId: orgUserId,
-      organizationId: orgId,
-      resetMasterPassword: true,
-      resetTwoFactor: false,
-      newMasterPassword,
-      email,
-    });
-  }
-
   async getPublicKeys(userId: UserId): Promise<OrganizationUserResetPasswordEntry[]> {
     const allOrgs = (await firstValueFrom(this.organizationService.organizations$(userId))).filter(
       (org) => org.resetPasswordEnrolled,

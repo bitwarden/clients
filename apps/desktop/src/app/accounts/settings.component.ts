@@ -99,15 +99,12 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  showMinToTray = false;
   localeOptions: any[];
   themeOptions: any[];
   clearClipboardOptions: any[];
   sshAgentPromptBehaviorOptions: any[];
   supportsBiometric: boolean;
   private timerId: any;
-  showAlwaysShowDock = false;
-  requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
   autotypeShortcut: string;
@@ -116,12 +113,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isLinux: boolean;
   isMac: boolean;
 
-  enableTrayText: string;
-  enableTrayDescText: string;
-  enableMinToTrayText: string;
-  enableMinToTrayDescText: string;
-  enableCloseToTrayText: string;
-  enableCloseToTrayDescText: string;
+  runInBackgroundText: string;
+  runInBackgroundDescText: string;
 
   showSecurity = true;
   showAccountPreferences = true;
@@ -146,11 +139,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     // App Settings
-    enableTray: false,
-    enableMinToTray: false,
-    enableCloseToTray: false,
+    runInBackground: false,
     openAtLogin: false,
-    alwaysShowDock: false,
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
@@ -199,20 +189,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
-    // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
-    this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
-
-    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
-    this.enableTrayText = this.i18nService.t(trayKey);
-    this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
-
-    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
-    this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
-    this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
-
-    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
-    this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
-    this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
+    this.runInBackgroundText = this.i18nService.t("runInBackground");
+    this.runInBackgroundDescText = this.i18nService.t(
+      this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+    );
 
     this.showOpenAtLoginOption = this.showAutostartSetting();
 
@@ -298,15 +278,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         activeAccount.id,
       )),
-      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(activeAccount.id),
+      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
-      enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
-      enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
-      alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -326,10 +305,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
-
-    // Non-form values
-    this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
-    this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
     if (isWindows) {
       this.billingAccountProfileStateService
@@ -440,7 +415,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (!enabled || !this.supportsBiometric) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
       await this.keyService.refreshAdditionalKeys(activeUserId);
       return;
     }
@@ -461,11 +436,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword && !this.userHasPinSet) {
@@ -477,7 +452,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else if (this.isLinux) {
       // Similar to Windows
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
@@ -487,7 +462,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       BiometricsStatus.Available;
     this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
     if (!biometricSet) {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
     }
   }
 
@@ -524,9 +499,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async updateAutoPromptBiometrics() {
     if (this.form.value.autoPromptBiometrics) {
-      await this.biometricStateService.setPromptAutomatically(true);
+      await this.biometricStateService.setPromptAutomatically(true, this.currentUserId);
     } else {
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, this.currentUserId);
     }
   }
 
@@ -535,44 +510,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send("refreshCiphers");
   }
 
-  async saveMinToTray() {
-    await this.desktopSettingsService.setMinimizeToTray(this.form.value.enableMinToTray);
-  }
-
-  async saveCloseToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-  }
-
-  async saveTray() {
-    if (
-      this.requireEnableTray &&
-      !this.form.value.enableTray &&
-      this.form.value.enableCloseToTray
-    ) {
-      const confirm = await this.dialogService.openSimpleDialog({
-        title: { key: "confirmTrayTitle" },
-        content: { key: "confirmTrayDesc" },
-        type: "warning",
-      });
-
-      if (confirm) {
-        this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-      } else {
-        this.form.controls.enableTray.setValue(true);
-      }
-
-      return;
-    }
-
-    await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
-    this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
+  async saveRunInBackground() {
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
   async saveLocale() {
@@ -594,15 +533,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
   }
 
-  async saveAlwaysShowDock() {
-    await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
-  }
-
   private showAutostartSetting(): boolean {
-    // Windows store does not support autostart
-    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
-    // Snap store has auto-start enabled through electron-builder ALWAYS
-    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
+    // Windows store does not support autostart.
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login.
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   async saveOpenAtLogin() {
