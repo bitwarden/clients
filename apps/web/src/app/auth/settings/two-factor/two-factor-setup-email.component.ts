@@ -196,10 +196,10 @@ export class TwoFactorSetupEmailComponent
     await this.applyEmailState(response.email);
   }
 
-  private async applyEmailState(emailData: TwoFactorEmailDetailsResponse) {
+  private async applyEmailState(details: TwoFactorEmailDetailsResponse) {
     this.token = null;
-    this.email = emailData.email;
-    this.enabled = emailData.enabled;
+    this.email = details.email;
+    this.enabled = details.enabled;
     if (!this.enabled && (this.email == null || this.email === "")) {
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),

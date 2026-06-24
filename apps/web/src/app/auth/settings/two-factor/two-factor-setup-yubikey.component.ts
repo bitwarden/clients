@@ -241,15 +241,15 @@ export class TwoFactorSetupYubiKeyComponent
     this.applyYubiKeyState(response.yubiKey);
   }
 
-  private applyYubiKeyState(yubiKey: TwoFactorYubiKeyDetailsResponse) {
-    this.enabled = yubiKey.enabled;
-    this.anyKeyHasNfc = yubiKey.nfc || !yubiKey.enabled;
+  private applyYubiKeyState(details: TwoFactorYubiKeyDetailsResponse) {
+    this.enabled = details.enabled;
+    this.anyKeyHasNfc = details.nfc || !details.enabled;
     this.keys = [
-      { key: yubiKey.key1, existingKey: this.padRight(yubiKey.key1) },
-      { key: yubiKey.key2, existingKey: this.padRight(yubiKey.key2) },
-      { key: yubiKey.key3, existingKey: this.padRight(yubiKey.key3) },
-      { key: yubiKey.key4, existingKey: this.padRight(yubiKey.key4) },
-      { key: yubiKey.key5, existingKey: this.padRight(yubiKey.key5) },
+      { key: details.key1, existingKey: this.padRight(details.key1) },
+      { key: details.key2, existingKey: this.padRight(details.key2) },
+      { key: details.key3, existingKey: this.padRight(details.key3) },
+      { key: details.key4, existingKey: this.padRight(details.key4) },
+      { key: details.key5, existingKey: this.padRight(details.key5) },
     ];
   }
 
