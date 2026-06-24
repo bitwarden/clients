@@ -26,7 +26,7 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 
 export interface BulkUserDetails {
   id: string;
-  name: string;
+  name: string | undefined;
   email: string;
   status: OrganizationUserStatusType | ProviderUserStatusType;
   hasMasterPassword?: boolean;

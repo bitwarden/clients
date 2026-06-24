@@ -11,7 +11,7 @@ export class OrganizationUserResponse implements BaseResponse {
   object: string;
   id: string;
   email: string;
-  name: string;
+  name: string | undefined;
   status: OrganizationUserStatusType;
   type: OrganizationUserType;
   twoFactorEnabled: boolean;
