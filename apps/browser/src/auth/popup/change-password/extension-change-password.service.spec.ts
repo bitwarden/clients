@@ -2,7 +2,9 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import BrowserPopupUtils from "@bitwarden/browser/platform/browser/browser-popup-utils";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { KeyService } from "@bitwarden/key-management";
@@ -16,6 +18,8 @@ describe("ExtensionChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let policyService: MockProxy<PolicyService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
   let window: MockProxy<Window>;
 
   let sut: ChangePasswordService;
@@ -25,6 +29,8 @@ describe("ExtensionChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    policyService = mock<PolicyService>();
+    organizationInviteService = mock<OrganizationInviteService>();
     window = mock<Window>();
 
     sut = new ExtensionChangePasswordService(
@@ -32,6 +38,8 @@ describe("ExtensionChangePasswordService", () => {
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
       window,
     );
   });

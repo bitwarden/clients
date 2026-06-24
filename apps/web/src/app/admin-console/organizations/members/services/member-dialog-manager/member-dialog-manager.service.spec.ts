@@ -15,7 +15,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { EntityEventsComponent } from "../../../../../dirt/event-logs";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
+import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
@@ -223,7 +223,7 @@ describe("MemberDialogManagerService", () => {
       const result = await service.openAccountRecoveryDialog(mockUser, mockOrganization);
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        AccountRecoveryDialogV2Component,
+        AccountRecoveryDialogComponent,
         expect.objectContaining({ data: expectedData }),
       );
       expect(result).toBe("recovered");

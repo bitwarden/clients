@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { ElementRef, NO_ERRORS_SCHEMA } from "@angular/core";
+import { ElementRef, NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
@@ -314,6 +314,8 @@ describe("VaultComponent", () => {
                 bulkDelete: jest.fn(),
                 bulkMoveToFolder: jest.fn(),
                 bulkAssignToCollections: jest.fn(),
+                enabled: signal(false),
+                barVisible: signal(false),
               },
             },
             {
