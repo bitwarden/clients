@@ -7,16 +7,6 @@ import {
 } from "../../services/default-environment.service";
 import { defineManagedOverlay } from "../managed-overlay-registry";
 
-const URL_FIELDS = [
-  "base",
-  "webVault",
-  "api",
-  "identity",
-  "icons",
-  "notifications",
-  "events",
-] as const;
-
 /**
  * Build a self-hosted EnvironmentState from the `environment.*` managed leaves,
  * or null when no environment key is managed. A malformed leaf is treated as
@@ -38,19 +28,34 @@ export function environmentCoerce(
     }
   };
 
-  const urls = new EnvironmentUrls();
-  urls.base = read("base");
-  urls.webVault = read("webVault");
-  urls.api = read("api");
-  urls.identity = read("identity");
-  urls.icons = read("icons");
-  urls.notifications = read("notifications");
-  urls.events = read("events");
+  const base = read("base");
+  const webVault = read("webVault");
+  const api = read("api");
+  const identity = read("identity");
+  const icons = read("icons");
+  const notifications = read("notifications");
+  const events = read("events");
 
-  const anyPresent = URL_FIELDS.some((f) => read(f) != null);
-  if (!anyPresent) {
+  if (
+    base == null &&
+    webVault == null &&
+    api == null &&
+    identity == null &&
+    icons == null &&
+    notifications == null &&
+    events == null
+  ) {
     return null;
   }
+
+  const urls = new EnvironmentUrls();
+  urls.base = base;
+  urls.webVault = webVault;
+  urls.api = api;
+  urls.identity = identity;
+  urls.icons = icons;
+  urls.notifications = notifications;
+  urls.events = events;
 
   const state = new EnvironmentState();
   state.region = Region.SelfHosted;

@@ -31,4 +31,12 @@ describe("environmentCoerce", () => {
     expect(result!.urls.base).toBe("https://only-base.example");
     expect(result!.region).toBe(Region.SelfHosted);
   });
+
+  it("treats a malformed leaf as absent rather than throwing", () => {
+    expect(environmentCoerce(() => "{not valid json")).toBeNull();
+  });
+
+  it("ignores a non-string leaf value", () => {
+    expect(environmentCoerce((key) => (key === "environment.base" ? "42" : undefined))).toBeNull();
+  });
 });
