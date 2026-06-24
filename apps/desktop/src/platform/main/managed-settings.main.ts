@@ -56,7 +56,7 @@ export class ManagedSettingsMain {
       );
     } catch (e) {
       // Directory may not exist; absence is normal and not an error.
-      this.logService.info?.(`Not watching ${LINUX_POLICY_DIR}: ${String(e)}`);
+      this.logService.info(`Not watching ${LINUX_POLICY_DIR}: ${String(e)}`);
     }
   }
 }

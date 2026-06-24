@@ -9,7 +9,7 @@ jest.mock("electron", () => ({
 }));
 
 describe("ManagedSettingsMain (linux)", () => {
-  const logService = { warning: jest.fn(), error: jest.fn() } as any;
+  const logService = { warning: jest.fn(), error: jest.fn(), info: jest.fn() } as any;
   const send = jest.fn();
   const windowMain = { win: { webContents: { send } } } as any;
 
