@@ -4,6 +4,7 @@ import { ManagedSettingsClient, ManagementProfile } from "@bitwarden/sdk-interna
 
 import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
 
+import { flattenManagedConfig } from "./flatten-managed-config";
 import { ManagedSettingsService } from "./managed-settings.service";
 
 export class DefaultManagedSettingsService extends ManagedSettingsService {
@@ -56,10 +57,10 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
   }
 
   pushExplicit(values: Record<string, unknown>): void {
-    const settings = new Map<string, string>();
-    for (const [k, v] of Object.entries(values)) {
-      settings.set(k, JSON.stringify(v));
-    }
-    this.updateProfile({ version: 1, updatedAt: Math.floor(Date.now() / 1000), settings });
+    this.updateProfile({
+      version: 1,
+      updatedAt: Math.floor(Date.now() / 1000),
+      settings: flattenManagedConfig(values),
+    });
   }
 }

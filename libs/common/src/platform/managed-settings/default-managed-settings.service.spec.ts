@@ -61,6 +61,17 @@ describe("DefaultManagedSettingsService", () => {
     expect(svc.get("generator.password.length")).toBe("20"); // JSON-encoded
   });
 
+  it("pushExplicit deep-flattens nested objects to dotted keys", async () => {
+    const svc = new DefaultManagedSettingsService();
+    await firstValueFrom(svc.handle$);
+
+    svc.pushExplicit({ environment: { base: "https://x" } });
+
+    expect(svc.isManaged("environment.base")).toBe(true);
+    expect(svc.get("environment.base")).toBe('"https://x"');
+    expect(svc.isManaged("environment")).toBe(false);
+  });
+
   it("applies a profile pushed before the handle is ready", async () => {
     const svc = build();
     svc.pushExplicit({ "generator.password.length": 20 }); // before awaiting handle$
