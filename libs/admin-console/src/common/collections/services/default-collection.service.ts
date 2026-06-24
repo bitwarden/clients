@@ -17,6 +17,8 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -44,6 +46,7 @@ export class DefaultCollectionService implements CollectionService {
     protected stateProvider: StateProvider,
     private configService: ConfigService,
     private collectionEncryptionService: CollectionEncryptionService,
+    private authService: AuthService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -113,7 +116,9 @@ export class DefaultCollectionService implements CollectionService {
         if (sdkEnabled) {
           return combineLatest([
             this.encryptedCollections$(userId),
-            this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+            this.authService
+              .authStatusFor$(userId)
+              .pipe(filter((status) => status === AuthenticationStatus.Unlocked)),
           ]).pipe(
             switchMap(([collections]) =>
               from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
