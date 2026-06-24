@@ -79,12 +79,22 @@ function isSecure(
     if ((file.mode & POSIX_WRITABLE_BY_OTHERS) !== 0) {
       return { secure: false, reason: "is group- or world-writable" };
     }
-    const parent = statSync(dirname(filePath));
-    if (parent.uid !== 0 || (parent.mode & POSIX_WRITABLE_BY_OTHERS) !== 0) {
-      return {
-        secure: false,
-        reason: "parent directory is not root-owned or is writable by others",
-      };
+    // Every ancestor directory up to root must be root-owned and not writable by others,
+    // otherwise an unprivileged user could replace the file and forge a managed setting.
+    let dir = dirname(filePath);
+    for (;;) {
+      const dirStat = statSync(dir);
+      if (dirStat.uid !== 0 || (dirStat.mode & POSIX_WRITABLE_BY_OTHERS) !== 0) {
+        return {
+          secure: false,
+          reason: `ancestor directory ${dir} is not root-owned or is writable by others`,
+        };
+      }
+      const parent = dirname(dir);
+      if (parent === dir) {
+        break; // reached the filesystem root
+      }
+      dir = parent;
     }
     return { secure: true };
   } catch (e) {

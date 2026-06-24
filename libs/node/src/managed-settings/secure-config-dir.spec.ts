@@ -63,6 +63,25 @@ describe("readSecureManagedConfigDir (posix)", () => {
     expect(mockFs.readFileSync).not.toHaveBeenCalled();
   });
 
+  it("skips and warns when a non-root-owned ancestor directory is detected", () => {
+    (mockFs.readdirSync as jest.Mock).mockReturnValue(["policy.json"]);
+    mockFs.lstatSync.mockReturnValue(statLike({ isSymbolicLink: () => false }));
+    // The file and its immediate parent are root-owned, but /etc/bitwarden (an ancestor) is not.
+    mockFs.statSync.mockImplementation((p: fs.PathLike) => {
+      const path = p.toString();
+      if (path === "/etc/bitwarden") {
+        return statLike({ uid: 1000, mode: 0o755 });
+      }
+      return statLike({ uid: 0, mode: 0o644 });
+    });
+
+    const result = readSecureManagedConfigDir("/etc/bitwarden/policies", "linux", logger);
+
+    expect(result).toEqual({});
+    expect(logger.warning).toHaveBeenCalledWith(expect.stringContaining("/etc/bitwarden"));
+    expect(mockFs.readFileSync).not.toHaveBeenCalled();
+  });
+
   it("returns empty and does not warn when the directory is absent", () => {
     mockFs.readdirSync.mockImplementation(() => {
       const e: NodeJS.ErrnoException = new Error("ENOENT");

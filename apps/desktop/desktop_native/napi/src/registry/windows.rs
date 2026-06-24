@@ -40,7 +40,9 @@ pub fn read_values(key: &str, subkey: &str) -> Result<HashMap<String, String>> {
 
     let mut out = HashMap::new();
     for (name, value) in opened.values()? {
-        // Only string values are part of the managed profile; ignore other types.
+        // Only string (REG_SZ/REG_EXPAND_SZ) values are surfaced. Non-string registry values
+        // (e.g. REG_DWORD) are dropped; supporting non-string managed settings on desktop
+        // requires widening the NAPI return type (tracked: managed-settings spec, desktop section).
         if let Ok(s) = String::try_from(value) {
             out.insert(name, s);
         }

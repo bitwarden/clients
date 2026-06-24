@@ -51,6 +51,9 @@ struct ObjCString readManagedPreferences(char *appID) {
       }
 
       [plist enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop __unused) {
+        // Only string-valued managed preferences are surfaced. Non-string values are dropped;
+        // supporting non-string managed settings on desktop requires widening the NAPI return
+        // type (tracked: managed-settings spec, desktop section).
         if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSString class]]) {
           result[key] = obj;
         }
