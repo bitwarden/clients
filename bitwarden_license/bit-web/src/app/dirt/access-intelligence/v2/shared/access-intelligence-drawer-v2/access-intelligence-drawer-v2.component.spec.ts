@@ -29,13 +29,8 @@ describe("AccessIntelligenceDrawerV2Component", () => {
 
   /** Sample members used in drawer data */
   const sampleMembers: DrawerMemberData[] = [
-    {
-      email: "alice@example.com",
-      userName: "Alice Smith",
-      userGuid: "u1",
-      atRiskApplicationCount: 5,
-    },
-    { email: "bob@example.com", userName: "Bob Jones", userGuid: "u2", atRiskApplicationCount: 3 },
+    { email: "alice@example.com", atRiskApplicationCount: 5 },
+    { email: "bob@example.com", atRiskApplicationCount: 3 },
   ];
 
   /** Sample applications used in drawer data */
@@ -122,7 +117,22 @@ describe("AccessIntelligenceDrawerV2Component", () => {
 
       const callArg = mockFileDownloadService.download.mock.calls[0][0];
       const firstLine = (callArg.blobData as string).split("\n")[0].trim();
-      expect(firstLine).toBe("email,userName,userGuid,atRiskApplications");
+      // Only email + at-risk application count must be exported (PM-39269).
+      expect(firstLine).toBe("email,atRiskApplications");
+    });
+
+    it("should NOT include userName or userGuid columns in the CSV (PM-39269)", () => {
+      testAccess(component).data = {
+        type: DrawerType.OrgAtRiskMembers,
+        members: sampleMembers,
+      };
+
+      component.downloadAtRiskMembers();
+
+      const callArg = mockFileDownloadService.download.mock.calls[0][0];
+      const header = (callArg.blobData as string).split("\n")[0];
+      expect(header).not.toContain("userName");
+      expect(header).not.toContain("userGuid");
     });
 
     it("should call FileDownloadService.download for CriticalAtRiskMembers drawer type", () => {
