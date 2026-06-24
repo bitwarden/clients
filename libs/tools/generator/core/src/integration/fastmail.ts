@@ -71,7 +71,7 @@ const createForwardingEmail = Object.freeze({
                 state: "enabled",
                 description: "",
                 forDomain: context.website(request),
-                emailPrefix: "",
+                emailPrefix: context.prefixEnabled() ? context.website(request) : "",
               },
             },
           },

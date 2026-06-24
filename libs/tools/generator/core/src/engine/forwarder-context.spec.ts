@@ -74,6 +74,48 @@ describe("ForwarderContext", () => {
     });
   });
 
+  describe("prefixEnabled", () => {
+    it("returns true when prefix is set to the 'website' sentinel", () => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix: "website" });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.prefixEnabled();
+
+      expect(result).toBe(true);
+    });
+
+    it.each([[null], [undefined], [""]])("returns false when prefix is %p", (prefix) => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.prefixEnabled();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when prefix is not an enumerable member of settings", () => {
+      const settings = {} as EmailPrefixSettings & ApiSettings;
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.prefixEnabled();
+
+      expect(result).toBe(false);
+    });
+
+    it("returns false when prefix is any non-'website' string", () => {
+      const settings = mock<EmailPrefixSettings & ApiSettings>({ prefix: "some-other-value" });
+      const config = mock<ForwarderConfiguration<typeof settings>>();
+      const context = new ForwarderContext(config, settings, i18n);
+
+      const result = context.prefixEnabled();
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe("missingAccountIdCause", () => {
     it("returns the cause", () => {
       const settings = mock<EmailDomainSettings & ApiSettings>();
