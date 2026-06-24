@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/two-factor/request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
@@ -152,7 +152,7 @@ describe("TwoFactorApiService", () => {
 
     describe("deleteTwoFactorAuthenticator", () => {
       it("disables authenticator two-factor authentication and expects no body", async () => {
-        const request = new DeleteTwoFactorAuthenticatorRequest("MFRGGZDFMZTWQ2LK", "uv-token");
+        const request = new TwoFactorAuthenticatorDeleteRequest("MFRGGZDFMZTWQ2LK", "uv-token");
 
         await twoFactorApiService.deleteTwoFactorAuthenticator(request);
 

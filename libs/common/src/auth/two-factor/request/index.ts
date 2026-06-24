@@ -1,4 +1,4 @@
-export * from "./delete-two-factor-authenticator.request";
+export * from "./two-factor-authenticator-delete.request";
 export * from "./two-factor-authenticator-update.request";
 export * from "./two-factor-duo-delete.request";
 export * from "./two-factor-duo-update.request";

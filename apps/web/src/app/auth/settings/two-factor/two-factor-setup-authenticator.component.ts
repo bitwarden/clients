@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/two-factor/request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator-update.response";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";
@@ -178,7 +178,7 @@ export class TwoFactorSetupAuthenticatorComponent
       return;
     }
 
-    const request = new DeleteTwoFactorAuthenticatorRequest(this.key, this.userVerificationToken);
+    const request = new TwoFactorAuthenticatorDeleteRequest(this.key, this.userVerificationToken);
     await this.twoFactorService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({

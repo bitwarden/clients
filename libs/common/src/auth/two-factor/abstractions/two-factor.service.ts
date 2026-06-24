@@ -3,7 +3,7 @@ import { KeyDefinition, TWO_FACTOR_MEMORY } from "../../../platform/state";
 import { TwoFactorProviderType } from "../../enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "../../models/request/secret-verification.request";
 import { IdentityTwoFactorResponse } from "../../models/response/identity-two-factor.response";
-import { DeleteTwoFactorAuthenticatorRequest } from "../request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "../request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "../request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "../request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "../request/two-factor-duo-update.request";
@@ -356,10 +356,10 @@ export abstract class TwoFactorService {
    * Requires a user verification token to confirm the operation. Returns 204 No Content.
    * Used for settings management.
    *
-   * @param request The {@link DeleteTwoFactorAuthenticatorRequest} containing the user verification token and key.
+   * @param request The {@link TwoFactorAuthenticatorDeleteRequest} containing the user verification token and key.
    */
   abstract deleteTwoFactorAuthenticator(
-    request: DeleteTwoFactorAuthenticatorRequest,
+    request: TwoFactorAuthenticatorDeleteRequest,
   ): Promise<void>;
 
   /**

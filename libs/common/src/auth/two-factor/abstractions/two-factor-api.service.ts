@@ -1,5 +1,5 @@
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/two-factor/request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
@@ -176,7 +176,7 @@ export abstract class TwoFactorApiService {
    * @param request The request containing the user verification token and key.
    */
   abstract deleteTwoFactorAuthenticator(
-    request: DeleteTwoFactorAuthenticatorRequest,
+    request: TwoFactorAuthenticatorDeleteRequest,
   ): Promise<void>;
 
   /**

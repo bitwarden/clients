@@ -18,7 +18,7 @@ import {
   TwoFactorProviders,
   TwoFactorService as TwoFactorServiceAbstraction,
 } from "../abstractions/two-factor.service";
-import { DeleteTwoFactorAuthenticatorRequest } from "../request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "../request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "../request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "../request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "../request/two-factor-duo-update.request";
@@ -232,7 +232,7 @@ export class DefaultTwoFactorService implements TwoFactorServiceAbstraction {
     return this.twoFactorApiService.putTwoFactorAuthenticator(request);
   }
 
-  deleteTwoFactorAuthenticator(request: DeleteTwoFactorAuthenticatorRequest): Promise<void> {
+  deleteTwoFactorAuthenticator(request: TwoFactorAuthenticatorDeleteRequest): Promise<void> {
     return this.twoFactorApiService.deleteTwoFactorAuthenticator(request);
   }
 

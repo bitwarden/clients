@@ -1,6 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { DeleteTwoFactorAuthenticatorRequest } from "@bitwarden/common/auth/two-factor/request/delete-two-factor-authenticator.request";
+import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
@@ -86,7 +86,7 @@ export class DefaultTwoFactorApiService implements TwoFactorApiService {
     return new TwoFactorAuthenticatorUpdateResponse(response);
   }
 
-  async deleteTwoFactorAuthenticator(request: DeleteTwoFactorAuthenticatorRequest): Promise<void> {
+  async deleteTwoFactorAuthenticator(request: TwoFactorAuthenticatorDeleteRequest): Promise<void> {
     await this.apiService.send("DELETE", "/two-factor/authenticator", request, true, false);
   }
 
