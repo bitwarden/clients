@@ -9,11 +9,19 @@ import { ManagedSettingsService } from "./managed-settings.service";
 export class DefaultManagedSettingsService extends ManagedSettingsService {
   private readonly _changes = new Subject<void>();
   private _handle?: ManagedSettingsClient;
+  private _pendingProfile: ManagementProfile | undefined;
+  private _hasPending = false;
 
   // Construct the wasm handle only after the SDK module is loaded.
   readonly handle$: Observable<ManagedSettingsClient> = from(SdkLoadService.Ready).pipe(
     switchMap(() => {
       this._handle ??= new ManagedSettingsClient();
+      if (this._hasPending) {
+        this._handle.update_profile(this._pendingProfile);
+        this._hasPending = false;
+        this._pendingProfile = undefined;
+        this._changes.next();
+      }
       return of(this._handle);
     }),
     shareReplay({ bufferSize: 1, refCount: false }),
@@ -39,6 +47,8 @@ export class DefaultManagedSettingsService extends ManagedSettingsService {
 
   updateProfile(profile: ManagementProfile | undefined): void {
     if (this._handle == null) {
+      this._pendingProfile = profile;
+      this._hasPending = true;
       return;
     }
     this._handle.update_profile(profile);

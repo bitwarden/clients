@@ -60,4 +60,12 @@ describe("DefaultManagedSettingsService", () => {
     expect(svc.isManaged("generator.password.length")).toBe(true);
     expect(svc.get("generator.password.length")).toBe("20"); // JSON-encoded
   });
+
+  it("applies a profile pushed before the handle is ready", async () => {
+    const svc = build();
+    svc.pushExplicit({ "generator.password.length": 20 }); // before awaiting handle$
+    await firstValueFrom(svc.handle$);
+    expect(svc.isManaged("generator.password.length")).toBe(true);
+    expect(svc.get("generator.password.length")).toBe("20");
+  });
 });
