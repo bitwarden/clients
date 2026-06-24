@@ -127,6 +127,7 @@ export class ViewComponent {
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
   private readonly pm32009NewItemTypesEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
   );
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;

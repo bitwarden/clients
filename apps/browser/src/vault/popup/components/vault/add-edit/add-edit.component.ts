@@ -231,6 +231,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   private readonly pm32009NewItemTypesEnabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
   );
 
   constructor(
