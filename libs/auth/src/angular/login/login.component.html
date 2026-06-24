@@ -9,6 +9,7 @@
         formControlName="email"
         bitInput
         appAutofocus
+        data-testid="login-email-input"
         (input)="onEmailInput($event)"
         (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
@@ -19,6 +20,7 @@
       <input
         type="checkbox"
         formControlName="rememberEmail"
+        data-testid="login-remember-email"
         (input)="onRememberEmailInput($event)"
         bitCheckbox
       />
@@ -32,6 +34,7 @@
         bitButton
         block
         buttonType="primary"
+        data-testid="login-continue-button"
         (click)="continuePressed()"
         [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
         [addTooltipToDescribedby]="ssoRequired"
@@ -49,6 +52,7 @@
           bitButton
           block
           buttonType="secondary"
+          data-testid="login-with-passkey-button"
           (click)="handleLoginWithPasskeyClick()"
           [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
           [addTooltipToDescribedby]="ssoRequired"
@@ -65,6 +69,7 @@
         bitButton
         block
         [buttonType]="ssoRequired ? 'primary' : 'secondary'"
+        data-testid="login-sso-button"
         (click)="handleSsoClick()"
       >
         <bit-icon name="bwi-provider" class="tw-mr-1"></bit-icon>
@@ -83,6 +88,7 @@
         autocomplete="current-password"
         formControlName="masterPassword"
         bitInput
+        data-testid="login-master-password-input"
         #masterPasswordInputRef
       />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
@@ -95,7 +101,14 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Submit button to Login with Master Password -->
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        block
+        buttonType="primary"
+        data-testid="login-submit-button"
+      >
         {{ "logIn" | i18n }}
       </button>
 
@@ -108,6 +121,7 @@
           bitButton
           block
           buttonType="secondary"
+          data-testid="login-with-device-button"
           (click)="startAuthRequestLogin()"
         >
           <bit-icon name="bwi-mobile"></bit-icon>
@@ -117,7 +131,14 @@
 
       <!-- Back button -->
       <ng-container *ngIf="shouldShowBackButton()">
-        <button type="button" bitButton block buttonType="secondary" (click)="backButtonClicked()">
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          data-testid="login-back-button"
+          (click)="backButtonClicked()"
+        >
           {{ "back" | i18n }}
         </button>
       </ng-container>
