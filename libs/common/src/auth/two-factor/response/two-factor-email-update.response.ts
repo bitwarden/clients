@@ -3,7 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorEmailDetailsResponse } from "./two-factor-email-details.response";
 
 /**
- * Response for `PUT /two-factor/email`. Wraps the post-update provider details.
+ * Response from updating a user's email two factor provider data.
  */
 export class TwoFactorEmailUpdateResponse extends BaseResponse {
   email: TwoFactorEmailDetailsResponse;

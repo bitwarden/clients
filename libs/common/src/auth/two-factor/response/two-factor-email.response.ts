@@ -3,8 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorEmailDetailsResponse } from "./two-factor-email-details.response";
 
 /**
- * Response for `POST /two-factor/get-email`. Wraps the provider details and the
- * user-verification token minted by the GET endpoint.
+ * Response from retrieving a user's email two factor provider data.
  */
 export class TwoFactorEmailResponse extends BaseResponse {
   email: TwoFactorEmailDetailsResponse;

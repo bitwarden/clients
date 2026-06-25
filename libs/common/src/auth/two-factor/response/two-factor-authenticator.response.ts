@@ -3,8 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorAuthenticatorDetailsResponse } from "./two-factor-authenticator-details.response";
 
 /**
- * Response for `POST /two-factor/get-authenticator`. Wraps the provider details and the
- * user-verification token minted by the GET endpoint.
+ * Response from retrieving a user's authenticator (TOTP) two factor provider data.
  */
 export class TwoFactorAuthenticatorResponse extends BaseResponse {
   authenticator: TwoFactorAuthenticatorDetailsResponse;

@@ -3,7 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorYubiKeyDetailsResponse } from "./two-factor-yubi-key-details.response";
 
 /**
- * Response for `PUT /two-factor/yubikey`. Wraps the post-update provider details.
+ * Response from updating a user's YubiKey two factor provider data.
  */
 export class TwoFactorYubiKeyUpdateResponse extends BaseResponse {
   yubiKey: TwoFactorYubiKeyDetailsResponse;

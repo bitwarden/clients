@@ -3,7 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorWebAuthnDetailsResponse } from "./two-factor-web-authn-details.response";
 
 /**
- * Response for `PUT /two-factor/webauthn`. Wraps the post-update provider details.
+ * Response from updating a user's WebAuthn (FIDO2) two factor provider data.
  */
 export class TwoFactorWebAuthnUpdateResponse extends BaseResponse {
   webAuthn: TwoFactorWebAuthnDetailsResponse;

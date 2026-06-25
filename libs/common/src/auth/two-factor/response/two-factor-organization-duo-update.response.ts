@@ -3,8 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorDuoDetailsResponse } from "./two-factor-duo-details.response";
 
 /**
- * Response for `PUT /organizations/{id}/two-factor/duo`. Wraps the post-update
- * organization-scoped Duo provider details.
+ * Response from updating an organization's Duo two factor provider data.
  */
 export class TwoFactorOrganizationDuoUpdateResponse extends BaseResponse {
   duo: TwoFactorDuoDetailsResponse;

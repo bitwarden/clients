@@ -3,8 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorDuoDetailsResponse } from "./two-factor-duo-details.response";
 
 /**
- * Response for `POST /organizations/{id}/two-factor/get-duo`. Wraps the organization-scoped
- * Duo provider details and the user-verification token minted by the GET endpoint.
+ * Response from retrieving an organization's Duo two factor provider data.
  */
 export class TwoFactorOrganizationDuoResponse extends BaseResponse {
   duo: TwoFactorDuoDetailsResponse;

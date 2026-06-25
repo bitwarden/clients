@@ -3,8 +3,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { TwoFactorYubiKeyDetailsResponse } from "./two-factor-yubi-key-details.response";
 
 /**
- * Response for `POST /two-factor/get-yubikey`. Wraps the provider details and the
- * user-verification token minted by the GET endpoint.
+ * Response from retrieving a user's YubiKey two factor provider data.
  */
 export class TwoFactorYubiKeyResponse extends BaseResponse {
   yubiKey: TwoFactorYubiKeyDetailsResponse;

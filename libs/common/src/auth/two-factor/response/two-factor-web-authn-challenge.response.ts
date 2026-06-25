@@ -2,9 +2,7 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { WebAuthnChallengeResponse } from "../../models/response/web-authn-challenge.response";
 
 /**
- * Wrapper around {@link WebAuthnChallengeResponse} that adds the user-verification token minted by
- * the server-side `GetWebAuthnChallenge` endpoint. Replaces the previous response shape, which
- * returned the FIDO2 options object directly and had no place to attach the token.
+ * Response from requesting a WebAuthn (FIDO2) credential creation challenge for two factor setup.
  */
 export class TwoFactorWebAuthnChallengeResponse extends BaseResponse {
   options: WebAuthnChallengeResponse | null;
