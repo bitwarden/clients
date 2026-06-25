@@ -7,7 +7,6 @@ import {
   inject,
   input,
   output,
-  signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -29,7 +28,6 @@ import {
   SearchModule,
   TableDataSource,
   TableModule,
-  ToggleGroupModule,
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
@@ -46,7 +44,6 @@ export type DecideEvent = {
 };
 
 type DisplayRow = ApprovalRow & { canDecide: boolean };
-type Density = "comfortable" | "compact";
 
 /**
  * Approvals tab: a filterable, sortable table of pending lease requests for the
@@ -71,7 +68,6 @@ type Density = "comfortable" | "compact";
     NoItemsModule,
     SearchModule,
     TableModule,
-    ToggleGroupModule,
     TooltipDirective,
     TypographyModule,
   ],
@@ -95,9 +91,6 @@ export class ApprovalsComponent {
   readonly decide = output<DecideEvent>();
 
   private readonly dialogService = inject(DialogService);
-
-  protected readonly density = signal<Density>("comfortable");
-  protected readonly compact = computed(() => this.density() === "compact");
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
   protected readonly collectionControl = new FormControl<string | null>(null);

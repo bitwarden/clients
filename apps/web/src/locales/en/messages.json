@@ -15650,15 +15650,6 @@
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
   },
-  "pamApprovalsDensityLabel": {
-    "message": "Row density"
-  },
-  "pamApprovalsDensityComfortable": {
-    "message": "Comfortable"
-  },
-  "pamApprovalsDensityCompact": {
-    "message": "Compact"
-  },
   "pamApprovalsPendingHeader": {
     "message": "Pending approval $COUNT$",
     "placeholders": {
