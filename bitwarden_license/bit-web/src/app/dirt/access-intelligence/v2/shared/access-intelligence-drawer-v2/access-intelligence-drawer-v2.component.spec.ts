@@ -117,22 +117,9 @@ describe("AccessIntelligenceDrawerV2Component", () => {
 
       const callArg = mockFileDownloadService.download.mock.calls[0][0];
       const firstLine = (callArg.blobData as string).split("\n")[0].trim();
-      // Only email + at-risk application count must be exported (PM-39269).
+      // Only email + at-risk application count must be exported (PM-39269);
+      // this exact-match assertion proves no extra columns (e.g. userName, userGuid) leak through.
       expect(firstLine).toBe("email,atRiskApplications");
-    });
-
-    it("should NOT include userName or userGuid columns in the CSV (PM-39269)", () => {
-      testAccess(component).data = {
-        type: DrawerType.OrgAtRiskMembers,
-        members: sampleMembers,
-      };
-
-      component.downloadAtRiskMembers();
-
-      const callArg = mockFileDownloadService.download.mock.calls[0][0];
-      const header = (callArg.blobData as string).split("\n")[0];
-      expect(header).not.toContain("userName");
-      expect(header).not.toContain("userGuid");
     });
 
     it("should call FileDownloadService.download for CriticalAtRiskMembers drawer type", () => {
