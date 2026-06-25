@@ -6,6 +6,9 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { DropzoneComponent } from "./dropzone.component";
 
+// DropzoneComponent is an internal helper of FileUploadComponent; most behavior is
+// exercised at the public boundary in file-upload.component.spec.ts. This file covers
+// only the drag-depth state machine, which is hard to assert from the public surface.
 describe("DropzoneComponent", () => {
   let fixture: ComponentFixture<DropzoneComponent>;
   let component: DropzoneComponent;
@@ -21,17 +24,7 @@ describe("DropzoneComponent", () => {
     return event;
   };
 
-  const dispatchInputChange = (input: HTMLInputElement, files: File[]) => {
-    Object.defineProperty(input, "files", {
-      configurable: true,
-      value: files,
-    });
-    input.dispatchEvent(new Event("change", { bubbles: true }));
-  };
-
   const getLabel = () => fixture.nativeElement.querySelector("label") as HTMLLabelElement;
-  const getInput = () =>
-    fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
   // isDragOver is protected; reading it directly from the instance is more stable
   // than asserting against rendered Tailwind class names.
   const isDragOver = () => (component as unknown as { isDragOver: () => boolean }).isDragOver();
@@ -58,131 +51,39 @@ describe("DropzoneComponent", () => {
     fixture.detectChanges();
   });
 
-  describe("file emission", () => {
-    it("emits only the first file when multiple is false and several are dropped", () => {
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
+  it("stays in drag-over state while nested children re-enter the parent", () => {
+    const label = getLabel();
 
-      const fileA = makeFile("a.txt");
-      const fileB = makeFile("b.txt");
-      dispatchDragEvent(getLabel(), "drop", [fileA, fileB]);
+    // Parent dragenter, then dragenter on a nested child element bubbles up again.
+    dispatchDragEvent(label, "dragenter");
+    dispatchDragEvent(label, "dragenter");
+    expect(isDragOver()).toBe(true);
 
-      expect(emitSpy).toHaveBeenCalledTimes(1);
-      expect(emitSpy).toHaveBeenCalledWith([fileA]);
-    });
+    // One dragleave (leaving the child) should NOT reset the state.
+    dispatchDragEvent(label, "dragleave");
+    expect(isDragOver()).toBe(true);
 
-    it("emits all dropped files when multiple is true", () => {
-      fixture.componentRef.setInput("multiple", true);
-      fixture.detectChanges();
-
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
-
-      const fileA = makeFile("a.txt");
-      const fileB = makeFile("b.txt");
-      dispatchDragEvent(getLabel(), "drop", [fileA, fileB]);
-
-      expect(emitSpy).toHaveBeenCalledWith([fileA, fileB]);
-    });
-
-    it("emits a single file from the input change event when multiple is false", () => {
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
-
-      const fileA = makeFile("a.txt");
-      const fileB = makeFile("b.txt");
-      dispatchInputChange(getInput(), [fileA, fileB]);
-
-      expect(emitSpy).toHaveBeenCalledWith([fileA]);
-    });
-
-    it("clears the input value after a change so the same file can be re-selected", () => {
-      const input = getInput();
-      dispatchInputChange(input, [makeFile()]);
-
-      expect(input.value).toBe("");
-    });
-
-    it("does not emit on drop with empty file list", () => {
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
-
-      dispatchDragEvent(getLabel(), "drop", []);
-
-      expect(emitSpy).not.toHaveBeenCalled();
-    });
+    // Second dragleave (leaving the parent) resets it.
+    dispatchDragEvent(label, "dragleave");
+    expect(isDragOver()).toBe(false);
   });
 
-  describe("disabled", () => {
-    beforeEach(() => {
-      fixture.componentRef.setInput("disabled", true);
-      fixture.detectChanges();
-    });
+  it("resets drag-over state immediately on drop", () => {
+    const label = getLabel();
 
-    it("does not emit when a file is dropped", () => {
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
+    dispatchDragEvent(label, "dragenter");
+    dispatchDragEvent(label, "dragenter");
+    dispatchDragEvent(label, "drop", [makeFile()]);
 
-      dispatchDragEvent(getLabel(), "drop", [makeFile()]);
-
-      expect(emitSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not emit when the file input changes", () => {
-      const emitSpy = jest.fn();
-      component.filesSelected.subscribe(emitSpy);
-
-      dispatchInputChange(getInput(), [makeFile()]);
-
-      expect(emitSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not engage drag-over state on dragenter", () => {
-      dispatchDragEvent(getLabel(), "dragenter");
-
-      expect(isDragOver()).toBe(false);
-    });
+    expect(isDragOver()).toBe(false);
   });
 
-  describe("drag state", () => {
-    it("stays in drag-over state while nested children re-enter the parent", () => {
-      const label = getLabel();
+  it("does not engage drag-over state on dragenter when disabled", () => {
+    fixture.componentRef.setInput("disabled", true);
+    fixture.detectChanges();
 
-      // Parent dragenter, then dragenter on a nested child element bubbles up again.
-      dispatchDragEvent(label, "dragenter");
-      dispatchDragEvent(label, "dragenter");
-      expect(isDragOver()).toBe(true);
+    dispatchDragEvent(getLabel(), "dragenter");
 
-      // One dragleave (leaving the child) should NOT reset the state.
-      dispatchDragEvent(label, "dragleave");
-      expect(isDragOver()).toBe(true);
-
-      // Second dragleave (leaving the parent) resets it.
-      dispatchDragEvent(label, "dragleave");
-      expect(isDragOver()).toBe(false);
-    });
-
-    it("resets drag-over state immediately on drop", () => {
-      const label = getLabel();
-
-      dispatchDragEvent(label, "dragenter");
-      dispatchDragEvent(label, "dragenter");
-      dispatchDragEvent(label, "drop", [makeFile()]);
-
-      expect(isDragOver()).toBe(false);
-    });
-  });
-
-  describe("aria attributes", () => {
-    it("applies the ariaLabelledBy input to the file input", () => {
-      fixture.componentRef.setInput("ariaLabelledBy", "outer-label-id");
-      fixture.detectChanges();
-
-      expect(getInput().getAttribute("aria-labelledby")).toBe("outer-label-id");
-    });
-
-    it("does not set aria-labelledby when ariaLabelledBy is null", () => {
-      expect(getInput().hasAttribute("aria-labelledby")).toBe(false);
-    });
+    expect(isDragOver()).toBe(false);
   });
 });
