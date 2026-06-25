@@ -22,7 +22,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService, TwoFactorProviders , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import {
+  TwoFactorService,
+  TwoFactorProviders,
+  TwoFactorSetupDialogData,
+} from "@bitwarden/common/auth/two-factor";
 import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";

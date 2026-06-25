@@ -14,7 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { TwoFactorService , TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo.response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
