@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "../../types/guid";
 
 export abstract class SharedUnlockSettingsService {
   abstract allowSharingUnlockState$(userId: UserId): Observable<boolean>;

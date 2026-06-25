@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "ಉದ್ದ"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "ಲಾಗಿನ್"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "ಮಾಸ್ಟರ್ ಪಾಸ್ವರ್ಡ್ ಸುಳಿವನ್ನು ಪಡೆಯಿರಿ"
   },
   "emailRequired": {
     "message": "ಇಮೇಲ್ ವಿಳಾಸದ ಅಗತ್ಯವಿದೆ."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "ಟ್ರೇ ಐಕಾನ್‌ಗೆ ಕಡಿಮೆ ಮಾಡಿ"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "ವಿಂಡೋವನ್ನು ಕಡಿಮೆ ಮಾಡುವಾಗ, ಸಿಸ್ಟಮ್ ಟ್ರೇನಲ್ಲಿ ಐಕಾನ್ ಅನ್ನು ತೋರಿಸಿ."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "ಮೆನು ಬಾರ್‌ಗೆ ಕಡಿಮೆ ಮಾಡಿ"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "ವಿಂಡೋವನ್ನು ಕಡಿಮೆ ಮಾಡುವಾಗ, ಬದಲಿಗೆ ಮೆನು ಬಾರ್‌ನಲ್ಲಿ ಐಕಾನ್ ತೋರಿಸಿ."
-  },
-  "enableCloseToTray": {
-    "message": "ಟ್ರೇ ಐಕಾನ್ ಹತ್ತಿರ"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "ವಿಂಡೋವನ್ನು ಮುಚ್ಚುವಾಗ, ಸಿಸ್ಟಮ್ ಟ್ರೇನಲ್ಲಿ ಐಕಾನ್ ಅನ್ನು ತೋರಿಸಿ."
-  },
-  "enableCloseToMenuBar": {
-    "message": "ಮೆನು ಬಾರ್‌ಗೆ ಹತ್ತಿರದಲ್ಲಿದೆ"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "ವಿಂಡೋವನ್ನು ಮುಚ್ಚುವಾಗ, ಬದಲಿಗೆ ಮೆನು ಬಾರ್‌ನಲ್ಲಿ ಐಕಾನ್ ತೋರಿಸಿ."
-  },
-  "enableTray": {
-    "message": "ಟ್ರೇ ಐಕಾನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
-  },
-  "enableTrayDesc": {
-    "message": "ಸಿಸ್ಟಮ್ ಟ್ರೇನಲ್ಲಿ ಯಾವಾಗಲೂ ಐಕಾನ್ ತೋರಿಸಿ."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "ಲಾಗಿನ್‌ನಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರಾರಂಭಿಸಿ"
   },
   "openAtLoginDesc": {
     "message": "ಲಾಗಿನ್‌ನಲ್ಲಿ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಡೆಸ್ಕ್‌ಟಾಪ್ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರಾರಂಭಿಸಿ."
-  },
-  "alwaysShowDock": {
-    "message": "ಯಾವಾಗಲೂ ಡಾಕ್‌ನಲ್ಲಿ ತೋರಿಸಿ"
-  },
-  "alwaysShowDockDesc": {
-    "message": "ಮೆನು ಬಾರ್‌ಗೆ ಕಡಿಮೆಗೊಳಿಸಿದಾಗಲೂ ಡಾಕ್‌ನಲ್ಲಿ ಬಿಟ್‌ವಾರ್ಡೆನ್ ಐಕಾನ್ ತೋರಿಸಿ."
-  },
-  "confirmTrayTitle": {
-    "message": "ಟ್ರೇ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುವುದನ್ನು ದೃಢೀಕರಿಸಿ"
-  },
-  "confirmTrayDesc": {
-    "message": "ಈ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುವುದರಿಂದ ಇತರ ಎಲ್ಲಾ ಟ್ರೇ ಸಂಬಂಧಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಸಹ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ."
   },
   "language": {
     "message": "ಭಾಷೆ"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "ಭದ್ರತಾ ಕೋಡ್ ಅನ್ನು ನಕಲಿಸಿ",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "ನಿರ್ಗಮಿಸು"
   },
-  "showHide": {
-    "message": "ತೋರಿಸು / ಮರೆಮಾಡಿ",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "ಟ್ರೇಗೆ ಮರೆಮಾಡಿ"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "ಆದ್ಯತೆಗಳು"
-  },
-  "enableMenuBar": {
-    "message": "ಮೆನು ಬಾರ್ ಐಕಾನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"
-  },
-  "enableMenuBarDesc": {
-    "message": "ಮೆನು ಬಾರ್‌ನಲ್ಲಿ ಯಾವಾಗಲೂ ಐಕಾನ್ ತೋರಿಸಿ."
   },
   "hideToMenuBar": {
     "message": "ಮೆನು ಬಾರ್‌ಗೆ ಮರೆಮಾಡಿ"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಸುಳಿವು ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್‌ನಂತೆಯೇ ಇರಬಾರದು."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Vault",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Log in with master password"
   },
   "rememberEmail": {
     "message": "Remember email"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

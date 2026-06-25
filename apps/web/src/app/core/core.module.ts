@@ -359,6 +359,8 @@ const safeProviders: SafeProvider[] = [
       Router,
       AccountService,
       ConfigService,
+      ToastService,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -475,6 +477,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
       SyncService,
       UserKeyRotationService,
       RouterService,

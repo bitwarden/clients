@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Nog een optie nodig?"
   },
-  "loginWithMasterPassword": {
-    "message": "Inloggen met je hoofdwachtwoord"
-  },
   "readingPasskeyLoading": {
     "message": "Passkey uitlezen..."
   },
@@ -1751,8 +1748,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey-authenticatie mislukt. Probeer het opnieuw."
   },
-  "useADifferentLogInMethod": {
-    "message": "Gebruik een andere loginmethode"
+  "useDifferentLoginMethod": {
+    "message": "Een andere inlogmethode gebruiken"
   },
   "logInWithPasskey": {
     "message": "Inloggen met passkey"
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Je organisatie vereist single sign-on."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welkom terug"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Inloggen"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Inloggen op Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Als je het e-mailadres van je account invult, versturen we je je wachtwoordhint"
-  },
-  "getMasterPasswordHint": {
-    "message": "Hoofdwachtwoordhint opvragen"
   },
   "emailRequired": {
     "message": "E-mailadres is vereist."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "Als dank voor je lange tijd als Bitwarden-klant, willen we je $AMOUNT$ korting aanbieden voor iedere $INTERVAL$ op voor de volgende $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "$AMOUNT$ korting op $INTERVAL$ is toegepast voor de volgende $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ voor $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Vervalt nooit"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Korting toegepast"
+  },
+  "discountForOneYear": {
+    "message": "voor 1 jaar"
+  },
+  "discountForMonths": {
+    "message": "voor $COUNT$ maanden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "tot $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Korting verlopen. Controleer je winkelwagentotaal en probeer het opnieuw."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Beheerders hebben toegang tot alle items, verzamelingen en gebruikers binnen je organisatie en kunnen deze ook beheren"
   },
+  "adminRoleDesc": {
+    "message": "Beheer alle verzamelingen, leden, rapportages en beveiligingsinstellingen"
+  },
   "user": {
     "message": "Gebruiker"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt."
+  },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
   },
   "keepEditing": {
     "message": "Doorgaan met bewerken"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Je hebt niets geselecteerd."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Krijg advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox."
+  "receiveMarketingEmails": {
+    "message": "Updates van Bitwarden in je inbox ontvangen."
   },
   "subscribe": {
     "message": "Abonneren"
@@ -6957,6 +7032,21 @@
     "message": "Als gevolg van een ondernemingsbeleid kun je alleen een bestaande Send verwijderen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "sendControls": {
     "message": "Send-instellingen"
   },
@@ -6964,8 +7054,9 @@
     "message": "Instellingen voor het aanmaken en bewerken van Sends, inclusief de mogelijkheid tot het verwijderen van Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Gebruikers die het beleid van de organisatie kunnen beheren, zijn vrijgesteld van de handhaving van dit beleid."
+  "sendControlsPolicyDescV2": {
+    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Send-opties",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Je nieuwe wachtwoord moet anders zijn dan je huidige wachtwoord."
   },
+  "hint": {
+    "message": "Hint"
+  },
   "hintEqualsPassword": {
     "message": "Je wachtwoordhint moet anders zijn dan je wachtwoord."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Wachtwoord opnieuw instellen"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Doorgaan logt de huidige sessie van $NAME$ uit, waarna deze opnieuw moet aanmelden. Actieve sessies op andere apparaten kunnen mogelijk nog één uur actief blijven.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Doorgaan logt de huidige sessie van $NAME$ uit, waarna deze opnieuw moet aanmelden. Actieve sessies op andere apparaten kunnen mogelijk nog één uur actief blijven.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Accountherstel-administratie"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Gebaseerd op de huidige versleutelings- methode, herstel accounts wanneer hoofdwachtwoorden of vertrouwde apparaten vergeten of vermist zijn."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Bestaande accounts met hoofdwachtwoorden vereisen gebruikers om zelf in te schrijven voordat administratoren hun accounts kunnen herstellen. Automatische inschrijving zal automatisch account herstel inschakelen voor nieuwe gebruikers."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Het enkele organisatie beleid moet aangezet zijn voordat dit beleid geactiveerd kan worden."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatische inschrijving"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Automatisch nieuwe gebruikers inschrijven"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Deze organisatie heeft een ondernemingsbeleid dat je automatisch inschrijft bij het resetten van je wachtwoord. Inschrijving stelt organisatiebeheerders in staat om je hoofdwachtwoord te wijzigen."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "SCIM-instellingen opgeslagen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Het configureren van deze instelling stuurt automatisch uitnodigingen naar alle toegewezen gebruikers en groepen in je identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Slechts één integratie van dit type ($TYPE$) is toegestaan. De conflicterende integratie is: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ korting",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Beveilig je infrastructuur"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Beveiligingsactiviteit monitoren"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "Als je toepassingen beoordeelt en leden taken toewijst zal de vooruitgang van je organisatie op het gebied van de beveiliging hier verschijnen."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Risico's prioriteren"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Bekijk alle apps die zijn opgeslagen in de kluis van je organisatie en geef sterren welke de hoogste prioriteit voor je veiligheid hebben."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Je grootste risico's aanpakken"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Je zal hier risico's voor geprioriteerde applicaties bijhouden en taken toewijzen aan leden om hun wachtwoorden te versterken."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Help leden te verbeteren"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Zodra je kritieke applicaties hebt geselecteerd, vraag je leden om gevaarlijke wachtwoorden te wijzigen. Ze ontvangen een bericht in hun Bitwarden-extensie."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Blijf op de hoogte van nieuwe risico's"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Vernieuw regelmatig rapporten en inzichten om nieuwe risico's op te vangen en de nieuwste statistieken te zien naarmate je organisatie groeit."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ van $TOTAL$",
+    "message": "$CURRENT$ van $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Stap $CURRENT$ van $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "One or more domains are invalid"
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Control whether members can use Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Any"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "This was filled in using claimed domains."
+  },
   "more": {
     "message": "Meer"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
-  },
-  "discardEdits": {
-    "message": "Bewerkingen verwerpen"
   },
   "discardEditsMessage": {
     "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
@@ -14327,6 +14467,25 @@
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Enable Send controls",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Allow"
+  },
+  "block": {
+    "message": "Block"
+  },
+  "sendControlAccessOptions": {
+    "message": "Access options"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Always show member's email address with recipients"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Password set by member"
+  },
   "hideMyEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "Voortgangsbalk",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "separateDomainsWithComma": {
+    "message": "Separate domains with a comma"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Je kunt geen items importeren in Mijn Items die deel uitmaken van meerdere collecties"

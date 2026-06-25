@@ -433,7 +433,7 @@ export class NativeMessagingMain {
     this.logService.debug(`Writing manifest: ${destination}`);
 
     if (!existsSync(path.dirname(destination))) {
-      await fs.mkdir(path.dirname(destination));
+      await fs.mkdir(path.dirname(destination), { recursive: true });
     }
 
     await fs.writeFile(destination, JSON.stringify(manifest, null, 2));

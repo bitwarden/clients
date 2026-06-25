@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Welcome back"
   },
   "moveToOrgDesc": {
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Kahabaan"
   },
@@ -1055,7 +1064,7 @@
   "logIn": {
     "message": "Mag-log in"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
-  },
-  "getMasterPasswordHint": {
-    "message": "Makuha ang Punong Password na Hint"
   },
   "emailRequired": {
     "message": "Kailangan ang email address."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "I-minimise sa icon ng tray"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Kapag pinaliit ang window, ipakita ang isang icon sa system tray sa halip."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Mag-minimize sa menu bar"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Kapag pinaliit ang window, ipakita ang isang icon sa menu bar sa halip."
-  },
-  "enableCloseToTray": {
-    "message": "Malapit sa icon ng tray"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Kapag isinasara ang window, magpakita ng isang icon sa system tray sa halip."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Malapit sa menu bar"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Kapag isinasara ang window, ipakita ang isang icon sa menu bar sa halip."
-  },
-  "enableTray": {
-    "message": "Ipakita ang icon ng tray"
-  },
-  "enableTrayDesc": {
-    "message": "Laging magpakita ng isang icon sa system tray."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Awtomatikong magsimula sa pag login"
   },
   "openAtLoginDesc": {
     "message": "Awtomatikong simulan ang application ng desktop ng Bitwarden sa pag login."
-  },
-  "alwaysShowDock": {
-    "message": "Laging ipakita sa Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Ipakita ang icon ng Bitwarden sa Dock kahit na minimize sa menu bar."
-  },
-  "confirmTrayTitle": {
-    "message": "Kumpirmahin ang pagtatago ng tray"
-  },
-  "confirmTrayDesc": {
-    "message": "Ang pag-off ng setting na ito ay papatayin din ang lahat ng iba pang mga setting na may kaugnayan sa tray."
   },
   "language": {
     "message": "Wika"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Kopyahin ang code ng seguridad",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "card number"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "I-sara"
   },
-  "showHide": {
-    "message": "Ipakita / Itago",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Magtago sa tray"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Mga Kagustuhan"
-  },
-  "enableMenuBar": {
-    "message": "Ipakita ang icon ng menu bar"
-  },
-  "enableMenuBarDesc": {
-    "message": "Laging magpakita ng icon sa menu bar."
   },
   "hideToMenuBar": {
     "message": "Magtago sa menu bar"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Unsubscribe"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Your new password cannot be the same as your current password."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Ang iyong password hint ay hindi maaaring pareho sa iyong password."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Ayos",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Mag-login gamit ang pangunahing password"
   },
   "rememberEmail": {
     "message": "Tandaan ang email"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"

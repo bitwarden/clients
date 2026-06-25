@@ -76,8 +76,8 @@ export type AccountRecoveryDialogResultType =
  */
 @Component({
   standalone: true,
-  selector: "app-account-recovery-dialog-v2",
-  templateUrl: "account-recovery-dialog-v2.component.html",
+  selector: "app-account-recovery-dialog",
+  templateUrl: "account-recovery-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AsyncActionsModule,
@@ -92,7 +92,7 @@ export type AccountRecoveryDialogResultType =
     InputPasswordComponent,
   ],
 })
-export class AccountRecoveryDialogV2Component {
+export class AccountRecoveryDialogComponent {
   protected readonly inputPasswordComponent = viewChild(InputPasswordComponent);
 
   /** True when the target user is exempt from policies (Admin or Owner role). */
@@ -191,7 +191,7 @@ export class AccountRecoveryDialogV2Component {
   };
 
   /**
-   * Strongly typed helper to open an `AccountRecoveryDialogV2Component`
+   * Strongly typed helper to open an `AccountRecoveryDialogComponent`
    * @param dialogService Instance of the dialog service that will be used to open the dialog
    * @param dialogConfig Configuration for the dialog
    */
@@ -200,7 +200,7 @@ export class AccountRecoveryDialogV2Component {
     dialogConfig: DialogConfig<AccountRecoveryDialogData, AccountRecoveryDialogResultType>,
   ) => {
     return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
-      AccountRecoveryDialogV2Component,
+      AccountRecoveryDialogComponent,
       dialogConfig,
     );
   };
