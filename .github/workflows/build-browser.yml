@@ -29,13 +29,23 @@ on:
       - '!*.txt'
       - '.github/workflows/build-browser.yml'
   workflow_call:
-    inputs: {}
+    inputs:
+      include_prerelease:
+        description: "Also build a prerelease Chrome artifact"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       sdk_branch:
         description: "Custom SDK branch"
         required: false
         type: string
+      include_prerelease:
+        description: "Also build a prerelease Chrome artifact"
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
@@ -371,6 +381,120 @@ jobs:
         with:
           name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
+          if-no-files-found: error
+
+
+  build-chrome-prerelease:
+    name: Build Chrome prerelease - ${{ matrix.license_type.readable }}
+    if: ${{ inputs.include_prerelease == true }}
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - locales-test
+      - build-source
+    env:
+      _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+    strategy:
+      matrix:
+        license_type:
+          - artifact_prefix: ""
+            source_archive_name_prefix: ""
+            archive_name_prefix: ""
+            npm_command_prefix: "dist:"
+            readable: "open source license"
+            type: "oss"
+          - artifact_prefix: "bit-"
+            source_archive_name_prefix: "bit-"
+            archive_name_prefix: "bit-"
+            npm_command_prefix: "dist:bit:"
+            readable: "commercial license"
+            type: "commercial"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+
+      - name: Download browser source
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
+
+      - name: Unzip browser source artifact
+        run: |
+          unzip browser-source.zip
+          rm browser-source.zip
+
+      - name: NPM setup
+        run: npm ci
+        working-directory: browser-source/
+
+      - name: Remove commercial packages
+        if: ${{ matrix.license_type.type == 'oss' }}
+        run: rm -rf node_modules/@bitwarden/commercial-sdk-internal
+        working-directory: browser-source/
+
+      - name: Download SDK artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type.type != 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type.type != 'commercial' }}
+        working-directory: browser-source/
+        run: npm link ../sdk-internal
+
+      - name: Download Commercial SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type.type == 'commercial' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: commercial-sdk-internal
+          repo: bitwarden/sdk-internal
+          path: commercial-sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override Commercial SDK
+        if: ${{ inputs.sdk_branch != '' && matrix.license_type.type == 'commercial' }}
+        working-directory: browser-source/
+        run: npm link ../commercial-sdk-internal
+
+      - name: Build extension (prerelease)
+        env:
+          FLAGS: '{"prereleaseBuild":true}'
+        run: npm run ${{ matrix.license_type.npm_command_prefix }}chrome
+        working-directory: browser-source/apps/browser
+
+      - name: Upload prerelease extension artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ${{ matrix.license_type.artifact_prefix }}dist-chrome-MV3-prerelease-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{ matrix.license_type.archive_name_prefix }}dist-chrome.zip
           if-no-files-found: error
 
 
