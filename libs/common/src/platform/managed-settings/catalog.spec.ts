@@ -30,6 +30,11 @@ const TS_KEYS = [
   "theming.compactMode",
   "translation.locale",
   "vaultAppearance.copyButtons",
+  "autofill.inlineMenuVisibility",
+  "autofill.contextMenu",
+  "autofill.addedLoginPrompt",
+  "autofill.changedPasswordPrompt",
+  "autofill.showFavicons",
 ];
 
 // Pins every key's JSON type. The SDK generator types mirror the readers in
@@ -48,6 +53,11 @@ const KEY_TYPES: Record<string, "string" | "boolean" | "integer"> = {
   "theming.compactMode": "boolean",
   "translation.locale": "string",
   "vaultAppearance.copyButtons": "string",
+  "autofill.inlineMenuVisibility": "integer",
+  "autofill.contextMenu": "boolean",
+  "autofill.addedLoginPrompt": "boolean",
+  "autofill.changedPasswordPrompt": "boolean",
+  "autofill.showFavicons": "boolean",
   "generator.password.lowercase": "boolean",
   "generator.password.uppercase": "boolean",
   "generator.password.numbers": "boolean",

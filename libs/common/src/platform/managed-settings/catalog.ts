@@ -68,6 +68,37 @@ export const MANAGED_KEY_CATALOG: readonly ManagedKeyDescriptor[] = [
     origin: "ts",
     description: "Copy-button display mode.",
   },
+  // TS-only: autofill settings, consumed by the TS StateProvider overlay.
+  {
+    key: "autofill.inlineMenuVisibility",
+    type: "integer",
+    origin: "ts",
+    description: "Autofill inline menu visibility (0 off, 1 on button click, 2 on field focus).",
+  },
+  {
+    key: "autofill.contextMenu",
+    type: "boolean",
+    origin: "ts",
+    description: "Show the Bitwarden context-menu item.",
+  },
+  {
+    key: "autofill.addedLoginPrompt",
+    type: "boolean",
+    origin: "ts",
+    description: "Prompt to add a login to the vault.",
+  },
+  {
+    key: "autofill.changedPasswordPrompt",
+    type: "boolean",
+    origin: "ts",
+    description: "Prompt to update a changed password.",
+  },
+  {
+    key: "autofill.showFavicons",
+    type: "boolean",
+    origin: "ts",
+    description: "Show website icons (favicons).",
+  },
   // SDK-consumed: generator, resolved in the SDK via ApplyManagedOverride. Mirror of
   // crates/bitwarden-generators/src/managed_overrides.rs.
   {

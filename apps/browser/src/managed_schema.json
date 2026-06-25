@@ -65,6 +65,31 @@
         }
       }
     },
+    "autofill": {
+      "type": "object",
+      "properties": {
+        "inlineMenuVisibility": {
+          "type": "integer",
+          "description": "Autofill inline menu visibility (0 off, 1 on button click, 2 on field focus)."
+        },
+        "contextMenu": {
+          "type": "boolean",
+          "description": "Show the Bitwarden context-menu item."
+        },
+        "addedLoginPrompt": {
+          "type": "boolean",
+          "description": "Prompt to add a login to the vault."
+        },
+        "changedPasswordPrompt": {
+          "type": "boolean",
+          "description": "Prompt to update a changed password."
+        },
+        "showFavicons": {
+          "type": "boolean",
+          "description": "Show website icons (favicons)."
+        }
+      }
+    },
     "generator": {
       "type": "object",
       "properties": {
