@@ -7,6 +7,7 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -46,6 +47,7 @@ describe("EntityEventsComponent in-dialog navigation (no stacked dialogs)", () =
     component = new EntityEventsComponent(
       params,
       mock<ApiService>(),
+      mock<EventLogApiService>(),
       i18n,
       eventService,
       mock<UserNamePipe>(),

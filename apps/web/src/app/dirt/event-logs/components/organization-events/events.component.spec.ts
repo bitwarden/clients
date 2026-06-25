@@ -103,6 +103,18 @@ describe("EventsComponent Send access linking", () => {
     });
   });
 
+  describe("linkableMemberIds (gates the Send creator id link)", () => {
+    it("returns the ids of confirmed members", () => {
+      const ids = component.linkableMemberIds();
+      expect(ids.has("member-user-id")).toBe(true);
+      expect(ids.has("creator-user-id")).toBe(true);
+    });
+
+    it("excludes ids that do not resolve to a confirmed member", () => {
+      expect(component.linkableMemberIds().has("unknown-id")).toBe(false);
+    });
+  });
+
   describe("getUserName (Send access Member column)", () => {
     it("returns the member for a confirmed-member accessor", () => {
       const user = component.getUserName(

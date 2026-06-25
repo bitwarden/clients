@@ -48,6 +48,12 @@ import {
 import { BaseEventsComponent } from "../base-events/base-events.component";
 import { openEntityEventsDialog } from "../entity-events/entity-events.component";
 import { placeholderEvents } from "../placeholder-events";
+import {
+  collectLinkableMemberIds,
+  isLinkableMember,
+  ResolvedMember,
+  resolveSendAccessMember,
+} from "../send-access-member";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
@@ -69,7 +75,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   placeholderEvents = placeholderEvents as EventView[];
 
-  private orgUsersUserIdMap = new Map<string, any>();
+  private orgUsersUserIdMap = new Map<string, ResolvedMember>();
   readonly ProductTierType = ProductTierType;
 
   constructor(
@@ -196,18 +202,12 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   protected getUserName(r: EventResponse, userId: string) {
-    // Send access events show the accessor in the Member column, never the Send creator. This must run
-    // before the userId lookup below: EventView.userId coalesces to the creator for external accesses,
-    // which would otherwise show the creator's name instead of "External". Resolve strictly from
-    // actingUserId (a confirmed member), else the claimed domain, else a generic "External" label.
-    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
-      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
-        return this.orgUsersUserIdMap.get(r.actingUserId);
-      }
-      if (r.domainName) {
-        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
-      }
-      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
+    // Send access rows show the accessor, never the Send creator. This must run before the userId
+    // lookup below: EventView.userId coalesces to the creator for external accesses, which would
+    // otherwise show the creator's name instead of "External".
+    const sendAccessMember = resolveSendAccessMember(r, this.orgUsersUserIdMap, this.i18nService);
+    if (sendAccessMember != null) {
+      return sendAccessMember;
     }
 
     if (r.installationId != null) {
@@ -251,14 +251,17 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     return null;
   }
 
+  protected override linkableMemberIds(): ReadonlySet<string> {
+    return collectLinkableMemberIds(this.orgUsersUserIdMap);
+  }
+
   /** True when the Member-column name on a Send access row resolves to a member we can link to. */
   protected isSendAccessMemberLink(e: EventView): boolean {
     // Link only when the ACCESSOR is a confirmed member. Use actingUserId, not e.userId: the latter
     // coalesces to the Send creator for external accesses, which would wrongly link the "External" label.
     return (
       (e.type === EventType.Send_Accessed_Text || e.type === EventType.Send_Accessed_File) &&
-      e.actingUserId != null &&
-      this.orgUsersUserIdMap.get(e.actingUserId)?.organizationUserId != null
+      isLinkableMember(e.actingUserId, this.orgUsersUserIdMap)
     );
   }
 

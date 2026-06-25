@@ -59,6 +59,26 @@ describe("EventService Send events", () => {
     expect(info.message).toContain(`href="#member-events:${creatorId}"`);
   });
 
+  it("renders the creator id as plain text (no link) when the creator is not a linkable member", async () => {
+    const options = new EventOptions();
+    options.linkableMemberIds = new Set<string>(); // creator absent => not linkable
+
+    const info = await sut.getEventInfo(accessEvent(EventType.Send_Accessed_Text), options);
+
+    expect(info.message).toContain(`href="#send-events:${sendId}"`);
+    expect(info.message).not.toContain("#member-events:");
+    expect(info.message).toContain(creatorId.substring(0, 8));
+  });
+
+  it("keeps the creator id linked when the creator is a linkable member", async () => {
+    const options = new EventOptions();
+    options.linkableMemberIds = new Set<string>([creatorId]);
+
+    const info = await sut.getEventInfo(accessEvent(EventType.Send_Accessed_File), options);
+
+    expect(info.message).toContain(`href="#member-events:${creatorId}"`);
+  });
+
   it("renders the Send id on a create event", async () => {
     const info = await sut.getEventInfo({
       type: EventType.Send_Created_Text,

@@ -929,7 +929,7 @@ export class EventService {
         msg = this.i18nService.t(
           "accessedTextSendV2",
           this.formatSendId(ev, options),
-          this.formatSendCreatorId(ev),
+          this.formatSendCreatorId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "accessedTextSendV2",
@@ -941,7 +941,7 @@ export class EventService {
         msg = this.i18nService.t(
           "accessedFileSendV2",
           this.formatSendId(ev, options),
-          this.formatSendCreatorId(ev),
+          this.formatSendCreatorId(ev, options),
         );
         humanReadableMsg = this.i18nService.t(
           "accessedFileSendV2",
@@ -1196,11 +1196,15 @@ export class EventService {
     return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
   }
 
-  private formatSendCreatorId(ev: EventResponse): string {
+  private formatSendCreatorId(ev: EventResponse, options: EventOptions): string {
     if (ev.userId == null) {
       return "";
     }
     const shortId = this.getShortId(ev.userId);
+    // Render plain text (no link) when the creator is not a member we can open events for
+    if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
+      return "<code>" + shortId + "</code>";
+    }
     const a = this.makeAnchor(shortId);
     a.title = this.i18nService.t("viewMemberEvents", shortId);
     a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
@@ -1252,4 +1256,9 @@ export class EventOptions {
   disableLink = false;
   // Set when rendering inside a Send-scoped dialog, where repeating the Send id on every row is redundant.
   hideSendId = false;
+  // User ids whose member events can be opened. When provided, the Send creator id renders
+  // as a link only if its id is in this set; otherwise it renders as plain text, since clicking a
+  // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
+  // keeps all creator ids linked (for callers that don't gate on membership).
+  linkableMemberIds?: ReadonlySet<string>;
 }

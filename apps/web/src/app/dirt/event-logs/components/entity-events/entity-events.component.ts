@@ -10,7 +10,8 @@ import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EventResponse, EventType, EventView } from "@bitwarden/common/dirt/event-logs";
+import { EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
+import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -30,6 +31,11 @@ import {
   MEMBER_EVENTS_HREF_PREFIX,
   SEND_EVENTS_HREF_PREFIX,
 } from "../../services/event.service";
+import {
+  collectLinkableMemberIds,
+  ResolvedMember,
+  resolveSendAccessMember,
+} from "../send-access-member";
 
 export interface EntityEventsDialogParams {
   entity: "user" | "cipher" | "secret" | "project" | "service-account" | "send";
@@ -56,7 +62,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
     end: [""],
   });
 
-  private orgUsersUserIdMap = new Map<string, any>();
+  private orgUsersUserIdMap = new Map<string, ResolvedMember>();
   private orgUsersIdMap = new Map<string, any>();
 
   // These are editable fields (not read-only getters) on purpose: clicking a Send or member ID in
@@ -73,6 +79,7 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(DIALOG_DATA) private params: EntityEventsDialogParams,
     private apiService: ApiService,
+    private eventLogApiService: EventLogApiService,
     private i18nService: I18nService,
     private eventService: EventService,
     private userNamePipe: UserNamePipe,
@@ -214,66 +221,76 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const token = clearExisting ? null : this.continuationToken;
+    const orgId = this.params.organizationId;
+
     let response: ListResponse<EventResponse>;
-    if (this.entity === "user" && this.providerId) {
-      response = await this.apiService.getEventsProviderUser(
-        this.providerId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else if (this.entity === "user") {
-      response = await this.apiService.getEventsOrganizationUser(
-        this.params.organizationId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else if (this.entity === "send") {
-      response = await this.apiService.getEventsSend(
-        this.params.organizationId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else if (this.entity === "secret") {
-      response = await this.apiService.getEventsSecret(
-        this.params.organizationId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else if (this.entity === "service-account") {
-      response = await this.apiService.getEventsServiceAccount(
-        this.params.organizationId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else if (this.entity === "project") {
-      response = await this.apiService.getEventsProject(
-        this.params.organizationId,
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
-    } else {
-      response = await this.apiService.getEventsCipher(
-        this.entityId,
-        dates[0],
-        dates[1],
-        clearExisting ? null : this.continuationToken,
-      );
+    switch (this.entity) {
+      case "user":
+        response = this.providerId
+          ? await this.apiService.getEventsProviderUser(
+              this.providerId,
+              this.entityId,
+              dates[0],
+              dates[1],
+              token,
+            )
+          : await this.apiService.getEventsOrganizationUser(
+              orgId,
+              this.entityId,
+              dates[0],
+              dates[1],
+              token,
+            );
+        break;
+      case "send":
+        response = await this.eventLogApiService.getEventsSend(
+          orgId,
+          this.entityId,
+          dates[0],
+          dates[1],
+          token,
+        );
+        break;
+      case "secret":
+        response = await this.apiService.getEventsSecret(
+          orgId,
+          this.entityId,
+          dates[0],
+          dates[1],
+          token,
+        );
+        break;
+      case "service-account":
+        response = await this.apiService.getEventsServiceAccount(
+          orgId,
+          this.entityId,
+          dates[0],
+          dates[1],
+          token,
+        );
+        break;
+      case "project":
+        response = await this.apiService.getEventsProject(
+          orgId,
+          this.entityId,
+          dates[0],
+          dates[1],
+          token,
+        );
+        break;
+      case "cipher":
+      default:
+        response = await this.apiService.getEventsCipher(this.entityId, dates[0], dates[1], token);
+        break;
     }
 
     const options = new EventOptions();
     options.hideSendId = this.entity === "send";
+    // Built from the org user map, which is only populated when showUser is set. Dialogs that don't
+    // load member data (showUser=false) get an empty set, so creator ids render as plain text rather
+    // than links that would resolve to nothing on click.
+    options.linkableMemberIds = collectLinkableMemberIds(this.orgUsersUserIdMap);
 
     this.continuationToken = response.continuationToken;
     const events: EventView[] = await Promise.all(
@@ -311,14 +328,9 @@ export class EntityEventsComponent implements OnInit, OnDestroy {
   // Send access rows show the accessor (a confirmed member, the claimed domain, or "External"),
   // never the Send creator; all other rows resolve the acting member from the org user map.
   private resolveMember(r: EventResponse, userId: string) {
-    if (r.type === EventType.Send_Accessed_Text || r.type === EventType.Send_Accessed_File) {
-      if (r.actingUserId != null && this.orgUsersUserIdMap.has(r.actingUserId)) {
-        return this.orgUsersUserIdMap.get(r.actingUserId);
-      }
-      if (r.domainName) {
-        return { name: this.i18nService.t("sendAccessExternalDomain", r.domainName), email: "" };
-      }
-      return { name: this.i18nService.t("sendAccessExternal"), email: "" };
+    const sendAccessMember = resolveSendAccessMember(r, this.orgUsersUserIdMap, this.i18nService);
+    if (sendAccessMember != null) {
+      return sendAccessMember;
     }
 
     if (userId != null && this.orgUsersUserIdMap.has(userId)) {
