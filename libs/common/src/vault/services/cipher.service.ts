@@ -723,8 +723,13 @@ export class CipherService implements CipherServiceAbstraction {
       return [];
     }
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+    const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const key = await this.keyService.getOrgKey(organizationId);
     const decCiphers: CipherView[] = await Promise.all(
       ciphers.map(async (cipher) => {
         return await cipher.decrypt(key);
