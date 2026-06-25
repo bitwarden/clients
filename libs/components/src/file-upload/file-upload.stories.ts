@@ -1,4 +1,4 @@
-import { FormsModule } from "@angular/forms";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,7 +14,13 @@ export default {
   component: FileUploadComponent,
   decorators: [
     moduleMetadata({
-      imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, FormsModule],
+      imports: [
+        FileUploadComponent,
+        BitLabelComponent,
+        BitHintDirective,
+        FormsModule,
+        ReactiveFormsModule,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -53,11 +59,18 @@ export default {
 
 type Story = StoryObj<FileUploadComponent>;
 
+function createErroredControl(message: string): FormControl<File[]> {
+  const control = new FormControl<File[]>([], { nonNullable: true });
+  control.setErrors({ custom: { message } });
+  control.markAsTouched();
+  return control;
+}
+
 export const Default: Story = {
   render: (args) => ({
     props: { ...args, files: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(ngModel)]="files">
+      <bit-file-upload [accept]="accept" [(ngModel)]="files">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -69,10 +82,17 @@ export const Default: Story = {
 };
 
 export const DefaultWithError: Story = {
-  ...Default,
+  render: (args) => ({
+    props: { ...args, fileControl: createErroredControl("File is too large") },
+    template: /*html*/ `
+      <bit-file-upload [accept]="accept" [formControl]="fileControl">
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
   args: {
-    ...Default.args,
-    errorMessage: "File is too large",
+    accept: ".png,.jpg,.gif,.svg",
   },
 };
 
@@ -80,7 +100,7 @@ export const DefaultInactive: Story = {
   render: (args) => ({
     props: { ...args, files: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(ngModel)]="files" [disabled]="true">
+      <bit-file-upload [accept]="accept" [(ngModel)]="files" [disabled]="true">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -102,7 +122,6 @@ export const Dropzone: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [errorMessage]="errorMessage"
         [(ngModel)]="files"
         dropzone
       >
@@ -129,7 +148,6 @@ export const DropzoneDisabled: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [errorMessage]="errorMessage"
         [(ngModel)]="files"
         dropzone
         [disabled]="true"
@@ -143,10 +161,22 @@ export const DropzoneDisabled: Story = {
 };
 
 export const Error: Story = {
-  ...Dropzone,
-  args: {
-    errorMessage: "File is too large",
-  },
+  render: (args) => ({
+    props: { ...args, fileControl: createErroredControl("File is too large") },
+    template: /*html*/ `
+      <bit-file-upload
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [formControl]="fileControl"
+        dropzone
+      >
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
+  args: {},
 };
 
 function createMockFile(name: string, sizeBytes: number): File {

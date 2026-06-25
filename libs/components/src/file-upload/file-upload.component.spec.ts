@@ -46,7 +46,6 @@ const i18nProvider = {
       [dropzone]="dropzone"
       [multiple]="multiple"
       [disabled]="disabled"
-      [errorMessage]="errorMessage"
       [formControl]="file"
     >
       <bit-label>Upload</bit-label>
@@ -57,13 +56,19 @@ class TestHostComponent {
   dropzone = false;
   multiple = false;
   disabled = false;
-  errorMessage: string | undefined = undefined;
   file = new FormControl<File[]>([], { nonNullable: true });
   get files(): File[] {
     return this.file.value;
   }
   set files(value: File[]) {
     this.file.setValue(value);
+  }
+  showError(message = "boom"): void {
+    this.file.setErrors({ custom: { message } });
+    this.file.markAsTouched();
+  }
+  clearError(): void {
+    this.file.setErrors(null);
   }
 }
 
@@ -73,7 +78,7 @@ class TestHostComponent {
   selector: "hint-host",
   imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
   template: `
-    <bit-file-upload [dropzone]="dropzone" [errorMessage]="errorMessage" [formControl]="file">
+    <bit-file-upload [dropzone]="dropzone" [formControl]="file">
       <bit-label>Upload</bit-label>
       <bit-hint>Pick a file</bit-hint>
     </bit-file-upload>
@@ -81,8 +86,14 @@ class TestHostComponent {
 })
 class HintHostComponent {
   dropzone = false;
-  errorMessage: string | undefined = undefined;
   file = new FormControl<File[]>([], { nonNullable: true });
+  showError(message = "boom"): void {
+    this.file.setErrors({ custom: { message } });
+    this.file.markAsTouched();
+  }
+  clearError(): void {
+    this.file.setErrors(null);
+  }
 }
 
 // TODO: Fix this the next time the file is edited.
@@ -457,12 +468,12 @@ describe("FileUploadComponent", () => {
       fixture.detectChanges();
     });
 
-    it("points at the rendered bit-error id when errorMessage is set", () => {
+    it("points at the rendered bit-error id when the FormControl is invalid and touched", () => {
       const overlayButton = fixture.nativeElement.querySelector(
         'button[type="button"]',
       ) as HTMLButtonElement;
 
-      fixture.componentInstance.errorMessage = "boom";
+      fixture.componentInstance.showError();
       fixture.detectChanges();
 
       const errorEl = fixture.nativeElement.querySelector("bit-error") as HTMLElement;
@@ -485,7 +496,7 @@ describe("FileUploadComponent", () => {
       fixture.detectChanges();
     });
 
-    it("points at the rendered bit-hint id when no errorMessage is set", () => {
+    it("points at the rendered bit-hint id when the FormControl has no error", () => {
       const overlayButton = fixture.nativeElement.querySelector(
         'button[type="button"]',
       ) as HTMLButtonElement;
@@ -496,18 +507,18 @@ describe("FileUploadComponent", () => {
       expect(overlayButton.getAttribute("aria-describedby")).toBe(hintEl.id);
     });
 
-    it("switches back to the bit-hint id after the errorMessage is cleared", () => {
+    it("switches back to the bit-hint id after the FormControl error is cleared", () => {
       const overlayButton = fixture.nativeElement.querySelector(
         'button[type="button"]',
       ) as HTMLButtonElement;
 
-      fixture.componentInstance.errorMessage = "boom";
+      fixture.componentInstance.showError();
       fixture.detectChanges();
 
       const errorEl = fixture.nativeElement.querySelector("bit-error") as HTMLElement;
       expect(overlayButton.getAttribute("aria-describedby")).toBe(errorEl.id);
 
-      fixture.componentInstance.errorMessage = undefined;
+      fixture.componentInstance.clearError();
       fixture.detectChanges();
 
       const hintEl = fixture.nativeElement.querySelector("bit-hint") as HTMLElement;
@@ -696,7 +707,7 @@ describe("FileUploadComponent", () => {
 
     it("chains the files-uploaded id with the error id in aria-describedby when both are present", () => {
       fixture.componentInstance.files = [makeFile("a.txt"), makeFile("b.txt")];
-      fixture.componentInstance.errorMessage = "boom";
+      fixture.componentInstance.showError();
       fixture.detectChanges();
 
       const input = dropzoneInput();

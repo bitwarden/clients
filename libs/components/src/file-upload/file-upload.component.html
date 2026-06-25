@@ -13,7 +13,7 @@
       [accept]="accept()"
       [maxFileSize]="maxFileSize()"
       [multiple]="multiple()"
-      [errorMessage]="errorMessage()"
+      [hasError]="formFieldControl.hasError()"
       [disabled]="disabled()"
       [ariaLabelledBy]="labelId"
       [ariaDescribedBy]="ariaDescribedBy()"
@@ -24,7 +24,7 @@
     }}</span>
     <span [id]="filesUploadedStatusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
   } @else {
-    <div bitFieldContainer class="tw-relative" [hasError]="!!errorMessage()">
+    <div bitFieldContainer class="tw-relative" [hasError]="formFieldControl.hasError()">
       <div
         class="tw-relative tw-flex tw-shrink-0 tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-py-2 tw-rounded-s-[11px]"
         [class.tw-bg-bg-quaternary]="!disabled()"
@@ -75,11 +75,10 @@
     </div>
   }
 
-  @if (errorMessage()) {
-    <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
+  @if (formFieldControl.hasError()) {
     <bit-error
       [class.!tw-mt-0]="!useDropzoneVariant()"
-      [error]="['', { message: errorMessage() }]"
+      [error]="formFieldControl.error"
     ></bit-error>
   } @else {
     <ng-content select="bit-hint"></ng-content>

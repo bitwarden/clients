@@ -49,8 +49,8 @@ export class DropzoneComponent {
   /** Allow multiple file selection */
   readonly multiple = input(false, { transform: booleanAttribute });
 
-  /** Error state — shows danger border and message */
-  readonly errorMessage = input<string>();
+  /** Error state — shows danger border */
+  readonly hasError = input(false, { transform: booleanAttribute });
 
   /** Disabled state — prevents file selection and drag/drop */
   readonly disabled = input(false, { transform: booleanAttribute });
@@ -106,7 +106,7 @@ export class DropzoneComponent {
 
     if (this.disabled()) {
       base.push("tw-text-fg-inactive", "tw-border-border-base", "!tw-cursor-not-allowed");
-    } else if (this.errorMessage()) {
+    } else if (this.hasError()) {
       base.push("tw-border-border-danger", "tw-cursor-pointer");
     } else if (this.isDragOver()) {
       base.push("tw-border-border-strong", "tw-cursor-pointer");

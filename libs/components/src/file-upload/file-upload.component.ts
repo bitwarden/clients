@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -19,6 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitFieldContainerDirective } from "../form-field";
 import { BitErrorComponent } from "../form-field/error.component";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 
 import { DropzoneComponent } from "./dropzone.component";
 import { FileListComponent } from "./file-list.component";
@@ -30,6 +31,12 @@ let nextId = 0;
   selector: "bit-file-upload",
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [
+    {
+      directive: BitFormFieldControlDirective,
+      inputs: ["required"],
+    },
+  ],
   imports: [
     DropzoneComponent,
     FileListComponent,
@@ -37,13 +44,6 @@ let nextId = 0;
     BitFieldContainerDirective,
     I18nPipe,
     BitErrorComponent,
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: FileUploadComponent,
-      multi: true,
-    },
   ],
   host: {
     class: "tw-block",
@@ -79,9 +79,6 @@ export class FileUploadComponent implements ControlValueAccessor {
    */
   readonly multiple = input(false, { transform: booleanAttribute });
 
-  /** Error state — shows danger border and message */
-  readonly errorMessage = input<string>();
-
   private readonly _files = signal<File[]>([]);
   /** Current selection. External consumers should bind via CVA; this signal is read-only. */
   readonly files = this._files.asReadonly();
@@ -97,6 +94,13 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   private readonly cvaOnChange = signal<(value: File[]) => void>(() => {});
   private readonly cvaOnTouched = signal<() => void>(() => {});
+
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  /**
+   * Exposes form-control behavior (`hasError`, `error`, `required`) sourced from
+   * the bound `NgControl`. Drives the danger border and the rendered `bit-error`.
+   */
+  protected readonly formFieldControl = inject(BitFormFieldControlDirective);
 
   /** Required for NG_VALUE_ACCESSOR. Form value is always `File[]` ([] = no file). */
   writeValue(value: File[] | null): void {
@@ -183,6 +187,10 @@ export class FileUploadComponent implements ControlValueAccessor {
   private readonly pendingFocusIndex = signal<number | null>(null);
 
   constructor() {
+    if (this.ngControl != null) {
+      this.ngControl.valueAccessor = this;
+    }
+
     effect(() => {
       const idx = this.pendingFocusIndex();
       if (idx === null) {
@@ -203,7 +211,7 @@ export class FileUploadComponent implements ControlValueAccessor {
     if (this.useDropzoneVariant() && this.files().length > 0) {
       ids.push(this.filesUploadedStatusId);
     }
-    if (this.errorMessage()) {
+    if (this.formFieldControl.hasError()) {
       const errorId = this.errorEl()?.id;
       if (errorId) {
         ids.push(errorId);

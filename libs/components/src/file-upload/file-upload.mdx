@@ -161,23 +161,28 @@ renders.
 
 ### Error state
 
-Bind a string to `errorMessage` to show the danger border and an error message below the input. Set
-it back to `undefined` to clear the error.
-
-```html
-<bit-file-upload dropzone [maxFileSize]="30" formControlName="file" [errorMessage]="fileSizeError">
-  <bit-label>Upload file</bit-label>
-</bit-file-upload>
-```
+The error border and message render automatically when the bound `FormControl` is `invalid` and
+`touched`. Use Angular validators (or `setErrors`) on the control to drive the state.
 
 ```ts
-fileSizeError: string | undefined;
-
-onFilesChange(files: File[]) {
-  const oversized = files.some((f) => f.size > 30 * 1024 * 1024);
-  this.fileSizeError = oversized ? "File exceeds the 30 MB limit." : undefined;
-}
+form = new FormGroup({
+  file: new FormControl<File[]>([], {
+    nonNullable: true,
+    validators: [
+      Validators.required,
+      (control) => {
+        const file = control.value[0];
+        return file && file.size > 30 * 1024 * 1024
+          ? { tooLarge: { message: "File exceeds the 30 MB limit." } }
+          : null;
+      },
+    ],
+  }),
+});
 ```
+
+The component reads the first error from `control.errors` and renders it through `<bit-error>`,
+matching the rest of the Bitwarden form-field family.
 
 ## Accessibility
 
