@@ -305,7 +305,7 @@ impl WebAuthnPlugin {
     pub fn perform_user_verification(
         &self,
         request: PluginUserVerificationRequest,
-        operation_request_hash: &[u8],
+        request_hash: &[u8],
     ) -> Result<(), WinWebAuthnError> {
         tracing::debug!(?request.transaction_id, ?request.window_handle, "Handling user verification request");
 
@@ -314,7 +314,7 @@ impl WebAuthnPlugin {
 
         // Send UV request
         let request_raw: PluginUserVerificationRequestRaw = (&request).into();
-        perform_user_verification(&request_raw, &pub_key, operation_request_hash)
+        perform_user_verification(&request_raw, &pub_key, request_hash)
     }
 
     /// Synchronize credentials to Windows Hello cache.

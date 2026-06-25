@@ -87,11 +87,12 @@ pub(in crate::api::plugin) unsafe fn get_request_hash(
     Ok(OwnedRequestHash(request_hash))
 }
 
-trait OperationRequest<'a> {
+pub(in crate::api::plugin) trait OperationRequest<'a> {
     fn transaction_id(&self) -> GUID;
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized;
@@ -104,11 +105,12 @@ impl<'a> OperationRequest<'a> for PluginGetAssertionRequest<'a> {
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized,
     {
-        Self::try_from_ptr(request)
+        Self::try_from_ptr(request, request_hash)
     }
 }
 
@@ -119,11 +121,12 @@ impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized,
     {
-        Self::try_from_ptr(request)
+        Self::try_from_ptr(request, request_hash)
     }
 }
 
