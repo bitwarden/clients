@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { CipherType } from "../../../vault/enums";
+import { CipherView } from "../../../vault/models/view/cipher.view";
+import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
 import { Fido2Utils } from "./fido2-utils";
 

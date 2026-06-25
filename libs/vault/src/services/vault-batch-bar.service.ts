@@ -18,6 +18,8 @@ import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/mode
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -49,6 +51,11 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
 } from "../tokens/bulk-delete-dialog.token";
+import {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+  BulkEditCollectionAccessResult,
+} from "../tokens/bulk-edit-collection-access-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
 import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
@@ -93,9 +100,14 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly configService = inject(ConfigService);
   private readonly assignCollectionsDialog =
     inject<AssignCollectionsDialogRef>(ASSIGN_COLLECTIONS_DIALOG);
   private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG);
+  private readonly bulkEditCollectionAccessDialog = inject<BulkEditCollectionAccessDialogRef>(
+    BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+    { optional: true },
+  );
 
   private readonly defaultConfig: VaultBatchBarConfig = {
     isOrgVault: false,
@@ -146,6 +158,17 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   });
 
   readonly selectedCount = computed(() => this.selected().length);
+
+  private readonly batchBarFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
+  /** True when the batch bar feature flag is enabled. */
+  readonly enabled = computed(() => this.batchBarFlag());
+
+  /** True when the batch bar is actively visible: feature flag on and at least one item selected. */
+  readonly barVisible = computed(() => this.batchBarFlag() && this.selectedCount() > 0);
 
   /** Selected items that are ciphers. */
   readonly selectedCiphers = computed(() =>
@@ -285,7 +308,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     // Org-vault admins can assign any cipher to a collection without further checks, `isOrgVault` should
     // only be true when the user is within the Admin Console.
-    if (config.isOrgVault && selected.length !== 0) {
+    if (config.isOrgVault && selectedCiphers.length !== 0) {
       return true;
     }
 
@@ -322,6 +345,19 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     return (
       (canEditOrManageAll || allCiphersHaveEdit) && collectionNotSelected && hasEditableCollections
     );
+  });
+
+  /**
+   * True when the selected items are collections-only and the vault context is an org vault.
+   * Per-collection `canEdit(org)` checks are deferred to {@link bulkEditCollectionAccess}.
+   */
+  readonly canEditCollectionAccess = computed(() => {
+    const config = this.config();
+    const selected = this.selected();
+    if (!config.isOrgVault || selected.length === 0) {
+      return false;
+    }
+    return selected.some((i) => i.collection !== undefined);
   });
 
   constructor() {
@@ -677,6 +713,42 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
+      this.selection.clear();
+      this._completed$.next();
+    }
+  }
+
+  /** Open the bulk-edit-collection-access dialog for the selected collections. No-op when token is not provided. */
+  async bulkEditCollectionAccess(): Promise<void> {
+    if (!this.bulkEditCollectionAccessDialog) {
+      return;
+    }
+
+    const { organization: org } = this.config();
+    if (!org) {
+      return;
+    }
+
+    const collections = this.selectedCollections();
+    if (collections.length === 0) {
+      return;
+    }
+
+    const canEditAll = collections.every((c) => c.canEdit(org));
+    if (!canEditAll) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("missingPermissions"),
+      });
+      return;
+    }
+
+    const result = await this.bulkEditCollectionAccessDialog.open({
+      organizationId: org.id,
+      collections,
+    });
+
+    if (result === BulkEditCollectionAccessResult.Saved) {
       this.selection.clear();
       this._completed$.next();
     }

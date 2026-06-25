@@ -161,21 +161,21 @@ export class CriticalApplicationsTabComponent {
   }
 
   protected openCriticalAtRiskMembersDrawer(): void {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskMembers,
       "criticalAppsAtRiskMembers",
     );
   }
 
   protected openCriticalAtRiskAppsDrawer(): void {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskApps,
       "criticalAppsAtRiskApplications",
     );
   }
 
   readonly showAppAtRiskMembers = (applicationName: string): void => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   readonly removeCriticalApplication = (hostname: string): void => {
