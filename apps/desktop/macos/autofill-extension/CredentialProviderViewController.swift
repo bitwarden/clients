@@ -165,7 +165,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         
         // To whomever is reading this. Sorry. But MacOS couldn't give us an accurate window positioning, possibly due to animations
         // So I added some retry logic, as well as a fall back to the mouse position which is likely at the sort of the right place.
-        // In my testing we often succed after 4-7 attempts.
+        // In my testing we often succeed after 4-7 attempts.
         // Wait for window frame to stabilize (animation to complete)
         var lastFrame: CGRect = .zero
         var stableCount = 0
