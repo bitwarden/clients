@@ -13,7 +13,11 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { BitPasswordInputToggleDirective, ToastService } from "@bitwarden/components";
+import {
+  BitPasswordInputToggleDirective,
+  DialogService,
+  ToastService,
+} from "@bitwarden/components";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
@@ -41,6 +45,7 @@ describe("LoginDetailsSectionComponent", () => {
   let totpCaptureService: MockProxy<TotpCaptureService>;
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
+  let dialogService: MockProxy<DialogService>;
 
   const collect = jest.fn().mockResolvedValue(null);
   const getInitialCipherView = jest.fn((): any => null);
@@ -59,6 +64,7 @@ describe("LoginDetailsSectionComponent", () => {
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
+    dialogService = mock<DialogService>();
     collect.mockClear();
 
     await TestBed.configureTestingModule({
@@ -74,6 +80,7 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: EventCollectionService, useValue: { collect } },
       ],
     })
+      .overrideProvider(DialogService, { useValue: dialogService })
       .overrideComponent(LoginDetailsSectionComponent, {
         remove: {
           imports: [AutofillOptionsComponent],
@@ -587,13 +594,17 @@ describe("LoginDetailsSectionComponent", () => {
       expect(getPasskeyField()).toBeNull();
     });
 
-    it("should remove the passkey when the remove button is clicked", fakeAsync(() => {
+    it("should remove the passkey when the user confirms the dialog", fakeAsync(() => {
+      dialogService.openSimpleDialog.mockResolvedValue(true);
       fixture.detectChanges();
 
       getRemovePasskeyBtn().click();
 
       tick();
 
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ title: { key: "removePasskey" }, type: "warning" }),
+      );
       expect(cipherFormContainer.patchCipher).toHaveBeenCalled();
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
 
@@ -601,6 +612,19 @@ describe("LoginDetailsSectionComponent", () => {
 
       expect(updatedCipher.login.fido2Credentials).toBeNull();
       expect(component.hasPasskey).toBe(false);
+    }));
+
+    it("should not remove the passkey when the user cancels the dialog", fakeAsync(() => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      fixture.detectChanges();
+      cipherFormContainer.patchCipher.mockClear();
+
+      getRemovePasskeyBtn().click();
+
+      tick();
+
+      expect(cipherFormContainer.patchCipher).not.toHaveBeenCalled();
+      expect(component.hasPasskey).toBe(true);
     }));
   });
 });
