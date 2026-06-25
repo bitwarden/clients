@@ -61,7 +61,7 @@ describe("OverlayGlobalStateProvider", () => {
     expect(await firstValueFrom(provider.get(KEY).state$)).toBe(99);
   });
 
-  it("updates to managed value after changes$ fires (late registration)", () => {
+  it("updates to managed value after changes$ fires (config-value reactivity)", () => {
     defineManagedOverlay({
       keyDefinition: KEY,
       coerce: (get) => {
@@ -78,6 +78,33 @@ describe("OverlayGlobalStateProvider", () => {
     const emissions: number[] = [];
     const sub = provider.get(KEY).state$.subscribe((v) => emissions.push(v));
 
+    managed.value = "42";
+    fireChange();
+    sub.unsubscribe();
+
+    expect(emissions[0]).toBe(12);
+    expect(emissions[emissions.length - 1]).toBe(42);
+  });
+
+  it("registers the overlay after get() and takes effect on next changes$ tick", () => {
+    const stored$ = new BehaviorSubject<number>(12);
+    const innerHolder: GlobalState<number> = { state$: stored$, update: jest.fn() } as any;
+    const inner = { get: () => innerHolder } as any;
+    const { service, managed, fireChange } = makeManagedSettings(undefined);
+
+    const provider = new OverlayGlobalStateProvider(inner, service);
+    const holder = provider.get(KEY);
+    const emissions: number[] = [];
+    const sub = holder.state$.subscribe((v) => emissions.push(v));
+
+    // Register the overlay after get() was already called
+    defineManagedOverlay({
+      keyDefinition: KEY,
+      coerce: (get) => {
+        const raw = get("test.len");
+        return raw == null ? null : (JSON.parse(raw) as number);
+      },
+    });
     managed.value = "42";
     fireChange();
     sub.unsubscribe();
