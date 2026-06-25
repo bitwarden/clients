@@ -454,6 +454,11 @@ abstract class UrlEnvironment implements Environment {
       return this.urls.base + baseSuffix;
     }
 
+    // For self-hosted environments, try to use webVault URL as base before falling back to production
+    if (this.region === Region.SelfHosted && this.urls.webVault) {
+      return this.urls.webVault + baseSuffix;
+    }
+
     return DEFAULT_REGION_CONFIG.urls[key];
   }
 }
