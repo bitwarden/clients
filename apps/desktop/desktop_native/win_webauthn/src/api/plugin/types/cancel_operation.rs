@@ -1,6 +1,5 @@
-use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
+use std::{marker::PhantomData, ptr::NonNull};
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use windows::{
     core::{GUID, HRESULT},
     Win32::Foundation::E_INVALIDARG,
