@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -16,11 +17,14 @@ describe("NewSendDropdownV2Component", () => {
   let billingService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
   let premiumUpgradeService: MockProxy<PremiumUpgradePromptService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     billingService = mock<BillingAccountProfileStateService>();
     accountService = mock<AccountService>();
     premiumUpgradeService = mock<PremiumUpgradePromptService>();
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     // Default: user has premium
     accountService.activeAccount$ = of({ id: "user-123" } as any);
@@ -36,6 +40,7 @@ describe("NewSendDropdownV2Component", () => {
         { provide: AccountService, useValue: accountService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradeService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
