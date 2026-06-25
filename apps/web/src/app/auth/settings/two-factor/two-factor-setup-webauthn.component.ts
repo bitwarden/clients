@@ -5,9 +5,9 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
 import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorWebAuthnChallengeRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-challenge.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-update.request";
@@ -213,14 +213,13 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (this.keyIdAvailable == null) {
       return;
     }
-    const request = await this.buildRequestModel(SecretVerificationRequest);
+    const request = new TwoFactorWebAuthnChallengeRequest(this.requireUserVerificationToken());
     this.challengePromise = this.twoFactorService.getTwoFactorWebAuthnChallenge(request);
     const wrappedChallenge = await this.challengePromise;
     if (wrappedChallenge.options == null) {
       this.webAuthnError = true;
       return;
     }
-    this.userVerificationToken = wrappedChallenge.userVerificationToken;
     this.readDevice(wrappedChallenge.options);
   };
 

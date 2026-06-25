@@ -12,6 +12,7 @@ import { TwoFactorEmailLoginRequest } from "../request/two-factor-email-login.re
 import { TwoFactorEmailSetupRequest } from "../request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "../request/two-factor-email-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "../request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnChallengeRequest } from "../request/two-factor-web-authn-challenge.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "../request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "../request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "../request/two-factor-web-authn-update.request";
@@ -218,7 +219,7 @@ export class DefaultTwoFactorApiService implements TwoFactorApiService {
   }
 
   async getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
+    request: TwoFactorWebAuthnChallengeRequest,
   ): Promise<TwoFactorWebAuthnChallengeResponse> {
     const response = await this.apiService.send(
       "POST",

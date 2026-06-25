@@ -7,6 +7,7 @@ export * from "./two-factor-email-login.request";
 export * from "./two-factor-email-setup.request";
 export * from "./two-factor-email-update.request";
 export * from "./two-factor-organization-duo-delete.request";
+export * from "./two-factor-web-authn-challenge.request";
 export * from "./two-factor-web-authn-delete-all.request";
 export * from "./two-factor-web-authn-delete.request";
 export * from "./two-factor-web-authn-update.request";

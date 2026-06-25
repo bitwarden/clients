@@ -6,12 +6,10 @@ import { WebAuthnChallengeResponse } from "../../models/response/web-authn-chall
  */
 export class TwoFactorWebAuthnChallengeResponse extends BaseResponse {
   options: WebAuthnChallengeResponse | null;
-  userVerificationToken: string;
 
   constructor(response: any) {
     super(response);
     const options = this.getResponseProperty("Options");
     this.options = options == null ? null : new WebAuthnChallengeResponse(options);
-    this.userVerificationToken = this.getResponseProperty("UserVerificationToken");
   }
 }

@@ -12,6 +12,7 @@ import { TwoFactorEmailLoginRequest } from "../request/two-factor-email-login.re
 import { TwoFactorEmailSetupRequest } from "../request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "../request/two-factor-email-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "../request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnChallengeRequest } from "../request/two-factor-web-authn-challenge.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "../request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "../request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "../request/two-factor-web-authn-update.request";
@@ -513,9 +514,8 @@ describe("TwoFactorApiService", () => {
     });
 
     describe("getTwoFactorWebAuthnChallenge", () => {
-      it("obtains the wrapped challenge and user verification token", async () => {
-        const request = new SecretVerificationRequest();
-        request.masterPasswordHash = "master-password-hash";
+      it("replays the cached user-verification token and obtains the wrapped challenge", async () => {
+        const request = new TwoFactorWebAuthnChallengeRequest("uv-token");
         const mockResponse = {
           Options: {
             challenge: "Y2hhbGxlbmdlLXN0cmluZw",
@@ -529,7 +529,6 @@ describe("TwoFactorApiService", () => {
             excludeCredentials: [] as PublicKeyCredentialDescriptor[],
             timeout: 60000,
           },
-          UserVerificationToken: "uv-token",
         };
         apiService.send.mockResolvedValue(mockResponse);
 
@@ -546,7 +545,6 @@ describe("TwoFactorApiService", () => {
         expect(result.options).toBeDefined();
         expect(result.options.challenge).toBeDefined();
         expect(result.options.rp).toHaveProperty("name", "Bitwarden");
-        expect(result.userVerificationToken).toBe("uv-token");
       });
     });
 

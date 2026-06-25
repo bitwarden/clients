@@ -12,6 +12,7 @@ import { TwoFactorEmailLoginRequest } from "../request/two-factor-email-login.re
 import { TwoFactorEmailSetupRequest } from "../request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "../request/two-factor-email-update.request";
 import { TwoFactorOrganizationDuoDeleteRequest } from "../request/two-factor-organization-duo-delete.request";
+import { TwoFactorWebAuthnChallengeRequest } from "../request/two-factor-web-authn-challenge.request";
 import { TwoFactorWebAuthnDeleteAllRequest } from "../request/two-factor-web-authn-delete-all.request";
 import { TwoFactorWebAuthnDeleteRequest } from "../request/two-factor-web-authn-delete.request";
 import { TwoFactorWebAuthnUpdateRequest } from "../request/two-factor-web-authn-update.request";
@@ -311,16 +312,16 @@ export abstract class TwoFactorService {
   /**
    * Gets a WebAuthn challenge for registering a new WebAuthn credential from the API.
    * This must be called before putTwoFactorWebAuthn to obtain the cryptographic challenge
-   * required for credential creation. The challenge is used by the browser's WebAuthn API.
-   * Requires user verification via master password or OTP.
+   * required for credential creation. Authorized by replaying the user-verification token
+   * minted by the prior getTwoFactorWebAuthn call (token-replay chain step); that same
+   * token stays valid for the subsequent PUT.
    * Used for settings management.
    *
-   * @param request The {@link SecretVerificationRequest} to prove authentication.
+   * @param request The {@link TwoFactorWebAuthnChallengeRequest} carrying the user-verification token.
    * @returns A promise that resolves to the credential creation options containing the challenge.
-   * @remarks Use {@link UserVerificationService.buildRequest} to create the request object.
    */
   abstract getTwoFactorWebAuthnChallenge(
-    request: SecretVerificationRequest,
+    request: TwoFactorWebAuthnChallengeRequest,
   ): Promise<TwoFactorWebAuthnChallengeResponse>;
 
   /**
