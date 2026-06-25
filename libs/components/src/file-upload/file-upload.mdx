@@ -22,7 +22,7 @@ The default variant renders a styled file-input button alongside a filename read
 single-file selection where a minimal footprint is preferred.
 
 ```html
-<bit-file-upload variant="default" accept=".png,.jpg,.gif,.svg" [(files)]="files">
+<bit-file-upload accept=".png,.jpg,.gif,.svg" formControlName="file">
   <bit-label>Upload file</bit-label>
   <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
 </bit-file-upload>
@@ -37,10 +37,10 @@ single-file selection where a minimal footprint is preferred.
 ### Dropzone
 
 The dropzone variant renders a drag-and-drop area. Users can either click the area to open the file
-picker or drag files directly onto it.
+picker or drag files directly onto it. Add the `dropzone` attribute to opt in.
 
 ```html
-<bit-file-upload variant="dropzone" [maxFileSize]="30" [(files)]="files">
+<bit-file-upload dropzone [maxFileSize]="30" formControlName="file">
   <bit-label>Upload file</bit-label>
   <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
 </bit-file-upload>
@@ -50,22 +50,21 @@ picker or drag files directly onto it.
 
 ### Multiple files
 
-Setting `multiple="true"` automatically switches to the dropzone variant regardless of the `variant`
-input. A file list showing each file's name, size, and a delete button renders below the dropzone.
+Setting `multiple` automatically switches to the dropzone variant — the inline picker cannot accept
+multiple files. A file list with name, size, and a delete button renders below the dropzone.
 
 ```html
-<bit-file-upload variant="dropzone" [maxFileSize]="30" multiple [(files)]="files">
+<bit-file-upload [maxFileSize]="30" multiple formControlName="files">
   <bit-label>Upload files</bit-label>
   <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
 </bit-file-upload>
 ```
 
-When `multiple` is set, the form value exposed via `formControlName` is `File[]` rather than the
-default `File | null`. Type the `FormControl` accordingly:
+The form value is always `File[]` (empty array means no file). Type the `FormControl` accordingly:
 
 ```ts
 form = new FormGroup({
-  attachments: new FormControl<File[]>([], { nonNullable: true }),
+  files: new FormControl<File[]>([], { nonNullable: true }),
 });
 ```
 
@@ -107,7 +106,7 @@ avatar upload or an inline attachment field.
 
 Use the **dropzone** variant when:
 
-- The user may select multiple files (`multiple="true"`)
+- The user may select multiple files (`multiple`)
 - You want to encourage drag-and-drop as a primary interaction
 - The field deserves visual prominence on the page
 
@@ -135,26 +134,30 @@ for a full list of valid specifiers.
 **not** enforced client-side. Validate file sizes in your component or on the server before
 submitting the form.
 
-### Two-way binding with `[(files)]`
+### Binding selected files
 
-Use Angular's two-way binding syntax to keep the parent component in sync with the selected files:
+Bind via Angular reactive forms. The form value is always `File[]` (empty array means no file
+selected); single-file consumers read `value[0]`.
 
 ```html
-<bit-file-upload variant="dropzone" [maxFileSize]="30" [(files)]="myFiles">
+<bit-file-upload dropzone [maxFileSize]="30" formControlName="file">
   <bit-label>Upload file</bit-label>
 </bit-file-upload>
 ```
 
 ```ts
-myFiles: File[] = [];
+form = new FormGroup({
+  file: new FormControl<File[]>([], { nonNullable: true }),
+});
 
 onSubmit() {
-  // myFiles is kept up to date as the user selects or removes files
-  console.log(this.myFiles);
+  const file = this.form.controls.file.value[0];
+  // ...
 }
 ```
 
-You can also pre-populate the list by assigning to the bound property before the component renders.
+You can pre-populate the list by calling `setValue([...])` on the control before the component
+renders.
 
 ### Error state
 
@@ -162,12 +165,7 @@ Bind a string to `errorMessage` to show the danger border and an error message b
 it back to `undefined` to clear the error.
 
 ```html
-<bit-file-upload
-  variant="dropzone"
-  [maxFileSize]="30"
-  [(files)]="files"
-  [errorMessage]="fileSizeError"
->
+<bit-file-upload dropzone [maxFileSize]="30" formControlName="file" [errorMessage]="fileSizeError">
   <bit-label>Upload file</bit-label>
 </bit-file-upload>
 ```

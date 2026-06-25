@@ -43,7 +43,7 @@ const i18nProvider = {
   imports: [FileUploadComponent, BitLabelComponent, ReactiveFormsModule],
   template: `
     <bit-file-upload
-      [variant]="variant"
+      [dropzone]="dropzone"
       [multiple]="multiple"
       [disabled]="disabled"
       [errorMessage]="errorMessage"
@@ -54,7 +54,7 @@ const i18nProvider = {
   `,
 })
 class TestHostComponent {
-  variant: "default" | "dropzone" = "default";
+  dropzone = false;
   multiple = false;
   disabled = false;
   errorMessage: string | undefined = undefined;
@@ -73,14 +73,14 @@ class TestHostComponent {
   selector: "hint-host",
   imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
   template: `
-    <bit-file-upload [variant]="variant" [errorMessage]="errorMessage" [formControl]="file">
+    <bit-file-upload [dropzone]="dropzone" [errorMessage]="errorMessage" [formControl]="file">
       <bit-label>Upload</bit-label>
       <bit-hint>Pick a file</bit-hint>
     </bit-file-upload>
   `,
 })
 class HintHostComponent {
-  variant: "default" | "dropzone" = "default";
+  dropzone = false;
   errorMessage: string | undefined = undefined;
   file = new FormControl<File[]>([], { nonNullable: true });
 }
@@ -92,7 +92,7 @@ class HintHostComponent {
   imports: [FileUploadComponent, BitLabelComponent, ReactiveFormsModule],
   template: `
     <form [formGroup]="form">
-      <bit-file-upload formControlName="upload" variant="dropzone">
+      <bit-file-upload formControlName="upload" dropzone>
         <bit-label>Upload</bit-label>
       </bit-file-upload>
     </form>
@@ -111,7 +111,7 @@ class FormHostComponent {
   imports: [FileUploadComponent, BitLabelComponent, ReactiveFormsModule],
   template: `
     <form [formGroup]="form">
-      <bit-file-upload formControlName="upload" variant="dropzone" multiple>
+      <bit-file-upload formControlName="upload" dropzone multiple>
         <bit-label>Upload</bit-label>
       </bit-file-upload>
     </form>
@@ -137,7 +137,7 @@ describe("FileUploadComponent", () => {
     });
 
     it("renders the inline picker (no dropzone) for variant=default", () => {
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.directive(DropzoneComponent))).toBeNull();
@@ -145,14 +145,14 @@ describe("FileUploadComponent", () => {
     });
 
     it("renders the dropzone child for variant=dropzone", () => {
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.directive(DropzoneComponent))).toBeTruthy();
     });
 
     it("forces the dropzone variant when multiple is true even if variant=default", () => {
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.componentInstance.multiple = true;
       fixture.detectChanges();
 
@@ -178,7 +178,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.detectChanges();
     });
 
@@ -225,7 +225,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.componentInstance.multiple = true;
     });
 
@@ -419,7 +419,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.detectChanges();
     });
 
@@ -453,7 +453,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.detectChanges();
     });
 
@@ -481,7 +481,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(HintHostComponent);
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.detectChanges();
     });
 
@@ -526,7 +526,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.detectChanges();
     });
 
@@ -574,7 +574,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.componentInstance.multiple = true;
       fixture.detectChanges();
     });
@@ -630,7 +630,7 @@ describe("FileUploadComponent", () => {
     });
 
     it("does not render the live region in the default variant", () => {
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.componentInstance.multiple = false;
       fixture.detectChanges();
 
@@ -658,7 +658,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.componentInstance.multiple = true;
       fixture.detectChanges();
     });
@@ -709,7 +709,7 @@ describe("FileUploadComponent", () => {
     });
 
     it("does not include the files-uploaded id in the default variant's aria-describedby", () => {
-      fixture.componentInstance.variant = "default";
+      fixture.componentInstance.dropzone = false;
       fixture.componentInstance.multiple = false;
       fixture.componentInstance.files = [makeFile("a.txt")];
       fixture.detectChanges();
@@ -747,7 +747,7 @@ describe("FileUploadComponent", () => {
       }).compileComponents();
 
       fixture = TestBed.createComponent(TestHostComponent);
-      fixture.componentInstance.variant = "dropzone";
+      fixture.componentInstance.dropzone = true;
       fixture.componentInstance.multiple = true;
     });
 

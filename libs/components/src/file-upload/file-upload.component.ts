@@ -73,9 +73,9 @@ export class FileUploadComponent implements ControlValueAccessor {
   readonly maxFileSize = input<number>();
 
   /**
-   * Allow multiple file selection
+   * Allow multiple file selection.
    *
-   * NOTE: If `multiple="true"` it will render the 'dropzone' version of the component
+   * NOTE: enabling `multiple` always renders the dropzone variant.
    */
   readonly multiple = input(false, { transform: booleanAttribute });
 
@@ -86,8 +86,8 @@ export class FileUploadComponent implements ControlValueAccessor {
   /** Current selection. External consumers should bind via CVA; this signal is read-only. */
   readonly files = this._files.asReadonly();
 
-  /** UI variant: 'dropzone' or 'default' */
-  readonly variant = input<"dropzone" | "default">("default");
+  /** Render the dropzone variant. Forced on when `multiple` is true. */
+  readonly dropzone = input(false, { transform: booleanAttribute });
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
@@ -118,9 +118,7 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
 
-  protected readonly useDropzoneVariant = computed(
-    () => this.variant() === "dropzone" || this.multiple(),
-  );
+  protected readonly useDropzoneVariant = computed(() => this.dropzone() || this.multiple());
 
   protected readonly labelId = `${this.inputId}-label`;
   protected readonly statusId = `${this.inputId}-status`;

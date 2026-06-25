@@ -64,7 +64,6 @@ export const Default: Story = {
     `,
   }),
   args: {
-    variant: "default",
     accept: ".png,.jpg,.gif,.svg",
   },
 };
@@ -105,16 +104,14 @@ export const Dropzone: Story = {
         [accept]="accept"
         [errorMessage]="errorMessage"
         [(ngModel)]="files"
-        [variant]="variant"
+        dropzone
       >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
     `,
   }),
-  args: {
-    variant: "dropzone",
-  },
+  args: {},
 };
 
 export const MultipleFiles: Story = {
@@ -134,7 +131,7 @@ export const DropzoneDisabled: Story = {
         [accept]="accept"
         [errorMessage]="errorMessage"
         [(ngModel)]="files"
-        variant="dropzone"
+        dropzone
         [disabled]="true"
       >
         <bit-label>Upload file</bit-label>
@@ -142,16 +139,13 @@ export const DropzoneDisabled: Story = {
       </bit-file-upload>
     `,
   }),
-  args: {
-    variant: "dropzone",
-  },
+  args: {},
 };
 
 export const Error: Story = {
   ...Dropzone,
   args: {
     errorMessage: "File is too large",
-    variant: "dropzone",
   },
 };
 
@@ -178,7 +172,6 @@ export const LongFileName: Story = {
     `,
   }),
   args: {
-    variant: "default",
     accept: ".pdf",
   },
 };
@@ -197,7 +190,7 @@ export const LongFileNamesDropzone: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="files" variant="dropzone">
+      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="files" dropzone>
         <bit-label>Upload files</bit-label>
       </bit-file-upload>
     `,
