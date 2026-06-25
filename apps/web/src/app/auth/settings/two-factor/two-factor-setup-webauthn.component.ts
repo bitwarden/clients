@@ -268,18 +268,18 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
   private processGetResponse(response: TwoFactorWebAuthnResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyWebAuthnState(response.webAuthn);
+    this.applyWebAuthnDetails(response.webAuthn);
   }
 
   private processUpdateResponse(response: TwoFactorWebAuthnUpdateResponse) {
-    this.applyWebAuthnState(response.webAuthn);
+    this.applyWebAuthnDetails(response.webAuthn);
   }
 
   private processDeleteResponse(response: TwoFactorWebAuthnDeleteResponse) {
-    this.applyWebAuthnState(response.webAuthn);
+    this.applyWebAuthnDetails(response.webAuthn);
   }
 
-  private applyWebAuthnState(webAuthnDetails: TwoFactorWebAuthnDetailsResponse) {
+  private applyWebAuthnDetails(webAuthnDetails: TwoFactorWebAuthnDetailsResponse) {
     if (!webAuthnDetails.keys || webAuthnDetails.keys.length === 0) {
       webAuthnDetails.keys = [];
     }

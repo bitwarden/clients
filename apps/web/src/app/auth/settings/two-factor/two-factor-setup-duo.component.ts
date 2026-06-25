@@ -211,14 +211,14 @@ export class TwoFactorSetupDuoComponent
 
   private processGetResponse(response: TwoFactorDuoResponseUnion) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyDuoState(response.duo);
+    this.applyDuoDetails(response.duo);
   }
 
   private processUpdateResponse(response: TwoFactorDuoUpdateResponseUnion) {
-    this.applyDuoState(response.duo);
+    this.applyDuoDetails(response.duo);
   }
 
-  private applyDuoState(duoDetails: TwoFactorDuoDetailsResponse) {
+  private applyDuoDetails(duoDetails: TwoFactorDuoDetailsResponse) {
     this.clientId = duoDetails.clientId;
     this.clientSecret = duoDetails.clientSecret;
     this.host = duoDetails.host;

@@ -190,14 +190,20 @@ export class TwoFactorSetupAuthenticatorComponent
 
   private async processGetResponse(response: TwoFactorAuthenticatorResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    await this.applyAuthenticatorState(response.authenticator.enabled, response.authenticator.key);
+    await this.applyAuthenticatorDetails(
+      response.authenticator.enabled,
+      response.authenticator.key,
+    );
   }
 
   private async processUpdateResponse(response: TwoFactorAuthenticatorUpdateResponse) {
-    await this.applyAuthenticatorState(response.authenticator.enabled, response.authenticator.key);
+    await this.applyAuthenticatorDetails(
+      response.authenticator.enabled,
+      response.authenticator.key,
+    );
   }
 
-  private async applyAuthenticatorState(enabled: boolean, key: string) {
+  private async applyAuthenticatorDetails(enabled: boolean, key: string) {
     this.formGroup.get("token").setValue(null);
     this.enabled = enabled;
     this.key = key;

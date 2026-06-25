@@ -234,14 +234,14 @@ export class TwoFactorSetupYubiKeyComponent
 
   private processGetResponse(response: TwoFactorYubiKeyResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyYubiKeyState(response.yubiKey);
+    this.applyYubiKeyDetails(response.yubiKey);
   }
 
   private processUpdateResponse(response: TwoFactorYubiKeyUpdateResponse) {
-    this.applyYubiKeyState(response.yubiKey);
+    this.applyYubiKeyDetails(response.yubiKey);
   }
 
-  private applyYubiKeyState(yubiKeyDetails: TwoFactorYubiKeyDetailsResponse) {
+  private applyYubiKeyDetails(yubiKeyDetails: TwoFactorYubiKeyDetailsResponse) {
     this.enabled = yubiKeyDetails.enabled;
     this.anyKeyHasNfc = yubiKeyDetails.nfc || !yubiKeyDetails.enabled;
     this.keys = [

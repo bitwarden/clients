@@ -189,14 +189,14 @@ export class TwoFactorSetupEmailComponent
 
   private async processGetResponse(response: TwoFactorEmailResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    await this.applyEmailState(response.email);
+    await this.applyEmailDetails(response.email);
   }
 
   private async processUpdateResponse(response: TwoFactorEmailUpdateResponse) {
-    await this.applyEmailState(response.email);
+    await this.applyEmailDetails(response.email);
   }
 
-  private async applyEmailState(emailDetails: TwoFactorEmailDetailsResponse) {
+  private async applyEmailDetails(emailDetails: TwoFactorEmailDetailsResponse) {
     this.token = null;
     this.email = emailDetails.email;
     this.enabled = emailDetails.enabled;
