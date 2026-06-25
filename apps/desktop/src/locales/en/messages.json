@@ -4030,6 +4030,9 @@
   "noFileChosen": {
     "message": "No file chosen"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
   "fileChosen": {
     "message": "File chosen: $FILE_NAME$",
     "placeholders": {

@@ -24,6 +24,7 @@ const i18nProvider = {
       chooseFile: "Choose File",
       clickToUploadOrDragAndDrop: "Click to upload or drag and drop",
       noFileChosen: "No file chosen",
+      noFileSelected: "No file selected",
       fileChosen: "File chosen __$1__",
       fileAdded: "File added: __$1__",
       filesAdded: "__$1__ files added: __$2__",
