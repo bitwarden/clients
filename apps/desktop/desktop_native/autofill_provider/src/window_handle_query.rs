@@ -24,9 +24,9 @@ pub struct WindowHandleQueryRequest {
 }
 
 /// Response to window handle request.
+#[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde_as]
 pub struct WindowHandleQueryResponse {
     /// Whether the desktop client is currently visible.
     pub is_visible: bool,
