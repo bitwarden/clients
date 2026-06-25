@@ -100,6 +100,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
@@ -298,6 +299,8 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
+      ConfigService,
+      SdkService,
       OrganizationInviteService,
       PolicyService,
     ],
@@ -359,6 +362,8 @@ const safeProviders: SafeProvider[] = [
       Router,
       AccountService,
       ConfigService,
+      ToastService,
+      I18nServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -475,6 +480,8 @@ const safeProviders: SafeProvider[] = [
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       MasterPasswordUnlockService,
+      InternalPolicyService,
+      OrganizationInviteService,
       SyncService,
       UserKeyRotationService,
       RouterService,

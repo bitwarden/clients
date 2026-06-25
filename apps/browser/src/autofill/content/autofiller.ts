@@ -1,3 +1,4 @@
+import { AutofillerCommand } from "../enums/autofill-message.enums";
 import { setupExtensionDisconnectAction } from "../utils";
 
 if (document.readyState === "loading") {
@@ -18,6 +19,10 @@ function loadAutofiller() {
   const handleExtensionMessage = (message: any) => {
     if (message.command === "fillForm" && pageHref === message.url) {
       filledThisHref = true;
+      return;
+    }
+    if (message.command === AutofillerCommand.disable) {
+      handleExtensionDisconnect();
     }
   };
 

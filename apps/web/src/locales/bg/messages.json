@@ -1739,9 +1739,6 @@
   "needAnotherOptionV1": {
     "message": "Предпочитате друг вариант?"
   },
-  "loginWithMasterPassword": {
-    "message": "Вписване с главната парола"
-  },
   "readingPasskeyLoading": {
     "message": "Прочитане на секретния ключ…"
   },
@@ -1751,8 +1748,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Удостоверяването чрез секретен ключ беше неуспешно. Моля, опитайте отново."
   },
-  "useADifferentLogInMethod": {
-    "message": "Използване на друг метод на вписване"
+  "useDifferentLoginMethod": {
+    "message": "Използване на друг метод за вписване"
   },
   "logInWithPasskey": {
     "message": "Вписване със секретен ключ"
@@ -1763,7 +1760,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Вашата организация изисква еднократно удостоверяване."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Добре дошли отново"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1862,7 @@
   "logIn": {
     "message": "Вписване"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Впишете се в Битуорден"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +1964,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Въведете е-пощата на регистрацията си и подсказката за паролата ще Ви бъде изпратена"
-  },
-  "getMasterPasswordHint": {
-    "message": "Подсказка за главната парола"
   },
   "emailRequired": {
     "message": "Електронната поща е задължителна."
@@ -3740,6 +3734,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "Като благодарност за това, че сте клиент на Битуорден от много време, бихме искали да Ви предложим $AMOUNT$ отстъпка от всеки $INTERVAL$ в продължение на $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "$AMOUNT$ отстъпка от всеки $INTERVAL$ беше приложена за следващия период от $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ за $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "Никога не изтича"
   },
@@ -3766,6 +3814,27 @@
   },
   "discountApplied": {
     "message": "Отстъпката е приложена"
+  },
+  "discountForOneYear": {
+    "message": "за 1 година"
+  },
+  "discountForMonths": {
+    "message": "за $COUNT$ месеца",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "до $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Отстъпката е изтекла. Моля, прегледайте крайната цена в количката си и опитайте отново."
@@ -4359,6 +4428,9 @@
   "adminDesc": {
     "message": "Администраторите имат достъп до всички записи, колекции и потребители в организацията и могат да ги управляват."
   },
+  "adminRoleDesc": {
+    "message": "Управлявайте всички колекции, членове, доклади и настройки по сигурността"
+  },
   "user": {
     "message": "Потребител"
   },
@@ -4808,6 +4880,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани."
+  },
+  "discardEdits": {
+    "message": "Отхвърляне на промените"
   },
   "keepEditing": {
     "message": "Продължаване на редактирането"
@@ -5820,8 +5895,8 @@
   "nothingSelected": {
     "message": "Не сте избрали нищо."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получавайте съвети, обявления и предложения за участие в проучвания от Битуорден в пощенската си кутия."
+  "receiveMarketingEmails": {
+    "message": "Получавайте актуализации от Битуорден в пощата си."
   },
   "subscribe": {
     "message": "Абониране"
@@ -6957,6 +7032,21 @@
     "message": "Поради политика на организация, може само да изтривате съществуващи изпращания.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не отговаря на политиката за Изпращания на Вашата организация",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "За да редактирате това Изпращане, първо му направете копие.Ако давността на това Изпращане може да изтече на зададена дата за изтриване, не са необходими допълнителни действия.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Давността на това Изпращане ще изтече на зададената дата за изтриване",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Създаване на копие"
+  },
   "sendControls": {
     "message": "Управление на Изпращанията"
   },
@@ -6964,8 +7054,9 @@
     "message": "Управлявайте настройките си за създаване и редактиране на Изпращания, включително и възможността да ги премахвате.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Членовете на организацията, които имат права да управляват политиките ѝ, не са ограничени от тази политика."
+  "sendControlsPolicyDescV2": {
+    "message": "Настройте какво могат да правят членовете с Изпращанията. Тази политика не засяга администраторите и собствениците.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Настройки за изпращането",
@@ -7278,6 +7369,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Новата парола не може да бъде същата като текущата."
   },
+  "hint": {
+    "message": "Подсказка"
+  },
   "hintEqualsPassword": {
     "message": "Подсказването за паролата не може да съвпада с нея."
   },
@@ -7359,15 +7453,6 @@
   "resetPassword": {
     "message": "Смяна на паролата"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "Действието ще прекрати текущата сесия на $NAME$, след което ще се наложи той отново да се впише. Активните сесии на другите устройства може да останат такива до един час.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "Действието ще прекрати текущата сесия на $NAME$, след което ще се наложи той/тя отново да се впише. Активните сесии на другите устройства може да останат такива до един час.",
     "placeholders": {
@@ -7395,20 +7480,11 @@
   "accountRecoveryPolicy": {
     "message": "Управление на възстановяването на профили"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Според метода на шифроване, регистрациите ще бъдат възстановени при забравяне на главна парола или загуба на доверено устройство."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Текущо регистрираните потребители използващи главни пароли ще трябва да се включат сами, преди администраторите да могат да възстановят регистрациите им. Автоматичното включване ще активира възстановяването на регистрациите за новите членове."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматично включване"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Автоматично включване на новите потребители"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Тази организация включва автоматично новите си потребители в смяната на пароли. Това означава, че администраторите на организацията ще могат да променят главната Ви парола."
@@ -8979,6 +9055,10 @@
   "scimSettingsSaved": {
     "message": "Настройките за SCIM бяха запазени успешно",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Позволена е само една интеграция от този вид ($TYPE$). Интеграцията, която предизвиква проблем, е: $NAME$",
@@ -11888,6 +11968,15 @@
       }
     }
   },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ отстъпка",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      }
+    }
+  },
   "secureYourInfrastructure": {
     "message": "Подсигурете инфраструктурата си"
   },
@@ -14227,8 +14316,41 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Грижете се за сигурността на записите в трезора си, като преглеждате доклади за уязвимостите."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Следене на дейността по сигурността"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "Докато преглеждате приложенията и раздавате задачи на членовете, напредъка по подобряването на сигурността на организацията Ви ще се показва тук."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Приоритизиране на рисковете"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Прегледайте всяко приложение в трезора на организацията си и отбележете със звезда онези, които са с най-висок приоритет за сигурността."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Отстранете най-големите рискове"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Тук ще можете да проследявате рисковете за приоритетните приложения и да раздавате задачи на членовете, за да подсилят паролите си."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Помогнете на членовете да подобрят сигурността си"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "След като сте избрали важните приложения, изискайте от членовете да променят паролите си в риск. Те ще получат съобщение в добавката на Битуорден."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Бъдете в крак с новите рискове"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Периодично опреснявайте докладите и забележките, за да хващате своевременно новите рискове и да виждате най-новите статистически данни, докато организацията Ви се разраства."
+  },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ от $TOTAL$",
+    "message": "$CURRENT$ от $TOTAL$"
+  },
+  "coachmarkStepIndicator": {
+    "message": "Стъпка $CURRENT$ от $TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14240,14 +14362,32 @@
       }
     }
   },
+  "multipleInputDomainsInvalid": {
+    "message": "Един или повече домейни са неправилни"
+  },
+  "domainNotAllowed": {
+    "message": "Включват се само следните домейни: $DOMAINS$. Моля, прегледайте и опитайте отново",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Управлявайте дали членовете могат да използват Изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Всеки"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Това беше попълнено използвайки присвоени домейни."
+  },
   "more": {
     "message": "Още"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Банковата Ви сметка трябва да бъде потвърдена, преди да може да се използва за това надграждане. Моля, потвърдете банковата си сметка или изберете друг начин за разплащане."
-  },
-  "discardEdits": {
-    "message": "Отхвърляне на промените"
   },
   "discardEditsMessage": {
     "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
@@ -14327,6 +14467,25 @@
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Включване на управлението на Изпращанията",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Разрешаване"
+  },
+  "block": {
+    "message": "Блокиране"
+  },
+  "sendControlAccessOptions": {
+    "message": "Опции за достъп"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Адресът на е-пощата на члена да се показва винаги на получателите"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Парола зададена от члена"
+  },
   "hideMyEmail": {
     "message": "Скриване на е-пощата ми от получателите."
   },
@@ -14380,6 +14539,12 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Потвърждение на е-пощата"
+  },
+  "separateDomainsWithComma": {
+    "message": "Разделете домейните със запетая"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Не можете да внесете елементи, които са част от множество колекции, в „Моите елементи“"
