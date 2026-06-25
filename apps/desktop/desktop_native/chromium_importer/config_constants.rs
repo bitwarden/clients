@@ -1,10 +1,11 @@
-// Enable this to log to a file. The way this executable is used, it's not easy to debug and the stdout gets lost.
-// This is intended for development time only.
-pub const ENABLE_DEVELOPER_LOGGING: bool = false;
+// Enable this to log to a file. The way this executable is used, it's not easy to debug and the
+// stdout gets lost. This is intended for development time only.
+pub const ENABLE_DEVELOPER_LOGGING: bool = true;
 
 // The absolute path to log file when developer logging is enabled
 // Change this to a suitable path for your environment
-pub const LOG_FILENAME: &str = "c:\\path\\to\\log.txt";
+pub const LOG_FILENAME: &str =
+    "C:\\Users\\awatk\\enable-dev-logging-for-chromium-importer\\log.txt";
 
 /// Ensure the signature of the helper and main binary is validated in production builds
 ///
