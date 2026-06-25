@@ -127,6 +127,13 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
+import {
+  OverlayActiveUserStateProvider,
+  OverlayGlobalStateProvider,
+  OverlaySingleUserStateProvider,
+} from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
+import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
+import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
@@ -420,9 +427,18 @@ export class ServiceContainer {
       this.memoryStorageForStateProviders,
     );
 
-    this.globalStateProvider = new DefaultGlobalStateProvider(
-      storageServiceProvider,
-      this.logService,
+    const managedSettingsService = new DefaultManagedSettingsService();
+
+    if (flagEnabled("managedSettings")) {
+      managedSettingsService.pushExplicit(readCliManagedConfig(process.platform, this.logService));
+    }
+
+    registerEnvironmentOverlay();
+    registerAppearanceOverlay();
+
+    this.globalStateProvider = new OverlayGlobalStateProvider(
+      new DefaultGlobalStateProvider(storageServiceProvider, this.logService),
+      managedSettingsService,
     );
 
     const stateEventRegistrarService = new DefaultStateEventRegistrarService(
@@ -437,10 +453,13 @@ export class ServiceContainer {
 
     this.i18nService = new I18nService("en", "./locales", this.globalStateProvider);
 
-    this.singleUserStateProvider = new DefaultSingleUserStateProvider(
-      storageServiceProvider,
-      stateEventRegistrarService,
-      this.logService,
+    this.singleUserStateProvider = new OverlaySingleUserStateProvider(
+      new DefaultSingleUserStateProvider(
+        storageServiceProvider,
+        stateEventRegistrarService,
+        this.logService,
+      ),
+      managedSettingsService,
     );
 
     this.messagingService = MessageSender.EMPTY;
@@ -454,9 +473,9 @@ export class ServiceContainer {
 
     const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
 
-    this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      activeUserAccessor,
-      this.singleUserStateProvider,
+    this.activeUserStateProvider = new OverlayActiveUserStateProvider(
+      new DefaultActiveUserStateProvider(activeUserAccessor, this.singleUserStateProvider),
+      managedSettingsService,
     );
 
     this.derivedStateProvider = new DefaultDerivedStateProvider();
@@ -477,12 +496,6 @@ export class ServiceContainer {
     this.securityStateService = new DefaultSecurityStateService(
       this.accountCryptographicStateService,
     );
-
-    const managedSettingsService = new DefaultManagedSettingsService();
-
-    if (flagEnabled("managedSettings")) {
-      managedSettingsService.pushExplicit(readCliManagedConfig(process.platform, this.logService));
-    }
 
     this.environmentService = new DefaultEnvironmentService(
       this.stateProvider,
