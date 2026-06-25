@@ -309,7 +309,7 @@ export class SendDetailsComponent implements OnInit {
       .pipe(takeUntilDestroyed())
       .subscribe(([policyInfo, organizations]) => {
         const deletionDateControl = this.sendDetailsForm.get("selectedDeletionDatePreset");
-        if (policyInfo.deletionHours != null) {
+        if (policyInfo?.deletionHours != null) {
           if (this.sendFormService.sendFormConfig?.mode === "add") {
             deletionDateControl.patchValue(policyInfo.deletionHours);
           }
@@ -343,7 +343,9 @@ export class SendDetailsComponent implements OnInit {
       this.sendDetailsForm.get("password")?.disable();
     }
 
-    if (updatedSendView.deletionDate) {
+    // The deletion date could be set by policy when we're creating a new Send; we
+    // only want to show the stringified deletion date if the Send is an existing one
+    if (updatedSendView.deletionDate && this.sendFormService.sendFormConfig?.mode !== "add") {
       this.datePresetOptions.unshift({
         label: this.datePipe.transform(updatedSendView.deletionDate, "short"),
         value: updatedSendView.deletionDate.toString(),
