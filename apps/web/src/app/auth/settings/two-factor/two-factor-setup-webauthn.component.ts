@@ -14,7 +14,6 @@ import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/two-facto
 import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-challenge.response";
 import { TwoFactorWebAuthnDeleteResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-delete.response";
 import { TwoFactorWebAuthnDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-details.response";
-import { TwoFactorWebAuthnUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-update.response";
 import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -142,7 +141,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     );
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
-    this.processUpdateResponse(response);
+    this.applyWebAuthnDetails(response.webAuthn);
     this.toastService.showToast({
       title: this.i18nService.t("success"),
       message: this.i18nService.t("twoFactorProviderEnabled"),
@@ -204,7 +203,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
       key.removePromise = null;
-      this.processDeleteResponse(response);
+      this.applyWebAuthnDetails(response.webAuthn);
     } catch (e) {
       this.logService.error(e);
     }
@@ -269,14 +268,6 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
 
   private processGetResponse(response: TwoFactorWebAuthnResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyWebAuthnDetails(response.webAuthn);
-  }
-
-  private processUpdateResponse(response: TwoFactorWebAuthnUpdateResponse) {
-    this.applyWebAuthnDetails(response.webAuthn);
-  }
-
-  private processDeleteResponse(response: TwoFactorWebAuthnDeleteResponse) {
     this.applyWebAuthnDetails(response.webAuthn);
   }
 

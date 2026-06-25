@@ -171,7 +171,7 @@ export class TwoFactorSetupDuoComponent
       response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
-    this.processUpdateResponse(response);
+    this.applyDuoDetails(response.duo);
     this.onUpdated.emit(true);
   }
 
@@ -211,10 +211,6 @@ export class TwoFactorSetupDuoComponent
 
   private processGetResponse(response: TwoFactorDuoResponseUnion) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyDuoDetails(response.duo);
-  }
-
-  private processUpdateResponse(response: TwoFactorDuoUpdateResponseUnion) {
     this.applyDuoDetails(response.duo);
   }
 

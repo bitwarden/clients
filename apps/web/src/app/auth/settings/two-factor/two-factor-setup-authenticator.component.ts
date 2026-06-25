@@ -12,7 +12,6 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
 import { TwoFactorAuthenticatorDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-delete.request";
 import { TwoFactorAuthenticatorUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-authenticator-update.request";
-import { TwoFactorAuthenticatorUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator-update.response";
 import { TwoFactorAuthenticatorResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-authenticator.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -162,7 +161,10 @@ export class TwoFactorSetupAuthenticatorComponent
     );
 
     const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
-    await this.processUpdateResponse(response);
+    await this.applyAuthenticatorDetails(
+      response.authenticator.enabled,
+      response.authenticator.key,
+    );
     this.onUpdated.emit(true);
   }
 
@@ -190,13 +192,6 @@ export class TwoFactorSetupAuthenticatorComponent
 
   private async processGetResponse(response: TwoFactorAuthenticatorResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    await this.applyAuthenticatorDetails(
-      response.authenticator.enabled,
-      response.authenticator.key,
-    );
-  }
-
-  private async processUpdateResponse(response: TwoFactorAuthenticatorUpdateResponse) {
     await this.applyAuthenticatorDetails(
       response.authenticator.enabled,
       response.authenticator.key,

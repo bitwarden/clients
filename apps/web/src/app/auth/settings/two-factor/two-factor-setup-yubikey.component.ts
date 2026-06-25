@@ -15,7 +15,6 @@ import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/au
 import { TwoFactorYubiKeyDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-delete.request";
 import { TwoFactorYubiKeyUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-yubikey-update.request";
 import { TwoFactorYubiKeyDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key-details.response";
-import { TwoFactorYubiKeyUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key-update.response";
 import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-yubi-key.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -186,7 +185,8 @@ export class TwoFactorSetupYubiKeyComponent
       this.requireUserVerificationToken(),
     );
 
-    this.processUpdateResponse(await this.twoFactorService.putTwoFactorYubiKey(request));
+    const response = await this.twoFactorService.putTwoFactorYubiKey(request);
+    this.applyYubiKeyDetails(response.yubiKey);
     this.refreshFormArrayData();
     this.toastService.showToast({
       title: this.i18nService.t("success"),
@@ -234,10 +234,6 @@ export class TwoFactorSetupYubiKeyComponent
 
   private processGetResponse(response: TwoFactorYubiKeyResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    this.applyYubiKeyDetails(response.yubiKey);
-  }
-
-  private processUpdateResponse(response: TwoFactorYubiKeyUpdateResponse) {
     this.applyYubiKeyDetails(response.yubiKey);
   }
 

@@ -11,7 +11,6 @@ import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/two-factor/r
 import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-setup.request";
 import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-update.request";
 import { TwoFactorEmailDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email-details.response";
-import { TwoFactorEmailUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email-update.response";
 import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -157,7 +156,7 @@ export class TwoFactorSetupEmailComponent
     );
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
-    await this.processUpdateResponse(response);
+    await this.applyEmailDetails(response.email);
     this.onUpdated.emit(true);
   }
 
@@ -189,10 +188,6 @@ export class TwoFactorSetupEmailComponent
 
   private async processGetResponse(response: TwoFactorEmailResponse) {
     this.userVerificationToken = response.userVerificationToken;
-    await this.applyEmailDetails(response.email);
-  }
-
-  private async processUpdateResponse(response: TwoFactorEmailUpdateResponse) {
     await this.applyEmailDetails(response.email);
   }
 
