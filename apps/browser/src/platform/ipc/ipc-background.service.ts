@@ -8,13 +8,6 @@ import {
   isForwardedIpcMessage,
 } from "@bitwarden/common/platform/ipc";
 import {
-  isReachabilityPing,
-  isReachabilityPong,
-  ReachabilityPing,
-  ReachabilityPong,
-  ReachabilityTracker,
-} from "@bitwarden/common/platform/ipc/reachability";
-import {
   Endpoint,
   IpcCommunicationBackend,
   IncomingMessage,
@@ -31,23 +24,15 @@ const RECONNECTION_INTERVAL_MS = 10_000;
 // The timeout for the discover message sent to the desktop app when trying to connect. If the desktop app does not respond to the discover message within this time, the connection attempt is considered failed and will be retried after the reconnection interval.
 const DISCOVER_MESSAGE_TIMEOUT_MS = 5_000;
 
-// The browser extension's only leader is the desktop app.
-const DESKTOP_LEADER: Endpoint = "DesktopRenderer";
+// The browser extension's only leader is the desktop app. The SDK pings the desktop main process
+// (over the raw transport, bypassing crypto) to track reachability and gate handshakes; reachability
+// is keyed on the collapsed "Desktop" group, so this also gates crypto sent to the renderer.
+const DESKTOP_LEADER: Endpoint = "DesktopMain";
 
 export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private nativeMessagingPort?: browser.runtime.Port | chrome.runtime.Port;
   private reconnectTimer?: ReturnType<typeof setTimeout>;
-  // Tracks liveness of the desktop app (and connected web tabs) via reachability ping/pong.
-  private reachability = new ReachabilityTracker(undefined, (endpoint, active) => {
-    if ((endpoint === "DesktopMain" || endpoint === "DesktopRenderer") && !active) {
-      this.logService.warning("[IPC] Disconnected from Bitwarden Desktop App");
-    }
-  });
-  private desktopPingTimer?: ReturnType<typeof setTimeout>;
-  // Resolves the in-flight desktop reachability probe (see connectToDesktop) on the next pong or
-  // disconnect.
-  private resolveReachable?: (reachable: boolean) => void;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -118,38 +103,9 @@ export class IpcBackgroundService extends IpcService {
 
           throw new Error("Destination not supported.");
         },
-        // Reachability is a pure liveness lookup fed by the ping/pong loops; it never touches the
-        // crypto channel. Only the desktop leader is probed; sends down to web tabs stay permissive
-        // (dead tabs are handled by leader-side session pruning).
-        isReachable: async (destination: Endpoint): Promise<boolean> => {
-          if (destination === "DesktopMain" || destination === "DesktopRenderer") {
-            return this.reachability.isActive(destination);
-          }
-          return true;
-        },
       });
 
       BrowserApi.messageListener("platform.ipc", (message, sender) => {
-        // Answer reachability pings from web vault tabs (the extension is web's leader). Reply with
-        // a plaintext pong; this never enters the crypto pipeline.
-        if (isReachabilityPing(message)) {
-          if (sender.tab?.id !== undefined && sender.tab.id !== chrome.tabs.TAB_ID_NONE) {
-            this.reachability.record({
-              Web: {
-                tab_id: sender.tab.id,
-                document_id: sender.documentId ?? "",
-                origin: sender.origin ?? "",
-              },
-            });
-            void BrowserApi.tabSendMessage(
-              { id: sender.tab.id } as chrome.tabs.Tab,
-              { type: "bitwarden-reachability-pong" } satisfies ReachabilityPong,
-              { frameId: 0 },
-            );
-          }
-          return;
-        }
-
         if (
           !isIpcMessage(message) ||
           typeof message.message.destination !== "object" ||
@@ -170,6 +126,8 @@ export class IpcBackgroundService extends IpcService {
           return;
         }
 
+        // Reachability pings from web tabs arrive as ordinary IPC frames (distinguished by topic);
+        // the SDK records liveness and answers them with a pong itself.
         this.communicationBackend?.receive(
           new IncomingMessage(
             new Uint8Array(message.message.payload),
@@ -186,53 +144,20 @@ export class IpcBackgroundService extends IpcService {
         );
       });
 
-      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
+      await super.initWithClient(
+        IpcClient.newWithSdkInMemorySessions(this.communicationBackend, {
+          pingTargets: [DESKTOP_LEADER],
+        }),
+      );
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),
       });
 
       await this.connectToDesktop();
-
-      this.scheduleDesktopPing();
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }
-  }
-
-  /**
-   * Continuously pings the desktop app over the native messaging port (when connected). The desktop
-   * replies with a pong, keeping the desktop endpoint "active" in the reachability tracker. The
-   * cadence adapts based on whether the desktop is currently active.
-   */
-  private scheduleDesktopPing(): void {
-    if (this.nativeMessagingPort != null) {
-      try {
-        this.nativeMessagingPort.postMessage({
-          type: "bitwarden-reachability-ping",
-        } satisfies ReachabilityPing);
-      } catch (e) {
-        this.logService.error("[IPC] Failed to send reachability ping to desktop", e);
-      }
-    }
-    this.armDesktopPingTimer();
-  }
-
-  /**
-   * (Re)arms the desktop ping timer at the current adaptive cadence. Called after sending a ping,
-   * and again whenever a pong / IPC frame proves the desktop is live. Re-arming on liveness is what
-   * lets recovery from a stale state tighten the cadence straight back to the active interval:
-   * because the back-off interval is longer than the active window, sampling the cadence only at
-   * ping-send time would leave the endpoint flapping stale↔active forever once it first went stale.
-   */
-  private armDesktopPingTimer(): void {
-    if (this.desktopPingTimer != null) {
-      clearTimeout(this.desktopPingTimer);
-    }
-    this.desktopPingTimer = setTimeout(
-      () => this.scheduleDesktopPing(),
-      this.reachability.intervalFor(DESKTOP_LEADER),
-    );
   }
 
   /**
@@ -246,25 +171,12 @@ export class IpcBackgroundService extends IpcService {
       this.nativeMessagingPort = port;
 
       port.onMessage.addListener((ipcMessage) => {
-        // Plaintext reachability pong from the desktop. Record liveness and stop — never forward
-        // into the crypto pipeline.
-        if (isReachabilityPong(ipcMessage)) {
-          this.reachability.record(DESKTOP_LEADER);
-          // Recovering from stale: re-arm at the (now active) cadence so the next ping lands
-          // inside the active window instead of the longer back-off interval.
-          this.armDesktopPingTimer();
-          this.resolveReachable?.(true);
-          return;
-        }
-
         if (!isIpcMessage(ipcMessage) && !isForwardedIpcMessage(ipcMessage)) {
           return;
         }
 
-        // Any inbound IPC frame from the desktop also proves liveness.
-        this.reachability.record(DESKTOP_LEADER);
-        this.armDesktopPingTimer();
-
+        // All inbound frames (including reachability pong, by topic) flow into the SDK, which
+        // records liveness and tracks reachability.
         this.communicationBackend?.receive(
           new IncomingMessage(
             new Uint8Array(ipcMessage.message.payload),
@@ -275,34 +187,24 @@ export class IpcBackgroundService extends IpcService {
         );
       });
 
-      // Register the disconnect handler before probing so that a disconnect during the probe
-      // window (e.g. the desktop app closing) is still handled.
       port.onDisconnect.addListener(() => {
         // Reading runtime.lastError marks the disconnect error as handled, suppressing Chrome's
         // "Unchecked runtime.lastError: Native host has exited." console noise that otherwise fires
         // on every reconnect attempt while the desktop app is not running.
         void chrome.runtime.lastError;
         this.nativeMessagingPort = undefined;
-        // Mark the desktop stale immediately; the "Disconnected" warning is emitted from the
-        // reachability transition handler.
-        this.reachability.invalidate(DESKTOP_LEADER);
-        // Fail any in-flight reachability probe so connectToDesktop retries promptly.
-        this.resolveReachable?.(false);
+        // Mark the desktop unreachable immediately rather than waiting for the active window to
+        // elapse, so reachability gating reflects the loss right away.
+        this.client.invalidateReachability(DESKTOP_LEADER);
+        this.logService.warning("[IPC] Disconnected from Bitwarden Desktop App");
         this.scheduleReconnect();
       });
 
-      // Confirm the desktop is reachable using the plaintext ping/pong, which the desktop main
-      // process always answers (no crypto, and unlike the discover RPC it is not gated behind dev
-      // builds). Only once reachable do we attempt anything that goes through the crypto channel.
-      const reachable = await this.probeDesktopReachable(DISCOVER_MESSAGE_TIMEOUT_MS);
-      if (!reachable) {
-        throw new Error("Desktop did not respond to the reachability ping");
-      }
-      this.logService.info("[IPC] Connected to Bitwarden Desktop App");
-
-      // Best-effort version discovery over the crypto channel. The handler is only registered on the
-      // desktop renderer in dev builds, so a failure here must not tear down the (already confirmed
-      // reachable) connection.
+      // Best-effort version discovery over the crypto channel. The SDK gates this on reachability
+      // (established by the reachability ping/pong), so an early attempt against a not-yet-live
+      // desktop is dropped without handshake churn; the connection itself is kept alive by the
+      // native port (a disconnect triggers a reconnect above). The handler is only registered on
+      // the desktop in dev builds, so a failure here is expected and must not be treated as fatal.
       try {
         const version = await ipcRequestDiscover(
           this.client,
@@ -311,41 +213,24 @@ export class IpcBackgroundService extends IpcService {
         );
         this.logService.info(`[IPC] Bitwarden Desktop App version ${version.version}`);
       } catch {
-        // Reachability is already confirmed via the ping; version discovery is optional.
+        // Version discovery is optional.
       }
-    } catch {
+    } catch (e) {
       // A failed connection attempt is expected while the desktop app is not running, so it is not
       // logged. Disconnect the port to avoid leaking the native port and its spawned desktop_proxy
       // process, then schedule a retry.
+      if (
+        e instanceof Error &&
+        e.message.includes("Access to the specified native messaging host is forbidden.")
+      ) {
+        this.logService.error(
+          "[IPC] Native messaging manifest is missing extension id and is misconfigured!",
+        );
+      }
       port?.disconnect();
       this.nativeMessagingPort = undefined;
       this.scheduleReconnect();
     }
-  }
-
-  /**
-   * Sends a single plaintext reachability ping over the native port and resolves `true` on the next
-   * pong, or `false` on timeout / disconnect. Does not go through the crypto channel.
-   */
-  private probeDesktopReachable(timeoutMs: number): Promise<boolean> {
-    return new Promise((resolve) => {
-      const done = (reachable: boolean) => {
-        clearTimeout(timer);
-        if (this.resolveReachable === done) {
-          this.resolveReachable = undefined;
-        }
-        resolve(reachable);
-      };
-      const timer = setTimeout(() => done(false), timeoutMs);
-      this.resolveReachable = done;
-      try {
-        this.nativeMessagingPort?.postMessage({
-          type: "bitwarden-reachability-ping",
-        } satisfies ReachabilityPing);
-      } catch {
-        done(false);
-      }
-    });
   }
 
   private scheduleReconnect() {

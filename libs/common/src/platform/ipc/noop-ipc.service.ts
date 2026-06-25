@@ -27,7 +27,9 @@ export class NoopIpcService extends IpcService {
         },
       });
 
-      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(communicationBackend));
+      await super.initWithClient(
+        IpcClient.newWithSdkInMemorySessions(communicationBackend, { pingTargets: [] }),
+      );
     } catch (e) {
       this.logService.error("[IPC] Noop initialization failed", e);
     }

@@ -72,7 +72,11 @@ export class IpcRendererService extends IpcService {
         );
       });
 
-      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
+      // Desktop renderer is a passive responder: it pings no one (empty targets) but the SDK still
+      // answers inbound reachability pings automatically.
+      await super.initWithClient(
+        IpcClient.newWithSdkInMemorySessions(this.communicationBackend, { pingTargets: [] }),
+      );
 
       if (this.platformUtilsService.isDev()) {
         await ipcRegisterDiscoverHandler(this.client, {

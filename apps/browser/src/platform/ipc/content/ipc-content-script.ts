@@ -1,8 +1,4 @@
 import { isIpcMessage } from "@bitwarden/common/platform/ipc/ipc-message";
-import {
-  isReachabilityPing,
-  isReachabilityPong,
-} from "@bitwarden/common/platform/ipc/reachability";
 
 const IPC_CONTENT_SCRIPT_PORT_NAME = "ipc-content-script-port";
 
@@ -25,16 +21,17 @@ function handleWindowMessage(event: MessageEvent) {
     return;
   }
 
-  // Relay IPC frames and reachability pings (web -> extension background). The presence of this
-  // content script is itself what makes the extension reachable from the web vault page.
-  if (isIpcMessage(event.data) || isReachabilityPing(event.data)) {
+  // Relay IPC frames (web -> extension background), including reachability ping/pong which ride the
+  // same channel distinguished by topic. The presence of this content script is itself what makes
+  // the extension reachable from the web vault page.
+  if (isIpcMessage(event.data)) {
     sendExtensionMessage(event.data);
   }
 }
 
 // Background -> Web
 function handleRuntimeMessage(message: unknown) {
-  if (isIpcMessage(message) || isReachabilityPong(message)) {
+  if (isIpcMessage(message)) {
     void window.postMessage(message);
   }
 }
