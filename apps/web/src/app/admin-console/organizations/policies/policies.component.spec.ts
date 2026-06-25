@@ -103,7 +103,6 @@ describe("PoliciesComponent", () => {
 
     mockConfigService = mock<ConfigService>();
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
@@ -394,6 +393,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -481,6 +481,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -507,6 +508,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -539,6 +541,7 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockCustomDialog as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -565,6 +568,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -604,6 +608,7 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 

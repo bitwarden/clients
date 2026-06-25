@@ -48,7 +48,6 @@ export abstract class BasePolicyEditDefinition {
   /**
    * i18n string for the policy description.
    * This is shown in the list of policies and in the modal edit dialog.
-   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
 
