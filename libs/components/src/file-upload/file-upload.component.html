@@ -33,13 +33,15 @@
       >
         <span class="tw-text-sm tw-pointer-events-none">{{ "chooseFile" | i18n }}</span>
       </div>
-      <!-- Button overlay: accessible control with no native file-input value to announce -->
+      <!-- Button overlay: accessible control with no native file-input value to announce.
+           Uses aria-disabled (not the native disabled attr) so assistive tech can still
+           reach the control to read its label/description while interaction is blocked. -->
       <button
         type="button"
         [attr.aria-labelledby]="ariaLabelledBy"
         [attr.aria-describedby]="ariaDescribedBy()"
-        [disabled]="disabled() || null"
-        class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer disabled:tw-cursor-not-allowed"
+        [attr.aria-disabled]="disabled() || null"
+        class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
         (click)="openFilePicker()"
       ></button>
       <!-- Hidden file input: triggers the OS file picker, kept out of the AT -->

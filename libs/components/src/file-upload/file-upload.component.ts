@@ -271,6 +271,9 @@ export class FileUploadComponent implements ControlValueAccessor {
   }
 
   protected openFilePicker(): void {
+    if (this.disabled()) {
+      return;
+    }
     const input = this.fileInput()?.nativeElement;
     if (input) {
       input.value = ""; // clear before opening so the same file can be re-selected

@@ -452,6 +452,39 @@ describe("FileUploadComponent", () => {
 
       expect(clickSpy).toHaveBeenCalledTimes(1);
     });
+
+    // The overlay used to take the native `disabled` attribute when disabled, which
+    // removed it from the tab order. The hidden file input is `tabindex=-1` and
+    // `aria-hidden`, so the disabled control became unreachable for AT. The fix
+    // switches to aria-disabled (button stays focusable) and guards the handler.
+    it("marks the overlay button as aria-disabled (not natively disabled) when disabled", () => {
+      fixture.componentInstance.disabled = true;
+      fixture.detectChanges();
+
+      const overlayButton = fixture.nativeElement.querySelector(
+        'button[type="button"]',
+      ) as HTMLButtonElement;
+
+      expect(overlayButton.getAttribute("aria-disabled")).toBe("true");
+      expect(overlayButton.hasAttribute("disabled")).toBe(false);
+    });
+
+    it("does not open the file picker when clicked while disabled", () => {
+      fixture.componentInstance.disabled = true;
+      fixture.detectChanges();
+
+      const fileInput = fixture.nativeElement.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+      const overlayButton = fixture.nativeElement.querySelector(
+        'button[type="button"]',
+      ) as HTMLButtonElement;
+      const clickSpy = jest.spyOn(fileInput, "click");
+
+      overlayButton.click();
+
+      expect(clickSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("aria-describedby", () => {
