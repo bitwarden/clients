@@ -177,7 +177,6 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
                 mem::transmute(hash_buffer)
             }
         };
-        tracing::debug!(" Hash: {hash_buffer:?}");
         Ok(hash_buffer)
     }
 }
