@@ -179,7 +179,11 @@ import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/pla
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
-import { ManagedOverlayStateProvider } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
+import {
+  OverlayActiveUserStateProvider,
+  OverlayGlobalStateProvider,
+  OverlaySingleUserStateProvider,
+} from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
 import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
@@ -683,9 +687,11 @@ export default class MainBackground {
       new PrimarySecondaryStorageService(this.storageService, localStorageStorageService),
     );
 
-    this.globalStateProvider = new DefaultGlobalStateProvider(
-      storageServiceProvider,
-      this.logService,
+    this.managedSettingsService = new DefaultManagedSettingsService();
+
+    this.globalStateProvider = new OverlayGlobalStateProvider(
+      new DefaultGlobalStateProvider(storageServiceProvider, this.logService),
+      this.managedSettingsService,
     );
 
     const stateEventRegistrarService = new DefaultStateEventRegistrarService(
@@ -698,10 +704,13 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.singleUserStateProvider = new DefaultSingleUserStateProvider(
-      storageServiceProvider,
-      stateEventRegistrarService,
-      this.logService,
+    this.singleUserStateProvider = new OverlaySingleUserStateProvider(
+      new DefaultSingleUserStateProvider(
+        storageServiceProvider,
+        stateEventRegistrarService,
+        this.logService,
+      ),
+      this.managedSettingsService,
     );
     this.accountService = new AccountServiceImplementation(
       this.messagingService,
@@ -710,9 +719,9 @@ export default class MainBackground {
       this.singleUserStateProvider,
     );
     const activeUserAccessor = new DefaultActiveUserAccessor(this.accountService);
-    this.activeUserStateProvider = new DefaultActiveUserStateProvider(
-      activeUserAccessor,
-      this.singleUserStateProvider,
+    this.activeUserStateProvider = new OverlayActiveUserStateProvider(
+      new DefaultActiveUserStateProvider(activeUserAccessor, this.singleUserStateProvider),
+      this.managedSettingsService,
     );
     this.derivedStateProvider = new InlineDerivedStateProvider();
     this.stateProvider = new DefaultStateProvider(
@@ -720,11 +729,6 @@ export default class MainBackground {
       this.singleUserStateProvider,
       this.globalStateProvider,
       this.derivedStateProvider,
-    );
-    this.managedSettingsService = new DefaultManagedSettingsService();
-    this.stateProvider = new ManagedOverlayStateProvider(
-      this.stateProvider,
-      this.managedSettingsService,
     );
     if (devFlagEnabled("managedSettings")) {
       const devProfile = devFlagValue("managedSettings");
