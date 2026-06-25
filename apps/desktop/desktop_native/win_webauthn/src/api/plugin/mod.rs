@@ -237,7 +237,7 @@ impl Drop for VerifyingKey {
 /// WebAuthnPlugin::add_authenticator(&options).unwrap();
 ///
 /// // Register this process to receive COM messages.
-/// let plugin = WebAuthnPlugin::new(clsid);
+/// let mut plugin = WebAuthnPlugin::new(clsid);
 /// plugin.register_server(authenticator).unwrap();
 /// ```
 pub struct WebAuthnPlugin {
