@@ -6,6 +6,8 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
 export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   name = "removeUnlockWithPinPolicyTitle";
   description = "removeUnlockWithPinPolicyDesc";
@@ -13,6 +15,10 @@ export class RemoveUnlockWithPinPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 80;
   component = RemoveUnlockWithPinPolicyComponent;
+  v2 = {
+    component: SimpleTogglePolicyComponent,
+    description: "removeUnlockWithPinPolicyDescV2",
+  };
 }
 
 @Component({
