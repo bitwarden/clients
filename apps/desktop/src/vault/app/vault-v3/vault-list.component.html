@@ -92,6 +92,8 @@
           [canCreateCipher]="true"
           [canCreateFolder]="true"
           [canCreateSshKey]="true"
+          buttonType="secondary"
+          [icon]="undefined"
           (cipherAdded)="addCipher($event)"
           (folderAdded)="addFolder()"
           (onAddItemDialog)="onAddItemDialog.emit()"
