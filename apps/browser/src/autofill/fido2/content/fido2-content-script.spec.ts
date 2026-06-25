@@ -16,6 +16,15 @@ jest.mock("../../../autofill/utils", () => ({
   }),
 }));
 
+// The reporter is a side-effecting init step (scrapes iframes from the
+// document). The mock document used in this spec is minimal and doesn't
+// implement `querySelectorAll`. The reporter has its own dedicated tests; stub
+// it out here so this spec stays focused on FIDO2 message routing.
+jest.mock("./iframe-allow-reporter", () => ({
+  reportIframeAttributesWhenReady: jest.fn(),
+  PERMISSIONS_POLICY_REPORT_COMMAND: "permissionsPolicyReportFrameAttributes",
+}));
+
 const originalGlobalThis = globalThis;
 const mockGlobalThisDocument = {
   ...originalGlobalThis.document,
