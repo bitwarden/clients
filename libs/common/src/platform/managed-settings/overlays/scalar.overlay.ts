@@ -9,6 +9,18 @@ export const booleanLeaf: LeafParser<boolean> = (raw) => (typeof raw === "boolea
 
 export const stringLeaf: LeafParser<string> = (raw) => (typeof raw === "string" ? raw : null);
 
+/** Builds a parser that accepts only one of the listed numeric values (no `as` needed). */
+export function numberEnumLeaf<T extends number>(values: readonly T[]): LeafParser<T> {
+  return (raw) => {
+    for (const value of values) {
+      if (value === raw) {
+        return value;
+      }
+    }
+    return null;
+  };
+}
+
 /** Builds a parser that accepts only one of the listed string values (no `as` needed). */
 export function enumLeaf<T extends string>(values: readonly T[]): LeafParser<T> {
   return (raw) => {

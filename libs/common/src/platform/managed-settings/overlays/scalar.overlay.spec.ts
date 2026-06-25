@@ -2,7 +2,13 @@ import { KeyDefinition, StateDefinition } from "@bitwarden/state";
 
 import { lookupOverlay, __resetOverlaysForTests } from "../managed-overlay-registry";
 
-import { booleanLeaf, defineScalarOverlay, enumLeaf, stringLeaf } from "./scalar.overlay";
+import {
+  booleanLeaf,
+  defineScalarOverlay,
+  enumLeaf,
+  numberEnumLeaf,
+  stringLeaf,
+} from "./scalar.overlay";
 
 const TEST_DISK = new StateDefinition("scalarOverlayTest", "disk");
 
@@ -27,6 +33,14 @@ describe("scalar overlay parsers", () => {
     expect(parse("dark")).toBe("dark");
     expect(parse("purple")).toBeNull();
     expect(parse(0)).toBeNull();
+  });
+
+  it("numberEnumLeaf accepts a listed number and rejects others", () => {
+    const parse = numberEnumLeaf([0, 1, 2]);
+    expect(parse(2)).toBe(2);
+    expect(parse(3)).toBeNull();
+    expect(parse("1")).toBeNull();
+    expect(parse(true)).toBeNull();
   });
 });
 
