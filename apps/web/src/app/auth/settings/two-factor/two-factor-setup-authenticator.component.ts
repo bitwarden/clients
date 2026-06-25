@@ -86,6 +86,13 @@ export class TwoFactorSetupAuthenticatorComponent
   key: string;
   private userVerificationToken: string | undefined;
 
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
+
   override componentName = "app-two-factor-authenticator";
   qrScriptError = false;
   private qrScript: HTMLScriptElement;
@@ -157,7 +164,7 @@ export class TwoFactorSetupAuthenticatorComponent
     const request = new TwoFactorAuthenticatorUpdateRequest(
       this.formGroup.value.token,
       this.key,
-      this.userVerificationToken,
+      this.requireUserVerificationToken(),
     );
 
     const response = await this.twoFactorService.putTwoFactorAuthenticator(request);
@@ -179,7 +186,10 @@ export class TwoFactorSetupAuthenticatorComponent
       return;
     }
 
-    const request = new TwoFactorAuthenticatorDeleteRequest(this.key, this.userVerificationToken);
+    const request = new TwoFactorAuthenticatorDeleteRequest(
+      this.key,
+      this.requireUserVerificationToken(),
+    );
     await this.twoFactorService.deleteTwoFactorAuthenticator(request);
     this.enabled = false;
     this.toastService.showToast({
