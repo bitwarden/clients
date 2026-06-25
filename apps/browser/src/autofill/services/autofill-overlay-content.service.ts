@@ -466,7 +466,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       const memoIndex = this.getFormFieldHandlerMemoIndex(formFieldElement, event);
       const existingHandler = this.eventHandlersMemo[memoIndex];
       if (!existingHandler) {
-        return;
+        // continue, not return: a missing memo for one event must not skip the others.
+        continue;
       }
 
       formFieldElement.removeEventListener(event, existingHandler);
