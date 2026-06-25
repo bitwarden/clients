@@ -260,6 +260,7 @@ import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/un
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
 import { ManagedOverlayStateProvider } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
+import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
 import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
@@ -1650,6 +1651,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
     useFactory: () => () => registerEnvironmentOverlay(),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+    useFactory: () => () => registerAppearanceOverlay(),
     deps: [],
     multi: true,
   }),

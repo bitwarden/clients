@@ -4,7 +4,7 @@ import { map, Observable } from "rxjs";
 import { GlobalStateProvider, KeyDefinition, THEMING_DISK } from "@bitwarden/common/platform/state";
 import { CompactModeService } from "@bitwarden/components";
 
-const COMPACT_MODE = new KeyDefinition<boolean>(THEMING_DISK, "compactMode", {
+export const COMPACT_MODE = new KeyDefinition<boolean>(THEMING_DISK, "compactMode", {
   deserializer: (s) => s,
 });
 

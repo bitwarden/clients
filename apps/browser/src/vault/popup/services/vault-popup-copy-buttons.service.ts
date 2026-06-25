@@ -9,9 +9,13 @@ import {
 
 export type CopyButtonDisplayMode = "combined" | "quick";
 
-const COPY_BUTTON = new KeyDefinition<CopyButtonDisplayMode>(VAULT_APPEARANCE, "copyButtons", {
-  deserializer: (s) => s,
-});
+export const COPY_BUTTON = new KeyDefinition<CopyButtonDisplayMode>(
+  VAULT_APPEARANCE,
+  "copyButtons",
+  {
+    deserializer: (s) => s,
+  },
+);
 
 /**
  * Settings service for vault copy button settings
