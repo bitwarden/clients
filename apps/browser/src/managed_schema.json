@@ -34,6 +34,37 @@
         }
       }
     },
+    "theming": {
+      "type": "object",
+      "properties": {
+        "selection": {
+          "type": "string",
+          "description": "Application color theme."
+        },
+        "compactMode": {
+          "type": "boolean",
+          "description": "Compact display mode."
+        }
+      }
+    },
+    "translation": {
+      "type": "object",
+      "properties": {
+        "locale": {
+          "type": "string",
+          "description": "Application language (locale)."
+        }
+      }
+    },
+    "vaultAppearance": {
+      "type": "object",
+      "properties": {
+        "copyButtons": {
+          "type": "string",
+          "description": "Copy-button display mode."
+        }
+      }
+    },
     "generator": {
       "type": "object",
       "properties": {

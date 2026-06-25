@@ -43,6 +43,31 @@ export const MANAGED_KEY_CATALOG: readonly ManagedKeyDescriptor[] = [
     description: "Notifications URL.",
   },
   { key: "environment.events", type: "string", origin: "ts", description: "Events URL." },
+  // TS-only: appearance settings, consumed by the TS StateProvider overlay.
+  {
+    key: "theming.selection",
+    type: "string",
+    origin: "ts",
+    description: "Application color theme.",
+  },
+  {
+    key: "theming.compactMode",
+    type: "boolean",
+    origin: "ts",
+    description: "Compact display mode.",
+  },
+  {
+    key: "translation.locale",
+    type: "string",
+    origin: "ts",
+    description: "Application language (locale).",
+  },
+  {
+    key: "vaultAppearance.copyButtons",
+    type: "string",
+    origin: "ts",
+    description: "Copy-button display mode.",
+  },
   // SDK-consumed: generator, resolved in the SDK via ApplyManagedOverride. Mirror of
   // crates/bitwarden-generators/src/managed_overrides.rs.
   {

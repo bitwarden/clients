@@ -26,6 +26,10 @@ const TS_KEYS = [
   "environment.icons",
   "environment.notifications",
   "environment.events",
+  "theming.selection",
+  "theming.compactMode",
+  "translation.locale",
+  "vaultAppearance.copyButtons",
 ];
 
 // Pins every key's JSON type. The SDK generator types mirror the readers in
@@ -40,6 +44,10 @@ const KEY_TYPES: Record<string, "string" | "boolean" | "integer"> = {
   "environment.icons": "string",
   "environment.notifications": "string",
   "environment.events": "string",
+  "theming.selection": "string",
+  "theming.compactMode": "boolean",
+  "translation.locale": "string",
+  "vaultAppearance.copyButtons": "string",
   "generator.password.lowercase": "boolean",
   "generator.password.uppercase": "boolean",
   "generator.password.numbers": "boolean",
