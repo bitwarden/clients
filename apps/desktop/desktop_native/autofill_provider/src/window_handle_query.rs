@@ -1,9 +1,6 @@
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
-// Compiler cannot recognize that these imports are required when serde_as is
-// used below with serde feature.
-#[expect(unused_imports)]
 use serde_with::{
     base64::{Base64, Standard},
     formats::Padded,
