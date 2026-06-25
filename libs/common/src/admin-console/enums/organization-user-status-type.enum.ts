@@ -1,9 +1,4 @@
-// FIXME: update to use a const object instead of a typescript enum
-// eslint-disable-next-line @bitwarden/platform/no-enums
-export enum OrganizationUserStatusType {
-  Invited = 0,
-  Accepted = 1,
-  Confirmed = 2,
-  Staged = 3,
-  Revoked = -1,
-}
+import { OrganizationUserStatusType as SdkOrganizationUserStatusType } from "@bitwarden/sdk-internal";
+
+// Re-export the SdkOrganizationUserStatusType so we have a single source of truth
+export { SdkOrganizationUserStatusType as OrganizationUserStatusType };
