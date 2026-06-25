@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { AdditionalOptionsCardComponent } from "@bitwarden/subscription";
+
+import { AdditionalOptionsCardComponent } from "../..";
 
 describe("AdditionalOptionsCardComponent", () => {
   let component: AdditionalOptionsCardComponent;

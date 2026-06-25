@@ -39,6 +39,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -66,6 +67,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
+  protected readonly policyEnabled = signal(false);
   private readonly _saveDisabled = signal(true);
   protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
@@ -195,6 +197,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
+    this.policyEnabled.set(policyResponse.enabled);
     this.loading.set(false);
 
     const policyFormRef = this.policyFormRef();
@@ -304,6 +307,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
+
   static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
@@ -315,6 +319,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
-    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+    return PolicyEditDrawerComponent.openDrawer(dialogService, config);
   };
 }
