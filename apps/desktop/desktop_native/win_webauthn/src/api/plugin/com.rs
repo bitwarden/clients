@@ -287,7 +287,10 @@ impl PluginAuthenticatorComObject {
             );
             return Err(E_FAIL.into());
         }
-        let signature = request.request_signature();
+        let signature = request.request_signature().map_err(|err| {
+            tracing::error!(%err, "Invalid request signature buffer in CancelOperation");
+            E_INVALIDARG
+        })?;
 
         tracing::debug!("Retrieving signing key");
         let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
