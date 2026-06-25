@@ -33,6 +33,8 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -156,6 +158,14 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
+    const isAppUri = this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false;
+
+    if (isAppUri) {
+      return this.index === 0
+        ? this.i18nService.t("appUri")
+        : this.i18nService.t("appUriCount", this.index + 1);
+    }
+
     return this.index === 0
       ? this.i18nService.t("websiteUri")
       : this.i18nService.t("websiteUriCount", this.index + 1);
