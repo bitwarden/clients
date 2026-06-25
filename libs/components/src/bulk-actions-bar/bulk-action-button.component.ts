@@ -70,6 +70,21 @@ export class BulkActionButtonComponent implements FocusableOption {
     });
   }
 
+  /**
+   * Overrides the label's inline `display` so the parent bar can read the
+   * full-label intrinsic width even while `compact()` is true. Without this,
+   * a remeasurement while compact would capture the compact width (labels
+   * are `tw-hidden` → `display: none`) and trap the bar in compact mode.
+   * Call with `false` to clear the override and let `tw-hidden` re-apply.
+   * @internal
+   */
+  forceLabelVisible(visible: boolean): void {
+    const el = this.label()?.nativeElement;
+    if (el) {
+      el.style.display = visible ? "inline" : "";
+    }
+  }
+
   get disabled(): boolean {
     return (this.elementRef.nativeElement as HTMLButtonElement).disabled === true;
   }

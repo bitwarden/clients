@@ -178,7 +178,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ActionsService } from "@bitwarden/common/platform/actions/actions-service";
-import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -292,7 +292,6 @@ import {
   ImportServiceAbstraction,
 } from "@bitwarden/importer-core";
 import {
-  BiometricsService,
   BiometricStateService,
   DefaultBiometricStateService,
   DefaultKdfConfigService,
@@ -516,7 +515,7 @@ export default class MainBackground {
   vaultSettingsService: VaultSettingsServiceAbstraction;
   pendingAuthRequestStateService: PendingAuthRequestsStateService;
   biometricStateService: BiometricStateService;
-  biometricsService: BiometricsService;
+  biometricsService: BackgroundBrowserBiometricsService;
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
@@ -939,6 +938,7 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
@@ -986,12 +986,7 @@ export default class MainBackground {
     this.pinService = new PinService(this.sdkService);
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
-    this.ipcService = new IpcBackgroundService(
-      this.platformUtilsService,
-      this.logService,
-      ipcSessionRepository,
-    );
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
 
     const browserBiometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
@@ -1287,7 +1282,6 @@ export default class MainBackground {
       this.scriptInjectorService,
       this.accountService,
       this.authService,
-      this.configService,
       this.userNotificationSettingsService,
       messageListener,
       this.animationControlService,
@@ -1829,10 +1823,13 @@ export default class MainBackground {
       if (authStatus === AuthenticationStatus.LoggedOut) {
         const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
         await this.switchAccount(nextUpAccount?.id);
+      } else {
+        this.biometricsService.startPolling(active.id);
       }
     }
 
     await this.initOverlayAndTabsBackground();
+    await this.ipcContentScriptManagerService.init();
     await this.ipcService.init();
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
       await this.sharedUnlockLeaderService.start();
@@ -1926,12 +1923,14 @@ export default class MainBackground {
       await switchPromise;
 
       if (userId == null) {
+        this.biometricsService.stopPolling();
         await this.refreshMenu();
         await this.updateOverlayCiphers();
         this.messagingService.send("goHome");
         return;
       }
 
+      this.biometricsService.startPolling(userId);
       nextAccountStatus = await this.authService.getAuthStatus(userId);
 
       await this.systemService.clearPendingClipboard();

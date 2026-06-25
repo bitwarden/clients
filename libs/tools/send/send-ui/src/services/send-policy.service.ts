@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, shareReplay, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -7,6 +7,16 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+
+export const SendDisabledReason = Object.freeze({
+  /** Send is not disabled */
+  None: 0,
+  /** Send is disabled for a non-specific reason */
+  Other: 1,
+} as const);
+export type SendDisabledReason = (typeof SendDisabledReason)[keyof typeof SendDisabledReason];
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -73,4 +83,46 @@ export class SendPolicyService {
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  readonly whoCanAccess$: Observable<WhoCanAccessType | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.whoCanAccess != null);
+              return (policy?.data?.whoCanAccess as WhoCanAccessType) ?? null;
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  readonly allowedDomains$: Observable<string[] | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.allowedDomains);
+              const raw = policy?.data?.allowedDomains as string;
+              if (!raw) {
+                return null;
+              }
+              return raw
+                .split(",")
+                .map((d: string) => d.trim().toLowerCase())
+                .filter((d: string) => d.length > 0);
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  async sendDisabledReason(send: SendView) {
+    if (!send.disabled) {
+      return SendDisabledReason.None;
+    }
+    return SendDisabledReason.Other;
+  }
 }

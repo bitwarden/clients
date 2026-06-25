@@ -16,6 +16,7 @@ import {
   tap,
 } from "rxjs";
 
+import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/angular/auth/self-hosted-env-config-dialog";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
 import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
@@ -29,8 +30,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, FormFieldModule, SelectModule, ToastService } from "@bitwarden/components";
-
-import { SelfHostedEnvConfigDialogComponent } from "../../self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
 /**
  * Component for selecting the environment to register with in the email verification registration flow.
