@@ -1797,7 +1797,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RegistrationFinishServiceAbstraction,
     useClass: DefaultRegistrationFinishService,
-    deps: [KeyService, AccountApiServiceAbstraction, MasterPasswordServiceAbstraction],
+    deps: [
+      KeyService,
+      AccountApiServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      ConfigService,
+      SdkService,
+    ],
   }),
   safeProvider({
     provide: TwoFactorAuthComponentService,

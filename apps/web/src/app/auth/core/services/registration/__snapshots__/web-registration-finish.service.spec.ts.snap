@@ -1,5 +1,90 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow posts the user password registration keys via the SDK and does not use the legacy flow 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": "emailVerificationToken",
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers the user when given a provider invite token 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": "providerInviteToken",
+  "provider_user_id": "00000000-0000-0000-0000-000000000002",
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers the user when given an emergency access invite token 1`] = `
+{
+  "accept_emergency_access_id": "00000000-0000-0000-0000-000000000001",
+  "accept_emergency_access_invite_token": "acceptEmergencyAccessInviteToken",
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers the user when given an org sponsored free family plan token 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": "orgSponsoredFreeFamilyPlanToken",
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow registers the user with org invite when given an org invite 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "org_invite_token": "orgInviteToken",
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": "00000000-0000-0000-0000-000000000003",
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "salt": "salt",
+}
+`;
+
 exports[`WebRegistrationFinishService finishRegistration() derives the master key and registers the user 1`] = `
 RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,

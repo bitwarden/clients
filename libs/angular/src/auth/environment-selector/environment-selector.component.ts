@@ -2,9 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
 import { Observable, map, Subject } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
 import {
   EnvironmentService,
   Region,
@@ -20,6 +17,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { SelfHostedEnvConfigDialogComponent } from "../self-hosted-env-config-dialog";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

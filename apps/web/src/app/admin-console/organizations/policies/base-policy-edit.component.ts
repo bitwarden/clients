@@ -47,9 +47,10 @@ export abstract class BasePolicyEditDefinition {
   abstract name: string;
   /**
    * i18n string for the policy description.
-   * This is shown in the list of policies.
+   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
+
   /**
    * The PolicyType enum that this policy represents.
    */
@@ -92,6 +93,28 @@ export abstract class BasePolicyEditDefinition {
    * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
    */
   warningKey?: string;
+
+  /**
+   * Optional drawer-specific configuration for this policy.
+   * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
+   * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
+   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
+   * {@link PoliciesComponent} — there is no per-policy flag.
+   */
+  v2?: {
+    /** Component to render inside the drawer instead of {@link component}. */
+    component: Constructor<BasePolicyEditComponent>;
+    /** Drawer-only title. Falls back to {@link name} when not set. */
+    name?: string;
+    /** Drawer-only description. Falls back to {@link description} when not set. */
+    description?: string;
+    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
+    prerequisiteKey?: string;
+    /** URL for an optional "learn more" link inside the prerequisite callout. */
+    prerequisiteLinkHref?: string;
+    /** i18n key for the text of {@link prerequisiteLinkHref}. */
+    prerequisiteLinkTextKey?: string;
+  };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.

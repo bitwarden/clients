@@ -41,7 +41,9 @@ export const Default: Story = {
           Accepted <bit-berry [value]="2" variant="danger"></bit-berry>
         </bit-toggle>
 
-        <bit-toggle value="deactivated"> Deactivated </bit-toggle>
+        <bit-toggle value="deactivated">
+          Deactivated <bit-berry [value]="0" variant="danger"></bit-berry>
+        </bit-toggle>
       </bit-toggle-group>
     `,
   }),

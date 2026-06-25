@@ -424,7 +424,7 @@ export class Main {
 
         app.removeAsDefaultProtocolClient("bitwarden");
         if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requirering a different protocol client
+          // Fix development build on Windows requiring a different protocol client
           app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
             process.argv[1],
             path.resolve(process.argv[2]),

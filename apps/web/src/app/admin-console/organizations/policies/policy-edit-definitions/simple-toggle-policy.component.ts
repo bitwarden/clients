@@ -14,7 +14,7 @@ import { BasePolicyEditComponent } from "../base-policy-edit.component";
     }
     <bit-form-control>
       <bit-switch [formControl]="enabled"></bit-switch>
-      <bit-label>{{ "turnOn" | i18n }}</bit-label>
+      <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
     </bit-form-control>
   `,
   imports: [ReactiveFormsModule, CalloutComponent, FormControlModule, SwitchComponent, I18nPipe],

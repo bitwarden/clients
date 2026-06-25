@@ -26,6 +26,10 @@ import {
   AssignCollectionsResult,
 } from "../tokens/assign-collections-dialog.token";
 import { BULK_DELETE_DIALOG, BulkDeleteDialogResult } from "../tokens/bulk-delete-dialog.token";
+import {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessResult,
+} from "../tokens/bulk-edit-collection-access-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
 import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
@@ -52,6 +56,7 @@ function makeCipherItem(overrides: Partial<CipherView> = {}): VaultItem<CipherVi
 function makeCollection(
   overrides: Partial<CollectionView> = {},
   canDeleteResult = true,
+  canEditResult = true,
 ): CollectionView {
   const col = new CollectionView({
     id: "col-1" as any,
@@ -60,6 +65,7 @@ function makeCollection(
   } as any);
   Object.assign(col, overrides);
   jest.spyOn(col, "canDelete").mockReturnValue(canDeleteResult);
+  jest.spyOn(col, "canEdit").mockReturnValue(canEditResult);
   return col;
 }
 
@@ -100,6 +106,7 @@ describe("VaultBatchBarService", () => {
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let mockAssignCollectionsDialogOpen: jest.Mock;
   let mockBulkDeleteDialogOpen: jest.Mock;
+  let mockBulkEditCollectionAccessDialogOpen: jest.Mock;
   let activeFilterSubject: BehaviorSubject<RoutedVaultFilterModel>;
   let featureFlagSubject: BehaviorSubject<boolean>;
 
@@ -122,6 +129,7 @@ describe("VaultBatchBarService", () => {
     mockAccountService.activeAccount$ = of({ id: userId } as Account);
     mockAssignCollectionsDialogOpen = jest.fn();
     mockBulkDeleteDialogOpen = jest.fn();
+    mockBulkEditCollectionAccessDialogOpen = jest.fn();
     mockOrganizationService.organizations$.mockReturnValue(organizationsSubject);
     mockCipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject);
     mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -159,6 +167,10 @@ describe("VaultBatchBarService", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: { open: mockAssignCollectionsDialogOpen } },
         { provide: BULK_DELETE_DIALOG, useValue: { open: mockBulkDeleteDialogOpen } },
+        {
+          provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+          useValue: { open: mockBulkEditCollectionAccessDialogOpen },
+        },
       ],
     });
 
@@ -485,6 +497,13 @@ describe("VaultBatchBarService", () => {
       service.selection.select(makeCipherItem());
 
       expect(service.canAssignToCollections()).toBe(true);
+    });
+
+    it("returns false for org vault when only collections are selected", () => {
+      service.setConfig(makeConfig({ hasCiphers: true, isOrgVault: true }));
+      service.selection.select(makeCollectionItem());
+
+      expect(service.canAssignToCollections()).toBe(false);
     });
 
     it("returns false when in trash view", () => {
@@ -1040,6 +1059,100 @@ describe("VaultBatchBarService", () => {
       mockAssignCollectionsDialogOpen.mockResolvedValue(AssignCollectionsResult.Canceled);
 
       await service.bulkAssignToCollections();
+
+      expect(service.selectedCount()).toBe(1);
+    });
+  });
+
+  describe("canEditCollectionAccess", () => {
+    it("returns false when not isOrgVault", () => {
+      service.setConfig(makeConfig({ isOrgVault: false }));
+      service.selection.select(makeCollectionItem());
+
+      expect(service.canEditCollectionAccess()).toBe(false);
+    });
+
+    it("returns false when selection is empty", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+
+      expect(service.canEditCollectionAccess()).toBe(false);
+    });
+
+    it("returns false when selection contains only ciphers", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+      service.selection.select(makeCipherItem());
+
+      expect(service.canEditCollectionAccess()).toBe(false);
+    });
+
+    it("returns true when isOrgVault and selection contains a collection", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+      service.selection.select(makeCollectionItem());
+
+      expect(service.canEditCollectionAccess()).toBe(true);
+    });
+
+    it("returns true when isOrgVault and selection contains both a cipher and a collection", () => {
+      service.setConfig(makeConfig({ isOrgVault: true }));
+      service.selection.select(makeCipherItem(), makeCollectionItem());
+
+      expect(service.canEditCollectionAccess()).toBe(true);
+    });
+  });
+
+  describe("bulkEditCollectionAccess()", () => {
+    it("shows error toast when a collection cannot be edited", async () => {
+      const org = makeOrg();
+      service.setConfig(makeConfig({ isOrgVault: true, organization: org }));
+      service.selection.select({ collection: makeCollection({}, true, false) });
+
+      await service.bulkEditCollectionAccess();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      expect(mockBulkEditCollectionAccessDialogOpen).not.toHaveBeenCalled();
+    });
+
+    it("opens dialog with correct params when all collections can be edited", async () => {
+      const org = makeOrg();
+      service.setConfig(makeConfig({ isOrgVault: true, organization: org }));
+      const col = makeCollection({}, true, true);
+      service.selection.select({ collection: col });
+      mockBulkEditCollectionAccessDialogOpen.mockResolvedValue(
+        BulkEditCollectionAccessResult.Canceled,
+      );
+
+      await service.bulkEditCollectionAccess();
+
+      expect(mockBulkEditCollectionAccessDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: org.id, collections: [col] }),
+      );
+    });
+
+    it("clears selection and emits completed$ when result is Saved", async () => {
+      const completedSpy = jest.fn();
+      service.completed$.subscribe(completedSpy);
+      service.setConfig(makeConfig({ isOrgVault: true, organization: makeOrg() }));
+      service.selection.select({ collection: makeCollection({}, true, true) });
+      mockBulkEditCollectionAccessDialogOpen.mockResolvedValue(
+        BulkEditCollectionAccessResult.Saved,
+      );
+
+      await service.bulkEditCollectionAccess();
+
+      expect(service.selectedCount()).toBe(0);
+      expect(completedSpy).toHaveBeenCalled();
+    });
+
+    it("does not clear selection when result is Canceled", async () => {
+      service.setConfig(makeConfig({ isOrgVault: true, organization: makeOrg() }));
+      service.selection.select({ collection: makeCollection({}, true, true) });
+      mockBulkEditCollectionAccessDialogOpen.mockResolvedValue(
+        BulkEditCollectionAccessResult.Canceled,
+      );
+
+      await service.bulkEditCollectionAccess();
 
       expect(service.selectedCount()).toBe(1);
     });

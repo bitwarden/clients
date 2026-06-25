@@ -46,6 +46,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -60,17 +62,23 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { BannerModule, DialogService, NoItemsModule, ToastService } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogCloseResult,
   AddItemDialogComponent,
   AddItemDialogResult,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
   CipherFormConfigService,
   DecryptionFailureDialogComponent,
-  VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
-  createFilterFunction,
+  VaultBatchActionComponent,
+  VaultBatchBarService,
+  VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilter,
+  createFilterFunction,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -80,12 +88,15 @@ import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/or
 import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-items.component";
 
 import { SharedModule } from "../../../shared";
+import { AssignCollectionsWebDialogAdapter } from "../../../vault/components/assign-collections/assign-collections-web-dialog.adapter";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
+import { BulkDeleteDialogWebAdapter } from "../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import { GroupApiService, GroupView } from "../core";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
+import { BulkEditCollectionAccessWebDialogAdapter } from "./bulk-collections-dialog/bulk-edit-collection-access-web-dialog.adapter";
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { ACRoutedVaultFilterModel, toACFilter } from "./models/ac-routed-vault-filter.model";
 import { DefaultVaultCollectionService } from "./services/default-vault-collection.service";
@@ -111,6 +122,7 @@ const SearchTextDebounceInterval = 200;
     NoItemsModule,
     OrganizationFreeTrialWarningComponent,
     OrganizationResellerRenewalWarningComponent,
+    VaultBatchActionComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -119,6 +131,22 @@ const SearchTextDebounceInterval = 200;
     VaultCollectionActionsService,
     { provide: VaultCollectionService, useClass: DefaultVaultCollectionService },
     VaultCipherActionsService,
+    VaultBatchBarService,
+    safeProvider({
+      provide: ASSIGN_COLLECTIONS_DIALOG,
+      useClass: AssignCollectionsWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_DELETE_DIALOG,
+      useClass: BulkDeleteDialogWebAdapter,
+      useAngularDecorators: true,
+    }),
+    safeProvider({
+      provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+      useClass: BulkEditCollectionAccessWebDialogAdapter,
+      useAngularDecorators: true,
+    }),
   ],
 })
 export class VaultV2Component implements OnInit, OnDestroy {
@@ -143,6 +171,13 @@ export class VaultV2Component implements OnInit, OnDestroy {
   private readonly collectionActions = inject(VaultCollectionActionsService);
   protected readonly collectionService = inject(VaultCollectionService);
   private readonly cipherActions = inject(VaultCipherActionsService);
+  private readonly vaultBatchBarService = inject(VaultBatchBarService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
 
   protected readonly Unassigned = Unassigned;
 
@@ -372,6 +407,19 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
     this.cipherActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
     this.collectionActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
+    this.vaultBatchBarService.completed$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+    combineLatest([this.organization$, this.allCollections$, this.ciphers$])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([organization, allCollections, ciphers]) => {
+        this.vaultBatchBarService.setConfig({
+          isOrgVault: true,
+          organization,
+          allCollections,
+          hasCiphers: ciphers.length > 0,
+        });
+      });
 
     this.cipherActions.navigate$
       .pipe(takeUntil(this.destroy$))

@@ -5,6 +5,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
   afterNextRender,
   computed,
   contentChildren,
@@ -83,9 +84,9 @@ export class BulkActionsBarComponent {
   protected readonly visible = computed(() => this.selectedCount() > 0);
 
   /**
-   * The bar's intrinsic width (in px) measured once after first render, when all
-   * action labels are visible. Used both as the cap (`max-width`) and as the
-   * threshold for entering compact mode.
+   * The bar's intrinsic width (in px), remeasured whenever the rendered toolbar
+   * buttons change. Used both as the cap (`max-width`) and as the threshold for
+   * entering compact mode.
    */
   protected readonly initialBarWidth = signal(0);
 
@@ -123,7 +124,21 @@ export class BulkActionsBarComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
+    const injector = inject(Injector);
     this.initResizeObserver();
+
+    // Projected action data-holders may resolve async (e.g. when consumers
+    // compute them from observable signals), so the bar can mount with fewer
+    // buttons than its eventual steady state. Each emission of `primaryButtons`
+    // reflects the currently rendered button set; remeasure on every change so
+    // `initialBarWidth` tracks reality.
+    effect(() => {
+      const buttons = this.primaryButtons();
+      if (buttons.length === 0) {
+        return;
+      }
+      afterNextRender(() => this.measureIntrinsicWidth(), { injector });
+    });
 
     // FocusKeyManager captures button references at construction. Rebuild it
     // whenever the projected action set changes so it tracks the current
@@ -165,19 +180,7 @@ export class BulkActionsBarComponent {
 
   private initResizeObserver(): void {
     afterNextRender(() => {
-      const barEl = this.bar()?.nativeElement;
       const wrapperEl = this.wrapper().nativeElement;
-      if (!barEl) {
-        return;
-      }
-
-      // Pin `min-width: max-content` for the read so the flex parent can't
-      // shrink the bar below content size when mounted in a constrained
-      // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
-      const previousMinWidth = barEl.style.minWidth;
-      barEl.style.minWidth = "max-content";
-      this.initialBarWidth.set(Math.ceil(barEl.getBoundingClientRect().width));
-      barEl.style.minWidth = previousMinWidth;
 
       const observer = new ResizeObserver(() => {
         const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
@@ -186,6 +189,46 @@ export class BulkActionsBarComponent {
       observer.observe(wrapperEl);
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
+  }
+
+  private measureIntrinsicWidth(): void {
+    const barEl = this.bar()?.nativeElement;
+    const wrapperEl = this.wrapper().nativeElement;
+    if (!barEl) {
+      return;
+    }
+
+    // Pin `min-width: max-content` for the read so the flex parent can't
+    // shrink the bar below content size when mounted in a constrained
+    // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
+    const previousMinWidth = barEl.style.minWidth;
+    barEl.style.minWidth = "max-content";
+
+    // While `compact` is true, the close + primary button labels are
+    // `display: none` via `tw-hidden`. Reading the width with those applied
+    // would capture the compact width and trap the bar in compact mode
+    // forever (the threshold would never be exceeded by a widening
+    // wrapper). Force them visible for the read; the additional-actions
+    // trigger is intentionally always icon-only, so we exclude it. Mutate
+    // → measure → restore happens synchronously, so the browser never
+    // paints with labels visible.
+    const trigger = this.additionalActionsTrigger();
+    const labeledButtons = this.primaryButtons().filter((btn) => btn !== trigger);
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
+
+    const barWidth = Math.ceil(barEl.getBoundingClientRect().width);
+
+    labeledButtons.forEach((btn) => btn.forceLabelVisible(false));
+    barEl.style.minWidth = previousMinWidth;
+
+    // Guard against unmeasurable layouts (detached element, jsdom) so we
+    // don't flip `compact` based on a zero-width read.
+    if (barWidth === 0) {
+      return;
+    }
+    this.initialBarWidth.set(barWidth);
+    const threshold = barWidth + COMPACT_THRESHOLD_BUFFER_PX;
+    this.compact.set(wrapperEl.clientWidth < threshold);
   }
 
   protected handleShortcut(event: KeyboardEvent): void {

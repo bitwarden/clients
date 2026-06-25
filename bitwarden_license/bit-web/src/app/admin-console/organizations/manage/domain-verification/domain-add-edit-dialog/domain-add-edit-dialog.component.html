@@ -1,7 +1,6 @@
 <form
   [formGroup]="domainForm"
   [bitSubmit]="data.orgDomain ? verifyDomain : saveDomain"
-  [allowDisabledFormSubmit]="true"
   bit-dialog
   [dialogSize]="'default'"
 >
@@ -38,12 +37,12 @@
     </div>
     <bit-form-field>
       <bit-label>{{ "domainName" | i18n }}</bit-label>
-      <input bitInput appAutofocus formControlName="domainName" [showErrorsWhenDisabled]="true" />
+      <input bitInput appAutofocus formControlName="domainName" [readonly]="domainNameReadonly" />
     </bit-form-field>
 
     <bit-form-field *ngIf="data?.orgDomain">
       <bit-label>{{ "dnsTxtRecord" | i18n }}</bit-label>
-      <input bitInput formControlName="txt" />
+      <input bitInput formControlName="txt" readonly />
       <bit-hint>{{ "dnsTxtRecordInputHint" | i18n }}</bit-hint>
       <button
         type="button"

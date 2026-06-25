@@ -102,6 +102,7 @@ describe("PoliciesComponent", () => {
     mockPolicyService.policies$.mockReturnValue(of([]));
 
     mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
@@ -587,7 +588,11 @@ describe("PoliciesComponent", () => {
     });
 
     it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(PoliciesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
       const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {

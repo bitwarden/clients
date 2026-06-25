@@ -63,6 +63,7 @@ export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstracti
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export * from "./services/bulk-delete.service";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
@@ -90,6 +91,13 @@ export {
   BulkDeleteDialogParams,
   BulkDeleteDialogResult,
 } from "./tokens/bulk-delete-dialog.token";
+
+export {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+  BulkEditCollectionAccessParams,
+  BulkEditCollectionAccessResult,
+} from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
