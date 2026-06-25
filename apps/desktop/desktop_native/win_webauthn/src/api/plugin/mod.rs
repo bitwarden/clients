@@ -8,60 +8,31 @@ mod types;
 use std::{
     error::Error,
     fmt::{Debug, Display},
-    marker::PhantomData,
     mem::MaybeUninit,
     ptr::NonNull,
 };
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 pub use types::*;
 use windows::{
-    core::{GUID, HRESULT, PCWSTR},
+    core::{GUID, PCWSTR},
     Win32::{
-        Foundation::{E_INVALIDARG, HWND, NTE_USER_CANCELLED, S_OK},
+        Foundation::{LPARAM, WPARAM},
         Security::Cryptography::BCRYPT_KEY_BLOB,
-        System::Com::{CLSIDFromString, CoTaskMemFree},
+        System::Com::CLSIDFromString,
+        UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, PostThreadMessageA, WM_QUIT},
     },
 };
-use windows_core::HSTRING;
 
 use crate::{
     api::{
         plugin::{
-            com::{ComBuffer, ComBufferExt},
-            crypto::{NCryptKey, OwnedRequestHash, RequestHash, Signature},
+            com::{register_server, uninitialize_com},
+            crypto::{NCryptKey, RequestHash, Signature},
         },
-        sys::{
-            plugin::{
-                webauthn_decode_get_assertion_request, webauthn_decode_make_credential_request,
-                webauthn_encode_make_credential_response,
-                webauthn_free_decoded_get_assertion_request,
-                webauthn_free_decoded_make_credential_request, webauthn_plugin_add_authenticator,
-                webauthn_plugin_authenticator_add_credentials,
-                webauthn_plugin_authenticator_remove_all_credentials,
-                webauthn_plugin_free_add_authenticator_response,
-                webauthn_plugin_free_public_key_response,
-                webauthn_plugin_free_user_verification_response,
-                webauthn_plugin_get_operation_signing_public_key,
-                webauthn_plugin_get_user_verification_public_key,
-                webauthn_plugin_perform_user_verification, WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
-                WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST, WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-                WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
-                WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-                WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
-                WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-                WEBAUTHN_PLUGIN_REQUEST_TYPE, WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
-            },
-            WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
-        },
-        webauthn::{
-            AuthenticatorInfo, CoseCredentialParameter, CoseCredentialParameters, CredentialEx,
-            CtapTransport, HmacSecretSalt, RpEntityInformation, UserEntityInformation, UserId,
-            WebAuthnExtensionMakeCredentialOutput,
-        },
+        sys::plugin::webauthn_plugin_free_public_key_response,
         WindowsString,
     },
-    CredentialId, ErrorKind, WinWebAuthnError,
+    ErrorKind, WinWebAuthnError,
 };
 
 pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
@@ -271,11 +242,103 @@ impl Drop for VerifyingKey {
 /// ```
 pub struct WebAuthnPlugin {
     clsid: Clsid,
+    com_thread_id: Option<u32>,
 }
 
 impl WebAuthnPlugin {
     pub fn new(clsid: Clsid) -> Self {
-        WebAuthnPlugin { clsid }
+        WebAuthnPlugin {
+            clsid,
+            com_thread_id: None,
+        }
+    }
+
+    /// Registers a COM server with Windows and starts the COM message loop on a dedicated thread.
+    ///
+    /// The handler should be an instance of your type that implements [PluginAuthenticator].
+    /// The same instance will be shared across all COM calls.
+    ///
+    /// Blocks until the COM server is initialized, then returns. The COM thread continues running
+    /// in the background until [shutdown_server] is called.
+    pub fn register_server<T>(&mut self, handler: T) -> Result<(), WinWebAuthnError>
+    where
+        T: PluginAuthenticator + Send + Sync + 'static,
+    {
+        let clsid = self.clsid;
+        let (tx, rx) = std::sync::mpsc::channel::<Result<u32, windows::core::Error>>();
+
+        std::thread::spawn(move || {
+            match register_server(clsid, handler) {
+                Err(err) => {
+                    tx.send(Err(err)).ok();
+                }
+                Ok(com_thread_id) => {
+                    let span = tracing::info_span!("plugin_com_thread", thread_id = com_thread_id);
+                    let _span_guard = span.enter();
+                    tracing::debug!("Initialized COM server.");
+                    tx.send(Ok(com_thread_id)).ok();
+                    // Run the COM message loop until WM_QUIT is posted.
+                    loop {
+                        let mut msg = MaybeUninit::uninit();
+                        match unsafe { GetMessageA(msg.as_mut_ptr(), None, 0, 0).0 } {
+                            // WM_QUIT was sent, exit the loop
+                            0 => break,
+                            -1 => {
+                                tracing::error!(
+                                    "GetMessageA failed in plugin authenticator COM server event loop: {}",
+                                    windows::core::Error::from_thread()
+                                );
+                                break;
+                            }
+                            // A message was received, forward it to the appropriate
+                            _ => unsafe {
+                                let msg = msg.assume_init_ref();
+                                DispatchMessageA(msg);
+                            },
+                        }
+                    }
+                    uninitialize_com();
+                }
+            }
+        });
+
+        let result = rx
+            .recv()
+            .map(|result| {
+                result.map_err(|com_err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Failed to register COM server",
+                        com_err,
+                    )
+                })
+            })
+            .unwrap_or_else(|_| {
+                Err(WinWebAuthnError::new(
+                    ErrorKind::Other,
+                    "COM thread disconnected before initialization completed",
+                ))
+            });
+
+        let com_thread_id = result?;
+        self.com_thread_id = Some(com_thread_id);
+        Ok(())
+    }
+
+    /// Stops the COM message loop and uninitializes COM on the COM thread.
+    pub fn shutdown_server(&mut self) -> Result<(), WinWebAuthnError> {
+        if let Some(thread_id) = self.com_thread_id.take() {
+            unsafe { PostThreadMessageA(thread_id, WM_QUIT, WPARAM(0), LPARAM(0)) }.map_err(
+                |err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Failed to post quit message to COM thread",
+                        err,
+                    )
+                },
+            )?;
+        }
+        Ok(())
     }
 
     /// Adds this implementation as a Windows WebAuthn plugin.
@@ -286,26 +349,6 @@ impl WebAuthnPlugin {
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
         let options_raw = options.try_into()?;
         add_authenticator(&options_raw)
-    }
-
-    /// Registers a COM server with Windows.
-    ///
-    /// The handler should be an instance of your type that implements PluginAuthenticator.
-    /// The same instance will be shared across all COM calls.
-    ///
-    /// This only needs to be called at the start of your application.
-    pub fn register_server<T>(&self, authenticator: T) -> Result<(), WinWebAuthnError>
-    where
-        T: PluginAuthenticator + Send + Sync + 'static,
-    {
-        unimplemented!();
-    }
-
-    /// Uninitializes the COM library for the calling thread.
-    ///
-    /// Not thread-safe: This must be called from the same thread that called [register_server].
-    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
-        unimplemented!()
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.
