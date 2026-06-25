@@ -38,6 +38,9 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
+  web: "disk-local",
+});
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -233,6 +236,11 @@ export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
   "disk",
 );
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
+  "vaultOrgUserNotification",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
   "disk",

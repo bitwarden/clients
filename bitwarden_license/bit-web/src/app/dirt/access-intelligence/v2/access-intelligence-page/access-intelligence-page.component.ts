@@ -13,10 +13,22 @@ import {
   isDevMode,
   effect,
   afterNextRender,
+  untracked,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
+import {
+  combineLatest,
+  concat,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -250,10 +262,21 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     });
 
     effect(() => {
-      // coachmarks are running, so set tab index to the coachmark's required tab
-      const tabIndex = this.coachmarkService.requiredTabIndex();
-      if (tabIndex !== null && tabIndex !== this.tabIndex()) {
-        this.tabIndex.set(tabIndex);
+      const requiredTabIndex = this.coachmarkService.requiredTabIndex();
+      if (requiredTabIndex !== null && requiredTabIndex !== this.tabIndex()) {
+        this.tabIndex.set(requiredTabIndex);
+
+        // Reset drawer state and close drawer when tabs are changed
+        // we need to ensure that the popover is closed before the tab is changed,
+        // otherwise the popover will be hidden behind the new tab content
+        const activeStepId = untracked(() => this.coachmarkService.activeStepId());
+        this.coachmarkService.activeStepId.set(null); // close all popovers now
+
+        // afterNextRender defers re-activation to after Angular's CD + rendering completes,
+        // so the tab button is un-hidden before the popover measures its position.
+        afterNextRender(() => this.coachmarkService.activeStepId.set(activeStepId), {
+          injector: this.injector,
+        });
       }
     });
 
@@ -392,19 +415,28 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
               return null;
           }
         }),
+        switchMap((content) => {
+          if (!content) {
+            void this.currentDialogRef()?.close();
+            return EMPTY;
+          }
+
+          return from(
+            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            }),
+          ).pipe(
+            tap((drawerRef) => this.currentDialogRef.set(drawerRef)),
+            // Reset drawer state whenever the dialog closes (X, ESC, or programmatic close) so
+            // re-clicking the same invoker reopens it. Without this, the state stays "open" and
+            // the re-open is filtered out by distinctUntilChanged.
+            switchMap((drawerRef) => drawerRef?.closed ?? EMPTY),
+            tap(() => this.drawerStateService.closeDrawer()),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((content) => {
-        if (content) {
-          void this.dialogService
-            .openDrawer(AccessIntelligenceDrawerV2Component, {
-              data: content,
-            })
-            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
-        } else {
-          void this.currentDialogRef()?.close();
-        }
-      });
+      .subscribe();
   }
 
   /**
