@@ -3,6 +3,7 @@
 @let policySections = policySections$ | async;
 @let policiesEnabledMap = policiesEnabledMap$ | async;
 @let organization = organization$ | async;
+@let drawerEnabled = useDrawer();
 
 <bit-container>
   @if (!policySections || !policiesEnabledMap || !organization) {
@@ -22,8 +23,10 @@
           @for (p of section.policies; track p.type) {
             <bit-item>
               <button type="button" bit-item-content (click)="edit(p, organization)">
-                {{ p.name | i18n }}
-                <span slot="secondary">{{ p.description | i18n }}</span>
+                {{ (drawerEnabled && p.v2?.name ? p.v2.name : p.name) | i18n }}
+                <span slot="secondary">{{
+                  (drawerEnabled && p.v2?.description ? p.v2.description : p.description) | i18n
+                }}</span>
                 @if (policiesEnabledMap.get(p.type)) {
                   <span bitBadge variant="success" slot="end">{{ "on" | i18n }}</span>
                 } @else {
