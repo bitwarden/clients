@@ -35,6 +35,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
+  BitManagedDirective,
   CheckboxModule,
   DialogService,
   FormFieldModule,
@@ -78,6 +79,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     },
   ],
   imports: [
+    BitManagedDirective,
     CheckboxModule,
     CommonModule,
     FormFieldModule,

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@an
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { Subject, firstValueFrom, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -23,6 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -143,6 +144,10 @@ describe("SettingsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        {
+          provide: ManagedSettingsService,
+          useValue: { isManaged: () => false, changes$: new Subject<void>() },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

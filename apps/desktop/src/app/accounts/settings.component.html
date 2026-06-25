@@ -337,6 +337,8 @@
                   aria-describedby="themeHelp"
                   formControlName="theme"
                   (change)="saveTheme()"
+                  [bitManaged]="'theming.selection'"
+                  [bitManagedLabel]="'managedByYourOrganization' | i18n"
                 >
                   <option *ngFor="let o of themeOptions" [ngValue]="o.value">{{ o.name }}</option>
                 </select>
@@ -349,6 +351,8 @@
                   aria-describedby="localeHelp"
                   formControlName="locale"
                   (change)="saveLocale()"
+                  [bitManaged]="'translation.locale'"
+                  [bitManagedLabel]="'managedByYourOrganization' | i18n"
                 >
                   <option *ngFor="let o of localeOptions" [ngValue]="o.value">{{ o.name }}</option>
                 </select>

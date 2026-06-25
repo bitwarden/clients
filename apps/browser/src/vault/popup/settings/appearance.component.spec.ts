@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 
@@ -151,6 +152,10 @@ describe("AppearanceComponent", () => {
           useValue: {
             hasPremiumFromAnySource$: jest.fn().mockReturnValue(hasPremiumFromAnySource$),
           },
+        },
+        {
+          provide: ManagedSettingsService,
+          useValue: { isManaged: () => false, changes$: new Subject<void>() },
         },
       ],
     })

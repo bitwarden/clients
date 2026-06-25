@@ -229,13 +229,23 @@
 
         <bit-form-field>
           <bit-label>{{ "theme" | i18n }}</bit-label>
-          <bit-select formControlName="theme" [items]="themeOptions" />
+          <bit-select
+            formControlName="theme"
+            [items]="themeOptions"
+            [bitManaged]="'theming.selection'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
+          />
           <bit-hint>{{ "themeDesc" | i18n }}</bit-hint>
         </bit-form-field>
 
         <bit-form-field>
           <bit-label>{{ "language" | i18n }}</bit-label>
-          <bit-select formControlName="locale" [items]="localeOptions" />
+          <bit-select
+            formControlName="locale"
+            [items]="localeOptions"
+            [bitManaged]="'translation.locale'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
+          />
           <bit-hint>{{ "languageDesc" | i18n }}</bit-hint>
         </bit-form-field>
       </bit-tab>

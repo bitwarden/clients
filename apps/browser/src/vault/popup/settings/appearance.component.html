@@ -11,7 +11,11 @@
     <bit-card>
       <bit-form-field>
         <bit-label>{{ "theme" | i18n }}</bit-label>
-        <bit-select formControlName="theme">
+        <bit-select
+          formControlName="theme"
+          [bitManaged]="'theming.selection'"
+          [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        >
           @for (o of themeOptions; track o.value) {
             <bit-option [value]="o.value" [label]="o.name"></bit-option>
           }
@@ -24,7 +28,13 @@
       </bit-form-field>
 
       <bit-form-control>
-        <input bitCheckbox formControlName="enableCompactMode" type="checkbox" />
+        <input
+          bitCheckbox
+          formControlName="enableCompactMode"
+          type="checkbox"
+          [bitManaged]="'theming.compactMode'"
+          [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        />
         <bit-label>{{ "compactMode" | i18n }} </bit-label>
       </bit-form-control>
 
@@ -48,7 +58,13 @@
         </bit-label>
       </bit-form-control>
       <bit-form-control [disableMargin]="simplifiedItemActionEnabled() && !isPremium">
-        <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
+        <input
+          bitCheckbox
+          formControlName="showQuickCopyActions"
+          type="checkbox"
+          [bitManaged]="'vaultAppearance.copyButtons'"
+          [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        />
         <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
       </bit-form-control>
 
