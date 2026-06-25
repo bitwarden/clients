@@ -614,6 +614,7 @@ describe("PolicyService", () => {
       PolicyType.FreeFamiliesSponsorship,
       PolicyType.RestrictedItemTypes,
       PolicyType.RemoveUnlockWithPin,
+      PolicyType.OrganizationUserNotification,
     ])("returns true and owners are not exempt from policy %s", async (policyType) => {
       singleUserState.nextState(
         arrayToRecord([
@@ -621,10 +622,25 @@ describe("PolicyService", () => {
           policyData("policy2", "org2", PolicyType.FreeFamiliesSponsorship, true),
           policyData("policy3", "org2", PolicyType.RestrictedItemTypes, true),
           policyData("policy4", "org2", PolicyType.RemoveUnlockWithPin, true),
+          policyData("policy5", "org2", PolicyType.OrganizationUserNotification, true),
         ]),
       );
 
       const result = await firstValueFrom(policyService.policyAppliesToUser$(policyType, userId));
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true for OrganizationUserNotification policy when the user is an admin", async () => {
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("policy1", "org7", PolicyType.OrganizationUserNotification, true),
+        ]),
+      );
+
+      const result = await firstValueFrom(
+        policyService.policyAppliesToUser$(PolicyType.OrganizationUserNotification, userId),
+      );
 
       expect(result).toBe(true);
     });

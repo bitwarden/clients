@@ -57,14 +57,27 @@ describe("SimpleTogglePolicyComponent", () => {
   });
 
   describe("warning callout", () => {
-    it("should never render a callout (warning callouts are rendered by PolicyEditDrawerComponent)", () => {
-      const policy = Object.assign(new StubPolicy(), { warningKey: "someWarningKey" });
+    it("should not render a callout when no warningKey is set", () => {
+      const policy = new StubPolicy();
       fixture.componentRef.setInput("policy", policy);
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
       component.ngOnInit();
       fixture.detectChanges();
 
       expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
+    });
+
+    it("should render a callout when warningKey is set on the policy", () => {
+      const policy = Object.assign(new StubPolicy(), { warningKey: "someWarningKey" });
+      fixture.componentRef.setInput("policy", policy);
+      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const callout = fixture.debugElement.query(By.css("bit-callout"));
+      expect(callout).not.toBeNull();
+      expect(callout.attributes["type"]).toBe("warning");
+      expect(callout.nativeElement.textContent).toContain("someWarningKey");
     });
   });
 

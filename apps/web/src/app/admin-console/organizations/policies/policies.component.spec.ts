@@ -103,6 +103,7 @@ describe("PoliciesComponent", () => {
 
     mockConfigService = mock<ConfigService>();
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
@@ -583,6 +584,7 @@ describe("PoliciesComponent", () => {
 
     it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
       fixture = TestBed.createComponent(PoliciesComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();

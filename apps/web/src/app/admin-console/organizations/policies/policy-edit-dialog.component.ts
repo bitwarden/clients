@@ -39,6 +39,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -189,6 +190,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
+  /**
+   * Returns the policy form component to load into the dialog.
+   * Subclasses can override this to load a different component (e.g. the drawer variant).
+   */
+  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
+    return this.data.policy.component;
+  }
+
   async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.policyEnabled.set(policyResponse.enabled);
@@ -302,18 +311,18 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
-  /**
-   * Returns the policy form component to load into the dialog.
-   * Subclasses can override this to load a different component (e.g. the drawer variant).
-   */
-  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
-    return this.data.policy.component;
-  }
 
   static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+  };
+
+  static readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return PolicyEditDrawerComponent.openDrawer(dialogService, config);
   };
 }

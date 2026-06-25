@@ -12,7 +12,6 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -43,10 +42,20 @@ export function policyDrawerMeta(
     argTypes: {
       enabled: { control: "boolean" },
     },
+    parameters: {
+      layout: "fullscreen",
+    },
     decorators: [
       componentWrapperDecorator(
         (story) =>
-          `<div class="tw-h-screen tw-w-[32rem] tw-border tw-border-solid tw-border-secondary-100 tw-overflow-hidden tw-relative">${story}</div>`,
+          `<div class="tw-h-screen tw-flex tw-flex-row tw-bg-background">` +
+          `<div class="tw-flex-1 tw-p-8 tw-bg-background-alt tw-text-muted">` +
+          `<p>Policy management view</p>` +
+          `</div>` +
+          `<div class="tw-w-[32rem] tw-h-full tw-flex tw-flex-col tw-border-0 tw-border-l tw-border-solid tw-border-secondary-300">` +
+          `${story}` +
+          `</div>` +
+          `</div>`,
       ),
       moduleMetadata({
         providers: [
@@ -56,11 +65,7 @@ export function policyDrawerMeta(
           },
           {
             provide: DialogRef,
-            useValue: { close: () => Promise.resolve(), closePredicate: undefined, isDrawer: true },
-          },
-          {
-            provide: ConfigService,
-            useValue: { getFeatureFlag$: () => of(true) },
+            useValue: { isDrawer: true, close: () => Promise.resolve(), closePredicate: undefined },
           },
           {
             provide: AccountService,

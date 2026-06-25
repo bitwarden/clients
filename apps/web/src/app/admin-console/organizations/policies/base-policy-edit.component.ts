@@ -48,6 +48,7 @@ export abstract class BasePolicyEditDefinition {
   /**
    * i18n string for the policy description.
    * This is shown in the list of policies and in the modal edit dialog.
+   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
 
@@ -108,7 +109,7 @@ export abstract class BasePolicyEditDefinition {
     name?: string;
     /** Drawer-only description. Falls back to {@link description} when not set. */
     description?: string;
-    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDialogComponent} above the policy form. */
+    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
     prerequisiteKey?: string;
     /** URL for an optional "learn more" link inside the prerequisite callout. */
     prerequisiteLinkHref?: string;
