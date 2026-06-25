@@ -1126,11 +1126,32 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async addCollection(): Promise<void> {
+    const eligibleOrganizations = this.allOrganizations
+      .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
+
+    // Default to the organization from the active vault filter when one is selected and eligible,
+    // mirroring the behavior used when creating a new item.
+    let filterOrganizationId =
+      this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+        ? this.activeFilter.organizationId
+        : null;
+    // When filtering by a collection, derive the org from that collection.
+    if (!filterOrganizationId && this.activeFilter.collectionId != null) {
+      const orgIdFromCollection = this.allCollections.find(
+        (c) => c.id === this.activeFilter.collectionId,
+      )?.organizationId;
+      if (orgIdFromCollection) {
+        filterOrganizationId = orgIdFromCollection;
+      }
+    }
+    const defaultOrganizationId =
+      eligibleOrganizations.find((o) => o.id === filterOrganizationId)?.id ??
+      eligibleOrganizations[0].id;
+
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
-        organizationId: this.allOrganizations
-          .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
-          .sort(Utils.getSortFunction(this.i18nService, "name"))[0].id,
+        organizationId: defaultOrganizationId,
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
         limitNestedCollections: true,
