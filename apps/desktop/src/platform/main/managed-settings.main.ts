@@ -3,6 +3,7 @@ import { FSWatcher, watch } from "fs";
 import { ipcMain } from "electron";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { managed_settings, windows_registry } from "@bitwarden/desktop-napi";
 import { readSecureManagedConfigDir } from "@bitwarden/node/managed-settings/secure-config-dir";
 
@@ -19,11 +20,17 @@ export class ManagedSettingsMain {
   constructor(
     private readonly windowMain: WindowMain,
     private readonly logService: LogService,
+    private readonly managedSettings: ManagedSettingsService,
     private readonly platform: NodeJS.Platform = process.platform,
   ) {}
 
+  // The handle is populated asynchronously after startup begins, so post-startup reads (locale for
+  // native menus) are forced, but a very-early read such as app.disableHardwareAcceleration() in
+  // main.ts resolves before the profile arrives, so forcing hardware acceleration is deferred to a
+  // later slice.
   init(): void {
     ipcMain.handle("managedSettings", () => this.read());
+    void this.pushToService();
     if (this.platform === "linux") {
       this.watchLinux();
     }
@@ -37,6 +44,10 @@ export class ManagedSettingsMain {
       // The managed-prefs change notification is unreliable; poll and diff at low frequency.
       this.poll = setInterval(() => void this.notifyIfChanged(), 60_000);
     }
+  }
+
+  private async pushToService(): Promise<void> {
+    this.managedSettings.pushExplicit(await this.read());
   }
 
   /** Read the OS source into a raw config bag. Never throws. */
@@ -64,6 +75,7 @@ export class ManagedSettingsMain {
     const serialized = JSON.stringify(bag);
     if (serialized !== this.lastBag) {
       this.lastBag = serialized;
+      this.managedSettings.pushExplicit(bag);
       this.windowMain.win?.webContents.send("managedSettingsUpdated", bag);
     }
   }

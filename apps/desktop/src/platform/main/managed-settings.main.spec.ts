@@ -1,5 +1,7 @@
 import { ipcMain } from "electron";
+import { mock } from "jest-mock-extended";
 
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { managed_settings, windows_registry } from "@bitwarden/desktop-napi";
 import * as secure from "@bitwarden/node/managed-settings/secure-config-dir";
 
@@ -21,14 +23,18 @@ describe("ManagedSettingsMain (linux)", () => {
   const logService = { warning: jest.fn(), error: jest.fn(), info: jest.fn() } as any;
   const send = jest.fn();
   const windowMain = { win: { webContents: { send } } } as any;
+  let managedSettingsMock: ReturnType<typeof mock<ManagedSettingsService>>;
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    managedSettingsMock = mock<ManagedSettingsService>();
+  });
 
   it("registers the managedSettings IPC handler returning the read bag", async () => {
     jest
       .spyOn(secure, "readSecureManagedConfigDir")
       .mockReturnValue({ environment: { base: "https://x" } });
-    const sut = new ManagedSettingsMain(windowMain, logService, "linux");
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "linux");
     sut.init();
 
     const handler = (ipcMain.handle as jest.Mock).mock.calls.find(
@@ -39,7 +45,7 @@ describe("ManagedSettingsMain (linux)", () => {
   });
 
   it("returns registry values on win32 (mocked to empty)", async () => {
-    const sut = new ManagedSettingsMain(windowMain, logService, "win32");
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "win32");
     sut.init();
     const handler = (ipcMain.handle as jest.Mock).mock.calls.find(
       (c) => c[0] === "managedSettings",
@@ -52,7 +58,7 @@ describe("ManagedSettingsMain (linux)", () => {
   });
 
   it("starts the registry watcher on win32", () => {
-    const sut = new ManagedSettingsMain(windowMain, logService, "win32");
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "win32");
     sut.init();
     expect(managed_settings.watchRegistry).toHaveBeenCalledWith(
       "SOFTWARE\\Policies\\Bitwarden",
@@ -64,7 +70,7 @@ describe("ManagedSettingsMain (linux)", () => {
     (managed_settings.readPreferences as jest.Mock).mockResolvedValue({
       DisableAddLoginNotification: "true",
     });
-    const sut = new ManagedSettingsMain(windowMain, logService, "darwin");
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "darwin");
     sut.init();
 
     const handler = (ipcMain.handle as jest.Mock).mock.calls.find(
@@ -77,7 +83,7 @@ describe("ManagedSettingsMain (linux)", () => {
 
   it("does not emit on darwin when the bag is unchanged between two reads", async () => {
     (managed_settings.readPreferences as jest.Mock).mockResolvedValue({ key: "val" });
-    const sut = new ManagedSettingsMain(windowMain, logService, "darwin");
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "darwin");
 
     // Access the private notifyIfChanged via type assertion to test diff logic directly.
     const notifyIfChanged = (sut as any).notifyIfChanged.bind(sut);
@@ -87,5 +93,14 @@ describe("ManagedSettingsMain (linux)", () => {
 
     // First call stores the bag and emits; second call sees no change.
     expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls pushExplicit with the read bag during init", async () => {
+    const bag = { translation: { locale: "de" } };
+    jest.spyOn(secure, "readSecureManagedConfigDir").mockReturnValue(bag);
+    const sut = new ManagedSettingsMain(windowMain, logService, managedSettingsMock, "linux");
+    sut.init();
+    await Promise.resolve();
+    expect(managedSettingsMock.pushExplicit).toHaveBeenCalledWith(bag);
   });
 });

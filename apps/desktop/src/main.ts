@@ -21,6 +21,12 @@ import { RegionConfig } from "@bitwarden/common/platform/abstractions/environmen
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
+import {
+  OverlayActiveUserStateProvider,
+  OverlayGlobalStateProvider,
+  OverlaySingleUserStateProvider,
+} from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
+import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -168,9 +174,12 @@ export class Main {
       this.storageService,
       this.memoryStorageForStateProviders,
     );
-    const globalStateProvider = new DefaultGlobalStateProvider(
-      storageServiceProvider,
-      this.logService,
+    const managedSettingsService = new DefaultManagedSettingsService();
+    registerAppearanceOverlay();
+
+    const globalStateProvider = new OverlayGlobalStateProvider(
+      new DefaultGlobalStateProvider(storageServiceProvider, this.logService),
+      managedSettingsService,
     );
 
     this.ssoCookieMain = new SsoCookieMain(globalStateProvider, this.logService);
@@ -186,10 +195,13 @@ export class Main {
       storageServiceProvider,
     );
 
-    const singleUserStateProvider = new DefaultSingleUserStateProvider(
-      storageServiceProvider,
-      stateEventRegistrarService,
-      this.logService,
+    const singleUserStateProvider = new OverlaySingleUserStateProvider(
+      new DefaultSingleUserStateProvider(
+        storageServiceProvider,
+        stateEventRegistrarService,
+        this.logService,
+      ),
+      managedSettingsService,
     );
 
     const accountService = new AccountServiceImplementation(
@@ -199,9 +211,12 @@ export class Main {
       singleUserStateProvider,
     );
 
-    const activeUserStateProvider = new DefaultActiveUserStateProvider(
-      new DefaultActiveUserAccessor(accountService),
-      singleUserStateProvider,
+    const activeUserStateProvider = new OverlayActiveUserStateProvider(
+      new DefaultActiveUserStateProvider(
+        new DefaultActiveUserAccessor(accountService),
+        singleUserStateProvider,
+      ),
+      managedSettingsService,
     );
 
     const stateProvider = new DefaultStateProvider(
@@ -214,7 +229,7 @@ export class Main {
     this.environmentService = new DefaultEnvironmentService(
       stateProvider,
       accountService,
-      new DefaultManagedSettingsService(),
+      managedSettingsService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
 
@@ -358,7 +373,7 @@ export class Main {
     void this.nativeAutofillMain.init();
 
     if (flagEnabled("managedSettings")) {
-      new ManagedSettingsMain(this.windowMain, this.logService).init();
+      new ManagedSettingsMain(this.windowMain, this.logService, managedSettingsService).init();
     }
 
     this.mainDesktopAutotypeService = new MainDesktopAutotypeService(
