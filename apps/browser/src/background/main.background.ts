@@ -191,6 +191,7 @@ import {
   WorkerWebPushConnectionService,
 } from "@bitwarden/common/platform/server-notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
+import { AutomationDriver } from "@bitwarden/common/platform/services/automation-driver.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
@@ -1759,6 +1760,14 @@ export default class MainBackground {
 
   async bootstrap() {
     this.containerService.attachToGlobal(self);
+
+    AutomationDriver.attachToGlobalIfDev(
+      self,
+      this.platformUtilsService,
+      this.configService,
+      this.stateProvider,
+      this.messagingService,
+    );
 
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations

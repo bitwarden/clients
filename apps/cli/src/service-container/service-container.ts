@@ -132,6 +132,7 @@ import {
   DefaultTaskSchedulerService,
 } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
+import { AutomationDriver } from "@bitwarden/common/platform/services/automation-driver.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -1176,6 +1177,15 @@ export class ServiceContainer {
 
     await this.migrationRunner.run();
     this.containerService.attachToGlobal(global);
+
+    AutomationDriver.attachToGlobalIfDev(
+      global,
+      this.platformUtilsService,
+      this.configService,
+      this.stateProvider,
+      this.messagingService,
+    );
+
     await this.i18nService.init();
     this.twoFactorService.init();
 

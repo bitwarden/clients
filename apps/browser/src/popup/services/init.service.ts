@@ -2,12 +2,16 @@ import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { AutomationDriver } from "@bitwarden/common/platform/services/automation-driver.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { StateProvider } from "@bitwarden/common/platform/state";
 
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
@@ -16,6 +20,9 @@ import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-vie
 @Injectable()
 export class InitService {
   private sizeService = inject(PopupSizeService);
+  private configService = inject(ConfigService);
+  private stateProvider = inject(StateProvider);
+  private messagingService = inject(MessagingService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -38,6 +45,14 @@ export class InitService {
       this.twoFactorService.init();
       await this.viewCacheService.init();
       await this.sizeService.init();
+
+      AutomationDriver.attachToGlobalIfDev(
+        self,
+        this.platformUtilsService,
+        this.configService,
+        this.stateProvider,
+        this.messagingService,
+      );
 
       const htmlEl = window.document.documentElement;
       this.themingService.applyThemeChangesTo(this.document);
