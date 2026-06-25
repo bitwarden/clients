@@ -16,7 +16,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-password.request";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -177,7 +177,7 @@ describe("WebSetInitialPasswordService", () => {
         expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
       });
 
-      it("should call acceptOrganizationInviteService.clearOrganizationInvitation()", async () => {
+      it("should call acceptOrganizationInviteService.clearOrganizationInvite()", async () => {
         // Arrange
         setupMocks();
 
@@ -186,7 +186,7 @@ describe("WebSetInitialPasswordService", () => {
 
         // Assert
         expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-        expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+        expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -205,7 +205,7 @@ describe("WebSetInitialPasswordService", () => {
         expect(routerService.getAndClearLoginRedirectUrl).not.toHaveBeenCalled();
       });
 
-      it("should NOT call acceptOrganizationInviteService.clearOrganizationInvitation()", async () => {
+      it("should NOT call acceptOrganizationInviteService.clearOrganizationInvite()", async () => {
         // Arrange
         credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
         setupMocks();
@@ -216,13 +216,13 @@ describe("WebSetInitialPasswordService", () => {
         // Assert
         await expect(promise).rejects.toThrow();
         expect(masterPasswordApiService.setPassword).not.toHaveBeenCalled();
-        expect(organizationInviteService.clearOrganizationInvitation).not.toHaveBeenCalled();
+        expect(organizationInviteService.clearOrganizationInvite).not.toHaveBeenCalled();
       });
     });
   });
 
   describe("initializePasswordJitPasswordUserV2Encryption(...)", () => {
-    it("should call routerService.getAndClearLoginRedirectUrl() and organizationInviteService.clearOrganizationInvitation()", async () => {
+    it("should call routerService.getAndClearLoginRedirectUrl() and organizationInviteService.clearOrganizationInvite()", async () => {
       // Arrange
       const credentials: InitializeJitPasswordCredentials = {
         newPasswordHint: "newPasswordHint",
@@ -247,7 +247,7 @@ describe("WebSetInitialPasswordService", () => {
       // Assert
       expect(superSpy).toHaveBeenCalledWith(credentials, userId);
       expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalledTimes(1);
-      expect(organizationInviteService.clearOrganizationInvitation).toHaveBeenCalledTimes(1);
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalledTimes(1);
 
       superSpy.mockRestore();
     });

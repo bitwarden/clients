@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -23,16 +24,24 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  CipherFormConfig,
   CipherFormConfigService,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterModel,
   RoutedVaultFilterService,
+  VaultBatchBarService,
   VaultFilter,
   VaultFilterServiceAbstraction,
+  VaultItemDialogComponent,
+  VaultItemDialogResult,
 } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../../billing/organizations/warnings/services";
@@ -67,6 +76,7 @@ describe("VaultComponent (org-vault)", () => {
   /** Controls which organization the routed filter resolves to. */
   let filterSubject: BehaviorSubject<Partial<RoutedVaultFilterModel>>;
   let cipherService: MockProxy<CipherService>;
+  let cipherFormConfigService: MockProxy<CipherFormConfigService>;
 
   beforeEach(async () => {
     filterSubject = new BehaviorSubject<Partial<RoutedVaultFilterModel>>({
@@ -77,6 +87,8 @@ describe("VaultComponent (org-vault)", () => {
 
     cipherService = mock<CipherService>();
     cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
+
+    cipherFormConfigService = mock<CipherFormConfigService>();
 
     const collectionAdminService = mock<CollectionAdminService>();
     // Return an empty array so allCollectionsWithoutUnassigned$ settles immediately.
@@ -135,6 +147,7 @@ describe("VaultComponent (org-vault)", () => {
         },
         { provide: CollectionService, useValue: mock<CollectionService>() },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -156,7 +169,14 @@ describe("VaultComponent (org-vault)", () => {
               provide: RoutedVaultFilterBridgeService,
               useValue: { activeFilter$: of(new VaultFilter()) },
             },
-            { provide: CipherFormConfigService, useValue: mock<CipherFormConfigService>() },
+            { provide: CipherFormConfigService, useValue: cipherFormConfigService },
+            {
+              provide: VaultBatchBarService,
+              useValue: { completed$: NEVER, setConfig: jest.fn() },
+            },
+            { provide: ASSIGN_COLLECTIONS_DIALOG, useValue: mock() },
+            { provide: BULK_DELETE_DIALOG, useValue: mock() },
+            { provide: BULK_EDIT_COLLECTION_ACCESS_DIALOG, useValue: mock() },
           ],
         },
       })
@@ -233,6 +253,51 @@ describe("VaultComponent (org-vault)", () => {
         expect(cipherService.getAllFromApiForOrganization.mock.calls.length).toBe(callsBefore);
         expect((component as any).refreshingSubject$.getValue()).toBe(false);
       });
+    });
+  });
+
+  describe("addCipher", () => {
+    beforeEach(() => {
+      cipherFormConfigService.buildConfig.mockResolvedValue({} as CipherFormConfig);
+      jest
+        .spyOn(VaultItemDialogComponent, "open")
+        .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<
+          VaultItemDialogResult | undefined
+        >);
+    });
+
+    it("passes the explicit cipherType to buildConfig when one is provided", async () => {
+      await component.addCipher(CipherType.Card);
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.Card,
+      );
+    });
+
+    it("falls back to activeFilter.cipherType when no cipherType is provided", async () => {
+      component.activeFilter = { cipherType: CipherType.Login } as unknown as VaultFilter;
+
+      await component.addCipher();
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.Login,
+      );
+    });
+
+    it("prefers the explicit cipherType over activeFilter.cipherType when both are set", async () => {
+      component.activeFilter = { cipherType: CipherType.Login } as unknown as VaultFilter;
+
+      await component.addCipher(CipherType.SecureNote);
+
+      expect(cipherFormConfigService.buildConfig).toHaveBeenCalledWith(
+        "add",
+        undefined,
+        CipherType.SecureNote,
+      );
     });
   });
 });

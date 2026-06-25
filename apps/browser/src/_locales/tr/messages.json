@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Kuruluşunuz çoklu oturum açma gerektiriyor."
   },
-  "welcomeBack": {
-    "message": "Tekrar hoş geldiniz"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Giriş yap"
   },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Pasaport numarasını kopyala"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kimlik numarasını kopyala"
+  },
   "copyFirstName": {
     "message": "Adı kopyala"
   },
@@ -211,8 +214,13 @@
     "message": "Doldur",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Otomatik doldur"
+  "autofillNoun": {
+    "message": "Otomatik doldurma",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Otomatik doldur",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Hesabı otomatik doldur"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
   },
-  "getMasterPasswordHint": {
-    "message": "Ana parola ipucunu al"
+  "hint": {
+    "message": "İpucu"
   },
   "continue": {
     "message": "Devam"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Kaydet"
+  },
+  "saveAndFill": {
+    "message": "Kaydet ve doldur"
   },
   "move": {
     "message": "Taşı"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "Giriş yap"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden'a giriş yapın"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Giriş yap"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-posta adresinize gönderilen kodu girin"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Doldurma yardımcısını kullan"
   },
+  "turnOnFillAssist": {
+    "message": "Doldurma yardımcısını etkinleştir"
+  },
+  "enableFillAssistDescription": {
+    "message": "Doldurma yardımcısı, desteklenen sitelerde siteye özgü kuralları kullanarak otomatik doldurma doğruluğunu artırır. Bu özelliği kullandığınızda hiçbir veri toplanmaz ve kaydedilmez."
+  },
+  "aboutFillAssist": {
+    "message": "Doldurma yardımcısı hakkında"
+  },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
   },
@@ -1694,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Geçiş anahtarı doğrulaması başarısız oldu"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Başka bir giriş yöntemi kullan"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "Simge sunucusu URL'si"
   },
+  "sendUrl": {
+    "message": "Send sunucusu URL'si"
+  },
   "environmentSaved": {
     "message": "Ortam URL'leri kaydedildi"
   },
@@ -1824,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Hesap eşleşmiyor"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Otomatik doldurmadan önce güvenilir bir sitede olduğunuzu doğrulayın."
+  },
+  "uriMatchRule": {
+    "message": "URl eşleşme kuralı"
+  },
+  "neverMatch": {
+    "message": "Asla eşleştirme"
   },
   "loginHasNoSiteSaved": {
     "message": "Bu hesaba kayıtlı site yok"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "Marka"
   },
+  "birthDay": {
+    "message": "Doğum günü"
+  },
+  "birthMonth": {
+    "message": "Doğum ayı"
+  },
+  "birthYear": {
+    "message": "Doğum yılı"
+  },
+  "expirationDay": {
+    "message": "Son kullanma tarihi"
+  },
   "expirationMonth": {
     "message": "Son kullanma ayı"
   },
   "expirationYear": {
     "message": "Son kullanma yılı"
+  },
+  "issueDay": {
+    "message": "Veriliş günü"
+  },
+  "issueMonth": {
+    "message": "Veriliş ayı"
+  },
+  "issueYear": {
+    "message": "Veriliş yılı"
   },
   "monthly": {
     "message": "ay"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "Pasaport numarası"
   },
+  "dateOfBirth": {
+    "message": "Doğum tarihi"
+  },
+  "sex": {
+    "message": "Cinsiyet"
+  },
+  "copySex": {
+    "message": "Cinsiyeti kopyala"
+  },
+  "birthPlace": {
+    "message": "Doğum yeri"
+  },
+  "copyBirthPlace": {
+    "message": "Doğum yerini kopyala"
+  },
+  "nationality": {
+    "message": "Uyruk"
+  },
+  "copyNationality": {
+    "message": "Uyruğu kopyala"
+  },
+  "issuingCountry": {
+    "message": "Veren ülke"
+  },
+  "copyIssuingCountry": {
+    "message": "Veren ülkeyi kopyala"
+  },
+  "passportType": {
+    "message": "Pasaport türü"
+  },
+  "copyPassportType": {
+    "message": "Pasaport türünü kopyala"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Kimlik numarası"
+  },
+  "issuingAuthority": {
+    "message": "Veren makam"
+  },
+  "copyIssuingAuthority": {
+    "message": "Veren makamı kopyala"
+  },
+  "issueDate": {
+    "message": "Veriliş tarihi"
+  },
   "licenseNumber": {
     "message": "Ehliyet numarası"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Banka hesabı"
   },
+  "bankAccountDetails": {
+    "message": "Banka hesap bilgileri"
+  },
   "typeNote": {
     "message": "Not"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banka detayları"
   },
+  "typePassport": {
+    "message": "Pasaport"
+  },
+  "passportDetails": {
+    "message": "Pasaport bilgileri"
+  },
+  "passportAdded": {
+    "message": "Pasaport eklendi"
+  },
+  "typePassportSubtitle": {
+    "message": "Seyahat belgesi"
+  },
   "typeDriversLicense": {
     "message": "Ehliyet"
   },
@@ -2199,41 +2315,8 @@
   "driversLicenseDetails": {
     "message": "Ehliyet bilgileri"
   },
-  "dateOfBirth": {
-    "message": "Doğum tarihi"
-  },
-  "birthMonth": {
-    "message": "Doğum ayı"
-  },
-  "birthDay": {
-    "message": "Doğum günü"
-  },
-  "birthYear": {
-    "message": "Doğum yılı"
-  },
-  "issuingCountry": {
-    "message": "Veren ülke"
-  },
   "issuingState": {
     "message": "Veren eyalet/şehir"
-  },
-  "issuingAuthority": {
-    "message": "Veren makam"
-  },
-  "issueDate": {
-    "message": "Veriliş tarihi"
-  },
-  "issueMonth": {
-    "message": "Veriliş ayı"
-  },
-  "issueDay": {
-    "message": "Veriliş günü"
-  },
-  "issueYear": {
-    "message": "Veriliş yılı"
-  },
-  "expirationDay": {
-    "message": "Son kullanma tarihi"
   },
   "licenseClass": {
     "message": "Ehliyet sınıfı"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "Temizle",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Seçildi"
+  },
+  "bulkActionsBar": {
+    "message": "Toplu işlemler"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Seçim temizlendi"
+  },
+  "additionalActions": {
+    "message": "Ek işlemler"
   },
   "checkPassword": {
     "message": "Parolanız ele geçirilip geçirilmediğini kontrol edin."
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolanız ilke gereksinimlerini karşılamıyor."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
+  "receiveMarketingEmails": {
+    "message": "Bitwarden'dan haberler e-postanıza gelsin."
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biyometri doğrulaması tamamlanamadı. Ana parolanızı kullanabilir veya çıkış yapabilirsiniz. Sorun devam ederse Bitwarden destek ekibiyle iletişime geçin."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "İzin verilmedi"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bitwarden masaüstü uygulamasıyla iletişim kurma iznimiz olmadan tarayıcı uzantısında biyometriyi kullanamayız. Lütfen tekrar deneyin."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "İzin isteme hatası"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Bu işlemi kenar çubuğundan yapamazsınız. Lütfen açılır pencereden yapmayı deneyin."
   },
   "personalOwnershipSubmitError": {
     "message": "Bir kuruluş ilkesi nedeniyle kişisel kasanıza hesap kaydetmeniz kısıtlanmış. Sahip seçeneğini bir kuruluş olarak değiştirin ve mevcut koleksiyonlar arasından seçim yapın."
@@ -3537,10 +3633,10 @@
     "message": "Kuruluş kasasını dışa aktarma"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Sadece bireysel kasa içindeki kayıtları dışa aktar."
   },
   "exportingOrganizationVaultScopeDescription": {
-    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
+    "message": "Yalnızca $ORGANIZATION$ kasasıyla ilişkili öğeler dışa aktarılacaktır. Bireysel kasalardaki öğeler dışa aktarılmayacaktır.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3854,9 +3950,6 @@
         "example": "Jun 15, 2015"
       }
     }
-  },
-  "loginWithMasterPassword": {
-    "message": "Ana parola ile giriş yap"
   },
   "newAroundHere": {
     "message": "Buralarda yeni misiniz?"
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "Bir veya daha fazla e-posta geçersiz"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Girdi yalnızca boşluktan ibaret olamaz.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Sayfa yüklenince otomatik doldurma, varsayılan ayarı kullanacak şekilde ayarlandı.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Otomatik doldurulamıyor"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Varsayılan eşleştirme \"Tam eşleşme\" olarak ayarlı. Geçerli web sitesi, bu kayıt için kaydedilen hesap bilgileriyle tam olarak eşleşmiyor."
   },
   "okay": {
     "message": "Tamam"
@@ -4636,10 +4726,10 @@
     "message": "Kasa verilerinizi dışa aktarırken bir hata oluştu"
   },
   "exportSuccessSkippedAttachment": {
-    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+    "message": "Dışa aktarım sırasında 1 bozuk ek atlandı. Diğer tüm kasa verileri ve ekler başarıyla dışa aktarıldı."
   },
   "exportSuccessSkippedAttachments": {
-    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "message": "Dışa aktarım sırasında $COUNT$ adet bozuk ek atlandı. Diğer tüm kasası verileri ve ekler başarıyla dışa aktarıldı.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4651,7 +4741,7 @@
     "message": "Geçiş anahtarı"
   },
   "accessing": {
-    "message": "Erişilen konum"
+    "message": "Erişilen konum:"
   },
   "loggedInExclamation": {
     "message": "Giriş yapıldı!"
@@ -4909,6 +4999,22 @@
     "message": "Varsayılan yap",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
+  },
   "saveCipherAttemptSuccess": {
     "message": "Kimlik bilgileri başarıyla kaydedildi!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Hiçbir değer girilmedi",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Kopyalanacak değer yok"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "İleri"
   },
+  "breadcrumbs": {
+    "message": "Gezinme ipuçları",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Daha fazla gezinme izi",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
   },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
   "enterMonth": {
     "message": "Ay girin."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Banka hesabı ara"
   },
+  "searchPassport": {
+    "message": "Pasaport ara"
+  },
   "copyAccountNumber": {
     "message": "Hesap numarasını kopyala"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "IBAN'ı kopyala"
+  },
+  "copyNameOnAccount": {
+    "message": "Hesaptaki adı kopyala"
+  },
+  "copyBranchNumber": {
+    "message": "Şube numarasını kopyala"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT kodunu kopyala"
   },
   "bankAccountTypeChecking": {
     "message": "Vadesiz"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "İndirilemedi."
+  },
+  "more": {
+    "message": "Daha fazla"
   },
   "maxAccessCount": {
     "message": "Maksimum erişim sayısı",
@@ -6551,11 +6692,36 @@
     "message": "İlerleme çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Send düzenlemeleri kaydedilemedi",
+  "hideEmailPolicyInEffect": {
+    "message": "Kuruluşunuz e-postanızın görünmesini zorunlu tutuyor. Kaydetmek için \"Bu adresi gizle\" işaretini kaldırın."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Birden fazla koleksiyona dahil olan öğeleri \"Öğelerim\"e aktaramazsınız"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

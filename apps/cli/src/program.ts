@@ -289,7 +289,6 @@ export class Program extends BaseProgram {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
             this.serviceContainer.accountService,
-            this.serviceContainer.keyService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.logService,
             this.serviceContainer.keyConnectorService,
@@ -298,9 +297,7 @@ export class Program extends BaseProgram {
             async () => await this.serviceContainer.logout(),
             this.serviceContainer.i18nService,
             this.serviceContainer.encryptedMigrator,
-            this.serviceContainer.masterPasswordUnlockService,
             this.serviceContainer.unlockService,
-            this.serviceContainer.configService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);

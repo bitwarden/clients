@@ -89,6 +89,7 @@ impl TryFrom<PrivateKey> for String {
     fn try_from(key: PrivateKey) -> Result<Self, Self::Error> {
         let keypair_data = match key {
             PrivateKey::Ed25519(kp) => KeypairData::Ed25519(kp),
+            PrivateKey::Ecdsa(kp) => KeypairData::Ecdsa(kp),
             PrivateKey::Rsa(kp) => KeypairData::Rsa(kp),
         };
         let private_key = ssh_key::PrivateKey::new(keypair_data, "")?;
@@ -101,9 +102,9 @@ impl TryFrom<PrivateKey> for String {
 #[cfg(test)]
 mod tests {
     use ssh_key::{
-        private::{Ed25519Keypair, RsaKeypair},
+        private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
         rand_core::OsRng,
-        LineEnding,
+        EcdsaCurve, LineEnding,
     };
 
     use super::*;
@@ -156,6 +157,24 @@ invalid_base64_data!!!
             },
             name: "test-rsa-key".to_string(),
             cipher_id: "test-cipher-456".to_string(),
+        }
+    }
+
+    fn create_test_keydata_ecdsa_p256() -> SSHKeyData {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let ssh_key =
+            ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ecdsa(keypair.clone()), "")
+                .unwrap();
+        let public_key_bytes = ssh_key.public_key().to_bytes().unwrap();
+
+        SSHKeyData {
+            private_key: PrivateKey::Ecdsa(keypair),
+            public_key: PublicKey {
+                alg: "ecdsa-sha2-nistp256".to_string(),
+                blob: public_key_bytes,
+            },
+            name: "test-ecdsa-p256-key".to_string(),
+            cipher_id: "test-cipher-ecdsa".to_string(),
         }
     }
 
@@ -285,6 +304,29 @@ invalid_base64_data!!!
     #[test]
     fn test_keydata_rsa_to_from_bytes() {
         let original = create_test_keydata_rsa();
+
+        let bytes: Vec<u8> = original.clone().try_into().unwrap();
+        let restored: SSHKeyData = bytes.try_into().unwrap();
+
+        assert_eq!(restored.name(), original.name());
+        assert_eq!(restored.cipher_id(), original.cipher_id());
+        assert_eq!(restored.public_key(), original.public_key());
+        assert_eq!(restored.private_key(), original.private_key());
+    }
+
+    #[test]
+    fn test_privatekey_ecdsa_to_string() {
+        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let private_key = PrivateKey::Ecdsa(keypair);
+
+        let pem = String::try_from(private_key).unwrap();
+        assert!(pem.contains("BEGIN OPENSSH PRIVATE KEY"));
+        assert!(pem.contains("END OPENSSH PRIVATE KEY"));
+    }
+
+    #[test]
+    fn test_keydata_ecdsa_to_from_bytes() {
+        let original = create_test_keydata_ecdsa_p256();
 
         let bytes: Vec<u8> = original.clone().try_into().unwrap();
         let restored: SSHKeyData = bytes.try_into().unwrap();

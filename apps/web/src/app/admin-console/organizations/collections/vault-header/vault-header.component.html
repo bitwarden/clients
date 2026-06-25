@@ -1,32 +1,35 @@
-<app-header [title]="title" [icon]="icon">
-  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
-    <bit-breadcrumb
-      [route]="[]"
-      [queryParams]="{ organizationId: organization.id, collectionId: null }"
-      queryParamsHandling="merge"
-    >
-      {{ organization.name }}
-      <span>
-        {{ "collections" | i18n | lowercase }}
-      </span>
-    </bit-breadcrumb>
-
-    <ng-container>
+<app-header [title]="title()" [icon]="icon()">
+  @if (showBreadcrumbs()) {
+    <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
       <bit-breadcrumb
-        *ngFor="let collection of collections"
-        icon="bwi-collection-shared"
         [route]="[]"
-        [queryParams]="{ collectionId: collection.id }"
+        [queryParams]="{ organizationId: organization().id, collectionId: null }"
         queryParamsHandling="merge"
       >
-        {{ collection.name }}
+        {{ organization().name }}
+        <span>
+          {{ "collections" | i18n | lowercase }}
+        </span>
       </bit-breadcrumb>
-    </ng-container>
-  </bit-breadcrumbs>
+      <ng-container>
+        @for (collection of collections(); track collection) {
+          <bit-breadcrumb
+            icon="bwi-collection-shared"
+            [route]="[]"
+            [queryParams]="{ collectionId: collection.id }"
+            queryParamsHandling="merge"
+          >
+            {{ collection.name }}
+          </bit-breadcrumb>
+        }
+      </ng-container>
+    </bit-breadcrumbs>
+  }
 
   <ng-container slot="title-suffix">
     @if (
-      collection != null && (canEditCollection || canDeleteCollection || canViewCollectionInfo)
+      collection() != null &&
+      (canEditCollection() || canDeleteCollection() || canViewCollectionInfo())
     ) {
       <ng-container>
         <button
@@ -37,11 +40,11 @@
           [label]="'editCollection' | i18n"
         ></button>
         <bit-menu #editCollectionMenu>
-          <ng-container *ngIf="canEditCollection">
+          @if (canEditCollection()) {
             <button
               type="button"
               bitMenuItem
-              (click)="editCollection(CollectionDialogTabType.Info, false)"
+              (click)="handleEditCollection(CollectionDialogTabType.Info, false)"
             >
               <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
               {{ "editInfo" | i18n }}
@@ -49,17 +52,17 @@
             <button
               type="button"
               bitMenuItem
-              (click)="editCollection(CollectionDialogTabType.Access, false)"
+              (click)="handleEditCollection(CollectionDialogTabType.Access, false)"
             >
               <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
               {{ "access" | i18n }}
             </button>
-          </ng-container>
-          <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
+          }
+          @if (!canEditCollection() && canViewCollectionInfo()) {
             <button
               type="button"
               bitMenuItem
-              (click)="editCollection(CollectionDialogTabType.Info, true)"
+              (click)="handleEditCollection(CollectionDialogTabType.Info, true)"
             >
               <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
               {{ "viewInfo" | i18n }}
@@ -67,54 +70,53 @@
             <button
               type="button"
               bitMenuItem
-              (click)="editCollection(CollectionDialogTabType.Access, true)"
+              (click)="handleEditCollection(CollectionDialogTabType.Access, true)"
             >
               <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
               {{ "viewAccess" | i18n }}
             </button>
-          </ng-container>
-          <button
-            type="button"
-            *ngIf="canDeleteCollection"
-            bitMenuItem
-            (click)="deleteCollection()"
-          >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-              {{ "delete" | i18n }}
-            </span>
-          </button>
+          }
+          @if (canDeleteCollection()) {
+            <button type="button" bitMenuItem (click)="handleDeleteCollection()">
+              <span class="tw-text-danger">
+                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                {{ "delete" | i18n }}
+              </span>
+            </button>
+          }
         </bit-menu>
       </ng-container>
     }
-    <small *ngIf="loading">
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-    </small>
+    @if (loading()) {
+      <small>
+        <i
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </small>
+    }
   </ng-container>
 
-  <bit-search
-    *ngIf="organization?.isProviderUser && !organization?.isMember"
-    class="tw-grow"
-    [ngModel]="searchText"
-    (ngModelChange)="onSearchTextChanged($event)"
-    [placeholder]="'searchCollection' | i18n"
-  ></bit-search>
+  @if (organization().isProviderUser && !organization().isMember) {
+    <bit-search
+      class="tw-grow"
+      [ngModel]="searchText()"
+      (ngModelChange)="onSearchTextChanged($event)"
+      [placeholder]="'searchCollection' | i18n"
+    ></bit-search>
+  }
 
-  <div
-    *ngIf="filter.type !== 'trash' && filter.collectionId !== Unassigned && organization"
-    class="tw-shrink-0"
-  >
-    <vault-new-cipher-menu
-      [canCreateCipher]="canCreateCipher"
-      [canCreateCollection]="canCreateCollection"
-      (cipherAdded)="addCipher($event)"
-      (collectionAdded)="addCollection()"
-      (onAddItemDialog)="openAddItemDialog()"
-    />
-  </div>
+  @if (filter().type !== "trash" && filter().collectionId !== Unassigned) {
+    <div class="tw-shrink-0">
+      <vault-new-cipher-menu
+        [canCreateCipher]="canCreateCipher()"
+        [canCreateCollection]="canCreateCollection()"
+        (cipherAdded)="handleAddCipher($event)"
+        (collectionAdded)="handleAddCollection()"
+        (onAddItemDialog)="openAddItemDialog()"
+      />
+    </div>
+  }
 </app-header>

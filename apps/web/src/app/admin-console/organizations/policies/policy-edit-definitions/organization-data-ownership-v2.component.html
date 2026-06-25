@@ -1,0 +1,42 @@
+<p>
+  {{ "centralizeDataOwnershipDescV2" | i18n
+  }}<a
+    bitLink
+    href="https://bitwarden.com/resources/credential-lifecycle-management/"
+    target="_blank"
+    rel="noreferrer"
+    >{{ "centralizeDataOwnershipContentAnchor" | i18n }}</a
+  >.
+</p>
+
+<div class="tw-text-left tw-overflow-hidden tw-mb-2">
+  <strong>{{ "benefits" | i18n }}:</strong>
+  <ul class="tw-pl-7 tw-space-y-2 tw-pt-2">
+    <li>
+      {{ "centralizeDataOwnershipBenefit1" | i18n }}
+    </li>
+    <li>
+      {{ "centralizeDataOwnershipBenefit2" | i18n }}
+    </li>
+    <li>
+      {{ "centralizeDataOwnershipBenefit3V2" | i18n }}
+    </li>
+  </ul>
+</div>
+
+<bit-form-control class="tw-mt-4">
+  <bit-switch [formControl]="enabled" id="enableOrganizationDataOwnershipPolicySwitch"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+</bit-form-control>
+
+@if (useMyItems()) {
+  <bit-form-control>
+    <input
+      type="checkbox"
+      bitCheckbox
+      [formControl]="data.controls.enableIndividualItemsTransfer"
+      id="enableIndividualItemsTransferV2"
+    />
+    <bit-label>{{ "promptUsersToMoveItemsV2" | i18n }}</bit-label>
+  </bit-form-control>
+}

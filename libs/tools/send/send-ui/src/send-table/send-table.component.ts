@@ -8,11 +8,13 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   BadgeModule,
   ButtonModule,
+  IconModule,
   IconButtonModule,
   LinkModule,
   MenuModule,
   TableDataSource,
   TableModule,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -29,10 +31,13 @@ import {
     TableModule,
     ButtonModule,
     LinkModule,
+    IconModule,
     IconButtonModule,
     MenuModule,
     BadgeModule,
     TypographyModule,
+    TooltipDirective,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

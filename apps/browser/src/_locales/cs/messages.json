@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Vaše organizace vyžaduje jednotné přihlášení."
   },
-  "welcomeBack": {
-    "message": "Vítejte zpět"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Přihlásit se"
   },
   "setAStrongPassword": {
     "message": "Nastavit hlavní heslo"
@@ -167,6 +167,9 @@
   "copyPassportNumber": {
     "message": "Kopírovat číslo pasu"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovat rodné číslo"
+  },
   "copyFirstName": {
     "message": "Kopírovat křestní jméno"
   },
@@ -211,8 +214,13 @@
     "message": "Vyplnit",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatické vyplňování"
+  "autofillNoun": {
+    "message": "Automatické vyplňování",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatické vyplňování",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automaticky vyplnit přihlášení"
@@ -281,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadejte svou e-mailovou adresu, na kterou Vám zašleme nápovědu k heslu"
   },
-  "getMasterPasswordHint": {
-    "message": "Zaslat nápovědu k hlavnímu heslu"
+  "hint": {
+    "message": "Nápověda"
   },
   "continue": {
     "message": "Pokračovat"
@@ -384,6 +392,9 @@
   },
   "save": {
     "message": "Uložit"
+  },
+  "saveAndFill": {
+    "message": "Uložit a vyplnit"
   },
   "move": {
     "message": "Přesunout"
@@ -967,8 +978,8 @@
   "logIn": {
     "message": "Přihlásit se"
   },
-  "logInToBitwarden": {
-    "message": "Přihlásit se do Bitwardenu"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Přihlásit se"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Zadejte kód odeslaný na Váš e-mail"
@@ -1338,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Použít asistenta vyplňování"
   },
+  "turnOnFillAssist": {
+    "message": "Zapnout asistenta vyplňování"
+  },
+  "enableFillAssistDescription": {
+    "message": "Asistent vyplňování zvyšuje přesnost automatického vyplňování na podporovaných stránkách pomocí pravidel pro konkrétní web. Při použití této funkce nejsou shromažďována ani ukládána žádná data."
+  },
+  "aboutFillAssist": {
+    "message": "O asistentovi vyplňování"
+  },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
   },
@@ -1694,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Ověření přístupového klíče selhalo"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Použít jinou metodu přihlášení"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1791,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL serveru ikon"
   },
+  "sendUrl": {
+    "message": "Odeslat URL serveru"
+  },
   "environmentSaved": {
     "message": "URL adresy vlastního prostředí byly uloženy"
   },
@@ -1824,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Přihlášení se neshoduje"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Tato stránka se neshoduje s vašimi uloženými přihlašovacími údaji. Ověřte si, zda jste na důvěryhodných stránkách před automatickým vyplňováním."
+  },
+  "uriMatchRule": {
+    "message": "Pravidlo shody URI"
+  },
+  "neverMatch": {
+    "message": "Nikdy se neshoduje"
   },
   "loginHasNoSiteSaved": {
     "message": "Přihlášení nemá uloženo žádné weby"
@@ -2001,11 +2036,32 @@
   "brand": {
     "message": "Značka"
   },
+  "birthDay": {
+    "message": "Den narození"
+  },
+  "birthMonth": {
+    "message": "Měsíc narození"
+  },
+  "birthYear": {
+    "message": "Rok narození"
+  },
+  "expirationDay": {
+    "message": "Den vypršení platnosti"
+  },
   "expirationMonth": {
     "message": "Měsíc expirace"
   },
   "expirationYear": {
     "message": "Rok expirace"
+  },
+  "issueDay": {
+    "message": "Den vystavení"
+  },
+  "issueMonth": {
+    "message": "Měsíc vystavení"
+  },
+  "issueYear": {
+    "message": "Rok vystavení"
   },
   "monthly": {
     "message": "měsíčně"
@@ -2100,6 +2156,51 @@
   "passportNumber": {
     "message": "Číslo cestovního pasu"
   },
+  "dateOfBirth": {
+    "message": "Datum narození"
+  },
+  "sex": {
+    "message": "Pohlaví"
+  },
+  "copySex": {
+    "message": "Kopírovat pohlaví"
+  },
+  "birthPlace": {
+    "message": "Místo narození"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovat místo narození"
+  },
+  "nationality": {
+    "message": "Národnost"
+  },
+  "copyNationality": {
+    "message": "Kopírovat národnost"
+  },
+  "issuingCountry": {
+    "message": "Země vydání průkazu"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovat zemi vydávající doklad"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovat typ pasu"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "issuingAuthority": {
+    "message": "Vydávající orgán"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovat vydávající orgán/úřad"
+  },
+  "issueDate": {
+    "message": "Datum vystavení"
+  },
   "licenseNumber": {
     "message": "Číslo dokladu totožnosti"
   },
@@ -2160,6 +2261,9 @@
   "bankAccount": {
     "message": "Bankovní účet"
   },
+  "bankAccountDetails": {
+    "message": "Údaje o bankovním účtu"
+  },
   "typeNote": {
     "message": "Poznámka"
   },
@@ -2190,6 +2294,18 @@
   "typeBankAccountSubtitle": {
     "message": "Údaje o bance"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Údaje o pasu"
+  },
+  "passportAdded": {
+    "message": "Pas byl přidán"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovní dokumenty"
+  },
   "typeDriversLicense": {
     "message": "Řidičský průkaz"
   },
@@ -2199,41 +2315,8 @@
   "driversLicenseDetails": {
     "message": "Podrobnosti řidičského průkazu"
   },
-  "dateOfBirth": {
-    "message": "Datum narození"
-  },
-  "birthMonth": {
-    "message": "Měsíc narození"
-  },
-  "birthDay": {
-    "message": "Den narození"
-  },
-  "birthYear": {
-    "message": "Rok narození"
-  },
-  "issuingCountry": {
-    "message": "Země vydání průkazu"
-  },
   "issuingState": {
     "message": "Vydávající stát/Provincie"
-  },
-  "issuingAuthority": {
-    "message": "Vydávající orgán"
-  },
-  "issueDate": {
-    "message": "Datum vystavení"
-  },
-  "issueMonth": {
-    "message": "Měsíc vystavení"
-  },
-  "issueDay": {
-    "message": "Den vystavení"
-  },
-  "issueYear": {
-    "message": "Rok vystavení"
-  },
-  "expirationDay": {
-    "message": "Den vypršení platnosti"
   },
   "licenseClass": {
     "message": "Skupina řidičského průkazu"
@@ -2407,6 +2490,31 @@
   "clear": {
     "message": "Vymazat",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Vybráno"
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné akce"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Bylo vybráno $COUNT$ položek. Panel hromadných akcí je nyní k dispozici v dolní části obrazovky. Stiskněte $SHORTCUTBINDING$ pro přepnutí zaměření na hromadnou akci.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výběr byl vymazán"
+  },
+  "additionalActions": {
+    "message": "Další akce"
   },
   "checkPassword": {
     "message": "Zkontrolujte, zda nedošlo k úniku hesla."
@@ -2783,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavní heslo nesplňuje požadavky zásad organizace."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Přihlásit se pro příjem rad, oznámení a příležitostí k výzkumu od Bitwardenu."
+  "receiveMarketingEmails": {
+    "message": "Přijímejte aktualizace od Bitwardenu do doručené pošty."
   },
   "unsubscribe": {
     "message": "Odhlásit odběr"
@@ -2896,18 +3004,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometriku nelze dokončit, zvažte použití hlavního hesla nebo odhlášení. Pokud to přetrvává, kontaktujte podporu Bitwardenu."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Oprávnění nebylo uděleno"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Bez oprávnění ke komunikaci s aplikací Bitwarden pro počítač nelze v rozšíření prohlížeče používat biometrické údaje. Zkuste to znovu."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Žádost o oprávnění selhala"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Tuto akci nelze provést v postranním panelu, zkuste akci znovu v novém okně."
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte dostupných sbírek."
@@ -3855,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Přihlásit se pomocí hlavního hesla"
-  },
   "newAroundHere": {
     "message": "Jste tu noví?"
   },
@@ -4304,6 +4397,9 @@
   "multipleInputEmails": {
     "message": "1 nebo více e-mailů jsou neplatné"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Seznam příjemců e-mailu nesmí překročit 2500 znaků. Chcete-li pokračovat, odeberte jednoho nebo více příjemců."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmí obsahovat jen mezery.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4465,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Automatické vyplnění při načítání stránky bylo nastaveno na výchozí nastavení.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Nelze automaticky vyplňovat"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Výchozí shoda je nastavena na \"Přesná shoda\". Aktuální web neodpovídá přesně uloženým přihlašovacím údajům pro tuto položku."
   },
   "okay": {
     "message": "OK"
@@ -4909,6 +4999,22 @@
     "message": "Nastavit jako výchozí",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Nastavit Bitwarden jako výchozí správce hesel Vašeho prohlížeče"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "z výzvy prohlížeče, abyste udělili aplikaci Bitwarden oprávnění ke změně Vašich nastavení."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Vypneme vestavěný správce hesel ve Vašem prohlížeči, abyste se mohli bezpečně přihlásit."
+  },
+  "allow": {
+    "message": "Povolit",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Přeskočit"
+  },
   "saveCipherAttemptSuccess": {
     "message": "Pověření byla úspěšně uložena!",
     "description": "Notification message for when saving credentials has succeeded."
@@ -5060,6 +5166,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "Nebyla zadána žádná hodnota",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Žádné hodnoty ke zkopírování"
@@ -6160,6 +6270,10 @@
   "next": {
     "message": "Další"
   },
+  "breadcrumbs": {
+    "message": "Drobečková navigace",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Více...",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6423,6 +6537,18 @@
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
   },
+  "sharedUnlock": {
+    "message": "Sdílené odemknutí"
+  },
+  "sharedUnlockDescription": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno všemi aplikacemi na tomto počítači. Pro synchronizaci mezi různými prohlížeči je vyžadována desktopová aplikace."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno s webovými trezory Bitwarden v Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Udržujte své aplikace Bitwarden synchronizované. Pokud je povoleno, odemknutí bude sdíleno s desktopovou aplikací Bitwarden."
+  },
   "enterMonth": {
     "message": "Zadejte měsíc."
   },
@@ -6478,6 +6604,9 @@
   "searchBankAccount": {
     "message": "Hledat bankovní účet"
   },
+  "searchPassport": {
+    "message": "Hledat pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovat číslo účtu"
   },
@@ -6489,6 +6618,15 @@
   },
   "copyIban": {
     "message": "Kopírovat IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Kopírovat jméno na účtu"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovat číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovat SWIFT kód"
   },
   "bankAccountTypeChecking": {
     "message": "Kontrolování"
@@ -6513,6 +6651,9 @@
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."
+  },
+  "more": {
+    "message": "Více"
   },
   "maxAccessCount": {
     "message": "Maximální počet přístupů",
@@ -6551,11 +6692,36 @@
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Ukládání úprav Send selhalo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
+  },
+  "domainNotAllowed": {
+    "message": "Zahrnout jen následující domény: $DOMAINS$. Zkontrolujte to a zkuste to znovu",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Není v souladu s pravidly Send Vaší organizace",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Pro úpravu tohoto Send vytvořte kopii. Pokud tento Send vyprší v nastaveném datu smazání, není potřeba žádná akce.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v nastaveném datu smazání",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvořit kopii"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nemůžete importovat položky do Mých položek, které jsou součástí více sbírek"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
   }
 }

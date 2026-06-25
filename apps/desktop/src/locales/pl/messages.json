@@ -56,6 +56,18 @@
   "typeBankAccountSubtitle": {
     "message": "Dane bankowe"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organizuj elementy"
   },
@@ -114,8 +126,8 @@
   "noEditPermissions": {
     "message": "Nie masz uprawnień do edycji elementu"
   },
-  "welcomeBack": {
-    "message": "Witaj ponownie"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Wybierz organizację, do której chcesz przenieść element. Przeniesienie spowoduje zmianę własności elementu na organizację."
@@ -149,10 +161,6 @@
   "viewItemHeaderBankAccount": {
     "message": "Pokaż konto bankowe",
     "description": "Header for view bank account item type"
-  },
-  "viewItemHeaderDriversLicense": {
-    "message": "Pokaż dokument",
-    "description": "Header for view license item type"
   },
   "viewItemHeaderLicense": {
     "message": "View license",
@@ -382,6 +390,42 @@
   },
   "passportNumber": {
     "message": "Numer paszportu"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "Numer prawa jazdy"
@@ -838,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Liczba znaków"
   },
@@ -1011,8 +1064,8 @@
   "logIn": {
     "message": "Zaloguj się"
   },
-  "logInToBitwarden": {
-    "message": "Zaloguj się do Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Wpisz kod został wysłany na adres e-mail"
@@ -1120,9 +1173,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Wpisz adres e-mail konta. Podpowiedź do hasła zostanie wysłana na adres e-mail"
   },
-  "getMasterPasswordHint": {
-    "message": "Uzyskaj podpowiedź do hasła głównego"
-  },
   "emailRequired": {
     "message": "Adres e-mail jest wymagany."
   },
@@ -1180,6 +1230,10 @@
   },
   "noItemsInList": {
     "message": "Brak elementów do wyświetlenia."
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "Wyślij kod weryfikacyjny na adres e-mail"
@@ -1341,6 +1395,9 @@
   },
   "iconsUrl": {
     "message": "Adres URL serwera ikon"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "Adresy URL środowiska zostały zapisane"
@@ -1629,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Pokaż ikony stron internetowych i pobierz adresy URL do zmiany hasła"
   },
-  "enableMinToTray": {
-    "message": "Minimalizuj do zasobnika systemowego"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Po zminimalizowaniu okna, pokaż ikonę w zasobniku systemowym."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimalizuj do paska menu"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Po zminimalizowaniu okna, pokaż ikonę w pasku zadań."
-  },
-  "enableCloseToTray": {
-    "message": "Zamknij do zasobnika systemowego"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Po zamknięciu okna, pokaż ikonę w zasobniku systemowym."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Zamknij do paska menu"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Po zamknięciu okna, pokaż ikonę w pasku menu."
-  },
-  "enableTray": {
-    "message": "Pokaż ikonę w zasobniku systemowym"
-  },
-  "enableTrayDesc": {
-    "message": "Zawsze pokazuj ikonę w zasobniku systemowym."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Uruchom automatycznie po zalogowaniu"
   },
   "openAtLoginDesc": {
     "message": "Uruchom aplikację Bitwarden automatycznie po zalogowaniu."
-  },
-  "alwaysShowDock": {
-    "message": "Zawsze pokazuj w Docku"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Pokaż ikonę Bitwarden w Docku po zminimalizowaniu do paska menu."
-  },
-  "confirmTrayTitle": {
-    "message": "Potwierdź ukrycie zasobnika systemowego"
-  },
-  "confirmTrayDesc": {
-    "message": "Wyłączenie tej opcji spowoduje wyłącznie wszystkich innych powiązanych ustawień z zasobnikiem systemowym."
   },
   "language": {
     "message": "Język"
@@ -1908,6 +1932,31 @@
   "selectAll": {
     "message": "Zaznacz wszystko"
   },
+  "selected": {
+    "message": "Selected"
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
+  },
   "zoomIn": {
     "message": "Powiększ"
   },
@@ -2044,9 +2093,9 @@
   "exit": {
     "message": "Wyjdź"
   },
-  "showHide": {
-    "message": "Pokaż / ukryj",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Ukryj do zasobnika systemowego"
@@ -2229,6 +2278,12 @@
   "deleteAccountWarning": {
     "message": "Usunięcie konta jest nieodwracalne."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "Nie można usunąć konta"
   },
@@ -2243,12 +2298,6 @@
   },
   "preferences": {
     "message": "Ustawienia"
-  },
-  "enableMenuBar": {
-    "message": "Włącz ikonę na pasku menu"
-  },
-  "enableMenuBarDesc": {
-    "message": "Zawsze pokazuj ikonę na pasku menu."
   },
   "hideToMenuBar": {
     "message": "Ukryj do paska menu"
@@ -2494,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Anuluj subskrypcję"
@@ -2539,9 +2588,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Połączenie z przeglądarką nie jest obecnie obsługiwane w aplikacji w wersji Windows Store."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Połączenie z przeglądarką nie jest obecnie obsługiwane w aplikacji na Linuksa."
-  },
   "enableHardwareAcceleration": {
     "message": "Użyj przyśpieszenia sprzętowego"
   },
@@ -2583,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Nowe hasło nie może być takie samo jak obecne."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Podpowiedź do hasła nie może być taka sama jak hasło."
@@ -3358,9 +3407,6 @@
     "message": "Sejf",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "Logowanie hasłem głównym"
-  },
   "rememberEmail": {
     "message": "Zapamiętaj adres e-mail"
   },
@@ -3805,6 +3851,9 @@
   },
   "multipleInputEmails": {
     "message": "Co najmniej 1 adres e-mail jest nieprawidłowy"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "inputTrimValidator": {
     "message": "Tekst nie może zawierać tylko spacji.",
@@ -4670,6 +4719,10 @@
   "invalidShortcut": {
     "message": "Skrót jest nieprawidłowy"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Więcej nawigacji",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4867,6 +4920,9 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
     "placeholders": {
@@ -5030,6 +5086,17 @@
   "userVerificationFailed": {
     "message": "Weryfikacja użytkownika nie powiodła się."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "more": {
+    "message": "More"
+  },
   "enterMonth": {
     "message": "Enter month."
   },
@@ -5050,6 +5117,9 @@
   },
   "bankAccount": {
     "message": "Konto bankowe"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Nazwa banku"
@@ -5088,6 +5158,9 @@
   "searchBankAccount": {
     "message": "Szukaj konta bankowego"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Kopiuj numer konta"
   },
@@ -5100,6 +5173,15 @@
   "copyIban": {
     "message": "Kopiuj numer IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
   "copyFirstName": {
     "message": "Copy first name"
   },
@@ -5111,6 +5193,9 @@
   },
   "copyLicenseNumber": {
     "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Standardowe"
@@ -5139,21 +5224,20 @@
   "newBankAccountNudgeBody": {
     "message": "Zapisz dane kont bankowych, aby mieć do nich łatwy i bezpieczny dostęp na wszystkich urządzeniach."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Zapisanie wysyłki nie powidło się",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5188,6 +5272,24 @@
   "progressBar": {
     "message": "Pasek postępu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "driversLicenseDetails": {
     "message": "License details"
@@ -5230,5 +5332,8 @@
   },
   "licenseClass": {
     "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

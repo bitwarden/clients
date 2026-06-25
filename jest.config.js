@@ -50,8 +50,8 @@ module.exports = {
     "<rootDir>/libs/state/jest.config.js",
     "<rootDir>/libs/storage-core/jest.config.js",
     "<rootDir>/libs/storage-test-utils/jest.config.js",
-    "<rootDir>/libs/tools/export/vault-export/vault-export-core/jest.config.js",
-    "<rootDir>/libs/tools/export/vault-export/vault-export-ui/jest.config.js",
+    "<rootDir>/libs/tools/export-vault-core/jest.config.js",
+    "<rootDir>/libs/tools/export-vault-ui/jest.config.js",
     "<rootDir>/libs/tools/generator/core/jest.config.js",
     "<rootDir>/libs/tools/generator/components/jest.config.js",
     "<rootDir>/libs/tools/generator/extensions/history/jest.config.js",
@@ -66,10 +66,12 @@ module.exports = {
     "<rootDir>/libs/user-crypto-management/jest.config.js",
     "<rootDir>/libs/scheduling/jest.config.js",
     "<rootDir>/libs/organization-invite-link/jest.config.js",
+    "<rootDir>/libs/pam/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
   // Also anecdotally improves performance when run locally
-  maxWorkers: 3,
+  maxWorkers: 8,
+  workerIdleMemoryLimit: "1500MiB",
 };

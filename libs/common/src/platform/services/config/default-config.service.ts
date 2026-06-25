@@ -20,7 +20,12 @@ import { ServerCommunicationConfig } from "@bitwarden/sdk-internal";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.enum";
+import {
+  AllowedFeatureFlagTypes,
+  FeatureFlag,
+  FeatureFlagValueType,
+  getFeatureFlagValue,
+} from "../../../enums/feature-flag.enum";
 import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "../../abstractions/config/config.service";
@@ -54,6 +59,13 @@ export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, A
   },
 );
 
+export const GLOBAL_FEATURE_FLAG_OVERRIDES = KeyDefinition.record<
+  AllowedFeatureFlagTypes,
+  FeatureFlag
+>(CONFIG_DISK, "featureFlagOverrides", {
+  deserializer: (data) => data,
+});
+
 const environmentComparer = (previous: Environment, current: Environment) => {
   return previous.getApiUrl() === current.getApiUrl();
 };
@@ -69,6 +81,10 @@ export class DefaultConfigService implements ConfigService {
   serverSettings$: Observable<ServerSettings>;
 
   cloudRegion$: Observable<Region>;
+
+  private featureFlagOverrides$: Observable<Partial<
+    Record<FeatureFlag, AllowedFeatureFlagTypes>
+  > | null>;
 
   constructor(
     private configApiService: ConfigApiServiceAbstraction,
@@ -155,20 +171,36 @@ export class DefaultConfigService implements ConfigService {
     this.serverSettings$ = this.serverConfig$.pipe(
       map((config) => config?.settings ?? new ServerSettings()),
     );
+
+    this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
-    return this.serverConfig$.pipe(map((serverConfig) => getFeatureFlagValue(serverConfig, key)));
+    return combineLatest([this.serverConfig$, this.featureFlagOverrides$]).pipe(
+      map(([serverConfig, overrides]) => this.resolveFlag(serverConfig, overrides, key)),
+    );
   }
 
   userCachedFeatureFlag$<Flag extends FeatureFlag>(key: Flag, userId: UserId) {
-    return this.stateProvider
-      .getUser(userId, USER_SERVER_CONFIG)
-      .state$.pipe(map((config) => getFeatureFlagValue(config, key)));
+    return combineLatest([
+      this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$,
+      this.featureFlagOverrides$,
+    ]).pipe(map(([config, overrides]) => this.resolveFlag(config, overrides, key)));
   }
 
   async getFeatureFlag<Flag extends FeatureFlag>(key: Flag) {
     return await firstValueFrom(this.getFeatureFlag$(key));
+  }
+
+  private resolveFlag<Flag extends FeatureFlag>(
+    serverConfig: ServerConfig | null,
+    overrides: Partial<Record<FeatureFlag, AllowedFeatureFlagTypes>> | null,
+    key: Flag,
+  ): FeatureFlagValueType<Flag> {
+    if (overrides != null && overrides[key] != null) {
+      return overrides[key] as FeatureFlagValueType<Flag>;
+    }
+    return getFeatureFlagValue(serverConfig, key);
   }
 
   checkServerMeetsVersionRequirement$(minimumRequiredServerVersion: SemVer) {

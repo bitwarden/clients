@@ -4,7 +4,7 @@ import {
   MasterPasswordAuthenticationData,
   MasterPasswordAuthenticationHash,
   MasterPasswordUnlockData,
-} from "@bitwarden/common/key-management/master-password/types/master-password.types";
+} from "../../../key-management/master-password/types/master-password.types";
 
 import { SecretVerificationRequest } from "./secret-verification.request";
 

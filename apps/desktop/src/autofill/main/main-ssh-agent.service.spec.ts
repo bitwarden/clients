@@ -66,7 +66,7 @@ describe("MainSshAgentService", () => {
   });
 
   describe("v2 (useV2 = true)", () => {
-    let capturedSignCb: (data: sshagent_v2.SignRequestData) => Promise<boolean>;
+    let capturedSignCb: (err: Error | null, data: sshagent_v2.SignRequestData) => Promise<boolean>;
 
     beforeEach(async () => {
       (sshagent_v2.SshAgentState.serve as jest.Mock).mockImplementation((sign: Function) => {
@@ -173,7 +173,7 @@ describe("MainSshAgentService", () => {
       } as unknown as sshagent_v2.SignRequestData;
 
       it("should send sshagent.signrequest with the correct fields", () => {
-        void capturedSignCb(mockSignData);
+        void capturedSignCb(null, mockSignData);
 
         expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.signrequest", {
           cipherId: "cipher-abc",
@@ -186,7 +186,7 @@ describe("MainSshAgentService", () => {
       });
 
       it("should resolve with true when the renderer accepts", async () => {
-        const signPromise = capturedSignCb(mockSignData);
+        const signPromise = capturedSignCb(null, mockSignData);
 
         const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
         await responseHandler({}, { requestId: 1, accepted: true });
@@ -195,7 +195,7 @@ describe("MainSshAgentService", () => {
       });
 
       it("should resolve with false when the renderer rejects", async () => {
-        const signPromise = capturedSignCb(mockSignData);
+        const signPromise = capturedSignCb(null, mockSignData);
 
         const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
         await responseHandler({}, { requestId: 1, accepted: false });

@@ -2,7 +2,7 @@
   class="tw-absolute tw-top-[50%] tw-left-[50%] tw-translate-x-[-50%] tw-translate-y-[-50%] tw-leading-[0px]"
 >
   @if (showLoadingStyle) {
-    <bit-spinner size="fill" noColor></bit-spinner>
+    <bit-spinner [size]="spinnerSize()" />
   } @else {
     <i class="bwi" [class]="iconClass()" aria-hidden="true"></i>
   }

@@ -5,7 +5,7 @@ import { setA11yTitleAndAriaLabel } from "../a11y/set-a11y-title-and-aria-label"
 import { BaseButtonDirective } from "../shared/base-button.directive";
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 import { FocusableElement } from "../shared/focusable-element";
-import { SpinnerComponent } from "../spinner";
+import { SpinnerComponent, SpinnerSize } from "../spinner";
 import { TooltipDirective } from "../tooltip";
 import { ariaDisableElement } from "../utils";
 
@@ -90,6 +90,10 @@ export class BitIconButtonComponent implements ButtonLikeAbstraction, FocusableE
 
     return classes.join(" ");
   });
+
+  protected readonly spinnerSize = computed<SpinnerSize>(() =>
+    this.size() === "small" ? "sm" : "md",
+  );
 
   getFocusTarget() {
     return this.elementRef.nativeElement;

@@ -27,12 +27,18 @@ import {
   KeyDefinition,
 } from "@bitwarden/state";
 
-/** Fallback manifest URI when the server does not provide one */
-const DEFAULT_MANIFEST_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download/manifest.json";
+/** Fallback resource location when the server does not provide one */
+const DEFAULT_RESOURCE_BASE_URL =
+  "https://github.com/bitwarden/map-the-web/releases/latest/download";
+
+/** Client-owned manifest filename, resolved against the resource base URL */
+const MANIFEST_FILENAME = "manifest.json";
 
 /** Manifest key for the forms map version this client targets */
 const TARGET_FORMS_VERSION = "v1";
+
+/** Message command that triggers an immediate manifest check from the background context */
+export const FORCE_TARGETING_RULES_UPDATE_COMMAND = "bgForceTargetingRulesUpdate";
 
 type TargetingRulesDataMeta = {
   /** The last time the data source was checked */
@@ -200,18 +206,16 @@ export class TargetingRulesDataService {
       return;
     }
 
-    const manifestUrl = await this._resolveManifestUrl();
+    const resourceBaseUrl = await this._resolveResourceBaseUrl();
+    const manifestUrl = new URL(MANIFEST_FILENAME, resourceBaseUrl);
 
     // Step 1: Fetch the lightweight manifest to check if the data has changed
-    this.logService.info(`[TargetingRulesDataService] Checking manifest at ${manifestUrl}`);
+    this.logService.info(`[TargetingRulesDataService] Checking manifest at ${manifestUrl.href}`);
 
     // Add CDN cache-buster
-    const manifestRequestURL = new URL(manifestUrl);
-    manifestRequestURL.searchParams.set("_", Date.now().toString());
+    manifestUrl.searchParams.set("_", Date.now().toString());
 
-    const manifestResponse = await this.apiService.nativeFetch(
-      new Request(manifestRequestURL.href),
-    );
+    const manifestResponse = await this.apiService.nativeFetch(new Request(manifestUrl.href));
     if (!manifestResponse.ok) {
       throw new Error(
         `Failed to fetch manifest: ${manifestResponse.status} ${manifestResponse.statusText}`,
@@ -247,7 +251,7 @@ export class TargetingRulesDataService {
     }
 
     // Step 2: Data has changed (or first fetch); download the map file
-    const formsMapUrl = new URL(formsEntry.filename, manifestRequestURL.href).href;
+    const formsMapUrl = new URL(formsEntry.filename, manifestUrl.href).href;
     this.logService.info(`[TargetingRulesDataService] Fetching updated data from ${formsMapUrl}`);
 
     const response = await this.apiService.nativeFetch(new Request(formsMapUrl));
@@ -283,11 +287,14 @@ export class TargetingRulesDataService {
   }
 
   /**
-   * Resolves the manifest URL by checking the server config first,
-   * falling back to the hardcoded default.
+   * Resolves the resource base URL from the server config, falling back to
+   * the hardcoded default. The trailing slash is enforced so that relative
+   * resolution (`new URL(filename, baseUrl)`) treats the value as a directory
+   * rather than dropping its final path segment.
    */
-  private async _resolveManifestUrl(): Promise<string> {
+  private async _resolveResourceBaseUrl(): Promise<string> {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    return serverConfig?.environment?.fillAssistRules || DEFAULT_MANIFEST_URL;
+    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_RESOURCE_BASE_URL;
+    return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   }
 }

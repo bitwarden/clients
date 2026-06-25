@@ -33,7 +33,7 @@
       <a bit-item-content routerLink="/autofill" [truncate]="false">
         <i slot="start" class="bwi bwi-check-circle" aria-hidden="true"></i>
         <div class="tw-flex tw-items-center tw-justify-center">
-          <p class="tw-pr-2">{{ "autofill" | i18n }}</p>
+          <p class="tw-pr-2">{{ "autofillNoun" | i18n }}</p>
           @if (showAutofillBadge$ | async) {
             <bit-berry
               variant="danger"

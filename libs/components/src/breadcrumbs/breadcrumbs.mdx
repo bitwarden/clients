@@ -14,42 +14,65 @@ import { BreadcrumbsModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-## Display
+## Usage
 
-Breadcrumbs display above the page title. The current page should not appear as a breadcrumb link.
-See [Header with Breadcrumbs](?path=/story/web-header--with-breadcrumbs).
+The breadcrumb component is used to indicate the user's current location in a hierarchical structure
+of pages.
 
-### Top Level
+Breadcrumbs are typically paired with page content to help users understand where they are within a
+site or application and navigate back to parent pages.
 
-When a user is 1 level deep into a tree, the top level is displayed as a single link above the page
-title.
+The active breadcrumb should always be the last in the list of breadcrumbs. (See
+[Breadcrumbs with Page Header](#breadcrumbs-with-page-header) for the exception case.) Note that the
+stories here in Storybook do not necessarily follow that guidance, in order to provide examples of
+how the active styling works with the router.
 
-<Canvas of={stories.TopLevel} />
+### Routes
 
-### Second Level
+Breadcrumbs are typically links to page content. When provided a `route`, they will render as anchor
+tag links. Without a `route`, the breadcrumb will be a button element and will need a `(click)`
+handler attached.
 
-When a user is 2 or more levels deep into a tree, the top level is displayed followed by an
+Routed breadcrumbs hook into the Angular router to add styles the active breadcrumb and display it
+as static text rather than a link. Button breadcrumbs will not display an active breadcrumb since
+they are not hooked into the router.
 
-<i class="bwi bwi-angle-right"></i> icon, and the following pages.
+#### As buttons
 
-<Canvas of={stories.SecondLevel} />
+<Canvas of={stories.DefaultAsButtons} />
+
+### Sizes
+
+Size should be chosen based on available space. Use the base size on large screen layouts where
+there is ample horizontal space. Use the sm size in space-constrained contexts, such as smaller
+screen widths and the extension.
+
+#### Base size
+
+<Canvas of={stories.Default} />
+
+#### Small size
+
+<Canvas of={stories.Small} />
 
 ### Overflow
 
-When a user is several levels deep into a tree, the top level or 2 are displayed followed by an
+When a user is several levels deep into a tree, the breadcrumbs list will truncate. Based on the
+number passed to the `show` input (which defaults to 4), it will display any overflow breadcrumbs in
+a menu before the last breadcrumb.
 
-<i class="bwi bwi-ellipsis-h"> </i> icon button, and then the page directly above the current page.
+<Canvas of={stories.OverflowLinks} />
 
-When the user selects the <i class="bwi bwi-ellipsis-h"></i> icon button, a menu opens displaying
-the pages between the top level and the previous page.
+### Breadcrumbs with page header
 
-<Canvas of={stories.Overflow} />
+When breadcrumbs are used within a header that displays the active page outside of the breadcrumbs
+(such as in a separate heading element), use `showTrailingArrow` to display one last arrow at the
+end of the breadcrumbs list. This provides better visual continuity to guide the user's eyes to the
+heading element as a logical continuation of the breadcrumbs. The heading element should be placed
+immediately below the breadcrumbs.
 
-### Small screens
+<Canvas of={stories.WithTrailingArrow} />
 
-If a screen's width is not large enough to display the full breadcrumb path, display a link to the
-previous page and an <i class="bwi bwi-angle-right"></i> icon to take the user back to the previous
-page.
+## Guidelines
 
-`TODO:` [Jira add stories](https://bitwarden.atlassian.net/browse/CL-102) for responsive screen
-width/small screens
+Breadcrumb labels should reflect the exact page or section name for clarity and consistency.

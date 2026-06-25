@@ -3,8 +3,13 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()">
-    <bit-landing-hero [icon]="icon()" [title]="title()" [subtitle]="subtitle()"></bit-landing-hero>
+  <bit-landing-content [maxWidth]="maxWidth()" [contentVerticalPadding]="contentVerticalPadding()">
+    <bit-landing-hero
+      [icon]="hidePageIcon() ? null : icon()"
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [heroTextAlignment]="heroTextAlignment()"
+    ></bit-landing-hero>
     @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
@@ -20,12 +25,19 @@
   </bit-landing-content>
 
   @if (!hideFooter()) {
-    <bit-landing-footer>
-      @if (showReadonlyHostname()) {
-        <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
-      } @else {
-        <ng-content select="[slot=environment-selector]"></ng-content>
-      }
+    <bit-landing-footer [footerVerticalPadding]="footerVerticalPadding()">
+      <div [class]="footerLayoutClasses()">
+        <!-- Wrappers project here when secondaryContentLocation === "footer". Two -->
+        <!-- distinct slot names are required because Angular projects to the first -->
+        <!-- matching <ng-content>, so @if-guarded duplicate selectors won't switch. -->
+        <ng-content select="[slot=footer-secondary]"></ng-content>
+
+        @if (showReadonlyHostname()) {
+          <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+        } @else {
+          <ng-content select="[slot=environment-selector]"></ng-content>
+        }
+      </div>
 
       @if (!hideYearAndVersion) {
         <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>

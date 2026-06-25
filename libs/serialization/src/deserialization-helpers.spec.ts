@@ -1,4 +1,4 @@
-import { record } from "@bitwarden/serialization";
+import { record } from ".";
 
 describe("deserialization helpers", () => {
   describe("record", () => {

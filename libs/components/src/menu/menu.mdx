@@ -6,14 +6,36 @@ import * as stories from "./menu.stories";
 
 # Menu
 
-Menus are used to help organize related options. Menus are most often used for item options in
-tables.
+The menu component is used to present a list of actions, selections, or navigation options in a
+floating overlay. It appears in response to a user interaction, like a button or trigger, and
+provides contextual choices relevant to the current workflow.
 
 <Canvas of={stories.ClosedMenu} />
 
 <br />
 
-## Slots
+## Composition
+
+A menu is constructed of a `bit-menu` element with child `bitMenuItem` elements. These can be
+anchors or buttons. `bit-menu-divider` can be used to section menu items.
+
+Menu triggers use the `bitMenuTriggerFor` directive to specify the menu they open.
+
+Example code:
+
+```html
+<button type="button" bitButton buttonType="secondary" [bitMenuTriggerFor]="myMenu">
+  Open menu
+</button>
+
+<bit-menu #myMenu>
+  <a href="#" bitMenuItem>Anchor link</a>
+  <button type="button" bitMenuItem>Button</button>
+  <bit-menu-divider></bit-menu-divider>
+</bit-menu>
+```
+
+### Menu Items
 
 `bitMenuItem` supports the following slots:
 
@@ -25,16 +47,47 @@ tables.
 
 ```html
 <button type="button" bitMenuItem>
-  <i class="bwi bwi-key" slot="start"></i>
+  <bit-icon class="bwi-key" slot="start" />
   Menu item with icons
-  <i class="bwi bwi-angle-right" slot="end"></i>
+  <bit-icon class="bwi-angle-right" slot="end" />
 </button>
 ```
 
+## Use cases
+
+To categorize different use cases for menus, we use the following terminology:
+
+- Action menus
+- Filter menus (_Coming soon_)
+- Input menus (_Coming soon_)
+
+### Action menus
+
+Action menus are used used for contextual actions such as edit, delete, copy, and similar
+operations.
+
+Usage guidelines:
+
+- Use the menu item `danger` variant for destructive operations.
+- If using leading icons, all menu items must have a leading icon; otherwise, no menu items should
+  have a leading icon.
+- Menu items should be anchors or buttons, depending on the action they execute.
+
+<Canvas of={stories.ActionMenu} />
+
+### Filter menus
+
+_Coming soon_
+
+### Input menus
+
+_Coming soon_
+
 ## Accessibility
 
-Follow WCAG AA best practices. Example: Insure the triggering element has `aria-haspopup="true"`
-prior to being clicked and `aria-expanded="true"` after the user clicks the element.
+`bitMenuTriggerFor` uses the `aria-haspopup` and `aria-expanded` attributes to provide an accessible
+implementation. `bit-menu` specifies a `role` and accepts an optional `aria-label` for menus that
+need a differentiating accessible name. `bitMenuItem` also specifies an accessible role for itself.
 
-User should be able to navigate the opened menu via the up and down arrow keys and close the menu
-using the escape key or clicking out of the menu.
+Users are able to navigate the opened menu via the up and down arrow keys and close the menu using
+the escape key or clicking out of the menu.
