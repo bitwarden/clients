@@ -20,7 +20,7 @@
       buttonType="primary"
       bitButton
       bitFormButton
-      [disabled]="!updateLicenseForm.value.file"
+      [disabled]="!updateLicenseForm.value.file?.length"
     >
       {{ "upload" | i18n }}
     </button>

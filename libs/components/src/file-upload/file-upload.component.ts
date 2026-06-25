@@ -99,21 +99,16 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
-  private readonly cvaOnChange = signal<(value: File | File[] | null) => void>(() => {});
+  private readonly cvaOnChange = signal<(value: File[]) => void>(() => {});
   private readonly cvaOnTouched = signal<() => void>(() => {});
 
-  /**
-   * Required for NG_VALUE_ACCESSOR.
-   *
-   * The form value is `File[]` when `multiple` is set, and `File | null` otherwise.
-   * `writeValue` accepts either shape so consumers don't have to pre-normalize.
-   */
-  writeValue(value: File | File[] | null | undefined): void {
-    const incoming = Array.isArray(value) ? value : value ? [value] : [];
+  /** Required for NG_VALUE_ACCESSOR. Form value is always `File[]` ([] = no file). */
+  writeValue(value: File[] | null): void {
+    const incoming = value ?? [];
     this.files.set(this.multiple() ? incoming : incoming.slice(0, 1));
   }
 
-  registerOnChange(fn: (value: File | File[] | null) => void): void {
+  registerOnChange(fn: (value: File[]) => void): void {
     this.cvaOnChange.set(fn);
   }
 
@@ -270,8 +265,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   }
 
   private emitCvaChange(): void {
-    const files = this.files();
-    this.cvaOnChange()(this.multiple() ? files : (files[0] ?? null));
+    this.cvaOnChange()(this.files());
   }
 
   protected openFilePicker(): void {

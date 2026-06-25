@@ -32,15 +32,16 @@ export class SendFileDetailsComponent implements OnInit {
   protected readonly editing = input<boolean>();
 
   readonly sendFileDetailsForm = this.formBuilder.group({
-    file: this.formBuilder.control<File | null>(null, Validators.required),
+    file: this.formBuilder.control<File[]>([], Validators.required),
   });
 
   constructor() {
     this.sendFormService.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
 
     this.sendFileDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      if (value.file) {
-        this.sendFormService.setFile(value.file);
+      const file = value.file?.[0];
+      if (file) {
+        this.sendFormService.setFile(file);
       }
     });
   }

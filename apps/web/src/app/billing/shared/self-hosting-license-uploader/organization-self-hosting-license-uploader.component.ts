@@ -68,7 +68,7 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
     const orgKeys = await this.keyService.makeKeyPair(orgKey[1]);
 
     const fd = new FormData();
-    fd.append("license", this.formValue.file);
+    fd.append("license", this.formValue.file[0]);
     fd.append("key", key);
     fd.append("collectionName", collectionCt);
     const response = await this.organizationApiService.createLicense(fd);

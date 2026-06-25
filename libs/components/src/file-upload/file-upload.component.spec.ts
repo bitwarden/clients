@@ -94,7 +94,7 @@ class HintHostComponent {
 })
 class FormHostComponent {
   form = new FormGroup({
-    upload: new FormControl<File | null>(null),
+    upload: new FormControl<File[]>([], { nonNullable: true }),
   });
 }
 
@@ -275,7 +275,7 @@ describe("FileUploadComponent", () => {
       ).componentInstance;
       const file = makeFile();
 
-      upload.writeValue(file);
+      upload.writeValue([file]);
       expect(upload.files()).toEqual([file]);
 
       upload.writeValue(null);
@@ -294,14 +294,14 @@ describe("FileUploadComponent", () => {
       expect(upload.files()).toEqual([a]);
     });
 
-    it("pushes the selected file to the bound FormControl", () => {
+    it("pushes the selected file to the bound FormControl as a single-element array", () => {
       const file = makeFile();
       emitFromDropzone([file]);
 
-      expect(fixture.componentInstance.form.controls.upload.value).toBe(file);
+      expect(fixture.componentInstance.form.controls.upload.value).toEqual([file]);
     });
 
-    it("pushes null to the FormControl when the last file is removed", () => {
+    it("pushes an empty array to the FormControl when the last file is removed", () => {
       const file = makeFile();
       emitFromDropzone([file]);
 
@@ -311,7 +311,7 @@ describe("FileUploadComponent", () => {
       list.fileRemoved.emit(file);
       fixture.detectChanges();
 
-      expect(fixture.componentInstance.form.controls.upload.value).toBeNull();
+      expect(fixture.componentInstance.form.controls.upload.value).toEqual([]);
     });
 
     it("marks the FormControl as touched after a selection", () => {
@@ -364,17 +364,6 @@ describe("FileUploadComponent", () => {
       upload.writeValue([a, b]);
 
       expect(upload.files()).toEqual([a, b]);
-    });
-
-    it("wraps a single File written to writeValue into a one-element array", () => {
-      const upload: FileUploadComponent = fixture.debugElement.query(
-        By.directive(FileUploadComponent),
-      ).componentInstance;
-      const file = makeFile();
-
-      upload.writeValue(file);
-
-      expect(upload.files()).toEqual([file]);
     });
 
     it("pushes the full File[] to the bound FormControl when files are selected", () => {

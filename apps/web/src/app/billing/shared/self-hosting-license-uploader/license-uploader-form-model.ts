@@ -1,3 +1,3 @@
 export interface LicenseUploaderFormModel {
-  file: File;
+  file: File[];
 }

@@ -30,7 +30,7 @@ export abstract class AbstractSelfHostingLicenseUploaderComponent {
     }
 
     this.form = this.formBuilder.group({
-      file: [null, [Validators.required]],
+      file: [[] as File[], [Validators.required]],
     });
     this.submit = this.submit.bind(this);
   }
