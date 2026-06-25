@@ -14487,7 +14487,17 @@
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$"
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
