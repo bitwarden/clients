@@ -452,7 +452,7 @@ export abstract class TwoFactorService {
   /**
    * Removes the YubiKey two-factor enrollment for the current user.
    * Requires a user verification token to confirm the operation. Returns 204 No Content.
-   * Does NOT require premium — disabling must always be available even if premium has lapsed.
+   * Does NOT require premium — deletion must always be available even if premium has lapsed.
    * Used for settings management.
    *
    * @param request The {@link TwoFactorYubiKeyDeleteRequest} containing the user verification token.
@@ -462,7 +462,7 @@ export abstract class TwoFactorService {
   /**
    * Removes the Duo two-factor enrollment for the current user.
    * Requires a user verification token to confirm the operation. Returns 204 No Content.
-   * Does NOT require premium — disabling must always be available even if premium has lapsed.
+   * Does NOT require premium — deletion must always be available even if premium has lapsed.
    * Used for settings management.
    *
    * @param request The {@link TwoFactorDuoDeleteRequest} containing the user verification token.
@@ -494,9 +494,9 @@ export abstract class TwoFactorService {
 
   /**
    * Removes the entire WebAuthn (FIDO2) two-factor enrollment for the current user — all
-   * credentials are removed and the provider is disabled in a single round-trip. Returns
-   * 204 No Content. The only path that can clear the last registered credential, since
-   * per-credential delete refuses by design.
+   * credentials are deleted in a single round-trip. Returns 204 No Content. The only path
+   * that can clear the last registered credential, since per-credential delete refuses by
+   * design.
    * Used for settings management.
    *
    * @param request The {@link TwoFactorWebAuthnDeleteAllRequest} containing the user verification token.

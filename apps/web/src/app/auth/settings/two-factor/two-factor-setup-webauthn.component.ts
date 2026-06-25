@@ -171,7 +171,8 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     }
 
     // Server's per-credential DELETE refuses to remove the last registered credential
-    // (lockout-prevention), so the only path to disable WebAuthn entirely is the bulk endpoint.
+    // (lockout-prevention), so the only path to delete the WebAuthn enrollment entirely is the
+    // bulk endpoint.
     const request = new TwoFactorWebAuthnDeleteAllRequest(this.requireUserVerificationToken());
     await this.twoFactorService.deleteTwoFactorWebAuthnAll(request);
     this.enabled = false;
