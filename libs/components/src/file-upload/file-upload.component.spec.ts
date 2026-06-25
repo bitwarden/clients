@@ -40,14 +40,14 @@ const i18nProvider = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-host",
-  imports: [FileUploadComponent, BitLabelComponent],
+  imports: [FileUploadComponent, BitLabelComponent, ReactiveFormsModule],
   template: `
     <bit-file-upload
       [variant]="variant"
       [multiple]="multiple"
       [disabled]="disabled"
       [errorMessage]="errorMessage"
-      [(files)]="files"
+      [formControl]="file"
     >
       <bit-label>Upload</bit-label>
     </bit-file-upload>
@@ -58,16 +58,22 @@ class TestHostComponent {
   multiple = false;
   disabled = false;
   errorMessage: string | undefined = undefined;
-  files: File[] = [];
+  file = new FormControl<File[]>([], { nonNullable: true });
+  get files(): File[] {
+    return this.file.value;
+  }
+  set files(value: File[]) {
+    this.file.setValue(value);
+  }
 }
 
 // TODO: Fix this the next time the file is edited.
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "hint-host",
-  imports: [FileUploadComponent, BitLabelComponent, BitHintDirective],
+  imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
   template: `
-    <bit-file-upload [variant]="variant" [errorMessage]="errorMessage" [(files)]="files">
+    <bit-file-upload [variant]="variant" [errorMessage]="errorMessage" [formControl]="file">
       <bit-label>Upload</bit-label>
       <bit-hint>Pick a file</bit-hint>
     </bit-file-upload>
@@ -76,7 +82,7 @@ class TestHostComponent {
 class HintHostComponent {
   variant: "default" | "dropzone" = "default";
   errorMessage: string | undefined = undefined;
-  files: File[] = [];
+  file = new FormControl<File[]>([], { nonNullable: true });
 }
 
 // TODO: Fix this the next time the file is edited.

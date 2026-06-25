@@ -464,7 +464,7 @@
           (error)="this.handleChromeImportError($event)"
         ></import-chrome>
       } @else {
-        <bit-file-upload [(files)]="selectedFiles">
+        <bit-file-upload formControlName="file">
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
         </bit-file-upload>
         <bit-form-field disableMargin>

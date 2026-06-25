@@ -8,7 +8,6 @@ import {
   ElementRef,
   inject,
   input,
-  model,
   signal,
   viewChild,
 } from "@angular/core";
@@ -83,12 +82,9 @@ export class FileUploadComponent implements ControlValueAccessor {
   /** Error state — shows danger border and message */
   readonly errorMessage = input<string>();
 
-  /**
-   * Two-way bound file list — use [(files)] for two-way binding
-   *
-   * NOTE: File list only renders in the dropzone variant usage
-   */
-  readonly files = model<File[]>([]);
+  private readonly _files = signal<File[]>([]);
+  /** Current selection. External consumers should bind via CVA; this signal is read-only. */
+  readonly files = this._files.asReadonly();
 
   /** UI variant: 'dropzone' or 'default' */
   readonly variant = input<"dropzone" | "default">("default");
@@ -105,7 +101,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   /** Required for NG_VALUE_ACCESSOR. Form value is always `File[]` ([] = no file). */
   writeValue(value: File[] | null): void {
     const incoming = value ?? [];
-    this.files.set(this.multiple() ? incoming : incoming.slice(0, 1));
+    this._files.set(this.multiple() ? incoming : incoming.slice(0, 1));
   }
 
   registerOnChange(fn: (value: File[]) => void): void {
@@ -233,9 +229,9 @@ export class FileUploadComponent implements ControlValueAccessor {
   protected onFilesSelected(newFiles: File[]): void {
     this.cvaOnTouched()();
     if (this.multiple()) {
-      this.files.update((current) => [...current, ...newFiles]);
+      this._files.update((current) => [...current, ...newFiles]);
     } else {
-      this.files.set(newFiles.length > 0 ? [newFiles[0]] : []);
+      this._files.set(newFiles.length > 0 ? [newFiles[0]] : []);
     }
     if (this.useDropzoneVariant()) {
       if (newFiles.length === 1) {
@@ -256,7 +252,7 @@ export class FileUploadComponent implements ControlValueAccessor {
       return;
     }
     const removedIndex = this.files().indexOf(file);
-    this.files.update((current) => current.filter((f) => f !== file));
+    this._files.update((current) => current.filter((f) => f !== file));
     this.lastAction.set({ type: "removed", name: file.name });
     if (removedIndex >= 0) {
       this.pendingFocusIndex.set(removedIndex);

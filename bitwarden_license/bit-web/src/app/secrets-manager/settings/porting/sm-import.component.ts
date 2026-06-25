@@ -28,8 +28,8 @@ import { SecretsManagerPortingApiService } from "../services/sm-porting-api.serv
 export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected orgId: string = null;
-  protected selectedFiles: File[] = [];
   protected formGroup = new FormGroup({
+    file: new FormControl<File[]>([], { nonNullable: true }),
     pastedContents: new FormControl(""),
   });
 
@@ -56,7 +56,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     const importContents = await this.getImportContents(
-      this.selectedFiles[0] ?? null,
+      this.formGroup.controls.file.value?.[0] ?? null,
       this.formGroup.get("pastedContents").value.trim(),
     );
 
@@ -128,8 +128,8 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   }
 
   private clearForm() {
-    this.selectedFiles = [];
     this.formGroup.reset({
+      file: [],
       pastedContents: "",
     });
   }

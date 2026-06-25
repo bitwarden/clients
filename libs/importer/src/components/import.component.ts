@@ -122,7 +122,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
-  selectedFiles: File[] = [];
 
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
@@ -200,7 +199,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     targetSelector: [null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
-    file: [],
+    file: [[] as File[]],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
@@ -694,7 +693,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private async setImportContents(): Promise<string> {
     let fileContents = this.formGroup.controls.fileContents.value;
-    const selectedFile = this.selectedFiles[0];
+    const selectedFile = this.formGroup.controls.file.value?.[0];
 
     if (selectedFile != null) {
       try {

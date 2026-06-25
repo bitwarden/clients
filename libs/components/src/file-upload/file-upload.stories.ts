@@ -1,3 +1,4 @@
+import { FormsModule } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,7 +14,7 @@ export default {
   component: FileUploadComponent,
   decorators: [
     moduleMetadata({
-      imports: [FileUploadComponent, BitLabelComponent, BitHintDirective],
+      imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, FormsModule],
       providers: [
         {
           provide: I18nService,
@@ -56,7 +57,7 @@ export const Default: Story = {
   render: (args) => ({
     props: { ...args, files: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(files)]="files">
+      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(ngModel)]="files">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -80,7 +81,7 @@ export const DefaultInactive: Story = {
   render: (args) => ({
     props: { ...args, files: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(files)]="files" [disabled]="true">
+      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(ngModel)]="files" [disabled]="true">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -103,7 +104,7 @@ export const Dropzone: Story = {
         [multiple]="multiple"
         [accept]="accept"
         [errorMessage]="errorMessage"
-        [(files)]="files"
+        [(ngModel)]="files"
         [variant]="variant"
       >
         <bit-label>Upload file</bit-label>
@@ -132,7 +133,7 @@ export const DropzoneDisabled: Story = {
         [multiple]="multiple"
         [accept]="accept"
         [errorMessage]="errorMessage"
-        [(files)]="files"
+        [(ngModel)]="files"
         variant="dropzone"
         [disabled]="true"
       >
@@ -171,7 +172,7 @@ export const LongFileName: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(files)]="files">
+      <bit-file-upload [accept]="accept" [(ngModel)]="files">
         <bit-label>Upload file</bit-label>
       </bit-file-upload>
     `,
@@ -196,7 +197,7 @@ export const LongFileNamesDropzone: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(files)]="files" variant="dropzone">
+      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="files" variant="dropzone">
         <bit-label>Upload files</bit-label>
       </bit-file-upload>
     `,
@@ -221,7 +222,7 @@ export const WithFiles: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [(files)]="files"
+        [(ngModel)]="files"
       >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
