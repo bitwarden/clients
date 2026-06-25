@@ -106,7 +106,11 @@ export class NewCipherMenuComponent {
     }
 
     if (btnTextAddCreateFeatureFlag) {
-      return "add";
+      if (this.buttonType() === "secondary") {
+        return "addItem";
+      } else {
+        return "add";
+      }
     } else {
       return "new";
     }
