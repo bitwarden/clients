@@ -21,7 +21,7 @@ impl PluginCancelOperationRequest<'_> {
     }
 
     /// Request signature.
-    pub(super) fn request_signature(&self) -> Signature<'_> {
+    pub(in crate::api::plugin) fn request_signature(&self) -> Signature<'_> {
         let slice = unsafe {
             std::slice::from_raw_parts(
                 self.as_ref().pbRequestSignature,

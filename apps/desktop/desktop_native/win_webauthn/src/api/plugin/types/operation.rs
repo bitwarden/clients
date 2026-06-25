@@ -130,16 +130,21 @@ impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
     }
 }
 
-struct OperationResponse {
+pub(crate) struct OperationResponse {
     inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
 }
+
+// SAFETY: OperationResponse wraps a pointer to a Windows-provided response buffer (not a COM
+// object). The COM STA thread is blocked waiting for the method to return while the buffer is
+// in-flight, so writing from another thread is safe when synchronized via Mutex.
+unsafe impl Send for OperationResponse {}
 
 impl OperationResponse {
     /// # Safety
     /// The caller must ensure that `ptr` points to a valid
     /// [`WEBAUTHN_PLUGIN_OPERATION_RESPONSE`], e.g. `pbEncodedResponse` must be
     /// a COM-allocated buffer of bytes of length `cbEncodedResponse`.
-    unsafe fn new(
+    pub(in crate::api::plugin) unsafe fn new(
         ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
     ) -> Result<Self, WinWebAuthnError> {
         if !ptr.is_aligned() {
@@ -155,7 +160,7 @@ impl OperationResponse {
     ///
     /// Safety constraints: [response] must point to a valid
     /// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
-    fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
+    pub(crate) fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
         let len = match data.len().try_into() {
             Ok(len) => len,
             Err(err) => {
@@ -175,7 +180,7 @@ impl OperationResponse {
             });
         }
         // Leak the buffer to the COM implementation
-        ManuallyDrop::new(buf);
+        _ = ManuallyDrop::new(buf);
         Ok(())
     }
 }

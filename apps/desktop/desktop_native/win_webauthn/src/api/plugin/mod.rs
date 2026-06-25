@@ -5,7 +5,13 @@ mod com;
 pub(crate) mod crypto;
 mod types;
 
-use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
+use std::{
+    error::Error,
+    fmt::{Debug, Display},
+    marker::PhantomData,
+    mem::MaybeUninit,
+    ptr::NonNull,
+};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 pub use types::*;
@@ -78,6 +84,12 @@ impl TryFrom<&str> for Clsid {
             WinWebAuthnError::with_cause(ErrorKind::InvalidArguments, "Failed to parse CLSID", err)
         })?;
         Ok(Clsid(clsid))
+    }
+}
+
+impl Display for Clsid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 
