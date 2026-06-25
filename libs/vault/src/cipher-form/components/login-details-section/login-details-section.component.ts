@@ -15,6 +15,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   AsyncActionsModule,
   CardComponent,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
@@ -115,6 +116,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private auditService: AuditService,
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
+    private dialogService: DialogService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
@@ -231,6 +233,16 @@ export class LoginDetailsSectionComponent implements OnInit {
   };
 
   removePasskey = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePasskey" },
+      content: { key: "removePasskeyConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
     // Fido2Credentials do not have a form control, so update directly
     this.existingFido2Credentials = null;
     this.cipherFormContainer.patchCipher((cipher) => {

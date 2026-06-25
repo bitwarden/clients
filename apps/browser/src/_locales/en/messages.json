@@ -5071,6 +5071,9 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
+  "removePasskeyConfirmation": {
+    "message": "Are you sure you want to remove the passkey from this item?"
+  },
   "passkeyRemoved": {
     "message": "Passkey removed"
   },
