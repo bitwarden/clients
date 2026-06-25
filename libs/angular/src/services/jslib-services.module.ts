@@ -258,7 +258,11 @@ import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/co
 import { ActionsService } from "@bitwarden/common/platform/actions";
 import { UnsupportedActionsService } from "@bitwarden/common/platform/actions/unsupported-actions.service";
 import { DefaultManagedSettingsService } from "@bitwarden/common/platform/managed-settings/default-managed-settings.service";
-import { ManagedOverlayStateProvider } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
+import {
+  OverlayActiveUserStateProvider,
+  OverlayGlobalStateProvider,
+  OverlaySingleUserStateProvider,
+} from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings/managed-settings.service";
 import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
 import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
@@ -1609,9 +1613,14 @@ const safeProviders: SafeProvider[] = [
     deps: [GlobalStateProvider, StorageServiceProvider],
   }),
   safeProvider({
-    provide: GlobalStateProvider,
+    provide: DefaultGlobalStateProvider,
     useClass: DefaultGlobalStateProvider,
     deps: [StorageServiceProvider, LogService],
+  }),
+  safeProvider({
+    provide: GlobalStateProvider,
+    useClass: OverlayGlobalStateProvider,
+    deps: [DefaultGlobalStateProvider, ManagedSettingsService],
   }),
   safeProvider({
     provide: ActiveUserAccessor,
@@ -1619,14 +1628,24 @@ const safeProviders: SafeProvider[] = [
     deps: [AccountServiceAbstraction],
   }),
   safeProvider({
-    provide: ActiveUserStateProvider,
+    provide: DefaultSingleUserStateProvider,
+    useClass: DefaultSingleUserStateProvider,
+    deps: [StorageServiceProvider, StateEventRegistrarService, LogService],
+  }),
+  safeProvider({
+    provide: SingleUserStateProvider,
+    useClass: OverlaySingleUserStateProvider,
+    deps: [DefaultSingleUserStateProvider, ManagedSettingsService],
+  }),
+  safeProvider({
+    provide: DefaultActiveUserStateProvider,
     useClass: DefaultActiveUserStateProvider,
     deps: [ActiveUserAccessor, SingleUserStateProvider],
   }),
   safeProvider({
-    provide: SingleUserStateProvider,
-    useClass: DefaultSingleUserStateProvider,
-    deps: [StorageServiceProvider, StateEventRegistrarService, LogService],
+    provide: ActiveUserStateProvider,
+    useClass: OverlayActiveUserStateProvider,
+    deps: [DefaultActiveUserStateProvider, ManagedSettingsService],
   }),
   safeProvider({
     provide: DerivedStateProvider,
@@ -1645,8 +1664,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: StateProvider,
-    useClass: ManagedOverlayStateProvider,
-    deps: [DefaultStateProvider, ManagedSettingsService],
+    useExisting: DefaultStateProvider,
   }),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
