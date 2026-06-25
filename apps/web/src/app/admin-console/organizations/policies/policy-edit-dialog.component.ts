@@ -39,6 +39,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -306,6 +307,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       request,
     );
   }
+
   static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
@@ -317,6 +319,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
-    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+    return PolicyEditDrawerComponent.openDrawer(dialogService, config);
   };
 }

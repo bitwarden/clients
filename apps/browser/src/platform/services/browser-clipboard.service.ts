@@ -67,7 +67,10 @@ class BrowserClipboardService {
     textareaElement.select();
 
     try {
-      globalContext.document.execCommand("copy");
+      const success = globalContext.document.execCommand("copy");
+      if (!success) {
+        BrowserClipboardService.consoleLogService.warning("execCommand('copy') returned false");
+      }
     } catch (error) {
       BrowserClipboardService.consoleLogService.warning(`Error writing to clipboard: ${error}`);
     } finally {
