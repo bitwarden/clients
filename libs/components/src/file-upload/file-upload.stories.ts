@@ -69,9 +69,9 @@ function createErroredControl(message: string): FormControl<File[]> {
 
 export const Default: Story = {
   render: (args) => ({
-    props: { ...args, files: [] as File[] },
+    props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="files">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -99,9 +99,9 @@ export const DefaultWithError: Story = {
 
 export const DefaultInactive: Story = {
   render: (args) => ({
-    props: { ...args, files: [] as File[] },
+    props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="files" [disabled]="true">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles" [disabled]="true">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
@@ -116,14 +116,14 @@ export const Dropzone: Story = {
   render: (args) => ({
     props: {
       ...args,
-      files: [] as File[],
+      selectedFiles: [] as File[],
     },
     template: /*html*/ `
       <bit-file-upload
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [(ngModel)]="files"
+        [(ngModel)]="selectedFiles"
         dropzone
       >
         <bit-label>Upload file</bit-label>
@@ -143,13 +143,13 @@ export const MultipleFiles: Story = {
 
 export const DropzoneDisabled: Story = {
   render: (args) => ({
-    props: { ...args, files: [] as File[] },
+    props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
       <bit-file-upload
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [(ngModel)]="files"
+        [(ngModel)]="selectedFiles"
         dropzone
         [disabled]="true"
       >
@@ -189,7 +189,7 @@ export const LongFileName: Story = {
   render: (args) => ({
     props: {
       ...args,
-      files: [
+      selectedFiles: [
         createMockFile(
           "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
           2_400_000,
@@ -197,7 +197,7 @@ export const LongFileName: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="files">
+      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
         <bit-label>Upload file</bit-label>
       </bit-file-upload>
     `,
@@ -211,7 +211,7 @@ export const LongFileNamesDropzone: Story = {
   render: (args) => ({
     props: {
       ...args,
-      files: [
+      selectedFiles: [
         createMockFile(
           "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
           2_400_000,
@@ -221,7 +221,7 @@ export const LongFileNamesDropzone: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="files" dropzone>
+      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="selectedFiles" dropzone>
         <bit-label>Upload files</bit-label>
       </bit-file-upload>
     `,
@@ -235,7 +235,7 @@ export const WithFiles: Story = {
   render: (args) => ({
     props: {
       ...args,
-      files: [
+      selectedFiles: [
         createMockFile("image.png", 2_400_000),
         createMockFile("document.pdf", 150_000),
         createMockFile("archive.zip", 48_000_000),
@@ -246,7 +246,7 @@ export const WithFiles: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [(ngModel)]="files"
+        [(ngModel)]="selectedFiles"
       >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>

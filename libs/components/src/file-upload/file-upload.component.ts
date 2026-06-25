@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
@@ -135,38 +136,8 @@ export class FileUploadComponent implements ControlValueAccessor {
   private readonly dropzoneRef = viewChild(DropzoneComponent);
   private readonly fileListRef = viewChild(FileListComponent);
 
-  /**
-   * Drives the dropzone-variant aria-live announcement and the post-removal
-   * focus effect. `{ type: "none" }` keeps the live region empty on first
-   * render so screen readers don't announce anything on load.
-   */
-  protected readonly lastAction = signal<
-    | { type: "none" }
-    | { type: "added"; name: string }
-    | { type: "addedMultiple"; count: number; names: string }
-    | { type: "removed"; name: string }
-  >({ type: "none" });
-
   private readonly i18nService = inject(I18nService);
-
-  /**
-   * Translated text for the dropzone-variant aria-live region. Bound as a
-   * single text node ({{ statusMessage() }}) rather than @switch so screen
-   * readers reliably register mutations to the live region.
-   */
-  protected readonly statusMessage = computed(() => {
-    const action = this.lastAction();
-    switch (action.type) {
-      case "added":
-        return this.i18nService.t("fileAdded", action.name);
-      case "addedMultiple":
-        return this.i18nService.t("filesAdded", String(action.count), action.names);
-      case "removed":
-        return this.i18nService.t("fileRemoved", action.name);
-      default:
-        return "";
-    }
-  });
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
 
   /**
    * Text wired into the dropzone input via aria-describedby so screen readers
@@ -241,13 +212,15 @@ export class FileUploadComponent implements ControlValueAccessor {
     }
     if (this.useDropzoneVariant()) {
       if (newFiles.length === 1) {
-        this.lastAction.set({ type: "added", name: newFiles[0].name });
+        this.announce(this.i18nService.t("fileAdded", newFiles[0].name));
       } else if (newFiles.length > 1) {
-        this.lastAction.set({
-          type: "addedMultiple",
-          count: newFiles.length,
-          names: newFiles.map((f) => f.name).join(", "),
-        });
+        this.announce(
+          this.i18nService.t(
+            "filesAdded",
+            String(newFiles.length),
+            newFiles.map((f) => f.name).join(", "),
+          ),
+        );
       }
     }
     this.emitCvaChange();
@@ -259,11 +232,20 @@ export class FileUploadComponent implements ControlValueAccessor {
     }
     const removedIndex = this.files().indexOf(file);
     this._files.update((current) => current.filter((f) => f !== file));
-    this.lastAction.set({ type: "removed", name: file.name });
+    this.announce(this.i18nService.t("fileRemoved", file.name));
     if (removedIndex >= 0) {
       this.pendingFocusIndex.set(removedIndex);
     }
     this.emitCvaChange();
+  }
+
+  /**
+   * Wraps `LiveAnnouncer.announce` with `assertive` politeness so the change
+   * interrupts whatever the SR is reading — file add/remove is a direct response
+   * to a user action and should not queue behind label/hint readout.
+   */
+  private announce(message: string): void {
+    void this.liveAnnouncer.announce(message, "assertive");
   }
 
   private emitCvaChange(): void {

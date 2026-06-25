@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
@@ -600,9 +601,7 @@ describe("FileUploadComponent", () => {
 
   describe("dropzone variant accessibility announcements", () => {
     let fixture: ComponentFixture<TestHostComponent>;
-
-    const liveRegion = () =>
-      fixture.nativeElement.querySelector('span[role="status"]') as HTMLElement | null;
+    let announceSpy: jest.SpyInstance;
 
     const dropzone = () =>
       fixture.debugElement.query(By.directive(DropzoneComponent))
@@ -622,37 +621,34 @@ describe("FileUploadComponent", () => {
       fixture.componentInstance.dropzone = true;
       fixture.componentInstance.multiple = true;
       fixture.detectChanges();
+      announceSpy = jest.spyOn(TestBed.inject(LiveAnnouncer), "announce").mockResolvedValue();
     });
 
-    it("renders an empty live region on initial render", () => {
-      const region = liveRegion();
-      expect(region).toBeTruthy();
-      expect(region!.textContent?.trim()).toBe("");
+    it("does not announce anything on initial render", () => {
+      expect(announceSpy).not.toHaveBeenCalled();
     });
 
-    it("announces a single-file add with the filename", () => {
+    it("announces a single-file add with the filename (assertive politeness)", () => {
       dropzone().filesSelected.emit([makeFile("a.txt")]);
-      fixture.detectChanges();
 
-      expect(liveRegion()!.textContent?.trim()).toBe("File added: a.txt");
+      expect(announceSpy).toHaveBeenCalledWith("File added: a.txt", "assertive");
     });
 
     it("announces a multi-file add with count and joined filenames", () => {
       dropzone().filesSelected.emit([makeFile("a.txt"), makeFile("b.txt"), makeFile("c.txt")]);
-      fixture.detectChanges();
 
-      expect(liveRegion()!.textContent?.trim()).toBe("3 files added: a.txt, b.txt, c.txt");
+      expect(announceSpy).toHaveBeenCalledWith("3 files added: a.txt, b.txt, c.txt", "assertive");
     });
 
     it("announces a removal with the filename", () => {
       const a = makeFile("a.txt");
       fixture.componentInstance.files = [a];
       fixture.detectChanges();
+      announceSpy.mockClear();
 
       fileList().fileRemoved.emit(a);
-      fixture.detectChanges();
 
-      expect(liveRegion()!.textContent?.trim()).toBe("File removed: a.txt");
+      expect(announceSpy).toHaveBeenCalledWith("File removed: a.txt", "assertive");
     });
 
     it("does not announce when files are set via writeValue", () => {
@@ -663,24 +659,7 @@ describe("FileUploadComponent", () => {
       upload.writeValue([makeFile("a.txt")]);
       fixture.detectChanges();
 
-      expect(liveRegion()!.textContent?.trim()).toBe("");
-    });
-
-    it("has role=status, aria-live=polite, aria-atomic=true, and tw-sr-only", () => {
-      const region = liveRegion()!;
-      expect(region.getAttribute("role")).toBe("status");
-      expect(region.getAttribute("aria-live")).toBe("polite");
-      expect(region.getAttribute("aria-atomic")).toBe("true");
-      expect(region.classList.contains("tw-sr-only")).toBe(true);
-    });
-
-    it("does not render the live region in the default variant", () => {
-      fixture.componentInstance.dropzone = false;
-      fixture.componentInstance.multiple = false;
-      fixture.detectChanges();
-
-      // The default variant has its own aria-live span (with an id), not role="status".
-      expect(fixture.nativeElement.querySelector('span[role="status"]')).toBeNull();
+      expect(announceSpy).not.toHaveBeenCalled();
     });
   });
 
