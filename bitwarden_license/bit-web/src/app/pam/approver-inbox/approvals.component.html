@@ -18,7 +18,7 @@
     </ng-container>
   </bit-no-items>
 } @else {
-  <!-- Toolbar: search + filters on the left, density toggle on the right -->
+  <!-- Toolbar: search + filters -->
   <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
     <bit-search
       class="tw-grow tw-max-w-md"
@@ -37,15 +37,6 @@
       [options]="requesterOptions()"
       [formControl]="requesterControl"
     ></bit-chip-filter>
-    <div class="tw-flex-1"></div>
-    <bit-toggle-group
-      [selected]="density()"
-      (selectedChange)="density.set($event)"
-      aria-label="{{ 'pamApprovalsDensityLabel' | i18n }}"
-    >
-      <bit-toggle value="comfortable">{{ "pamApprovalsDensityComfortable" | i18n }}</bit-toggle>
-      <bit-toggle value="compact">{{ "pamApprovalsDensityCompact" | i18n }}</bit-toggle>
-    </bit-toggle-group>
   </div>
 
   <h2 bitTypography="h4" class="tw-mb-3">
@@ -68,7 +59,7 @@
     <ng-template body let-rows$>
       <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'approvals-row'">
         <!-- Item -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           <div class="tw-flex tw-items-center tw-gap-2">
             <!-- TODO(PM-follow-up): brand/credential favicons require resolution from the gated
                  CipherView in local vault; use a generic credential icon for now. -->
@@ -85,7 +76,7 @@
                 [bitTooltip]="'pamInboxViewInVault' | i18n"
                 ><bit-icon name="bwi-arrow-right" class="tw-text-xs"></bit-icon
               ></a>
-              @if (row.collectionName && !compact()) {
+              @if (row.collectionName) {
                 <div class="tw-text-xs tw-text-muted">
                   {{ "pamInboxInCollection" | i18n: row.collectionName }}
                 </div>
@@ -94,14 +85,14 @@
           </div>
         </td>
         <!-- Requester -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           <div>{{ row.requester }}</div>
-          @if (row.requesterEmail && row.request.requesterName && !compact()) {
+          @if (row.requesterEmail && row.request.requesterName) {
             <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
           }
         </td>
         <!-- Requested window -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           <span [bitTooltip]="row.exactWindow">
             <span>{{ row.duration.key | i18n: row.duration.value }}</span>
             <span class="tw-text-muted">
@@ -110,7 +101,7 @@
           </span>
         </td>
         <!-- Reason -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           @if (row.reason) {
             {{ row.reason }}
           } @else {
@@ -118,13 +109,13 @@
           }
         </td>
         <!-- Requested (relative submit time) -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           <span class="tw-whitespace-nowrap tw-text-muted">{{
             row.elapsed.key | i18n: row.elapsed.value
           }}</span>
         </td>
         <!-- Actions -->
-        <td bitCell [class.!tw-py-1]="compact()">
+        <td bitCell>
           <div class="tw-flex tw-justify-end tw-gap-2">
             <button
               bitButton
