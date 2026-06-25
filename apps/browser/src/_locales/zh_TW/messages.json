@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的組織要求使用單一登入。"
   },
-  "welcomeBack": {
-    "message": "歡迎回來"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "設定一組高強度密碼"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "getMasterPasswordHint": {
-    "message": "取得主密碼提示"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "繼續"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "登入"
   },
-  "logInToBitwarden": {
-    "message": "登入 Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "輸入傳送到您電子郵件信箱的驗證碼"
@@ -1714,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "通行金鑰驗證失敗"
   },
-  "useADifferentLogInMethod": {
-    "message": "使用其他登入方式"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全金鑰操作中……"
@@ -2891,8 +2891,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密碼未符合政策要求。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "取消訂閱"
@@ -3951,9 +3951,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密碼登入"
-  },
   "newAroundHere": {
     "message": "第一次使用？"
   },
@@ -5001,6 +4998,22 @@
   "makeDefault": {
     "message": "設為預設",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "憑證資訊成功儲存！",
@@ -6681,6 +6694,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"

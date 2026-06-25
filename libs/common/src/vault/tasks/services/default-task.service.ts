@@ -10,21 +10,17 @@ import {
   distinctUntilChanged,
 } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { NotificationType } from "@bitwarden/common/enums";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { MessageListener } from "@bitwarden/common/platform/messaging";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-import {
-  filterOutNullish,
-  perUserCache$,
-} from "@bitwarden/common/vault/utils/observable-utilities";
-
+import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { NotificationType } from "../../../enums";
+import { ListResponse } from "../../../models/response/list.response";
+import { MessageListener } from "../../../platform/messaging";
+import { ServerNotificationsService } from "../../../platform/server-notifications";
+import { StateProvider } from "../../../platform/state";
+import { SecurityTaskId, UserId } from "../../../types/guid";
+import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { TaskService } from "../abstractions/task.service";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTask, SecurityTaskData, SecurityTaskResponse } from "../models";

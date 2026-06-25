@@ -1,5 +1,6 @@
-import { CRYPTO_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
 import { V2UpgradeToken } from "@bitwarden/sdk-internal";
+
+import { CRYPTO_DISK, UserKeyDefinition } from "../../platform/state";
 
 export const V2_UPGRADE_TOKEN = new UserKeyDefinition<V2UpgradeToken>(
   CRYPTO_DISK,
