@@ -65,6 +65,8 @@ security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
+bitwarden-crypto = { workspace = true }
+bitwarden-sensitive-value = { workspace = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }

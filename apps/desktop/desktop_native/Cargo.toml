@@ -24,6 +24,8 @@ publish = false
 aes = "=0.8.4"
 aes-gcm = "=0.10.3"
 anyhow = "=1.0.100"
+bitwarden-crypto = { path = "../../../../sdk-internal.km-secret-protected-envelope-split/crates/bitwarden-crypto" }
+bitwarden-sensitive-value = { path = "../../../../sdk-internal.km-secret-protected-envelope-split/crates/bitwarden-sensitive-value" }
 arboard = { version = "=3.6.1", default-features = false }
 ashpd = "=0.13.11"
 async-trait = "=0.1.89"
