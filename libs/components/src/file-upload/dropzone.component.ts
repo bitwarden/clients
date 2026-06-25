@@ -173,9 +173,19 @@ export class DropzoneComponent {
 
     const files = Array.from(input.files);
     this.emitFiles(files);
+  }
 
-    // Clear value so re-selecting the same file still triggers a change event
-    input.value = "";
+  /**
+   * Reset the input value at click time (before the OS picker opens) so re-selecting
+   * the same file still fires a `change` event. Clearing after `change` instead would
+   * leave the input empty while focused, which causes screen readers to announce
+   * "no file selected" — masking the file-count message wired via aria-describedby.
+   */
+  protected onFileInputClick(event: MouseEvent): void {
+    if (this.disabled()) {
+      return;
+    }
+    (event.target as HTMLInputElement).value = "";
   }
 
   private emitFiles(files: File[]): void {

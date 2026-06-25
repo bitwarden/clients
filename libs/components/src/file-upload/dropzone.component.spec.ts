@@ -86,4 +86,54 @@ describe("DropzoneComponent", () => {
 
     expect(isDragOver()).toBe(false);
   });
+
+  describe("input value lifecycle (screen-reader regression)", () => {
+    const getInput = () =>
+      fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
+
+    const dispatchInputChange = (input: HTMLInputElement, files: File[]) => {
+      Object.defineProperty(input, "files", { configurable: true, value: files });
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    };
+
+    // Clearing `value` after `change` caused screen readers to announce
+    // "no file selected" on the next focus, hiding the file-count message.
+    // JSDOM doesn't auto-populate input.value from file selection like real
+    // browsers, so we seed the value to verify our handler doesn't reset it.
+    it("does not clear input.value after a change so SRs can still read the filename", () => {
+      const input = getInput();
+      Object.defineProperty(input, "value", {
+        configurable: true,
+        writable: true,
+        value: "C:\\fakepath\\a.txt",
+      });
+
+      dispatchInputChange(input, [makeFile()]);
+
+      expect(input.value).toBe("C:\\fakepath\\a.txt");
+    });
+
+    // Same-file re-selection requires the value to be empty *before* the picker
+    // opens; we do this at click time instead of after change.
+    it("clears input.value on click so the same file can be re-selected", () => {
+      const input = getInput();
+      Object.defineProperty(input, "value", { configurable: true, writable: true, value: "stale" });
+
+      input.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(input.value).toBe("");
+    });
+
+    it("does not clear input.value on click when disabled", () => {
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+
+      const input = getInput();
+      Object.defineProperty(input, "value", { configurable: true, writable: true, value: "stale" });
+
+      input.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+      expect(input.value).toBe("stale");
+    });
+  });
 });
