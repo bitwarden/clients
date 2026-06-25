@@ -137,6 +137,11 @@ pub(crate) struct OperationResponse {
 // SAFETY: OperationResponse wraps a pointer to a Windows-provided response buffer (not a COM
 // object). The COM STA thread is blocked waiting for the method to return while the buffer is
 // in-flight, so writing from another thread is safe when synchronized via Mutex.
+//
+// This invariant depends on the single-threaded apartment (STA) dispatch model: the COM server is
+// initialized with COINIT_APARTMENTTHREADED and runs a single message loop, so interface calls are
+// serialized and the buffer is only ever touched by one thread at a time. A future change to MTA
+// or a worker-thread dispatch model would invalidate this `Send` impl.
 unsafe impl Send for OperationResponse {}
 
 impl OperationResponse {
