@@ -3,10 +3,8 @@ import {
   lookupOverlay,
 } from "@bitwarden/common/platform/managed-settings/managed-overlay-registry";
 
-/* eslint-disable no-restricted-imports */
-import { COPY_BUTTON } from "../../vault/popup/services/vault-popup-copy-buttons.service";
-import { COMPACT_MODE } from "../popup/layout/popup-compact-mode.service";
-/* eslint-enable no-restricted-imports */
+import { COPY_BUTTON } from "../../../vault/popup/services/vault-popup-copy-buttons.service";
+import { COMPACT_MODE } from "../layout/popup-compact-mode.service";
 
 import { registerBrowserAppearanceOverlay } from "./browser-appearance.overlay";
 

@@ -380,7 +380,6 @@ import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
 import { IpcBackgroundService } from "../platform/ipc/ipc-background.service";
 import { IpcContentScriptManagerService } from "../platform/ipc/ipc-content-script-manager.service";
-import { registerBrowserAppearanceOverlay } from "../platform/managed-settings/browser-appearance.overlay";
 import { BrowserManagedConfigReader } from "../platform/managed-settings/browser-managed-config-reader";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -737,7 +736,6 @@ export default class MainBackground {
     }
     registerEnvironmentOverlay();
     registerAppearanceOverlay();
-    registerBrowserAppearanceOverlay();
 
     this.taskSchedulerService = new BackgroundTaskSchedulerService(
       this.logService,

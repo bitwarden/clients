@@ -211,7 +211,6 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
 import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
-import { registerBrowserAppearanceOverlay } from "../../platform/managed-settings/browser-appearance.overlay";
 import { BrowserManagedConfigReader } from "../../platform/managed-settings/browser-managed-config-reader";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
@@ -219,6 +218,7 @@ import { ForegroundServerNotificationsService } from "../../platform/notificatio
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import { PopupCompactModeService } from "../../platform/popup/layout/popup-compact-mode.service";
+import { registerBrowserAppearanceOverlay } from "../../platform/popup/managed-settings/browser-appearance.overlay";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { PopupViewCacheService } from "../../platform/popup/view-cache/popup-view-cache.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";

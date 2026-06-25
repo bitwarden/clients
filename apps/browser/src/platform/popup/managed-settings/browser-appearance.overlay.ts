@@ -4,13 +4,11 @@ import {
   enumLeaf,
 } from "@bitwarden/common/platform/managed-settings";
 
-/* eslint-disable no-restricted-imports */
 import {
   COPY_BUTTON,
   CopyButtonDisplayMode,
-} from "../../vault/popup/services/vault-popup-copy-buttons.service";
-import { COMPACT_MODE } from "../popup/layout/popup-compact-mode.service";
-/* eslint-enable no-restricted-imports */
+} from "../../../vault/popup/services/vault-popup-copy-buttons.service";
+import { COMPACT_MODE } from "../layout/popup-compact-mode.service";
 
 /** Register managed overlays for the browser-only appearance keys (compact mode, copy buttons). Idempotent. */
 export function registerBrowserAppearanceOverlay(): void {
