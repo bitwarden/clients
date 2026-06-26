@@ -2,9 +2,6 @@
 // @ts-strict-ignore
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -18,6 +15,8 @@ import {
   StateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
+import { CipherType } from "../../vault/enums";
+import { RestrictedItemTypesService } from "../../vault/services/restricted-item-types.service";
 import { ClearClipboardDelay, AutofillOverlayVisibility } from "../constants";
 import { ClearClipboardDelaySetting, InlineMenuVisibilitySetting } from "../types";
 

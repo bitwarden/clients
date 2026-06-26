@@ -185,7 +185,7 @@ const routes: Routes = [
         canActivate: [maxAccountsGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         },

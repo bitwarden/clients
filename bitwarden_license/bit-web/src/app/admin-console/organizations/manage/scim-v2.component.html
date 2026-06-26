@@ -1,5 +1,11 @@
 <app-header></app-header>
 
+@if (showProvisioningBanner()) {
+  <bit-callout type="info">
+    {{ "scimProvisioningBannerInfo" | i18n }}
+  </bit-callout>
+}
+
 <form [formGroup]="formData">
   <bit-card>
     <div [hidden]="!loading()">

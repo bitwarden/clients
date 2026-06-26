@@ -7,6 +7,7 @@ import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterService,
@@ -18,7 +19,7 @@ import {
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "@bitwarden/vault";
+} from "..";
 
 /**
  * This file is part of a layer that is used to temporary bridge between URL filtering and the old state-in-code method.

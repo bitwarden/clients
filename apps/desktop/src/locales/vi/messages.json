@@ -126,8 +126,8 @@
   "noEditPermissions": {
     "message": "Bạn không có quyền chỉnh sửa mục này"
   },
-  "welcomeBack": {
-    "message": "Chào mừng bạn trở lại"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "Chọn một tổ chức mà bạn muốn chuyển mục này đến. Việc chuyển đến một tổ chức sẽ chuyển quyền sở hữu mục này cho tổ chức đó. Bạn sẽ không còn là chủ sở hữu trực tiếp của mục này khi đã chuyển."
@@ -882,6 +882,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "length": {
     "message": "Độ dài"
   },
@@ -1055,8 +1064,8 @@
   "logIn": {
     "message": "Đăng nhập"
   },
-  "logInToBitwarden": {
-    "message": "Đăng nhập Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Nhập mã được gửi về email của bạn"
@@ -1163,9 +1172,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Nhập địa chỉ email tài khoản của bạn và gợi ý mật khẩu sẽ được gửi đến bạn"
-  },
-  "getMasterPasswordHint": {
-    "message": "Nhận gợi ý mật khẩu chính"
   },
   "emailRequired": {
     "message": "Cần điền địa chỉ email."
@@ -1680,53 +1686,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
-  "enableMinToTray": {
-    "message": "Thu nhỏ vào khay hệ thống"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "Thu nhỏ cửa sổ trực tiếp vào khay hệ thống."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "Thu nhỏ vào thanh menu"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Thu nhỏ cửa sổ trực tiếp vào thanh menu."
-  },
-  "enableCloseToTray": {
-    "message": "Đóng vào khay hệ thống"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Khi đóng cửa sổ, hiển thị biểu tượng trong khay hệ thống thay vì đóng ứng dụng."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Đóng vào thanh menu"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Khi đóng cửa sổ, hiển thị biểu tượng trong thanh menu thay vì đóng ứng dụng."
-  },
-  "enableTray": {
-    "message": "Hiện biểu tượng trên khay hệ thống"
-  },
-  "enableTrayDesc": {
-    "message": "Luôn hiện biểu tượng trên khay hệ thống."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "Khởi động cùng máy tính"
   },
   "openAtLoginDesc": {
     "message": "Tự động khởi động ứng dụng Bitwarden trên máy tính khi đăng nhập."
-  },
-  "alwaysShowDock": {
-    "message": "Giữ lại trong Dock"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Hiện biểu tượng Bitwarden trong Dock ngay cả khi thu nhỏ về thanh menu."
-  },
-  "confirmTrayTitle": {
-    "message": "Xác nhận ẩn khay"
-  },
-  "confirmTrayDesc": {
-    "message": "Tắt cài đặt này cũng sẽ tắt tất cả các cài đặt liên quan đến khay khác."
   },
   "language": {
     "message": "Ngôn ngữ"
@@ -1826,15 +1799,6 @@
   "copySecurityCode": {
     "message": "Sao chép mã bảo mật",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "số thẻ"
@@ -2129,9 +2093,9 @@
   "exit": {
     "message": "Thoát"
   },
-  "showHide": {
-    "message": "Hiện / Ẩn",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Ẩn xuống khay hệ thống"
@@ -2334,12 +2298,6 @@
   },
   "preferences": {
     "message": "Tuỳ chỉnh"
-  },
-  "enableMenuBar": {
-    "message": "Hiện biểu tượng trên thanh menu"
-  },
-  "enableMenuBarDesc": {
-    "message": "Luôn hiện biểu tượng trên thanh menu."
   },
   "hideToMenuBar": {
     "message": "Ẩn vào thanh menu"
@@ -2585,8 +2543,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden trong hộp thư đến của bạn."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Hủy đăng ký"
@@ -2671,6 +2629,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Mật khẩu mới của bạn không được trùng với mật khẩu hiện tại."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "Gợi ý mật khẩu không được trùng với mật khẩu của bạn."
@@ -3445,9 +3406,6 @@
   "vault": {
     "message": "Kho lưu trữ",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Đăng nhập bằng mật khẩu chính"
   },
   "rememberEmail": {
     "message": "Ghi nhớ email"
@@ -5128,6 +5086,14 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "More"
   },
@@ -5258,14 +5224,17 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -5303,6 +5272,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
