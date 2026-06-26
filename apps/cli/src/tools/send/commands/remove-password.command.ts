@@ -27,8 +27,8 @@ export class SendRemovePasswordCommand {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const decSend = await updatedSend.decrypt(activeUserId);
       const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-      const res = new SendResponse(decSend, webVaultUrl);
+      const sendUrl = env.getSendUrl();
+      const res = new SendResponse(decSend, sendUrl);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

@@ -76,7 +76,11 @@ export declare namespace autofill {
 }
 
 export declare namespace autostart {
-  export function setAutostart(autostart: boolean, params: Array<string>): Promise<void>
+  export interface AutostartConfig {
+    execPath: string
+    autostartFlag: string
+  }
+  export function setAutostart(enabled: boolean, config: AutostartConfig): Promise<void>
 }
 
 export declare namespace autotype {
@@ -194,6 +198,8 @@ export declare namespace ipc {
      * receiving the message.
      */
     send(message: string): number
+    /** Send a message to a specific connected client by ID. */
+    sendTo(clientId: number, message: string): void
   }
   export interface IpcMessage {
     clientId: number
@@ -295,7 +301,7 @@ export declare namespace sshagent_v2 {
      * * `unlock_callback` - Allows agent to vault unlock
      * * `sign_callback` - Allows agent to get approval for sign requests
      */
-    static serve(signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
+    static serve(signCallback: ((err: Error | null, arg: SignRequestData) => Promise<boolean>)): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     replace(newKeys: Array<SshKeyData>): void
@@ -318,6 +324,7 @@ export declare namespace sshagent_v2 {
     processName?: string
     isForwarding: boolean
     namespace?: SIGNamespace
+    hostFingerprint?: string
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {

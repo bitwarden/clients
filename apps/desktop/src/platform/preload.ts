@@ -3,6 +3,7 @@ import { ipcRenderer } from "electron";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
+import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
 
 import {
   EncryptedMessageResponse,
@@ -11,6 +12,8 @@ import {
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
 import {
+  EnvAccessTokenLocation,
+  accessTokenLocation,
   allowBrowserintegrationOverride,
   isAppImage,
   isDev,
@@ -79,6 +82,18 @@ const nativeMessaging = {
   },
 };
 
+const ipcService = {
+  onMessage: (callback: (message: ForwardedIpcMessage) => void) => {
+    ipcRenderer.on("ipc.onMessage", (_event, message: ForwardedIpcMessage) => {
+      callback(message);
+    });
+  },
+
+  send: (message: IpcMessage) => {
+    ipcRenderer.send("ipc.send", message);
+  },
+};
+
 const ephemeralStore = {
   setEphemeralValue: (key: string, value: string): Promise<void> =>
     ipcRenderer.invoke("setEphemeralValue", { key, value }),
@@ -115,6 +130,7 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   isWindowsPortable: isWindowsPortable(),
+  forceDiskAccessTokenStorage: accessTokenLocation() === EnvAccessTokenLocation.Disk,
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
   isAppImage: isAppImage(),
@@ -131,13 +147,6 @@ export default {
   hideWindow: () => ipcRenderer.send("window-hide"),
   log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
     ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
-
-  openContextMenu: (
-    menu: {
-      label?: string;
-      type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[],
-  ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
   onSystemThemeUpdated: (callback: (theme: ThemeType) => void) => {
@@ -178,6 +187,7 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  ipcService,
 };
 
 function deviceType(): DeviceType {

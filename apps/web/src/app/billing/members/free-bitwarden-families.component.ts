@@ -24,6 +24,8 @@ import {
   TableModule,
   ToastService,
   TypographyModule,
+  IconComponent,
+  IconModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -46,6 +48,8 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
     MenuModule,
     TableModule,
     TypographyModule,
+    IconComponent,
+    IconModule,
   ],
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {

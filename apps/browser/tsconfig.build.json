@@ -20,7 +20,7 @@
     "src/platform/background.ts",
     "src/platform/ipc/content/ipc-content-script.ts",
     "src/platform/offscreen-document/offscreen-document.ts",
-    "src/autofill/notification/bar.ts",
+    "src/autofill/notification/bootstrap-bar.ts",
     "src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
     "src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",

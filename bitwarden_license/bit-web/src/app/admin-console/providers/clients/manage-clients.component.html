@@ -112,10 +112,9 @@
             {{ "manageSubscription" | i18n }}
           </button>
           @if (provider?.type === ProviderUserType.ProviderAdmin) {
-            <button type="button" bitMenuItem (click)="remove(row)">
-              <span class="tw-text-danger">
-                <i aria-hidden="true" class="bwi bwi-close"></i> {{ "unlinkOrganization" | i18n }}
-              </span>
+            <button type="button" bitMenuItem variant="danger" (click)="remove(row)">
+              <bit-icon name="bwi-close" slot="start" />
+              {{ "unlinkOrganization" | i18n }}
             </button>
           }
         </bit-menu>

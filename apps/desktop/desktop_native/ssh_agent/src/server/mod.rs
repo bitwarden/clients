@@ -8,15 +8,17 @@ mod connection;
 mod listener;
 mod peer_info;
 mod protocol;
+mod session_bind;
 
 use std::sync::Arc;
 
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
 // external exports for napi
-pub use auth_policy::{AuthRequest, SIGNamespace, SignRequest};
+pub use auth_policy::{AuthRequest, SignRequest};
 use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
+pub use protocol::{SIGNamespace, SignFlags};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info, warn};
@@ -136,7 +138,7 @@ where
         // this is necessary for the recv block below to exit when listeners exit.
         drop(tx);
 
-        info!("Accepting connections");
+        debug!("Accepting connections");
         loop {
             tokio::select! {
                 () = cancel_token.cancelled() => {
@@ -144,7 +146,7 @@ where
                     break;
                 }
                 conn = rx.recv() => if let Some(connection) = conn {
-                    info!(peer_info = ?connection.peer_info, "Connection accepted");
+                    debug!(peer_info = ?connection.peer_info, "Connection accepted");
 
                     let handler = ConnectionHandler::new(
                         keystore.clone(),
@@ -164,6 +166,112 @@ where
     }
 }
 
+// The `test_common` module contains helper functions / common testing infra that child modules
+// within `server` utilize.
+#[cfg(test)]
+pub(crate) mod test_common {
+    use signature::{SignatureEncoding as _, Signer as _};
+    use ssh_key::private::{Ed25519Keypair, KeypairData, RsaKeypair};
+
+    use super::{
+        protocol::{RSA_SHA2_256, RSA_SHA2_512},
+        AuthPolicy, AuthRequest,
+    };
+    use crate::authorization::AuthError;
+
+    pub(crate) struct AlwaysAllowPolicy;
+
+    #[async_trait::async_trait]
+    impl AuthPolicy for AlwaysAllowPolicy {
+        async fn authorize(&self, _: &AuthRequest) -> Result<bool, AuthError> {
+            Ok(true)
+        }
+    }
+
+    pub(crate) fn make_sign_request_msg(blob: &[u8], data: &[u8], flags: u32) -> Vec<u8> {
+        let mut msg = vec![13u8]; // SSH2_AGENTC_SIGN_REQUEST
+        msg.extend_from_slice(&(blob.len() as u32).to_be_bytes());
+        msg.extend_from_slice(blob);
+        msg.extend_from_slice(&(data.len() as u32).to_be_bytes());
+        msg.extend_from_slice(data);
+        msg.extend_from_slice(&flags.to_be_bytes());
+        msg
+    }
+
+    pub(crate) fn make_minimal_ed25519_blob() -> Vec<u8> {
+        let alg = b"ssh-ed25519";
+        let key_bytes = [0u8; 32];
+        let mut blob = Vec::new();
+        blob.extend_from_slice(&(alg.len() as u32).to_be_bytes());
+        blob.extend_from_slice(alg);
+        blob.extend_from_slice(&(key_bytes.len() as u32).to_be_bytes());
+        blob.extend_from_slice(&key_bytes);
+        blob
+    }
+
+    pub(crate) fn write_ssh_string(buf: &mut Vec<u8>, data: &[u8]) {
+        buf.extend_from_slice(&(data.len() as u32).to_be_bytes());
+        buf.extend_from_slice(data);
+    }
+
+    pub(crate) fn make_session_bind_payload_ed25519(
+        keypair: &Ed25519Keypair,
+        session_id: &[u8],
+        is_forwarding: bool,
+    ) -> Vec<u8> {
+        let private_key =
+            ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+        let sig: ssh_key::Signature = keypair.sign(session_id);
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, sig.algorithm().to_string().as_bytes());
+        write_ssh_string(&mut sig_outer, sig.as_bytes());
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(u8::from(is_forwarding));
+        payload
+    }
+
+    pub(crate) fn make_session_bind_payload_rsa(
+        keypair: &RsaKeypair,
+        alg: &str,
+        session_id: &[u8],
+        is_forwarding: bool,
+    ) -> Vec<u8> {
+        let private_key = ssh_key::PrivateKey::new(KeypairData::Rsa(keypair.clone()), "").unwrap();
+        let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
+
+        let sig_bytes = match alg {
+            RSA_SHA2_256 => {
+                let signing_key =
+                    rsa::pkcs1v15::SigningKey::<sha2::Sha256>::try_from(keypair).unwrap();
+                signing_key.sign(session_id).to_vec()
+            }
+            RSA_SHA2_512 => {
+                let signing_key =
+                    rsa::pkcs1v15::SigningKey::<sha2::Sha512>::try_from(keypair).unwrap();
+                signing_key.sign(session_id).to_vec()
+            }
+            _ => vec![0u8; 16],
+        };
+
+        let mut sig_outer = Vec::new();
+        write_ssh_string(&mut sig_outer, alg.as_bytes());
+        write_ssh_string(&mut sig_outer, &sig_bytes);
+
+        let mut payload = Vec::new();
+        write_ssh_string(&mut payload, &hostkey_bytes);
+        write_ssh_string(&mut payload, session_id);
+        write_ssh_string(&mut payload, &sig_outer);
+        payload.push(u8::from(is_forwarding));
+        payload
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
@@ -171,17 +279,8 @@ mod tests {
     use anyhow::anyhow;
     use tokio::io::DuplexStream;
 
-    use super::{connection::Connection, AuthPolicy, AuthRequest, Listener, SSHAgentServer};
-    use crate::{authorization::AuthError, storage::keystore::MockKeyStore};
-
-    struct AlwaysAllowPolicy;
-
-    #[async_trait::async_trait]
-    impl AuthPolicy for AlwaysAllowPolicy {
-        async fn authorize(&self, _request: &AuthRequest) -> Result<bool, AuthError> {
-            Ok(true)
-        }
-    }
+    use super::{connection::Connection, test_common::AlwaysAllowPolicy, Listener, SSHAgentServer};
+    use crate::storage::keystore::MockKeyStore;
 
     struct StubListener {
         rx: tokio::sync::mpsc::Receiver<Connection<DuplexStream>>,

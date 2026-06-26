@@ -238,17 +238,26 @@
         [bitMenuTriggerFor]="bankAccountOptions"
       ></button>
       <bit-menu #bankAccountOptions>
+        <button type="button" bitMenuItem appCopyField="nameOnAccount" [cipher]="_cipher">
+          {{ "copyNameOnAccount" | i18n }}
+        </button>
         <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="_cipher">
           {{ "copyAccountNumber" | i18n }}
         </button>
         <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="_cipher">
           {{ "copyRoutingNumber" | i18n }}
         </button>
+        <button type="button" bitMenuItem appCopyField="branchNumber" [cipher]="_cipher">
+          {{ "copyBranchNumber" | i18n }}
+        </button>
         <button type="button" bitMenuItem appCopyField="pin" [cipher]="_cipher">
           {{ "copyPin" | i18n }}
         </button>
         <button type="button" bitMenuItem appCopyField="iban" [cipher]="_cipher">
           {{ "copyIban" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="swiftCode" [cipher]="_cipher">
+          {{ "copySwiftCode" | i18n }}
         </button>
       </bit-menu>
     }
@@ -281,13 +290,13 @@
         [bitMenuTriggerFor]="driversLicenseOptions"
       ></button>
       <bit-menu #driversLicenseOptions>
-        <button type="button" bitMenuItem appCopyField="firstName" [cipher]="_cipher">
+        <button type="button" bitMenuItem appCopyField="firstNameLicense" [cipher]="_cipher">
           {{ "copyFirstName" | i18n }}
         </button>
-        <button type="button" bitMenuItem appCopyField="middleName" [cipher]="_cipher">
+        <button type="button" bitMenuItem appCopyField="middleNameLicense" [cipher]="_cipher">
           {{ "copyMiddleName" | i18n }}
         </button>
-        <button type="button" bitMenuItem appCopyField="lastName" [cipher]="_cipher">
+        <button type="button" bitMenuItem appCopyField="lastNameLicense" [cipher]="_cipher">
           {{ "copyLastName" | i18n }}
         </button>
         <button type="button" bitMenuItem appCopyField="licenseNumber" [cipher]="_cipher">

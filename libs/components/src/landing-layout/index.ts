@@ -1,3 +1,4 @@
+export * from "./landing-defaults";
 export * from "./landing-layout.component";
 export * from "./landing-layout.module";
 export * from "./landing-card.component";

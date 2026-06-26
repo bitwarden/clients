@@ -297,7 +297,31 @@ describe("ImportService", () => {
       await expect(setImportTargetMethod).rejects.toThrow();
     });
 
-    it("If importTarget is of type DefaultUserCollection create any collections as folders", async () => {
+    it("If importTarget is of type DefaultUserCollection and import has folders, preserve them", async () => {
+      importResult.folders.push(mockFolder1);
+      importResult.folders.push(mockFolder2);
+      importResult.ciphers.push(createCipher({ name: "cipher1", folderId: mockFolder1.id }));
+      importResult.ciphers.push(createCipher({ name: "cipher2", folderId: mockFolder2.id }));
+
+      mockImportTargetCollection.type = CollectionTypes.DefaultUserCollection;
+      await importService["setImportTarget"](
+        importResult,
+        organizationId,
+        mockImportTargetCollection,
+      );
+
+      expect(importResult.folders.length).toEqual(2);
+      expect(importResult.folders[0].name).toEqual(mockFolder1.name);
+      expect(importResult.folders[1].name).toEqual(mockFolder2.name);
+      expect(importResult.folderRelationships.length).toEqual(2);
+      expect(importResult.folderRelationships[0]).toEqual([0, 0]);
+      expect(importResult.folderRelationships[1]).toEqual([1, 1]);
+      expect(importResult.collectionRelationships.length).toEqual(2);
+      expect(importResult.collectionRelationships[0]).toEqual([0, 0]);
+      expect(importResult.collectionRelationships[1]).toEqual([1, 0]);
+    });
+
+    it("If importTarget is of type DefaultUserCollection and import has no folders, convert collections to folders", async () => {
       importResult.collections.push(mockCollection1);
       importResult.collections.push(mockCollection2);
       importResult.ciphers.push(

@@ -10,18 +10,16 @@ import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
+type ScanVerdict =
+  | { branch: "shortCircuit"; foundNewRoot: false }
+  | { branch: "narrow"; foundNewRoot: boolean }
+  | { branch: "fullScan"; foundNewRoot: boolean };
+
 export class DomQueryService implements DomQueryServiceInterface {
-  /** Non-null asserted. */
+  /** One-way ratchet; reset only by `resetObservedShadowRoots()`. */
   private pageContainsShadowDom!: boolean;
-  private observedShadowRoots = new WeakSet<ShadowRoot>();
-  /**
-   * An iterable mirror of `observedShadowRoots` used by `deepQueryElements`
-   * so it can reuse already-discovered shadow roots without a costly full-page
-   * re-scan on every intersection / page-detail event.
-   *
-   * Stale entries (roots removed from the DOM) are harmless: querying them
-   * returns an empty NodeList.  The set is cleared on `resetObservedShadowRoots`.
-   */
+  // Stale entries (roots whose hosts left the DOM) are harmless — querying them
+  // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
   private ignoredTreeWalkerNodes = new Set([
     "svg",
@@ -110,40 +108,84 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any mutation occurred within a shadow root
    */
   checkMutationsInShadowRoots = (mutations: MutationRecord[]): boolean => {
+    // Latch is a one-way ratchet (see `markShadowDomPresent`); false here means no
+    // shadow root has been observed yet, so no mutation target can be inside one.
+    if (!this.pageContainsShadowDom) {
+      return false;
+    }
     return mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
       return root instanceof ShadowRoot;
     });
   };
 
-  /**
-   * Queries the DOM for shadow roots and checks if any are not being observed.
-   * This is an expensive operation that should be debounced.
-   * @returns True if any new shadow roots are found that aren't being observed
-   */
-  checkForNewShadowRoots = (): boolean => {
-    // Short-circuit: if we have already confirmed the page has no shadow DOM,
-    // skip the expensive querySelectorAll(":defined") + getShadowRoot scan entirely.
-    // FIXME: this disables all checks after the page initializes; introduce a
-    // less-expensive means to update `pageContainsShadowDom`.
-    if (!this.pageContainsShadowDom) {
-      return false;
+  /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
+  checkForNewShadowRoots = (addedElements?: Element[]): boolean => {
+    const verdict = this.classifyShadowRootScan(addedElements);
+    if (verdict.foundNewRoot && !this.pageContainsShadowDom) {
+      this.markShadowDomPresent();
     }
+    return verdict.foundNewRoot;
+  };
 
-    let currentRoots: ShadowRoot[];
-    try {
-      currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
-    } catch {
-      currentRoots = this.queryShadowRoots(globalThis.document.body);
+  private classifyShadowRootScan = (addedElements?: Element[]): ScanVerdict => {
+    const hasAddedElements = !!addedElements && addedElements.length > 0;
+    // Batch present: scan even with latch false (shadow DOM may attach post-init).
+    if (!this.pageContainsShadowDom && !hasAddedElements) {
+      return { branch: "shortCircuit", foundNewRoot: false };
     }
+    return hasAddedElements
+      ? this.findNewShadowRootInBatch(addedElements!)
+      : this.findNewShadowRootInDocument();
+  };
 
-    for (const root of currentRoots) {
-      if (!this.observedShadowRoots.has(root)) {
-        return true;
+  private findNewShadowRootInBatch = (elements: Element[]): ScanVerdict => {
+    // Drop descendants of other batch elements — same subtree, re-walked.
+    const roots = this.suppressDescendantsInBatch(elements);
+    for (const el of roots) {
+      if (this.scanForNewShadowRootInSubtree(el, 0)) {
+        return { branch: "narrow", foundNewRoot: true };
       }
     }
+    return { branch: "narrow", foundNewRoot: false };
+  };
 
-    return false;
+  /** O(N²) over the batch — N is bounded upstream by `pendingMutationAddedElementsCap`. */
+  private suppressDescendantsInBatch = (elements: Element[]): Element[] => {
+    if (elements.length < 2) {
+      return elements;
+    }
+    const roots: Element[] = [];
+    for (const candidate of elements) {
+      let coveredByAnotherElement = false;
+      for (const other of elements) {
+        if (other !== candidate && other.contains(candidate)) {
+          coveredByAnotherElement = true;
+          break;
+        }
+      }
+      if (!coveredByAnotherElement) {
+        roots.push(candidate);
+      }
+    }
+    return roots;
+  };
+
+  private findNewShadowRootInDocument = (): ScanVerdict => {
+    let roots: ShadowRoot[];
+    try {
+      roots = this.recursivelyQueryShadowRoots(globalThis.document.body);
+    } catch {
+      roots = this.queryShadowRoots(globalThis.document.body);
+    }
+    return {
+      branch: "fullScan",
+      foundNewRoot: roots.some((r) => !this.knownShadowRoots.has(r)),
+    };
+  };
+
+  private markShadowDomPresent = (): void => {
+    this.pageContainsShadowDom = true;
   };
 
   /**
@@ -151,17 +193,28 @@ export class DomQueryService implements DomQueryServiceInterface {
    * observer is recreated or on significant lifecycle events (like navigation).
    */
   resetObservedShadowRoots = (): void => {
-    this.observedShadowRoots = new WeakSet<ShadowRoot>();
     this.knownShadowRoots.clear();
+  };
+
+  // `ShadowRoot.host` is non-nullable per spec; persists after host removal from document.
+  purgeDetachedShadowRoots = (): void => {
+    for (const root of this.knownShadowRoots) {
+      if (!root.host.isConnected) {
+        this.knownShadowRoots.delete(root);
+      }
+    }
   };
 
   /**
    * Queries the DOM for elements based on the given selector string.
-   * Supports the special `>>>` combinator to indicate the need for
-   * shadow DOM traversal; each segment separated by `>>>` is queried
-   * within the shadow root of the previous result.
+   * Supports the special `>>>` combinator to traverse iframe and shadow DOM
+   * boundaries; each segment separated by `>>>` is queried within the context
+   * produced by the previous segment. Boundary type is determined exclusively
+   * by the resolved element type — iframe elements always use iframe traversal,
+   * all other elements always use shadow DOM traversal, with no fallback between
+   * the two. This enforces the contract expressed in the targeting rule.
    *
-   * @param selector selector string, supports shadow DOM piercing with `>>>`
+   * @param selector selector string, supports boundary-piercing with `>>>`
    * @returns The first matching element, or null if no match is found
    */
   queryDeepSelector(selector: string): Element | null {
@@ -178,24 +231,87 @@ export class DomQueryService implements DomQueryServiceInterface {
         return null;
       }
 
-      const element = context.querySelector(segment);
+      const element: Element | null = context.querySelector(segment);
       if (!element) {
         return null;
       }
 
-      // If there are more segments, traverse into the shadow root
       if (i < segments.length - 1) {
-        const shadow = this.getShadowRoot(element);
-        if (!shadow) {
+        // FIXME: When a targeting rule specifies `iframe#foo`, we should fail
+        // authoritatively if `#foo` does not resolve to an iframe (rather than
+        // falling back to shadow traversal). The current test-and-fallback can
+        // mask stale or inaccurate selectors.
+        const next: Document | ShadowRoot | null =
+          element instanceof HTMLIFrameElement
+            ? element.contentDocument
+            : this.traverseShadowRootBoundary(element);
+        if (!next) {
           return null;
         }
-        context = shadow;
+        context = next;
       } else {
         return element;
       }
     }
 
     return null;
+  }
+
+  /**
+   * Walks a selector and returns the first iframe boundary encountered along
+   * with the remaining selector to apply inside that iframe.  Shadow DOM
+   * boundaries before the iframe are traversed normally. Returns null if no
+   * iframe boundary exists in the selector (pure shadow DOM or direct element).
+   *
+   * @param selector - Selector string using `>>>` as the boundary combinator
+   */
+  findIframeCrossing(
+    selector: string,
+  ): { iframeElement: HTMLIFrameElement; innerSelector: string } | null {
+    const segments = selector.split(DEEP_QUERY_SELECTOR_COMBINATOR);
+    if (segments.length < 2) {
+      return null;
+    }
+
+    let context: Document | ShadowRoot | Element = globalThis.document;
+    for (let i = 0; i < segments.length - 1; i++) {
+      const segment = (segments[i] || "").trim();
+      if (!segment) {
+        return null;
+      }
+
+      const element: Element | null = context.querySelector(segment);
+      if (!element) {
+        return null;
+      }
+
+      if (element instanceof HTMLIFrameElement) {
+        return {
+          iframeElement: element,
+          innerSelector: segments.slice(i + 1).join(DEEP_QUERY_SELECTOR_COMBINATOR),
+        };
+      }
+
+      const shadow = this.getShadowRoot(element);
+      if (!shadow) {
+        return null;
+      }
+      context = shadow;
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns the shadow root of an element, or null if no shadow root exists.
+   * Explicitly refuses to traverse iframe elements — callers must read
+   * `contentDocument` directly for those.
+   */
+  private traverseShadowRootBoundary(element: Element): ShadowRoot | null {
+    if (element instanceof HTMLIFrameElement) {
+      return null;
+    }
+    return this.getShadowRoot(element);
   }
 
   /**
@@ -248,9 +364,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           childList: true,
           subtree: true,
         });
-        this.observedShadowRoots.add(shadowRoot);
       }
-      // Always keep the iterable set current.
       this.knownShadowRoots.add(shadowRoot);
     }
 
@@ -268,6 +382,42 @@ export class DomQueryService implements DomQueryServiceInterface {
     // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
+
+  // No cycle guard — `attachShadow` throws on re-attach, `ShadowRoot.host` is
+  // read-only. See https://dom.spec.whatwg.org/#dom-element-attachshadow.
+  private scanForNewShadowRootInSubtree = (
+    subtree: Element | ShadowRoot,
+    depth: number,
+  ): boolean => {
+    if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
+      return false;
+    }
+    // Host check — `querySelectorAll("*")` excludes the scope element.
+    if (subtree instanceof Element) {
+      const root = this.getShadowRoot(subtree);
+      if (root) {
+        if (!this.knownShadowRoots.has(root)) {
+          return true;
+        }
+        if (this.scanForNewShadowRootInSubtree(root, depth + 1)) {
+          return true;
+        }
+      }
+    }
+    // querySelectorAll doesn't pierce shadow boundaries — recurse per boundary.
+    for (const child of subtree.querySelectorAll("*")) {
+      const childRoot = this.getShadowRoot(child);
+      if (childRoot) {
+        if (!this.knownShadowRoots.has(childRoot)) {
+          return true;
+        }
+        if (this.scanForNewShadowRootInSubtree(childRoot, depth + 1)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
   /**
    * Recursively queries all shadow roots found within the given root element.
@@ -437,10 +587,7 @@ export class DomQueryService implements DomQueryServiceInterface {
               childList: true,
               subtree: true,
             });
-            this.observedShadowRoots.add(nodeShadowRoot);
           }
-          // Keep the iterable cache current so deepQueryElements can avoid
-          // a full re-scan on subsequent calls.
           this.knownShadowRoots.add(nodeShadowRoot);
 
           this.buildTreeWalkerNodesQueryResults(

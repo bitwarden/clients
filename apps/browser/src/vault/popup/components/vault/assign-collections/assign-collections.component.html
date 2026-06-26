@@ -6,12 +6,13 @@
   </popup-header>
 
   <bit-card>
-    <assign-collections
-      *ngIf="params"
-      [params]="params"
-      [submitBtn]="assignSubmitButton"
-      (onCollectionAssign)="navigateBack()"
-    ></assign-collections>
+    @if (params) {
+      <assign-collections
+        [params]="params"
+        [submitBtn]="assignSubmitButton"
+        (onCollectionAssign)="navigateBack()"
+      ></assign-collections>
+    }
   </bit-card>
 
   <popup-footer slot="footer">

@@ -3,11 +3,10 @@
 import { firstValueFrom, Subscription } from "rxjs";
 import { parse } from "tldts";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
@@ -333,6 +332,25 @@ export class Fido2ClientService<
     }
 
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    if (
+      params.allowedCredentials.length > 0 &&
+      params.allowedCredentials.every(
+        (c) =>
+          c.transports != null && c.transports.length > 0 && !c.transports.includes("internal"),
+      )
+    ) {
+      // Spec reference: https://www.w3.org/TR/webauthn-3/#sctn-discover-from-external-source step 20.
+      // The spec says the client should determine if "no authenticator will become available" by
+      // examining transports. Since Bitwarden is an internal-only authenticator, if all
+      // allowCredentials entries specify only non-internal transports, we cannot satisfy the
+      // request. We throw FallbackRequestedError (instead of the spec's NotAllowedError) to let
+      // the browser's native WebAuthn handler contact the hardware authenticator.
+      this.logService?.info(
+        `[Fido2Client] All allowCredentials entries specify non-internal transports only — falling back to browser.`,
+      );
+      throw new FallbackRequestedError();
+    }
+
     const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
@@ -421,8 +439,8 @@ export class Fido2ClientService<
         break;
       }
 
-      params.allowedCredentialIds = [
-        Fido2Utils.arrayToString(guidToRawFormat(requestResult.credentialId)),
+      params.allowedCredentials = [
+        { id: Fido2Utils.arrayToString(guidToRawFormat(requestResult.credentialId)) },
       ];
       assumeUserPresence = true;
 
@@ -554,8 +572,8 @@ function mapToGetAssertionParams({
   assumeUserPresence?: boolean;
 }): Fido2AuthenticatorGetAssertionParams {
   const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
-    params.allowedCredentialIds.map((id) => ({
-      id: Fido2Utils.stringToArray(id),
+    params.allowedCredentials.map((c) => ({
+      id: Fido2Utils.stringToArray(c.id),
       type: "public-key",
     }));
 

@@ -21,7 +21,6 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
-  BadgeModule,
   CardComponent,
   CheckboxModule,
   FormFieldModule,
@@ -53,7 +52,6 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
     SelectModule,
     ReactiveFormsModule,
     CheckboxModule,
-    BadgeModule,
     PermitCipherDetailsPopoverComponent,
   ],
 })

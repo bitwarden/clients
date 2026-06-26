@@ -1,9 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { RouterService } from "../../../../core/router.service";
-import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
 import { WebLoginDecryptionOptionsService } from "./web-login-decryption-options.service";
 
@@ -12,17 +12,17 @@ describe("WebLoginDecryptionOptionsService", () => {
 
   let messagingService: MockProxy<MessagingService>;
   let routerService: MockProxy<RouterService>;
-  let acceptOrganizationInviteService: MockProxy<AcceptOrganizationInviteService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
 
   beforeEach(() => {
     messagingService = mock<MessagingService>();
     routerService = mock<RouterService>();
-    acceptOrganizationInviteService = mock<AcceptOrganizationInviteService>();
+    organizationInviteService = mock<OrganizationInviteService>();
 
     service = new WebLoginDecryptionOptionsService(
       messagingService,
       routerService,
-      acceptOrganizationInviteService,
+      organizationInviteService,
     );
   });
 
@@ -35,7 +35,7 @@ describe("WebLoginDecryptionOptionsService", () => {
       await service.handleCreateUserSuccess();
 
       expect(routerService.getAndClearLoginRedirectUrl).toHaveBeenCalled();
-      expect(acceptOrganizationInviteService.clearOrganizationInvitation).toHaveBeenCalled();
+      expect(organizationInviteService.clearOrganizationInvite).toHaveBeenCalled();
     });
   });
 });
