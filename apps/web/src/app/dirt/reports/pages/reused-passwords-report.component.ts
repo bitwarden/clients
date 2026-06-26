@@ -55,6 +55,7 @@ export class ReusedPasswordsReportComponent extends CipherReportComponent implem
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 

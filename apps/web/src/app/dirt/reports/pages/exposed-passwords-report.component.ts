@@ -55,6 +55,7 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 

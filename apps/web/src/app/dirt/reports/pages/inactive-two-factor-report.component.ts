@@ -56,6 +56,7 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
