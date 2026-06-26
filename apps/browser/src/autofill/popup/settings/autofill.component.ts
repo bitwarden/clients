@@ -44,10 +44,12 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  BitManagedDirective,
   ButtonModule,
   CalloutModule,
   CardComponent,
@@ -82,6 +84,7 @@ import { FillAssistPopoverComponent } from "./fill-assist-popover/fill-assist-po
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
+    BitManagedDirective,
     ButtonModule,
     CalloutModule,
     CardComponent,
@@ -153,6 +156,7 @@ export class AutofillComponent implements OnInit {
     defaultUriMatch: new FormControl(),
   });
 
+  protected inlineMenuManaged = false;
   protected isDefaultUriMatchDisabledByPolicy = false;
 
   advancedOptionWarningMap: Partial<Record<UriMatchStrategySetting, string>>;
@@ -190,6 +194,7 @@ export class AutofillComponent implements OnInit {
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private managedSettings: ManagedSettingsService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -274,6 +279,14 @@ export class AutofillComponent implements OnInit {
     this.enableInlineMenu =
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnFieldFocus ||
       this.enableInlineMenuOnIconSelect;
+
+    this.managedSettings.changes$
+      .pipe(
+        startWith(undefined),
+        map(() => this.managedSettings.isManaged("autofill.inlineMenuVisibility")),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((m) => (this.inlineMenuManaged = m));
 
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$
       .pipe(takeUntilDestroyed(this.destroyRef))

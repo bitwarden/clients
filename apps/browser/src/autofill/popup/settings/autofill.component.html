@@ -67,12 +67,16 @@
       <bit-section-header>
         <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
       </bit-section-header>
-      <bit-card>
+      <bit-card
+        [bitManaged]="'autofill.inlineMenuVisibility'"
+        [bitManagedLabel]="'managedByYourOrganization' | i18n"
+      >
         <bit-form-control [disableMargin]="!enableInlineMenu && !canOverrideBrowserAutofillSetting">
           <input
             bitCheckbox
             id="show-inline-menu"
             type="checkbox"
+            [disabled]="inlineMenuManaged"
             (change)="updateInlineMenuVisibility()"
             [(ngModel)]="enableInlineMenu"
           />
@@ -132,6 +136,7 @@
             bitCheckbox
             id="show-autofill-suggestions-on-icon"
             type="checkbox"
+            [disabled]="inlineMenuManaged"
             (change)="updateInlineMenuVisibility()"
             [(ngModel)]="enableInlineMenuOnIconSelect"
           />
@@ -280,7 +285,10 @@
               </bit-label>
             </bit-form-control>
           }
-          <bit-form-control>
+          <bit-form-control
+            [bitManaged]="'autofill.contextMenu'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
+          >
             <input
               formControlName="enableContextMenuItem"
               bitCheckbox

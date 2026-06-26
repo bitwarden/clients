@@ -8,6 +8,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
+  BitManagedDirective,
   ItemModule,
   CardComponent,
   SectionComponent,
@@ -26,6 +27,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "notifications.component.html",
   imports: [
+    BitManagedDirective,
     CommonModule,
     JslibModule,
     RouterModule,

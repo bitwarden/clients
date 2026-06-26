@@ -21,7 +21,10 @@
           />
           <bit-label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control>
+        <bit-form-control
+          [bitManaged]="'autofill.addedLoginPrompt'"
+          [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        >
           <input
             bitCheckbox
             id="addlogin-notification-bar"
@@ -33,7 +36,11 @@
             "enableAddLoginNotification" | i18n
           }}</bit-label>
         </bit-form-control>
-        <bit-form-control disableMargin>
+        <bit-form-control
+          disableMargin
+          [bitManaged]="'autofill.changedPasswordPrompt'"
+          [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        >
           <input
             bitCheckbox
             id="changedpass-notification-bar"
