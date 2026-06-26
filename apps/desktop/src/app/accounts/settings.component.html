@@ -152,6 +152,8 @@
                       id="enableFavicons"
                       type="checkbox"
                       formControlName="enableFavicons"
+                      [bitManaged]="'autofill.showFavicons'"
+                      [bitManagedLabel]="'managedByYourOrganization' | i18n"
                       (change)="saveFavicons()"
                     />
                     {{ "showIconsChangePasswordUrls" | i18n }}

@@ -90,6 +90,8 @@
             type="checkbox"
             bitCheckbox
             formControlName="enableFavicons"
+            [bitManaged]="'autofill.showFavicons'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
             (change)="saveFavicons()"
           />
           <bit-label>
