@@ -356,7 +356,6 @@ dependencies = [
  "desktop_core",
  "futures",
  "napi",
- "napi-build",
  "napi-derive",
  "serde",
  "serde_json",

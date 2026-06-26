@@ -14,7 +14,7 @@ name = "uniffi-bindgen"
 path = "uniffi-bindgen.rs"
 
 [features]
-napi = ["dep:napi", "dep:napi-derive", "dep:napi-build"]
+napi = ["dep:napi", "dep:napi-derive"]
 uniffi = ["dep:uniffi"]
 
 [dependencies]
@@ -35,7 +35,6 @@ tracing-oslog = "=0.3.0"
 tracing-subscriber = { workspace = true }
 
 [build-dependencies]
-napi-build = { workspace = true, optional = true }
 uniffi = { workspace = true, features = ["build"], optional = true }
 
 [lints]
