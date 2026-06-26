@@ -647,13 +647,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("view", formConfig);
+    if (await this.openDialog("view", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
@@ -678,26 +679,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("form", formConfig);
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async cloneCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       "clone",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("form", formConfig);
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async shareCipher(cipher: CipherView) {
@@ -972,22 +975,31 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return !confirmed;
   }
 
-  private async openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+  private async openDialog(
+    mode: VaultItemDialogMode,
+    formConfig: CipherFormConfig,
+  ): Promise<boolean> {
     if (this.activeDrawerRef != null && this.dirtyInput()) {
       const keepChanges = await this.wantsToSaveChanges();
       if (keepChanges) {
-        return;
+        return false;
       }
       await this.activeDrawerRef.close();
     }
-    this.activeDrawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
+    const drawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,
       restore: this.restore,
     });
-    this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      this.activeDrawerRef = undefined;
-      this.cipher.set(null);
+    this.activeDrawerRef = drawerRef;
+    drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      // Opening a new drawer closes the previous one, which emits `closed` after the new
+      // drawer is already active. Only clear state if this drawer is still the active one,
+      // so switching items doesn't wipe the newly-selected cipher used by copy shortcuts.
+      if (this.activeDrawerRef === drawerRef) {
+        this.activeDrawerRef = undefined;
+        this.cipher.set(null);
+      }
       void this.router.navigate([], {
         queryParams: { action: null, itemId: null },
         queryParamsHandling: "merge",
@@ -997,6 +1009,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.refresh();
       }
     });
+    return drawerRef != null;
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
