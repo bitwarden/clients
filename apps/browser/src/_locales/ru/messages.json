@@ -2337,6 +2337,10 @@
     "message": "Новая заметка",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Новая защищенная заметка",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Новый ключ SSH",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "Редактировать заметку",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Изменить защищенную заметку",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Редактировать ключ SSH",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Просмотр заметки",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Просмотреть защищенную заметку",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Просмотр ключа SSH",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "Выбрано"
+  },
+  "selectedLowercase": {
+    "message": "выбрано",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Массовые действия"
@@ -4987,6 +5003,20 @@
     "message": "Сделать Bitwarden менеджером паролей по умолчанию",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Сделайте ваш опыт автозаполнения лучше",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Вам будет предложено предоставить браузеру $BROWSER$ разрешение на установку Bitwarden в качестве менеджера паролей по умолчанию.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Невозможно установить Bitwarden в качестве менеджера паролей по умолчанию",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5688,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Коллекции успешно назначены"
+  },
+  "itemAssignedToCollections": {
+    "message": "Элемент присвоен коллекциям"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Элементы присвоены коллекциям"
   },
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
