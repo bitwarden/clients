@@ -1591,7 +1591,7 @@ jobs:
           if-no-files-found: error
 
   macos-qa:
-    name: macOS QA Cloud-Region Build
+    name: MacOS QA Cloud-Region Build
     runs-on: macos-15
     if: ${{ needs.setup.outputs.has_secrets == 'true' }}
     needs:
