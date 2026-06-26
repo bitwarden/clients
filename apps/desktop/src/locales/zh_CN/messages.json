@@ -154,6 +154,10 @@
     "message": "查看笔记",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
     "description": "Header for view SSH key item type"
@@ -186,6 +190,10 @@
     "message": "新增笔记",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "新建安全笔记",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
     "description": "Header for new SSH key item type"
@@ -217,6 +225,10 @@
   "editItemHeaderNote": {
     "message": "编辑笔记",
     "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
   },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
@@ -1934,6 +1946,10 @@
   },
   "selected": {
     "message": "已选择"
+  },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "批量操作"
@@ -4639,6 +4655,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
   },
   "nothingSelected": {
     "message": "您没有选择任何内容。"
