@@ -19,15 +19,15 @@ serde_json = { workspace = true }
 [target.'cfg(target_os = "linux")'.dependencies]
 cbc = { workspace = true, features = ["alloc"] }
 oo7 = { workspace = true }
-pbkdf2 = "=0.12.2"
-sha1 = "=0.10.6"
+pbkdf2 = "=0.13.0"
+sha1 = "=0.11.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cbc = { workspace = true, features = ["alloc"] }
 desktop_objc = { path = "../objc" }
-pbkdf2 = "=0.12.2"
+pbkdf2 = "=0.13.0"
 security-framework = { workspace = true }
-sha1 = "=0.10.6"
+sha1 = "=0.11.0"
 tokio = { workspace = true, features = ["rt"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
