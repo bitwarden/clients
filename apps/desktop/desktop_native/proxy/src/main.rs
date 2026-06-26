@@ -71,7 +71,8 @@ async fn main() {
     // current snap's directory so we connect to the socket the desktop app mounted for this snap.
     #[cfg(target_os = "linux")]
     if let Ok(snap_user_common) = std::env::var("SNAP_USER_COMMON") {
-        // `SNAP_USER_COMMON` is `~/snap/<name>/common`; its parent is the snap root `~/snap/<name>`.
+        // `SNAP_USER_COMMON` is `~/snap/<name>/common`; its parent is the snap root
+        // `~/snap/<name>`.
         if let Some(snap_root) = Path::new(&snap_user_common).parent().map(Path::to_path_buf) {
             sock_paths.retain(|p| p.starts_with(&snap_root));
         }
