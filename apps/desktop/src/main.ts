@@ -27,6 +27,7 @@ import {
   OverlaySingleUserStateProvider,
 } from "@bitwarden/common/platform/managed-settings/managed-overlay-state.provider";
 import { registerAppearanceOverlay } from "@bitwarden/common/platform/managed-settings/overlays/appearance.overlay";
+import { registerEnvironmentOverlay } from "@bitwarden/common/platform/managed-settings/overlays/environment.overlay";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -175,6 +176,7 @@ export class Main {
       this.memoryStorageForStateProviders,
     );
     const managedSettingsService = new DefaultManagedSettingsService();
+    registerEnvironmentOverlay();
     registerAppearanceOverlay();
 
     const globalStateProvider = new OverlayGlobalStateProvider(
