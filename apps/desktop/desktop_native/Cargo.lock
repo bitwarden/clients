@@ -4995,6 +4995,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tracing",
+ "tracing-subscriber",
  "win_webauthn",
  "windows 0.62.2",
  "windows-core 0.62.2",
