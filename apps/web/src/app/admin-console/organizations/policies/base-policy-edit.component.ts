@@ -89,8 +89,8 @@ export abstract class BasePolicyEditDefinition {
   showEnabledBadge: boolean = false;
 
   /**
-   * Optional i18n key for a warning callout rendered above the enable/disable toggle.
-   * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
+   * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
    */
   warningKey?: string;
 

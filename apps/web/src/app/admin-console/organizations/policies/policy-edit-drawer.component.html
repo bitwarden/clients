@@ -23,6 +23,9 @@
           }
         </bit-callout>
       }
+      @if (policy.warningKey) {
+        <bit-callout type="warning">{{ policy.warningKey | i18n }}</bit-callout>
+      }
       @if (policy.showDescription) {
         <p bitTypography="body1">{{ policy.v2?.description ?? policy.description | i18n }}</p>
       }
