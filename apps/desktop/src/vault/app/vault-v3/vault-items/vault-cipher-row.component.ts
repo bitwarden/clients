@@ -6,6 +6,7 @@ import { Component, HostListener, computed, inject, input, output, viewChild } f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -92,6 +93,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected CipherType = CipherType;
 
   private platformUtilsService = inject(PlatformUtilsService);
+  private i18nService = inject(I18nService);
 
   protected readonly showArchiveButton = computed(() => {
     return (
@@ -134,7 +136,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   }
 
   protected readonly subtitle = computed(() => {
-    return CipherViewLikeUtils.subtitle(this.cipher());
+    return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
   });
 
   protected readonly isDeleted = computed(() => {
