@@ -15,73 +15,64 @@
           <div class="tw-flex tw-gap-2 tw-items-center">
             <span aria-hidden="true">
               @if (s.type == sendType.File) {
-                <i class="bwi bwi-fw bwi-lg bwi-file tw-text-muted"></i>
+                <bit-icon name="bwi-file" class="bwi-lg tw-text-muted" />
               }
               @if (s.type == sendType.Text) {
-                <i class="bwi bwi-fw bwi-lg bwi-file-text tw-text-muted"></i>
+                <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
               }
             </span>
             <button type="button" bitLink>
               {{ s.name }}
-              @if (s.disabled) {
-                <span class="tw-sr-only">, {{ "disabled" | i18n }}</span>
-              }
+              <!-- Since the icons are not focusable, we append their screen reader messages to the Send name -->
               @if (s.authType !== authType.None) {
-                @let titleKey =
-                  s.authType === authType.Email ? "emailProtected" : "passwordProtected";
-                <span class="tw-sr-only">, {{ titleKey | i18n }}</span>
+                <span class="tw-sr-only"
+                  >,
+                  {{
+                    (s.authType === authType.Email ? "emailProtected" : "passwordProtected") | i18n
+                  }}</span
+                >
               }
-              @if (s.maxAccessCountReached) {
-                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
+              @if (s.disabled) {
+                <span class="tw-sr-only">, {{ "sendNotCompliantWithYourOrgsPolicy" | i18n }}</span>
               }
               @if (s.expired) {
                 <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+              }
+              @if (s.maxAccessCountReached) {
+                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
               }
               @if (s.pendingDelete) {
                 <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
               }
             </button>
-            @if (s.disabled) {
-              <i
-                class="bwi bwi-exclamation-triangle"
-                appStopProp
-                title="{{ 'disabled' | i18n }}"
-                aria-hidden="true"
-              ></i>
-            }
             @if (s.authType !== authType.None) {
-              @let titleKey =
-                s.authType === authType.Email ? "emailProtected" : "passwordProtected";
-              <i
-                class="bwi bwi-lock"
+              <bit-icon
+                name="bwi-lock"
                 appStopProp
-                title="{{ titleKey | i18n }}"
-                aria-hidden="true"
-              ></i>
+                [bitTooltip]="
+                  (s.authType === authType.Email ? 'emailProtected' : 'passwordProtected') | i18n
+                "
+              />
             }
-            @if (s.maxAccessCountReached) {
-              <i
-                class="bwi bwi-exclamation-triangle"
+            @if (s.disabled) {
+              <bit-icon
+                name="bwi-exclamation-triangle"
                 appStopProp
-                title="{{ 'maxAccessCountReached' | i18n }}"
-                aria-hidden="true"
-              ></i>
+                [bitTooltip]="'sendNotCompliantWithYourOrgsPolicy' | i18n"
+              />
             }
             @if (s.expired) {
-              <i
-                class="bwi bwi-clock"
+              <bit-icon name="bwi-clock" appStopProp [bitTooltip]="'expired' | i18n" />
+            }
+            @if (s.maxAccessCountReached) {
+              <bit-icon
+                name="bwi-exclamation-triangle"
                 appStopProp
-                title="{{ 'expired' | i18n }}"
-                aria-hidden="true"
-              ></i>
+                [bitTooltip]="'maxAccessCountReached' | i18n"
+              />
             }
             @if (s.pendingDelete) {
-              <i
-                class="bwi bwi-trash"
-                appStopProp
-                title="{{ 'pendingDeletion' | i18n }}"
-                aria-hidden="true"
-              ></i>
+              <bit-icon name="bwi-trash" appStopProp [bitTooltip]="'pendingDeletion' | i18n" />
             }
           </div>
         </td>
@@ -104,20 +95,18 @@
           ></button>
           <bit-menu #sendOptions>
             <button type="button" bitMenuItem (click)="onCopy(s)">
-              <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
+              <bit-icon name="bwi-clone" fixedWidth />
               {{ "copySendLink" | i18n }}
             </button>
             @if (s.password && !disableSend()) {
               <button type="button" bitMenuItem (click)="onRemovePassword(s)">
-                <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
+                <bit-icon name="bwi-close" fixedWidth />
                 {{ "removePassword" | i18n }}
               </button>
             }
-            <button type="button" bitMenuItem (click)="onDelete(s)">
-              <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                {{ "delete" | i18n }}
-              </span>
+            <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">
+              <bit-icon fixedWidth name="bwi-trash" slot="start"></bit-icon>
+              {{ "delete" | i18n }}
             </button>
           </bit-menu>
         </td>

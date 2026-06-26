@@ -387,7 +387,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     if (autofillShortcut === "") {
       this.autofillShortcutTooltip.set(undefined);
     } else {
-      const autofillTitle = this.i18nService.t("autoFill");
+      const autofillTitle = this.i18nService.t("autofillVerb");
 
       this.autofillShortcutTooltip.set(`${autofillTitle} ${autofillShortcut}`);
     }

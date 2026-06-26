@@ -11,4 +11,5 @@ export class SecretListView {
   projects: SecretProjectView[];
   read: boolean;
   write: boolean;
+  decryptionError?: boolean;
 }

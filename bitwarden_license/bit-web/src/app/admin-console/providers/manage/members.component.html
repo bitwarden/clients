@@ -66,13 +66,9 @@
               <input
                 type="checkbox"
                 bitCheckbox
-                class="tw-mr-1"
                 (change)="dataSource.checkAllFilteredUsers($any($event.target).checked)"
-                id="selectAll"
+                [attr.aria-label]="'selectAll' | i18n"
               />
-              <label class="tw-mb-0 !tw-font-medium !tw-text-muted" for="selectAll">
-                {{ "all" | i18n }}
-              </label>
             </th>
             <th bitCell bitSortable="email" default>{{ "name" | i18n }}</th>
             <th bitCell bitSortable="type">{{ "role" | i18n }}</th>
@@ -110,12 +106,11 @@
                 <button
                   type="button"
                   bitMenuItem
+                  variant="danger"
                   (click)="isProcessing ? null : bulkRemove(providerId)"
                 >
-                  <span class="tw-text-danger">
-                    <i aria-hidden="true" class="bwi bwi-close"></i>
-                    {{ "remove" | i18n }}
-                  </span>
+                  <bit-icon name="bwi-close" slot="start" />
+                  {{ "remove" | i18n }}
                 </button>
               </bit-menu>
             </th>
@@ -220,12 +215,11 @@
                 <button
                   type="button"
                   bitMenuItem
+                  variant="danger"
                   (click)="isProcessing ? null : remove(user, providerId)"
                 >
-                  <span class="tw-text-danger">
-                    <i class="bwi bwi-fw bwi-close" aria-hidden="true"></i>
-                    {{ "remove" | i18n }}
-                  </span>
+                  <bit-icon fixedWidth name="bwi-close" slot="start" />
+                  {{ "remove" | i18n }}
                 </button>
               </bit-menu>
             </td>

@@ -3,7 +3,10 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
+import {
+  ActiveRequest,
+  Fido2ActiveRequestManager,
+} from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
   CreateCredentialParams,
@@ -11,6 +14,7 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 
 import { createPortSpyMock } from "../../../autofill/spec/autofill-mocks";
 import {
@@ -262,13 +266,13 @@ describe("Fido2Background", () => {
     });
 
     it("returns false when no credential request is active", () => {
-      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
+      expect(fido2Background["isCredentialRequestInProgress"](tabMock.id)).toBe(false);
     });
 
     it("returns true while a register credential request is in progress", async () => {
       let duringRequestResult: boolean;
       fido2ClientService.createCredential.mockImplementation(async () => {
-        duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
+        duringRequestResult = fido2Background["isCredentialRequestInProgress"](tabMock.id);
         return mock();
       });
 
@@ -287,7 +291,7 @@ describe("Fido2Background", () => {
     it("returns true while a get credential request is in progress", async () => {
       let duringRequestResult: boolean;
       fido2ClientService.assertCredential.mockImplementation(async () => {
-        duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
+        duringRequestResult = fido2Background["isCredentialRequestInProgress"](tabMock.id);
         return mock();
       });
 
@@ -315,7 +319,7 @@ describe("Fido2Background", () => {
       sendMockExtensionMessage(message, senderMock);
       await flushPromises();
 
-      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
+      expect(fido2Background["isCredentialRequestInProgress"](tabMock.id)).toBe(false);
     });
 
     it("returns false after a credential request errors", async () => {
@@ -330,7 +334,92 @@ describe("Fido2Background", () => {
       sendMockExtensionMessage(message, senderMock);
       await flushPromises();
 
-      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
+      expect(fido2Background["isCredentialRequestInProgress"](tabMock.id)).toBe(false);
+    });
+  });
+
+  describe("shouldDeferVaultNotificationsForPasskeyUi", () => {
+    beforeEach(() => {
+      fido2Background.init();
+    });
+
+    it("returns false when no credential request is active", () => {
+      expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(false);
+    });
+
+    it("returns true during a register credential request without a mediated active request", async () => {
+      let duringRequestResult: boolean;
+      fido2ActiveRequestManager.getActiveRequest.mockReturnValue(undefined);
+      fido2ClientService.createCredential.mockImplementation(async () => {
+        duringRequestResult = fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id);
+        return mock();
+      });
+
+      sendMockExtensionMessage(
+        mock<Fido2ExtensionMessage>({
+          command: "fido2RegisterCredentialRequest",
+          requestId: "123",
+          data: mock<CreateCredentialParams>(),
+        }),
+        senderMock,
+      );
+      await flushPromises();
+
+      expect(duringRequestResult!).toBe(true);
+    });
+
+    it("returns true during a non-conditional get credential request without a mediated active request", async () => {
+      let duringRequestResult: boolean;
+      fido2ActiveRequestManager.getActiveRequest.mockReturnValue(undefined);
+      fido2ClientService.assertCredential.mockImplementation(async () => {
+        duringRequestResult = fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id);
+        return mock();
+      });
+
+      sendMockExtensionMessage(
+        mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>({ mediation: "optional" }),
+        }),
+        senderMock,
+      );
+      await flushPromises();
+
+      expect(duringRequestResult!).toBe(true);
+    });
+
+    it("returns false during conditional mediation when no passkeys are available", async () => {
+      let duringRequestResult: boolean;
+      fido2ActiveRequestManager.getActiveRequest.mockReturnValue(
+        mock<ActiveRequest>({ credentials: [] }),
+      );
+      fido2ClientService.assertCredential.mockImplementation(async () => {
+        duringRequestResult = fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id);
+        return mock();
+      });
+
+      const message = mock<Fido2ExtensionMessage>({
+        command: "fido2GetCredentialRequest",
+        requestId: "123",
+        data: mock<AssertCredentialParams>(),
+      });
+
+      sendMockExtensionMessage(message, senderMock);
+      await flushPromises();
+
+      expect(duringRequestResult!).toBe(false);
+    });
+
+    it("returns true when conditional mediation has credentials to show", () => {
+      fido2Background["activeCredentialRequests"].add(tabMock.id);
+      fido2ActiveRequestManager.getActiveRequest.mockReturnValue(
+        mock<ActiveRequest>({
+          credentials: [mock<Fido2CredentialView>({ credentialId: "credential-id" })],
+        }),
+      );
+
+      expect(fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tabMock.id)).toBe(true);
     });
   });
 

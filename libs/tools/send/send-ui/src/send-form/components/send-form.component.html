@@ -1,6 +1,6 @@
 <form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
-    @if (!editing()) {
+    @if (!sendDisabled() && !editing()) {
       <bit-card>
         <div bitTypography="h4">{{ "sendLink" | i18n }}</div>
         <div

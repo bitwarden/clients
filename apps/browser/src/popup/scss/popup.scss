@@ -4,6 +4,11 @@
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "../../../../../libs/components/src/multi-select/scss/bw.theme";
 
+html,
+body {
+  font-family: var(--font-sans) !important;
+}
+
 .cdk-virtual-scroll-content-wrapper {
   width: 100%;
 }

@@ -29,6 +29,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
@@ -82,7 +83,7 @@ describe("SettingsComponent", () => {
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
 
-  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64));
+  const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as unknown as UserKey;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -168,14 +169,11 @@ describe("SettingsComponent", () => {
 
     desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
     vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(false);
-    biometricStateService.promptAutomatically$ = of(false);
+    biometricStateService.promptAutomatically$.mockReturnValue(of(false));
     autofillSettingsServiceAbstraction.clearClipboardDelay$ = of(null);
     desktopSettingsService.minimizeOnCopy$ = of(false);
-    desktopSettingsService.trayEnabled$ = of(false);
-    desktopSettingsService.minimizeToTray$ = of(false);
-    desktopSettingsService.closeToTray$ = of(false);
+    desktopSettingsService.runInBackground$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
-    desktopSettingsService.alwaysShowDock$ = of(false);
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
     desktopSettingsService.hardwareAcceleration$ = of(false);
     desktopSettingsService.sshAgentEnabled$ = of(false);
@@ -438,7 +436,7 @@ describe("SettingsComponent", () => {
 
       describe("when windows biometric v2 feature flag is enabled", () => {
         beforeEach(() => {
-          keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
         });
 
         test.each([false, true])(
@@ -606,7 +604,10 @@ describe("SettingsComponent", () => {
         await component.updateBiometricHandler(true);
 
         expect(component.form.controls.biometric.value).toBe(false);
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -646,7 +647,10 @@ describe("SettingsComponent", () => {
         await component.updateBiometricHandler(true);
 
         expect(desktopBiometricsService.setupBiometrics).toHaveBeenCalled();
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
         expect(component.form.controls.biometric.value).toBe(true);
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -655,7 +659,7 @@ describe("SettingsComponent", () => {
       describe("windows test cases", () => {
         beforeEach(() => {
           platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
-          keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+          keyService.userKey$.mockReturnValue(of(mockUserKey));
           component.isWindows = true;
           component.isLinux = false;
 
@@ -670,9 +674,15 @@ describe("SettingsComponent", () => {
         it("handles windows case", async () => {
           await component.updateBiometricHandler(true);
 
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+            true,
+            mockUserId,
+          );
           expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
-          expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+          expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+            false,
+            mockUserId,
+          );
           expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
           expect(component.form.controls.biometric.value).toBe(true);
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -680,7 +690,7 @@ describe("SettingsComponent", () => {
 
         describe("when windows v2 biometrics is enabled", () => {
           beforeEach(() => {
-            keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+            keyService.userKey$.mockReturnValue(of(mockUserKey));
           });
 
           it("when the user doesn't have a master password or a PIN set, allows biometric unlock on app restart", async () => {
@@ -697,10 +707,15 @@ describe("SettingsComponent", () => {
             );
             expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(false);
 
-            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
-            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+            expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+              true,
+              mockUserId,
+            );
             expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
-            expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+            expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+              false,
+              mockUserId,
+            );
             expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
             expect(component.form.controls.biometric.value).toBe(true);
             expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -727,10 +742,15 @@ describe("SettingsComponent", () => {
                 desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
               ).toHaveBeenCalledWith(mockUserId, mockUserKey);
 
-              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
-              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+              expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+                true,
+                mockUserId,
+              );
               expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
-              expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+              expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+                false,
+                mockUserId,
+              );
               expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
               expect(component.form.controls.biometric.value).toBe(true);
               expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -749,9 +769,15 @@ describe("SettingsComponent", () => {
         component.isLinux = true;
         await component.updateBiometricHandler(true);
 
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          true,
+          mockUserId,
+        );
         expect(component.form.controls.autoPromptBiometrics.value).toBe(false);
-        expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(false);
+        expect(biometricStateService.setPromptAutomatically).toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
         expect(component.form.controls.biometric.value).toBe(true);
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
@@ -778,9 +804,15 @@ describe("SettingsComponent", () => {
 
           expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
           expect(component.form.controls.biometric.value).toBe(false);
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+            true,
+            mockUserId,
+          );
           expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledTimes(2);
-          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false);
+          expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+            false,
+            mockUserId,
+          );
           expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
         },
       );
@@ -792,7 +824,10 @@ describe("SettingsComponent", () => {
         await component.updateBiometricHandler(false);
 
         expect(component.form.controls.biometric.value).toBe(false);
-        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(false);
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenLastCalledWith(
+          false,
+          mockUserId,
+        );
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
@@ -803,7 +838,7 @@ describe("SettingsComponent", () => {
     beforeEach(() => {
       jest.clearAllMocks();
 
-      keyService.userKey$ = jest.fn().mockReturnValue(of(mockUserKey));
+      keyService.userKey$.mockReturnValue(of(mockUserKey));
     });
 
     test.each([true, false])(`handles thrown errors when updated to %s`, async (update) => {
@@ -835,7 +870,7 @@ describe("SettingsComponent", () => {
 
     describe("when updating to false", () => {
       it("doesn't enroll persistent biometric if already enrolled", async () => {
-        biometricStateService.hasPersistentKey.mockResolvedValue(false);
+        desktopBiometricsService.hasPersistentKey.mockResolvedValue(false);
 
         await component.ngOnInit();
         await component.updateRequireMasterPasswordOnAppRestartHandler(false, mockUserId);

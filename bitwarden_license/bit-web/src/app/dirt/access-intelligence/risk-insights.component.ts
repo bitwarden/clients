@@ -13,6 +13,9 @@ import {
   ChangeDetectionStrategy,
   isDevMode,
   Injector,
+  effect,
+  computed,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -31,6 +34,7 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  ApplicationHealthReportDetail,
   DrawerType,
   ReportProgress,
   ReportStatus,
@@ -48,6 +52,8 @@ import {
   DialogRef,
   DialogService,
   IconModule,
+  PopoverAnchorForDirective,
+  PopoverModule,
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -56,11 +62,14 @@ import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils"
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
+import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
 import { ApplicationsComponent } from "./all-applications/applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
 import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "./onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "./onboarding/access-intelligence-coachmark.service";
 import { NewAdminWelcomeDialogComponent } from "./onboarding/new-admin-welcome-dialog.component";
 import { PostImportModalDialogComponent } from "./onboarding/post-import-modal-dialog.component";
 import { DevMenuComponent } from "./shared/dev-menu.component";
@@ -75,6 +84,7 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     AllApplicationsComponent,
     ApplicationsComponent,
     AsyncActionsModule,
@@ -90,6 +100,8 @@ type ProgressStep = ReportProgress | null;
     AllActivityComponent,
     ReportLoadingComponent,
     PageLoadingComponent,
+    PopoverModule,
+    PopoverAnchorForDirective,
   ],
   animations: [
     trigger("fadeIn", [
@@ -107,8 +119,12 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected milestone11Enabled: boolean = false;
   protected adoptionUxImprovementsEnabled: boolean = false;
   protected isDevMode = isDevMode();
+  protected newApplicationsCount = 0;
+  protected newApplications: ApplicationHealthReportDetail[] = [];
+  protected totalCriticalAppsCount = 0;
+  private hasReportData = false;
 
-  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllActivity;
+  protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
   appsCount: number = 0;
 
@@ -136,6 +152,16 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   private readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
 
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
+
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
@@ -148,16 +174,47 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private configService: ConfigService,
     private toastService: ToastService,
+    private coachmarkService: AccessIntelligenceCoachmarkService,
     private injector: Injector,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(({ tabIndex, source, status }) => {
-        this.tabIndex = !isNaN(Number(tabIndex))
-          ? Number(tabIndex)
-          : RiskInsightsTabType.AllActivity;
+        this.tabIndex.set(
+          !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
+        );
         this.invokedFrom.set({ source, status });
       });
+
+    effect(() => {
+      const requiredTabIndex = this.coachmarkService.requiredTabIndex();
+      if (requiredTabIndex !== null && requiredTabIndex !== this.tabIndex()) {
+        this.tabIndex.set(requiredTabIndex);
+
+        // Reset drawer state and close drawer when tabs are changed
+        // we need to ensure that the popover is closed before the tab is changed,
+        // otherwise the popover will be hidden behind the new tab content
+        const activeStepId = untracked(() => this.coachmarkService.activeStepId());
+        this.coachmarkService.activeStepId.set(null); // close all popovers now
+
+        // afterNextRender defers re-activation to after Angular's CD + rendering completes,
+        // so the tab button is un-hidden before the popover measures its position.
+        afterNextRender(() => this.coachmarkService.activeStepId.set(activeStepId), {
+          injector: this.injector,
+        });
+      }
+    });
+
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.hasReportData) {
+        return;
+      }
+      NewApplicationsDialogComponent.open(this.dialogService, {
+        newApplications: this.newApplications,
+        organizationId: this.organizationId,
+        hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
+      });
+    });
   }
 
   async ngOnInit() {
@@ -198,8 +255,17 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
         // Update report state
+        this.hasReportData = report != null;
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
+        this.totalCriticalAppsCount = report?.summaryData?.totalCriticalApplicationCount ?? 0;
+      });
+
+    this.dataService.newApplications$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((newApps) => {
+        this.newApplications = newApps;
+        this.newApplicationsCount = newApps.length;
       });
 
     // Show error toast or begin post-import tour based on report status and loading state.
@@ -215,6 +281,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         filter(
           ([reportStatus, step]) =>
             reportStatus === ReportStatus.Error ||
+            reportStatus === ReportStatus.LoadError ||
             (reportStatus === ReportStatus.Complete && step === null),
         ),
         distinctUntilChanged(
@@ -223,9 +290,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(([status]) => {
-        if (status === ReportStatus.Error) {
+        if (status === ReportStatus.Error || status === ReportStatus.LoadError) {
           this.toastService.showToast({
-            message: this.i18nService.t("reportGenerationFailed"),
+            message: this.i18nService.t(
+              status === ReportStatus.LoadError ? "reportLoadFailed" : "reportGenerationFailed",
+            ),
             variant: "error",
           });
         } else if (this.mustBeginPostImportTour()) {
@@ -461,6 +530,12 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.dialogService,
         this.organizationId,
       );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await this.coachmarkService.startTour(this.organizationId);
     }
   }
 }

@@ -46,17 +46,91 @@ describe("SdkPasswordRandomizer", () => {
 
       await sdk.generate({ algorithm: Algorithm.password }, settings);
 
+      // `ambiguous: true` means ambiguous characters MAY be included, so the
+      // SDK's `avoidAmbiguous` (the exclude flag) must be `false`.
       expect(generator.password).toHaveBeenCalledWith({
         lowercase: true,
         uppercase: true,
         numbers: true,
         special: true,
         length: 16,
-        avoidAmbiguous: true,
+        avoidAmbiguous: false,
         minLowercase: 2,
         minUppercase: 1,
         minNumber: 3,
         minSpecial: 4,
+      });
+    });
+
+    it("passes ambiguous: false through to the SDK as avoidAmbiguous: true", async () => {
+      // Regression test for the semantic-inversion bug where `avoidAmbiguous` was
+      // mapped directly from `ambiguous` instead of being negated. Storage
+      // semantic: `ambiguous: false` means ambiguous chars should NOT be included,
+      // which the SDK expresses as `avoidAmbiguous: true`.
+      const { client, generator } = createMockClient();
+      generator.password.mockReturnValue("generated-password");
+
+      const settings: PasswordGenerationOptions = {
+        length: 16,
+        ambiguous: false,
+        uppercase: true,
+        minUppercase: 1,
+        lowercase: true,
+        minLowercase: 1,
+        number: true,
+        minNumber: 1,
+        special: true,
+        minSpecial: 1,
+      };
+      const sdk = new SdkPasswordRandomizer(
+        () => Promise.resolve(client),
+        () => 0,
+      );
+
+      await sdk.generate({ algorithm: Algorithm.password }, settings);
+
+      expect(generator.password).toHaveBeenCalledWith(
+        expect.objectContaining({ avoidAmbiguous: true }),
+      );
+    });
+
+    it("passes non-ambiguous password fields through to the SDK unchanged", async () => {
+      // Guards against future regressions where another field is accidentally
+      // inverted. Uses values inverted from the first test to catch any field
+      // that's secretly being negated.
+      const { client, generator } = createMockClient();
+      generator.password.mockReturnValue("generated-password");
+
+      const settings: PasswordGenerationOptions = {
+        length: 24,
+        ambiguous: false,
+        uppercase: false,
+        minUppercase: 0,
+        lowercase: false,
+        minLowercase: 0,
+        number: false,
+        minNumber: 0,
+        special: false,
+        minSpecial: 0,
+      };
+      const sdk = new SdkPasswordRandomizer(
+        () => Promise.resolve(client),
+        () => 0,
+      );
+
+      await sdk.generate({ algorithm: Algorithm.password }, settings);
+
+      expect(generator.password).toHaveBeenCalledWith({
+        lowercase: false,
+        uppercase: false,
+        numbers: false,
+        special: false,
+        length: 24,
+        avoidAmbiguous: true,
+        minLowercase: 0,
+        minUppercase: 0,
+        minNumber: 0,
+        minSpecial: 0,
       });
     });
 

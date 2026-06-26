@@ -1,8 +1,4 @@
 import {
-  UriMatchStrategy,
-  UriMatchStrategySetting,
-} from "@bitwarden/common/models/domain/domain-service";
-import {
   CardListView,
   CipherListView,
   CopyableCipherFields,
@@ -10,6 +6,7 @@ import {
   LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { Utils } from "../../platform/misc/utils";
 import { CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
@@ -286,19 +283,25 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "nameOnAccount":
+        return !!cipher.bankAccount?.nameOnAccount;
       case "accountNumber":
         return !!cipher.bankAccount?.accountNumber;
       case "routingNumber":
         return !!cipher.bankAccount?.routingNumber;
+      case "branchNumber":
+        return !!cipher.bankAccount?.branchNumber;
       case "pin":
         return !!cipher.bankAccount?.pin;
       case "iban":
         return !!cipher.bankAccount?.iban;
-      case "firstName":
+      case "swiftCode":
+        return !!cipher.bankAccount?.swiftCode;
+      case "firstNameLicense":
         return !!cipher.driversLicense?.firstName;
-      case "middleName":
+      case "middleNameLicense":
         return !!cipher.driversLicense?.middleName;
-      case "lastName":
+      case "lastNameLicense":
         return !!cipher.driversLicense?.lastName;
       case "licenseNumber":
         return !!cipher.driversLicense?.licenseNumber;
@@ -413,12 +416,21 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  nameOnAccount: "BankAccountNameOnAccount",
   accountNumber: "BankAccountAccountNumber",
   routingNumber: "BankAccountRoutingNumber",
+  branchNumber: "BankAccountBranchNumber",
   pin: "BankAccountPin",
   iban: "BankAccountIban",
+  swiftCode: "BankAccountSwift",
+  firstNameLicense: "DriversLicenseFirstName",
+  middleNameLicense: "DriversLicenseMiddleName",
+  lastNameLicense: "DriversLicenseLastName",
   licenseNumber: "DriversLicenseLicenseNumber",
+  givenName: "PassportGivenName",
+  surname: "PassportSurname",
   passportNumber: "PassportPassportNumber",
+  nationalIdentificationNumber: "PassportNationalIdentificationNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

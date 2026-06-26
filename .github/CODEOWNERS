@@ -28,6 +28,7 @@ apps/browser/src/auth @bitwarden/team-auth-dev
 apps/cli/src/auth @bitwarden/team-auth-dev
 apps/desktop/src/auth @bitwarden/team-auth-dev
 apps/web/src/app/auth @bitwarden/team-auth-dev
+apps/web/src/app/components/environment-selector @bitwarden/team-auth-dev
 libs/auth @bitwarden/team-auth-dev
 libs/user-core @bitwarden/team-auth-dev
 bitwarden_license/bit-web/src/app/auth @bitwarden/team-auth-dev
@@ -67,7 +68,6 @@ apps/web/src/locales @bitwarden/team-platform-dev
 apps/browser/src/vault @bitwarden/team-vault-dev
 apps/cli/src/vault @bitwarden/team-vault-dev
 apps/desktop/src/vault @bitwarden/team-vault-dev
-apps/web/src/app/shared/components/onboarding @bitwarden/team-vault-dev
 apps/web/src/app/vault @bitwarden/team-vault-dev
 libs/angular/src/vault @bitwarden/team-vault-dev
 libs/common/src/vault @bitwarden/team-vault-dev
@@ -234,6 +234,10 @@ apps/desktop/desktop_native/core/src/secure_memory/ @bitwarden/team-key-manageme
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev
+
+## PAM
+apps/web/src/app/pam @bitwarden/team-pam-dev
+libs/pam @bitwarden/team-pam-dev
 
 ## Locales ##
 apps/browser/src/_locales/en/messages.json

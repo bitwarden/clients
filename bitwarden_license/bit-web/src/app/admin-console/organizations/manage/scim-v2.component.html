@@ -1,5 +1,11 @@
 <app-header></app-header>
 
+@if (showProvisioningBanner()) {
+  <bit-callout type="info">
+    {{ "scimProvisioningBannerInfo" | i18n }}
+  </bit-callout>
+}
+
 <form [formGroup]="formData">
   <bit-card>
     <div [hidden]="!loading()">
@@ -10,23 +16,34 @@
       <div class="tw-flex tw-items-start tw-justify-between tw-gap-6">
         <div>
           <h2 bitTypography="h2" class="tw-mb-3">{{ "scim" | i18n }}</h2>
-          <p bitTypography="body1" class="tw-mb-0">
+          <p [id]="descriptionId" bitTypography="body1" class="tw-mb-0">
             {{ "scimDescriptionV2" | i18n }}
-            <a bitLink target="_blank" href="https://bitwarden.com/help/about-scim/">
+            <a
+              bitLink
+              target="_blank"
+              endIcon="bwi-external-link"
+              href="https://bitwarden.com/help/about-scim/"
+            >
               {{ "scimLearnMore" | i18n }}
-              <bit-icon name="bwi-external-link" slot="end"></bit-icon>
             </a>
           </p>
         </div>
-        <bit-switch [formControl]="enabled" (change)="submit()" class="tw-shrink-0 tw-mt-1">
-          <bit-label class="tw-sr-only">{{ "scim" | i18n }}</bit-label>
-        </bit-switch>
+        <label [for]="switchInputId">
+          <span [id]="labelId" class="tw-sr-only">{{ "scim" | i18n }}</span>
+          <bit-switch
+            [id]="switchId"
+            [formControl]="enabled"
+            (change)="submit()"
+            class="tw-shrink-0 tw-mt-1"
+          >
+          </bit-switch>
+        </label>
       </div>
 
       <div class="tw-mt-6" [hidden]="!showScimSettings()">
         <bit-form-field>
           <bit-label>{{ "scimUrl" | i18n }}</bit-label>
-          <input bitInput type="text" formControlName="endpointUrl" />
+          <input bitInput type="text" formControlName="endpointUrl" readonly />
           <button
             type="button"
             bitSuffix
@@ -42,6 +59,7 @@
             [type]="showScimKey() ? 'text' : 'password'"
             formControlName="clientSecret"
             id="clientSecret"
+            readonly
           />
           <button
             type="button"

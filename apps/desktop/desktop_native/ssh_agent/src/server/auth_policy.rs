@@ -1,16 +1,8 @@
 //! `AuthPolicy` defines an interface for entities external to the
 //! ssh agent server to authorizing SSH agent operations.
 
+use super::protocol::{SIGNamespace, SignFlags};
 use crate::{authorization::AuthError, crypto::PublicKey};
-
-/// Represents the parsed SSHSIG namespace.
-// <https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig>
-#[derive(Debug, Clone, PartialEq)]
-pub enum SIGNamespace {
-    Git,
-    File,
-    Unsupported,
-}
 
 /// Request to sign data using an SSH key.
 #[derive(Debug, Clone)]
@@ -25,6 +17,11 @@ pub struct SignRequest {
     /// The parsed representation of the sign request's SIG namespace. For authentications to a
     /// server, this is `None`.
     pub namespace: Option<SIGNamespace>,
+    /// Optional signing algorithm flags from the request.
+    pub flags: Option<SignFlags>,
+    /// SHA-256 fingerprint of the remote host's public key from the session-bind extension.
+    /// `None` when no session-bind was received before this sign request.
+    pub host_fingerprint: Option<String>,
 }
 
 /// Authorization request for SSH agent operations.

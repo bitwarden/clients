@@ -11,94 +11,40 @@
 ## Critical Rules
 
 - **NEVER** use code regions: If complexity suggests regions, refactor for better readability
-
 - **CRITICAL**: new encryption logic should not be added to this repo.
-
 - **NEVER** send unencrypted vault data to API services
-
 - **NEVER** commit secrets, credentials, or sensitive information.
-
-- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`).
-  - Missing prefix breaks styling completely.
-
 - **NEVER** log decrypted data, encryption keys, or PII
   - No vault data in error messages or console logs
-
 - **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
+- **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`). Missing prefix means the class is ignored and styling silently breaks. See [.claude/rules/tailwind.md](./rules/tailwind.md) for additional Tailwind rules.
 
 ## Mono-Repo Architecture
 
 This repository is organized as a **monorepo** containing multiple applications and libraries. The
 main directories are:
 
-- `apps/` – Contains all application projects (e.g., browser, cli, desktop, web). Each app is
-  self-contained with its own configuration, source code, and tests.
-- `libs/` – Contains shared libraries and modules used across multiple apps. Libraries are organized
-  by team name, domain, functionality (e.g., common, ui, platform, key-management).
+- `apps/<client>/` — single-client code (browser, cli, desktop, web). Each app is self-contained.
+- `libs/common/` — code shared across **all** clients, including non-Angular (CLI). No Angular APIs here: no `@Injectable`, no `inject()`, no decorators, no template references.
+- `libs/angular/` — code shared across Angular clients (browser/desktop/web). Angular APIs allowed.
+- Other `libs/*` (e.g. `ui`, `platform`, `key-management`, `vault`) — domain-scoped, follow the same Angular / non-Angular split based on which clients consume them.
+
+When adding new code, place it as deep and as narrow as possible. Promote to a shared `libs/` only when a second client needs it.
 
 **Strict boundaries** must be maintained between apps and libraries. Do not introduce
 cross-dependencies that violate the intended modular structure. Always consult and respect the
 dependency rules defined in `eslint.config.mjs`, `nx.json`, and other configuration files.
 
-## Angular Architecture Patterns
+## Verifying Changes
 
-**Observable Data Services (ADR-0003):**
+After modifying code, run:
 
-- Services expose RxJS Observable streams for state management
-- Components subscribe using `async` pipe (NOT explicit subscriptions in most cases)
-  Pattern:
+- `npm run lint:fix` — applies ESLint fixes
+- `npm run prettier` — formats with Prettier
+- `npm run test:types` — type-checks the workspace
+- `npm test` — runs Jest. Scope with `npm test -- <path-or-pattern>` when changes are localized.
 
-```typescript
-// Service
-private _folders = new BehaviorSubject<Folder[]>([]);
-readonly folders$ = this._folders.asObservable();
-
-// Component
-folders$ = this.folderService.folders$;
-// Template: <div *ngFor="let folder of folders$ | async">
-```
-
-For explicit subscriptions, MUST use `takeUntilDestroyed()`:
-
-```typescript
-constructor() {
-  this.observable$.pipe(takeUntilDestroyed()).subscribe(...);
-}
-```
-
-**Angular Signals (ADR-0027):**
-
-Encourage the use of Signals **only** in Angular components and presentational services.
-
-Use **RxJS** for:
-
-- Services used across Angular and non-Angular clients
-- Complex reactive workflows
-- Interop with existing Observable-based code
-
-**NO TypeScript Enums (ADR-0025):**
-
-- Use const objects with type aliases instead
-- Legacy enums exist but don't add new ones
-
-Pattern:
-
-```typescript
-// ✅ DO
-export const CipherType = Object.freeze({
-  Login: 1,
-  SecureNote: 2,
-} as const);
-export type CipherType = (typeof CipherType)[keyof typeof CipherType];
-
-// ❌ DON'T
-enum CipherType {
-  Login = 1,
-  SecureNote = 2,
-}
-```
-
-Example: `/libs/common/src/vault/enums/cipher-type.ts`
+If any of these fail, fix the underlying issue before reporting the task complete. Do not skip hooks or bypass failures.
 
 ## References
 

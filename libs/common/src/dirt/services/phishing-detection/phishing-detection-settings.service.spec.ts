@@ -1,16 +1,16 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LogService } from "@bitwarden/logging";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { Account, AccountService } from "../../../auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions";
+import { ProductTierType } from "../../../billing/enums";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { UserId } from "../../../types/guid";
 
 import { PhishingDetectionSettingsService } from "./phishing-detection-settings.service";

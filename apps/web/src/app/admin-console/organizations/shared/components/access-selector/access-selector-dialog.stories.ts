@@ -11,7 +11,7 @@ import { actionsData, itemsFactory } from "./storybook-utils";
  * Displays the Access Selector in a dialog.
  */
 export default {
-  title: "Web/Organizations/Access Selector/Dialog",
+  title: "Admin Console/Organizations/Access Selector/Dialog",
   decorators: baseComponentDefinition.decorators,
 } as Meta;
 

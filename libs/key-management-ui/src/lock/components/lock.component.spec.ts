@@ -16,7 +16,6 @@ import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -24,7 +23,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { makeSymmetricCryptoKey, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -64,7 +63,6 @@ describe("LockComponent", () => {
 
   // Mock services
   const mockAccountService = mockAccountServiceWith(userId);
-  const mockPinService = mock<PinServiceAbstraction>();
   const mockUserVerificationService = mock<UserVerificationService>();
   const mockKeyService = mock<KeyService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -106,8 +104,8 @@ describe("LockComponent", () => {
     mockI18nService.t.mockImplementation((key: string) => key);
 
     // Mock observables that cause timeouts
-    mockBiometricStateService.promptAutomatically$ = of(false);
-    mockBiometricStateService.promptCancelled$ = of(false);
+    mockBiometricStateService.promptAutomatically$.mockReturnValue(of(false));
+    mockBiometricStateService.promptCancelled$.mockReturnValue(of(false));
     mockBiometricStateService.resetUserPromptCancelled.mockResolvedValue();
     mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(null));
     mockSyncService.fullSync.mockResolvedValue(true);
@@ -128,7 +126,6 @@ describe("LockComponent", () => {
       providers: [
         FormBuilder,
         { provide: AccountService, useValue: mockAccountService },
-        { provide: PinServiceAbstraction, useValue: mockPinService },
         { provide: UserVerificationService, useValue: mockUserVerificationService },
         { provide: KeyService, useValue: mockKeyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
@@ -271,7 +268,7 @@ describe("LockComponent", () => {
         mockLockComponentService.getPreviousUrl.mockReturnValue(null);
 
         jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-          await mockBiometricStateService.resetUserPromptCancelled();
+          await mockBiometricStateService.resetUserPromptCancelled(userId);
           mockMessagingService.send("unlocked");
           await mockSyncService.fullSync(false);
           await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(userId);
@@ -290,7 +287,7 @@ describe("LockComponent", () => {
       mockPlatformUtilsService.getDevice.mockReturnValue(DeviceType.FirefoxExtension);
 
       jest.spyOn(component as any, "doContinue").mockImplementation(async () => {
-        await mockBiometricStateService.resetUserPromptCancelled();
+        await mockBiometricStateService.resetUserPromptCancelled(userId);
         mockMessagingService.send("unlocked");
         await mockSyncService.fullSync(false);
         await mockUserAsymmetricKeysRegenerationService.regenerateIfNeeded(
@@ -360,6 +357,67 @@ describe("LockComponent", () => {
       });
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("swapUnlockOption", () => {
+    it("switches to biometrics and immediately attempts biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Biometrics);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Biometrics);
+      expect(unlockViaBiometricsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("switches to pin without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.Pin);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.Pin);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+
+    it("switches to master password without triggering biometric unlock", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.swapUnlockOption(UnlockOption.MasterPassword);
+
+      expect(component.activeUnlockOption).toBe(UnlockOption.MasterPassword);
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("unlockViaBiometrics", () => {
+    it("ignores concurrent unlock attempts while one biometric unlock is in progress", async () => {
+      let resolvePendingUnlock: (() => void) | undefined;
+      const pendingUnlock = new Promise<void>((resolve) => {
+        resolvePendingUnlock = resolve;
+      });
+      component.activeAccount = await firstValueFrom(mockAccountService.activeAccount$);
+      component.unlockOptions = {
+        biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+        pin: { enabled: false },
+        masterPassword: { enabled: true },
+        prf: { enabled: false },
+      };
+      const newUserKey = makeSymmetricCryptoKey(64) as UserKey;
+      mockUnlockService.unlockWithBiometrics.mockReturnValue(pendingUnlock);
+      mockKeyService.userKey$.mockReturnValue(of(newUserKey));
+
+      const firstAttempt = component.unlockViaBiometrics();
+      await component.unlockViaBiometrics();
+      resolvePendingUnlock?.();
+      await firstAttempt;
+
+      expect(mockUnlockService.unlockWithBiometrics).toHaveBeenCalledTimes(1);
     });
   });
 

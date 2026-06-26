@@ -297,7 +297,8 @@ describe("FileReportPersistenceService", () => {
         expect.objectContaining({
           applicationData: expect.any(String),
           summaryData: expect.any(String),
-          metrics: expect.any(Object),
+          reportMetrics: expect.any(Object),
+          contentEncryptionKey: expect.any(String),
         }),
       );
     });

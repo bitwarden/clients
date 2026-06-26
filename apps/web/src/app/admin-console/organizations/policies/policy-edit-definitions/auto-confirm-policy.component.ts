@@ -32,7 +32,7 @@ import {
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
-  type = PolicyType.AutoConfirm;
+  type = PolicyType.AutomaticUserConfirmation;
   category = PolicyCategory.VaultManagement;
   priority = 90;
   component = AutoConfirmPolicyEditComponent;
@@ -82,7 +82,10 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.policyService.policies$(userId)),
-      map((policies) => policies.find((p) => p.type === PolicyType.AutoConfirm)?.enabled ?? false),
+      map(
+        (policies) =>
+          policies.find((p) => p.type === PolicyType.AutomaticUserConfirmation)?.enabled ?? false,
+      ),
     );
 
   protected readonly singleOrgEnabled$: Observable<boolean> =
@@ -148,7 +151,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       const request = await this.buildRequest();
       await this.policyApiService.putPolicy(
         this.organizationId() ?? "",
-        PolicyType.AutoConfirm,
+        PolicyType.AutomaticUserConfirmation,
         request,
       );
     } catch (error) {
