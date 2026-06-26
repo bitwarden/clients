@@ -226,7 +226,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get subtitle() {
-    return CipherViewLikeUtils.subtitle(this.cipher);
+    return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
 
   protected get isDeleted() {
