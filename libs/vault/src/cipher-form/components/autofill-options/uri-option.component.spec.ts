@@ -203,16 +203,34 @@ describe("UriOptionComponent", () => {
       expect(component["uriLabel"]).toBe("websiteUriCount 2");
     });
 
-    it("returns 'appUri' for a desktopapp:// URI at index 0", () => {
+    it("returns 'websiteUri' for a desktopapp:// URI at index 0 when showAppLabel is false", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 0;
+      component.showAppLabel = false;
+
+      expect(component["uriLabel"]).toBe("websiteUri");
+    });
+
+    it("returns 'websiteUriCount' for a desktopapp:// URI at index greater than 0 when showAppLabel is false", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      component.index = 1;
+      component.showAppLabel = false;
+
+      expect(component["uriLabel"]).toBe("websiteUriCount 2");
+    });
+
+    it("returns 'appUri' for a desktopapp:// URI at index 0 when showAppLabel is true", () => {
+      component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
+      component.index = 0;
+      component.showAppLabel = true;
 
       expect(component["uriLabel"]).toBe("appUri");
     });
 
-    it("returns 'appUriCount' for a desktopapp:// URI at index greater than 0", () => {
+    it("returns 'appUriCount' for a desktopapp:// URI at index greater than 0 when showAppLabel is true", () => {
       component.writeValue({ uri: DESKTOP_APP_URI_PREFIX, matchDetection: null });
       component.index = 1;
+      component.showAppLabel = true;
 
       expect(component["uriLabel"]).toBe("appUriCount 2");
     });

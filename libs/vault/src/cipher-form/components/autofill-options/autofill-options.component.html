@@ -18,6 +18,7 @@
           [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
+          [showAppLabel]="showAddAppDropdown()"
         ></vault-autofill-uri-option>
       }
     </ng-container>
