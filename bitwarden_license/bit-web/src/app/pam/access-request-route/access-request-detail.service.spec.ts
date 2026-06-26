@@ -80,9 +80,8 @@ async function setup(options: SetupOptions = {}) {
   }
 
   const nameResolver = mock<AccessRequestNameResolver>();
-  nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
-  // Collection-name application is the resolver's job (covered in its own spec); pass rows through.
-  nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+  // Name resolution is the resolver's job (covered in its own spec); the service reads its maps.
+  nameResolver.resolveNames$.mockReturnValue(of(emptyResolvedNames()));
 
   const accountService = {
     activeAccount$: new BehaviorSubject<{ id: string } | null>({ id: options.userId ?? "me" }),

@@ -5,6 +5,7 @@ import {
   EMPTY,
   Observable,
   catchError,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -27,7 +28,7 @@ import { NotificationType } from "@bitwarden/common/enums/notification-type.enum
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import {
   LeaseRow,
@@ -56,22 +57,38 @@ export class MyAccessRequestsService {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _responses$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
-  private readonly _leases$ = new BehaviorSubject<LeaseRow[]>([]);
+  private readonly _leases$ = new BehaviorSubject<AccessLeaseResponse[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
-  private readonly _cipherById$ = new BehaviorSubject<Map<string, CipherView>>(new Map());
 
   /**
-   * Collection names are resolved reactively (see {@link AccessRequestNameResolver.applyCollectionNames$}):
-   * they back-fill when local collection state warms up, whether that happens before or after the
-   * load populates the rows. Cipher names + favicons come from the one-shot load path below.
-   *
-   * Raw responses (names applied) — the audit log needs the response shape for bucketing.
+   * Cipher + collection display names (and decrypted views for favicons) for every request and lease
+   * this service surfaces, resolved from local vault state and re-emitting as collection state warms,
+   * whether it warmed before or after the load. The rows below read these maps. No name decryption —
+   * and no other Vault Data — happens here beyond reading already-decrypted local state.
    */
-  readonly responses$: Observable<AccessRequestDetailsResponse[]> =
-    this.nameResolver.applyCollectionNames$(this._responses$);
-  readonly rows$: Observable<MyRequestRow[]> = this.responses$.pipe(map(buildMyRequestRows));
-  readonly leases$: Observable<LeaseRow[]> = this.nameResolver.applyCollectionNames$(this._leases$);
+  readonly names$: Observable<ResolvedNames> = this.nameResolver.resolveNames$(
+    combineLatest([this._responses$, this._leases$]).pipe(
+      map(([requests, leases]) => [...requests, ...leases]),
+    ),
+  );
+
+  /** The caller's requests, which the audit log buckets; their display names come from {@link names$}. */
+  readonly responses$: Observable<AccessRequestDetailsResponse[]> = this._responses$.asObservable();
+  readonly rows$: Observable<MyRequestRow[]> = combineLatest([this._responses$, this.names$]).pipe(
+    map(([responses, names]) => buildMyRequestRows(responses, names)),
+  );
+  readonly leases$: Observable<LeaseRow[]> = combineLatest([
+    this._leases$,
+    this._responses$,
+    this.names$,
+  ]).pipe(
+    map(([leases, requests, names]) => {
+      // Badge an active lease that has been extended; the extension info lives on the requests.
+      const extByLease = extensionsByLeaseId(requests);
+      return leases.map((lease) => toLeaseRow(lease, names, extByLease.get(lease.id)));
+    }),
+  );
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   /**
@@ -79,7 +96,9 @@ export class MyAccessRequestsService {
    * The list templates read from here to render an item's favicon; ciphers absent from the
    * caller's vault are simply missing, so those rows render without an icon.
    */
-  readonly cipherById$: Observable<Map<string, CipherView>> = this._cipherById$.asObservable();
+  readonly cipherById$: Observable<Map<string, CipherView>> = this.names$.pipe(
+    map((names) => names.cipherById),
+  );
   readonly pendingCount$: Observable<number> = this._responses$.pipe(
     // Extensions never get their own row (they fold into the original), so they must not be counted
     // here either — otherwise the tab badge would count a request with no visible row.
@@ -196,7 +215,10 @@ export class MyAccessRequestsService {
     ).pipe(debounceTime(300));
   }
 
-  /** Fetch the caller's requests + active leases, resolve display names, replace local state. */
+  /**
+   * Fetch the caller's requests + active leases and replace local state. Display names, favicons, and
+   * the extension-folding join all derive reactively from {@link names$} / the row streams above.
+   */
   private async fetch(): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
@@ -205,21 +227,8 @@ export class MyAccessRequestsService {
         this.pamApi.listMyAccessRequests(),
         this.pamApi.listActiveLeases(),
       ]);
-      // Resolve request names in place; resolve lease names into lookup maps (leases have no
-      // writable name fields). Run the two snapshots concurrently so one load doesn't serialize
-      // two cipher-decrypt round-trips.
-      const [requestNames, leaseNames] = await Promise.all([
-        this.nameResolver.resolveDisplayNames(requests),
-        this.nameResolver.namesFor(leases),
-      ]);
       this._responses$.next(requests);
-      // Badge an active lease that has been extended; the extension info lives on the requests.
-      const extByLease = extensionsByLeaseId(requests);
-      this._leases$.next(
-        leases.map((lease) => toLeaseRow(lease, leaseNames, extByLease.get(lease.id))),
-      );
-      // Merge the decrypted views from both snapshots so the list can render favicons.
-      this._cipherById$.next(new Map([...requestNames.cipherById, ...leaseNames.cipherById]));
+      this._leases$.next(leases);
     } catch (e) {
       this._loadError$.next(e);
       throw e;

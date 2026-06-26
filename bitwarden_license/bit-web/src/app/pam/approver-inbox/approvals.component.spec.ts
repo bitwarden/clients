@@ -8,6 +8,8 @@ import { AccessDecisionVerdict, AccessRequestDetailsResponse } from "@bitwarden/
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, I18nMockService } from "@bitwarden/components";
 
+import { ResolvedNames, emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 
 const ME = "user-me";
@@ -16,8 +18,6 @@ function request(
   overrides: Partial<{
     id: string;
     requesterId: string;
-    cipherName: string;
-    collectionName: string;
     requesterName: string;
     submittedAt: string;
   }> = {},
@@ -31,11 +31,18 @@ function request(
     RequestedTtlSeconds: 3600,
     SubmittedAt: overrides.submittedAt ?? "2026-06-10T10:00:00Z",
     Reason: "Need access",
-    CipherName: overrides.cipherName ?? "Prod DB",
-    CollectionName: overrides.collectionName ?? "Production",
     RequesterName: overrides.requesterName ?? "Bob",
     RequesterEmail: "bob@example.com",
   });
+}
+
+/** Resolved cipher names keyed by cipher id, as the name resolver would supply them. */
+function names(cipherNameById: Record<string, string>): ResolvedNames {
+  return {
+    cipherNameById: new Map(Object.entries(cipherNameById)),
+    collectionNameById: new Map(),
+    cipherById: new Map(),
+  };
 }
 
 // JSDOM has no ResizeObserver; some component-library primitives construct one.
@@ -91,10 +98,12 @@ describe("ApprovalsComponent", () => {
 
   const create = (
     requests: AccessRequestDetailsResponse[],
+    resolvedNames: ResolvedNames = emptyResolvedNames(),
     currentUserId: string | null = ME,
   ): ComponentFixture<ApprovalsComponent> => {
     const fixture = TestBed.createComponent(ApprovalsComponent);
     fixture.componentRef.setInput("requests", requests);
+    fixture.componentRef.setInput("names", resolvedNames);
     fixture.componentRef.setInput("currentUserId", currentUserId);
     fixture.componentRef.setInput("now", new Date("2026-06-10T12:00:00Z"));
     fixture.detectChanges();
@@ -172,10 +181,10 @@ describe("ApprovalsComponent", () => {
   });
 
   it("filters rows by the search box", () => {
-    const fixture = create([
-      request({ id: "a", cipherName: "Prod DB" }),
-      request({ id: "b", cipherName: "Staging key" }),
-    ]);
+    const fixture = create(
+      [request({ id: "a" }), request({ id: "b" })],
+      names({ "cipher-a": "Prod DB", "cipher-b": "Staging key" }),
+    );
     fixture.componentInstance["searchControl"].setValue("staging");
     fixture.detectChanges();
     fixture.detectChanges();

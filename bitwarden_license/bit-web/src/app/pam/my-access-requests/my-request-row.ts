@@ -8,12 +8,15 @@ import {
 } from "@bitwarden/bit-pam";
 import { BadgeVariant } from "@bitwarden/components";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
+
 /** Max items rendered per section (no pagination). */
 export const MY_REQUESTS_PAGE_LIMIT = 50;
 
 export type MyRequestRow = {
   id: string;
   cipherId: string;
+  collectionId: string;
   /**
    * Cipher and collection names resolved from local vault state (the gated cipher's
    * already-decrypted name and its CollectionView). `cipherName` is null when the
@@ -174,13 +177,14 @@ export function resolveResolver(
   };
 }
 
-export function toRow(response: AccessRequestDetailsResponse): MyRequestRow {
+export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNames): MyRequestRow {
   const human = findHumanDecision(response.decisions);
   return {
     id: response.id,
     cipherId: response.cipherId,
-    cipherName: response.cipherName,
-    collectionName: response.collectionName,
+    collectionId: response.collectionId,
+    cipherName: names.cipherNameById.get(response.cipherId) ?? null,
+    collectionName: names.collectionNameById.get(response.collectionId) ?? null,
     status: response.status,
     ...historyDisplayStatus(response),
     submittedAt: new Date(response.submittedAt),
@@ -248,7 +252,10 @@ export function extensionsByLeaseId(
   return byLease;
 }
 
-export function buildMyRequestRows(responses: AccessRequestDetailsResponse[]): MyRequestRow[] {
+export function buildMyRequestRows(
+  responses: AccessRequestDetailsResponse[],
+  names: ResolvedNames,
+): MyRequestRow[] {
   const byLease = extensionsByLeaseId(responses);
 
   const rows: MyRequestRow[] = [];
@@ -256,7 +263,7 @@ export function buildMyRequestRows(responses: AccessRequestDetailsResponse[]): M
     if (response.extensionOfLeaseId != null) {
       continue; // Folded into its original row below — never shown on its own.
     }
-    const row = toRow(response);
+    const row = toRow(response, names);
     const extension =
       response.producedLeaseId == null ? undefined : byLease.get(response.producedLeaseId);
     if (extension != null && extension.latestEndMs > 0) {

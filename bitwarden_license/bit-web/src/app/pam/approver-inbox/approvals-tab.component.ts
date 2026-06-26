@@ -8,6 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 
+import { emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { ApprovalsComponent, DecideEvent } from "./approvals.component";
 import { ApproverInboxService } from "./approver-inbox.service";
 
@@ -23,6 +25,7 @@ import { ApproverInboxService } from "./approver-inbox.service";
   imports: [ApprovalsComponent],
   template: `<app-pam-approvals
     [requests]="requests()"
+    [names]="names()"
     [currentUserId]="currentUserId()"
     [now]="now()"
     [loading]="loading()"
@@ -37,6 +40,7 @@ export class ApprovalsTabComponent {
   private readonly logService = inject(LogService);
 
   protected readonly requests = toSignal(this.inbox.requests$, { initialValue: [] });
+  protected readonly names = toSignal(this.inbox.names$, { initialValue: emptyResolvedNames() });
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: false });
   protected readonly now = toSignal(this.inbox.renderedAt$, { initialValue: new Date() });
   protected readonly currentUserId = toSignal(

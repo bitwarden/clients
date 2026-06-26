@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
 
 import {
   AccessLeaseResponse,
@@ -54,6 +54,7 @@ function cipher(id: string): CipherView {
 describe("MyAccessRequestsService", () => {
   let pamApi: MockProxy<PamApiService>;
   let nameResolver: MockProxy<AccessRequestNameResolver>;
+  let names$: BehaviorSubject<ResolvedNames>;
   let service: MyAccessRequestsService;
 
   beforeEach(async () => {
@@ -63,10 +64,9 @@ describe("MyAccessRequestsService", () => {
     // mutations$ is a stream the service merges into its live-refresh; give it a real Subject.
     (pamApi as unknown as { mutations$: Subject<void> }).mutations$ = new Subject<void>();
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
-    nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
-    // Collection-name application is the resolver's job (covered in its own spec); pass rows through.
-    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+    // The service builds its rows from the resolver's reactive name maps; drive them per-test.
+    names$ = new BehaviorSubject<ResolvedNames>(emptyResolvedNames());
+    nameResolver.resolveNames$.mockReturnValue(names$);
     TestBed.configureTestingModule({
       providers: [
         MyAccessRequestsService,
@@ -105,7 +105,7 @@ describe("MyAccessRequestsService", () => {
       Status: "active",
     });
     pamApi.listActiveLeases.mockResolvedValue([lease]);
-    nameResolver.namesFor.mockResolvedValue({
+    names$.next({
       cipherNameById: new Map([["cipher-1", "Prod DB"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
       cipherById: new Map(),
@@ -132,13 +132,12 @@ describe("MyAccessRequestsService", () => {
         Status: "active",
       }),
     ]);
-    nameResolver.resolveDisplayNames.mockResolvedValue({
+    names$.next({
       ...emptyResolvedNames(),
-      cipherById: new Map([["cipher-p1", cipher("cipher-p1")]]),
-    });
-    nameResolver.namesFor.mockResolvedValue({
-      ...emptyResolvedNames(),
-      cipherById: new Map([["cipher-lease", cipher("cipher-lease")]]),
+      cipherById: new Map([
+        ["cipher-p1", cipher("cipher-p1")],
+        ["cipher-lease", cipher("cipher-lease")],
+      ]),
     });
 
     await service.load();

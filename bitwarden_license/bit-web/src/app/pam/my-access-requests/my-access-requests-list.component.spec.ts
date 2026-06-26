@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Subject, of } from "rxjs";
+import { BehaviorSubject, Subject, of } from "rxjs";
 
 import {
   AccessLeaseResponse,
@@ -116,6 +116,7 @@ describe("MyAccessRequestsListComponent", () => {
   let toast: MockProxy<ToastService>;
   let dialog: MockProxy<DialogService>;
   let nameResolver: MockProxy<AccessRequestNameResolver>;
+  let names$: BehaviorSubject<ResolvedNames>;
 
   const i18n = new I18nMockService({
     loading: "Loading…",
@@ -178,9 +179,9 @@ describe("MyAccessRequestsListComponent", () => {
     dialog.openSimpleDialog.mockResolvedValue(true);
 
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue(emptyResolvedNames());
-    nameResolver.namesFor.mockResolvedValue(emptyResolvedNames());
-    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+    // The service builds its rows from the resolver's reactive name maps; drive them per-test.
+    names$ = new BehaviorSubject<ResolvedNames>(emptyResolvedNames());
+    nameResolver.resolveNames$.mockReturnValue(names$);
 
     await TestBed.configureTestingModule({
       imports: [MyAccessRequestsListComponent, NoopAnimationsModule],
@@ -242,7 +243,7 @@ describe("MyAccessRequestsListComponent", () => {
   }));
 
   it("renders an active lease with its resolved cipher name", fakeAsync(() => {
-    nameResolver.namesFor.mockResolvedValue({
+    names$.next({
       cipherNameById: new Map([["cipher-1", "Prod DB"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
       cipherById: new Map(),
@@ -257,12 +258,10 @@ describe("MyAccessRequestsListComponent", () => {
   }));
 
   it("renders the cipher and collection names resolved from local vault state", fakeAsync(() => {
-    nameResolver.resolveDisplayNames.mockImplementation(async (rows) => {
-      rows.forEach((row) => {
-        row.cipherName = "Production DB";
-        row.collectionName = "Engineering";
-      });
-      return emptyResolvedNames();
+    names$.next({
+      cipherNameById: new Map([["cipher-p1", "Production DB"]]),
+      collectionNameById: new Map([["col-1", "Engineering"]]),
+      cipherById: new Map(),
     });
 
     const fixture = create([makeResponse({ id: "p1", cipherId: "cipher-p1", status: "pending" })]);
@@ -270,13 +269,13 @@ describe("MyAccessRequestsListComponent", () => {
     const cell = fixture.nativeElement.querySelector(
       '[data-testid="my-requests-pending-row-p1"] td',
     ) as HTMLElement;
-    expect(nameResolver.resolveDisplayNames).toHaveBeenCalled();
+    expect(nameResolver.resolveNames$).toHaveBeenCalled();
     expect(cell.textContent).toContain("Production DB");
     expect(cell.textContent).toContain("in Engineering");
   }));
 
   it("renders a favicon for a request whose cipher is in local vault state", fakeAsync(() => {
-    nameResolver.resolveDisplayNames.mockResolvedValue({
+    names$.next({
       ...emptyResolvedNames(),
       cipherById: new Map([["cipher-p1", loginCipher("cipher-p1")]]),
     });

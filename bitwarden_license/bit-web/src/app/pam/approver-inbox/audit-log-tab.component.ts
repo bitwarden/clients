@@ -6,6 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 
+import { emptyResolvedNames, mergeResolvedNames } from "../access-request-name-resolver.service";
 import { MyAccessRequestsService } from "../my-access-requests/my-access-requests.service";
 
 import { ApproverInboxService } from "./approver-inbox.service";
@@ -26,6 +27,7 @@ import { resolvedOrSubmittedMs } from "./history-row";
   imports: [AuditLogComponent],
   template: `<app-pam-audit-log
     [items]="auditItems()"
+    [names]="names()"
     [managedIds]="managedIds()"
     [now]="now()"
     [revoking]="revoking()"
@@ -45,6 +47,14 @@ export class AuditLogTabComponent {
   private readonly myResponses = toSignal(this.myRequests.responses$, {
     initialValue: [] as AccessRequestDetailsResponse[],
   });
+  private readonly inboxNames = toSignal(this.inbox.names$, {
+    initialValue: emptyResolvedNames(),
+  });
+  private readonly myNames = toSignal(this.myRequests.names$, {
+    initialValue: emptyResolvedNames(),
+  });
+  /** Names for the merged set: the union of both loaders' snapshots covers every audit-log item. */
+  protected readonly names = computed(() => mergeResolvedNames(this.inboxNames(), this.myNames()));
   protected readonly now = toSignal(this.inbox.renderedAt$, { initialValue: new Date() });
 
   /** Lease ids currently being revoked (prevents double-click). */

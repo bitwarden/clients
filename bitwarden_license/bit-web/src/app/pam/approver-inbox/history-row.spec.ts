@@ -1,5 +1,6 @@
 import { AccessLeaseStatus, AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
 import { humanDecision } from "../testing/decision-builders";
 
 import {
@@ -9,6 +10,12 @@ import {
   historyStatusLabelFor,
   resolveApprover,
 } from "./history-row";
+
+const noNames: ResolvedNames = {
+  cipherNameById: new Map(),
+  collectionNameById: new Map(),
+  cipherById: new Map(),
+};
 
 describe("history bucketing and labels (deferred lease minting)", () => {
   const now = new Date("2026-06-10T12:00:00Z");
@@ -210,7 +217,7 @@ describe("flattenHistory", () => {
   }
 
   it("offers Revoke on an active managed lease", () => {
-    const rows = flattenHistory([activatedRow("a", "active")], now);
+    const rows = flattenHistory([activatedRow("a", "active")], now, noNames);
     expect(rows[0].canRevoke).toBe(true);
   });
 
@@ -228,20 +235,20 @@ describe("flattenHistory", () => {
       ProducedLeaseId: "lease-a",
       ProducedLeaseStatus: "active",
     });
-    const rows = flattenHistory([lapsed], now);
+    const rows = flattenHistory([lapsed], now, noNames);
     expect(rows[0].bucket).toBe("past");
     expect(rows[0].statusLabel).toBe("pamInboxHistoryStatusExpired");
     expect(rows[0].canRevoke).toBe(false);
   });
 
   it("withholds actions when canActOn returns false (rows the viewer can only see)", () => {
-    const rows = flattenHistory([activatedRow("a", "active")], now, () => false);
+    const rows = flattenHistory([activatedRow("a", "active")], now, noNames, () => false);
     expect(rows[0].canRevoke).toBe(false);
     expect(rows[0].canCancel).toBe(false);
   });
 
   it("carries a time sort key from resolvedAt", () => {
-    const rows = flattenHistory([activatedRow("a", "active")], now);
+    const rows = flattenHistory([activatedRow("a", "active")], now, noNames);
     expect(rows[0].sortTimeMs).toBe(Date.parse("2026-06-10T10:30:00Z"));
   });
 
@@ -269,7 +276,7 @@ describe("flattenHistory", () => {
         },
       ],
     });
-    const rows = flattenHistory([item], now);
+    const rows = flattenHistory([item], now, noNames);
     expect(rows[0].approverLabelKey).toBeNull();
     expect(rows[0].approverName).toBe("Ada Approver");
   });

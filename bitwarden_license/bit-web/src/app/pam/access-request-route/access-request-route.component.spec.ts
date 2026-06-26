@@ -13,6 +13,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, I18nMockService, ToastService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { ResolvedNames, emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestRouteComponent } from "./access-request-route.component";
 
@@ -45,6 +47,7 @@ describe("AccessRequestRouteComponent", () => {
       canApprove$: new BehaviorSubject<boolean>(false),
       currentUserId$: new BehaviorSubject<string | null>("me"),
       cipherById$: new BehaviorSubject<Map<string, unknown>>(new Map()),
+      names$: new BehaviorSubject<ResolvedNames>(emptyResolvedNames()),
       decide: jest.fn().mockResolvedValue(undefined),
       cancel: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(null),

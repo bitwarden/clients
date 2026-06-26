@@ -1,8 +1,10 @@
 import { Injectable, inject } from "@angular/core";
 import {
   Observable,
-  combineLatest,
+  combineLatestWith,
+  distinctUntilChanged,
   firstValueFrom,
+  from,
   map,
   shareReplay,
   startWith,
@@ -10,21 +12,19 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 /**
- * Resolves the cipher and collection display names on access-request rows from
+ * Resolves the cipher and collection display names for access-request rows from
  * local vault state.
  *
  * An access-rule-gated cipher syncs to the vault of anyone who governs or requested
  * it as a partial CipherView (name already decrypted by CipherService), and its
- * collection is a CollectionView — so names are read from there rather than
- * decrypting the response's denormalized copies. Shared by the requester's own
- * request list and the approver inbox. No other Vault Data passes through here.
+ * collection is a CollectionView — so names are read from there, keyed by id. Shared by
+ * the requester's own request list and the approver inbox. No other Vault Data passes through here.
  */
 @Injectable({ providedIn: "root" })
 export class AccessRequestNameResolver {
@@ -36,7 +36,7 @@ export class AccessRequestNameResolver {
    * The live collection-id → name map from local vault state, seeded with an empty map so consumers
    * paint immediately (with cipher names) before collection state is warm, and shared so any number
    * of subscribers drive a single decryption. The real names back-fill when {@link collectionNames$}
-   * emits. Drives {@link applyCollectionNames$}.
+   * emits. Drives {@link resolveNames$}.
    */
   private readonly liveCollectionNames$: Observable<Map<string, string>> =
     this.collectionNames$().pipe(
@@ -45,24 +45,35 @@ export class AccessRequestNameResolver {
     );
 
   /**
-   * Populate each row's `cipherName`/`collectionName` in place. The cipher name
-   * falls back to the raw id and the collection name to null when the item isn't in
-   * the caller's vault, so a stale row never renders an undecryptable blob.
+   * Reactive cipher + collection name lookup for a changing set of refs (an access request's
+   * `{ cipherId, collectionId }`). Cipher names and the decrypted views resolve from a vault snapshot
+   * taken each time the ref set changes; collection names additionally re-emit as local collection
+   * state warms — so rows fill in regardless of whether the caller's vault was warm when they loaded.
    *
-   * Returns the resolved lookup maps (including `cipherById`) so callers that already
-   * pay for this vault snapshot can reuse the decrypted views — e.g. to render favicons —
-   * without a second fetch.
+   * Callers build their display rows by reading the returned maps (`cipherNameById`,
+   * `collectionNameById`, `cipherById`). An unchanged ref set (e.g. an optimistic status edit that
+   * keeps the same ids) does not re-decrypt. Shared per subscriber.
    */
-  async resolveDisplayNames(rows: AccessRequestDetailsResponse[]): Promise<ResolvedNames> {
-    if (rows.length === 0) {
-      return emptyResolvedNames();
-    }
-    const names = await this.namesFor(rows);
-    for (const row of rows) {
-      row.cipherName = names.cipherNameById.get(row.cipherId) ?? row.cipherId;
-      row.collectionName = names.collectionNameById.get(row.collectionId) ?? null;
-    }
-    return names;
+  resolveNames$(
+    refs$: Observable<ReadonlyArray<{ cipherId: string; collectionId: string }>>,
+  ): Observable<ResolvedNames> {
+    return refs$.pipe(
+      distinctUntilChanged(sameRefs),
+      switchMap((refs) => from(this.namesFor(refs))),
+      combineLatestWith(this.liveCollectionNames$),
+      map(([snapshot, liveCollections]) =>
+        liveCollections.size === 0
+          ? snapshot
+          : {
+              ...snapshot,
+              collectionNameById: new Map<string, string>([
+                ...snapshot.collectionNameById,
+                ...liveCollections,
+              ]),
+            },
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
   }
 
   /**
@@ -106,24 +117,6 @@ export class AccessRequestNameResolver {
       map((collections) => new Map(collections.map((c) => [c.id, c.name]))),
     );
   }
-
-  /**
-   * Reactively fill `collectionName` on a stream of rows from local collection state, re-applying
-   * whenever either the rows or that state changes — so names appear regardless of whether the rows
-   * load before or after collection state warms up. Names are filled in place (the rows may be
-   * response class instances that can't be cloned), then a fresh array is emitted so change
-   * detection sees the update. Shared by the requester's list and the approver inbox.
-   */
-  applyCollectionNames$<T extends { collectionId: string; collectionName: string | null }>(
-    rows$: Observable<T[]>,
-  ): Observable<T[]> {
-    return combineLatest([rows$, this.liveCollectionNames$]).pipe(
-      map(([rows, names]) => {
-        fillCollectionNames(rows, names);
-        return rows.slice();
-      }),
-    );
-  }
 }
 
 /** Lookup maps resolved from a single local vault snapshot. */
@@ -134,7 +127,8 @@ export type ResolvedNames = {
   cipherById: Map<string, CipherView>;
 };
 
-function emptyResolvedNames(): ResolvedNames {
+/** An empty name lookup — the graceful default before a vault snapshot resolves (ids stand in). */
+export function emptyResolvedNames(): ResolvedNames {
   return {
     cipherNameById: new Map(),
     collectionNameById: new Map(),
@@ -143,18 +137,34 @@ function emptyResolvedNames(): ResolvedNames {
 }
 
 /**
- * Fill in collection names on rows in place from the latest collection-state lookup, without
- * clobbering a name already resolved (the map only ever gains entries as collection state warms).
- * Backs {@link AccessRequestNameResolver.applyCollectionNames$}.
+ * Merge two resolved-name lookups into one (later entries win). Lets a surface that draws from more
+ * than one loader — e.g. the audit log, which unions the approver decision history with the viewer's
+ * own requests — resolve names for the combined set from both loaders' snapshots.
  */
-export function fillCollectionNames(
-  items: ReadonlyArray<{ collectionId: string; collectionName: string | null }>,
-  names: Map<string, string>,
-): void {
-  for (const item of items) {
-    const name = names.get(item.collectionId);
-    if (name != null) {
-      item.collectionName = name;
-    }
+export function mergeResolvedNames(a: ResolvedNames, b: ResolvedNames): ResolvedNames {
+  return {
+    cipherNameById: new Map([...a.cipherNameById, ...b.cipherNameById]),
+    collectionNameById: new Map([...a.collectionNameById, ...b.collectionNameById]),
+    cipherById: new Map([...a.cipherById, ...b.cipherById]),
+  };
+}
+
+/**
+ * Whether two ref sets name the same `{ cipherId, collectionId }` pairs (order-insensitive), so
+ * {@link AccessRequestNameResolver.resolveNames$} can skip a redundant vault decrypt when an
+ * optimistic status edit re-emits the same requests.
+ */
+function sameRefs(
+  a: ReadonlyArray<{ cipherId: string; collectionId: string }>,
+  b: ReadonlyArray<{ cipherId: string; collectionId: string }>,
+): boolean {
+  if (a.length !== b.length) {
+    return false;
   }
+  const key = (refs: ReadonlyArray<{ cipherId: string; collectionId: string }>): string =>
+    refs
+      .map((ref) => `${ref.cipherId}:${ref.collectionId}`)
+      .sort()
+      .join("|");
+  return key(a) === key(b);
 }

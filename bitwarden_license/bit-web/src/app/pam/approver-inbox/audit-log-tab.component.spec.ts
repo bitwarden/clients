@@ -3,7 +3,7 @@ import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Subject, of } from "rxjs";
 
 import { AccessRequestDetailsResponse, PamApiService } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,8 +32,6 @@ function activatedLease(id: string): AccessRequestDetailsResponse {
     ResolvedAt: "2026-06-10T10:30:00Z",
     ProducedLeaseId: "lease-" + id,
     ProducedLeaseStatus: "active",
-    CipherName: "Prod DB",
-    CollectionName: "Production",
     RequesterName: "Bob",
   });
 }
@@ -83,17 +81,10 @@ describe("AuditLogTabComponent", () => {
     inboxRequests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
 
     const nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-      cipherById: new Map(),
-    });
-    nameResolver.namesFor.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-      cipherById: new Map(),
-    });
-    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+    nameResolver.resolveNames$.mockReturnValue(
+      of({ cipherNameById: new Map(), collectionNameById: new Map(), cipherById: new Map() }),
+    );
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
 
     await TestBed.configureTestingModule({
       imports: [AuditLogTabComponent, NoopAnimationsModule],

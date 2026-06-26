@@ -21,6 +21,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ResolvedNames, emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { FlatHistoryRow, HistoryFilter, flattenHistory } from "./history-row";
 
 /**
@@ -50,6 +52,8 @@ import { FlatHistoryRow, HistoryFilter, flattenHistory } from "./history-row";
 export class AuditLogComponent {
   /** Merged, de-duplicated history items (managed-collection decisions + the viewer's own). */
   readonly items = input.required<AccessRequestDetailsResponse[]>();
+  /** Cipher/collection display names resolved from local vault state, keyed by id. */
+  readonly names = input<ResolvedNames>(emptyResolvedNames());
   /** Ids of items the viewer can act on (the managed-collection decisions). */
   readonly managedIds = input<Set<string>>(new Set());
   /** Stable "now" reference for relative-time labels. */
@@ -67,7 +71,7 @@ export class AuditLogComponent {
 
   protected readonly flatHistory = computed<FlatHistoryRow[]>(() => {
     const managed = this.managedIds();
-    return flattenHistory(this.items(), this.now(), (item) => managed.has(item.id));
+    return flattenHistory(this.items(), this.now(), this.names(), (item) => managed.has(item.id));
   });
 
   protected readonly filtered = computed<FlatHistoryRow[]>(() => {
