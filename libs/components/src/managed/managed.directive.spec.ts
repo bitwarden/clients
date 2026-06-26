@@ -68,6 +68,14 @@ class TestManagedNgModelHostComponent {
   value = false;
 }
 
+@Component({
+  selector: "test-managed-signal-host",
+  template: `<span [bitManaged]="'k'" [bitManagedLabel]="'Managed'"></span>`,
+  imports: [BitManagedDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestManagedSignalHostComponent {}
+
 describe("BitManagedDirective", () => {
   let managedSettings: MockManagedSettingsService;
 
@@ -163,5 +171,23 @@ describe("BitManagedDirective", () => {
     const input = fixture.debugElement.query(By.css("input"));
     expect(input.injector.get(NgControl).control!.disabled).toBe(false);
     expect(badge(fixture)).toBeNull();
+  });
+
+  it("exposes the managed signal that reflects isManaged state and updates on changes$", async () => {
+    const fixture = setup(TestManagedSignalHostComponent);
+    managedSettings.setManaged("k", true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const directiveEl = fixture.debugElement.query(By.directive(BitManagedDirective));
+    const directive = directiveEl.injector.get(BitManagedDirective);
+    expect(directive.managed()).toBe(true);
+
+    managedSettings.setManaged("k", false);
+    managedSettings.changes$.next();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(directive.managed()).toBe(false);
   });
 });

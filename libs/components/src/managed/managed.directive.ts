@@ -7,6 +7,7 @@ import {
   ViewContainerRef,
   inject,
   input,
+  signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgControl } from "@angular/forms";
@@ -32,6 +33,7 @@ import { BadgeComponent } from "../badge/badge.component";
 @Directive({
   selector: "[bitManaged]",
   standalone: true,
+  exportAs: "bitManaged",
 })
 export class BitManagedDirective implements OnInit {
   private readonly managedSettings = inject(ManagedSettingsService);
@@ -44,6 +46,8 @@ export class BitManagedDirective implements OnInit {
   readonly key = input.required<string>({ alias: "bitManaged" });
   /** Translated badge text supplied by the consuming template. */
   readonly bitManagedLabel = input("");
+
+  readonly managed = signal(false);
 
   private badgeRef?: ComponentRef<BadgeComponent>;
 
@@ -60,7 +64,9 @@ export class BitManagedDirective implements OnInit {
   }
 
   private apply() {
-    this.render(this.managedSettings.isManaged(this.key()));
+    const managed = this.managedSettings.isManaged(this.key());
+    this.managed.set(managed);
+    this.render(managed);
   }
 
   private render(managed: boolean) {

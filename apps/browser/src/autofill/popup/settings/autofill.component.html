@@ -70,13 +70,14 @@
       <bit-card
         [bitManaged]="'autofill.inlineMenuVisibility'"
         [bitManagedLabel]="'managedByYourOrganization' | i18n"
+        #inlineMenuManaged="bitManaged"
       >
         <bit-form-control [disableMargin]="!enableInlineMenu && !canOverrideBrowserAutofillSetting">
           <input
             bitCheckbox
             id="show-inline-menu"
             type="checkbox"
-            [disabled]="inlineMenuManaged"
+            [disabled]="inlineMenuManaged.managed()"
             (change)="updateInlineMenuVisibility()"
             [(ngModel)]="enableInlineMenu"
           />
@@ -136,7 +137,7 @@
             bitCheckbox
             id="show-autofill-suggestions-on-icon"
             type="checkbox"
-            [disabled]="inlineMenuManaged"
+            [disabled]="inlineMenuManaged.managed()"
             (change)="updateInlineMenuVisibility()"
             [(ngModel)]="enableInlineMenuOnIconSelect"
           />
