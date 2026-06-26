@@ -6758,7 +6758,7 @@
     "message": "Staged"
   },
   "stagedMemberTooltip": {
-    "message": "Admin needs to send an invite"
+    "message": "Pending account invitation"
   },
   "sendLink": {
     "message": "Send link",
