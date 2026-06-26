@@ -14,8 +14,8 @@ export class SecureSafeCsvImporter extends BaseImporter implements Importer {
       return Promise.resolve(result);
     }
 
-    // The url field can be in different case formats.
-    const urlField = Object.keys(results[0]).find((k) => /url/i.test(k));
+    // The url field can be in different case formats, and the new SecureSafe export uses "Website".
+    const urlField = Object.keys(results[0]).find((k) => /url|website/i.test(k));
     results.forEach((value) => {
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(value.Title);
