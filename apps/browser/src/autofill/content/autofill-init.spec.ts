@@ -361,7 +361,7 @@ describe("AutofillInit", () => {
       });
 
       describe("collectPageDetails", () => {
-        it("sends the collected page details back to the background", async () => {
+        it("sends the collected page details for autofill using a background script message", async () => {
           const pageDetails: AutofillPageDetails = {
             title: "title",
             url: "http://example.com",
