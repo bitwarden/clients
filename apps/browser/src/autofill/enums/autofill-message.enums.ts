@@ -1,6 +1,7 @@
 export const AutofillMessageCommand = {
   collectPageDetails: "collectPageDetails",
   collectPageDetailsResponse: "collectPageDetailsResponse",
+  pageTransitionDetected: "pageTransitionDetected",
 } as const;
 
 export type AutofillMessageCommandType =

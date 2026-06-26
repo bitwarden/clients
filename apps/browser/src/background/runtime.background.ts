@@ -25,6 +25,8 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import {
@@ -59,6 +61,7 @@ export default class RuntimeBackground {
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private browserInitialInstallService: BrowserInitialInstallService,
+    private autofillLifecycleService: AutofillLifecycleService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -141,6 +144,12 @@ export default class RuntimeBackground {
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
+        break;
+      case AutofillMessageCommand.pageTransitionDetected:
+        // A page-lifecycle monitor reports a transition as a fact. The service
+        // buffers it against monitoring state and decides whether it warrants
+        // a collection.
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId);
         break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
