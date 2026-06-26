@@ -3143,7 +3143,7 @@
     }
   },
   "reviewXAtRiskPassword": {
-    "message": "Review one at-risk password"
+    "message": "Review 1 at-risk password"
   },
   "reviewXAtRiskPasswordsPlural": {
     "message": "Review $COUNT$ at-risk passwords",
