@@ -141,6 +141,18 @@ export class SendOptionsComponent {
     });
   }
 
+  incrementMaxAccessCount(): void {
+    const current = Number(this.sendOptionsForm.get("maxAccessCount")?.value ?? 0);
+    this.sendOptionsForm.patchValue({ maxAccessCount: String(current + 1) });
+  }
+
+  decrementMaxAccessCount(): void {
+    const current = Number(this.sendOptionsForm.get("maxAccessCount")?.value ?? 1);
+    if (current > 1) {
+      this.sendOptionsForm.patchValue({ maxAccessCount: String(current - 1) });
+    }
+  }
+
   isIntegerValidator(): ValidatorFn {
     return (control: FormControl): ValidationErrors | null => {
       if (control.value == null || control.value == "") {

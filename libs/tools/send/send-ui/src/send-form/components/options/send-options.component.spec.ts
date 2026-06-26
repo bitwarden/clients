@@ -13,7 +13,6 @@ import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
 
 import { SendOptionsComponent } from "./send-options.component";
-
 describe("SendOptionsComponent", () => {
   let component: SendOptionsComponent;
   let fixture: ComponentFixture<SendOptionsComponent>;
@@ -24,7 +23,6 @@ describe("SendOptionsComponent", () => {
     fixture.componentRef.setInput("editing", !fixture.componentInstance.editing());
     fixture.detectChanges();
   };
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SendOptionsComponent],
@@ -39,26 +37,21 @@ describe("SendOptionsComponent", () => {
     fixture = TestBed.createComponent(SendOptionsComponent);
     component = fixture.componentInstance;
   });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
   it("should create", () => {
     expect(component).toBeTruthy();
   });
-
   describe("View mode", () => {
     beforeEach(async () => {
       fixture.componentRef.setInput("editing", false);
       fixture.detectChanges();
     });
-
     it("should not display the section at all if none of its fields are visible", () => {
       const cardEl = fixture.debugElement.query(By.css("bit-card"));
       expect(cardEl).toBeNull();
     });
-
     it.each([
       { maxAccessCount: 5 } as SendView,
       { hideEmail: true } as SendView,
@@ -72,7 +65,6 @@ describe("SendOptionsComponent", () => {
         expect(cardEl).toBeTruthy();
       },
     );
-
     it("should display all subfields as readonly or disabled if they are defined", async () => {
       mockSendFormService.originalSendView.mockReturnValue({
         maxAccessCount: 5,
@@ -80,7 +72,9 @@ describe("SendOptionsComponent", () => {
         notes: "My private note",
       } as SendView);
       cycleChangeDetection();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       expect(maxAccessCountEl.attributes.readonly).toEqual("");
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
@@ -91,13 +85,11 @@ describe("SendOptionsComponent", () => {
       expect(privateNoteEl.attributes.readonly).toEqual("");
     });
   });
-
   describe("Edit mode", () => {
     beforeEach(async () => {
       fixture.componentRef.setInput("editing", true);
       await fixture.whenStable();
     });
-
     it("should display all fields whether or not they are defined", async () => {
       await mockSendFormService.initializeSendForm({
         areSendsAllowed: true,
@@ -106,12 +98,55 @@ describe("SendOptionsComponent", () => {
         sendType: SendType.Text,
       });
       fixture.detectChanges();
-      const maxAccessCountEl = fixture.debugElement.query(By.css("#maxAccessCountInput"));
+      const maxAccessCountEl = fixture.debugElement.query(
+        By.css("#send-options_input_max-access-count"),
+      );
       expect(maxAccessCountEl).toBeTruthy();
       const hideEmailEl = fixture.debugElement.query(By.css("input[type=checkbox]"));
       expect(hideEmailEl).toBeTruthy();
       const privateNoteEl = fixture.debugElement.query(By.css("textarea"));
       expect(privateNoteEl).toBeTruthy();
+    });
+  });
+  describe("Max access count increment/decrement", () => {
+    beforeEach(async () => {
+      mockSendFormService.originalSendView.mockReturnValue({ maxAccessCount: 3 } as SendView);
+      fixture.componentRef.setInput("editing", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+    it("should show +/- buttons in edit mode", () => {
+      const incrementBtn = fixture.debugElement.query(
+        By.css("[data-testid='increment-max-access-count']"),
+      );
+      const decrementBtn = fixture.debugElement.query(
+        By.css("[data-testid='decrement-max-access-count']"),
+      );
+      expect(incrementBtn).toBeTruthy();
+      expect(decrementBtn).toBeTruthy();
+    });
+    it("should not show +/- buttons in view mode", () => {
+      fixture.componentRef.setInput("editing", false);
+      fixture.detectChanges();
+      const incrementBtn = fixture.debugElement.query(
+        By.css("[data-testid='increment-max-access-count']"),
+      );
+      expect(incrementBtn).toBeNull();
+    });
+    it("should increment maxAccessCount when + button clicked", () => {
+      component.sendOptionsForm.patchValue({ maxAccessCount: "3" });
+      component.incrementMaxAccessCount();
+      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("4");
+    });
+    it("should decrement maxAccessCount when - button clicked", () => {
+      component.sendOptionsForm.patchValue({ maxAccessCount: "3" });
+      component.decrementMaxAccessCount();
+      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("2");
+    });
+    it("should not decrement below 1", () => {
+      component.sendOptionsForm.patchValue({ maxAccessCount: "1" });
+      component.decrementMaxAccessCount();
+      expect(component.sendOptionsForm.get("maxAccessCount")?.value).toBe("1");
     });
   });
 });
