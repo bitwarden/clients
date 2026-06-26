@@ -95,7 +95,7 @@ describe("EnvironmentService", () => {
         notifications: "https://notifications.bitwarden.eu",
         events: "https://events.bitwarden.eu",
         scim: "https://scim.bitwarden.eu/v2",
-        send: "https://send.bitwarden.eu",
+        send: "https://vault.bitwarden.eu",
       },
     },
   ];
@@ -117,7 +117,11 @@ describe("EnvironmentService", () => {
         expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
         expect(env.getEventsUrl()).toBe(expectedUrls.events);
         expect(env.getScimUrl()).toBe(expectedUrls.scim);
-        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
+        if (region === "US") {
+          expect(env.getSendUrl()).toBe(expectedUrls.send + "/#");
+        } else {
+          expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/send/");
+        }
         expect(env.getKeyConnectorUrl()).toBe(undefined);
         expect(env.isCloud()).toBe(true);
         expect(env.getUrls()).toEqual({
@@ -239,14 +243,31 @@ describe("EnvironmentService", () => {
       const userEnvironmentUrls = new EnvironmentUrls();
       userEnvironmentUrls.webVault = "https://vault.myserver.com";
       setUserData(Region.SelfHosted, userEnvironmentUrls);
+      await switchUser(testUser);
+      const env = await firstValueFrom(sut.environment$);
+      expect(env.getWebVaultUrl()).toBe("https://vault.myserver.com");
+      // Must NOT return "https://scim.bitwarden.com/v2" (cloud fallback)
+      expect(env.getScimUrl()).toBe("https://vault.myserver.com/scim/v2");
+    });
+
+    it("derives urls from webVault for self-hosted when base is not set", async () => {
+      const userEnvironmentUrls = new EnvironmentUrls();
+      userEnvironmentUrls.webVault = "https://vault.atjb.link";
+      setUserData(Region.SelfHosted, userEnvironmentUrls);
 
       await switchUser(testUser);
 
       const env = await firstValueFrom(sut.environment$);
 
-      expect(env.getWebVaultUrl()).toBe("https://vault.myserver.com");
-      // Must NOT return "https://scim.bitwarden.com/v2" (cloud fallback)
-      expect(env.getScimUrl()).toBe("https://vault.myserver.com/scim/v2");
+      expect(env.getWebVaultUrl()).toBe("https://vault.atjb.link");
+      expect(env.getIdentityUrl()).toBe("https://vault.atjb.link/identity");
+      expect(env.getApiUrl()).toBe("https://vault.atjb.link/api");
+      expect(env.getIconsUrl()).toBe("https://vault.atjb.link/icons");
+      expect(env.getNotificationsUrl()).toBe("https://vault.atjb.link/notifications");
+      expect(env.getEventsUrl()).toBe("https://vault.atjb.link/events");
+      expect(env.getScimUrl()).toBe("https://vault.atjb.link/scim/v2");
+      expect(env.getSendUrl()).toBe("https://vault.atjb.link/#/send/");
+      expect(env.isCloud()).toBe(false);
     });
   });
 
@@ -263,7 +284,11 @@ describe("EnvironmentService", () => {
       expect(env.getNotificationsUrl()).toBe(expectedUrls.notifications);
       expect(env.getEventsUrl()).toBe(expectedUrls.events);
       expect(env.getScimUrl()).toBe(expectedUrls.scim);
-      expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/");
+      if (region === "US") {
+        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#");
+      } else {
+        expect(env.getSendUrl()).toBe(expectedUrls.send + "/#/send/");
+      }
       expect(env.getKeyConnectorUrl()).toBe(undefined);
       expect(env.isCloud()).toBe(true);
       expect(env.getUrls()).toEqual({

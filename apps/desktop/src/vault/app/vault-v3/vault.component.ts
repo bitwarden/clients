@@ -110,6 +110,7 @@ import {
   BULK_DELETE_DIALOG,
   VaultBatchActionComponent,
   VaultBatchBarService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -145,6 +146,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     SearchModule,
     FormsModule,
     VaultBatchActionComponent,
+    VaultOrganizationUserNotificationsComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
