@@ -61,7 +61,22 @@ fn init_logging(log_path: &Path, console_level: LevelFilter, file_level: LevelFi
 #[allow(clippy::unwrap_used)]
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let sock_paths = desktop_core::ipc::all_paths("bw");
+    #[cfg_attr(not(target_os = "linux"), allow(unused_mut))]
+    let mut sock_paths = desktop_core::ipc::all_paths("bw");
+
+    // When running inside a snap sandbox, the browser's proxy can only reach sockets that live
+    // under its own snap directory (`~/snap/<name>/`). The unsandboxed (`~/.config/...`) and other
+    // snaps' sockets may appear to exist via `stat`, but connecting to them is blocked by the
+    // snap's AppArmor confinement (yielding "Permission denied"). Restrict the candidates to the
+    // current snap's directory so we connect to the socket the desktop app mounted for this snap.
+    #[cfg(target_os = "linux")]
+    if let Ok(snap_user_common) = std::env::var("SNAP_USER_COMMON") {
+        // `SNAP_USER_COMMON` is `~/snap/<name>/common`; its parent is the snap root `~/snap/<name>`.
+        if let Some(snap_root) = Path::new(&snap_user_common).parent().map(Path::to_path_buf) {
+            sock_paths.retain(|p| p.starts_with(&snap_root));
+        }
+    }
+
     let sock_path = sock_paths
         .into_iter()
         .find(|p| p.exists())

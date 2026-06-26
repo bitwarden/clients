@@ -283,7 +283,11 @@
             "$HOME/.config/chromium/NativeMessagingHosts",
             "$HOME/.config/microsoft-edge/NativeMessagingHosts",
             "$HOME/.config/google-chrome/NativeMessagingHosts",
-            "$HOME/.mozilla"
+            "$HOME/.mozilla",
+            "$HOME/snap/firefox/common/.mozilla",
+            "$HOME/snap/chromium/common/chromium/NativeMessagingHosts",
+            "$HOME/snap/google-chrome/common/google-chrome/NativeMessagingHosts",
+            "$HOME/snap/microsoft-edge/common/microsoft-edge/NativeMessagingHosts"
           ]
         }
       },

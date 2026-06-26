@@ -42,6 +42,17 @@ pub const UNSANDBOXED_PATHS: [&str; 4] = [
     ".mozilla/native-messaging-hosts",
 ];
 
+/// The paths, relative to the host home directory, to where the native messaging files live for
+/// snap-packaged browsers. Snap-confined browsers can only reach a socket inside their own
+/// `~/snap/<browser>/` directory, so the server mounts a socket per snap browser here. 
+#[cfg(target_os = "linux")]
+pub const SNAP_PATHS: [&str; 4] = [
+    "snap/firefox/common/.mozilla/native-messaging-hosts",
+    "snap/chromium/common/chromium/NativeMessagingHosts",
+    "snap/brave/current/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+    "snap/microsoft-edge-dev/current/.config/microsoft-edge-dev/NativeMessagingHosts",
+];
+
 /// This is the codec used for communication through the UNIX socket / Windows named pipe.
 /// It's an internal implementation detail, but we want to make sure that both the client
 ///  and the server use the same one.
@@ -136,6 +147,14 @@ pub fn all_paths(name: &str) -> Vec<std::path::PathBuf> {
                 .iter()
                 .map(|path| host_home.join(path).join(format!(".app.{name}.socket")));
             paths.extend(unsandboxed_paths);
+
+            // Add the snap browser paths. These live under the real host home (`~/snap/<browser>/`),
+            // which a snap-confined browser's proxy can reach via its absolute path, so we build them
+            // from the host home rather than the (potentially sandbox-mapped) `dirs::home_dir()`.
+            let snap_paths = SNAP_PATHS
+                .iter()
+                .map(|path| host_home.join(path).join(format!(".app.{name}.socket")));
+            paths.extend(snap_paths);
         }
 
         paths
