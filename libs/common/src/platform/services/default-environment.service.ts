@@ -204,6 +204,15 @@ export class DefaultEnvironmentService implements EnvironmentService {
       }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
+
+    // Keep the global state observables warm. StateProvider's internal
+    // ReplaySubject resets after `cleanupDelayMs` of zero subscribers; if that
+    // happens, a switchMap transition into the global branch (e.g. on logout)
+    // would trigger an async disk read while shareReplay's buffer still holds
+    // the prior user's environment. Pinning refCount >= 1 for the service's
+    // lifetime guarantees synchronous replay on every transition into global.
+    this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$.subscribe();
+    this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$.subscribe();
   }
 
   availableRegions(): RegionConfig[] {
