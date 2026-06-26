@@ -13,6 +13,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BerryComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -63,6 +64,7 @@ export class ReusedPasswordsReportComponent
     private route: ActivatedRoute,
     organizationService: OrganizationService,
     protected accountService: AccountService,
+    protected logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
@@ -80,30 +82,52 @@ export class ReusedPasswordsReportComponent
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
+    this.logService.info("[ReusedPasswordsOrganizationReport] org setup start");
 
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
-          const collections = await firstValueFrom(
-            this.collectionService.decryptedCollections$(userId),
-          );
-          this.sharedCollectionIds = new Set(
-            collections
-              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
-              .map((c) => c.id as string),
-          );
-          await super.ngOnInit();
+          this.logService.info("[ReusedPasswordsOrganizationReport] route params received");
+
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] organization context loaded found=${this.organization != null}`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] manageable ciphers loaded count=${this.manageableCipherIds.size}`,
+            );
+
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[ReusedPasswordsOrganizationReport] shared collections loaded count=${this.sharedCollectionIds.size}`,
+            );
+
+            await super.ngOnInit();
+            this.logService.info("[ReusedPasswordsOrganizationReport] org setup complete");
+          } catch (e) {
+            this.logService.error("[ReusedPasswordsOrganizationReport] org setup failure", e);
+            throw e;
+          }
         }),
         takeUntil(this.destroyed$),
       )
