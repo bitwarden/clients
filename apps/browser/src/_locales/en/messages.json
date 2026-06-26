@@ -5037,7 +5037,7 @@
     "description": "Label for the setting to make Bitwarden the default password manager"
   },
   "defaultPasswordManagerSettingHintV2": {
-    "message": "Turn off the browser autofill settings to avoid conflicts. ",
+    "message": "Turn off the browser autofill settings to avoid conflicts.",
     "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
   "defaultPasswordManagerSettingHintLinkV2": {
