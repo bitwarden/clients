@@ -21,32 +21,29 @@
           />
           <bit-label for="use-passkeys">{{ "enableUsePasskeys" | i18n }}</bit-label>
         </bit-form-control>
-        <bit-form-control
-          [bitManaged]="'autofill.addedLoginPrompt'"
-          [bitManagedLabel]="'managedByYourOrganization' | i18n"
-        >
+        <bit-form-control>
           <input
             bitCheckbox
             id="addlogin-notification-bar"
             type="checkbox"
             (change)="updateAddLoginNotification()"
             [(ngModel)]="enableAddLoginNotification"
+            [bitManaged]="'autofill.addedLoginPrompt'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
           />
           <bit-label for="addlogin-notification-bar">{{
             "enableAddLoginNotification" | i18n
           }}</bit-label>
         </bit-form-control>
-        <bit-form-control
-          disableMargin
-          [bitManaged]="'autofill.changedPasswordPrompt'"
-          [bitManagedLabel]="'managedByYourOrganization' | i18n"
-        >
+        <bit-form-control disableMargin>
           <input
             bitCheckbox
             id="changedpass-notification-bar"
             type="checkbox"
             (change)="updateChangedPasswordNotification()"
             [(ngModel)]="enableChangedPasswordNotification"
+            [bitManaged]="'autofill.changedPasswordPrompt'"
+            [bitManagedLabel]="'managedByYourOrganization' | i18n"
           />
           <bit-label for="changedpass-notification-bar">{{
             "enableChangedPasswordNotification" | i18n

@@ -285,15 +285,14 @@
               </bit-label>
             </bit-form-control>
           }
-          <bit-form-control
-            [bitManaged]="'autofill.contextMenu'"
-            [bitManagedLabel]="'managedByYourOrganization' | i18n"
-          >
+          <bit-form-control>
             <input
               formControlName="enableContextMenuItem"
               bitCheckbox
               id="context-menu"
               type="checkbox"
+              [bitManaged]="'autofill.contextMenu'"
+              [bitManagedLabel]="'managedByYourOrganization' | i18n"
             />
             <bit-label for="context-menu">{{ "enableContextMenuItem" | i18n }}</bit-label>
           </bit-form-control>
