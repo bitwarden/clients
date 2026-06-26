@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
@@ -14,6 +13,7 @@ import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-manage
 import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";

@@ -11,7 +11,6 @@ import {
 } from "@angular/forms";
 import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   EnvironmentService,
   Region,
@@ -29,6 +28,8 @@ import {
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 /**
  * Validator for self-hosted environment settings form.
