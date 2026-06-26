@@ -81,7 +81,7 @@
               "defaultPasswordManagerPromptTitleV2" | i18n
             }}</bit-label>
             <bit-hint class="tw-text-sm">
-              {{ "defaultPasswordManagerSettingHintPrefix" | i18n }}
+              {{ "defaultPasswordManagerSettingHintV2" | i18n }}
               <a
                 bitLink
                 class="tw-no-underline"
@@ -90,9 +90,8 @@
                 (click)="openURI($event, disablePasswordManagerURI)"
                 [attr.href]="disablePasswordManagerURI"
               >
-                {{ "defaultPasswordManagerSettingLinkText" | i18n }}
+                {{ "defaultPasswordManagerSettingHintLinkV2" | i18n }}
               </a>
-              {{ "defaultPasswordManagerSettingHintSuffix" | i18n }}
             </bit-hint>
           </bit-form-control>
         }

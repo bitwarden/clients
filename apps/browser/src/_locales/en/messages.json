@@ -5034,19 +5034,15 @@
   },
   "defaultPasswordManagerPromptTitleV2": {
     "message": "Make Bitwarden your default password manager",
-    "description": "Label for the setting and prompt title to make Bitwarden the default password manager"
+    "description": "Label for the setting to make Bitwarden the default password manager"
   },
-  "defaultPasswordManagerSettingHintPrefix": {
-    "message": "Bitwarden will turn off ",
-    "description": "Prefix for the default password manager setting hint. Followed by a link to browser autofill settings."
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Turn off the browser autofill settings to avoid conflicts. ",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
   },
-  "defaultPasswordManagerSettingLinkText": {
-    "message": "browser autofill",
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Manage browser settings.",
     "description": "Link text to browser autofill settings in the default password manager setting hint."
-  },
-  "defaultPasswordManagerSettingHintSuffix": {
-    "message": " to avoid conflicts. You may need to grant a browser permission.",
-    "description": "Suffix for the default password manager setting hint. Follows a link to browser autofill settings."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "from the browser prompt to give Bitwarden permission to change your settings."
