@@ -73,7 +73,7 @@ const createForwardingEmail = Object.freeze({
                 description: "",
                 forDomain: context.website(request),
                 emailPrefix: context.prefixEnabled()
-                  ? Utils.getDomain(context.website(request))
+                  ? (Utils.getDomain(context.website(request)) ?? "")
                       .toLowerCase()
                       .replace(/[^a-z0-9]+/g, "_")
                       .replace(/_+/g, "_")
