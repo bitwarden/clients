@@ -1,5 +1,7 @@
 import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
+
 import { durationLabel, reasonText, relativeStart, toApprovalRow } from "./approval-row";
 
 function request(
@@ -8,8 +10,6 @@ function request(
     requestedTtlSeconds: number;
     requestedNotBefore: string | null;
     requestedNotAfter: string | null;
-    cipherName: string | null;
-    collectionName: string | null;
     requesterName: string | null;
     requesterEmail: string | null;
     submittedAt: string;
@@ -26,12 +26,25 @@ function request(
     RequestedNotAfter: overrides.requestedNotAfter ?? null,
     Reason: overrides.reason ?? null,
     SubmittedAt: overrides.submittedAt ?? "2026-06-10T10:00:00Z",
-    CipherName: overrides.cipherName ?? "Prod DB",
-    CollectionName: overrides.collectionName ?? "Production",
     RequesterName: overrides.requesterName ?? "Bob",
     RequesterEmail: overrides.requesterEmail ?? "bob@example.com",
   });
 }
+
+/** Resolved-name lookup keyed to the builder's fixed cipher-1 / col-1 ids. */
+function names(overrides: { cipherName?: string; collectionName?: string } = {}): ResolvedNames {
+  return {
+    cipherNameById: new Map([["cipher-1", overrides.cipherName ?? "Prod DB"]]),
+    collectionNameById: new Map([["col-1", overrides.collectionName ?? "Production"]]),
+    cipherById: new Map(),
+  };
+}
+
+const noNames: ResolvedNames = {
+  cipherNameById: new Map(),
+  collectionNameById: new Map(),
+  cipherById: new Map(),
+};
 
 describe("durationLabel", () => {
   it("renders sub-hour durations in minutes (min 1)", () => {
@@ -109,8 +122,9 @@ describe("toApprovalRow", () => {
 
   it("projects literal sort fields and a search haystack", () => {
     const row = toApprovalRow(
-      request({ cipherName: "Prod DB", collectionName: "Production", requesterName: "Bob" }),
+      request({ requesterName: "Bob" }),
       now,
+      names({ cipherName: "Prod DB", collectionName: "Production" }),
     );
     expect(row.cipherName).toBe("Prod DB");
     expect(row.collectionName).toBe("Production");
@@ -131,8 +145,9 @@ describe("toApprovalRow", () => {
       SubmittedAt: "2026-06-10T10:00:00Z",
       RequesterEmail: "x@example.com",
     });
-    const row = toApprovalRow(nameless, now);
+    const row = toApprovalRow(nameless, now, noNames);
     expect(row.cipherName).toBe("cipher-1");
+    expect(row.collectionName).toBeNull();
     expect(row.requester).toBe("x@example.com");
   });
 });

@@ -36,7 +36,7 @@ import { ServerNotificationsService } from "@bitwarden/common/platform/server-no
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 import { hasApprovalPrivileges$ } from "../approver-inbox/approval-privileges";
 
 /**
@@ -66,7 +66,6 @@ export class AccessRequestDetailService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   private readonly _notFound$ = new BehaviorSubject<boolean>(false);
-  private readonly _cipherById$ = new BehaviorSubject<Map<string, CipherView>>(new Map());
 
   /** The `:id` segment — which request to load; re-emits when the user navigates to another id. */
   private readonly requestId$: Observable<string> = this.route.paramMap.pipe(
@@ -75,22 +74,27 @@ export class AccessRequestDetailService {
     distinctUntilChanged(),
   );
 
+  /** The loaded request; its display names come from {@link names$}. Null while loading/not-found/errored. */
+  readonly request$: Observable<AccessRequestDetailsResponse | null> =
+    this._request$.asObservable();
+
   /**
-   * The loaded request with its collection name back-filled from local vault state as it warms (the
-   * cipher name is resolved on the load path). Null while loading, not-found, or errored.
+   * Cipher + collection display names (and the decrypted view for the favicon) for the loaded
+   * request, resolved from local vault state and re-emitting as collection state warms. The view
+   * reads these maps to render the request's item.
    */
-  readonly request$: Observable<AccessRequestDetailsResponse | null> = this.nameResolver
-    .applyCollectionNames$(
-      this._request$.pipe(map((request) => (request == null ? [] : [request]))),
-    )
-    .pipe(map((rows) => rows[0] ?? null));
+  readonly names$: Observable<ResolvedNames> = this.nameResolver.resolveNames$(
+    this._request$.pipe(map((request) => (request == null ? [] : [request]))),
+  );
 
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   /** True when the request is missing or not visible to the caller (the server 404s both). */
   readonly notFound$: Observable<boolean> = this._notFound$.asObservable();
   /** Decrypted gated cipher keyed by id, for rendering the item's favicon; empty when not in vault. */
-  readonly cipherById$: Observable<Map<string, CipherView>> = this._cipherById$.asObservable();
+  readonly cipherById$: Observable<Map<string, CipherView>> = this.names$.pipe(
+    map((names) => names.cipherById),
+  );
 
   readonly currentUserId$: Observable<string | null> = this.accountService.activeAccount$.pipe(
     map((account) => account?.id ?? null),
@@ -199,15 +203,13 @@ export class AccessRequestDetailService {
     ).pipe(debounceTime(300));
   }
 
-  /** Fetch the request by id, resolve display names, and replace local state. Never rejects. */
+  /** Fetch the request by id and replace local state; display names resolve reactively via {@link names$}. Never rejects. */
   private async fetch(id: string): Promise<void> {
     this._loading$.next(true);
     this._loadError$.next(null);
     try {
       const request = await this.pamApi.getAccessRequest(id);
-      const names = await this.nameResolver.resolveDisplayNames([request]);
       this._request$.next(request);
-      this._cipherById$.next(names.cipherById);
       this._notFound$.next(false);
     } catch (e) {
       // 404 = the request doesn't exist or isn't visible to this caller (the server returns the same

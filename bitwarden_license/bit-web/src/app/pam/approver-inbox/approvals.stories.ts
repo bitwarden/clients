@@ -6,6 +6,8 @@ import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { DialogModule } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { ResolvedNames, emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { ApprovalsComponent } from "./approvals.component";
 
 const CURRENT_USER = "user-me";
@@ -15,8 +17,7 @@ function row(
     id: string;
     requesterId: string;
     requesterName: string;
-    cipherName: string;
-    collectionName: string;
+    collectionId: string;
     reason: string | null;
     submittedAt: string;
     requestedNotBefore: string | null;
@@ -27,7 +28,7 @@ function row(
   return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-" + (overrides.id ?? "req-1"),
-    CollectionId: "col-1",
+    CollectionId: overrides.collectionId ?? "col-1",
     RequesterUserId: overrides.requesterId ?? "user-other",
     Status: "pending",
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
@@ -35,11 +36,20 @@ function row(
     RequestedTtlSeconds: overrides.requestedTtlSeconds ?? 3600,
     Reason: overrides.reason ?? "Investigating a production incident",
     SubmittedAt: overrides.submittedAt ?? new Date(Date.now() - 7 * 60_000).toISOString(),
-    CipherName: overrides.cipherName ?? "Prod DB admin",
-    CollectionName: overrides.collectionName ?? "Production",
     RequesterName: overrides.requesterName ?? "Bob Engineer",
     RequesterEmail: "bob@example.com",
   });
+}
+
+/** Display names the resolver would supply from local vault state, keyed by cipher/collection id. */
+function names(
+  entries: { cipherId: string; cipherName: string; collectionId: string; collectionName: string }[],
+): ResolvedNames {
+  return {
+    cipherNameById: new Map(entries.map((e) => [e.cipherId, e.cipherName])),
+    collectionNameById: new Map(entries.map((e) => [e.collectionId, e.collectionName])),
+    cipherById: new Map(),
+  };
 }
 
 export default {
@@ -56,6 +66,7 @@ export default {
     now: new Date(),
     loading: false,
     hasManagerCollections: true,
+    names: emptyResolvedNames(),
   },
 } as Meta<ApprovalsComponent>;
 
@@ -75,14 +86,12 @@ export const Populated: Story = {
     requests: [
       row({
         id: "a",
-        cipherName: "Prod DB admin",
-        collectionName: "Production",
+        collectionId: "col-prod",
         submittedAt: new Date(Date.now() - 2 * 60 * 60_000).toISOString(),
       }),
       row({
         id: "b",
-        cipherName: "Staging API key",
-        collectionName: "Staging",
+        collectionId: "col-staging",
         reason: null,
         requestedTtlSeconds: 7200,
         requestedNotBefore: new Date(Date.now() + 60 * 60_000).toISOString(),
@@ -93,9 +102,28 @@ export const Populated: Story = {
         id: "self",
         requesterId: CURRENT_USER,
         requesterName: "Me",
-        cipherName: "My own request",
-        collectionName: "Production",
+        collectionId: "col-prod",
       }),
     ],
+    names: names([
+      {
+        cipherId: "cipher-a",
+        cipherName: "Prod DB admin",
+        collectionId: "col-prod",
+        collectionName: "Production",
+      },
+      {
+        cipherId: "cipher-b",
+        cipherName: "Staging API key",
+        collectionId: "col-staging",
+        collectionName: "Staging",
+      },
+      {
+        cipherId: "cipher-self",
+        cipherName: "My own request",
+        collectionId: "col-prod",
+        collectionName: "Production",
+      },
+    ]),
   },
 };

@@ -37,16 +37,11 @@ export class Decision extends BaseResponse {
 }
 
 /**
- * An access request with its denormalized display fields (cipher/collection
- * names, requester and approver identity), as returned by the approver inbox,
- * the caller's own request list, the decision endpoint, and the cipher
- * access-state snapshot.
- *
- * `cipherName` and `collectionName` arrive as encrypted blobs (EncString
- * payload strings), not plaintext. The web client does not decrypt them — it
- * resolves display names from local vault state instead (the gated CipherView
- * and the CollectionView), so these fields are a fallback for callers without
- * that state. No other cipher field is exposed.
+ * An access request and the fields the client renders it with — requester/approver identity, the
+ * requested window, lease status, and the decision log — as returned by the approver inbox, the
+ * caller's own request list, the decision endpoint, and the cipher access-state snapshot. The client
+ * resolves the cipher/collection display names from local vault state by {@link cipherId} /
+ * {@link collectionId} (see `AccessRequestNameResolver`).
  *
  * The decision endpoint (`POST /access-requests/{id}/decision`) returns this
  * shape but only `status`, `resolvedAt`, and the single `decisions` element
@@ -100,8 +95,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
    * until resolved and only meaningful for an approved on-demand request.
    */
   activationDeadline: string | null;
-  cipherName: string | null;
-  collectionName: string | null;
   requesterName: string | null;
   requesterEmail: string | null;
 
@@ -128,8 +121,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.producedLeaseStatus = this.getResponseProperty("ProducedLeaseStatus") ?? null;
     this.extensionOfLeaseId = this.getResponseProperty("ExtensionOfLeaseId") ?? null;
     this.activationDeadline = this.getResponseProperty("ActivationDeadline") ?? null;
-    this.cipherName = this.getResponseProperty("CipherName") ?? null;
-    this.collectionName = this.getResponseProperty("CollectionName") ?? null;
     this.requesterName = this.getResponseProperty("RequesterName") ?? null;
     this.requesterEmail = this.getResponseProperty("RequesterEmail") ?? null;
   }

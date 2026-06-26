@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom, of } from "rxjs";
 
 import {
   AccessRequestDetailsResponse,
@@ -10,21 +10,26 @@ import {
 } from "@bitwarden/bit-pam";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 import { ApproverInboxService, sortInbox } from "./approver-inbox.service";
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+const RESOLVED_NAMES: ResolvedNames = {
+  cipherNameById: new Map([["cipher-1", "Prod DB"]]),
+  collectionNameById: new Map([["col-1", "Production"]]),
+  cipherById: new Map(),
+};
+
 function makeRow(
   overrides: Partial<{
     id: string;
     submittedAt: string;
-    collectionName: string;
+    collectionId: string;
     requesterId: string;
     organizationId: string;
-    cipherName: string;
     requestedNotAfter: string;
     expiredAt: string;
   }> = {},
@@ -32,7 +37,7 @@ function makeRow(
   return new AccessRequestDetailsResponse({
     Id: overrides.id ?? "req-1",
     CipherId: "cipher-1",
-    CollectionId: "col-1",
+    CollectionId: overrides.collectionId ?? "col-1",
     OrganizationId: overrides.organizationId ?? "org-1",
     RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
@@ -40,8 +45,6 @@ function makeRow(
     RequestedNotAfter: overrides.requestedNotAfter,
     ExpiredAt: overrides.expiredAt,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
-    CipherName: overrides.cipherName ?? "2.encrypted-cipher-name",
-    CollectionName: overrides.collectionName ?? "Production",
     RequesterName: "Bob",
     RequesterEmail: "bob@example.com",
   });
@@ -58,13 +61,18 @@ describe("sortInbox", () => {
     expect(result.map((r) => r.id)).toEqual(["b", "c", "a"]);
   });
 
-  it("breaks submittedAt ties by collection name", () => {
+  it("breaks submittedAt ties by collection name resolved from the lookup map", () => {
     const submittedAt = "2026-05-15T12:00:00Z";
-    const a = makeRow({ id: "a", submittedAt, collectionName: "Zeta" });
-    const b = makeRow({ id: "b", submittedAt, collectionName: "alpha" });
-    const c = makeRow({ id: "c", submittedAt, collectionName: "Mike" });
+    const a = makeRow({ id: "a", submittedAt, collectionId: "col-zeta" });
+    const b = makeRow({ id: "b", submittedAt, collectionId: "col-alpha" });
+    const c = makeRow({ id: "c", submittedAt, collectionId: "col-mike" });
+    const collectionNameById = new Map([
+      ["col-zeta", "Zeta"],
+      ["col-alpha", "alpha"],
+      ["col-mike", "Mike"],
+    ]);
 
-    const result = sortInbox([a, b, c]);
+    const result = sortInbox([a, b, c], collectionNameById);
 
     expect(result.map((r) => r.id)).toEqual(["b", "c", "a"]);
   });
@@ -111,13 +119,9 @@ describe("ApproverInboxService", () => {
     >;
 
     nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-      cipherById: new Map(),
-    });
-    // Collection-name application is the resolver's job (covered in its own spec); pass rows through.
-    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+    // Name resolution is the resolver's job (covered in its own spec); the service reads its maps.
+    nameResolver.resolveNames$.mockReturnValue(of(RESOLVED_NAMES));
+    nameResolver.collectionNames$.mockReturnValue(of(RESOLVED_NAMES.collectionNameById));
 
     inboxRequests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
     inboxRequestsRefresh = jest.fn().mockResolvedValue(undefined);
@@ -149,12 +153,11 @@ describe("ApproverInboxService", () => {
       expect(rows.map((r) => r.id)).toEqual(["older", "newer"]);
     });
 
-    it("resolves display names for the projected rows", async () => {
+    it("exposes resolved display names from the resolver for its rows", async () => {
       await emitInbox([makeRow({ id: "a" })]);
 
-      expect(nameResolver.resolveDisplayNames).toHaveBeenCalled();
-      const resolved = nameResolver.resolveDisplayNames.mock.calls.at(-1)![0];
-      expect(resolved.map((r) => r.id)).toEqual(["a"]);
+      expect(nameResolver.resolveNames$).toHaveBeenCalled();
+      expect(await firstValueFrom(service.names$)).toBe(RESOLVED_NAMES);
     });
 
     it("excludes timed-out requests from the actionable list", async () => {
@@ -177,7 +180,7 @@ describe("ApproverInboxService", () => {
   });
 
   describe("history", () => {
-    it("loads history and resolves its display names on construction", async () => {
+    it("loads history on construction", async () => {
       // Construction already kicked an initial (empty) history load; reload with data.
       pamApiService.listInboxHistory.mockResolvedValue([makeRow({ id: "h" })]);
       await service.load();

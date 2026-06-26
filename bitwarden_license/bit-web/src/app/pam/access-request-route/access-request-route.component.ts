@@ -39,6 +39,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
+import { emptyResolvedNames } from "../access-request-name-resolver.service";
 import {
   durationLabel,
   exactWindow,
@@ -101,6 +102,23 @@ export class AccessRequestRouteComponent implements OnInit {
   protected readonly currentUserId = toSignal(this.detail.currentUserId$, { initialValue: null });
   private readonly cipherById = toSignal(this.detail.cipherById$, {
     initialValue: new Map<string, CipherView>(),
+  });
+  private readonly names = toSignal(this.detail.names$, { initialValue: emptyResolvedNames() });
+
+  /** Cipher name resolved from local vault state; falls back to the id. */
+  protected readonly cipherName = computed(() => {
+    const request = this.request();
+    return request == null
+      ? null
+      : (this.names().cipherNameById.get(request.cipherId) ?? request.cipherId);
+  });
+
+  /** Collection name resolved from local vault state; null when unknown. */
+  protected readonly collectionName = computed(() => {
+    const request = this.request();
+    return request == null
+      ? null
+      : (this.names().collectionNameById.get(request.collectionId) ?? null);
   });
 
   /** Ticks once a second so the lease / redemption countdowns stay live. */
@@ -255,7 +273,13 @@ export class AccessRequestRouteComponent implements OnInit {
       return;
     }
     const ref = DecideDialogComponent.open(this.dialogService, {
-      data: { verdict, request, now: new Date(this.nowMs()) },
+      data: {
+        verdict,
+        request,
+        cipherName: this.cipherName() ?? request.cipherId,
+        collectionName: this.collectionName(),
+        now: new Date(this.nowMs()),
+      },
     });
     const result = await lastValueFrom(ref.closed);
     // Only an explicit confirm carries `confirmed`; any other dismissal must not decide.

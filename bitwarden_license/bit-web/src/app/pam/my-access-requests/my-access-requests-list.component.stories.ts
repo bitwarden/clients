@@ -1,6 +1,6 @@
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { of } from "rxjs";
+import { Observable, map, of } from "rxjs";
 
 import {
   AccessLeaseResponse,
@@ -128,29 +128,19 @@ function pamApi(
   } as unknown as PamApiService;
 }
 
-/** Fills each row's cipher/collection name + favicon from the fixtures, as the real resolver would from vault state. */
+/** Resolves each row's cipher/collection name + favicon from the fixtures, as the real resolver would from vault state. */
 function nameResolver(): AccessRequestNameResolver {
   return {
-    resolveDisplayNames: async (rows: AccessRequestDetailsResponse[]) => {
-      rows.forEach((row) => {
-        row.cipherName = CIPHERS[row.cipherId]?.name ?? row.cipherId;
-        row.collectionName = "Production";
-      });
-      return {
-        cipherNameById: new Map(
-          rows.map((r) => [r.cipherId, CIPHERS[r.cipherId]?.name ?? r.cipherId]),
-        ),
-        collectionNameById: new Map(rows.map((r) => [r.collectionId, "Production"])),
-        cipherById: cipherViews(rows.map((r) => r.cipherId)),
-      };
-    },
-    namesFor: async (refs: ReadonlyArray<{ cipherId: string; collectionId: string }>) => ({
-      cipherNameById: new Map(
-        refs.map((r) => [r.cipherId, CIPHERS[r.cipherId]?.name ?? r.cipherId]),
+    resolveNames$: (refs$: Observable<ReadonlyArray<{ cipherId: string; collectionId: string }>>) =>
+      refs$.pipe(
+        map((refs) => ({
+          cipherNameById: new Map(
+            refs.map((r) => [r.cipherId, CIPHERS[r.cipherId]?.name ?? r.cipherId]),
+          ),
+          collectionNameById: new Map(refs.map((r) => [r.collectionId, "Production"])),
+          cipherById: cipherViews(refs.map((r) => r.cipherId)),
+        })),
       ),
-      collectionNameById: new Map(refs.map((r) => [r.collectionId, "Production"])),
-      cipherById: cipherViews(refs.map((r) => r.cipherId)),
-    }),
     collectionNames$: () => of(new Map<string, string>()),
   } as unknown as AccessRequestNameResolver;
 }

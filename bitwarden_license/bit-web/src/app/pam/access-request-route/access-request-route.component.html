@@ -20,10 +20,10 @@
               <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
             }
             <div>
-              <div>{{ r.cipherName ?? r.cipherId }}</div>
-              @if (r.collectionName) {
+              <div>{{ cipherName() }}</div>
+              @if (collectionName(); as collection) {
                 <div class="tw-text-xs tw-text-muted">
-                  {{ "pamInboxInCollection" | i18n: r.collectionName }}
+                  {{ "pamInboxInCollection" | i18n: collection }}
                 </div>
               }
             </div>

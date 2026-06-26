@@ -1,5 +1,7 @@
 import { AccessRequestDetailsResponse, elapsedKey } from "@bitwarden/bit-pam";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
+
 /** An i18n `{ key, value }` pair, leaving localization to the template. */
 export type LabelValue = { key: string; value: number | null };
 
@@ -8,13 +10,14 @@ export type LabelValue = { key: string; value: number | null };
  * fields `bitSortable` sorts on, pre-computed once per render against a stable `now`.
  *
  * Lifted from the former approver-inbox-row card so the table rows reuse the same
- * window/elapsed/reason logic rather than re-deriving it. `cipherName` is the name
- * resolved from local vault state (never the encrypted blob); it falls back to the id.
+ * window/elapsed/reason logic rather than re-deriving it. `cipherName` is resolved from
+ * local vault state and falls back to the id.
  */
 export type ApprovalRow = {
   request: AccessRequestDetailsResponse;
   // Literal fields for bitSortable + filter dropdowns.
   cipherName: string;
+  collectionId: string;
   collectionName: string | null;
   requester: string;
   requesterEmail: string | null;
@@ -83,14 +86,24 @@ export function exactWindow(request: AccessRequestDetailsResponse): string {
   return `${WINDOW_FORMAT.format(new Date(request.requestedNotBefore))} – ${WINDOW_FORMAT.format(new Date(request.requestedNotAfter))}`;
 }
 
-/** Build the table row for a pending request, snapshotting relative-time fields against `now`. */
-export function toApprovalRow(request: AccessRequestDetailsResponse, now: Date): ApprovalRow {
-  const cipherName = request.cipherName ?? request.cipherId;
+/**
+ * Build the table row for a pending request, snapshotting relative-time fields against `now`.
+ * Cipher/collection display names are read from `names` (resolved from local vault state); the
+ * cipher name falls back to the raw id and the collection name to null when not in the caller's vault.
+ */
+export function toApprovalRow(
+  request: AccessRequestDetailsResponse,
+  now: Date,
+  names: ResolvedNames,
+): ApprovalRow {
+  const cipherName = names.cipherNameById.get(request.cipherId) ?? request.cipherId;
+  const collectionName = names.collectionNameById.get(request.collectionId) ?? null;
   const requester = request.requesterName || request.requesterEmail || "";
   return {
     request,
     cipherName,
-    collectionName: request.collectionName,
+    collectionId: request.collectionId,
+    collectionName,
     requester,
     requesterEmail: request.requesterEmail,
     submittedAtMs: Date.parse(request.submittedAt),
@@ -99,7 +112,7 @@ export function toApprovalRow(request: AccessRequestDetailsResponse, now: Date):
     duration: durationLabel(request),
     relativeStart: relativeStart(request, now),
     exactWindow: exactWindow(request),
-    searchText: [cipherName, request.collectionName, request.requesterName, request.requesterEmail]
+    searchText: [cipherName, collectionName, request.requesterName, request.requesterEmail]
       .filter((s): s is string => !!s)
       .join(" ")
       .toLowerCase(),

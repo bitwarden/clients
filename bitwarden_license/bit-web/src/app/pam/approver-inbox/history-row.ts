@@ -7,6 +7,8 @@ import {
   formatRemaining,
 } from "@bitwarden/bit-pam";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
+
 /** Time-bucket a history item belongs to. */
 export type BucketKey = "active" | "future" | "past";
 
@@ -16,6 +18,10 @@ export type HistoryFilter = BucketKey | "all";
 /** A single row in a flat history table — all display fields pre-computed. */
 export type FlatHistoryRow = {
   item: AccessRequestDetailsResponse;
+  /** Cipher name resolved from local vault state, falling back to the raw id. */
+  cipherName: string;
+  /** Collection name resolved from local vault state; null when unknown. */
+  collectionName: string | null;
   bucket: BucketKey;
   canRevoke: boolean;
   canCancel: boolean;
@@ -212,6 +218,7 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
 export function flattenHistory(
   items: AccessRequestDetailsResponse[],
   now: Date,
+  names: ResolvedNames,
   canActOn: (item: AccessRequestDetailsResponse) => boolean = () => true,
 ): FlatHistoryRow[] {
   const nowMs = now.getTime();
@@ -221,6 +228,8 @@ export function flattenHistory(
       const human = findHumanDecision(item.decisions);
       return {
         item,
+        cipherName: names.cipherNameById.get(item.cipherId) ?? item.cipherId,
+        collectionName: names.collectionNameById.get(item.collectionId) ?? null,
         bucket,
         canRevoke:
           actionable &&

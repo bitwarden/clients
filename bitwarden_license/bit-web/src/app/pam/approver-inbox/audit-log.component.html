@@ -38,11 +38,11 @@
         <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'audit-log-row'">
           <td bitCell>
             <a [routerLink]="['/pam/requests', row.item.id]" class="tw-font-medium">{{
-              row.item.cipherName ?? row.item.cipherId
+              row.cipherName
             }}</a>
-            @if (row.item.collectionName) {
+            @if (row.collectionName) {
               <div class="tw-text-xs tw-text-muted">
-                {{ "pamInboxInCollection" | i18n: row.item.collectionName }}
+                {{ "pamInboxInCollection" | i18n: row.collectionName }}
               </div>
             }
           </td>

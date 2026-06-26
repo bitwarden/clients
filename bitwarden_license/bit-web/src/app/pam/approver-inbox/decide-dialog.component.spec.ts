@@ -9,8 +9,6 @@ import { DecideDialogComponent } from "./decide-dialog.component";
 
 function request(
   overrides: Partial<{
-    cipherName: string;
-    collectionName: string;
     requesterName: string;
     requesterEmail: string;
     reason: string;
@@ -27,8 +25,6 @@ function request(
     RequestedNotAfter: null,
     SubmittedAt: "2026-06-10T10:00:00Z",
     Reason: overrides.reason ?? "Migration testing window",
-    CipherName: overrides.cipherName ?? "GCP Console",
-    CollectionName: overrides.collectionName ?? "Infrastructure",
     RequesterName: overrides.requesterName ?? "Dani Goldberg",
     RequesterEmail: overrides.requesterEmail ?? "dani@example.com",
   });
@@ -69,7 +65,16 @@ describe("DecideDialogComponent", () => {
     TestBed.configureTestingModule({
       imports: [DecideDialogComponent, NoopAnimationsModule],
       providers: [
-        { provide: DIALOG_DATA, useValue: { verdict, request: req, now: new Date() } },
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            verdict,
+            request: req,
+            cipherName: "GCP Console",
+            collectionName: "Infrastructure",
+            now: new Date(),
+          },
+        },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: i18n },
       ],

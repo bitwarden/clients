@@ -20,8 +20,12 @@ import { durationLabel, reasonText, relativeStart } from "./approval-row";
 export type DecideDialogParams = {
   /** Which decision is being confirmed; drives the title and confirm-button styling. */
   verdict: AccessDecisionVerdict;
-  /** The request being decided — rendered as a summary card (names resolved from vault state). */
+  /** The request being decided — rendered as a summary card. */
   request: AccessRequestDetailsResponse;
+  /** Cipher display name resolved from local vault state; falls back to the id. */
+  cipherName: string;
+  /** Collection display name resolved from local vault state; null when unknown. */
+  collectionName: string | null;
   /** Stable "now" reference for the relative window phrasing. */
   now: Date;
 };
@@ -60,8 +64,8 @@ export class DecideDialogComponent {
   protected readonly isApprove = this.params.verdict === AccessDecisionVerdict.Approve;
 
   private readonly request = this.params.request;
-  protected readonly cipherName = this.request.cipherName ?? this.request.cipherId;
-  protected readonly collectionName = this.request.collectionName;
+  protected readonly cipherName = this.params.cipherName;
+  protected readonly collectionName = this.params.collectionName;
   protected readonly requesterName = this.request.requesterName;
   protected readonly requesterEmail = this.request.requesterEmail;
   protected readonly duration = durationLabel(this.request);

@@ -1,5 +1,6 @@
 import { AccessLeaseResponse, AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 
+import { ResolvedNames } from "../access-request-name-resolver.service";
 import { humanDecision } from "../testing/decision-builders";
 
 import {
@@ -11,6 +12,12 @@ import {
   toLeaseRow,
   toRow,
 } from "./my-request-row";
+
+const noNames: ResolvedNames = {
+  cipherNameById: new Map(),
+  collectionNameById: new Map(),
+  cipherById: new Map(),
+};
 
 /** Build an AccessRequestDetailsResponse from PascalCase overrides over sensible defaults. */
 function request(init: Record<string, unknown>): AccessRequestDetailsResponse {
@@ -223,7 +230,7 @@ describe("toLeaseRow", () => {
 
 describe("toRow", () => {
   it("defaults the extension badge fields to null and carries producedLeaseId", () => {
-    const row = toRow(request({ Id: "orig-1", ProducedLeaseId: "lease-1" }));
+    const row = toRow(request({ Id: "orig-1", ProducedLeaseId: "lease-1" }), noNames);
     expect(row.producedLeaseId).toBe("lease-1");
     expect(row.extendedBySeconds).toBeNull();
     expect(row.extendedUntil).toBeNull();
@@ -243,34 +250,37 @@ describe("buildMyRequestRows", () => {
   });
 
   it("never renders an extension as its own row", () => {
-    const rows = buildMyRequestRows([original, extension]);
+    const rows = buildMyRequestRows([original, extension], noNames);
     expect(rows.map((r) => r.id)).toEqual(["orig-1"]);
   });
 
   it("folds a single extension onto its original (added time + new end)", () => {
-    const orig = buildMyRequestRows([original, extension]).find((r) => r.id === "orig-1")!;
+    const orig = buildMyRequestRows([original, extension], noNames).find((r) => r.id === "orig-1")!;
     expect(orig.extendedBySeconds).toBe(7200);
     expect(orig.extendedUntil?.getTime()).toBe(Date.parse("2026-06-20T15:00:00Z"));
   });
 
   it("sums multiple extensions and takes the latest end, across approved + activated", () => {
-    const rows = buildMyRequestRows([
-      original,
-      request({
-        Id: "ext-1",
-        Status: "approved", // server contract
-        ExtensionOfLeaseId: "lease-1",
-        RequestedTtlSeconds: 3600,
-        RequestedNotAfter: "2026-06-20T13:00:00Z",
-      }),
-      request({
-        Id: "ext-2",
-        Status: "activated", // mock/spec contract — also counts
-        ExtensionOfLeaseId: "lease-1",
-        RequestedTtlSeconds: 7200,
-        RequestedNotAfter: "2026-06-20T15:00:00Z",
-      }),
-    ]);
+    const rows = buildMyRequestRows(
+      [
+        original,
+        request({
+          Id: "ext-1",
+          Status: "approved", // server contract
+          ExtensionOfLeaseId: "lease-1",
+          RequestedTtlSeconds: 3600,
+          RequestedNotAfter: "2026-06-20T13:00:00Z",
+        }),
+        request({
+          Id: "ext-2",
+          Status: "activated", // mock/spec contract — also counts
+          ExtensionOfLeaseId: "lease-1",
+          RequestedTtlSeconds: 7200,
+          RequestedNotAfter: "2026-06-20T15:00:00Z",
+        }),
+      ],
+      noNames,
+    );
     expect(rows.map((r) => r.id)).toEqual(["orig-1"]);
     const orig = rows[0];
     expect(orig.extendedBySeconds).toBe(10800);
@@ -278,23 +288,26 @@ describe("buildMyRequestRows", () => {
   });
 
   it("drops a pending extension and does not badge its original yet", () => {
-    const rows = buildMyRequestRows([
-      original,
-      request({
-        Id: "ext-pending",
-        Status: "pending",
-        ExtensionOfLeaseId: "lease-1",
-        RequestedTtlSeconds: 7200,
-        RequestedNotAfter: "2026-06-20T15:00:00Z",
-      }),
-    ]);
+    const rows = buildMyRequestRows(
+      [
+        original,
+        request({
+          Id: "ext-pending",
+          Status: "pending",
+          ExtensionOfLeaseId: "lease-1",
+          RequestedTtlSeconds: 7200,
+          RequestedNotAfter: "2026-06-20T15:00:00Z",
+        }),
+      ],
+      noNames,
+    );
     expect(rows.map((r) => r.id)).toEqual(["orig-1"]);
     expect(rows[0].extendedBySeconds).toBeNull();
     expect(rows[0].extendedUntil).toBeNull();
   });
 
   it("leaves a non-extended original's badge fields null", () => {
-    const rows = buildMyRequestRows([original]);
+    const rows = buildMyRequestRows([original], noNames);
     expect(rows[0].extendedBySeconds).toBeNull();
     expect(rows[0].extendedUntil).toBeNull();
   });

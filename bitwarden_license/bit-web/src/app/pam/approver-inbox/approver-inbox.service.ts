@@ -5,9 +5,11 @@ import {
   EMPTY,
   Observable,
   catchError,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   from,
   map,
   merge,
@@ -25,7 +27,7 @@ import {
 import { NotificationType } from "@bitwarden/common/enums/notification-type.enum";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 
-import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+import { AccessRequestNameResolver, ResolvedNames } from "../access-request-name-resolver.service";
 
 import { ApproverInboxRequestsService } from "./approver-inbox-requests.service";
 import { isActionableInboxRequest } from "./inbox-request-filter";
@@ -40,8 +42,8 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
  * service loads it on construction and refreshes it on the same live signals.
  *
  * Cipher and collection names are resolved from local vault state via
- * {@link AccessRequestNameResolver} before rows reach subscribers — no name decryption happens
- * here. No other Vault Data passes through this service.
+ * {@link AccessRequestNameResolver} and exposed as the separate {@link names$} stream — no name
+ * decryption happens here. No other Vault Data passes through this service.
  */
 @Injectable()
 export class ApproverInboxService {
@@ -57,15 +59,20 @@ export class ApproverInboxService {
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   private readonly _renderedAt$ = new BehaviorSubject<Date>(new Date());
 
+  /** Pending requests and decision history; their display names come from {@link names$}. */
+  readonly requests$: Observable<AccessRequestDetailsResponse[]> = this._requests$.asObservable();
+  readonly history$: Observable<AccessRequestDetailsResponse[]> = this._history$.asObservable();
+
   /**
-   * Collection names back-fill reactively from local vault state (see
-   * {@link AccessRequestNameResolver.applyCollectionNames$}), whether that state warms up before or
-   * after the rows arrive. Cipher names are resolved on the projection path.
+   * Cipher + collection display names for every request this service surfaces (pending + history),
+   * resolved from local vault state and re-emitting as collection state warms. Consumers read these
+   * maps to build their rows.
    */
-  readonly requests$: Observable<AccessRequestDetailsResponse[]> =
-    this.nameResolver.applyCollectionNames$(this._requests$);
-  readonly history$: Observable<AccessRequestDetailsResponse[]> =
-    this.nameResolver.applyCollectionNames$(this._history$);
+  readonly names$: Observable<ResolvedNames> = this.nameResolver.resolveNames$(
+    combineLatest([this._requests$, this._history$]).pipe(
+      map(([requests, history]) => [...requests, ...history]),
+    ),
+  );
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
   readonly loadError$: Observable<unknown | null> = this._loadError$.asObservable();
   /**
@@ -212,16 +219,16 @@ export class ApproverInboxService {
     // elapsed). They belong in history, not the "needs approval" list.
     const now = new Date();
     const actionable = rows.filter((row) => isActionableInboxRequest(row, now));
-    await this.nameResolver.resolveDisplayNames(actionable);
-    return sortInbox(actionable);
+    // Order by collection name as the secondary sort key, looked up from local vault state; the
+    // rows' display names then back-fill reactively via names$.
+    const collectionNameById = await firstValueFrom(this.nameResolver.collectionNames$());
+    return sortInbox(actionable, collectionNameById);
   }
 
   private async loadHistory(): Promise<void> {
     this._loadError$.next(null);
     try {
-      const history = await this.pamApiService.listInboxHistory();
-      await this.nameResolver.resolveDisplayNames(history);
-      this._history$.next(history);
+      this._history$.next(await this.pamApiService.listInboxHistory());
     } catch (e) {
       this._loadError$.next(e);
       throw e;
@@ -230,21 +237,22 @@ export class ApproverInboxService {
 }
 
 /**
- * Sort the inbox: oldest pending first (FIFO by submittedAt), secondary
- * by collection name (locale-aware).
+ * Sort the inbox: oldest pending first (FIFO by submittedAt), secondary by collection name
+ * (locale-aware), looked up from `collectionNameById`. The map defaults to empty (e.g. an optimistic
+ * rollback), in which case the secondary key is a no-op and the stable submittedAt order stands.
  *
  * Exported for testing.
  */
 export function sortInbox<
-  T extends Pick<AccessRequestDetailsResponse, "submittedAt" | "collectionName">,
->(rows: readonly T[]): T[] {
+  T extends Pick<AccessRequestDetailsResponse, "submittedAt" | "collectionId">,
+>(rows: readonly T[], collectionNameById: ReadonlyMap<string, string> = new Map()): T[] {
   return rows.slice().sort((a, b) => {
     const submittedDelta = Date.parse(a.submittedAt) - Date.parse(b.submittedAt);
     if (submittedDelta !== 0) {
       return submittedDelta;
     }
-    return (a.collectionName ?? "").localeCompare(b.collectionName ?? "", undefined, {
-      sensitivity: "base",
-    });
+    const aName = collectionNameById.get(a.collectionId) ?? "";
+    const bName = collectionNameById.get(b.collectionId) ?? "";
+    return aName.localeCompare(bName, undefined, { sensitivity: "base" });
   });
 }

@@ -1,30 +1,20 @@
 import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AccessRequestNameResolver } from "./access-request-name-resolver.service";
+import {
+  AccessRequestNameResolver,
+  ResolvedNames,
+  mergeResolvedNames,
+} from "./access-request-name-resolver.service";
 
-function makeRow(
-  overrides: Partial<{ id: string; cipherId: string; collectionId: string }> = {},
-): AccessRequestDetailsResponse {
-  return new AccessRequestDetailsResponse({
-    Id: overrides.id ?? "req-1",
-    CipherId: overrides.cipherId ?? "cipher-1",
-    CollectionId: overrides.collectionId ?? "col-1",
-    OrganizationId: "org-1",
-    RequesterUserId: "user-2",
-    Status: "pending",
-    RequestedTtlSeconds: 3600,
-    SubmittedAt: "2026-05-15T12:00:00Z",
-  });
-}
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("AccessRequestNameResolver", () => {
   let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIds">>;
@@ -56,45 +46,90 @@ describe("AccessRequestNameResolver", () => {
     resolver = TestBed.inject(AccessRequestNameResolver);
   });
 
-  it("resolves cipher and collection names in place from local vault state", async () => {
-    const row = makeRow({ cipherId: "cipher-1", collectionId: "col-1" });
-    cipherService.getAllDecryptedForIds.mockResolvedValue([
-      Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" }),
-    ]);
-    collectionService.decryptedCollections$.mockReturnValue(
-      of([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]),
-    );
+  describe("resolveNames$", () => {
+    it("resolves cipher and collection names from local vault state", async () => {
+      cipherService.getAllDecryptedForIds.mockResolvedValue([
+        Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" }),
+      ]);
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]),
+      );
 
-    await resolver.resolveDisplayNames([row]);
+      const names = await firstValueFrom(
+        resolver.resolveNames$(of([{ cipherId: "cipher-1", collectionId: "col-1" }])),
+      );
 
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith("user-current", ["cipher-1"]);
-    expect(row.cipherName).toBe("Prod DB");
-    expect(row.collectionName).toBe("Production");
-  });
+      expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith("user-current", [
+        "cipher-1",
+      ]);
+      expect(names.cipherNameById.get("cipher-1")).toBe("Prod DB");
+      expect(names.collectionNameById.get("col-1")).toBe("Production");
+    });
 
-  it("falls back to the cipher id and a null collection when the item is absent from vault state", async () => {
-    const row = makeRow({ cipherId: "cipher-x" });
+    it("returns empty maps for items absent from vault state", async () => {
+      const names = await firstValueFrom(
+        resolver.resolveNames$(of([{ cipherId: "cipher-x", collectionId: "col-x" }])),
+      );
 
-    await resolver.resolveDisplayNames([row]);
+      expect(names.cipherNameById.get("cipher-x")).toBeUndefined();
+      expect(names.collectionNameById.get("col-x")).toBeUndefined();
+    });
 
-    expect(row.cipherName).toBe("cipher-x");
-    expect(row.collectionName).toBeNull();
-  });
+    it("dedupes cipher ids before fetching", async () => {
+      await firstValueFrom(
+        resolver.resolveNames$(
+          of([
+            { cipherId: "c1", collectionId: "col-1" },
+            { cipherId: "c1", collectionId: "col-2" },
+          ]),
+        ),
+      );
 
-  it("dedupes cipher ids before fetching", async () => {
-    await resolver.resolveDisplayNames([
-      makeRow({ id: "a", cipherId: "c1" }),
-      makeRow({ id: "b", cipherId: "c1" }),
-    ]);
+      expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith("user-current", ["c1"]);
+    });
 
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith("user-current", ["c1"]);
-  });
+    it("does no work for an empty ref set", async () => {
+      const names = await firstValueFrom(resolver.resolveNames$(of([])));
 
-  it("does no work for an empty list", async () => {
-    await resolver.resolveDisplayNames([]);
+      expect(names.cipherNameById.size).toBe(0);
+      expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
+    });
 
-    expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
-    expect(collectionService.decryptedCollections$).not.toHaveBeenCalled();
+    it("back-fills collection names when collection state warms up after subscribe", async () => {
+      // The original bug: rows are held before collection state is warm. Names must fill in when
+      // that state emits, without re-resolving the refs.
+      const collections$ = new BehaviorSubject<CollectionView[]>([]);
+      collectionService.decryptedCollections$.mockReturnValue(collections$);
+
+      const seen: (string | undefined)[] = [];
+      const sub = resolver
+        .resolveNames$(of([{ cipherId: "cipher-1", collectionId: "col-1" }]))
+        .subscribe((names) => seen.push(names.collectionNameById.get("col-1")));
+
+      // The cipher snapshot resolves on a microtask; let it land before asserting.
+      await flush();
+      // Cold: collection state empty, no name yet.
+      expect(seen.at(-1)).toBeUndefined();
+
+      // Collection state warms up after subscribe.
+      collections$.next([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]);
+
+      expect(seen.at(-1)).toBe("Production");
+      sub.unsubscribe();
+    });
+
+    it("does not re-decrypt when the same ref set re-emits", async () => {
+      const refs$ = new BehaviorSubject([{ cipherId: "cipher-1", collectionId: "col-1" }]);
+      const sub = resolver.resolveNames$(refs$).subscribe();
+      await flush();
+
+      // An optimistic status edit re-emits the same requests (same ids); no second decrypt.
+      refs$.next([{ cipherId: "cipher-1", collectionId: "col-1" }]);
+      await flush();
+
+      expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledTimes(1);
+      sub.unsubscribe();
+    });
   });
 
   describe("namesFor", () => {
@@ -135,57 +170,28 @@ describe("AccessRequestNameResolver", () => {
     });
   });
 
-  it("returns the resolved cipher views from resolveDisplayNames", async () => {
-    const view = Object.assign(new CipherView(), { id: "cipher-1", name: "Prod DB" });
-    cipherService.getAllDecryptedForIds.mockResolvedValue([view]);
+  describe("mergeResolvedNames", () => {
+    it("unions two lookups, with the later entries winning on collision", () => {
+      const a: ResolvedNames = {
+        cipherNameById: new Map([["c1", "First"]]),
+        collectionNameById: new Map([["col1", "X"]]),
+        cipherById: new Map(),
+      };
+      const b: ResolvedNames = {
+        cipherNameById: new Map([
+          ["c1", "Second"],
+          ["c2", "Other"],
+        ]),
+        collectionNameById: new Map([["col2", "Y"]]),
+        cipherById: new Map(),
+      };
 
-    const { cipherById } = await resolver.resolveDisplayNames([
-      makeRow({ cipherId: "cipher-1", collectionId: "col-1" }),
-    ]);
+      const merged = mergeResolvedNames(a, b);
 
-    expect(cipherById.get("cipher-1")).toBe(view);
-  });
-
-  describe("applyCollectionNames$", () => {
-    it("back-fills collection names when collection state warms up after subscribe", () => {
-      // The original bug: rows are held before collection state is warm. Names must fill in when
-      // that state emits, without re-loading the rows.
-      const collections$ = new BehaviorSubject<CollectionView[]>([]);
-      collectionService.decryptedCollections$.mockReturnValue(collections$);
-      const rows$ = new BehaviorSubject([makeRow({ collectionId: "col-1" })]);
-
-      const seen: (string | null)[] = [];
-      const sub = resolver
-        .applyCollectionNames$(rows$)
-        .subscribe((rows) => seen.push(rows[0].collectionName));
-
-      // Cold: collection state empty, no name yet — but the rows still emitted (cipher names paint).
-      expect(seen.at(-1)).toBeNull();
-
-      // Collection state warms up after subscribe.
-      collections$.next([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]);
-
-      expect(seen.at(-1)).toBe("Production");
-      sub.unsubscribe();
-    });
-
-    it("applies names to rows that arrive after collection state is already warm", () => {
-      collectionService.decryptedCollections$.mockReturnValue(
-        of([{ id: "col-1", name: "Production" }] as unknown as CollectionView[]),
-      );
-      const rows$ = new BehaviorSubject([makeRow({ id: "a", collectionId: "col-1" })]);
-
-      const seen: (string | null)[] = [];
-      const sub = resolver
-        .applyCollectionNames$(rows$)
-        .subscribe((rows) => seen.push(rows[0]?.collectionName ?? null));
-      expect(seen.at(-1)).toBe("Production");
-
-      // A reload swaps in fresh rows; names apply without re-warming collection state.
-      rows$.next([makeRow({ id: "b", collectionId: "col-1" })]);
-
-      expect(seen.at(-1)).toBe("Production");
-      sub.unsubscribe();
+      expect(merged.cipherNameById.get("c1")).toBe("Second");
+      expect(merged.cipherNameById.get("c2")).toBe("Other");
+      expect(merged.collectionNameById.get("col1")).toBe("X");
+      expect(merged.collectionNameById.get("col2")).toBe("Y");
     });
   });
 });

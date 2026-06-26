@@ -126,10 +126,12 @@ absent and the hosts render normally.
   immediately, then roll back and re-throw on API failure so the component can
   toast. Re-entrancy is guarded by a `Set<id>` of in-flight ids.
 - **Name resolution stays zero-knowledge.** `access-request-name-resolver.service.ts`
-  fills cipher/collection names from **already-decrypted local vault state** — it
-  never sends data to the server to resolve names. Only display names and
-  favicon `CipherView`s flow through; no other vault data. `applyCollectionNames$`
-  back-fills names reactively as vault state warms, independent of load order.
+  resolves cipher/collection names from **already-decrypted local vault state** — it
+  never sends data to the server to resolve names. Only display names and favicon
+  `CipherView`s flow through; no other vault data. `resolveNames$(refs$)` returns reactive
+  `{ cipherNameById, collectionNameById, cipherById }` maps (exposed by each page service as
+  `names$`) that back-fill as vault state warms, independent of load order; surfaces read
+  those maps to build their rows.
 - **Live countdowns** tick a `nowMs` signal updated **outside the Angular zone**
   (the write still triggers change detection) to avoid blocking `whenStable()`.
 - Components are standalone + `OnPush` + signals; observable interop via

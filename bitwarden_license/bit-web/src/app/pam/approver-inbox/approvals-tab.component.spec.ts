@@ -34,8 +34,6 @@ function request(id: string, requesterId = "user-other"): AccessRequestDetailsRe
     RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-06-10T10:00:00Z",
     Reason: "Need access",
-    CipherName: "Prod DB",
-    CollectionName: "Production",
     RequesterName: "Bob",
     RequesterEmail: "bob@example.com",
   });
@@ -115,12 +113,10 @@ describe("ApprovalsTabComponent", () => {
     inboxRequests$ = new BehaviorSubject<AccessRequestDetailsResponse[]>([]);
 
     const nameResolver = mock<AccessRequestNameResolver>();
-    nameResolver.resolveDisplayNames.mockResolvedValue({
-      cipherNameById: new Map(),
-      collectionNameById: new Map(),
-      cipherById: new Map(),
-    });
-    nameResolver.applyCollectionNames$.mockImplementation((rows$) => rows$);
+    nameResolver.resolveNames$.mockReturnValue(
+      of({ cipherNameById: new Map(), collectionNameById: new Map(), cipherById: new Map() }),
+    );
+    nameResolver.collectionNames$.mockReturnValue(of(new Map()));
 
     const accountService = mock<AccountService>();
     (accountService as unknown as { activeAccount$: BehaviorSubject<unknown> }).activeAccount$ =

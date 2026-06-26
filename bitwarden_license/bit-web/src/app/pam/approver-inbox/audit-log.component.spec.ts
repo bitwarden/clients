@@ -23,8 +23,6 @@ function activatedLease(id: string): AccessRequestDetailsResponse {
     ResolvedAt: "2026-06-10T10:30:00Z",
     ProducedLeaseId: "lease-" + id,
     ProducedLeaseStatus: "active",
-    CipherName: "Prod DB",
-    CollectionName: "Production",
     RequesterName: "Bob",
   });
 }

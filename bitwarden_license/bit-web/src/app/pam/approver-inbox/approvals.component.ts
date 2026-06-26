@@ -33,6 +33,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { ResolvedNames, emptyResolvedNames } from "../access-request-name-resolver.service";
+
 import { ApprovalRow, toApprovalRow } from "./approval-row";
 import { DecideDialogComponent } from "./decide-dialog.component";
 
@@ -75,6 +77,8 @@ type DisplayRow = ApprovalRow & { canDecide: boolean };
 export class ApprovalsComponent {
   /** Pending requests to render (already actionable + sorted by the inbox service). */
   readonly requests = input.required<AccessRequestDetailsResponse[]>();
+  /** Cipher/collection display names resolved from local vault state, keyed by id. */
+  readonly names = input<ResolvedNames>(emptyResolvedNames());
   /** Current user, for the self-approval guard. Null disables every row's actions. */
   readonly currentUserId = input<string | null>(null);
   /** Stable "now" reference for elapsed/relative-time fields. */
@@ -106,8 +110,9 @@ export class ApprovalsComponent {
 
   protected readonly rows = computed<DisplayRow[]>(() => {
     const userId = this.currentUserId();
+    const names = this.names();
     return this.requests().map((request) => ({
-      ...toApprovalRow(request, this.now()),
+      ...toApprovalRow(request, this.now(), names),
       canDecide: userId != null && canApprove({ requesterId: request.requesterId }, { id: userId }),
     }));
   });
@@ -118,7 +123,7 @@ export class ApprovalsComponent {
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
     [
       ...new Set(
-        this.requests()
+        this.rows()
           .map((r) => r.collectionName)
           .filter((n): n is string => !!n),
       ),
@@ -161,7 +166,13 @@ export class ApprovalsComponent {
       return;
     }
     const ref = DecideDialogComponent.open(this.dialogService, {
-      data: { verdict, request: row.request, now: this.now() },
+      data: {
+        verdict,
+        request: row.request,
+        cipherName: row.cipherName,
+        collectionName: row.collectionName,
+        now: this.now(),
+      },
     });
     const result = await lastValueFrom(ref.closed);
     // Only an explicit confirm carries `confirmed`. Dismissing the dialog any other way — the
