@@ -15,18 +15,21 @@
 >
   <ng-template ng-option-tmp let-item="item">
     <div class="tw-flex tw-justify-between tw-items-center" [title]="item.label">
-      <div class="tw-flex tw-gap-2 tw-flex-1">
+      <div class="tw-flex tw-gap-2 tw-flex-1 tw-min-w-0">
         <div class="tw-flex-initial tw-self-center">
           @if (item.icon != null) {
             <bit-icon [name]="item.icon" fixedWidth />
           }
         </div>
-        <div class="tw-flex tw-flex-col">
-          <div bitTypography="body2" class="tw-leading-5 tw-flex-1">
+        <div class="tw-flex tw-flex-col tw-min-w-0">
+          <div
+            bitTypography="body2"
+            class="tw-leading-5 tw-flex-1 tw-text-ellipsis tw-overflow-hidden"
+          >
             {{ item.label }}
           </div>
           @if (item.description) {
-            <div bitTypography="helper" class="tw-text-fg-body tw-font-normal">
+            <div bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-truncate">
               {{ item.description }}
             </div>
           }
