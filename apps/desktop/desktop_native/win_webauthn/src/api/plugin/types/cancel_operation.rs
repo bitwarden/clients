@@ -1,13 +1,13 @@
-use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
+use std::{marker::PhantomData, ptr::NonNull};
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use windows::{
     core::{GUID, HRESULT},
     Win32::Foundation::E_INVALIDARG,
 };
 
-use crate::api::{
-    plugin::crypto::Signature, sys::plugin::WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+use crate::{
+    api::{plugin::crypto::Signature, sys::plugin::WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST},
+    ErrorKind, WinWebAuthnError,
 };
 
 pub struct PluginCancelOperationRequest<'a> {
@@ -22,14 +22,28 @@ impl PluginCancelOperationRequest<'_> {
     }
 
     /// Request signature.
-    pub(super) fn request_signature(&self) -> Signature<'_> {
+    pub(in crate::api::plugin) fn request_signature(
+        &self,
+    ) -> Result<Signature<'_>, WinWebAuthnError> {
+        let inner = self.as_ref();
+        if inner.pbRequestSignature.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "cancel request signature buffer pointer is null",
+            ));
+        } else if !inner.pbRequestSignature.is_aligned() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "cancel request signature buffer pointer is not aligned",
+            ));
+        }
+
+        // SAFETY: The signature buffer pointer is non-null and aligned, and Windows provides a
+        // buffer of length cbRequestSignature.
         let slice = unsafe {
-            std::slice::from_raw_parts(
-                self.as_ref().pbRequestSignature,
-                self.as_ref().cbRequestSignature as usize,
-            )
+            std::slice::from_raw_parts(inner.pbRequestSignature, inner.cbRequestSignature as usize)
         };
-        Signature::new(slice)
+        Ok(Signature::new(slice))
     }
 }
 
