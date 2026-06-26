@@ -1,6 +1,12 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  NgControl,
+  ReactiveFormsModule,
+} from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { Subject } from "rxjs";
 
@@ -49,6 +55,18 @@ class TestManagedHostComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestManagedNoControlHostComponent {}
+
+@Component({
+  selector: "test-managed-ngmodel-host",
+  template: `
+    <input type="checkbox" [(ngModel)]="value" [bitManaged]="'k'" [bitManagedLabel]="'Managed'" />
+  `,
+  imports: [FormsModule, BitManagedDirective],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestManagedNgModelHostComponent {
+  value = false;
+}
 
 describe("BitManagedDirective", () => {
   let managedSettings: MockManagedSettingsService;
@@ -118,5 +136,32 @@ describe("BitManagedDirective", () => {
 
     expect(() => fixture.detectChanges()).not.toThrow();
     expect(badge(fixture)).not.toBeNull();
+  });
+
+  it("disables a template-driven NgModel control and renders the badge when the key is managed", async () => {
+    const fixture = setup(TestManagedNgModelHostComponent);
+    managedSettings.setManaged("k", true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const input = fixture.debugElement.query(By.css("input"));
+    expect(input.injector.get(NgControl).control!.disabled).toBe(true);
+    expect(badge(fixture)).not.toBeNull();
+  });
+
+  it("re-enables the NgModel control and removes the badge when the key stops being managed", async () => {
+    const fixture = setup(TestManagedNgModelHostComponent);
+    managedSettings.setManaged("k", true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    managedSettings.setManaged("k", false);
+    managedSettings.changes$.next();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const input = fixture.debugElement.query(By.css("input"));
+    expect(input.injector.get(NgControl).control!.disabled).toBe(false);
+    expect(badge(fixture)).toBeNull();
   });
 });

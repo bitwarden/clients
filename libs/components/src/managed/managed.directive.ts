@@ -10,7 +10,6 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NgControl } from "@angular/forms";
-import { distinctUntilChanged, map, startWith } from "rxjs";
 
 import { ManagedSettingsService } from "@bitwarden/common/platform/managed-settings";
 
@@ -49,14 +48,19 @@ export class BitManagedDirective implements OnInit {
   private badgeRef?: ComponentRef<BadgeComponent>;
 
   ngOnInit() {
+    // Reactive (formControlName) controls exist now, so disable them synchronously.
+    this.apply();
+    // NgModel creates its FormControl during its own ngOnInit, which may run after ours;
+    // re-apply on a microtask so a template-driven control exists before we disable it.
+    void Promise.resolve().then(() => this.apply());
+    // React to a late-arriving or removed profile (PM-26324).
     this.managedSettings.changes$
-      .pipe(
-        startWith(undefined),
-        map(() => this.managedSettings.isManaged(this.key())),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((managed) => this.render(managed));
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.apply());
+  }
+
+  private apply() {
+    this.render(this.managedSettings.isManaged(this.key()));
   }
 
   private render(managed: boolean) {
