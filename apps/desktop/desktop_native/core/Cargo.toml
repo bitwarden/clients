@@ -32,7 +32,7 @@ interprocess = { workspace = true, features = ["tokio"] }
 memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
 rsa = "=0.9.6"
-sha2 = "=0.10.9"
+sha2 = "=0.11.0"
 ssh-key = { version = "=0.6.7", features = [
     "encryption",
     "ed25519",
