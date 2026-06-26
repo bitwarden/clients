@@ -1,0 +1,41 @@
+<bit-form-field>
+  <ng-content select="bit-label" ngProjectAs="bit-label" />
+
+  <!-- Ghost: hosts BitFormFieldControlDirective (via bitInput's hostDirectives)
+       so bit-form-field's contentChild query resolves. The proxy provides
+       NgControl pointing at the consumer's FormControl WITHOUT going through
+       reactive forms' setUpControl — that would otherwise replace the consumer's
+       validators with the directive's (empty) set and clobber pre-set errors. -->
+  <input
+    bitInput
+    [bitFormControlProxy]="boundControl"
+    type="hidden"
+    aria-hidden="true"
+    tabindex="-1"
+    [required]="required()"
+  />
+
+  <!-- Custom-input slot: renders outside bitFieldContainer so the dashed border
+       doesn't nest inside form-field's rounded border. -->
+  <div bitCustomInput>
+    <bit-dropzone
+      [inputId]="inputId"
+      [accept]="accept()"
+      [maxFileSize]="maxFileSize()"
+      [multiple]="multiple()"
+      [hasError]="innerFormFieldControl()?.hasError() || false"
+      [disabled]="disabled()"
+      [ariaDescribedBy]="ariaDescribedBy()"
+      (filesSelected)="onFilesSelected($event)"
+      (blurred)="onDropzoneBlur()"
+    />
+    <span [id]="filesUploadedStatusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
+    <bit-file-list
+      [files]="files()"
+      [disabled]="disabled()"
+      (fileRemoved)="onFileRemoved($event)"
+    />
+  </div>
+
+  <ng-content select="bit-hint" ngProjectAs="bit-hint" />
+</bit-form-field>

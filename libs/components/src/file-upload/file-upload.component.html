@@ -1,93 +1,77 @@
-<div class="tw-flex tw-flex-col tw-gap-2 [&_bit-hint]:tw-m-0">
-  <div
-    [id]="labelId"
-    class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+<bit-form-field>
+  <ng-content select="bit-label" ngProjectAs="bit-label" />
+
+  <!-- Ghost: hosts BitFormFieldControlDirective (via bitInput's hostDirectives)
+       so bit-form-field's contentChild query resolves. The proxy provides
+       NgControl pointing at the consumer's FormControl WITHOUT going through
+       reactive forms' setUpControl — that would otherwise replace the consumer's
+       validators with the directive's (empty) set and clobber pre-set errors. -->
+  <input
+    bitInput
+    [bitFormControlProxy]="boundControl"
+    type="hidden"
+    aria-hidden="true"
+    tabindex="-1"
+    [required]="required()"
+  />
+
+  <!-- Prefix: "Choose File" pill — focusable, opens the picker on click.
+       Becomes the labelForId target so bit-form-field's <label for> wraps and triggers it. -->
+  <button
+    type="button"
+    bitPrefix
+    [id]="inputId"
+    [attr.aria-disabled]="disabled() || null"
+    [attr.aria-describedby]="statusId"
+    class="tw-bg-transparent tw-border-0 tw-text-sm tw-py-2 tw-whitespace-nowrap tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
     [class.tw-text-fg-inactive]="disabled()"
+    (click)="openFilePicker()"
+    (blur)="onPickerBlur()"
   >
-    <ng-content select="bit-label"></ng-content>
+    {{ "chooseFile" | i18n }}
+  </button>
+
+  <!-- Hidden native file input, invoked programmatically by the prefix button. -->
+  <input
+    #fileInput
+    type="file"
+    aria-hidden="true"
+    tabindex="-1"
+    class="tw-sr-only"
+    [accept]="accept()"
+    [disabled]="disabled() || null"
+    (change)="onButtonFileChange($event)"
+    placeholder="{{ 'noFileSelected' | i18n }}"
+  />
+
+  <!-- Default slot: filename readout — renders inside bitFieldContainer.
+       Clickable so the entire field area opens the picker (matches the original
+       overlay-button behavior). Not focusable: the prefix button is the single
+       focus stop; this is a purely visual click target. -->
+  <div
+    class="tw-flex tw-items-center tw-size-full"
+    [class.tw-cursor-pointer]="!disabled()"
+    [class.tw-cursor-not-allowed]="disabled()"
+    (click)="openFilePicker()"
+  >
+    @if (fileLabel(); as label) {
+      <bit-file-name [name]="label" />
+    } @else {
+      <span
+        class="tw-text-sm"
+        [class.tw-text-fg-body-subtle]="!disabled()"
+        [class.tw-text-fg-inactive]="disabled()"
+      >
+        {{ "noFileSelected" | i18n }}
+      </span>
+    }
   </div>
 
-  @if (useDropzoneVariant()) {
-    <bit-dropzone
-      [inputId]="inputId"
-      [accept]="accept()"
-      [maxFileSize]="maxFileSize()"
-      [multiple]="multiple()"
-      [hasError]="formFieldControl.hasError()"
-      [disabled]="disabled()"
-      [ariaLabelledBy]="labelId"
-      [ariaDescribedBy]="ariaDescribedBy()"
-      (filesSelected)="onFilesSelected($event)"
-    />
-    <span [id]="filesUploadedStatusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
-  } @else {
-    <div bitFieldContainer class="tw-relative" [hasError]="formFieldControl.hasError()">
-      <div
-        class="tw-relative tw-flex tw-shrink-0 tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-py-2 tw-rounded-s-[11px]"
-        [class.tw-bg-bg-quaternary]="!disabled()"
-        [class.tw-bg-bg-inactive]="disabled()"
-        [class.tw-text-fg-inactive]="disabled()"
-      >
-        <span class="tw-text-sm tw-pointer-events-none">{{ "chooseFile" | i18n }}</span>
-      </div>
-      <!-- Button overlay: accessible control with no native file-input value to announce.
-           Uses aria-disabled (not the native disabled attr) so assistive tech can still
-           reach the control to read its label/description while interaction is blocked. -->
-      <button
-        type="button"
-        [attr.aria-labelledby]="ariaLabelledBy"
-        [attr.aria-describedby]="ariaDescribedBy()"
-        [attr.aria-disabled]="disabled() || null"
-        class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
-        (click)="openFilePicker()"
-      ></button>
-      <!-- Hidden file input: triggers the OS file picker, kept out of the AT -->
-      <input
-        #fileInput
-        [id]="inputId"
-        type="file"
-        aria-hidden="true"
-        tabindex="-1"
-        class="tw-sr-only"
-        [accept]="accept()"
-        [multiple]="multiple()"
-        (change)="onButtonFileChange($event)"
-        [disabled]="disabled() || null"
-      />
-      <span
-        class="tw-flex tw-overflow-hidden tw-flex-1 tw-min-w-0 tw-px-3 tw-py-2 tw-text-sm"
-        [class.tw-text-fg-body-subtle]="!fileLabel() && !disabled()"
-        [class.tw-text-fg-heading]="!!fileLabel() && !disabled()"
-        [class.tw-text-fg-inactive]="disabled()"
-      >
-        @if (fileLabel(); as label) {
-          <bit-file-name [name]="label" />
-        } @else {
-          {{ "noFileSelected" | i18n }}
-        }
-      </span>
-      <!-- Separate from the visible span so aria-live announcements don't conflict with the
-           button's accessible name (statusId is included in ariaLabelledBy on the button). -->
-      <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
-        {{ fileLabel() ? ("fileChosen" | i18n: fileLabel()) : ("chooseFile" | i18n) }}
-      </span>
-    </div>
-  }
+  <!-- Separate aria-live span so the announced status doesn't conflict with the
+       prefix button's accessible name. Wired in via aria-describedby above. -->
+  <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
+    {{ fileLabel() ? ("fileChosen" | i18n: fileLabel()) : ("chooseFile" | i18n) }}
+  </span>
 
-  @if (formFieldControl.hasError()) {
-    <bit-error
-      [class.!tw-mt-0]="!useDropzoneVariant()"
-      [error]="formFieldControl.error"
-    ></bit-error>
-  } @else {
-    <ng-content select="bit-hint"></ng-content>
-  }
-
-  @if (useDropzoneVariant()) {
-    <bit-file-list
-      [files]="files()"
-      [disabled]="disabled()"
-      (fileRemoved)="onFileRemoved($event)"
-    />
-  }
-</div>
+  <ng-content select="bit-hint" ngProjectAs="bit-hint" />
+</bit-form-field>

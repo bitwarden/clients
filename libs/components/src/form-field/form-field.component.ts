@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 
+import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
 import { BitFormFieldControlDirective } from "./form-field-control.directive";
@@ -44,9 +45,11 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);
+  private readonly customInput = contentChild(BitCustomInputDirective);
 
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
+  protected readonly hasCustomInput = computed(() => this.customInput() != null);
 
   protected get labelAndFieldContainerClasses(): string {
     return [

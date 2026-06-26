@@ -1,25 +1,28 @@
-<input
-  #fileInput
-  [id]="inputId()"
-  type="file"
-  class="tw-peer/dropzone-input tw-sr-only"
-  [accept]="accept()"
-  [multiple]="multiple()"
-  [disabled]="disabled() || null"
-  [attr.aria-labelledby]="ariaLabelledBy() || null"
-  [attr.aria-describedby]="ariaDescribedBy() || null"
-  (click)="onFileInputClick($event)"
-  (change)="onFileInputChange($event)"
-/>
-
+<!-- Wrapping <label> (without [for]) still triggers the input on click because the input
+     is a descendant. Removing [for] avoids a duplicate label association — the parent
+     bit-form-field already renders the canonical <label [for]>. -->
 <label
-  [attr.for]="inputId()"
   [class]="containerClasses()"
   (dragenter)="onDragEnter($event)"
   (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave($event)"
   (drop)="onDrop($event)"
 >
+  <input
+    #fileInput
+    [id]="inputId()"
+    type="file"
+    class="tw-sr-only"
+    [accept]="accept()"
+    [multiple]="multiple()"
+    [disabled]="disabled() || null"
+    [attr.aria-label]="'clickToUploadOrDragAndDrop' | i18n"
+    [attr.aria-describedby]="ariaDescribedBy() || null"
+    (click)="onFileInputClick($event)"
+    (change)="onFileInputChange($event)"
+    (blur)="blurred.emit()"
+  />
+
   <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
     <span
       class="tw-text-sm tw-font-medium"

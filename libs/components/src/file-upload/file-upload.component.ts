@@ -1,10 +1,8 @@
-import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
-  contentChild,
   effect,
   ElementRef,
   inject,
@@ -12,18 +10,16 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { ControlValueAccessor, NgControl } from "@angular/forms";
+import { ControlValueAccessor, FormControl, NgControl } from "@angular/forms";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitHintDirective } from "../form-control/hint.directive";
-import { BitFieldContainerDirective } from "../form-field";
-import { BitErrorComponent } from "../form-field/error.component";
+import { BitFormControlProxyDirective } from "../form-field/form-control-proxy.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
+import { BitFormFieldComponent } from "../form-field/form-field.component";
+import { BitPrefixDirective } from "../form-field/prefix.directive";
+import { BitInputDirective } from "../input/input.directive";
 
-import { DropzoneComponent } from "./dropzone.component";
-import { FileListComponent } from "./file-list.component";
 import { FileNameComponent } from "./file-name.component";
 
 let nextId = 0;
@@ -32,19 +28,13 @@ let nextId = 0;
   selector: "bit-file-upload",
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  hostDirectives: [
-    {
-      directive: BitFormFieldControlDirective,
-      inputs: ["required"],
-    },
-  ],
   imports: [
-    DropzoneComponent,
-    FileListComponent,
+    BitFormControlProxyDirective,
+    BitFormFieldComponent,
+    BitInputDirective,
+    BitPrefixDirective,
     FileNameComponent,
-    BitFieldContainerDirective,
     I18nPipe,
-    BitErrorComponent,
   ],
   host: {
     class: "tw-block",
@@ -66,47 +56,37 @@ export class FileUploadComponent implements ControlValueAccessor {
    **/
   readonly accept = input("");
 
-  /**
-   * Maximum file size in MB. When omitted, the size hint is hidden.
-   *
-   * NOTE: This is only a user hint. Not a validation
-   **/
-  readonly maxFileSize = input<number>();
+  readonly required = input(false, { transform: booleanAttribute });
 
-  /**
-   * Allow multiple file selection.
-   *
-   * NOTE: enabling `multiple` always renders the dropzone variant.
-   */
-  readonly multiple = input(false, { transform: booleanAttribute });
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
   private readonly _files = signal<File[]>([]);
   /** Current selection. External consumers should bind via CVA; this signal is read-only. */
   readonly files = this._files.asReadonly();
 
-  /** Render the dropzone variant. Forced on when `multiple` is true. */
-  readonly dropzone = input(false, { transform: booleanAttribute });
-
-  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
-
   private readonly _disabledFromCva = signal(false);
-
   readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
   private readonly cvaOnChange = signal<(value: File[]) => void>(() => {});
   private readonly cvaOnTouched = signal<() => void>(() => {});
 
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
+
   /**
-   * Exposes form-control behavior (`hasError`, `error`, `required`) sourced from
-   * the bound `NgControl`. Drives the danger border and the rendered `bit-error`.
+   * Fallback control used when the component is mounted without a `formControl` /
+   * `ngModel` binding. `bit-form-field`'s `contentChild.required(BitFormFieldControlDirective)`
+   * resolves against the ghost input, which requires a FormControl on the same element.
    */
-  protected readonly formFieldControl = inject(BitFormFieldControlDirective);
+  private readonly fallbackControl = new FormControl<File[]>([], { nonNullable: true });
+
+  protected get boundControl(): FormControl<File[]> {
+    return (this.ngControl?.control as FormControl<File[]> | null) ?? this.fallbackControl;
+  }
 
   /** Required for NG_VALUE_ACCESSOR. Form value is always `File[]` ([] = no file). */
   writeValue(value: File[] | null): void {
     const incoming = value ?? [];
-    this._files.set(this.multiple() ? incoming : incoming.slice(0, 1));
+    this._files.set(incoming.slice(0, 1));
   }
 
   registerOnChange(fn: (value: File[]) => void): void {
@@ -122,130 +102,52 @@ export class FileUploadComponent implements ControlValueAccessor {
   }
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
-
-  protected readonly useDropzoneVariant = computed(() => this.dropzone() || this.multiple());
-
-  protected readonly labelId = `${this.inputId}-label`;
   protected readonly statusId = `${this.inputId}-status`;
-  protected readonly filesUploadedStatusId = `${this.inputId}-files-uploaded`;
-  protected readonly ariaLabelledBy = `${this.inputId}-label ${this.inputId}-status`;
 
-  private readonly hint = contentChild(BitHintDirective);
-  private readonly errorEl = viewChild(BitErrorComponent);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
-  private readonly dropzoneRef = viewChild(DropzoneComponent);
-  private readonly fileListRef = viewChild(FileListComponent);
-
-  private readonly i18nService = inject(I18nService);
-  private readonly liveAnnouncer = inject(LiveAnnouncer);
-
-  /**
-   * Text wired into the dropzone input via aria-describedby so screen readers
-   * announce existing upload state on focus arrival. Empty when no files are
-   * attached so the SR reads the label/hint unchanged.
-   */
-  protected readonly filesUploadedStatus = computed(() => {
-    const count = this.files().length;
-    if (count === 0) {
-      return "";
-    }
-    if (count === 1) {
-      return this.i18nService.t("oneFileUploaded");
-    }
-    return this.i18nService.t("filesUploaded", String(count));
-  });
-
-  private readonly pendingFocusIndex = signal<number | null>(null);
+  private readonly innerFormFieldControl = viewChild(BitFormFieldControlDirective);
 
   constructor() {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
-
+    // Self-stabilizing override: re-run whenever labelForId changes (e.g. the
+    // directive's own effect resets it to its host id) and re-point it at the
+    // visible "Choose File" pill so the rendered <label [for]> targets the
+    // user-facing control rather than the hidden ghost input.
     effect(() => {
-      const idx = this.pendingFocusIndex();
-      if (idx === null) {
+      const inner = this.innerFormFieldControl();
+      if (!inner) {
         return;
       }
-      const remaining = this.files();
-      if (remaining.length === 0) {
-        this.dropzoneRef()?.focus();
-      } else {
-        this.fileListRef()?.focusDeleteAt(Math.min(idx, remaining.length - 1));
+      if (inner.labelForId() !== this.inputId) {
+        inner.labelForId.set(this.inputId);
       }
-      this.pendingFocusIndex.set(null);
     });
   }
-
-  protected readonly ariaDescribedBy = computed(() => {
-    const ids: string[] = [];
-    if (this.useDropzoneVariant() && this.files().length > 0) {
-      ids.push(this.filesUploadedStatusId);
-    }
-    if (this.formFieldControl.hasError()) {
-      const errorId = this.errorEl()?.id;
-      if (errorId) {
-        ids.push(errorId);
-      }
-    } else {
-      const hintId = this.hint()?.id;
-      if (hintId) {
-        ids.push(hintId);
-      }
-    }
-    return ids.length > 0 ? ids.join(" ") : null;
-  });
 
   protected readonly fileLabel = computed(() => {
     const files = this.files();
     if (files.length) {
       return files[0].name;
     }
+    return undefined;
   });
 
   protected onFilesSelected(newFiles: File[]): void {
     this.cvaOnTouched()();
-    if (this.multiple()) {
-      this._files.update((current) => [...current, ...newFiles]);
-    } else {
-      this._files.set(newFiles.length > 0 ? [newFiles[0]] : []);
-    }
-    if (this.useDropzoneVariant()) {
-      if (newFiles.length === 1) {
-        this.announce(this.i18nService.t("fileAdded", newFiles[0].name));
-      } else if (newFiles.length > 1) {
-        this.announce(
-          this.i18nService.t(
-            "filesAdded",
-            String(newFiles.length),
-            newFiles.map((f) => f.name).join(", "),
-          ),
-        );
-      }
-    }
-    this.emitCvaChange();
-  }
-
-  protected onFileRemoved(file: File): void {
-    if (this.disabled()) {
-      return;
-    }
-    const removedIndex = this.files().indexOf(file);
-    this._files.update((current) => current.filter((f) => f !== file));
-    this.announce(this.i18nService.t("fileRemoved", file.name));
-    if (removedIndex >= 0) {
-      this.pendingFocusIndex.set(removedIndex);
-    }
+    this._files.set(newFiles.length > 0 ? [newFiles[0]] : []);
     this.emitCvaChange();
   }
 
   /**
-   * Wraps `LiveAnnouncer.announce` with `assertive` politeness so the change
-   * interrupts whatever the SR is reading — file add/remove is a direct response
-   * to a user action and should not queue behind label/hint readout.
+   * Fires `cvaOnTouched` when the visible focusable element (the "Choose File"
+   * prefix button) loses focus. Without this, Validators.required errors never
+   * surface because the FormControl never transitions to `touched` unless the
+   * user actually picks a file.
    */
-  private announce(message: string): void {
-    void this.liveAnnouncer.announce(message, "assertive");
+  protected onPickerBlur(): void {
+    this.cvaOnTouched()();
   }
 
   private emitCvaChange(): void {

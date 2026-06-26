@@ -1,0 +1,125 @@
+import { Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./file-dropzone.stories";
+
+<Meta of={stories} />
+
+```ts
+import { FileDropzoneComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+<Primary />
+
+<Controls />
+
+## Overview
+
+`bit-file-dropzone` is the drag-and-drop file picker. Users can either click the area to open the
+file picker or drag files directly onto it. Set `multiple` to allow multi-file selection; the
+component renders a list with name, size, and a delete button below the dropzone.
+
+For a single-file inline picker without the drag/drop affordance, use
+[`bit-file-upload`](/?path=/docs/component-library-form-file-upload--docs) instead.
+
+```html
+<bit-file-dropzone [maxFileSize]="30" multiple formControlName="files">
+  <bit-label>Upload files</bit-label>
+  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+</bit-file-dropzone>
+```
+
+The component is internally form-field-shaped — it wraps `<bit-form-field>` and renders the dropzone
+into a dedicated `[bitCustomInput]` slot so the dashed border doesn't nest inside the form-field's
+rounded container.
+
+<Canvas of={stories.Default} />
+
+### Multiple files
+
+<Canvas of={stories.MultipleFiles} />
+
+### Required
+
+The `*` required indicator renders automatically when the bound `FormControl` has
+`Validators.required`.
+
+<Canvas of={stories.Required} />
+
+### With error
+
+<Canvas of={stories.WithError} />
+
+### Disabled
+
+<Canvas of={stories.Disabled} />
+
+### Pre-populated file list
+
+<Canvas of={stories.WithFiles} />
+
+### Long filenames
+
+Filenames that exceed the available width are truncated in the middle so both the start and file
+extension remain visible.
+
+<Canvas of={stories.LongFileNames} />
+
+## Guidelines
+
+### `accept` — file type hint
+
+Pass a comma-separated list of MIME types and/or file extensions to guide the browser's file picker.
+
+| Example value            | Allows                 |
+| ------------------------ | ---------------------- |
+| `"image/*"`              | Any image              |
+| `".pdf,.doc,.docx"`      | PDF and Word documents |
+| `"audio/mpeg,audio/wav"` | Specific audio formats |
+| `"image/*,.pdf"`         | Images and PDFs        |
+
+> **Important:** `accept` is a browser hint only — it filters the file picker but does not prevent
+> users from selecting other file types. Always validate file types on the server before processing.
+
+### `maxFileSize` — size display hint
+
+`maxFileSize` (in MB) is shown to the user inside the dropzone as "Max. File Size: X MB". It is
+**not** enforced client-side. Validate file sizes in your component or on the server before
+submitting the form.
+
+### Binding selected files
+
+Bind via Angular reactive forms. The form value is always `File[]` (empty array means no files
+selected).
+
+```html
+<bit-file-dropzone [maxFileSize]="30" multiple formControlName="files">
+  <bit-label>Upload files</bit-label>
+</bit-file-dropzone>
+```
+
+```ts
+form = new FormGroup({
+  files: new FormControl<File[]>([], { nonNullable: true }),
+});
+```
+
+You can pre-populate the list by calling `setValue([...])` on the control before the component
+renders.
+
+### Error state
+
+The error border and message render automatically when the bound `FormControl` is `invalid` and
+`touched`. Use Angular validators (or `setErrors`) on the control to drive the state.
+
+## Accessibility
+
+- File add/remove events are announced via `aria-live="assertive"` so the user is informed
+  immediately after each interaction.
+- On focus, the dropzone's file input announces the current upload count (e.g. "3 files uploaded")
+  via `aria-describedby` so users returning to the field hear its state.
+- Always provide a meaningful `<bit-label>` — it serves as the accessible label for the dropzone via
+  `bit-form-field`'s `<label [for]>` association.
+- Delete buttons in the file list are icon-only. The component supplies accessible labels through
+  the i18n system (`delete` key), so no extra markup is needed.

@@ -58,11 +58,12 @@ export class DropzoneComponent {
   /** ID of the element that describes this input (error or hint) */
   readonly ariaDescribedBy = input<string | null>(null);
 
-  /** ID of the element that labels this input (typically the parent's bit-label) */
-  readonly ariaLabelledBy = input<string | null>(null);
-
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
+
+  /** Emits when the dropzone's internal file input loses focus. Lets parents mark
+   *  the bound FormControl as touched so Validators.required can surface errors. */
+  readonly blurred = output<void>();
 
   /**
    * Id for the internal `<input type="file">`. Required so the parent's
@@ -98,10 +99,15 @@ export class DropzoneComponent {
 
       "tw-transition-colors",
       "tw-bg-bg-secondary",
-      "peer-focus-visible/dropzone-input:tw-border-transparent",
-      "peer-focus-visible/dropzone-input:tw-ring",
-      "peer-focus-visible/dropzone-input:tw-ring-offset-0",
-      "peer-focus-visible/dropzone-input:tw-ring-border-focus",
+
+      // File input is now nested inside the <label>, so use `focus-within`
+      // (descendant focus selector) instead of the old `peer-focus-visible`
+      // (sibling selector). `:focus-visible` is unreliable for sr-only file
+      // inputs across browsers — `:focus-within` matches any descendant focus.
+      "focus-within:tw-border-transparent",
+      "focus-within:tw-ring",
+      "focus-within:tw-ring-offset-0",
+      "focus-within:tw-ring-border-focus",
     ];
 
     if (this.disabled()) {

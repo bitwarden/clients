@@ -14,12 +14,13 @@ import { FileUploadComponent } from "@bitwarden/components";
 
 <Controls />
 
-## Variants
+## Overview
 
-### Default
+`bit-file-upload` is the inline single-file picker. It renders a "Choose File" pill alongside a
+filename readout — minimal footprint, suitable for fields that sit inside a tight form layout.
 
-The default variant renders a styled file-input button alongside a filename readout. Use this for
-single-file selection where a minimal footprint is preferred.
+For drag-and-drop or multi-file selection, use the dedicated
+[`bit-file-dropzone`](/?path=/docs/component-library-form-file-dropzone--docs) component instead.
 
 ```html
 <bit-file-upload accept=".png,.jpg,.gif,.svg" formControlName="file">
@@ -28,64 +29,31 @@ single-file selection where a minimal footprint is preferred.
 </bit-file-upload>
 ```
 
+The component is internally form-field-shaped — it wraps `<bit-form-field>` and projects its visual
+into the prefix slot. As a result, the label, required indicator, error message, and hint inherit
+`bit-form-field`'s plumbing automatically.
+
 <Canvas of={stories.Default} />
 
-### Default with error
+### Required
 
-<Canvas of={stories.DefaultWithError} />
+The `*` required indicator renders automatically when the bound `FormControl` has
+`Validators.required`.
 
-### Dropzone
+<Canvas of={stories.Required} />
 
-The dropzone variant renders a drag-and-drop area. Users can either click the area to open the file
-picker or drag files directly onto it. Add the `dropzone` attribute to opt in.
+### With error
 
-```html
-<bit-file-upload dropzone [maxFileSize]="30" formControlName="file">
-  <bit-label>Upload file</bit-label>
-  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-</bit-file-upload>
-```
+Error border and message render when the bound `FormControl` is `invalid` and `touched`.
 
-<Canvas of={stories.Dropzone} />
+<Canvas of={stories.WithError} />
 
-### Multiple files
-
-Setting `multiple` automatically switches to the dropzone variant — the inline picker cannot accept
-multiple files. A file list with name, size, and a delete button renders below the dropzone.
-
-```html
-<bit-file-upload [maxFileSize]="30" multiple formControlName="files">
-  <bit-label>Upload files</bit-label>
-  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-</bit-file-upload>
-```
-
-The form value is always `File[]` (empty array means no file). Type the `FormControl` accordingly:
-
-```ts
-form = new FormGroup({
-  files: new FormControl<File[]>([], { nonNullable: true }),
-});
-```
-
-<Canvas of={stories.MultipleFiles} />
-
-### Dropzone with error
-
-<Canvas of={stories.Error} />
-
-### Disabled / Inactive
+### Disabled
 
 Set `disabled` (or bind `[disabled]="true"`) to prevent interaction. Use this when the surrounding
 form is submitting, loading, or when the upload field should be conditionally locked.
 
-<Canvas of={stories.DefaultInactive} />
-
-<Canvas of={stories.DropzoneDisabled} />
-
-### Pre-populated file list
-
-<Canvas of={stories.WithFiles} />
+<Canvas of={stories.Disabled} />
 
 ### Long filenames
 
@@ -95,20 +63,17 @@ middle ~65% is clipped with an ellipsis.
 
 <Canvas of={stories.LongFileName} />
 
-<Canvas of={stories.LongFileNamesDropzone} />
-
 ## Guidelines
 
-### Choosing a variant
+### When to use this vs `bit-file-dropzone`
 
-Use the **default** (button) variant for single-file fields where space is limited, such as an
-avatar upload or an inline attachment field.
+Use **`bit-file-upload`** for single-file fields where space is limited — for example, an avatar
+upload or an inline attachment field. The picker is keyboard-accessible and uses the same form-field
+shape as the rest of the component library.
 
-Use the **dropzone** variant when:
-
-- The user may select multiple files (`multiple`)
-- You want to encourage drag-and-drop as a primary interaction
-- The field deserves visual prominence on the page
+Use [**`bit-file-dropzone`**](/?path=/docs/component-library-form-file-dropzone--docs) when the user
+may select multiple files, when you want to encourage drag-and-drop as a primary interaction, or
+when the field deserves visual prominence on the page.
 
 ### `accept` — file type hint
 
@@ -128,19 +93,13 @@ See
 [MDN: accept attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept)
 for a full list of valid specifiers.
 
-### `maxFileSize` — size display hint
-
-`maxFileSize` (in MB) is shown to the user inside the dropzone as "Max. File Size: X MB". It is
-**not** enforced client-side. Validate file sizes in your component or on the server before
-submitting the form.
-
 ### Binding selected files
 
 Bind via Angular reactive forms. The form value is always `File[]` (empty array means no file
-selected); single-file consumers read `value[0]`.
+selected); consumers read `value[0]`.
 
 ```html
-<bit-file-upload dropzone [maxFileSize]="30" formControlName="file">
+<bit-file-upload accept="application/pdf" formControlName="file">
   <bit-label>Upload file</bit-label>
 </bit-file-upload>
 ```
@@ -156,7 +115,7 @@ onSubmit() {
 }
 ```
 
-You can pre-populate the list by calling `setValue([...])` on the control before the component
+You can pre-populate the field by calling `setValue([file])` on the control before the component
 renders.
 
 ### Error state
@@ -186,9 +145,7 @@ matching the rest of the Bitwarden form-field family.
 
 ## Accessibility
 
-- The default variant announces the selected filename via `aria-live="polite"` so screen readers
-  notify the user after selection without interrupting the current reading position.
-- Always provide a meaningful `<bit-label>` — it serves as the accessible label for the hidden file
-  input inside both variants.
-- Delete buttons in the file list are icon-only. The component supplies accessible labels through
-  the i18n system (`delete` key), so no extra markup is needed.
+- The selected filename is announced via an `aria-live="polite"` region so screen readers notify the
+  user after selection without interrupting the current reading position.
+- Always provide a meaningful `<bit-label>` — it serves as the accessible label for the picker
+  button via `bit-form-field`'s `<label [for]>` association.

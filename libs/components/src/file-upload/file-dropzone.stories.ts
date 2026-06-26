@@ -7,15 +7,15 @@ import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { FileUploadComponent } from "./file-upload.component";
+import { FileDropzoneComponent } from "./file-dropzone.component";
 
 export default {
-  title: "Component Library/Form/File Upload",
-  component: FileUploadComponent,
+  title: "Component Library/Form/File Dropzone",
+  component: FileDropzoneComponent,
   decorators: [
     moduleMetadata({
       imports: [
-        FileUploadComponent,
+        FileDropzoneComponent,
         BitLabelComponent,
         BitHintDirective,
         FormsModule,
@@ -26,9 +26,16 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              chooseFile: "Choose File",
-              noFileSelected: "No file selected",
-              fileChosen: "File chosen __$1__",
+              maxFileSizeParam: "Max. File Size: __$1__MB",
+              chooseFiles: "Choose files",
+              clickToUploadOrDragAndDrop: "Click to upload or drag and drop",
+              fileAdded: "File added: __$1__",
+              filesAdded: "__$1__ files added: __$2__",
+              fileRemoved: "File removed: __$1__",
+              oneFileUploaded: "1 file uploaded",
+              filesUploaded: "__$1__ files uploaded",
+              uploadedFiles: "Uploaded files",
+              delete: "Delete",
               required: "required",
               inputRequired: "Input is required.",
             }),
@@ -37,6 +44,8 @@ export default {
     }),
   ],
   args: {
+    maxFileSize: 30,
+    multiple: false,
     accept: "",
   },
   parameters: {
@@ -45,9 +54,9 @@ export default {
       url: "https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=42260-20194&m=dev",
     },
   },
-} as Meta<FileUploadComponent>;
+} as Meta<FileDropzoneComponent>;
 
-type Story = StoryObj<FileUploadComponent>;
+type Story = StoryObj<FileDropzoneComponent>;
 
 function createErroredControl(message: string): FormControl<File[]> {
   // Errors must come from a validator, not setErrors. Angular's setUpControl
@@ -70,14 +79,24 @@ export const Default: Story = {
   render: (args) => ({
     props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
+      <bit-file-dropzone
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [(ngModel)]="selectedFiles"
+      >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-dropzone>
     `,
   }),
+  args: {},
+};
+
+export const MultipleFiles: Story = {
+  ...Default,
   args: {
-    accept: ".png,.jpg,.gif,.svg",
+    multiple: true,
   },
 };
 
@@ -91,48 +110,57 @@ export const Required: Story = {
       }),
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [formControl]="requiredControl">
+      <bit-file-dropzone
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [formControl]="requiredControl"
+      >
         <bit-label>Upload file</bit-label>
-        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-dropzone>
     `,
   }),
-  args: {
-    accept: ".png,.jpg,.gif,.svg",
-  },
-};
-
-export const WithError: Story = {
-  render: (args) => ({
-    props: { ...args, fileControl: createErroredControl("File is too large") },
-    template: /*html*/ `
-      <bit-file-upload [accept]="accept" [formControl]="fileControl">
-        <bit-label>Upload file</bit-label>
-        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
-    `,
-  }),
-  args: {
-    accept: ".png,.jpg,.gif,.svg",
-  },
+  args: {},
 };
 
 export const Disabled: Story = {
   render: (args) => ({
     props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles" [disabled]="true">
+      <bit-file-dropzone
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [(ngModel)]="selectedFiles"
+        [disabled]="true"
+      >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-dropzone>
     `,
   }),
-  args: {
-    ...Default.args,
-  },
+  args: {},
 };
 
-export const LongFileName: Story = {
+export const WithError: Story = {
+  render: (args) => ({
+    props: { ...args, fileControl: createErroredControl("File is too large") },
+    template: /*html*/ `
+      <bit-file-dropzone
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [formControl]="fileControl"
+      >
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-dropzone>
+    `,
+  }),
+  args: {},
+};
+
+export const LongFileNames: Story = {
   render: (args) => ({
     props: {
       ...args,
@@ -141,15 +169,44 @@ export const LongFileName: Story = {
           "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
           2_400_000,
         ),
+        createMockFile("my-super-long-backup-archive-without-an-extension", 48_000_000),
+        createMockFile("client-data-export-q4-2024-north-america-region-full-dataset.csv", 150_000),
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
-        <bit-label>Upload file</bit-label>
-      </bit-file-upload>
+      <bit-file-dropzone [maxFileSize]="maxFileSize" [multiple]="multiple" [(ngModel)]="selectedFiles">
+        <bit-label>Upload files</bit-label>
+      </bit-file-dropzone>
     `,
   }),
   args: {
-    accept: ".pdf",
+    multiple: true,
+  },
+};
+
+export const WithFiles: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      selectedFiles: [
+        createMockFile("image.png", 2_400_000),
+        createMockFile("document.pdf", 150_000),
+        createMockFile("archive.zip", 48_000_000),
+      ],
+    },
+    template: /*html*/ `
+      <bit-file-dropzone
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [(ngModel)]="selectedFiles"
+      >
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-dropzone>
+    `,
+  }),
+  args: {
+    multiple: true,
   },
 };
