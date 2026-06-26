@@ -67,6 +67,15 @@ pub fn path(name: &str) -> std::path::PathBuf {
         format!(r"\\.\pipe\{hash_b64}.s.{name}").into()
     }
 
+    // Allow overriding the socket directory, e.g. to isolate a debug instance.
+    if let Ok(dir) = std::env::var("BITWARDEN_IPC_SOCKET_DIR") {
+        let path_dir = std::path::PathBuf::from(dir);
+
+        // The directory might not exist, so create it
+        let _ = std::fs::create_dir_all(&path_dir);
+        return path_dir.join(format!("s.{name}"));
+    }
+
     #[cfg(target_os = "macos")]
     {
         // When running in an unsandboxed environment, path is: /Users/<user>/
