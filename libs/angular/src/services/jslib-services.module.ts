@@ -147,6 +147,7 @@ import {
   TwoFactorApiService,
   TwoFactorService,
 } from "@bitwarden/common/auth/two-factor";
+import { registerAutofillOverlay } from "@bitwarden/common/autofill/managed-settings/autofill.overlay";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -1675,6 +1676,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
     useFactory: () => () => registerAppearanceOverlay(),
+    deps: [],
+    multi: true,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
+    useFactory: () => () => registerAutofillOverlay(),
     deps: [],
     multi: true,
   }),

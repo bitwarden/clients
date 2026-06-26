@@ -57,7 +57,7 @@ const AUTO_COPY_TOTP = new UserKeyDefinition(AUTOFILL_SETTINGS_DISK, "autoCopyTo
   clearOn: [],
 });
 
-const INLINE_MENU_VISIBILITY = new KeyDefinition(
+export const INLINE_MENU_VISIBILITY = new KeyDefinition(
   AUTOFILL_SETTINGS_DISK_LOCAL,
   "inlineMenuVisibility",
   {
@@ -83,7 +83,7 @@ const SHOW_INLINE_MENU_CARDS = new UserKeyDefinition(
   },
 );
 
-const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
+export const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
   deserializer: (value: boolean) => value ?? true,
 });
 

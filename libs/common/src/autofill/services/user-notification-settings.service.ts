@@ -9,14 +9,14 @@ import {
   StateProvider,
 } from "../../platform/state";
 
-const ENABLE_ADDED_LOGIN_PROMPT = new KeyDefinition(
+export const ENABLE_ADDED_LOGIN_PROMPT = new KeyDefinition(
   USER_NOTIFICATION_SETTINGS_DISK,
   "enableAddedLoginPrompt",
   {
     deserializer: (value: boolean) => value ?? true,
   },
 );
-const ENABLE_CHANGED_PASSWORD_PROMPT = new KeyDefinition(
+export const ENABLE_CHANGED_PASSWORD_PROMPT = new KeyDefinition(
   USER_NOTIFICATION_SETTINGS_DISK,
   "enableChangedPasswordPrompt",
   {

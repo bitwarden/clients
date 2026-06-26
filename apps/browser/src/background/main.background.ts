@@ -82,6 +82,7 @@ import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-l
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { registerAutofillOverlay } from "@bitwarden/common/autofill/managed-settings/autofill.overlay";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -740,6 +741,7 @@ export default class MainBackground {
     }
     registerEnvironmentOverlay();
     registerAppearanceOverlay();
+    registerAutofillOverlay();
 
     this.taskSchedulerService = new BackgroundTaskSchedulerService(
       this.logService,

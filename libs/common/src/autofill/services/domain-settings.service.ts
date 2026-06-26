@@ -39,7 +39,7 @@ import { UserId } from "../../types/guid";
 import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
 import { punycodeToUnicode } from "../utils/punycode";
 
-const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
+export const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
 });
 
