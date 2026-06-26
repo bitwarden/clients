@@ -135,7 +135,7 @@ describe("Fastmail forwarder", () => {
         const methodCall = result.methodCalls[0][1];
 
         expect(methodCall.accountId).toEqual("accountId");
-        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("example.com");
+        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("example_com");
       });
     });
 
