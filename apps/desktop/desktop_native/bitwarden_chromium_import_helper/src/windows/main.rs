@@ -6,7 +6,10 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
+use chromium_importer::{
+    chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME},
+    config::ENABLE_DEVELOPER_LOGGING,
+};
 use clap::Parser;
 use scopeguard::defer;
 use tokio::{
@@ -32,7 +35,7 @@ use super::{
         decode_abe_key_blob, decode_base64, decrypt_with_dpapi_as_system,
         decrypt_with_dpapi_as_user, encode_base64,
     },
-    log::init_logging,
+    log::{init_logging, wait_for_keypress},
 };
 
 #[derive(Parser)]
@@ -199,6 +202,16 @@ fn run() -> Result<String> {
 }
 
 pub(crate) async fn main() {
+    // When developer logging is enabled the helper runs in a visible elevated console (see
+    // `decrypt_with_admin_exe_internal`). Hold the window open on every exit path — including
+    // early returns — so its output can be read before this short-lived process terminates.
+    // Declared first so it runs last, after the result/error has been sent back to the user.
+    defer! {
+        if ENABLE_DEVELOPER_LOGGING {
+            wait_for_keypress();
+        }
+    }
+
     init_logging();
 
     let mut client = match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {

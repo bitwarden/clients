@@ -1,7 +1,7 @@
-// This module deliberately prints to the elevated console when developer logging is enabled
-// and the tracing subscriber cannot be installed yet (or its log file cannot be created).
-// `eprintln!` is the only observable channel at that point, so the workspace `print_stderr`
-// deny is allowed here for that narrow, developer-only diagnostic path.
+// When developer logging is enabled the helper runs in a visible elevated console (see
+// `decrypt_with_admin_exe_internal`) that is held open at exit (see `main`). `eprintln!` is the
+// only channel available before the tracing subscriber is installed, so the workspace
+// `print_stderr` deny is allowed here for that narrow, developer-only diagnostic path.
 #![allow(clippy::print_stderr)]
 
 use std::{fs::File, path::Path};
@@ -17,39 +17,46 @@ pub(crate) fn init_logging() {
         return;
     }
 
-    // When developer logging is enabled this exe is launched with a visible console window
-    // (see `decrypt_with_admin_exe_internal`), so stdout/stderr are observable. Until the
-    // tracing subscriber below is installed, an `error!` would be dropped, so any setup
-    // failure is reported directly via `eprintln!`.
-    let log_file = match create_log_file() {
-        Ok(file) => file,
+    // Always log to the (visible, held-open) console so output is observable live even if the
+    // log file cannot be created. Add a file layer on top when the file can be opened.
+    let stdout_layer = fmt::layer()
+        .with_writer(std::io::stdout)
+        .with_ansi(false)
+        .with_filter(debug_filter());
+
+    let file_layer = match create_log_file() {
+        Ok(file) => Some(
+            fmt::layer()
+                .with_writer(file)
+                .with_ansi(false)
+                .with_filter(debug_filter()),
+        ),
         Err(error) => {
-            eprintln!("Could not create a developer log file anywhere: {error}");
-            // Hold the elevated console window open so the failure can actually be read
-            // before the process exits and the window disappears.
-            wait_for_keypress();
-            return;
+            // No subscriber is installed yet, so print directly to the console.
+            eprintln!("Could not create a developer log file: {error}. Logging to console only.");
+            None
         }
     };
 
-    let file_filter = EnvFilter::builder()
+    // `Option<Layer>` is a no-op layer when `None`, so this works whether or not the file opened.
+    tracing_subscriber::registry()
+        .with(stdout_layer)
+        .with(file_layer)
+        .init();
+}
+
+fn debug_filter() -> EnvFilter {
+    EnvFilter::builder()
         .with_default_directive(LevelFilter::DEBUG.into())
-        .from_env_lossy();
-
-    let file_layer = fmt::layer()
-        .with_writer(log_file)
-        .with_ansi(false)
-        .with_filter(file_filter);
-
-    tracing_subscriber::registry().with(file_layer).init();
+        .from_env_lossy()
 }
 
 /// Create the developer log file, creating any missing parent directories first.
 ///
 /// `File::create` does not create missing parent directories, so the configured
 /// [`LOG_FILENAME`] directory is created up front. If the configured path still cannot be
-/// created (e.g. it points at a directory that isn't writable in this elevated context),
-/// fall back to a path that is reliably writable by the elevated helper process.
+/// created (e.g. it isn't writable in this elevated context), fall back to a path that is
+/// reliably writable by the elevated helper process.
 fn create_log_file() -> std::io::Result<File> {
     let primary = Path::new(LOG_FILENAME);
     match create_at(primary) {
@@ -75,8 +82,11 @@ fn create_at(path: &Path) -> std::io::Result<File> {
     File::create(path)
 }
 
-fn wait_for_keypress() {
-    eprintln!("Press Enter to continue...");
+/// Block until the user presses Enter. Called on every exit path of the helper (when developer
+/// logging is enabled) to hold the elevated console window open so its output can actually be
+/// read before the short-lived process terminates.
+pub(crate) fn wait_for_keypress() {
+    eprintln!("\n[bitwarden_chromium_import_helper] Press Enter to close this window...");
     let mut buffer = String::new();
     let _ = std::io::stdin().read_line(&mut buffer);
 }
