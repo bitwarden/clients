@@ -104,7 +104,7 @@ describe("SendOptionsComponent", () => {
         cycleChangeDetection();
 
         expect(mockSendFormService.patchSend).toHaveBeenCalled();
-        const updateFn = mockSendFormService.patchSend.mock.calls.at(-1)[0];
+        const updateFn = mockSendFormService.patchSend.mock.calls.at(-1)![0];
         expect(updateFn({} as SendView).maxAccessCount).toBeNull();
       },
     );
