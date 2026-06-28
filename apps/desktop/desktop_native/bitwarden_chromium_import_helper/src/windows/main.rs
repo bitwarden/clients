@@ -174,29 +174,35 @@ fn run() -> Result<String> {
 
     debug!("Running as ADMINISTRATOR");
 
+    // `encrypted` and every decrypted intermediate below are key material that can
+    // decrypt the browser's saved credentials. Log only their lengths and per-stage outcome —
+    // never the bytes.
     let encrypted = decode_base64(&args.encrypted)?;
     debug!(
-        "Decoded encrypted data [{}] {:?}",
+        "Decoded base64 input: {} encrypted byte(s) from {} base64 char(s)",
         encrypted.len(),
-        encrypted
+        args.encrypted.len()
     );
 
     let system_decrypted = decrypt_with_dpapi_as_system(&encrypted)?;
     debug!(
-        "Decrypted data with DPAPI as SYSTEM {} {:?}",
-        system_decrypted.len(),
-        system_decrypted
+        "DPAPI (SYSTEM) decryption succeeded: {} byte(s) in -> {} byte(s) out",
+        encrypted.len(),
+        system_decrypted.len()
     );
 
     let user_decrypted = decrypt_with_dpapi_as_user(&system_decrypted, false)?;
     debug!(
-        "Decrypted data with DPAPI as USER {} {:?}",
-        user_decrypted.len(),
-        user_decrypted
+        "DPAPI (USER) decryption succeeded: {} byte(s) in -> {} byte(s) out",
+        system_decrypted.len(),
+        user_decrypted.len()
     );
 
     let key = decode_abe_key_blob(&user_decrypted)?;
-    debug!("Decoded ABE key blob {} {:?}", key.len(), key);
+    debug!(
+        "Decoded ABE key blob: recovered a {}-byte key; returning it base64-encoded over the pipe",
+        key.len()
+    );
 
     Ok(encode_base64(&key))
 }
