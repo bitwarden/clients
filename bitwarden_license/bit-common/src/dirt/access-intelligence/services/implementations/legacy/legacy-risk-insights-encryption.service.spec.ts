@@ -357,6 +357,48 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       ).toBe(true);
     });
 
+    it("should drop a bad report element from a V2 blob and log a warning without throwing", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const registry: Record<string, MemberRegistryEntryData> = {
+        "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
+      };
+      const validReport: ApplicationHealthData = Object.assign(new ApplicationHealthData(), {
+        applicationName: "app.example.com",
+        passwordCount: 3,
+        atRiskPasswordCount: 1,
+        memberCount: 1,
+        atRiskMemberCount: 1,
+        memberRefs: { "member-1": true },
+        cipherRefs: { "cipher-a": true },
+      });
+      const badReport = Object.assign(new ApplicationHealthData(), validReport, {
+        applicationName: "", // empty name — invalid
+      });
+      const v2Blob = {
+        version: 1,
+        data: { reports: [badReport, validReport], memberRegistry: registry },
+      };
+
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(v2Blob))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.reportData).toHaveLength(1);
+      expect(result.reportData[0].applicationName).toBe("app.example.com");
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid report payload"),
+      );
+    });
+
     it("should return empty reportData array when V2 blob has empty reports", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);

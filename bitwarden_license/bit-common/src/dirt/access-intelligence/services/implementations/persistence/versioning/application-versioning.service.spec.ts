@@ -32,6 +32,25 @@ describe("ApplicationVersioningService", () => {
       expect(result.data[0].applicationName).toBe("app.com");
     });
 
+    it("should drop a bad setting element from a versioned envelope and log a warning without throwing", () => {
+      const envelopeWithBadElement = {
+        version: 1,
+        data: [
+          { applicationName: "", isCritical: true }, // empty name — invalid
+          { applicationName: "app.com", isCritical: false }, // valid
+        ],
+      };
+
+      const result = service.process(envelopeWithBadElement);
+
+      expect(result.wasLegacy).toBe(false);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].applicationName).toBe("app.com");
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid application setting"),
+      );
+    });
+
     it("should accept legacy array and return wasLegacy: true with reviewedDate converted to string", () => {
       const legacyApps = [
         { applicationName: "app.com", isCritical: true, reviewedDate: new Date("2024-01-01") },
