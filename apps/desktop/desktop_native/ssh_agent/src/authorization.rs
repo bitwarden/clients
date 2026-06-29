@@ -66,7 +66,7 @@ where
             AuthRequest::List => {
                 // The keystore being initialized means that the vault has been unlocked and keys
                 // received from the vault. The before keystore initialization is a case that arises
-                // in BFU (Before First Unlcock)- where the vault state is logged into but hasn't
+                // in BFU (Before First Unlock)- where the vault state is logged into but hasn't
                 // yet been unlocked during the app's runtime.
                 if !self.keystore.is_initialized() {
                     info!(
