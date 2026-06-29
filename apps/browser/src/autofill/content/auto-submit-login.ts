@@ -10,7 +10,7 @@ import InsertAutofillContentService from "../services/insert-autofill-content.se
 import {
   elementIsInputElement,
   elementIsButtonElement,
-  nodeIsFormElement,
+  elementIsFormElement,
   elementIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
@@ -294,7 +294,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     return domQueryService.query<HTMLFormElement>(
       globalContext.document.documentElement,
       "form",
-      (node: Node) => nodeIsFormElement(node),
+      (element: Element) => elementIsFormElement(element),
     );
   }
 

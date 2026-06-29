@@ -311,15 +311,6 @@ export function nodeIsInputElement(node: Node): node is HTMLInputElement {
   return nodeIsElement(node) && elementIsInputElement(node);
 }
 
-/**
- * Identifies whether a node is a form element.
- *
- * @param node - The node to check.
- */
-export function nodeIsFormElement(node: Node): node is HTMLFormElement {
-  return nodeIsElement(node) && elementIsFormElement(node);
-}
-
 export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
   return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }

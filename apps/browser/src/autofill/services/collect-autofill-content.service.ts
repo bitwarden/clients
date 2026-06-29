@@ -16,7 +16,6 @@ import {
   elementIsSpanElement,
   nodeIsElement,
   elementIsTextAreaElement,
-  nodeIsFormElement,
   nodeIsInputElement,
   sendExtensionMessage,
   getAttributeBoolean,
@@ -1327,7 +1326,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       globalThis.document.documentElement,
       `form, ${this.formFieldQueryString}`,
       (element: Element) => {
-        if (nodeIsFormElement(element)) {
+        if (elementIsFormElement(element)) {
           formElements.push(element);
           return true;
         }
