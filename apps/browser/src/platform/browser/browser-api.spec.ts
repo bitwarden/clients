@@ -765,8 +765,9 @@ describe("BrowserApi", () => {
   });
 
   describe("reloadExtension", () => {
-    it("forwards call to extension runtime", () => {
-      BrowserApi.reloadExtension();
+    it("forwards call to extension runtime", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+      await BrowserApi.reloadExtension();
       expect(chrome.runtime.reload).toHaveBeenCalled();
     });
   });

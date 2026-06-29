@@ -154,6 +154,13 @@ export class IpcBackgroundService extends IpcService {
    */
   private async connectToDesktop() {
     let port: browser.runtime.Port | chrome.runtime.Port | undefined;
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      this.logService.info(
+        "[IPC] Native messaging permission not granted, skipping connection to Bitwarden Desktop App",
+      );
+      return;
+    }
+
     try {
       port = BrowserApi.connectNative("com.8bit.bitwarden");
       this.nativeMessagingPort = port;

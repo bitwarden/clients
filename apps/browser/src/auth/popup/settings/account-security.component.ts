@@ -546,18 +546,26 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
-    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
-      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
-    }
-
     if (enabled) {
+      if (
+        BrowserPopupUtils.inPopup(window) &&
+        !(await BrowserApi.permissionsGranted(["nativeMessaging"]))
+      ) {
+        await BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
+      }
+
       const granted = await this.requestNativeMessagingPermission();
       if (!granted) {
         this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
         return;
       }
+    }
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }
 
