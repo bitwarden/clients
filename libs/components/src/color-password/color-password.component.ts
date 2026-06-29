@@ -8,6 +8,7 @@ import {
   input,
 } from "@angular/core";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -47,11 +48,18 @@ export class ColorPasswordComponent {
   });
 
   // Comma-separate the characters so screen readers announce each one individually
-  // instead of grouping adjacent letters into words.
-  readonly accessiblePassword = computed(() => this.passwordCharArray().join(", "));
+  // instead of grouping adjacent letters into words. Literal spaces are swapped for
+  // a localized "space" token because screen readers collapse bare whitespace and
+  // would otherwise drop the character entirely from the announcement.
+  readonly accessiblePassword = computed(() =>
+    this.passwordCharArray()
+      .map((char) => (char === " " ? this.i18nService.t("passwordAnnounceSpace") : char))
+      .join(", "),
+  );
 
   private platformUtilsService = inject(PlatformUtilsService);
   private elementRef = inject(ElementRef);
+  private i18nService = inject(I18nService);
 
   characterStyles: Record<CharacterType, string[]> = {
     emoji: [],
