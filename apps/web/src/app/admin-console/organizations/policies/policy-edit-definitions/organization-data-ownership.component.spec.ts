@@ -12,6 +12,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -46,7 +47,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
   let component: OrganizationDataOwnershipPolicyComponent;
   let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
-  let mockAccountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
 
   function setupOrg(useMyItems: boolean) {
     mockOrganizationService.organizations$.mockReturnValue(
@@ -56,9 +57,8 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    mockAccountService = mock<AccountService>();
+    accountService = mockAccountServiceWith("user1" as UserId);
 
-    mockAccountService.activeAccount$ = of({ id: "user1" as UserId } as any);
     mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
@@ -67,7 +67,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: EncryptService, useValue: mock<EncryptService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],

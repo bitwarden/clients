@@ -4,6 +4,7 @@ import {
   DesktopAutotypeDefaultSettingPolicy,
   DisableSendPolicy,
   MasterPasswordPolicy,
+  MasterPasswordPolicyV2,
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyV2,
   OrganizationUserNotificationPolicy,
@@ -26,6 +27,7 @@ import {
 export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new TwoFactorAuthenticationPolicy(),
   new MasterPasswordPolicy(),
+  new MasterPasswordPolicyV2(),
   new RemoveUnlockWithPinPolicy(),
   new ResetPasswordPolicy(),
   new PasswordGeneratorPolicy(),

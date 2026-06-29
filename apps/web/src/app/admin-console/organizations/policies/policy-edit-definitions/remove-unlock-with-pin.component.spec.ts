@@ -2,12 +2,15 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -33,11 +36,15 @@ describe("RemoveUnlockWithPinPolicyComponent", () => {
   const i18nService = mock<I18nService>();
 
   beforeEach(async () => {
+    const mockOrganizationService = mock<OrganizationService>();
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: I18nService, useValue: i18nService },
-        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AccountService, useValue: mockAccountServiceWith("user1" as any) },
+        { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],

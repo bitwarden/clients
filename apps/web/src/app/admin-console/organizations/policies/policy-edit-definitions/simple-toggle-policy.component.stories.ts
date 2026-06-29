@@ -2,6 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
@@ -67,6 +68,10 @@ const mockPolicyApiService: Partial<PolicyApiServiceAbstraction> = {
   putPolicy: () => Promise.resolve(),
 };
 
+const mockOrganizationService: Partial<OrganizationService> = {
+  organizations$: () => of([]),
+};
+
 type StoryArgs = {
   enabled: boolean;
   showWarning: boolean;
@@ -116,6 +121,7 @@ export default {
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },
         { provide: PolicyApiServiceAbstraction, useValue: mockPolicyApiService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
       ],
     }),
     applicationConfig({
