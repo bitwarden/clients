@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   BehaviorSubject,
@@ -76,6 +83,7 @@ export class SessionTimeoutPolicyV2Component
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
   private readonly dialogService = inject(DialogService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly actionOptions: { name: string; value: SessionTimeoutAction }[] = [
     { name: this.i18nService.t("userPreference"), value: null },
@@ -129,6 +137,7 @@ export class SessionTimeoutPolicyV2Component
             this.lastConfirmedType$.next(newType);
           } else {
             typeControl.setValue(lastConfirmedType, { emitEvent: false });
+            this.cdr.markForCheck();
           }
         }),
         takeUntil(this.destroy$),
