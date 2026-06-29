@@ -1438,7 +1438,7 @@ export default class MainBackground {
       // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
       await BrowserPopupUtils.waitForAllPopupsClose();
 
-      BrowserApi.reloadExtension();
+      await BrowserApi.reloadExtension();
     };
 
     this.systemService = new SystemService(
@@ -1732,11 +1732,11 @@ export default class MainBackground {
     // Currently, the native messaging permission is optional. Disabling or enabling it should trigger a reload of the
     // extension because the native messaging host is only registered after the permission is granted and the extension
     // reloaded.
-    chrome.permissions.onAdded.addListener((permissions) => {
+    chrome.permissions.onAdded.addListener(async (permissions) => {
       this.logService.info("[Native Messaging IPC] Permissions added:", permissions);
       // Chrome does not add the permission to the extension until after reloading
       if (permissions.permissions.includes("nativeMessaging")) {
-        BrowserApi.reloadExtension();
+        await BrowserApi.reloadExtension();
       }
     });
 
