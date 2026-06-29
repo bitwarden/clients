@@ -135,6 +135,7 @@ export class SessionTimeoutPolicyV2Component
           if (confirmed) {
             this.updateFormControls(newType);
             this.lastConfirmedType$.next(newType);
+            this.cdr.markForCheck();
           } else {
             typeControl.setValue(lastConfirmedType, { emitEvent: false });
             this.cdr.markForCheck();
