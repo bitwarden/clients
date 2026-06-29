@@ -25,7 +25,7 @@ export const AuthWebRoute = Object.freeze({
   AcceptEmergencyAccessInvite: "accept-emergency",
   RecoverDeleteAccount: "recover-delete",
   VerifyRecoverDeleteAccount: "verify-recover-delete",
-  AcceptOrganizationInvite: "accept-organization",
+  AcceptOrgDirectInvite: "accept-organization",
 
   // Composed routes from segments (allowing for router.navigate / routerLink usage)
   AccountSettings: `settings/${AuthWebRouteSegment.Account}`,

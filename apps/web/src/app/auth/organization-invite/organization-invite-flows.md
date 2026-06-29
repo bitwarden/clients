@@ -17,7 +17,7 @@ the user takes after clicking the email link.
 The client calls `OrganizationInviteService.validateAndAcceptInvite(invite, userId)`,
 which posts to either `postOrganizationUserAccept` or `postOrganizationUserAcceptInit`.
 Only one production caller exists:
-[`AcceptOrganizationComponent.authedHandler`](./accept-organization.component.ts).
+[`AcceptOrgDirectInviteComponent.authedHandler`](./accept-org-direct-invite.component.ts).
 
 ### 2. Server-side acceptance as a side effect of account setup
 
@@ -49,7 +49,7 @@ Required params: `organizationId`, `organizationUserId`, `email`,
 Optional: `orgSsoIdentifier` (only when the inviting org has SSO + the SSO-login
 policy enabled).
 
-`AcceptOrganizationComponent.ngOnInit` hands off to
+`AcceptOrgDirectInviteComponent.ngOnInit` hands off to
 [`AcceptFlowService.run`](../../../../../../../libs/angular/src/auth/accept-flow/accept-flow.service.ts),
 which:
 
