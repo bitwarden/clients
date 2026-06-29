@@ -25,7 +25,7 @@ export class WebStorageServiceProvider extends StorageServiceProvider {
         return ["disk-local", this.diskLocalStorageService];
       default:
         // Pass in computed location to super because they could have
-        // overriden default "disk" with web "memory".
+        // overridden default "disk" with web "memory".
         return super.get(location, overrides);
     }
   }

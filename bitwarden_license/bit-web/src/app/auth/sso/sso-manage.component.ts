@@ -398,7 +398,7 @@ export class SsoManageComponent implements OnInit, OnDestroy {
                 // from the server and set to the form field upon load(). But if this user then selects a
                 // different Member Decryption option (but does not save the form), and then once again
                 // selects the Key Connector option, we want to pre-populate the form field with the already
-                // configured URL that was originally retreived from the server, not a default URL.
+                // configured URL that was originally retrieved from the server, not a default URL.
                 this.ssoConfigForm.controls.keyConnectorUrl.setValue(
                   this.configuredKeyConnectorUrlFromServer,
                 );

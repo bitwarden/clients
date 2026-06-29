@@ -107,7 +107,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       if (this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled) {
         this.toastService.showToast({
           variant: "error",
-          title: this.i18nService.t("errorOccured"),
+          title: this.i18nService.t("errorOccurred"),
           message: this.i18nService.t("offerNoLongerValid"),
         });
 

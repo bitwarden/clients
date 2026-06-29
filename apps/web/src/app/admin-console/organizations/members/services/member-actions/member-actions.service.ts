@@ -292,7 +292,7 @@ export class MemberActionsService {
    * @param user - The user to confirm (must implement ConfirmableUser interface)
    * @param userNamePipe - Pipe to transform user names for display
    * @param orgManagementPrefs - Service providing organization management preferences
-   * @returns Promise containing the pulic key that resolves when the confirm action is accepted
+   * @returns Promise containing the public key that resolves when the confirm action is accepted
    * or undefined when cancelled
    */
   async getPublicKeyForConfirm(
