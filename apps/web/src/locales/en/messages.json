@@ -2481,6 +2481,9 @@
     "message": "Minimum special",
     "description": "Minimum special characters"
   },
+  "minSpecialCharacters": {
+    "message": "Minimum special characters"
+  },
   "ambiguous": {
     "message": "Avoid ambiguous characters",
     "description": "deprecated. Use avoidAmbiguous instead."
