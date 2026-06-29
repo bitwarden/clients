@@ -497,6 +497,9 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_NotificationBannerActionClicked:
+        msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
+        break;
       case EventType.OrganizationUser_InviteLinkAccepted:
         msg = this.i18nService.t("inviteLinkEventAccepted", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(

@@ -1,13 +1,13 @@
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { ChangePasswordUriResponse } from "@bitwarden/common/vault/models/response/change-password-uri.response";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { ApiService } from "../../abstractions/api.service";
+import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { Utils } from "../../platform/misc/utils";
+import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
+import { CipherType } from "../enums";
+import { ChangePasswordUriResponse } from "../models/response/change-password-uri.response";
+import { CipherView } from "../models/view/cipher.view";
 
 export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordService {
   constructor(

@@ -1,5 +1,4 @@
-import { CollectionDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
-
+import { CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { PolicyResponse } from "../../admin-console/models/response/policy.response";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
 import { BaseResponse } from "../../models/response/base.response";

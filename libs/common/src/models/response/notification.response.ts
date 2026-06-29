@@ -1,6 +1,5 @@
-import { NotificationViewResponse as EndUserNotificationResponse } from "@bitwarden/common/vault/notifications/models";
-
 import { NotificationType, PushNotificationLogOutReasonType } from "../../enums";
+import { NotificationViewResponse as EndUserNotificationResponse } from "../../vault/notifications/models";
 
 import { BaseResponse } from "./base.response";
 

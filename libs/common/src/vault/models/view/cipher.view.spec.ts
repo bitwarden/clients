@@ -1,7 +1,5 @@
 import { Jsonify } from "type-fest";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { CipherPermissionsApi } from "@bitwarden/common/vault/models/api/cipher-permissions.api";
 import {
   CiphersClient,
   CipherView as SdkCipherView,
@@ -15,9 +13,11 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { mockFromJson, mockFromSdk } from "../../../../spec";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { CipherRepromptType } from "../../enums";
 import { CipherType } from "../../enums/cipher-type";
+import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";

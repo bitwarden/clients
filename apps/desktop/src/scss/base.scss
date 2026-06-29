@@ -18,7 +18,7 @@ body {
   color: $text-color;
 
   // We initially rely on electron to provide the appropriate background color.
-  // This ensures the background color while reloading is correct to avoid a jarring missmatch.
+  // This ensures the background color while reloading is correct to avoid a jarring mismatch.
   background-color: transparent;
 
   @include themify($themes) {
