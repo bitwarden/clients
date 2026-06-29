@@ -60,6 +60,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    */
   private readonly pageTransition$ = new Subject<{
     tab: chrome.tabs.Tab;
+    tabId: number;
     frameId: number | undefined;
   }>();
 
@@ -119,7 +120,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       .pipe(
         // keeps every (tab, frame) independent so simultaneous reloads each buffer on their own
         mergeMap((transition) => {
-          const key = this.monitorFrameKey(transition.tab.id, transition.frameId);
+          const key = this.monitorFrameKey(transition.tabId, transition.frameId);
           return this.monitoringState.pipe(
             filter((state) => state.get(key) === true),
             map(() => transition),
@@ -149,10 +150,13 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   }
 
   reportPageTransition(tab: chrome.tabs.Tab, frameId: number | undefined) {
-    if (!tab?.id) {
+    const tabId = tab?.id;
+    if (!tabId) {
       return;
     }
-    this.pageTransition$.next({ tab, frameId });
+    // Carry the narrowed tabId in the payload so the buffer keys off a definite
+    // number — the guard's narrowing of `tab.id` does not survive the stream.
+    this.pageTransition$.next({ tab, tabId, frameId });
   }
 
   /**
