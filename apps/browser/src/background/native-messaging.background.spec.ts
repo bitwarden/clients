@@ -73,6 +73,7 @@ describe("NativeMessagingBackground", () => {
     appIdService.getAppId.mockResolvedValue(mockAppId);
     accountService.activeAccount$ = of(mockAccount);
     platformUtilsService.isSafari.mockReturnValue(false);
+    (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(true);
 
     (BrowserApi.connectNative as jest.Mock).mockReturnValue({
       onMessage: {
@@ -149,6 +150,11 @@ describe("NativeMessagingBackground", () => {
       platformUtilsService.isSafari.mockReturnValue(false);
 
       connectPromise = sut.connect() as Promise<void>;
+      // connect() has 3 awaits before synchronously registering port listeners;
+      // flush them so listeners are captured before each test body runs.
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
     });
 
     afterEach(() => {

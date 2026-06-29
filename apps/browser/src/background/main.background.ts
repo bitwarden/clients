@@ -1729,6 +1729,17 @@ export default class MainBackground {
       this.unlockService,
     );
 
+    // Currently, the native messaging permission is optional. Disabling or enabling it should trigger a reload of the
+    // extension because the native messaging host is only registered after the permission is granted and the extension
+    // reloaded.
+    chrome.permissions.onAdded.addListener((permissions) => {
+      this.logService.info("[Native Messaging IPC] Permissions added:", permissions);
+      // Chrome does not add the permission to the extension until after reloading
+      if (permissions.permissions.includes("nativeMessaging")) {
+        BrowserApi.reloadExtension();
+      }
+    });
+
     this.endUserNotificationService = new DefaultEndUserNotificationService(
       this.stateProvider,
       this.apiService,

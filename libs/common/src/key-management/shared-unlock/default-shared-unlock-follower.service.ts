@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
+import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockFollower } from "@bitwarden/sdk-internal";
@@ -43,7 +44,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
-      this.sharedUnlockSettingsService,
+      (userId) => this.enabled(userId),
     );
 
     this.follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
@@ -70,7 +71,11 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
-    return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
+    if (this.platformUtilsService.getClientType() === ClientType.Browser) {
+      return await this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop(userId);
+    } else {
+      return true;
+    }
   }
 
   private async onUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
