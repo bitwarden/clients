@@ -1,7 +1,7 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
-import { createMeter, measure, stopwatch } from "../content/performance";
+import { createMeter, stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -87,7 +87,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly formFieldQueryString;
 
   private readonly monitorMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
-  // Larger ring than default: fires per MO callback; churn-heavy pages can outrun 256 slots before flush.
+  // Larger ring (bits:10): MO callbacks can outrun 256 slots before flush.
   private readonly monitorMutationBatch = createMeter(
     { name: "mutationBatch", bits: 10 },
     "records",
@@ -99,7 +99,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly monitorProcessMutations = createMeter("processMutations");
   private readonly monitorUpdateCachedVisibility = createMeter("updateCachedVisibility");
   private readonly monitorSetupOverlayOnField = createMeter("setupOverlayOnField");
-  // Gate-branch-architecture meters (main's queue-swap path): adaptive backoff + 256-cap overflow.
   private readonly monitorBackoff = createMeter("mutationBackoff", "burst", "adaptiveMs");
   private readonly monitorCandidateOverflow = createMeter("shadowCandidateOverflow");
   private readonly monitorScheduleSkipped = createMeter("scheduleSkipped");
@@ -134,8 +133,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
 
-    // Wrap before allocating the observer so MutationObserver registers the
-    // stopwatch-instrumented handler, not the bare reference.
+    // Wrap before allocating the observer so the instrumented handler is registered.
     this.handleMutationObserverMutation = stopwatch(
       "handleMutationObserverMutation",
       this.handleMutationObserverMutation,
@@ -1450,13 +1448,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
-    // Runs on every wake (throttled), so detached nodes are reclaimed even on pages
-    // whose batches never contribute work and so never schedule a drain.
+    // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
     this.purgeDetachedNodesIfDue();
 
-    const hasMutationsInShadowRoot = measure("shadowMutationCheck", () =>
-      this.domQueryService.checkMutationsInShadowRoots(mutations),
-    );
+    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
     this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
 
@@ -1487,9 +1482,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    // Schedule a drain only when the queue was idle AND this batch contributed work.
-    // Cosmetic batches on hyperactive pages contribute nothing once the childList gate
-    // rejects them; scheduling a no-op drain is pure idle-callback + allocation tax.
+    // Schedule a drain only when the queue was idle AND this batch contributed work;
+    // a no-op drain on a hyperactive page is pure idle-callback + allocation tax.
     const queueWasIdle =
       this.pendingAttributeMutations.size === 0 &&
       this.pendingTopLayerTargets.size === 0 &&
@@ -1497,7 +1491,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType === 1 (Node.ELEMENT_NODE) instead of `instanceof Element`; faster & includes iframes
+        // nodeType (not instanceof Element) works across realms — iframe-adopted nodes.
         if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
           continue;
         }
@@ -1646,8 +1640,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  // At most one detached-node sweep per throttle window, whatever the caller. The
-  // -Infinity start makes the first call always run.
+  // One sweep per throttle window; -Infinity start lets the first call always run.
   private purgeDetachedNodesIfDue(): void {
     const now = performance.now();
     if (now - this.lastDetachedPurgeAt < this.detachedPurgeThrottleMs) {
