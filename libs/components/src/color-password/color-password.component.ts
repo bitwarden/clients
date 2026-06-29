@@ -23,13 +23,19 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
 @Component({
   selector: "bit-color-password",
   template: `@for (character of passwordCharArray(); track $index; let i = $index) {
-    <span [class]="getCharacterClass(character)" class="tw-font-mono" data-password-character>
-      <span>{{ character }}</span>
-      @if (showCount()) {
-        <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
-      }
-    </span>
-  }`,
+      <span
+        [class]="getCharacterClass(character)"
+        class="tw-font-mono"
+        data-password-character
+        aria-hidden="true"
+      >
+        <span>{{ character }}</span>
+        @if (showCount()) {
+          <span class="tw-whitespace-nowrap tw-text-xs tw-leading-5 tw-text-main">{{ i + 1 }}</span>
+        }
+      </span>
+    }
+    <span class="tw-sr-only" data-password-accessible>{{ accessiblePassword() }}</span>`,
 })
 export class ColorPasswordComponent {
   readonly password = input<string>("");
@@ -39,6 +45,10 @@ export class ColorPasswordComponent {
   readonly passwordCharArray = computed(() => {
     return Array.from(this.password() ?? "");
   });
+
+  // Comma-separate the characters so screen readers announce each one individually
+  // instead of grouping adjacent letters into words.
+  readonly accessiblePassword = computed(() => this.passwordCharArray().join(", "));
 
   private platformUtilsService = inject(PlatformUtilsService);
   private elementRef = inject(ElementRef);
