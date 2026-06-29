@@ -319,7 +319,9 @@ export class SendDetailsComponent implements OnInit {
             this.policyDeletionHoursOrgName = policyOrg.name;
           }
         } else {
-          deletionDateControl.patchValue(SendDeletionDatePreset.SevenDays);
+          if (this.sendFormService.sendFormConfig?.mode === "add") {
+            deletionDateControl.patchValue(SendDeletionDatePreset.SevenDays);
+          }
           deletionDateControl.enable();
           this.policyDeletionHoursOrgName = null;
         }
