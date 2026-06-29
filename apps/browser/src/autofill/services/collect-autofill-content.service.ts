@@ -86,7 +86,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
 
-  // Larger ring (bits:10): MO callbacks can outrun 256 slots before flush.
   private readonly monitorMutationBatch = createMeter(
     { name: "mutationBatch", bits: 10 },
     "records",
@@ -1494,15 +1493,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType (not instanceof Element) works across realms — iframe-adopted nodes.
-        if (mutation.target.nodeType !== Node.ELEMENT_NODE) {
+        if (!nodeIsElement(mutation.target)) {
           continue;
         }
         const attributeName = mutation.attributeName?.toLowerCase();
         if (!attributeName) {
           continue;
         }
-        const target = mutation.target as Element;
+        const target = mutation.target;
         let attributeNames = this.pendingAttributeMutations.get(target);
         if (!attributeNames) {
           attributeNames = new Set();
@@ -1518,12 +1516,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingChildListUpdate = true;
         }
         for (const node of mutation.addedNodes ?? []) {
-          if (node.nodeType !== Node.ELEMENT_NODE) {
+          if (!nodeIsElement(node)) {
             continue;
           }
-          const element = node as Element;
-          if (this.shouldListenToTopLayerCandidate(element)) {
-            this.pendingTopLayerTargets.add(element);
+          if (this.shouldListenToTopLayerCandidate(node)) {
+            this.pendingTopLayerTargets.add(node);
           }
         }
       }
@@ -1711,7 +1708,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
-          // Overflow → next shadow check escalates to a full-document scan.
           this.monitorCandidateOverflow();
           // Release element refs immediately; we won't process them this window.
           this.pendingMutationAddedElements.clear();
@@ -1733,13 +1729,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return false;
     }
     for (const node of nodes) {
-      if (node.nodeType !== Node.ELEMENT_NODE) {
+      if (!nodeIsElement(node)) {
         continue;
       }
-      const el = node as Element;
       if (
-        el.matches(this.formFieldQueryString) ||
-        el.querySelector(this.formFieldQueryString) !== null
+        node.matches(this.formFieldQueryString) ||
+        node.querySelector(this.formFieldQueryString) !== null
       ) {
         return true;
       }
@@ -1748,6 +1743,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private isShadowRootCandidate(node: Node): node is Element {
+    // FIXME (PM-39772): same-realm only — iframe-adopted (foreign-realm) hosts fall through here
+    // and are detected only later, not on insert.
     if (!(node instanceof Element)) {
       return false;
     }
@@ -1835,7 +1832,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
 
-    // Rising burst with adaptiveMs pinned at max = perpetually-hot page.
     this.monitorBackoff(this.mutationBurstCount, adaptiveTimeout);
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
