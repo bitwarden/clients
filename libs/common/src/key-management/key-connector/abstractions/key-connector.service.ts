@@ -1,10 +1,9 @@
 import { Observable } from "rxjs";
 
-import { NewSsoUserKeyConnectorConversion } from "@bitwarden/common/key-management/key-connector/models/new-sso-user-key-connector-conversion";
-
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { UserId } from "../../../types/guid";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
+import { NewSsoUserKeyConnectorConversion } from "../models/new-sso-user-key-connector-conversion";
 
 export abstract class KeyConnectorService {
   abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;

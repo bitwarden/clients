@@ -1,4 +1,4 @@
-import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
+import { KdfRequest } from "../../models/request/kdf.request";
 
 export abstract class ChangeKdfApiService {
   /**

@@ -1,19 +1,15 @@
 import { concatMap, EMPTY, filter, map, Observable, Subscription, switchMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { NotificationType } from "@bitwarden/common/enums";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { NotificationId, UserId } from "@bitwarden/common/types/guid";
-import {
-  filterOutNullish,
-  perUserCache$,
-} from "@bitwarden/common/vault/utils/observable-utilities";
-
+import { ApiService } from "../../../abstractions/api.service";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { NotificationType } from "../../../enums";
+import { ListResponse } from "../../../models/response/list.response";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { ServerNotificationsService } from "../../../platform/server-notifications";
+import { StateProvider } from "../../../platform/state";
+import { NotificationId, UserId } from "../../../types/guid";
+import { filterOutNullish, perUserCache$ } from "../../utils/observable-utilities";
 import { EndUserNotificationService } from "../abstractions/end-user-notification.service";
 import { NotificationView, NotificationViewData, NotificationViewResponse } from "../models";
 import { NOTIFICATIONS } from "../state/end-user-notification.state";

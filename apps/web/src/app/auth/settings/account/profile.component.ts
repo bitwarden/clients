@@ -74,7 +74,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.managingOrganization$ = this.organizationService
       .organizations$(userId)
       .pipe(
-        map((organizations) => organizations.find((o) => o.userIsManagedByOrganization === true)),
+        map((organizations) => organizations.find((o) => o.userIsClaimedByOrganization === true)),
       );
 
     this.formGroup.get("name").setValue(this.profile.name);

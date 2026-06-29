@@ -2337,6 +2337,10 @@
     "message": "New Note",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "Edit Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "View Note",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Bulk actions"
@@ -3123,6 +3139,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Review 1 at-risk password"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Review $COUNT$ at-risk passwords",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4987,6 +5015,20 @@
     "message": "Make Bitwarden your default password manager",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Unable to set Bitwarden as the default password manager",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4998,6 +5040,22 @@
   "makeDefault": {
     "message": "Make default",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Credentials saved successfully!",
@@ -5672,6 +5730,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "You have not selected anything."

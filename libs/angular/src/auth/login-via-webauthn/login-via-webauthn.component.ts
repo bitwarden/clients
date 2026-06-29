@@ -5,7 +5,6 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   TwoFactorAuthSecurityKeyIcon,
   TwoFactorAuthSecurityKeyFailedIcon,
@@ -30,6 +29,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { JslibModule } from "../../jslib.module";
 
 import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component.service";
 
