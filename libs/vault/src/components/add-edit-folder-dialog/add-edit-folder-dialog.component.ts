@@ -177,6 +177,19 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     this.close(AddEditFolderDialogResult.Deleted);
   };
 
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.variant === "add") {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "addFolder";
+      } else {
+        return "newFolder";
+      }
+    } else {
+      return "editFolder";
+    }
+  }
+
   /** Close the dialog */
   private close(result: AddEditFolderDialogResult) {
     void this.dialogRef.close(result);
