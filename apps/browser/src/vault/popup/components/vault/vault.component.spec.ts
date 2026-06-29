@@ -37,6 +37,7 @@ import {
   DecryptionFailureDialogComponent,
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -116,6 +117,14 @@ class BlockedInjectionBannerStubComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class VaultAtRiskCalloutStubComponent {}
+
+@Component({
+  selector: "vault-organization-user-notifications",
+  standalone: true,
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class VaultOrganizationUserNotificationsStubComponent {}
 
 @Component({
   selector: "app-autofill-vault-list-items",
@@ -324,6 +333,7 @@ describe("VaultComponent", () => {
           AtRiskPasswordCalloutComponent,
           AutofillVaultListItemsComponent,
           VaultListItemsContainerComponent,
+          VaultOrganizationUserNotificationsComponent,
         ],
         providers: [
           { provide: VaultItemsTransferService, useValue: DefaultVaultItemsTransferService },
@@ -340,6 +350,7 @@ describe("VaultComponent", () => {
           VaultAtRiskCalloutStubComponent,
           AutofillVaultListItemsStubComponent,
           VaultListItemsContainerStubComponent,
+          VaultOrganizationUserNotificationsStubComponent,
         ],
         providers: [{ provide: VaultItemsTransferService, useValue: vaultItemsTransferSvc }],
       },
