@@ -105,6 +105,11 @@ export class BiometricMessageHandlerService {
   async handleMessage(msg: LegacyMessageWrapper) {
     const { appId, message: rawMessage } = msg as LegacyMessageWrapper;
 
+    if (rawMessage == null) {
+      this.logService.info("[Native Messaging IPC] Received message without a body. Ignoring.");
+      return;
+    }
+
     // Request to setup secure encryption
     if ("command" in rawMessage && rawMessage.command === "setupEncryption") {
       if (rawMessage.publicKey == null || rawMessage.userId == null) {
