@@ -3,6 +3,7 @@ import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { import_ssh_key, SshKeyView } from "@bitwarden/sdk-internal";
 
@@ -94,15 +95,36 @@ export class KeeperDirectImporter extends BaseImporter {
       case "bankCard":
         this.importBankCard(item, cipher, consumedFieldIndices);
         break;
+      case "driverLicense":
+        this.importIdentity(item, cipher, consumedFieldIndices, (identity, value) => {
+          identity.licenseNumber = value;
+        });
+        break;
+      case "ssnCard":
+        this.importIdentity(item, cipher, consumedFieldIndices, (identity, value) => {
+          identity.ssn = value;
+        });
+        break;
+      case "passport":
+        this.importIdentity(item, cipher, consumedFieldIndices, (identity, value) => {
+          identity.passportNumber = value;
+        });
+        break;
       case "sshKeys":
         // In Bitwarden the ssh key is supposed to be valid.
         // So we only set the type if we can actually import the key.
         if (!this.importSshKey(item, cipher, consumedFieldIndices)) {
-          // Otherwise, fallback to login/secure note.
-          // Make sure the passphrase is not lost, if any. The key pair will be imported
-          // as a custom field via the standard field processing pipeline.
-          const passphrase = this.getFirstFieldValue(item, "password");
-          this.addField(cipher, "Passphrase", passphrase, FieldType.Hidden);
+          // Otherwise, fall back to a secure note.
+          cipher.type = CipherType.SecureNote;
+          // Preserve the passphrase and consume the password field so it isn't also imported as a
+          // redundant "Password" custom field. The key pair, host, username and any other fields
+          // flow through the standard field processing pipeline as custom fields.
+          const passwordIndex = item.fields.findIndex((f) => f.type === "password");
+          if (passwordIndex !== -1) {
+            const passphrase = this.getFirstFieldValue(item, "password");
+            this.addField(cipher, "Passphrase", passphrase, FieldType.Hidden);
+            consumedFieldIndices.add(passwordIndex);
+          }
         }
         break;
     }
@@ -171,6 +193,38 @@ export class KeeperDirectImporter extends BaseImporter {
         consumedFieldIndices.add(i);
       } else if (field.type === "pinCode" && field.value.length > 0) {
         this.addField(cipher, "PIN", String(field.value[0]), FieldType.Hidden);
+        consumedFieldIndices.add(i);
+      }
+    }
+  }
+
+  private importIdentity(
+    record: VaultItem,
+    cipher: CipherView,
+    consumedFieldIndices: Set<number>,
+    assignAccountNumber: (identity: IdentityView, value: string) => void,
+  ): void {
+    cipher.type = CipherType.Identity;
+    cipher.identity = new IdentityView();
+
+    for (let i = 0; i < record.fields.length; i++) {
+      const field = record.fields[i];
+      if (field.value.length === 0) {
+        continue;
+      }
+
+      if (field.type === "accountNumber") {
+        assignAccountNumber(cipher.identity, String(field.value[0]));
+        consumedFieldIndices.add(i);
+      } else if (field.type === "name") {
+        const { first, middle, last } = field.value[0] as {
+          first?: string;
+          middle?: string;
+          last?: string;
+        };
+        cipher.identity.firstName = first || undefined;
+        cipher.identity.middleName = middle || undefined;
+        cipher.identity.lastName = last || undefined;
         consumedFieldIndices.add(i);
       }
     }

@@ -158,15 +158,17 @@ describe("Keeper Direct Importer", () => {
 
   it("should parse driverLicense", () => {
     const cipher = findCipher(result, "Oregon Driver's License");
-    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.type).toBe(CipherType.Identity);
 
     // Properties
     expect(cipher.notes).toBe("Valid Oregon driver's license - Class C");
+    expect(cipher.identity.licenseNumber).toBe("DL-7482693");
+    expect(cipher.identity.firstName).toBe("Robert");
+    expect(cipher.identity.middleName).toBe("William");
+    expect(cipher.identity.lastName).toBe("Anderson");
 
     // Fields
-    expect(cipher.fields.length).toBe(4);
-    expect(getField(cipher, "dlNumber")?.value).toBe("DL-7482693");
-    expect(getField(cipher, "name")?.value).toBe("Robert William Anderson");
+    expect(cipher.fields.length).toBe(2);
     expect(getField(cipher, "birthDate")?.value).toBe("3/14/1985, 11:00:00 PM");
     expect(getField(cipher, "expirationDate")?.value).toBe("3/14/2028, 11:00:00 PM");
   });
@@ -322,15 +324,19 @@ describe("Keeper Direct Importer", () => {
 
   it("should parse passport", () => {
     const cipher = findCipher(result, "US Passport");
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toBe(CipherType.Identity);
 
     // Properties
     expect(cipher.notes).toBe("Valid US passport for international travel");
+    expect(cipher.identity.passportNumber).toBe("543826194");
+    expect(cipher.identity.firstName).toBe("Jennifer");
+    expect(cipher.identity.middleName).toBe("Lynn");
+    expect(cipher.identity.lastName).toBe("Williams");
 
     // Fields
-    expect(cipher.fields.length).toBe(5);
-    expect(getField(cipher, "passportNumber")?.value).toBe("543826194");
-    expect(getField(cipher, "name")?.value).toBe("Jennifer Lynn Williams");
+    expect(cipher.fields.length).toBe(4);
+    expect(getField(cipher, "Password")?.value).toBe("Passport2023!Secure");
+    expect(getField(cipher, "Password")?.type).toBe(FieldType.Hidden);
     expect(getField(cipher, "birthDate")?.value).toBe("7/21/1990, 10:00:00 PM");
     expect(getField(cipher, "expirationDate")?.value).toBe("7/21/2033, 10:00:00 PM");
     expect(getField(cipher, "dateIssued")?.value).toBe("8/14/2023, 10:00:00 PM");
@@ -411,19 +417,18 @@ describe("Keeper Direct Importer", () => {
     expect(getField(cipher, "Port")?.value).toBe("22");
   });
 
-  it("should parse an invalid ssh key as login", () => {
+  it("should parse an invalid ssh key as a secure note", () => {
     const cipher = findCipher(result, "Invalid SSH key");
-    // TODO: Invalid SSH key falls back to Login (has username/password) rather than SecureNote. This is different from JSON importer.
-    expect(cipher.type).toBe(CipherType.Login);
+    expect(cipher.type).toBe(CipherType.SecureNote);
 
     // Properties
     expect(cipher.notes).toBe("Broken ssh key");
-    expect(cipher.login.username).toBe("deploy_user");
-    expect(cipher.login.password).toBe("blah-blah-blah");
 
     // Fields
-    expect(cipher.fields.length).toBe(5);
+    expect(cipher.fields.length).toBe(6);
+    expect(getField(cipher, "Username")?.value).toBe("deploy_user");
     expect(getField(cipher, "Passphrase")?.value).toBe("blah-blah-blah");
+    expect(getField(cipher, "Passphrase")?.type).toBe(FieldType.Hidden);
     expect(getField(cipher, "Public key")?.value).toBe("blah blah public key");
     expect(getField(cipher, "Private key")?.value).toBe("blah blah blah private key");
     expect(getField(cipher, "Hostname")?.value).toBe("prod-server.company.com");
@@ -432,15 +437,17 @@ describe("Keeper Direct Importer", () => {
 
   it("should parse ssnCard", () => {
     const cipher = findCipher(result, "National Identity Card");
-    expect(cipher.type).toBe(CipherType.SecureNote);
+    expect(cipher.type).toBe(CipherType.Identity);
 
     // Properties
     expect(cipher.notes).toBe("National identification card - Valid through 2028");
+    expect(cipher.identity.ssn).toBe("ID-7849521");
+    expect(cipher.identity.firstName).toBe("Sarah");
+    expect(cipher.identity.middleName).toBe("Elizabeth");
+    expect(cipher.identity.lastName).toBe("Johnson");
 
     // Fields
-    expect(cipher.fields.length).toBe(2);
-    expect(getField(cipher, "identityNumber")?.value).toBe("ID-7849521");
-    expect(getField(cipher, "name")?.value).toBe("Sarah Elizabeth Johnson");
+    expect(cipher.fields.length).toBe(0);
   });
 
   // TODO: wifiCredentials record ("Home Wi-Fi") is not present in the vault fixture
