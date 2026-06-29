@@ -302,15 +302,6 @@ export function nodeIsElement(node: Node): node is Element {
   return node?.nodeType === Node.ELEMENT_NODE;
 }
 
-/**
- * Identifies whether a node is an input element.
- *
- * @param node - The node to check.
- */
-export function nodeIsInputElement(node: Node): node is HTMLInputElement {
-  return nodeIsElement(node) && elementIsInputElement(node);
-}
-
 export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
   return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }

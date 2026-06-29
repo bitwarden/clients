@@ -16,7 +16,6 @@ import {
   elementIsSpanElement,
   nodeIsElement,
   elementIsTextAreaElement,
-  nodeIsInputElement,
   sendExtensionMessage,
   getAttributeBoolean,
   getPropertyOrAttribute,
@@ -2008,7 +2007,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domQueryService.query<HTMLInputElement>(
         globalThis.document.documentElement,
         `input[type="password"]`,
-        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+        (element: Element) => elementIsInputElement(element) && element.type === "password",
       )?.length > 0
     );
   }
