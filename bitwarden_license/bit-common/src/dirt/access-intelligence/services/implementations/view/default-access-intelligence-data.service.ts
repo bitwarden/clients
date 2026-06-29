@@ -482,7 +482,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     // 1. Extract members (simple mapping)
     const members: OrganizationUserView[] = apiUsers.map((user) => ({
       id: user.id,
-      name: user.name,
+      name: user.name ?? null,
       email: user.email,
     }));
 

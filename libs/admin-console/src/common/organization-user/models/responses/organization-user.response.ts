@@ -51,7 +51,7 @@ export class OrganizationUserResponse extends BaseResponse {
 }
 
 export class OrganizationUserUserDetailsResponse extends OrganizationUserResponse {
-  name: string;
+  name: string | undefined;
   email: string;
   avatarColor: string;
   twoFactorEnabled: boolean;

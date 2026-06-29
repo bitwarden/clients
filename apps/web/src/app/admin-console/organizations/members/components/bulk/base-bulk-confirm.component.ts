@@ -1,6 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Directive, OnInit } from "@angular/core";
+import { computed, Directive, inject, OnInit, signal } from "@angular/core";
 
 import {
   OrganizationUserBulkPublicKeyResponse,
@@ -19,59 +17,71 @@ import { BulkUserDetails } from "./bulk-status.component";
 
 @Directive()
 export abstract class BaseBulkConfirmComponent implements OnInit {
-  protected users: BulkUserDetails[];
+  protected keyService = inject(KeyService);
+  protected encryptService = inject(EncryptService);
+  protected i18nService = inject(I18nService);
 
-  protected excludedUsers: BulkUserDetails[];
-  protected filteredUsers: BulkUserDetails[];
+  protected readonly users = signal<BulkUserDetails[]>([]);
+  protected readonly excludedUsers = computed(() =>
+    this.users().filter((user) => !this.isAccepted(user)),
+  );
+  protected readonly filteredUsers = computed(() =>
+    this.users().filter((user) => this.isAccepted(user)),
+  );
 
-  protected publicKeys: Map<string, Uint8Array> = new Map();
-  protected fingerprints: Map<string, string> = new Map();
-  protected statuses: Map<string, string> = new Map();
+  protected readonly publicKeys = signal(new Map<string, Uint8Array>());
+  protected readonly fingerprints = signal(new Map<string, string>());
 
-  protected done = false;
-  protected loading = true;
-  protected error: string;
-
-  protected constructor(
-    protected keyService: KeyService,
-    protected encryptService: EncryptService,
-    protected i18nService: I18nService,
-  ) {}
+  protected readonly statuses = signal(new Map<string, string>());
+  protected readonly done = signal(false);
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | undefined>(undefined);
 
   async ngOnInit() {
-    this.excludedUsers = this.users.filter((user) => !this.isAccepted(user));
-    this.filteredUsers = this.users.filter((user) => this.isAccepted(user));
-
-    if (this.filteredUsers.length <= 0) {
-      this.done = true;
+    if (this.filteredUsers().length <= 0) {
+      this.done.set(true);
+      this.loading.set(false);
+      return;
     }
+    try {
+      const publicKeysResponse = await this.getPublicKeys();
 
-    const publicKeysResponse = await this.getPublicKeys();
-
-    for (const entry of publicKeysResponse.data) {
-      const publicKey = Utils.fromB64ToArray(entry.key);
-      const fingerprint = await this.keyService.getFingerprint(entry.userId, publicKey);
-      if (fingerprint != null) {
-        this.publicKeys.set(entry.id, publicKey);
-        this.fingerprints.set(entry.id, fingerprint.join("-"));
+      const newPublicKeys = new Map<string, Uint8Array>();
+      const newFingerprints = new Map<string, string>();
+      for (const entry of publicKeysResponse.data) {
+        const publicKey = Utils.fromB64ToArray(entry.key);
+        const fingerprint = await this.keyService.getFingerprint(entry.userId, publicKey);
+        if (fingerprint != null) {
+          newPublicKeys.set(entry.id, publicKey);
+          newFingerprints.set(entry.id, fingerprint.join("-"));
+        }
       }
+      this.publicKeys.set(newPublicKeys);
+      this.fingerprints.set(newFingerprints);
+    } catch (e) {
+      this.error.set(e instanceof Error ? e.message : String(e));
+    } finally {
+      this.loading.set(false);
     }
-
-    this.loading = false;
   }
 
   submit = async () => {
-    this.loading = true;
+    this.loading.set(true);
     try {
       const key = await this.getCryptoKey();
       const userIdsWithKeys: { id: string; key: string }[] = [];
 
-      for (const user of this.filteredUsers) {
-        const publicKey = this.publicKeys.get(user.id);
+      for (const user of this.filteredUsers()) {
+        const publicKey = this.publicKeys().get(user.id);
         if (publicKey == null) {
           continue;
         }
+
         const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(key, publicKey);
+
+        if (encryptedKey.encryptedString == null) {
+          throw new Error("Key not found.");
+        }
         userIdsWithKeys.push({
           id: user.id,
           key: encryptedKey.encryptedString,
@@ -80,16 +90,19 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
 
       const userBulkResponse = await this.postConfirmRequest(userIdsWithKeys);
 
+      const newStatuses = new Map<string, string>();
       userBulkResponse.data.forEach((entry) => {
         const error = entry.error !== "" ? entry.error : this.i18nService.t("bulkConfirmMessage");
-        this.statuses.set(entry.id, error);
+        newStatuses.set(entry.id, error);
       });
+      this.statuses.set(newStatuses);
 
-      this.done = true;
+      this.done.set(true);
     } catch (e) {
-      this.error = e.message;
+      this.error.set(e instanceof Error ? e.message : String(e));
+    } finally {
+      this.loading.set(false);
     }
-    this.loading = false;
   };
 
   protected abstract getCryptoKey(): Promise<SymmetricCryptoKey>;
