@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable, NgZone } from "@angular/core";
-import { OidcClient } from "oidc-client-ts";
+import * as oauth from "oauth4webapi";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
@@ -13,7 +13,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { LogService } from "@bitwarden/logging";
 
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
@@ -29,7 +28,15 @@ import { LastPassDirectImportUIService } from "./lastpass-direct-import-ui.servi
 export class LastPassDirectImportService {
   private vault: Vault;
 
-  private oidcClient: OidcClient;
+  private oidcFlow?: {
+    as: oauth.AuthorizationServer;
+    client: oauth.Client;
+    codeVerifier: string;
+    nonce: string;
+    state: string;
+    userState: { email: string };
+    redirectUri: string;
+  };
 
   private _ssoImportCallback$ = new Subject<{ oidcCode: string; oidcState: string }>();
   ssoImportCallback$ = this._ssoImportCallback$.asObservable();
@@ -40,7 +47,6 @@ export class LastPassDirectImportService {
     private appIdService: AppIdService,
     private lastPassDirectImportUIService: LastPassDirectImportUIService,
     private platformUtilsService: PlatformUtilsService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private dialogService: DialogService,
@@ -122,38 +128,103 @@ export class LastPassDirectImportService {
     });
   }
 
-  private async createOidcSigninRequest(email: string) {
-    this.oidcClient = new OidcClient({
-      authority: this.vault.userType.openIDConnectAuthorityBase,
-      client_id: this.vault.userType.openIDConnectClientId,
-      redirect_uri: await this.getOidcRedirectUrl(),
-      response_type: "code",
-      scope: this.vault.userType.oidcScope,
-      response_mode: "query",
-      loadUserInfo: true,
-    });
-
+  private async createOidcSigninRequest(email: string): Promise<{ url: string }> {
     try {
-      const signinRequest = await this.oidcClient.createSigninRequest({
-        state: {
-          email,
-        },
-        nonce: await this.passwordGenerationService.generatePassword({
-          length: 20,
-          uppercase: true,
-          lowercase: true,
-          number: true,
-        }),
-      });
-      return signinRequest;
+      const issuer = new URL(this.vault.userType.openIDConnectAuthorityBase);
+      const as = await oauth
+        .discoveryRequest(issuer, { algorithm: "oidc" })
+        .then((response) => oauth.processDiscoveryResponse(issuer, response));
+
+      const client: oauth.Client = {
+        client_id: this.vault.userType.openIDConnectClientId,
+      };
+
+      const codeVerifier = oauth.generateRandomCodeVerifier();
+      const codeChallenge = await oauth.calculatePKCECodeChallenge(codeVerifier);
+      const state = oauth.generateRandomState();
+      const nonce = oauth.generateRandomNonce();
+      const redirectUri = await this.getOidcRedirectUrl();
+
+      this.oidcFlow = {
+        as,
+        client,
+        codeVerifier,
+        nonce,
+        state,
+        userState: { email },
+        redirectUri,
+      };
+
+      const authorizeUrl = new URL(as.authorization_endpoint!);
+      authorizeUrl.searchParams.set("client_id", client.client_id);
+      authorizeUrl.searchParams.set("redirect_uri", redirectUri);
+      authorizeUrl.searchParams.set("response_type", "code");
+      authorizeUrl.searchParams.set("response_mode", "query");
+      authorizeUrl.searchParams.set("scope", this.vault.userType.oidcScope);
+      authorizeUrl.searchParams.set("state", state);
+      authorizeUrl.searchParams.set("nonce", nonce);
+      authorizeUrl.searchParams.set("code_challenge", codeChallenge);
+      authorizeUrl.searchParams.set("code_challenge_method", "S256");
+
+      return { url: authorizeUrl.toString() };
     } catch (err) {
       this.logService.error("Unable to generate OIDC sign in request");
       throw err;
     }
   }
 
+  private async processOidcSigninResponse(
+    oidcCode: string,
+    oidcState: string,
+  ): Promise<{
+    id_token: string;
+    access_token: string;
+    profile: Record<string, unknown>;
+    userState: { email: string };
+  }> {
+    if (this.oidcFlow == null) {
+      throw new Error("No OIDC sign in request is in progress.");
+    }
+    const flow = this.oidcFlow;
+
+    const callbackUrl = new URL(this.getOidcRedirectUrlWithParams(oidcCode, oidcState));
+    const params = oauth.validateAuthResponse(flow.as, flow.client, callbackUrl, flow.state);
+
+    const tokenResponse = await oauth.authorizationCodeGrantRequest(
+      flow.as,
+      flow.client,
+      oauth.None(),
+      params,
+      flow.redirectUri,
+      flow.codeVerifier,
+    );
+    const tokens = await oauth.processAuthorizationCodeResponse(
+      flow.as,
+      flow.client,
+      tokenResponse,
+      { expectedNonce: flow.nonce, requireIdToken: true },
+    );
+
+    const idTokenClaims = oauth.getValidatedIdTokenClaims(tokens)!;
+
+    const userInfoResponse = await oauth.userInfoRequest(flow.as, flow.client, tokens.access_token);
+    const userInfo = await oauth.processUserInfoResponse(
+      flow.as,
+      flow.client,
+      idTokenClaims.sub,
+      userInfoResponse,
+    );
+
+    return {
+      id_token: tokens.id_token!,
+      access_token: tokens.access_token,
+      profile: { ...idTokenClaims, ...userInfo },
+      userState: flow.userState,
+    };
+  }
+
   private getOidcRedirectUrlWithParams(oidcCode: string, oidcState: string) {
-    const redirectUri = this.oidcClient.settings.redirect_uri;
+    const redirectUri = this.oidcFlow!.redirectUri;
     const params = "code=" + oidcCode + "&state=" + oidcState;
     if (redirectUri.indexOf("bitwarden://") === 0) {
       return redirectUri + "/?" + params;
@@ -198,14 +269,11 @@ export class LastPassDirectImportService {
   ): Promise<string> {
     const federatedUser = new FederatedUserContext();
     try {
-      const response = await this.oidcClient.processSigninResponse(
-        this.getOidcRedirectUrlWithParams(oidcCode, oidcState),
-      );
-      const userState = response.userState as any;
+      const response = await this.processOidcSigninResponse(oidcCode, oidcState);
       federatedUser.idToken = response.id_token;
       federatedUser.accessToken = response.access_token;
       federatedUser.idpUserInfo = response.profile;
-      federatedUser.username = userState.email;
+      federatedUser.username = response.userState.email;
     } catch (err) {
       this.logService.error("Unable to process OIDC sign in response");
       throw err;
