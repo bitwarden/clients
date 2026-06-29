@@ -110,8 +110,8 @@ export class IpcBackgroundService extends IpcService {
             return this.desktopConnected ? "Reachable" : "Unreachable";
           }
           // Web tabs are reached via a content script that may or may not be present; the extension
-          // cannot tell synchronously, so fall back to ping/pong liveness.
-          return "Unknown";
+          // cannot tell synchronously, so report reachability unsupported (falls back to ping/pong).
+          return "Unsupported";
         },
       });
 
