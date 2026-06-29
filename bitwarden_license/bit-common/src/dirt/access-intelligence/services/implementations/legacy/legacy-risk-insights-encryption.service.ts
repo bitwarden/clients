@@ -218,7 +218,7 @@ export class LegacyRiskInsightsEncryptionService {
         const { data: payload, errors } = validateAccessReportPayload(parsedData.data);
         if (errors.length > 0) {
           this.logService.warning(
-            `[LegacyRiskInsightsEncryptionService] Dropped ${errors.length} invalid report payload entr(ies):\n${errors.join("\n")}`,
+            `[LegacyRiskInsightsEncryptionService] Dropped ${errors.length} invalid report payload ${errors.length === 1 ? "entry" : "entries"}:\n${errors.join("\n")}`,
           );
         }
         return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);

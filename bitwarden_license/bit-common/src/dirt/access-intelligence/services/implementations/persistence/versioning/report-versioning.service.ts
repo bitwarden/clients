@@ -37,7 +37,7 @@ export class ReportVersioningService extends VersioningService<AccessReportPaylo
       const { data, errors } = validateAccessReportPayload(json.data);
       if (errors.length > 0) {
         this.logService.warning(
-          `[ReportVersioningService] Dropped ${errors.length} invalid report payload entr(ies):\n${errors.join("\n")}`,
+          `[ReportVersioningService] Dropped ${errors.length} invalid report payload ${errors.length === 1 ? "entry" : "entries"}:\n${errors.join("\n")}`,
         );
       }
       return { data, wasLegacy: false };
