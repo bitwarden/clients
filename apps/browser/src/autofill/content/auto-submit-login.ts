@@ -228,7 +228,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
   function querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = domQueryService.query<HTMLButtonElement>(
       element,

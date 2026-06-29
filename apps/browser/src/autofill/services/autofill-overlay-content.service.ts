@@ -626,7 +626,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = this.domQueryService.query<HTMLButtonElement>(
       element,
