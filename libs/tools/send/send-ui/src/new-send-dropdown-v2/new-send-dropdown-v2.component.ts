@@ -3,12 +3,14 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { SendPolicyService } from "../services/send-policy.service";
 
 // Desktop-specific version of NewSendDropdownComponent.
 // Unlike the shared library version, this component emits events instead of using Angular Router,
@@ -16,7 +18,7 @@ import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 @Component({
   selector: "tools-new-send-dropdown-v2",
   templateUrl: "new-send-dropdown-v2.component.html",
-  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent],
+  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewSendDropdownV2Component {
@@ -29,7 +31,12 @@ export class NewSendDropdownV2Component {
 
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly accountService = inject(AccountService);
+  private readonly sendPolicyService = inject(SendPolicyService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
+  });
 
   protected readonly hasNoPremium = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -54,6 +61,16 @@ export class NewSendDropdownV2Component {
       await this.premiumUpgradePromptService.promptForPremium();
     } else {
       this.addSend.emit(SendType.File);
+    }
+  }
+
+  /** Called when the type is restricted — directly creates the allowed type. */
+  protected async onRestrictedClick(): Promise<void> {
+    const allowedSendTypes = this.allowedSendTypes();
+    if (allowedSendTypes[0] === SendType.File) {
+      await this.onFileSendClick();
+    } else if (allowedSendTypes[0] === SendType.Text) {
+      this.onTextSendClick();
     }
   }
 }
