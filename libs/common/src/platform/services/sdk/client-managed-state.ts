@@ -1,5 +1,6 @@
 import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
+import { SendRecordMapper } from "@bitwarden/common/tools/send/models/domain/send-sdk-mapper";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
 import { Repository, StateClient } from "@bitwarden/sdk-internal";
@@ -29,6 +30,7 @@ export async function initializeClientManagedState(
       new EphemeralPinEnvelopeMapper(),
     ),
     organization_shared_key: null,
+    send: new RepositoryRecord(userId, stateProvider, new SendRecordMapper(), true),
   });
 }
 
