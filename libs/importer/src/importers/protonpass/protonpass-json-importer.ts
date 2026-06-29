@@ -62,7 +62,9 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
         cipher,
         extraField.fieldName,
         extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
-        extraField.type == "hidden" || extraField.type == "totp" ? FieldType.Hidden : FieldType.Text,
+        extraField.type == "hidden" || extraField.type == "totp"
+          ? FieldType.Hidden
+          : FieldType.Text,
       );
     }
   }
