@@ -1,5 +1,5 @@
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KdfRequest } from "@bitwarden/common/models/request/kdf.request";
+import { ApiService } from "../../abstractions/api.service";
+import { KdfRequest } from "../../models/request/kdf.request";
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 

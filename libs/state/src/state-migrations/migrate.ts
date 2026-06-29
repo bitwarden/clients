@@ -77,11 +77,12 @@ import { ClearClipboardDelayToStringMigrator } from "./migrations/77-clear-clipb
 import { MigrateSsoRequiredCache } from "./migrations/78-migrate-sso-required-cache";
 import { InitializeFeatureFlagOverridesMigrator } from "./migrations/79-initialize-feature-flag-overrides";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
+import { ConsolidateTrayToRunInBackground } from "./migrations/80-consolidate-tray-to-run-in-background";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 79;
+export const CURRENT_VERSION = 80;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -162,7 +163,8 @@ export function createMigrationBuilder() {
     .with(MigratePopupWidthOptions, 75, 76)
     .with(ClearClipboardDelayToStringMigrator, 76, 77)
     .with(MigrateSsoRequiredCache, 77, 78)
-    .with(InitializeFeatureFlagOverridesMigrator, 78, CURRENT_VERSION);
+    .with(InitializeFeatureFlagOverridesMigrator, 78, 79)
+    .with(ConsolidateTrayToRunInBackground, 79, CURRENT_VERSION);
 }
 
 export async function currentVersion(

@@ -19,14 +19,11 @@ export abstract class DrawerStateService {
   abstract drawerState: Signal<DrawerState>;
 
   /**
-   * Opens a drawer of the specified type.
-   * @param type - Type of drawer (OrgAtRiskMembers, AppAtRiskMembers, etc.)
-   * @param invokerId - Identifier for what triggered the drawer (e.g., card ID, app hostname)
-   */
-  abstract openDrawer(type: DrawerType, invokerId: string): void;
-
-  /**
    * Closes the currently open drawer.
+   *
+   * Use for unconditional/programmatic closes (e.g. tab change, navigation, or reflecting a
+   * dialog dismissed via its own close affordance back into state). Invoker clicks should use
+   * {@link toggleDrawer} instead.
    */
   abstract closeDrawer(): void;
 
@@ -36,18 +33,6 @@ export abstract class DrawerStateService {
    * @param invokerId - Identifier for invoker
    */
   abstract toggleDrawer(type: DrawerType, invokerId: string): void;
-
-  /**
-   * Checks if a specific drawer type is currently active.
-   * @param type - The drawer type to check
-   */
-  abstract isActiveDrawerType(type: DrawerType): boolean;
-
-  /**
-   * Checks if drawer is open for a specific invoker.
-   * @param invokerId - The invoker ID to check
-   */
-  abstract isDrawerOpenForInvoker(invokerId: string): boolean;
 }
 
 /**

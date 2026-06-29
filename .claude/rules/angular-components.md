@@ -6,12 +6,12 @@ paths:
 
 # Angular Component Patterns
 
-Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). TypeScript-wide rules (enum-likes, observable services) live in [typescript.md](./typescript.md); the Tailwind `tw-` prefix rule lives in [CLAUDE.md](../CLAUDE.md).
+Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/code-style/web/). Angular patterns that span beyond components (DI) live in [angular.md](./angular.md); TypeScript-wide rules (enum-likes, file/class naming) live in [typescript.md](./typescript.md); Tailwind rules live in [tailwind.md](./tailwind.md).
 
 ## Component Configuration
 
-- **Standalone**: Components must be standalone. Declare imports on the component decorator; do not register in `NgModule.declarations`.
-- **OnPush**: Set `changeDetection: ChangeDetectionStrategy.OnPush`. Re-render fires when an input signal/`@Input()` reference changes, an event handler runs, a signal in the template updates, an Observable with `async` pipe emits, or `markForCheck()` is called.
+- **Standalone**: Components must be standalone. NgModules may still be used to group components, but the inner components must be standalone. Declare imports on the component decorator; do not register in `NgModule.declarations`.
+- **OnPush**: Set `changeDetection: ChangeDetectionStrategy.OnPush`. With OnPush, mutating arrays/objects in place does **not** trigger change detection — create new references (`[...arr]`, `{...obj}`) or use signals.
 - **Host bindings**: Use the `host` property — not `@HostBinding` / `@HostListener`.
 
 ```typescript
@@ -24,14 +24,6 @@ Distilled from [Web Code Style](https://contributing.bitwarden.com/contributing/
     "(click)": "onClick()",
   },
 })
-```
-
-## Dependency Injection
-
-Use `inject()` — not constructor injection. (Constructor injection stays only in code shared with non-Angular clients; that code lives in services, see [typescript.md](./typescript.md).)
-
-```typescript
-private folderService = inject(FolderService);
 ```
 
 ## Signals (ADR-0027)

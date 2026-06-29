@@ -7,6 +7,10 @@ export {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
 } from "./organization-data-ownership.component";
+export {
+  OrganizationDataOwnershipPolicyV2,
+  OrganizationDataOwnershipPolicyV2Component,
+} from "./organization-data-ownership-v2.component";
 export { PasswordGeneratorPolicy } from "./password-generator.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";
