@@ -72,6 +72,23 @@ export class NewSendDropdownComponent {
     );
   }
 
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.hideIcon) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "createSendV2";
+      } else {
+        return "createSend";
+      }
+    } else {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "create";
+      } else {
+        return "new";
+      }
+    }
+  }
+
   /**
    * Opens the SendAddEditComponent for a new Send with the provided type.
    * If has user does not have premium access and the type is File do nothing the PremiumBadgeComponent will handle the flow.

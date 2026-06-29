@@ -1,20 +1,11 @@
 <button
   bitButton
   [bitMenuTriggerFor]="itemOptions"
-  [buttonType]="hideIcon ? (btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary') : 'primary'"
+  [buttonType]="hideIcon && btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
   type="button"
   [startIcon]="!hideIcon ? 'bwi-plus' : null"
 >
-  {{
-    (hideIcon
-      ? btnTextAddCreateFeatureFlag()
-        ? "createSendV2"
-        : "createSend"
-      : btnTextAddCreateFeatureFlag()
-        ? "create"
-        : "new"
-    ) | i18n
-  }}
+  {{ title | i18n }}
 </button>
 <bit-menu #itemOptions>
   <button type="button" bitMenuItem (click)="createSend(sendType.Text)">

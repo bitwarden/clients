@@ -133,10 +133,14 @@ export class ServiceAccountDialogComponent implements OnInit {
   }
 
   get title() {
-    return this.data.operation === OperationType.Add
-      ? this.btnTextAddCreateFeatureFlag()
-        ? "addMachineAccount"
-        : "newMachineAccount"
-      : "editMachineAccount";
+    if (this.data.operation === OperationType.Add) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "addMachineAccount";
+      } else {
+        return "newMachineAccount";
+      }
+    } else {
+      return "editMachineAccount";
+    }
   }
 }
