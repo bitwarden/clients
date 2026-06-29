@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的組織要求使用單一登入。"
   },
-  "welcomeBack": {
-    "message": "歡迎回來"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "設定一組高強度密碼"
@@ -168,7 +168,7 @@
     "message": "複製護照號碼"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "複製身分證字號"
   },
   "copyFirstName": {
     "message": "複製名字"
@@ -214,8 +214,13 @@
     "message": "填入",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "自動填入"
+  "autofillNoun": {
+    "message": "Autofill",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autofill",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "自動填入登入資料"
@@ -284,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
   },
-  "getMasterPasswordHint": {
-    "message": "取得主密碼提示"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "繼續"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "儲存"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "移動"
@@ -970,8 +978,8 @@
   "logIn": {
     "message": "登入"
   },
-  "logInToBitwarden": {
-    "message": "登入 Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "輸入傳送到您電子郵件信箱的驗證碼"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "使用填寫輔助"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
   },
@@ -1697,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "通行金鑰驗證失敗"
   },
-  "useADifferentLogInMethod": {
-    "message": "使用其他登入方式"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全金鑰操作中……"
@@ -1794,6 +1811,9 @@
   "iconsUrl": {
     "message": "圖示伺服器 URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "環境 URL 已儲存"
   },
@@ -1826,7 +1846,19 @@
     "message": "確認自動填入"
   },
   "confirmAutofillDesc": {
-    "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
+    "message": "此網站與您儲存的登入資訊不符。在自動填入登入憑證前，請確認這是您信任的網站。"
+  },
+  "loginNeverMatchTitle": {
+    "message": "登入資訊不符"
+  },
+  "loginNeverMatchDesc": {
+    "message": "此網站與您儲存的登入資訊不符。請先確認您位於可信任的網站，再進行自動填入。"
+  },
+  "uriMatchRule": {
+    "message": "URI 比對規則"
+  },
+  "neverMatch": {
+    "message": "永不比對"
   },
   "loginHasNoSiteSaved": {
     "message": "此登入尚未儲存網站"
@@ -2155,16 +2187,16 @@
     "message": "護照類型"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "複製護照類型"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "身分證字號"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "簽發機關"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "複製簽發機關／單位"
   },
   "issueDate": {
     "message": "簽發日期"
@@ -2229,6 +2261,9 @@
   "bankAccount": {
     "message": "銀行帳戶"
   },
+  "bankAccountDetails": {
+    "message": "銀行帳戶詳細資訊"
+  },
   "typeNote": {
     "message": "備註"
   },
@@ -2263,13 +2298,13 @@
     "message": "護照"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "護照詳細資訊"
   },
   "passportAdded": {
     "message": "護照已新增"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "旅行證件"
   },
   "typeDriversLicense": {
     "message": "駕照"
@@ -2278,13 +2313,13 @@
     "message": "駕照或身分證件"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "駕照詳細資訊"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "簽發州／省"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "駕照類別"
   },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
@@ -2301,6 +2336,10 @@
   "newItemHeaderNote": {
     "message": "新增備註",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 金鑰",
@@ -2342,6 +2381,10 @@
     "message": "編輯備註",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "編輯 SSH 金鑰",
     "description": "Header for edit SSH key item type"
@@ -2381,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "檢視備註",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "檢視 SSH 金鑰",
@@ -2459,11 +2506,15 @@
   "selected": {
     "message": "已選擇"
   },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "大量操作"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "已選取 $COUNT$ 個項目。大量操作列現已顯示於畫面底部。按下 $SHORTCUTBINDING$ 可將焦點切換至大量操作列。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2476,10 +2527,10 @@
     }
   },
   "selectionCleared": {
-    "message": "Selection cleared"
+    "message": "已清除選取項目"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "其他操作"
   },
   "checkPassword": {
     "message": "檢查密碼是否已外洩。"
@@ -2856,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密碼未符合政策要求。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "取消訂閱"
@@ -3916,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密碼登入"
-  },
   "newAroundHere": {
     "message": "第一次使用？"
   },
@@ -4365,6 +4413,9 @@
   "multipleInputEmails": {
     "message": "一或多個電子郵件地址無效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "輸入內容不得僅包含空白字元。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4430,12 +4481,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "將頁面載入時使用自動填入功能設定為預設。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "無法自動填入"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "預設比對方式為「完全相符」。目前的網站與此項目的已儲存登入資料不完全相符。"
   },
   "okay": {
     "message": "確定"
@@ -4958,6 +5003,20 @@
     "message": "使用 Bitwarden 作為預設的密碼管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "無法設定 Bitwarden 作為預設的密碼管理器",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4969,6 +5028,22 @@
   "makeDefault": {
     "message": "設為預設",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "憑證資訊成功儲存！",
@@ -5644,6 +5719,12 @@
   "successfullyAssignedCollections": {
     "message": "指派集合成功"
   },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
+  },
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
   },
@@ -6226,7 +6307,7 @@
     "message": "下一步"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "導覽路徑",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6492,6 +6573,18 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "sharedUnlock": {
+    "message": "共享解鎖"
+  },
+  "sharedUnlockDescription": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，此裝置上的所有應用程式將共用解鎖狀態。若要在不同瀏覽器之間同步，需安裝桌面應用程式。"
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Safari 中的 Bitwarden 網頁保管庫共用。"
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "讓您的 Bitwarden 應用程式保持同步。啟用後，解鎖狀態將與 Bitwarden 桌面應用程式共用。"
+  },
   "enterMonth": {
     "message": "請輸入月份。"
   },
@@ -6635,14 +6728,36 @@
     "message": "進度條",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "儲存 Send 編輯失敗",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "errorImportingMyItemsMultiCollection": {
-    "message": "You cannot import items into My Items that are part of multiple collections"
+    "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

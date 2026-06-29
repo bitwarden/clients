@@ -182,6 +182,14 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
   }
 
   notificationBarIframeInitData = initData;
+
+  if (initData.isConfirmation) {
+    return handleSaveCipherConfirmation({
+      command: "saveCipherAttemptCompleted",
+      data: initData.confirmationData,
+    });
+  }
+
   const {
     isVaultLocked,
     removeIndividualVault: personalVaultDisallowed,

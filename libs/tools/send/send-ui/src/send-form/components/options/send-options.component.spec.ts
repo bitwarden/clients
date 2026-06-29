@@ -8,8 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { SendPolicyService } from "@bitwarden/send-ui";
 
+import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
 
 import { SendOptionsComponent } from "./send-options.component";

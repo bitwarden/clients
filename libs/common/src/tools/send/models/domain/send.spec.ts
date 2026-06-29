@@ -1,8 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
-import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -11,11 +9,13 @@ import { makeStaticByteArray, mockContainerService, mockEnc } from "../../../../
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
+import { emptyGuid, UserId } from "../../../../types/guid";
 import { UserKey } from "../../../../types/key";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
+import { Send } from "./send";
 import { SendText } from "./send-text";
 
 describe("Send", () => {

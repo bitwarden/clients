@@ -125,6 +125,7 @@ describe("BrowserAutofillNudgeService", () => {
     it.each([
       BrowserClientVendors.Chrome,
       BrowserClientVendors.Edge,
+      BrowserClientVendors.Firefox,
       BrowserClientVendors.Opera,
       BrowserClientVendors.Vivaldi,
     ])("checks browser autofill settings for %s browser", async (browserVendor) => {

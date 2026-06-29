@@ -41,17 +41,19 @@ describe("BiometricStateService", () => {
 
   describe("encryptedClientKeyHalf$", () => {
     it("emits when the encryptedClientKeyHalf state changes", async () => {
-      const state = stateProvider.activeUser.getFake(ENCRYPTED_CLIENT_KEY_HALF);
-      state.nextState(encryptedClientKeyHalf as unknown as EncryptedString);
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CLIENT_KEY_HALF)
+        .nextState(encryptedClientKeyHalf as unknown as EncryptedString);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toEqual(encClientKeyHalf);
     });
 
-    it("emits false when the encryptedClientKeyHalf state is undefined", async () => {
-      const state = stateProvider.activeUser.getFake(ENCRYPTED_CLIENT_KEY_HALF);
-      state.nextState(undefined as unknown as EncryptedString);
+    it("emits null when the encryptedClientKeyHalf state is undefined", async () => {
+      stateProvider.singleUser
+        .getFake(userId, ENCRYPTED_CLIENT_KEY_HALF)
+        .nextState(undefined as unknown as EncryptedString);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(null);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toBe(null);
     });
   });
 
@@ -70,9 +72,9 @@ describe("BiometricStateService", () => {
 
   describe("setEncryptedClientKeyHalf", () => {
     it("updates encryptedClientKeyHalf$", async () => {
-      await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
+      await sut.setEncryptedClientKeyHalf(encClientKeyHalf, userId);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$(userId))).toEqual(encClientKeyHalf);
     });
   });
 
@@ -85,26 +87,17 @@ describe("BiometricStateService", () => {
     });
 
     test("observable is updated", async () => {
-      await sut.setUserPromptCancelled();
+      await sut.setUserPromptCancelled(userId);
 
-      expect(await firstValueFrom(sut.promptCancelled$)).toBe(true);
+      expect(await firstValueFrom(sut.promptCancelled$(userId))).toBe(true);
     });
 
     it("updates state", async () => {
-      await sut.setUserPromptCancelled();
+      await sut.setUserPromptCancelled(userId);
 
       const nextMock = stateProvider.global.getFake(PROMPT_CANCELLED).nextMock;
       expect(nextMock).toHaveBeenCalledWith({ ...existingState, [userId]: true });
       expect(nextMock).toHaveBeenCalledTimes(1);
-    });
-
-    it("throws when called with no active user", async () => {
-      await accountService.switchAccount(null as unknown as UserId);
-      await expect(sut.setUserPromptCancelled()).rejects.toThrow(
-        "Cannot update biometric prompt cancelled state without an active user",
-      );
-      const nextMock = stateProvider.global.getFake(PROMPT_CANCELLED).nextMock;
-      expect(nextMock).not.toHaveBeenCalled();
     });
   });
 
@@ -118,9 +111,9 @@ describe("BiometricStateService", () => {
     });
 
     it("updates observable to false", async () => {
-      const emissions = trackEmissions(sut.promptCancelled$);
+      const emissions = trackEmissions(sut.promptCancelled$(userId));
 
-      await sut.setUserPromptCancelled();
+      await sut.setUserPromptCancelled(userId);
 
       await sut.resetAllPromptCancelled();
 
@@ -133,7 +126,6 @@ describe("BiometricStateService", () => {
     let state: FakeGlobalState<Record<UserId, boolean>>;
 
     beforeEach(async () => {
-      await accountService.switchAccount(userId);
       existingState = { [userId]: true, ["otherUser" as UserId]: false };
       state = stateProvider.global.getFake(PROMPT_CANCELLED);
       state.stateSubject.next(existingState);
@@ -146,17 +138,17 @@ describe("BiometricStateService", () => {
       expect(state.nextMock).toHaveBeenCalledTimes(1);
     });
 
-    it("deletes active user when called with no user", async () => {
-      await sut.resetUserPromptCancelled();
+    it("deletes given user's prompt cancelled state", async () => {
+      await sut.resetUserPromptCancelled(userId);
 
       expect(state.nextMock).toHaveBeenCalledWith({ ["otherUser" as UserId]: false });
       expect(state.nextMock).toHaveBeenCalledTimes(1);
     });
 
     it("updates observable to false", async () => {
-      const emissions = trackEmissions(sut.promptCancelled$);
+      const emissions = trackEmissions(sut.promptCancelled$(userId));
 
-      await sut.resetUserPromptCancelled();
+      await sut.resetUserPromptCancelled(userId);
 
       expect(emissions).toEqual([true, false]);
     });
@@ -164,67 +156,49 @@ describe("BiometricStateService", () => {
 
   describe("setPromptAutomatically", () => {
     test("observable is updated", async () => {
-      await sut.setPromptAutomatically(true);
+      await sut.setPromptAutomatically(true, userId);
 
-      expect(await firstValueFrom(sut.promptAutomatically$)).toBe(true);
+      expect(await firstValueFrom(sut.promptAutomatically$(userId))).toBe(true);
     });
 
     it("updates state", async () => {
-      await sut.setPromptAutomatically(true);
+      await sut.setPromptAutomatically(true, userId);
 
-      const nextMock = stateProvider.activeUser.getFake(PROMPT_AUTOMATICALLY).nextMock;
-      expect(nextMock).toHaveBeenCalledWith([userId, true]);
+      const nextMock = stateProvider.singleUser.getFake(userId, PROMPT_AUTOMATICALLY).nextMock;
+      expect(nextMock).toHaveBeenCalledWith(true);
       expect(nextMock).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("biometricUnlockEnabled$", () => {
-    describe("no user id provided, active user", () => {
-      it("emits when biometricUnlockEnabled state is updated", async () => {
-        const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
-        state.nextState(true);
+    it("returns when biometricUnlockEnabled state is updated", async () => {
+      stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextState(true);
 
-        expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(true);
-      });
-
-      it("emits false when biometricUnlockEnabled state is undefined", async () => {
-        const state = stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED);
-        state.nextState(undefined as unknown as boolean);
-
-        expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(false);
-      });
+      expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(true);
     });
 
-    describe("user id provided", () => {
-      it("returns biometricUnlockEnabled state for the given user", async () => {
-        stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextState(true);
+    it("returns false when biometricUnlockEnabled state is undefined", async () => {
+      stateProvider.singleUser
+        .getFake(userId, BIOMETRIC_UNLOCK_ENABLED)
+        .nextState(undefined as unknown as boolean);
 
-        expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(true);
-      });
-
-      it("returns false when the state is not set", async () => {
-        stateProvider.singleUser
-          .getFake(userId, BIOMETRIC_UNLOCK_ENABLED)
-          .nextState(undefined as unknown as boolean);
-
-        expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(false);
-      });
+      expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(false);
     });
   });
 
   describe("setBiometricUnlockEnabled", () => {
     it("updates biometricUnlockEnabled$", async () => {
-      await sut.setBiometricUnlockEnabled(true);
+      await sut.setBiometricUnlockEnabled(true, userId);
 
-      expect(await firstValueFrom(sut.biometricUnlockEnabled$())).toBe(true);
+      expect(await firstValueFrom(sut.biometricUnlockEnabled$(userId))).toBe(true);
     });
 
     it("updates state", async () => {
-      await sut.setBiometricUnlockEnabled(true);
+      await sut.setBiometricUnlockEnabled(true, userId);
 
       expect(
-        stateProvider.activeUser.getFake(BIOMETRIC_UNLOCK_ENABLED).nextMock,
-      ).toHaveBeenCalledWith([userId, true]);
+        stateProvider.singleUser.getFake(userId, BIOMETRIC_UNLOCK_ENABLED).nextMock,
+      ).toHaveBeenCalledWith(true);
     });
   });
 

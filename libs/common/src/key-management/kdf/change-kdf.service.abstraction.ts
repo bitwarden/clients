@@ -1,6 +1,7 @@
-import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig } from "@bitwarden/key-management";
+
+import { UserId } from "../../types/guid";
 
 export abstract class ChangeKdfService {
   /**

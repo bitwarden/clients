@@ -19,6 +19,9 @@ pub struct SignRequest {
     pub namespace: Option<SIGNamespace>,
     /// Optional signing algorithm flags from the request.
     pub flags: Option<SignFlags>,
+    /// SHA-256 fingerprint of the remote host's public key from the session-bind extension.
+    /// `None` when no session-bind was received before this sign request.
+    pub host_fingerprint: Option<String>,
 }
 
 /// Authorization request for SSH agent operations.

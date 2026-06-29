@@ -6,6 +6,7 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -49,6 +50,7 @@ describe("AccessPolicyService", () => {
   const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
+  const logService = mock<LogService>();
   let accountService: MockProxy<AccountService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
@@ -66,7 +68,13 @@ describe("AccessPolicyService", () => {
 
     accountService = mock<AccountService>();
     accountService.activeAccount$ = activeAccountSubject;
-    sut = new AccessPolicyService(keyService, apiService, encryptService, accountService);
+    sut = new AccessPolicyService(
+      keyService,
+      apiService,
+      encryptService,
+      accountService,
+      logService,
+    );
   });
 
   it("instantiates", () => {

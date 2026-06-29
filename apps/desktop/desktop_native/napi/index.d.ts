@@ -76,7 +76,11 @@ export declare namespace autofill {
 }
 
 export declare namespace autostart {
-  export function setAutostart(autostart: boolean, params: Array<string>): Promise<void>
+  export interface AutostartConfig {
+    execPath: string
+    autostartFlag: string
+  }
+  export function setAutostart(enabled: boolean, config: AutostartConfig): Promise<void>
 }
 
 export declare namespace autotype {
@@ -194,6 +198,8 @@ export declare namespace ipc {
      * receiving the message.
      */
     send(message: string): number
+    /** Send a message to a specific connected client by ID. */
+    sendTo(clientId: number, message: string): void
   }
   export interface IpcMessage {
     clientId: number
@@ -318,6 +324,7 @@ export declare namespace sshagent_v2 {
     processName?: string
     isForwarding: boolean
     namespace?: SIGNamespace
+    hostFingerprint?: string
   }
   /** Data for a sign request, including vault cipher context. */
   export interface SignRequestData {

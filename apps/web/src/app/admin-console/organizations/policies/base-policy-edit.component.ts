@@ -1,5 +1,5 @@
 import { Directive, OnInit, Signal, inject, input, signal } from "@angular/core";
-import { FormControl, UntypedFormGroup } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import { Observable, firstValueFrom, of, switchMap } from "rxjs";
 import { Constructor } from "type-fest";
 
@@ -47,9 +47,10 @@ export abstract class BasePolicyEditDefinition {
   abstract name: string;
   /**
    * i18n string for the policy description.
-   * This is shown in the list of policies.
+   * This is shown in the list of policies and in the modal edit dialog.
    */
   abstract description: string;
+
   /**
    * The PolicyType enum that this policy represents.
    */
@@ -80,6 +81,40 @@ export abstract class BasePolicyEditDefinition {
    * have more complex requirements that you will implement in your template instead.
    **/
   showDescription: boolean = true;
+
+  /**
+   * If true, the dialog header shows an On/Off badge reflecting the saved policy state
+   * and uses the policy name as the sole title (no "Edit policy" label).
+   */
+  showEnabledBadge: boolean = false;
+
+  /**
+   * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
+   */
+  warningKey?: string;
+
+  /**
+   * Optional drawer-specific configuration for this policy.
+   * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
+   * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
+   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
+   * {@link PoliciesComponent} — there is no per-policy flag.
+   */
+  v2?: {
+    /** Component to render inside the drawer instead of {@link component}. */
+    component: Constructor<BasePolicyEditComponent>;
+    /** Drawer-only title. Falls back to {@link name} when not set. */
+    name?: string;
+    /** Drawer-only description. Falls back to {@link description} when not set. */
+    description?: string;
+    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
+    prerequisiteKey?: string;
+    /** URL for an optional "learn more" link inside the prerequisite callout. */
+    prerequisiteLinkHref?: string;
+    /** i18n key for the text of {@link prerequisiteLinkHref}. */
+    prerequisiteLinkTextKey?: string;
+  };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
@@ -118,7 +153,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
   /**
    * An optional FormGroup for additional policy configuration. Required for more complex policies only.
    */
-  data: UntypedFormGroup | undefined;
+  data: FormGroup | undefined;
 
   /**
    * Optional multi-step configuration for policies that require multiple steps to complete.

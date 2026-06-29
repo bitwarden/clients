@@ -1,28 +1,29 @@
 import { mock } from "jest-mock-extended";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction as OrganizationApiService } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  BillingApiServiceAbstraction,
-  PaymentInformation,
-  SubscriptionInformation,
-} from "@bitwarden/common/billing/abstractions";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
-import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SyncService } from "@bitwarden/common/platform/sync";
 import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
+import { ApiService } from "../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
+import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
+import {
+  BillingApiServiceAbstraction,
+  PaymentInformation,
+  SubscriptionInformation,
+} from "../abstractions";
+import { PaymentMethodType, PlanType } from "../enums";
+
+import { OrganizationBillingService } from "./organization-billing.service";
 
 describe("OrganizationBillingService", () => {
   let apiService: jest.Mocked<ApiService>;

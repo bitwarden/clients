@@ -24,6 +24,7 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
   AttachmentDialogResult,
   AttachmentsV2Component,
+  BulkDeleteDialogResult,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -38,7 +39,6 @@ import {
 import * as EntityEventsModule from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import * as AssignCollectionsModule from "../../../../vault/components/assign-collections";
-import { BulkDeleteDialogResult } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 import * as BulkDeleteModule from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
 import { VaultCipherActionsService } from "./vault-cipher-actions.service";

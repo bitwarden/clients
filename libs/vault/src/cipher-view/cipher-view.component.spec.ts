@@ -8,6 +8,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,6 +45,8 @@ describe("CipherViewComponent", () => {
   let mockBillingAccountProfileStateService: BillingAccountProfileStateService;
   let mockVaultSettingsService: VaultSettingsService;
   let showAtRiskPasswordNotifications$: BehaviorSubject<boolean>;
+  let mockConfigService: ConfigService;
+  let removeAtRiskCallout$: BehaviorSubject<boolean>;
 
   // Mock data
   let mockCipherView: CipherView;
@@ -85,6 +89,10 @@ describe("CipherViewComponent", () => {
     mockVaultSettingsService = mock<VaultSettingsService>();
     mockVaultSettingsService.showAtRiskPasswordNotifications$ = showAtRiskPasswordNotifications$;
 
+    removeAtRiskCallout$ = new BehaviorSubject(false);
+    mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$ = jest.fn().mockReturnValue(removeAtRiskCallout$);
+
     // Setup mock cipher view
     mockCipherView = new CipherView();
     mockCipherView.id = "cipher-id";
@@ -110,6 +118,7 @@ describe("CipherViewComponent", () => {
           useValue: mockBillingAccountProfileStateService,
         },
         { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -339,5 +348,38 @@ describe("CipherViewComponent", () => {
 
       expect(component.showChangePasswordLink()).toBe(false);
     }));
+  });
+
+  describe("removeAtRiskCallout signal", () => {
+    beforeEach(() => {
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    });
+
+    it("returns false when feature flag is disabled", fakeAsync(() => {
+      removeAtRiskCallout$.next(false);
+
+      fixture.componentRef.setInput("cipher", mockCipherView);
+      fixture.detectChanges();
+      tick();
+
+      expect(component.removeAtRiskCallout()).toBe(false);
+    }));
+
+    it("returns true when feature flag is enabled", fakeAsync(() => {
+      removeAtRiskCallout$.next(true);
+
+      fixture.componentRef.setInput("cipher", mockCipherView);
+      fixture.detectChanges();
+      tick();
+
+      expect(component.removeAtRiskCallout()).toBe(true);
+    }));
+
+    it("calls getFeatureFlag$ with PM32016RemoveAtRiskCallout", () => {
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.PM32016RemoveAtRiskCallout,
+      );
+    });
   });
 });

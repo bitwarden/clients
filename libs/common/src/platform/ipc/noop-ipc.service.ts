@@ -3,7 +3,6 @@ import { IpcClient, IpcCommunicationBackend, OutgoingMessage } from "@bitwarden/
 import { LogService } from "../abstractions/log.service";
 import { SdkLoadService } from "../abstractions/sdk/sdk-load.service";
 
-import { IpcSessionRepository } from "./ipc-session-repository";
 import { IpcService } from "./ipc.service";
 
 /**
@@ -13,10 +12,7 @@ import { IpcService } from "./ipc.service";
  * messages are dropped and no inbound transport is wired up.
  */
 export class NoopIpcService extends IpcService {
-  constructor(
-    private logService: LogService,
-    private sessionRepository: IpcSessionRepository,
-  ) {
+  constructor(private logService: LogService) {
     super();
   }
 
@@ -31,9 +27,7 @@ export class NoopIpcService extends IpcService {
         },
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(communicationBackend));
     } catch (e) {
       this.logService.error("[IPC] Noop initialization failed", e);
     }

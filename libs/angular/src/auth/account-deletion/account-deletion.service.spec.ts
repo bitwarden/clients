@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/account-deletion/delete-account-dialog/delete-account-dialog.component";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
@@ -14,6 +13,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import { AccountDeletionService } from "./account-deletion.service";
+import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-account-dialog.component";
 
 // isOwner is a computed getter (reads from type), so set type directly
 function makeOrg(overrides: Partial<Organization> = {}): Organization {
@@ -22,7 +22,7 @@ function makeOrg(overrides: Partial<Organization> = {}): Organization {
   org.isMember = true;
   org.status = OrganizationUserStatusType.Confirmed;
   org.productTierType = ProductTierType.Free;
-  org.userIsManagedByOrganization = false;
+  org.userIsClaimedByOrganization = false;
   Object.assign(org, overrides);
   return org;
 }
@@ -58,9 +58,9 @@ describe("AccountDeletionService", () => {
     jest.restoreAllMocks();
   });
 
-  describe("when the user is managed by an organization", () => {
+  describe("when the user is claimed by an organization", () => {
     beforeEach(() => {
-      organizations$.next([makeOrg({ userIsManagedByOrganization: true })]);
+      organizations$.next([makeOrg({ userIsClaimedByOrganization: true })]);
     });
 
     it("shows a blocking error dialog", async () => {

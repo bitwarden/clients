@@ -211,6 +211,7 @@ export class MainSshAgentService {
         processName: data.signRequest.processName,
         isAgentForwarding: data.signRequest.isForwarding,
         namespace: data.signRequest.namespace,
+        hostFingerprint: data.signRequest.hostFingerprint,
       });
     });
   }
