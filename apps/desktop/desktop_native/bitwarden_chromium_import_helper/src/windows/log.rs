@@ -51,12 +51,13 @@ fn debug_filter() -> EnvFilter {
         .from_env_lossy()
 }
 
-/// Create the developer log file, creating any missing parent directories first.
+/// Open the developer log file for writing.
 ///
-/// `File::create` does not create missing parent directories, so the configured
-/// [`LOG_FILENAME`] directory is created up front. If the configured path still cannot be
-/// created (e.g. it isn't writable in this elevated context), fall back to a path that is
-/// reliably writable by the elevated helper process.
+/// `File::create` won't create missing parent directories, so this first attempts
+/// `create_dir_all` on [`LOG_FILENAME`]'s parent. That recursively creates *every* missing
+/// directory in the path (note: a hardcoded path like `…\john\logging` is fabricated in full
+/// even on a machine with no such user), and it is best-effort — if it or the subsequent
+/// `File::create` fails, fall back to a file in [`std::env::temp_dir`].
 fn create_log_file() -> std::io::Result<File> {
     let primary = Path::new(LOG_FILENAME);
     match create_at(primary) {
