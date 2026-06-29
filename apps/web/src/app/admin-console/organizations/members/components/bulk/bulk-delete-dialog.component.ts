@@ -1,11 +1,21 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+import {
+  AvatarModule,
+  BadgeModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogService,
+  TableModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
@@ -16,56 +26,62 @@ type BulkDeleteDialogParams = {
   users: BulkUserDetails[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-delete-dialog.component.html",
   selector: "member-bulk-delete-dialog",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AvatarModule,
+    BadgeModule,
+    ButtonModule,
+    CalloutModule,
+    DialogModule,
+    I18nPipe,
+    TableModule,
+    UserNamePipe,
+  ],
 })
 export class BulkDeleteDialogComponent {
-  organizationId: string;
-  users: BulkUserDetails[];
-  loading = false;
-  done = false;
-  error: string = null;
-  statuses = new Map<string, string>();
-  userStatusType = OrganizationUserStatusType;
+  private readonly dialogParams = inject<BulkDeleteDialogParams>(DIALOG_DATA);
+  protected readonly i18nService = inject(I18nService);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly deleteManagedMemberWarningService = inject(DeleteManagedMemberWarningService);
 
-  constructor(
-    @Inject(DIALOG_DATA) protected dialogParams: BulkDeleteDialogParams,
-    protected i18nService: I18nService,
-    private organizationUserApiService: OrganizationUserApiService,
-    private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
-  ) {
-    this.organizationId = dialogParams.organizationId;
-    this.users = dialogParams.users;
-  }
+  protected readonly userStatusType = OrganizationUserStatusType;
+  protected readonly organizationId = signal(this.dialogParams.organizationId);
+  protected readonly users = signal(this.dialogParams.users);
+
+  protected readonly loading = signal(false);
+  protected readonly done = signal(false);
+  protected readonly error = signal<string | undefined>(undefined);
+  protected readonly statuses = signal(new Map<string, string>());
 
   async submit() {
-    await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId);
-
     try {
-      this.loading = true;
-      this.error = null;
+      await this.deleteManagedMemberWarningService.acknowledgeWarning(this.organizationId());
+      this.loading.set(true);
+      this.error.set(undefined);
 
       const response = await this.organizationUserApiService.deleteManyOrganizationUsers(
-        this.organizationId,
-        this.users.map((user) => user.id),
+        this.organizationId(),
+        this.users().map((user) => user.id),
       );
 
+      const newStatuses = new Map<string, string>();
       response.data.forEach((entry) => {
-        this.statuses.set(
+        newStatuses.set(
           entry.id,
           entry.error ? entry.error : this.i18nService.t("deletedSuccessfully"),
         );
       });
+      this.statuses.set(newStatuses);
 
-      this.done = true;
+      this.done.set(true);
     } catch (e) {
-      this.error = e.message;
+      this.error.set(e instanceof Error ? e.message : String(e));
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 
