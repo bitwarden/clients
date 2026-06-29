@@ -59,21 +59,21 @@ const PASSPHRASE_POLICY_VALUE = "passphrase";
 })
 export class PasswordGeneratorPolicyV2Component extends BasePolicyEditComponent {
   protected readonly minLengthMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.length.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.length!.min!;
   protected readonly minLengthMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.length.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.length!.max!;
   protected readonly minNumbersMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minNumber!.min!;
   protected readonly minNumbersMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minNumber!.max!;
   protected readonly minSpecialMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minSpecial!.min!;
   protected readonly minSpecialMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minSpecial!.max!;
   protected readonly minNumberWordsMin =
-    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.min;
+    BuiltIn.passphrase.profiles[Profile.account]!.constraints.default.numWords!.min!;
   protected readonly minNumberWordsMax =
-    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
+    BuiltIn.passphrase.profiles[Profile.account]!.constraints.default.numWords!.max!;
 
   private readonly formBuilder = inject(FormBuilder);
   private readonly i18nService = inject(I18nService);
@@ -128,7 +128,7 @@ export class PasswordGeneratorPolicyV2Component extends BasePolicyEditComponent 
 }
 
 function isEnabled(enabledValue: string) {
-  return map((d: { overridePasswordType: string | null }) => {
+  return map((d: { overridePasswordType?: string | null }) => {
     const type = d?.overridePasswordType ?? enabledValue;
     return type === enabledValue;
   });
