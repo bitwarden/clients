@@ -46,11 +46,10 @@ pub const UNSANDBOXED_PATHS: [&str; 4] = [
 /// snap-packaged browsers. Snap-confined browsers can only reach a socket inside their own
 /// `~/snap/<browser>/` directory, so the server mounts a socket per snap browser here.
 #[cfg(target_os = "linux")]
-pub const SNAP_PATHS: [&str; 4] = [
+pub const SNAP_PATHS: [&str; 3] = [
     "snap/firefox/common/.mozilla/native-messaging-hosts",
     "snap/chromium/common/chromium/NativeMessagingHosts",
     "snap/brave/current/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
-    "snap/microsoft-edge-dev/current/.config/microsoft-edge-dev/NativeMessagingHosts",
 ];
 
 /// This is the codec used for communication through the UNIX socket / Windows named pipe.
