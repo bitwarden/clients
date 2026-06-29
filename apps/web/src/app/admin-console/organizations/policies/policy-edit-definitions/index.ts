@@ -13,6 +13,7 @@ export {
   OrganizationDataOwnershipPolicyV2Component,
 } from "./organization-data-ownership-v2.component";
 export { PasswordGeneratorPolicy } from "./password-generator.component";
+export { PasswordGeneratorPolicyV2 } from "./password-generator-v2.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";
 export { ResetPasswordPolicy } from "./reset-password.component";

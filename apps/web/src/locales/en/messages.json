@@ -6346,6 +6346,15 @@
   "passwordGeneratorPolicyDesc": {
     "message": "Set requirements for password generator."
   },
+  "passwordGeneratorPolicyDescV2": {
+    "message": "Select a set of minimum requirements for any member-generated passwords."
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  },
+  "generatedPassphrase": {
+    "message": "Generated passphrase"
+  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },
