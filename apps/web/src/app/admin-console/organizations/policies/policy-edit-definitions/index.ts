@@ -16,6 +16,7 @@ export { PasswordGeneratorPolicy } from "./password-generator.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";
 export { ResetPasswordPolicy } from "./reset-password.component";
+export { ResetPasswordPolicyV2 } from "./reset-password-v2.component";
 export { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
 export { SendOptionsPolicy } from "./send-options.component";
 export { SingleOrgPolicy } from "./single-org.component";
