@@ -1009,6 +1009,7 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes",
+ "aes-gcm",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
@@ -1016,7 +1017,6 @@ dependencies = [
  "bitwarden-russh",
  "bytes",
  "cbc",
- "chacha20poly1305",
  "core-foundation",
  "desktop_objc",
  "dirs",
