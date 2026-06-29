@@ -324,11 +324,10 @@ export function elementIsTypeSubmitElement(element: Element): element is HTMLEle
   return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }
 
-export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
+export function elementIsButtonElement(element: Element): element is HTMLButtonElement {
   return (
-    nodeIsElement(node) &&
-    (elementIsInstanceOf<HTMLButtonElement>(node, "button") ||
-      getPropertyOrAttribute(node as HTMLElement, "type") === "button")
+    elementIsInstanceOf<HTMLButtonElement>(element, "button") ||
+    getPropertyOrAttribute(element as HTMLElement, "type") === "button"
   );
 }
 

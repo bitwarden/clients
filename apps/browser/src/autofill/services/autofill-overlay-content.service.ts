@@ -42,7 +42,7 @@ import {
   isReadonlyOrDisabledFormFieldElement,
   isSubFramePositioningMessageData,
   nodeIsAnchorElement,
-  nodeIsButtonElement,
+  elementIsButtonElement,
   elementIsTypeSubmitElement,
   sendExtensionMessage,
   throttle,
@@ -599,7 +599,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitButtonElement = await this.querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element: Element) => elementIsButtonElement(element),
     );
     if (submitButtonElement) {
       return submitButtonElement;

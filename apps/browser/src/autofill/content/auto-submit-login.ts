@@ -9,7 +9,7 @@ import { DomQueryService } from "../services/dom-query.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import {
   elementIsInputElement,
-  nodeIsButtonElement,
+  elementIsButtonElement,
   nodeIsFormElement,
   elementIsTypeSubmitElement,
   sendExtensionMessage,
@@ -207,7 +207,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     const buttonElement = querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element: Element) => elementIsButtonElement(element),
     );
     if (buttonElement) {
       clickSubmitElement(buttonElement, lastFieldIsPasswordInput);
