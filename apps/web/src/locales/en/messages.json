@@ -6295,6 +6295,27 @@
   "masterPassPolicyDesc": {
     "message": "Set requirements for master password strength."
   },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
+  "minCharacterLength": {
+    "message": "Minimum character length"
+  },
+  "characterRequirements": {
+    "message": "Character requirements"
+  },
+  "specialCharactersPolicy": {
+    "message": "Special characters (e.g. !, @, $)"
+  },
+  "uppercasePolicy": {
+    "message": "Uppercase"
+  },
+  "lowercasePolicy": {
+    "message": "Lowercase"
+  },
+  "numbersPolicy": {
+    "message": "Numbers"
+  },
   "passwordStrengthScore": {
     "message": "Password strength score $SCORE$",
     "placeholders": {
