@@ -3750,7 +3750,7 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("mutationAffectsAutofillTarget (relevance gate)", () => {
+  describe("mutationAddsOrRemovesFormField (relevance gate)", () => {
     // Containers we append to body for real NodeList construction; torn down after each test.
     const createdContainers: HTMLElement[] = [];
 
@@ -3786,7 +3786,7 @@ describe("CollectAutofillContentService", () => {
     });
 
     const expectGate = (mutation: MutationRecord, admit: boolean) =>
-      expect(collectAutofillContentService["mutationAffectsAutofillTarget"](mutation)).toBe(admit);
+      expect(collectAutofillContentService["mutationAddsOrRemovesFormField"](mutation)).toBe(admit);
 
     const mutationForChild = (child: Node): MutationRecord => {
       const container = makeContainer();
@@ -3960,7 +3960,7 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("nodeListIsAutofillRelevant", () => {
+  describe("nodeListContainsFormField", () => {
     it("skips non-element nodes (text, comment) and returns false when no element is relevant", () => {
       const container = document.createElement("div");
       container.append(
@@ -3970,15 +3970,15 @@ describe("CollectAutofillContentService", () => {
       );
       document.body.appendChild(container);
 
-      expect(
-        collectAutofillContentService["nodeListIsAutofillRelevant"](container.childNodes),
-      ).toBe(false);
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        false,
+      );
       document.body.removeChild(container);
     });
 
     it("returns false for an empty NodeList", () => {
       const empty = document.querySelectorAll("nothing-matches-this-selector");
-      expect(collectAutofillContentService["nodeListIsAutofillRelevant"](empty)).toBe(false);
+      expect(collectAutofillContentService["nodeListContainsFormField"](empty)).toBe(false);
     });
 
     it("short-circuits on the first relevant node and returns true", () => {
@@ -3989,9 +3989,9 @@ describe("CollectAutofillContentService", () => {
       container.append(irrelevant, input);
       document.body.appendChild(container);
 
-      expect(
-        collectAutofillContentService["nodeListIsAutofillRelevant"](container.childNodes),
-      ).toBe(true);
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        true,
+      );
       document.body.removeChild(container);
     });
   });

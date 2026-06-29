@@ -86,7 +86,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
 
-  private readonly monitorMapSizes = createMeter("mapSizes", "fields", "byOpid", "forms", "heap");
   // Larger ring (bits:10): MO callbacks can outrun 256 slots before flush.
   private readonly monitorMutationBatch = createMeter(
     { name: "mutationBatch", bits: 10 },
@@ -1435,6 +1434,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
+  private get hasPendingWork(): boolean {
+    return (
+      this.pendingAttributeMutations.size > 0 ||
+      this.pendingTopLayerTargets.size > 0 ||
+      this.pendingChildListUpdate
+    );
+  }
+
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1482,12 +1489,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    // Schedule a drain only when the queue was idle AND this batch contributed work;
-    // a no-op drain on a hyperactive page is pure idle-callback + allocation tax.
-    const queueWasIdle =
-      this.pendingAttributeMutations.size === 0 &&
-      this.pendingTopLayerTargets.size === 0 &&
-      !this.pendingChildListUpdate;
+    // Drain only when idle AND this batch added work; no-op drains are pure overhead.
+    const queueWasIdle = !this.hasPendingWork;
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
@@ -1510,8 +1513,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
-        // Without this gate, cosmetic mutations invalidate the noFieldsFound cache.
-        if (this.mutationAffectsAutofillTarget(mutation)) {
+        // Gate the noFieldsFound-invalidating flag; skip the walk once it's set.
+        if (!this.pendingChildListUpdate && this.mutationAddsOrRemovesFormField(mutation)) {
           this.pendingChildListUpdate = true;
         }
         for (const node of mutation.addedNodes ?? []) {
@@ -1526,12 +1529,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const queueHasWork =
-      this.pendingAttributeMutations.size > 0 ||
-      this.pendingTopLayerTargets.size > 0 ||
-      this.pendingChildListUpdate;
-
-    if (queueWasIdle && queueHasWork) {
+    if (queueWasIdle && this.hasPendingWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
     } else if (queueWasIdle) {
       this.monitorScheduleSkipped();
@@ -1580,6 +1578,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
+    // Drain-time purge: throttled, so this only does work when the window elapsed since the wake-purge.
     this.purgeDetachedNodesIfDue();
 
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
@@ -1605,13 +1604,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         if (this.domRecentlyMutated) {
           this.updateAutofillElementsAfterMutation();
         }
-        this.monitorMapSizes(
-          this.autofillFieldElements.size,
-          this.autofillFieldsByOpid.size,
-          this._autofillFormElements.size,
-          (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory
-            ?.usedJSHeapSize ?? 0,
-        );
       },
       { timeout: 500 },
     );
@@ -1729,14 +1721,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
-  private mutationAffectsAutofillTarget(mutation: MutationRecord): boolean {
+  private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
     return (
-      this.nodeListIsAutofillRelevant(mutation.addedNodes) ||
-      this.nodeListIsAutofillRelevant(mutation.removedNodes)
+      this.nodeListContainsFormField(mutation.addedNodes) ||
+      this.nodeListContainsFormField(mutation.removedNodes)
     );
   }
 
-  private nodeListIsAutofillRelevant(nodes: NodeList | undefined): boolean {
+  private nodeListContainsFormField(nodes: NodeList | undefined): boolean {
     if (!nodes) {
       return false;
     }
