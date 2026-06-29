@@ -40,6 +40,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   private componentDestroyed$: Subject<void> = new Subject();
 
   domainForm: FormGroup;
+  protected domainNameReadonly = false;
 
   get domainNameCtrl(): FormControl {
     return this.domainForm.controls.domainName as FormControl;
@@ -68,19 +69,25 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
   // Angular Method Implementations
 
   async ngOnInit(): Promise<void> {
+    const domainNameValidators = [
+      Validators.required,
+      domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
+    ];
+
+    // Only check uniqueness when creating — when editing, the domain name is readonly
+    // and is already present in existingDomainNames, so the validator would always fail.
+    if (!this.data.orgDomain) {
+      domainNameValidators.push(
+        uniqueInArrayValidator(
+          this.data.existingDomainNames,
+          this.i18nService.t("duplicateDomainError"),
+        ),
+      );
+    }
+
     this.domainForm = this.formBuilder.group({
-      domainName: [
-        "",
-        [
-          Validators.required,
-          domainNameValidator(this.i18nService.t("invalidDomainNameClaimMessage")),
-          uniqueInArrayValidator(
-            this.data.existingDomainNames,
-            this.i18nService.t("duplicateDomainError"),
-          ),
-        ],
-      ],
-      txt: [{ value: null, disabled: true }],
+      domainName: ["", domainNameValidators],
+      txt: [null],
     });
     // If we have data.orgDomain, then editing, otherwise creating new domain
     await this.populateForm();
@@ -99,7 +106,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
     if (this.data.orgDomain) {
       // Edit
       this.domainForm.patchValue(this.data.orgDomain);
-      this.domainForm.disable();
+      this.domainNameReadonly = true;
     }
 
     this.setupFormListeners();
@@ -136,7 +143,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.domainNameCtrl.disable();
+    this.domainNameReadonly = true;
 
     const request: OrganizationDomainRequest = new OrganizationDomainRequest(
       this.domainNameCtrl.value,
@@ -182,7 +189,7 @@ export class DomainAddEditDialogComponent implements OnInit, OnDestroy {
             this.domainNameCtrl.updateValueAndValidity();
 
             // Give them another chance to enter a new domain name:
-            this.domainForm.enable();
+            this.domainNameReadonly = false;
           } else {
             this.validationService.showError(errorResponse);
           }

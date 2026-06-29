@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { ElementRef, NO_ERRORS_SCHEMA, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
@@ -21,6 +21,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -48,7 +49,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DialogRef, DialogService, ScrollLayoutService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
 import {
   ASSIGN_COLLECTIONS_DIALOG,
@@ -337,6 +338,12 @@ describe("VaultComponent", () => {
       })
       .compileComponents();
 
+    // Provide a scroll host so `bitScrollLayout` (used by nested table components) can resolve its
+    // scrollable element and doesn't log a "can't find scroll host" error during tests.
+    TestBed.inject(ScrollLayoutService).scrollableRef.set(
+      new ElementRef(document.createElement("div")),
+    );
+
     fixture = TestBed.createComponent(VaultComponent);
     component = fixture.componentInstance;
   });
@@ -437,6 +444,70 @@ describe("VaultComponent", () => {
           });
         });
       });
+    });
+  });
+
+  describe("addCollection", () => {
+    let dialogOpen: jest.Mock;
+
+    const buildOrg = (id: string, overrides: Partial<Organization> = {}) =>
+      ({
+        id,
+        name: id,
+        canCreateNewCollections: true,
+        isProviderUser: false,
+        ...overrides,
+      }) as Organization;
+
+    beforeEach(() => {
+      dialogOpen = jest.fn().mockReturnValue({
+        closed: of(undefined),
+      } as unknown as DialogRef<unknown, unknown>);
+      (component as any).dialogService = { open: dialogOpen };
+    });
+
+    it("defaults the organization to the active filter's organization when one is selected", async () => {
+      (component as any).allOrganizations = [buildOrg("org-1"), buildOrg("org-2")];
+      component.activeFilter = { organizationId: "org-2" } as unknown as VaultFilter;
+
+      await component.addCollection();
+
+      expect(dialogOpen).toHaveBeenCalled();
+      const config = dialogOpen.mock.lastCall[1];
+      expect(config.data.organizationId).toBe("org-2");
+    });
+
+    it("falls back to the first eligible organization when the individual vault is selected", async () => {
+      (component as any).allOrganizations = [buildOrg("org-1"), buildOrg("org-2")];
+      component.activeFilter = { organizationId: "MyVault" } as unknown as VaultFilter;
+
+      await component.addCollection();
+
+      const config = dialogOpen.mock.lastCall[1];
+      expect(config.data.organizationId).toBe("org-1");
+    });
+
+    it("falls back to the first eligible organization when no organization filter is selected", async () => {
+      (component as any).allOrganizations = [buildOrg("org-1"), buildOrg("org-2")];
+      component.activeFilter = { organizationId: null } as unknown as VaultFilter;
+
+      await component.addCollection();
+
+      const config = dialogOpen.mock.lastCall[1];
+      expect(config.data.organizationId).toBe("org-1");
+    });
+
+    it("falls back to the first eligible organization when the filtered organization cannot create collections", async () => {
+      (component as any).allOrganizations = [
+        buildOrg("org-1"),
+        buildOrg("org-2", { canCreateNewCollections: false }),
+      ];
+      component.activeFilter = { organizationId: "org-2" } as unknown as VaultFilter;
+
+      await component.addCollection();
+
+      const config = dialogOpen.mock.lastCall[1];
+      expect(config.data.organizationId).toBe("org-1");
     });
   });
 });
