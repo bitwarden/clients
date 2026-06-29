@@ -2,14 +2,20 @@
 paths:
   - "apps/cli/stores/snap/snapcraft.yaml"
   - "apps/desktop/electron-builder.json"
-  - "apps/desktop/electron-builder.beta.json"
 ---
 
 # Snap Permissions (Plugs)
 
-`snapcraft.yaml` declares the [plugs](https://snapcraft.io/docs/supported-interfaces) (interfaces)
+A `snapcraft.yaml` declares the [plugs](https://snapcraft.io/docs/supported-interfaces) (interfaces)
 that the snap requests at runtime. Snap uses strict confinement, so every plug grants additional
 access to the host system.
+
+Snap plugs are declared in two places:
+
+- `apps/cli/stores/snap/snapcraft.yaml` — under `apps.<app>.plugs:` (YAML list)
+- `apps/desktop/electron-builder.json` — under `snap.plugs` (JSON array)
+  For the CLI app we directly use a `snapcraft.yaml` file, while for the Desktop app we use
+  `electron-builder` to generate the `snapcraft.yaml` file from `electron-builder.json`.
 
 ## Adding new plugs
 
