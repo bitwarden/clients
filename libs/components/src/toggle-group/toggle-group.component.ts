@@ -183,6 +183,7 @@ export class ToggleGroupComponent<TValue = unknown> {
       "tw-auto-cols-fr",
       "tw-grid-flow-col",
       "tw-border",
+      "tw-border-solid",
       "tw-rounded-2xl",
       "tw-border-border-base",
       "tw-p-1",

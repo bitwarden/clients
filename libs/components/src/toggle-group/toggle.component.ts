@@ -102,8 +102,7 @@ export class ToggleComponent<TValue> {
     "after:tw-top-[50%]",
     "after:tw-translate-x-[100%]",
     "after:tw-translate-y-[-50%]",
-    "after:tw-border-r",
-    "after:tw-border-border-base",
+    "after:tw-bg-border-base",
     "after:tw-transition-opacity",
 
     "[bit-toggle:has(+_bit-toggle.bit-toggle--selected)_&]:after:tw-opacity-0",
