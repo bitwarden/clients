@@ -11,7 +11,7 @@ import {
   elementIsInputElement,
   nodeIsButtonElement,
   nodeIsFormElement,
-  nodeIsTypeSubmitElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
 } from "../utils";
 import { getSubmitButtonKeywordsSet } from "../utils/qualification";
@@ -197,7 +197,7 @@ import { getSubmitButtonKeywordsSet } from "../utils/qualification";
     const genericSubmitElement = querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element: Element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       clickSubmitElement(genericSubmitElement, lastFieldIsPasswordInput);

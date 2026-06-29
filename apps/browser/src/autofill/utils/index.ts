@@ -320,8 +320,8 @@ export function nodeIsFormElement(node: Node): node is HTMLFormElement {
   return nodeIsElement(node) && elementIsFormElement(node);
 }
 
-export function nodeIsTypeSubmitElement(node: Node): node is HTMLElement {
-  return nodeIsElement(node) && getPropertyOrAttribute(node as HTMLElement, "type") === "submit";
+export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
+  return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }
 
 export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {

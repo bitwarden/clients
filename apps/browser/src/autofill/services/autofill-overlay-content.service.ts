@@ -43,7 +43,7 @@ import {
   isSubFramePositioningMessageData,
   nodeIsAnchorElement,
   nodeIsButtonElement,
-  nodeIsTypeSubmitElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
   throttle,
 } from "../utils";
@@ -590,7 +590,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const genericSubmitElement = await this.querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element: Element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       return genericSubmitElement;
