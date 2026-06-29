@@ -7,6 +7,7 @@ import { firstValueFrom, map } from "rxjs";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BreachAccountResponse } from "@bitwarden/common/dirt/models/response/breach-account.response";
+import { LogService } from "@bitwarden/logging";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -28,32 +29,47 @@ export class BreachReportComponent implements OnInit {
     private auditService: AuditService,
     private accountService: AccountService,
     private formBuilder: FormBuilder,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
-    this.formGroup
-      .get("email")
-      .setValue(
-        await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
-      );
+    this.logService.info("[BreachReport] load start");
+    try {
+      this.formGroup
+        .get("email")
+        .setValue(
+          await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email))),
+        );
+      this.logService.info("[BreachReport] load success");
+    } catch (e) {
+      this.logService.error("[BreachReport] load failure", e);
+      throw e;
+    }
   }
 
   submit = async () => {
     this.formGroup.markAsTouched();
 
     if (this.formGroup.invalid) {
+      this.logService.warning("[BreachReport] submit blocked invalid form");
       return;
     }
 
     this.error = false;
     this.loading = true;
+    this.logService.info("[BreachReport] breach check start");
     const email = this.formGroup.value.email.toLowerCase();
     try {
       this.breachedAccounts = await this.auditService.breachedAccounts(email);
+      this.logService.info(
+        `[BreachReport] breach check complete count=${this.breachedAccounts.length}`,
+      );
     } catch {
       this.error = true;
+      this.logService.error("[BreachReport] breach check failure");
     } finally {
       this.loading = false;
+      this.logService.info("[BreachReport] breach check finalize loading=false");
     }
 
     this.checkedEmail = email;
