@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   catchError,
@@ -29,6 +30,7 @@ import { CollectionAdminView } from "@bitwarden/common/admin-console/models/coll
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -115,6 +117,11 @@ export const openGroupAddEditDialog = (
   standalone: false,
 })
 export class GroupAddEditComponent implements OnInit, OnDestroy {
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   private organization$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.organizationService
@@ -261,7 +268,9 @@ export class GroupAddEditComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loading = true;
-    this.title = this.i18nService.t(this.editMode ? "editGroup" : "newGroup");
+    this.title = this.i18nService.t(
+      this.editMode ? "editGroup" : this.btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup",
+    );
 
     combineLatest([
       this.orgCollections$,

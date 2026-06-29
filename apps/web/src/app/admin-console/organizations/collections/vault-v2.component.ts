@@ -221,6 +221,11 @@ export class VaultV2Component implements OnInit, OnDestroy {
 
   protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   constructor() {
     this.organizationId$ = this.filter$.pipe(
       map((f) => f.organizationId),

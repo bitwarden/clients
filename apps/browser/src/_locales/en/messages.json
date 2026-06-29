@@ -2321,6 +2321,42 @@
   "licenseClass": {
     "message": "License class"
   },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2384,6 +2420,22 @@
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
@@ -3354,6 +3406,10 @@
   },
   "createSend": {
     "message": "New Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -5310,6 +5366,29 @@
         "example": "Work"
       }
     }
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
   },
   "new": {
     "message": "New"

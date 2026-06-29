@@ -253,6 +253,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   private readonly vaultBatchBarService = inject(VaultBatchBarService);
   private readonly configService = inject(ConfigService);
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   protected readonly vaultBatchBarFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
     { initialValue: false },

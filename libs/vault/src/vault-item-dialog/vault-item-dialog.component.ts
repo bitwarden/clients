@@ -314,6 +314,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -669,36 +674,70 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private updateTitle(): void {
     const translation: { [key: string]: { [key: number]: string } } = {
       view: {
-        [CipherType.Login]: "viewItemHeaderLogin",
-        [CipherType.Card]: "viewItemHeaderCard",
-        [CipherType.Identity]: "viewItemHeaderIdentity",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderLoginSentenceCase"
+          : "viewItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderCardSentenceCase"
+          : "viewItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderIdentitySentenceCase"
+          : "viewItemHeaderIdentity",
         [CipherType.SecureNote]: this.pm32009NewItemTypes()
           ? "viewItemHeaderSecureNote"
-          : "viewItemHeaderNote",
+          : this.btnTextAddCreateFeatureFlag()
+            ? "viewItemHeaderNoteSentenceCase"
+            : "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
         [CipherType.BankAccount]: "viewItemHeaderBankAccount",
         [CipherType.DriversLicense]: "viewItemHeaderLicense",
         [CipherType.Passport]: "viewItemHeaderPassport",
       },
       new: {
-        [CipherType.Login]: "newItemHeaderLogin",
-        [CipherType.Card]: "newItemHeaderCard",
-        [CipherType.Identity]: "newItemHeaderIdentity",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderLogin"
+          : "newItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderCard"
+          : "newItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderIdentity"
+          : "newItemHeaderIdentity",
         [CipherType.SecureNote]: this.pm32009NewItemTypes()
-          ? "newItemHeaderSecureNote"
-          : "newItemHeaderNote",
-        [CipherType.SshKey]: "newItemHeaderSshKey",
-        [CipherType.BankAccount]: "newItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
-        [CipherType.Passport]: "newItemHeaderPassport",
+          ? this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderSecureNote"
+            : "newItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderNote"
+            : "newItemHeaderNote",
+        [CipherType.SshKey]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderSshKey"
+          : "newItemHeaderSshKey",
+        [CipherType.BankAccount]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderBankAccount"
+          : "newItemHeaderBankAccount",
+        [CipherType.DriversLicense]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderDriversLicense"
+          : "newItemHeaderDriversLicense",
+        [CipherType.Passport]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderPassport"
+          : "newItemHeaderPassport",
       },
       edit: {
-        [CipherType.Login]: "editItemHeaderLogin",
-        [CipherType.Card]: "editItemHeaderCard",
-        [CipherType.Identity]: "editItemHeaderIdentity",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderLoginSentenceCase"
+          : "editItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderCardSentenceCase"
+          : "editItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderIdentitySentenceCase"
+          : "editItemHeaderIdentity",
         [CipherType.SecureNote]: this.pm32009NewItemTypes()
           ? "editItemHeaderSecureNote"
-          : "editItemHeaderNote",
+          : this.btnTextAddCreateFeatureFlag()
+            ? "editItemHeaderNoteSentenceCase"
+            : "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
         [CipherType.BankAccount]: "editItemHeaderBankAccount",
         [CipherType.DriversLicense]: "editItemHeaderLicense",
