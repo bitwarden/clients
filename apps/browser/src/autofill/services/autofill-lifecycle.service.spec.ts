@@ -27,7 +27,7 @@ describe("DefaultAutofillLifecycleService", () => {
   let autofillOnPageLoadMock$: BehaviorSubject<boolean>;
   let tabSendMessageSpy: jest.SpyInstance;
 
-  const makePort = (frameId: number | undefined, name = AutofillPort.InjectedScript) => {
+  const makePort = (frameId: number | undefined, name: string = AutofillPort.InjectedScript) => {
     const port = mock<chrome.runtime.Port>({ name, onDisconnect: { addListener: jest.fn() } });
     (port as any).sender = { tab: createChromeTabMock({ id: 1 }), frameId };
     return port;

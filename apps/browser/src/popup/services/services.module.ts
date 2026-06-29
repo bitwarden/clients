@@ -196,9 +196,11 @@ import { ExtensionDeviceManagementComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
+import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
+import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
@@ -430,6 +432,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: AutofillLifecycleService,
+    useClass: NoopAutofillLifecycleService,
+    deps: [LogService],
+  }),
+  safeProvider({
     provide: AutofillService,
     deps: [
       CipherService,
@@ -446,6 +453,7 @@ const safeProviders: SafeProvider[] = [
       UserNotificationSettingsServiceAbstraction,
       MessageListener,
       AnimationControlService,
+      AutofillLifecycleService,
     ],
   }),
   safeProvider({
