@@ -208,8 +208,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnrollAeadOnKeyRotation]: FALSE,
   [FeatureFlag.ForceUpdateKDFSettings]: FALSE,
   [FeatureFlag.SdkKeyRotation]: FALSE,
-  [FeatureFlag.SharedUnlockPart1]: FALSE,
-  [FeatureFlag.SharedUnlockPart2]: FALSE,
+  [FeatureFlag.SharedUnlockPart1]: true,
+  [FeatureFlag.SharedUnlockPart2]: true,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
@@ -219,7 +219,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
-  [FeatureFlag.BiometricsSDKIPC]: FALSE,
+  [FeatureFlag.BiometricsSDKIPC]: true,
   [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
