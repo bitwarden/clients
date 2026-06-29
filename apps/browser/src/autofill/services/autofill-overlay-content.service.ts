@@ -41,7 +41,7 @@ import {
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
   isSubFramePositioningMessageData,
-  nodeIsAnchorElement,
+  elementIsAnchorElement,
   elementIsButtonElement,
   elementIsTypeSubmitElement,
   sendExtensionMessage,
@@ -606,8 +606,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     // If the submit button is not a traditional button element, check for an anchor element that contains submission keywords.
-    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (node: Node) =>
-      nodeIsAnchorElement(node),
+    const submitAnchorElement = await this.querySubmitButtonElement(
+      element,
+      "a",
+      (element: Element) => elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;

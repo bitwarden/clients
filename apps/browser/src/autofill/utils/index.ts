@@ -322,8 +322,8 @@ export function elementIsButtonElement(element: Element): element is HTMLButtonE
   );
 }
 
-export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
-  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+export function elementIsAnchorElement(element: Element): element is HTMLAnchorElement {
+  return elementIsInstanceOf<HTMLAnchorElement>(element, "a");
 }
 
 /**
