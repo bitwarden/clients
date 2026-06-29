@@ -28,6 +28,7 @@ import {
   TrendWidgetData,
   TrendWidgetViewType,
 } from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { emptyTrendData } from "../testing/story-fixtures";
 
@@ -46,6 +47,24 @@ type MockAccessIntelligenceDataService = {
   loading$: BehaviorSubject<boolean>;
   ciphers$: BehaviorSubject<CipherView[]>;
   initializeForOrganization$: jest.Mock;
+};
+
+const mockCoachmarkService = {
+  activeStepId: jest.fn(),
+  currentStepNumber: jest.fn(),
+  totalSteps: jest.fn(),
+  isRunning: jest.fn(),
+  requiredTabIndex: jest.fn(),
+  tourCompleted$: jest.fn(),
+  startTour: jest.fn(),
+  goToNextStep: jest.fn(),
+  goToPreviousStep: jest.fn(),
+  skipTour: jest.fn(),
+  completeTour: jest.fn(),
+  getStepConfig: jest.fn(),
+  getStepTitle: jest.fn(),
+  getStepDescription: jest.fn(),
+  getStepLearnMoreUrl: jest.fn(),
 };
 
 type MockRiskOverTimeService = {
@@ -87,7 +106,7 @@ describe("ActivityTabComponent", () => {
     };
 
     mockDrawerStateService = {
-      openDrawer: jest.fn(),
+      toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
     } as any;
 
@@ -120,6 +139,7 @@ describe("ActivityTabComponent", () => {
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: I18nService, useValue: mockI18nService },
+        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
         { provide: RiskOverTimeService, useValue: mockRiskOverTimeService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -358,19 +378,19 @@ describe("ActivityTabComponent", () => {
       openSpy.mockRestore();
     });
 
-    it("should call onViewAtRiskMembers - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskMembers - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskMembers();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskMembers,
         "activityTabAtRiskMembers",
       );
     });
 
-    it("should call onViewAtRiskApplications - opens drawer with correct type", async () => {
+    it("should call onViewAtRiskApplications - toggles drawer with correct type", async () => {
       await testAccess(component).onViewAtRiskApplications();
 
-      expect(mockDrawerStateService.openDrawer).toHaveBeenCalledWith(
+      expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
         DrawerType.CriticalAtRiskApps,
         "activityTabAtRiskApplications",
       );

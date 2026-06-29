@@ -1,6 +1,6 @@
 import { EMPTY, filter, map, merge, Observable, OperatorFunction, shareReplay } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "../../types/guid";
 
 /**
  * Builds an observable once per userId and caches it for future requests.

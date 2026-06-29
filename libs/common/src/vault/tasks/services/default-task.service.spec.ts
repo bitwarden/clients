@@ -1,17 +1,16 @@
 import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { NotificationType } from "@bitwarden/common/enums";
-import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
-import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { NotificationType } from "../../../enums";
+import { NotificationResponse } from "../../../models/response/notification.response";
+import { Message, MessageListener } from "../../../platform/messaging";
+import { ServerNotificationsService } from "../../../platform/server-notifications";
+import { SecurityTaskId, UserId } from "../../../types/guid";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";

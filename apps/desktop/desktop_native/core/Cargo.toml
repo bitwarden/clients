@@ -48,7 +48,7 @@ typenum = { workspace = true }
 zeroizing-alloc = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-ashpd = { workspace = true }
+ashpd = { workspace = true, features = ["background", "clipboard", "remote_desktop", "screencast"] }
 homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }

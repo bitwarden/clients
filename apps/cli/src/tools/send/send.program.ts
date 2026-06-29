@@ -342,6 +342,8 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
     );
     return await cmd.run(encodedJson, options);
   }

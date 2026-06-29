@@ -1,17 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { AuthService } from "../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 import { FormPurposeCategories } from "../constants";

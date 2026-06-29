@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "你沒有權限編輯這個項目"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "歡迎回來"
   },
   "moveToOrgDesc": {
@@ -153,6 +153,10 @@
   "viewItemHeaderNote": {
     "message": "檢視備註",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "檢視 SSH 金鑰",
@@ -186,6 +190,10 @@
     "message": "新增備註",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 金鑰",
     "description": "Header for new SSH key item type"
@@ -217,6 +225,10 @@
   "editItemHeaderNote": {
     "message": "編輯備註",
     "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
   },
   "editItemHeaderSshKey": {
     "message": "編輯 SSH 金鑰",
@@ -882,6 +894,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "複製私鑰"
+  },
+  "copyPublicKey": {
+    "message": "複製公鑰"
+  },
+  "copyFingerprint": {
+    "message": "複製指紋"
+  },
   "length": {
     "message": "長度"
   },
@@ -1055,7 +1076,7 @@
   "logIn": {
     "message": "登入"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "登入 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1184,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "輸入您帳號的電子郵件，您的密碼提示會傳送給您"
-  },
-  "getMasterPasswordHint": {
-    "message": "取得主密碼提示"
   },
   "emailRequired": {
     "message": "必須填入電子郵件地址。"
@@ -1391,7 +1409,7 @@
     "message": "圖示伺服器 URL"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "傳送伺服器網址"
   },
   "environmentSaved": {
     "message": "已儲存環境網址"
@@ -1680,53 +1698,20 @@
   "showIconsChangePasswordUrls": {
     "message": "顯示網站圖示並取得變更密碼網址"
   },
-  "enableMinToTray": {
-    "message": "最小化至系統匣圖示"
+  "runInBackground": {
+    "message": "保持 Bitwarden 在背景運行"
   },
-  "enableMinToTrayDesc": {
-    "message": "最小化視窗時，改為於系統匣中顯示一個圖示。"
+  "runInBackgroundDesc": {
+    "message": "關閉視窗後，Bitwarden 仍可透過系統托盤存取。建議在使用 SSH 代理程式或瀏覽器整合時使用此功能。"
   },
-  "enableMinToMenuBar": {
-    "message": "最小化至選單列"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "最小化視窗時，改為於選單列顯示一個圖示。"
-  },
-  "enableCloseToTray": {
-    "message": "關閉至系統匣圖示"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "關閉視窗時，改為於系統匣中顯示一個圖示。"
-  },
-  "enableCloseToMenuBar": {
-    "message": "關閉至選單列"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "關閉視窗時，改為於選單列中顯示一個圖示。"
-  },
-  "enableTray": {
-    "message": "顯示系統匣圖示"
-  },
-  "enableTrayDesc": {
-    "message": "總是在系統匣中顯示圖示。"
+  "runInBackgroundDescMac": {
+    "message": "關閉視窗後，Bitwarden 仍可透過選單列存取。建議在使用 SSH 代理或瀏覽器整合時使用此方法。"
   },
   "openAtLogin": {
     "message": "登入時自動啟動"
   },
   "openAtLoginDesc": {
     "message": "登入後自動啟動 Bitwarden 桌面應用程式。"
-  },
-  "alwaysShowDock": {
-    "message": "總是在 Dock 中顯示"
-  },
-  "alwaysShowDockDesc": {
-    "message": "即使最小化到選單列，也在 Dock 中顯示 Bitwarden 圖示。"
-  },
-  "confirmTrayTitle": {
-    "message": "確認隱藏系統匣"
-  },
-  "confirmTrayDesc": {
-    "message": "禁用此設定也將禁用所有其他系統匣相關設定。"
   },
   "language": {
     "message": "語言"
@@ -1826,15 +1811,6 @@
   "copySecurityCode": {
     "message": "複製安全代碼",
     "description": "Copy credit card security code (CVV)"
-  },
-  "copyPrivateKey": {
-    "message": "Copy private key"
-  },
-  "copyPublicKey": {
-    "message": "Copy public key"
-  },
-  "copyFingerprint": {
-    "message": "Copy fingerprint"
   },
   "cardNumber": {
     "message": "信用卡號碼"
@@ -1970,6 +1946,10 @@
   },
   "selected": {
     "message": "已選擇"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "大量操作"
@@ -2129,9 +2109,9 @@
   "exit": {
     "message": "結束"
   },
-  "showHide": {
-    "message": "顯示/隱藏",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "顯示",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "隱藏至系統匣"
@@ -2334,12 +2314,6 @@
   },
   "preferences": {
     "message": "偏好設定"
-  },
-  "enableMenuBar": {
-    "message": "顯示選單列圖示"
-  },
-  "enableMenuBarDesc": {
-    "message": "總是在選單列中顯示圖示。"
   },
   "hideToMenuBar": {
     "message": "隱藏至選單列"
@@ -2585,8 +2559,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
-  "receiveMarketingEmailsV2": {
-    "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
+  "receiveMarketingEmails": {
+    "message": "在您的收件匣中接收來自 Bitwarden 的更新資訊。"
   },
   "unsubscribe": {
     "message": "取消訂閱"
@@ -2671,6 +2645,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "你的新密碼不能與目前的密碼相同。"
+  },
+  "hint": {
+    "message": "提示"
   },
   "hintEqualsPassword": {
     "message": "密碼提示不能與您的密碼相同。"
@@ -3446,9 +3423,6 @@
     "message": "密碼庫",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密碼登入"
-  },
   "rememberEmail": {
     "message": "記住電子郵件地址"
   },
@@ -3893,6 +3867,9 @@
   },
   "multipleInputEmails": {
     "message": "一或多個電子郵件地址無效"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "電子郵件收件人清單不能超過 2,500 個字元。請刪除一個或多個收件者以繼續。"
   },
   "inputTrimValidator": {
     "message": "輸入內容不得只有空格。",
@@ -4679,6 +4656,12 @@
   "successfullyAssignedCollections": {
     "message": "指派集合成功"
   },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
+  },
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
   },
@@ -4960,7 +4943,7 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the desktop app"
+    "message": "工作階段逾時由桌面應用程式控制"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ 尚未安裝。請先安裝 $BROWSER$ 後再從中匯入密碼。",
@@ -5125,6 +5108,14 @@
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
   },
+  "domainNotAllowed": {
+    "message": "請只包含以下網域：$DOMAINS$。請檢查並重試",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "更多"
   },
@@ -5150,7 +5141,7 @@
     "message": "銀行帳戶"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "銀行帳號資料"
   },
   "bankName": {
     "message": "銀行名稱"
@@ -5255,14 +5246,17 @@
   "newBankAccountNudgeBody": {
     "message": "儲存您的銀行帳戶資訊，以便在各裝置間輕鬆且安全地存取。"
   },
+  "discardEditsTitle": {
+    "message": "放棄變更"
+  },
+  "discardEditsConfirmation": {
+    "message": "若關閉此畫面，尚未儲存的變更將會遺失。"
+  },
   "discardEdits": {
     "message": "放棄變更"
   },
-  "discardEditsMessage": {
-    "message": "若關閉此畫面，尚未儲存的變更將會遺失"
-  },
-  "backToEditing": {
-    "message": "返回編輯"
+  "keepEditing": {
+    "message": "繼續編輯"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未儲存的變更。確定要離開嗎？",
@@ -5300,6 +5294,21 @@
   "progressBar": {
     "message": "進度條",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您組織的傳送原則",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "若要編輯此 Send，請先複製一份。如果此 Send 會在設定的刪除日期過期，則無需執行任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 將在設定的刪除日期自動過期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "製作副本"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您無法將屬於多個收藏集的項目匯入「我的項目」。"
@@ -5345,5 +5354,8 @@
   },
   "licenseClass": {
     "message": "駕照類別"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "無法儲存項目。您必須先獲得組織的認證才能儲存項目。"
   }
 }

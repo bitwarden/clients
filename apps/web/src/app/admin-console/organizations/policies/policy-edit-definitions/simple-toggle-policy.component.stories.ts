@@ -2,12 +2,15 @@ import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CalloutComponent } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
 import { BasePolicyEditDefinition } from "../base-policy-edit.component";
@@ -30,6 +33,8 @@ class SampleTogglePolicy extends BasePolicyEditDefinition {
 
 /**
  * A sample policy definition with a warning callout, used exclusively for Storybook stories.
+ * The warning callout is rendered by the story template (as the drawer container would do),
+ * not by SimpleTogglePolicyComponent itself.
  */
 class SampleTogglePolicyWithWarning extends BasePolicyEditDefinition {
   name = "twoStepLoginPolicyTitle";
@@ -38,7 +43,7 @@ class SampleTogglePolicyWithWarning extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = SimpleTogglePolicyComponent;
-  warningKey = "twoStepLoginPolicyWarning";
+  warningKey = "twoStepLoginPolicyWarningV2";
 }
 
 function makePolicyStatusResponse(enabled: boolean): PolicyStatusResponse {
@@ -63,18 +68,27 @@ const mockPolicyApiService: Partial<PolicyApiServiceAbstraction> = {
   putPolicy: () => Promise.resolve(),
 };
 
+const mockOrganizationService: Partial<OrganizationService> = {
+  organizations$: () => of([]),
+};
+
 type StoryArgs = {
   enabled: boolean;
   showWarning: boolean;
 };
 
 function renderStory(args: StoryArgs) {
+  const policy = args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy();
   return {
     props: {
-      policy: args.showWarning ? new SampleTogglePolicyWithWarning() : new SampleTogglePolicy(),
+      policy,
+      warningKey: policy.warningKey,
       policyResponse: makePolicyStatusResponse(args.enabled),
     },
     template: `
+      @if (warningKey) {
+        <bit-callout type="warning">{{ warningKey | i18n }}</bit-callout>
+      }
       <app-simple-toggle-policy-edit
         [policy]="policy"
         [policyResponse]="policyResponse"
@@ -102,11 +116,12 @@ export default {
   },
   decorators: [
     moduleMetadata({
-      imports: [SimpleTogglePolicyComponent],
+      imports: [SimpleTogglePolicyComponent, CalloutComponent, I18nPipe],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: KeyService, useValue: mockKeyService },
         { provide: PolicyApiServiceAbstraction, useValue: mockPolicyApiService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
       ],
     }),
     applicationConfig({
