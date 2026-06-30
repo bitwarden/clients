@@ -6690,6 +6690,9 @@
   "singleOrgPolicyDesc": {
     "message": "Restrict members from joining other organizations. This policy is required for organizations that have enabled domain verification."
   },
+  "singleOrgPolicyDescV2": {
+    "message": "Members of this organization cannot join other organizations. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Your current organization has a policy that does not allow you to join more than one organization. Please contact your organization admins or sign up from a different Bitwarden account."
   },
@@ -8244,8 +8247,17 @@
   "activateAutofillPolicy": {
     "message": "Activate autofill"
   },
+  "enableAutofillOnPageLoad": {
+    "message": "Enable autofill on page load"
+  },
   "activateAutofillPolicyDescription": {
     "message": "Activate the autofill on page load setting on the browser extension for all existing and new members."
+  },
+  "activateAutofillPolicyDescV2": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
+  },
+  "exploitAutofillOnPageLoad": {
+    "message": "exploit autofill on page load"
   },
   "autofillOnPageLoadExploitWarning": {
     "message": "Compromised or untrusted websites can exploit autofill on page load."

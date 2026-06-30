@@ -110,6 +110,11 @@ export abstract class BasePolicyEditDefinition {
     name?: string;
     /** Drawer-only description. Falls back to {@link description} when not set. */
     description?: string;
+    /**
+     * When set, overrides {@link showDescription} for the drawer only.
+     * Set to false when the v2 component renders its own description (e.g. with an inline link).
+     */
+    showDescription?: boolean;
     /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
     prerequisiteKey?: string;
     /** URL for an optional "learn more" link inside the prerequisite callout. */
