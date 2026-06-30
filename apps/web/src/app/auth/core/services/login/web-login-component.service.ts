@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-invite-kind";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -151,8 +152,8 @@ export class WebLoginComponentService
        * as the org invite, allowing userB to login as normal.
        *
        * Open invites carry no user identity, so this check doesn't apply — the
-       * AcceptOrgOpenInviteComponent and the upcoming Task 3 pre-auth domain check in
-       * LoginComponent handle the open-invite equivalents.
+       * AcceptOrgOpenInviteComponent and the pre-auth domain check in LoginComponent
+       * handle the open-invite equivalents.
        */
       if (orgInvite.email !== email.toLowerCase()) {
         await this.routerService.getAndClearLoginRedirectUrl();
@@ -161,6 +162,13 @@ export class WebLoginComponentService
         this.logService.error(
           `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,
         );
+        return undefined;
+      }
+    } else {
+      // Defense in depth: even though the open-invite landing route is gated by
+      // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
+      // could persist into a flag-off session. Treat as no invite when disabled.
+      if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
         return undefined;
       }
     }

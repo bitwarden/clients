@@ -30,6 +30,7 @@ import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-in
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -623,6 +624,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   private async openInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOrganizationInvite();
     if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    // Defense in depth: even though the open-invite landing route is gated by
+    // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
+    // could persist into a flag-off session. Skip the domain check when the
+    // feature is disabled.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
     const allowed = await this.organizationInviteService.validateOpenInviteEmailDomain(

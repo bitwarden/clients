@@ -12,6 +12,8 @@ import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-a
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-invite-kind";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -106,6 +108,7 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private organizationInviteService: OrganizationInviteService,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -231,6 +234,13 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   private async openInviteDomainAllowed(email: string): Promise<boolean> {
     const invite = await this.organizationInviteService.getOrganizationInvite();
     if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    // Defense in depth: even though the open-invite landing route is gated by
+    // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
+    // could persist into a flag-off session. Skip the domain check when the
+    // feature is disabled.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
     const allowed = await this.organizationInviteService.validateOpenInviteEmailDomain(

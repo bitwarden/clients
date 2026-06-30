@@ -9,7 +9,9 @@ import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/mode
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { DirectOrganizationInvite } from "@bitwarden/common/auth/organization-invite/direct-organization-invite";
+import { OpenOrganizationInvite } from "@bitwarden/common/auth/organization-invite/open-organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -182,6 +184,73 @@ describe("WebLoginComponentService", () => {
           `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${mockMismatchedEmail}, Received: ${mockEmail}`,
         );
         expect(result).toBeUndefined();
+      });
+    });
+
+    describe("given an open organization invite is in state", () => {
+      const openInvite = new OpenOrganizationInvite({
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationName: "Acme Corp",
+      });
+
+      it("returns undefined when the GenerateInviteLink flag is off", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(false);
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(result).toBeUndefined();
+        expect(organizationInviteService.getInvitePolicies).not.toHaveBeenCalled();
+      });
+
+      it("derives organizationId from policies[0] and returns PasswordPolicies when flag is on", async () => {
+        const orgIdFromPolicy = "policy-org-id";
+        const policy = new Policy();
+        (policy as unknown as { organizationId: string }).organizationId = orgIdFromPolicy;
+        const policies: Policy[] = [policy];
+        const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
+
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(true);
+        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
+          resetPasswordPolicyOptions,
+          false,
+        ]);
+        internalPolicyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+          masterPasswordPolicyOptions,
+        );
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(internalPolicyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
+          policies,
+          orgIdFromPolicy,
+        );
+        expect(result).toEqual({
+          policies,
+          isPolicyAndAutoEnrollEnabled: false,
+          enforcedPasswordPolicyOptions: masterPasswordPolicyOptions,
+        });
+      });
+
+      it("returns undefined when flag is on but policies is empty (no orgId to derive)", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(true);
+        organizationInviteService.getInvitePolicies.mockResolvedValue([]);
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(result).toBeUndefined();
+        expect(internalPolicyService.getResetPasswordPolicyOptions).not.toHaveBeenCalled();
       });
     });
   });
