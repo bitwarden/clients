@@ -28,7 +28,7 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
         [class]="getCharacterClass(character)"
         class="tw-font-mono"
         data-password-character
-        aria-hidden="true"
+        [attr.aria-hidden]="showCount() ? null : 'true'"
       >
         <span>{{ character }}</span>
         @if (showCount()) {
@@ -36,7 +36,13 @@ type CharacterType = "letter" | "emoji" | "special" | "number";
         }
       </span>
     }
-    <span class="tw-sr-only" data-password-accessible>{{ accessiblePassword() }}</span>`,
+    @if (!showCount()) {
+      <span class="tw-sr-only" data-password-accessible>
+        @for (char of accessiblePassword(); track $index) {
+          <code>{{ char }}</code>
+        }
+      </span>
+    }`,
 })
 export class ColorPasswordComponent {
   readonly password = input<string>("");
@@ -52,9 +58,9 @@ export class ColorPasswordComponent {
   // a localized "space" token because screen readers collapse bare whitespace and
   // would otherwise drop the character entirely from the announcement.
   readonly accessiblePassword = computed(() =>
-    this.passwordCharArray()
-      .map((char) => (char === " " ? this.i18nService.t("passwordAnnounceSpace") : char))
-      .join(", "),
+    this.passwordCharArray().map((char) =>
+      char === " " ? this.i18nService.t("passwordAnnounceSpace") : char,
+    ),
   );
 
   private platformUtilsService = inject(PlatformUtilsService);

@@ -36,6 +36,14 @@ describe("ColorPasswordComponent", () => {
     return fixture.debugElement.query(By.css("span[data-password-accessible]"));
   }
 
+  function accessibleCodes() {
+    return fixture.debugElement.queryAll(By.css("span[data-password-accessible] code"));
+  }
+
+  function accessibleTokens() {
+    return accessibleCodes().map((el) => el.nativeElement.textContent);
+  }
+
   it("marks every visible character span aria-hidden", () => {
     host.password.set("Abc1!");
     fixture.detectChanges();
@@ -47,14 +55,14 @@ describe("ColorPasswordComponent", () => {
     }
   });
 
-  it("exposes the password as a single sr-only comma-separated string", () => {
+  it("exposes each password character in its own sr-only <code> element", () => {
     host.password.set("Abc1!");
     fixture.detectChanges();
 
     const accessible = accessibleSpan();
     expect(accessible).toBeTruthy();
     expect(accessible.nativeElement.classList).toContain("tw-sr-only");
-    expect(accessible.nativeElement.textContent).toBe("A, b, c, 1, !");
+    expect(accessibleTokens()).toEqual(["A", "b", "c", "1", "!"]);
   });
 
   it("treats a supplementary-plane emoji as a single accessible token", () => {
@@ -63,31 +71,61 @@ describe("ColorPasswordComponent", () => {
     host.password.set("\u{1F600}A");
     fixture.detectChanges();
 
-    expect(accessibleSpan().nativeElement.textContent).toBe("\u{1F600}, A");
+    expect(accessibleTokens()).toEqual(["\u{1F600}", "A"]);
   });
 
   it("substitutes the localized space token for literal spaces", () => {
     host.password.set("a b");
     fixture.detectChanges();
 
-    expect(accessibleSpan().nativeElement.textContent).toBe("a, space, b");
+    expect(accessibleTokens()).toEqual(["a", "space", "b"]);
   });
 
-  it("renders an empty accessible span when the password is empty", () => {
+  it("renders no accessible <code> elements when the password is empty", () => {
     host.password.set("");
     fixture.detectChanges();
 
     expect(visibleSpans().length).toBe(0);
-    expect(accessibleSpan().nativeElement.textContent).toBe("");
+    expect(accessibleSpan()).toBeTruthy();
+    expect(accessibleCodes().length).toBe(0);
+  });
+
+  describe("when showCount is true", () => {
+    beforeEach(() => {
+      host.showCount.set(true);
+    });
+
+    it("does not mark visible character spans aria-hidden", () => {
+      host.password.set("Abc1!");
+      fixture.detectChanges();
+
+      const spans = visibleSpans();
+      expect(spans.length).toBe(5);
+      for (const span of spans) {
+        expect(span.attributes["aria-hidden"]).toBeFalsy();
+      }
+    });
+
+    it("does not render the sr-only accessible block", () => {
+      host.password.set("Abc1!");
+      fixture.detectChanges();
+
+      expect(accessibleSpan()).toBeNull();
+      expect(accessibleCodes().length).toBe(0);
+    });
   });
 });
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "test-host",
-  template: `<bit-color-password [password]="password()"></bit-color-password>`,
+  template: `<bit-color-password
+    [password]="password()"
+    [showCount]="showCount()"
+  ></bit-color-password>`,
   imports: [ColorPasswordComponent],
 })
 class TestHostComponent {
   readonly password = signal("");
+  readonly showCount = signal(false);
 }
