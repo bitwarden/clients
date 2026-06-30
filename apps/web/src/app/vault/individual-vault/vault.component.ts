@@ -219,6 +219,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => (id ? this.organizationService.organizations$(id) : of([]))));

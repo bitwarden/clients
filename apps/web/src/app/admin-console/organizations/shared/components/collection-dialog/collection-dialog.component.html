@@ -7,7 +7,7 @@
       }}</span>
     </ng-container>
     <ng-container *ngIf="!editMode">
-      {{ "newCollection" | i18n }}
+      {{ (btnTextAddCreateFeatureFlag() ? "addCollection" : "newCollection") | i18n }}
     </ng-container>
   </span>
   <div bitDialogContent>
