@@ -14,10 +14,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  templateUrl: "accept-organization.component.html",
+  templateUrl: "accept-org-direct-invite.component.html",
   imports: [IconModule, I18nPipe],
 })
-export class AcceptOrganizationComponent implements OnInit {
+export class AcceptOrgDirectInviteComponent implements OnInit {
   loading = true;
 
   private readonly failedMessage = "inviteAcceptFailed";

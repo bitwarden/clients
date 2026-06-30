@@ -19,6 +19,11 @@ module.exports = {
   ...presetConfig,
   testMatch: ["**/+(*.)+(spec).+(ts)"],
 
+  // oauth4webapi is ESM-only; allow jest-preset-angular's transformer to compile it.
+  transformIgnorePatterns: [
+    "node_modules/(?!(.*\\.mjs$|@angular/common/locales/.*\\.js$|oauth4webapi/.*))",
+  ],
+
   setupFiles: [path.resolve(__dirname, "polyfill-node-globals.ts")],
 
   testPathIgnorePatterns: [

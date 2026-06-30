@@ -1,114 +1,129 @@
-<bit-dialog dialogSize="large">
+<bit-dialog dialogSize="large" [loading]="loading()">
   <ng-container bitDialogTitle>
     <span>{{ bulkTitle }}</span>
   </ng-container>
 
   <div bitDialogContent>
-    <bit-callout type="danger" *ngIf="users.length <= 0">
-      {{ "noSelectedUsersApplicable" | i18n }}
-    </bit-callout>
+    @if (users().length <= 0) {
+      <bit-callout type="danger">
+        {{ "noSelectedUsersApplicable" | i18n }}
+      </bit-callout>
+    }
 
-    <bit-callout type="danger" *ngIf="error">
-      {{ error }}
-    </bit-callout>
+    @if (error()) {
+      <bit-callout type="danger">
+        {{ error() }}
+      </bit-callout>
+    }
 
-    <bit-callout
-      type="danger"
-      *ngIf="nonCompliantMembers && !isRevoking"
-      title="{{ 'nonCompliantMembersTitle' | i18n }}"
-    >
-      {{ "nonCompliantMembersError" | i18n }}
-    </bit-callout>
+    @if (nonCompliantMembers() && !isRevoking) {
+      <bit-callout type="danger" title="{{ 'nonCompliantMembersTitle' | i18n }}">
+        {{ "nonCompliantMembersError" | i18n }}
+      </bit-callout>
+    }
 
-    <ng-template #userDisplay let-user>
-      <div class="tw-flex tw-items-center">
-        <div class="tw-mr-6">
-          <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
-        </div>
-        <ng-container *ngIf="user.name; else emailOnly">
-          <div class="tw-truncate" [title]="user.name + ' ' + user.email">
-            {{ user.name }}
-            <small class="tw-block tw-text-muted tw-truncate">
-              {{ user.email }}
-            </small>
-          </div>
-        </ng-container>
-        <ng-template #emailOnly>
-          <div class="tw-truncate" [title]="user.email">{{ user.email }}</div>
-        </ng-template>
-      </div>
-    </ng-template>
+    @if (!done()) {
+      <ng-container>
+        @if (users().length > 0 && !error() && isRevoking) {
+          <p>{{ "revokeUsersWarning" | i18n }}</p>
+        }
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell>{{ "member" | i18n }}</th>
+              @if (showNoMasterPasswordWarning()) {
+                <th bitCell class="tw-w-1/2">{{ "details" | i18n }}</th>
+              }
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (user of users(); track user.id) {
+              <tr bitRow>
+                <td bitCell class="tw-max-w-0">
+                  <div class="tw-flex tw-items-center">
+                    <div class="tw-mr-6">
+                      <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                    </div>
+                    @if (user.name) {
+                      <div class="tw-truncate" [title]="user.name + ' ' + user.email">
+                        {{ user.name }}
+                        <small class="tw-block tw-text-muted tw-truncate">
+                          {{ user.email }}
+                        </small>
+                      </div>
+                    } @else {
+                      <div class="tw-truncate" [title]="user.email">{{ user.email }}</div>
+                    }
+                  </div>
+                </td>
+                @if (showNoMasterPasswordWarning()) {
+                  <td bitCell class="tw-w-1/2">
+                    <span class="tw-block tw-lowercase tw-text-muted">
+                      @if (user.hasMasterPassword === true) {
+                        -
+                      }
+                      @if (user.hasMasterPassword === false) {
+                        <i class="bwi bwi-exclamation-triangle" aria-hidden="true"></i>
+                        {{ "noMasterPassword" | i18n }}
+                      }
+                    </span>
+                  </td>
+                }
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      </ng-container>
+    }
 
-    <ng-container *ngIf="!done">
-      <p *ngIf="users.length > 0 && !error && isRevoking">{{ "revokeUsersWarning" | i18n }}</p>
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell>{{ "member" | i18n }}</th>
-            <th bitCell class="tw-w-1/2" *ngIf="this.showNoMasterPasswordWarning">
-              {{ "details" | i18n }}
-            </th>
-          </tr>
-        </ng-container>
-        <ng-template body>
-          <tr bitRow *ngFor="let user of users">
-            <td bitCell class="tw-max-w-0">
-              <ng-container
-                *ngTemplateOutlet="userDisplay; context: { $implicit: user }"
-              ></ng-container>
-            </td>
-            <td bitCell class="tw-w-1/2" *ngIf="this.showNoMasterPasswordWarning">
-              <span class="tw-block tw-lowercase tw-text-muted">
-                <ng-container *ngIf="user.hasMasterPassword === true"> - </ng-container>
-                <ng-container *ngIf="user.hasMasterPassword === false">
-                  <i class="bwi bwi-exclamation-triangle" aria-hidden="true"></i>
-                  {{ "noMasterPassword" | i18n }}
-                </ng-container>
-              </span>
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
-    </ng-container>
-
-    <ng-container *ngIf="done">
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell class="tw-w-1/2">
-              {{ "member" | i18n }}
-            </th>
-            <th bitCell class="tw-w-1/2">{{ "status" | i18n }}</th>
-          </tr>
-        </ng-container>
-        <ng-template body>
-          <tr bitRow *ngFor="let user of users">
-            <td bitCell class="tw-max-w-0">
-              <ng-container
-                *ngTemplateOutlet="userDisplay; context: { $implicit: user }"
-              ></ng-container>
-            </td>
-            <td bitCell *ngIf="statuses.has(user.id)">
-              {{ statuses.get(user.id) }}
-            </td>
-            <td bitCell *ngIf="!statuses.has(user.id)">
-              {{ "bulkFilteredMessage" | i18n }}
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
-    </ng-container>
+    @if (done()) {
+      <ng-container>
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell class="tw-w-1/2">{{ "member" | i18n }}</th>
+              <th bitCell class="tw-w-1/2">{{ "status" | i18n }}</th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (user of users(); track user.id) {
+              <tr bitRow>
+                <td bitCell class="tw-max-w-0">
+                  <div class="tw-flex tw-items-center">
+                    <div class="tw-mr-6">
+                      <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                    </div>
+                    @if (user.name) {
+                      <div class="tw-truncate" [title]="user.name + ' ' + user.email">
+                        {{ user.name }}
+                        <small class="tw-block tw-text-muted tw-truncate">
+                          {{ user.email }}
+                        </small>
+                      </div>
+                    } @else {
+                      <div class="tw-truncate" [title]="user.email">{{ user.email }}</div>
+                    }
+                  </div>
+                </td>
+                @if (statuses().has(user.id)) {
+                  <td bitCell>{{ statuses().get(user.id) }}</td>
+                }
+                @if (!statuses().has(user.id)) {
+                  <td bitCell>{{ "bulkFilteredMessage" | i18n }}</td>
+                }
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      </ng-container>
+    }
   </div>
   <ng-container bitDialogFooter>
-    <button
-      type="button"
-      bitButton
-      *ngIf="!done && users.length > 0"
-      [bitAction]="submit"
-      buttonType="primary"
-    >
-      {{ bulkTitle }}
-    </button>
+    @if (!done() && users().length > 0) {
+      <button type="button" bitButton [bitAction]="submit" buttonType="primary">
+        {{ bulkTitle }}
+      </button>
+    }
     <button type="button" bitButton buttonType="secondary" bitDialogClose>
       {{ "close" | i18n }}
     </button>
