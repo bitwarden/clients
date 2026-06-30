@@ -1,5 +1,4 @@
 import {
-  BankAccountListView,
   BankAccountView as SdkBankAccountView,
   CardListView,
   CipherListView,
@@ -131,7 +130,7 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
-      case typeof cipher.type === "object" && "bankAccount" in cipher.type:
+      case cipher.type === "bankAccount":
         return CipherType.BankAccount;
       case cipher.type === "passport":
         return CipherType.Passport;
@@ -174,16 +173,13 @@ export class CipherViewLikeUtils {
     }
   };
 
-  /** @returns The bank account object from the input cipher. If the cipher is not of type BankAccount, returns null. */
-  static getBankAccount = (
+  private static getBankAccount = (
     cipher: CipherViewLike,
-  ): BankAccountView | SdkBankAccountView | BankAccountListView | null => {
+  ): BankAccountView | SdkBankAccountView | null => {
+    // CipherListViewType only inlines `card` and `login` data — bank account is a plain
+    // string discriminator without nested view data, so there is nothing to read here.
     if (this.isCipherListView(cipher)) {
-      if (typeof cipher.type !== "object") {
-        return null;
-      }
-
-      return "bankAccount" in cipher.type ? cipher.type.bankAccount : null;
+      return null;
     }
 
     return cipher.type === CipherType.BankAccount ? (cipher.bankAccount ?? null) : null;
