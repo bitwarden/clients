@@ -4,7 +4,6 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -166,7 +165,6 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
 
 describe("VaultExportService", () => {
   let exportService: IndividualVaultExportService;
-  let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let folderService: MockProxy<FolderService>;
@@ -182,7 +180,6 @@ describe("VaultExportService", () => {
   const userId = emptyGuid as UserId;
 
   beforeEach(() => {
-    cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
     keyGenerationService = mock<KeyGenerationService>();
     folderService = mock<FolderService>();
@@ -224,7 +221,6 @@ describe("VaultExportService", () => {
       keyGenerationService,
       keyService,
       encryptService,
-      cryptoFunctionService,
       kdfConfigService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,
