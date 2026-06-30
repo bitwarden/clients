@@ -29,7 +29,6 @@ import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/requ
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { ImportApiServiceAbstraction } from "@bitwarden/importer-core";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BitwardenPasswordProtectedImporter } from "../importers";
@@ -37,6 +36,7 @@ import { Importer } from "../importers/importer";
 import { ImportResult } from "../models/import-result";
 import { SdkImportCredentials } from "../sdk";
 
+import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
 
 describe("ImportService", () => {

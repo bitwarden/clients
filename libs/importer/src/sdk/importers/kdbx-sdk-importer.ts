@@ -1,9 +1,9 @@
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { SdkImportCredentials } from "@bitwarden/importer-core";
 import { ImportOptions, PasswordManagerClient, isImportError } from "@bitwarden/sdk-internal";
 
 import { CredentialKind } from "../credential-kind";
 import { toSdkCipherType } from "../sdk-cipher-type";
+import { SdkImportCredentials } from "../sdk-import-credentials";
 import { SdkImportSummary } from "../sdk-import-summary";
 import { resolveSdkImportTargets } from "../sdk-import-target";
 import { SdkImportContext, SdkVaultImporter } from "../sdk-vault-importer";
