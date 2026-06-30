@@ -3,10 +3,12 @@
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, Observable, of } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -20,8 +22,10 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   priority = 20;
   component = ResetPasswordPolicyComponent;
 
-  override display$(organization: Organization): Observable<boolean> {
-    return of(organization.useResetPassword);
+  display$(organization: Organization, configService: ConfigService) {
+    return configService
+      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
+      .pipe(map((drawerEnabled) => !drawerEnabled && organization.useResetPassword));
   }
 }
 

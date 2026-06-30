@@ -979,6 +979,9 @@
   "close": {
     "message": "Затваряне"
   },
+  "done": {
+    "message": "Готово"
+  },
   "delete": {
     "message": "Изтриване"
   },
@@ -1203,6 +1206,10 @@
     "message": "Нова бележка",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Нова защитена бележка",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Нов SSH ключ",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Редактиране на бележката",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Редактиране на защитената бележка",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Редактиране на SSH ключа",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "Преглед на бележката",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Преглед на защитената бележка",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Преглед на SSH ключа",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "Изтриване на елемента"
+  },
+  "deleteItemsCount": {
+    "message": "Изтриване на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Този елемент ще бъде преместен в кошчето. След като престои там 30 дни, ще бъде изтрит завинаги."
+  },
+  "deleteItemsDesc": {
+    "message": "Тези елементи ще бъдат преместени в кошчето. След като престоят там 30 дни, ще бъдат изтрити завинаги."
+  },
+  "deleteItemPermanently": {
+    "message": "Изтриване на елемента завинаги"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Изтриване на $COUNT$ елемента завинаги",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Няма да можете да възстановите този елемент."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Няма да можете да възстановите тези елементи."
+  },
+  "deleteSelection": {
+    "message": "Изтриване на избраното"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Избраните елементи и колекции ще бъдат изтрити завинаги."
   },
   "deleteFolder": {
     "message": "Изтриване на папка"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "Наистина ли искате да продължите?"
   },
+  "deleteCollection": {
+    "message": "Изтриване на колекцията"
+  },
+  "deleteCollectionsCount": {
+    "message": "Изтриване на $COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Тази колекция ще бъде изтрита завинаги."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Тези колекции ще бъдат изтрити завинаги."
+  },
   "moveSelectedItemsDesc": {
     "message": "Изберете папка, в която да се добавят $COUNT$ избран(и) запис(а).",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Да не се разрешава на членовете да създават картови елементи. Съществуващите карти ще бъдат премахнати автоматично."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Да не се разрешава на членовете да съхраняват данни за разплащателни карти в трезорите си. Когато тази политика е включена, запазените карти ще бъдат автоматично скрити."
   },
   "restrictCardTypeImport": {
     "message": "Картовите елементи не могат да бъдат внесени"
@@ -4866,6 +4941,12 @@
   "deletedCollections": {
     "message": "Изтрити колекции"
   },
+  "collectionDeleted": {
+    "message": "Колекцията е изтрита"
+  },
+  "collectionsDeleted": {
+    "message": "Колекциите са изтрити"
+  },
   "deletedCollectionId": {
     "message": "Колекция № $ID$ е изтрита.",
     "placeholders": {
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "и"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "За да завършите приемането на тази покана, впишете се с главната си парола."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "Не можете да се впишете чрез еднократно удостоверяване, докато не приемете поканата да се присъедините към $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "Чрез тази отметка вие се съгласявате със следните:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "Избрано"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Препоръчано"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "Изискване от потребителите да включат двустепенно удостоверяване за личните си абонаменти."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Членовете на организацията без двустепенно удостоверяване за личните си абонаменти ще бъдат отстранени от организацията. Те ще бъдат уведомени за това по електронната поща."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Вие сте член на поне една организация, която изисква двустепенно удостоверяване и за личния абонамент. Ако изключите двустепенното удостоверяване, ще бъдете отстранени от тези организации."
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "Изискване на потребителите да ползват еднократна идентификация."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Предпоставкa"
   },
   "requireSsoPolicyReq": {
     "message": "За да включите тази политика, първо трябва ръчно да включите политиката за еднократна идентификация."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "Политиката за единствена организация не е включена."
@@ -6887,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "От членовете ще бъде изискано да прехвърлят данните си в организацията, или да напуснат. Ако напуснат, достъпът им ще бъде отнет, но и може да бъде възстановен по всяко време."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "Всички записи на членовете ще бъдат притежавани и управлявани от организацията. Тази политика няма да бъде прилагана към собствениците и администраторите. Научете повече за "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Можете да дадете на всеки потребител негово собствено място, наречено „Моите елементи“, където всеки да съхранява свои лични данни за вписване."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Подканяне на потребителите да прехвърлят данните от трезорите си към организацията"
+  },
+  "enablePolicy": {
+    "message": "Включване на политиката"
+  },
   "organizationDataOwnership": {
     "message": "Задължителна собственост на организационните данни"
   },
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Настройка по подразбиране за авт. попълване за работен плот"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Настройка по подразбиране за авт. попълване за работен плот"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Включете автоматичното попълване за работен плот по подразбиране за всички членове. Всеки от тях ще може поотделно да изключи автоматичното попълване ръчно от настолното приложение.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Включване на авт. попълване за работен плот за членовете. Те ще могат да го изключат ръчно в настолното приложение."
   },
   "disableSend": {
     "message": "Без изпращане"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "Да не се разрешава на членовете да изнасят данните от собствените си трезори."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "Изнасянето на трезора е изключено"
@@ -9057,7 +9190,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimProvisioningBannerInfo": {
-    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "message": "Избирането на тази настройка ще означава, че атоматично ще се изпратят покани до всички назначени потребители и групи във Вашия доставчик на самоличност (IdP).",
     "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "Редактирани колекции"
   },
+  "editedCollection": {
+    "message": "Редактирана колекция"
+  },
   "baseUrl": {
     "message": "Адрес на сървъра"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
+  },
+  "itemAssignedToCollections": {
+    "message": "Елементът е добавен към колекции"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Елементите са добавени към колекции"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Избрали сте $TOTAL_COUNT$ елемента Не можете да промените $READONLY_COUNT$ от елементите, тъй като нямате право за редактиране.",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Премахване на безплатното спонсориране на Битуорден за семейства"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Премахване на спонсорирания Семеен план"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Да не се разрешава на членовете да се възползват от Семейния план чрез тази организация."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Да не се разрешава на членовете да се възползват от Семейния план чрез спонсориране от тази организация."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Плащането чрез банкова сметка е налично само за клиенти от САЩ. Ще трябва да потвърдите банковата си сметка. В следващите 1-2 работни дни ще направим малък депозит. Въведете кода от описанието на трансакцията в страницата за плащанията на организацията, за да потвърдите банковата сметка. Ако не потвърдите банковата сметка, може да пропуснете плащането и абонаментът Ви да бъде спрян."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Забраняване на членовете да отключват акаунтите си с ПИН."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "За Вашата организация не се съхраняват журнали за събитията. Надградете до Екипния план или този за големи организации, за да получите пълен достъп до журналите на организацията."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Предотвратяване на създаването на потребителски акаунти извън Вашата организация чрез адреси на е-поща от присвоени домейни."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Да не се позволява на членовете да използват Вашия присвоен домейн, за да създават акаунти за Битуорден извън Вашата организация."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Трябва да има присвоен домейн преди активирането на тази политика."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Преди да включите тази политика, трябва да присвоите домейн."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Научете повече за присвоените домейни"
   },
   "vaultTimeoutTooLarge": {
     "message": "Времето за достъп до трезора Ви превишава ограничението, определено от организацията Ви."
@@ -14347,7 +14507,17 @@
     "message": "Периодично опреснявайте докладите и забележките, за да хващате своевременно новите рискове и да виждате най-новите статистически данни, докато организацията Ви се разраства."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ от $TOTAL$"
+    "message": "$CURRENT$ от $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Стъпка $CURRENT$ от $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Известие",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Натиснат е бутонът на изображението за трезора"
+  },
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Копиране"
+  },
+  "paymentSuccessful": {
+    "message": "Плащането е успешно"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Надграждането се обработва. Може да отнеме няколко минути, преди да почнете да виждате платените функционалности в Битуорден."
+  },
+  "planPurchased": {
+    "message": "Планът е закупен"
+  },
+  "renewalDate": {
+    "message": "Дата на подновяване"
+  },
+  "upgradeStatus": {
+    "message": "Състояние на надграждането"
+  },
+  "processing": {
+    "message": "Обработване"
+  },
+  "managePlanInWebApp": {
+    "message": "Управление на плана в приложението по уеб"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
