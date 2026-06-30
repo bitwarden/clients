@@ -2553,6 +2553,9 @@
     "message": "Minimum special",
     "description": "Minimum special characters"
   },
+  "minSpecialCharacters": {
+    "message": "Minimum special characters"
+  },
   "ambiguous": {
     "message": "Avoid ambiguous characters",
     "description": "deprecated. Use avoidAmbiguous instead."
@@ -6429,6 +6432,15 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Set requirements for password generator."
+  },
+  "passwordGeneratorPolicyDescV2": {
+    "message": "Select a set of minimum requirements for any member-generated passwords."
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  },
+  "generatedPassphrase": {
+    "message": "Generated passphrase"
   },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"

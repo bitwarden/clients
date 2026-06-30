@@ -6,6 +6,9 @@ import { FormBuilder, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
@@ -20,6 +23,10 @@ export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 10;
   component = PasswordGeneratorPolicyComponent;
+
+  display$(_organization: Organization, configService: ConfigService) {
+    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v: boolean) => !v));
+  }
 }
 
 @Component({
