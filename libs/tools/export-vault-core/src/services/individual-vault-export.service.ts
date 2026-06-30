@@ -108,6 +108,7 @@ export class IndividualVaultExportService
 
     // attachments
     let skippedAttachmentCount = 0;
+    const cipherNameMap = new Map<string, number>();
 
     for (const cipher of await this.cipherService.getAllDecrypted(activeUserId)) {
       if (
@@ -119,7 +120,17 @@ export class IndividualVaultExportService
         continue;
       }
 
-      const cipherFolder = attachmentsFolder.folder(cipher.id);
+      let cipherFolderName = cipher.name;
+      const cipherNameCount = cipherNameMap.get(cipher.name);
+      if (cipherNameCount === undefined) {
+        cipherNameMap.set(cipher.name, 1);
+      } else {
+        cipherNameMap.set(cipher.name, cipherNameCount + 1);
+        cipherFolderName = `(${cipherNameCount}) ${cipherFolderName}`;
+      }
+      const cipherFolder = attachmentsFolder.folder(cipherFolderName);
+
+      const attachmentNameMap = new Map<string, number>();
       for (const attachment of cipher.attachments) {
         try {
           const response = await this.downloadAttachment(cipher.id, attachment.id);
@@ -131,7 +142,16 @@ export class IndividualVaultExportService
             activeUserId,
           );
 
-          cipherFolder.file(attachment.fileName, decBuf);
+          let attachmentFileName = attachment.fileName;
+          const filenameCount = attachmentNameMap.get(attachmentFileName);
+          if (filenameCount === undefined) {
+            attachmentNameMap.set(attachmentFileName, 1);
+          } else {
+            attachmentNameMap.set(attachmentFileName, filenameCount + 1);
+            attachmentFileName = `(${filenameCount}) ${attachmentFileName}`;
+          }
+
+          cipherFolder.file(attachmentFileName, decBuf);
         } catch (error) {
           this.logService.error(`Failed to export attachment: Cipher Id: ${cipher.id}`, error);
           skippedAttachmentCount++;
