@@ -36,14 +36,13 @@ class OtherRouteComponent {}
 
 describe("DialogService", () => {
   let service: DialogService;
-  let drawerService: MockProxy<DrawerService>;
+  let drawerService: DrawerService;
   let cdkDialog: MockProxy<CdkDialog>;
   let routerHarness: RouterTestingHarness;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
   let logService: MockProxy<LogService>;
 
   beforeEach(async () => {
-    drawerService = mock<DrawerService>();
     cdkDialog = mock<CdkDialog>();
     authStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     logService = mock<LogService>();
@@ -51,7 +50,6 @@ describe("DialogService", () => {
     TestBed.configureTestingModule({
       providers: [
         DialogService,
-        { provide: DrawerService, useValue: drawerService },
         { provide: CdkDialog, useValue: cdkDialog },
         {
           provide: AuthService,
@@ -73,47 +71,64 @@ describe("DialogService", () => {
     await routerHarness.navigateByUrl("/");
 
     service = TestBed.inject(DialogService);
+    drawerService = TestBed.inject(DrawerService);
+    jest.spyOn(drawerService, "forceCloseAll");
   });
 
   describe("close drawer on navigation", () => {
     it("closes the drawer when navigating to a different route with closeOnNavigation enabled", async () => {
       await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
+      // Reset the spy after openDrawer's upfront cleanup so we only measure the navigation effect.
+      jest.mocked(drawerService.forceCloseAll).mockClear();
+
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).toHaveBeenCalled();
+      expect(drawerService.forceCloseAll).toHaveBeenCalled();
     });
 
     it("does not close the drawer when navigating if closeOnNavigation is disabled", async () => {
       await service.openDrawer(TestDrawerComponent, { closeOnNavigation: false });
 
+      // Reset the spy after openDrawer's upfront cleanup so we only measure the navigation effect.
+      jest.mocked(drawerService.forceCloseAll).mockClear();
+
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.forceCloseAll).not.toHaveBeenCalled();
     });
 
     it("does not close the drawer when only query params change", async () => {
       await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
+      // Reset the spy after openDrawer's upfront cleanup so we only measure the navigation effect.
+      jest.mocked(drawerService.forceCloseAll).mockClear();
+
       await routerHarness.navigateByUrl("/?foo=bar");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.forceCloseAll).not.toHaveBeenCalled();
     });
 
     it("closes the drawer when the path changes but query params remain", async () => {
       await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
+      // Reset the spy after openDrawer's upfront cleanup so we only measure the navigation effect.
+      jest.mocked(drawerService.forceCloseAll).mockClear();
+
       await routerHarness.navigateByUrl("/other-route?foo=bar");
 
-      expect(drawerService.close).toHaveBeenCalled();
+      expect(drawerService.forceCloseAll).toHaveBeenCalled();
     });
 
     it("does not close the drawer by default when closeOnNavigation is not specified", async () => {
       await service.openDrawer(TestDrawerComponent);
 
+      // Reset the spy after openDrawer's upfront cleanup so we only measure the navigation effect.
+      jest.mocked(drawerService.forceCloseAll).mockClear();
+
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.forceCloseAll).not.toHaveBeenCalled();
     });
   });
 });
