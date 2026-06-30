@@ -5,8 +5,8 @@ use std::{
 };
 
 use autofill_provider::{
-    CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position, TimedCallback,
-    UserVerification, WindowDetails,
+    CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
+    TimedCallback, UserVerification, WindowDetails,
 };
 use serde_json;
 use win_webauthn::{
@@ -121,12 +121,9 @@ fn send_registration_request(
     request: PasskeyRegistrationRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<PasskeyRegistrationResponse, String> {
-    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, User name: {}, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
-        request.rp_id, request.user_handle.len(), request.user_name, request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
+    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
+        request.rp_id, request.user_handle.len(), request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
 
-    let request_json = serde_json::to_string(&request)
-        .map_err(|err| format!("Failed to serialize registration request: {err}"))?;
-    tracing::debug!("Sending registration request: {}", request_json);
     let callback = Arc::new(TimedCallback::new());
     ipc_client.prepare_passkey_registration(request, callback.clone());
     // Corresponds to maximum recommended timeout for WebAuthn.

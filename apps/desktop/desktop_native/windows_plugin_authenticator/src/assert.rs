@@ -102,7 +102,9 @@ fn send_assertion_request(
 
     let callback = Arc::new(TimedCallback::new());
     if request.allowed_credentials.len() == 1 {
-        // copying this into another struct because I'm too lazy to make an enum right now.
+        // Copy details into without user interface. On Windows, we don't
+        // require any extra fields, but we use a separate method/type to signal
+        // to the desktop app to try resolving this without the UI.
         let request = PasskeyAssertionWithoutUserInterfaceRequest {
             rp_id: request.rp_id,
             credential_id: request.allowed_credentials[0].clone(),
@@ -232,9 +234,7 @@ mod tests {
         assert_eq!(cbor[0], 0x00);
         let map = CborParser::parse(&cbor[1..]).unwrap().into_map().unwrap();
         assert_eq!(map.len(), 4);
-        assert!(!map
-            .iter()
-            .any(|(k, _)| *k == CborValue::PositiveInteger(4)));
+        assert!(!map.iter().any(|(k, _)| *k == CborValue::PositiveInteger(4)));
     }
 
     #[test]

@@ -11,8 +11,6 @@ mod ipc;
 #[cfg(target_os = "windows")]
 mod make_credential;
 #[cfg(target_os = "windows")]
-mod types;
-#[cfg(target_os = "windows")]
 mod util;
 
 #[cfg(target_os = "windows")]
@@ -21,8 +19,6 @@ use std::{mem::MaybeUninit, path::PathBuf};
 #[cfg(target_os = "windows")]
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 // Re-export main functionality
-#[cfg(target_os = "windows")]
-pub use types::UserVerificationRequirement;
 #[cfg(target_os = "windows")]
 use win_webauthn::plugin::Clsid;
 #[cfg(target_os = "windows")]
