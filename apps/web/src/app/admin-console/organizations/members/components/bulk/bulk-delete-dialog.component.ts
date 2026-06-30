@@ -79,7 +79,7 @@ export class BulkDeleteDialogComponent {
 
       this.done.set(true);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : String(e));
+      this.error.set((e as any)?.message ?? String(e));
     } finally {
       this.loading.set(false);
     }

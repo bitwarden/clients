@@ -59,7 +59,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
       this.publicKeys.set(newPublicKeys);
       this.fingerprints.set(newFingerprints);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : String(e));
+      this.error.set((e as any)?.message ?? String(e));
     } finally {
       this.loading.set(false);
     }
@@ -99,7 +99,7 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
 
       this.done.set(true);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : String(e));
+      this.error.set((e as any)?.message ?? String(e));
     } finally {
       this.loading.set(false);
     }
