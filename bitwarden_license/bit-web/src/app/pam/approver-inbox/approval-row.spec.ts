@@ -7,7 +7,6 @@ import { durationLabel, reasonText, relativeStart, toApprovalRow } from "./appro
 function request(
   overrides: Partial<{
     reason: string | null;
-    requestedTtlSeconds: number;
     requestedNotBefore: string | null;
     requestedNotAfter: string | null;
     requesterName: string | null;
@@ -21,7 +20,6 @@ function request(
     CollectionId: "col-1",
     RequesterUserId: "user-2",
     Status: "pending",
-    RequestedTtlSeconds: overrides.requestedTtlSeconds ?? 3600,
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
     RequestedNotAfter: overrides.requestedNotAfter ?? null,
     Reason: overrides.reason ?? null,
@@ -47,33 +45,53 @@ const noNames: ResolvedNames = {
 };
 
 describe("durationLabel", () => {
+  /** A request whose window spans `seconds`, so the derived duration label can be asserted. */
+  const window = (seconds: number) =>
+    request({
+      requestedNotBefore: "2026-06-10T10:00:00Z",
+      requestedNotAfter: new Date(
+        Date.parse("2026-06-10T10:00:00Z") + seconds * 1000,
+      ).toISOString(),
+    });
+
   it("renders sub-hour durations in minutes (min 1)", () => {
-    expect(durationLabel(request({ requestedTtlSeconds: 1800 }))).toEqual({
+    expect(durationLabel(window(1800))).toEqual({
       key: "pamInboxDurationMinutes",
       value: 30,
     });
-    expect(durationLabel(request({ requestedTtlSeconds: 10 }))).toEqual({
+    expect(durationLabel(window(10))).toEqual({
       key: "pamInboxDurationMinutes",
       value: 1,
     });
   });
 
   it("renders exactly one hour with the singular key", () => {
-    expect(durationLabel(request({ requestedTtlSeconds: 3600 }))).toEqual({
+    expect(durationLabel(window(3600))).toEqual({
       key: "pamInboxDuration1Hour",
       value: null,
     });
   });
 
   it("renders multi-hour durations, rounding fractional hours to one decimal", () => {
-    expect(durationLabel(request({ requestedTtlSeconds: 4 * 3600 }))).toEqual({
+    expect(durationLabel(window(4 * 3600))).toEqual({
       key: "pamInboxDurationHours",
       value: 4,
     });
-    expect(durationLabel(request({ requestedTtlSeconds: 5400 }))).toEqual({
+    expect(durationLabel(window(5400))).toEqual({
       key: "pamInboxDurationHours",
       value: 1.5,
     });
+  });
+
+  it("returns null when the requested window is open-ended", () => {
+    expect(
+      durationLabel(request({ requestedNotBefore: null, requestedNotAfter: null })),
+    ).toBeNull();
+    expect(
+      durationLabel(
+        request({ requestedNotBefore: null, requestedNotAfter: "2026-06-10T11:00:00Z" }),
+      ),
+    ).toBeNull();
   });
 });
 
@@ -141,7 +159,6 @@ describe("toApprovalRow", () => {
       CollectionId: "col-1",
       RequesterUserId: "user-2",
       Status: "pending",
-      RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
       RequesterEmail: "x@example.com",
     });

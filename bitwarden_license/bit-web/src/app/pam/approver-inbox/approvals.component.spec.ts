@@ -28,7 +28,6 @@ function request(
     CollectionId: "col-1",
     RequesterId: overrides.requesterId ?? "user-other",
     Status: "pending",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: overrides.submittedAt ?? "2026-06-10T10:00:00Z",
     Reason: "Need access",
     RequesterName: overrides.requesterName ?? "Bob",

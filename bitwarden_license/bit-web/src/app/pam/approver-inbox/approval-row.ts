@@ -1,4 +1,8 @@
-import { AccessRequestDetailsResponse, elapsedKey } from "@bitwarden/bit-pam";
+import {
+  AccessRequestDetailsResponse,
+  elapsedKey,
+  requestedWindowSeconds,
+} from "@bitwarden/bit-pam";
 
 import { ResolvedNames } from "../access-request-name-resolver.service";
 
@@ -25,7 +29,7 @@ export type ApprovalRow = {
   // Pre-computed display values.
   reason: string | null;
   elapsed: { key: string; value: number };
-  duration: LabelValue;
+  duration: LabelValue | null;
   relativeStart: LabelValue;
   exactWindow: string;
   /** Lowercased haystack for the free-text search predicate. */
@@ -37,9 +41,16 @@ export function reasonText(request: AccessRequestDetailsResponse): string | null
   return request.reason?.trim() || null;
 }
 
-/** A coarse i18n label for the requested lease duration ("1 hour", "4 hours", "30 minutes"). */
-export function durationLabel(request: AccessRequestDetailsResponse): LabelValue {
-  const seconds = request.requestedTtlSeconds;
+/**
+ * A coarse i18n label for the requested lease duration ("1 hour", "4 hours", "30 minutes"), derived
+ * from the requested window. Null when the window is open-ended (a bound is missing), so its length
+ * cannot be determined.
+ */
+export function durationLabel(request: AccessRequestDetailsResponse): LabelValue | null {
+  const seconds = requestedWindowSeconds(request);
+  if (seconds == null) {
+    return null;
+  }
   if (seconds < 3600) {
     return { key: "pamInboxDurationMinutes", value: Math.max(1, Math.round(seconds / 60)) };
   }

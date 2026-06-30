@@ -22,7 +22,6 @@ function row(
     submittedAt: string;
     requestedNotBefore: string | null;
     requestedNotAfter: string | null;
-    requestedTtlSeconds: number;
   }> = {},
 ): AccessRequestDetailsResponse {
   return new AccessRequestDetailsResponse({
@@ -33,7 +32,6 @@ function row(
     Status: "pending",
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
     RequestedNotAfter: overrides.requestedNotAfter ?? null,
-    RequestedTtlSeconds: overrides.requestedTtlSeconds ?? 3600,
     Reason: overrides.reason ?? "Investigating a production incident",
     SubmittedAt: overrides.submittedAt ?? new Date(Date.now() - 7 * 60_000).toISOString(),
     RequesterName: overrides.requesterName ?? "Bob Engineer",
@@ -93,7 +91,6 @@ export const Populated: Story = {
         id: "b",
         collectionId: "col-staging",
         reason: null,
-        requestedTtlSeconds: 7200,
         requestedNotBefore: new Date(Date.now() + 60 * 60_000).toISOString(),
         requestedNotAfter: new Date(Date.now() + 3 * 60 * 60_000).toISOString(),
       }),

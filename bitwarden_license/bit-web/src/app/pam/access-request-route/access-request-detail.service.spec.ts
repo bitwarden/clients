@@ -43,7 +43,6 @@ function buildResponse(opts: {
     CollectionId: "col-1",
     RequesterId: opts.requesterId ?? "other",
     Status: opts.status ?? "pending",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-05-01T00:00:00Z",
     ProducedLeaseId: opts.producedLeaseId ?? null,
     ProducedLeaseStatus: opts.producedLeaseStatus ?? null,

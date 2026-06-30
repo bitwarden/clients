@@ -697,7 +697,6 @@ describe("DefaultPamApiService", () => {
             CollectionId: "col-1",
             RequesterUserId: "user-1",
             Status: "pending",
-            RequestedTtlSeconds: 3600,
             SubmittedAt: "2026-06-04T12:00:00Z",
           },
         ],

@@ -94,10 +94,16 @@
         <!-- Requested window -->
         <td bitCell>
           <span [bitTooltip]="row.exactWindow">
-            <span>{{ row.duration.key | i18n: row.duration.value }}</span>
-            <span class="tw-text-muted">
-              &nbsp;·&nbsp;{{ row.relativeStart.key | i18n: row.relativeStart.value }}</span
-            >
+            @if (row.duration; as duration) {
+              <span>{{ duration.key | i18n: duration.value }}</span>
+              <span class="tw-text-muted">
+                &nbsp;·&nbsp;{{ row.relativeStart.key | i18n: row.relativeStart.value }}</span
+              >
+            } @else {
+              <span class="tw-text-muted">{{
+                row.relativeStart.key | i18n: row.relativeStart.value
+              }}</span>
+            }
           </span>
         </td>
         <!-- Reason -->

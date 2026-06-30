@@ -35,8 +35,10 @@
 
         <dt class="tw-font-normal tw-text-muted">{{ "window" | i18n }}</dt>
         <dd class="tw-m-0 tw-text-main">
-          {{ duration.key | i18n: duration.value }}
-          <span class="tw-text-muted">·</span>
+          @if (duration; as d) {
+            {{ d.key | i18n: d.value }}
+            <span class="tw-text-muted">·</span>
+          }
           {{ start.key | i18n: start.value }}
         </dd>
 

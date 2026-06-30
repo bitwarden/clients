@@ -18,7 +18,6 @@ function activatedLease(id: string): AccessRequestDetailsResponse {
     Status: "activated",
     RequestedNotBefore: "2000-01-01T00:00:00Z",
     RequestedNotAfter: "2999-01-01T00:00:00Z",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-06-10T10:00:00Z",
     ResolvedAt: "2026-06-10T10:30:00Z",
     ProducedLeaseId: "lease-" + id,

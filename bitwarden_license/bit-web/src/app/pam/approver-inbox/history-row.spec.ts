@@ -42,7 +42,6 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       Status: overrides.status ?? "approved",
       RequestedNotBefore: overrides.requestedNotBefore ?? earlier,
       RequestedNotAfter: overrides.requestedNotAfter ?? later,
-      RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
       ProducedLeaseId: producedLeaseId,
       // A minted lease defaults to "active"; tests that exercise an ended lease override this.
@@ -208,7 +207,6 @@ describe("flattenHistory", () => {
       Status: "activated",
       RequestedNotBefore: "2026-06-10T11:00:00Z",
       RequestedNotAfter: "2026-06-10T13:00:00Z",
-      RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
       ResolvedAt: "2026-06-10T10:30:00Z",
       ProducedLeaseId: "lease-" + id,
@@ -230,7 +228,6 @@ describe("flattenHistory", () => {
       Status: "activated",
       RequestedNotBefore: "2026-06-10T09:00:00Z",
       RequestedNotAfter: "2026-06-10T10:00:00Z",
-      RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T08:00:00Z",
       ProducedLeaseId: "lease-a",
       ProducedLeaseStatus: "active",
@@ -261,7 +258,6 @@ describe("flattenHistory", () => {
       Status: "denied",
       RequestedNotBefore: "2026-06-10T11:00:00Z",
       RequestedNotAfter: "2026-06-10T13:00:00Z",
-      RequestedTtlSeconds: 3600,
       SubmittedAt: "2026-06-10T10:00:00Z",
       ResolvedAt: "2026-06-10T10:30:00Z",
       Decisions: [

@@ -25,7 +25,6 @@ function pendingResponse(requesterId = "other"): AccessRequestDetailsResponse {
     CollectionId: "col-1",
     RequesterId: requesterId,
     Status: "pending",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-05-01T00:00:00Z",
   });
 }

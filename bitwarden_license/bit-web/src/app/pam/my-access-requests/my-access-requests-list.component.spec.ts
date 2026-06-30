@@ -50,7 +50,6 @@ type ResponseFixture = {
   approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
-  requestedTtlSeconds?: number;
   producedLeaseId?: string | null;
   producedLeaseStatus?: AccessLeaseStatus | null;
   extensionOfLeaseId?: string | null;
@@ -65,7 +64,6 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
     Status: fixture.status,
     RequestedNotBefore: fixture.requestedNotBefore ?? null,
     RequestedNotAfter: fixture.requestedNotAfter ?? null,
-    RequestedTtlSeconds: fixture.requestedTtlSeconds ?? 3600,
     Reason: null,
     SubmittedAt: fixture.submittedAt ?? "2026-05-01T00:00:00Z",
     ResolvedAt: fixture.resolvedAt ?? null,
@@ -151,7 +149,6 @@ describe("MyAccessRequestsListComponent", () => {
     pamInboxInCollection: "in __$1__",
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
-    pamWindowTtlSeconds: "__$1__s",
     pamStartLeaseButton: "Start access",
     pamStartLeaseSuccess: "Access started",
     pamStartLeaseError: "Start error",
@@ -334,7 +331,8 @@ describe("MyAccessRequestsListComponent", () => {
         status: "approved",
         resolvedAt: new Date().toISOString(),
         extensionOfLeaseId: "lease-1",
-        requestedTtlSeconds: 7200,
+        // Window spans the +2h bump it added.
+        requestedNotBefore: "2026-06-20T13:00:00Z",
         requestedNotAfter: "2026-06-20T15:00:00Z",
       }),
     ]);
@@ -382,7 +380,8 @@ describe("MyAccessRequestsListComponent", () => {
           status: "approved",
           resolvedAt: new Date().toISOString(),
           extensionOfLeaseId: "lease-1",
-          requestedTtlSeconds: 1800,
+          // Window spans the +30m bump it added.
+          requestedNotBefore: "2026-06-20T14:30:00Z",
           requestedNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],

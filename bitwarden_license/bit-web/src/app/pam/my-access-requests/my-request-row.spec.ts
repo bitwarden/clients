@@ -27,7 +27,6 @@ function request(init: Record<string, unknown>): AccessRequestDetailsResponse {
     CollectionId: "col-1",
     RequesterId: "me",
     Status: "activated",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-06-18T10:00:00Z",
     Decisions: [],
     ...init,
@@ -245,7 +244,8 @@ describe("buildMyRequestRows", () => {
     Id: "ext-1",
     Status: "approved",
     ExtensionOfLeaseId: "lease-1",
-    RequestedTtlSeconds: 7200,
+    // Window spans the +2h bump it added (prior end → new end).
+    RequestedNotBefore: "2026-06-20T13:00:00Z",
     RequestedNotAfter: "2026-06-20T15:00:00Z",
   });
 
@@ -268,14 +268,16 @@ describe("buildMyRequestRows", () => {
           Id: "ext-1",
           Status: "approved", // server contract
           ExtensionOfLeaseId: "lease-1",
-          RequestedTtlSeconds: 3600,
+          // +1h bump: 12:00 → 13:00.
+          RequestedNotBefore: "2026-06-20T12:00:00Z",
           RequestedNotAfter: "2026-06-20T13:00:00Z",
         }),
         request({
           Id: "ext-2",
           Status: "activated", // mock/spec contract — also counts
           ExtensionOfLeaseId: "lease-1",
-          RequestedTtlSeconds: 7200,
+          // +2h bump: 13:00 → 15:00.
+          RequestedNotBefore: "2026-06-20T13:00:00Z",
           RequestedNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],
@@ -295,7 +297,7 @@ describe("buildMyRequestRows", () => {
           Id: "ext-pending",
           Status: "pending",
           ExtensionOfLeaseId: "lease-1",
-          RequestedTtlSeconds: 7200,
+          RequestedNotBefore: "2026-06-20T13:00:00Z",
           RequestedNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],

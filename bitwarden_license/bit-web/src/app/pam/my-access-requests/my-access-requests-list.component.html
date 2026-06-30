@@ -148,8 +148,6 @@
                 {{ row.requestedNotAfter | date: "short" }}
               } @else if (row.requestedNotAfter) {
                 {{ "pamWindowUntil" | i18n: (row.requestedNotAfter | date: "short") }}
-              } @else {
-                {{ "pamWindowTtlSeconds" | i18n: row.requestedTtlSeconds }}
               }
             </td>
             <td bitCell>{{ row.submittedAt | date: "short" }}</td>

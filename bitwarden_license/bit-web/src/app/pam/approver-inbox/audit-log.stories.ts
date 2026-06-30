@@ -36,7 +36,6 @@ function item(
     Status: overrides.status ?? "denied",
     RequestedNotBefore: overrides.requestedNotBefore ?? null,
     RequestedNotAfter: overrides.requestedNotAfter ?? new Date(now - 60 * 60_000).toISOString(),
-    RequestedTtlSeconds: 3600,
     Reason: "Quarterly access review",
     SubmittedAt: new Date(now - 5 * 60 * 60_000).toISOString(),
     ResolvedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),

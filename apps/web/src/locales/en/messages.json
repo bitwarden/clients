@@ -15614,15 +15614,6 @@
   "pamStatusRevoked": {
     "message": "Revoked"
   },
-  "pamWindowTtlSeconds": {
-    "message": "$SECONDS$s",
-    "placeholders": {
-      "seconds": {
-        "content": "$1",
-        "example": "3600"
-      }
-    }
-  },
   "pamWindowUntil": {
     "message": "Until $DATE$",
     "placeholders": {

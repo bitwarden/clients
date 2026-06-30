@@ -20,7 +20,6 @@ function request(
     CollectionId: "col-1",
     RequesterId: "user-2",
     Status: "pending",
-    RequestedTtlSeconds: 3600,
     RequestedNotBefore: null,
     RequestedNotAfter: null,
     SubmittedAt: "2026-06-10T10:00:00Z",
