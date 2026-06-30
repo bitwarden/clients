@@ -111,7 +111,7 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       notifications: "https://notifications.bitwarden.eu",
       events: "https://events.bitwarden.eu",
       scim: "https://scim.bitwarden.eu",
-      send: "https://send.bitwarden.eu",
+      send: "https://vault.bitwarden.eu",
     },
   },
 ];
@@ -425,9 +425,22 @@ abstract class UrlEnvironment implements Environment {
 
   getSendUrl() {
     if (this.urls.send != null) {
-      return this.urls.send + "/#/";
-    }
+      // Bitwarden production US cloud environment uses a web page on a vanity url
+      // to redirect to the correct full send path
+      if (this.urls.send === "https://send.bitwarden.com") {
+        return this.urls.send + "/#";
+      }
 
+      // If using a custom send url with full send path, don't modify anything and return it
+      if (this.urls.send.endsWith("/#/send/")) {
+        return this.urls.send;
+      }
+
+      // If using a custom send url with just the domain, complete the send url path
+      return this.urls.send + "/#/send/";
+    }
+    // This line is only reached by self-hosted environments (or lower Bitwarden environments)
+    // that don't use a custom domain
     return this.getWebVaultUrl() + "/#/send/";
   }
 

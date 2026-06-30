@@ -573,3 +573,112 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
 
     agent.stop();
 }
+
+// The three tests below exercise the is_initialized() gating logic end-to-end through a real
+// socket connection. BitwardenSSHAgent::new() wires up BitwardenAuthPolicy internally, so passing
+// a MockApprovalRequester is sufficient — no manual policy construction is needed.
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_request_initialized_keystore_skips_callback() {
+    setup();
+
+    // No expectation set for request_list_approval — mockall panics if it is called.
+    let mut requester = MockApprovalRequester::new();
+    requester
+        .expect_request_sign_approval()
+        .returning(|_| Ok(true));
+
+    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    // replace() marks the keystore as initialized; the callback must not fire.
+    agent.replace(vec![test_ed25519_key()]).unwrap();
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER");
+    assert_eq!(
+        u32::from_be_bytes(response[1..5].try_into().unwrap()),
+        1,
+        "key should be listed without triggering the list callback"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_request_uninitialized_keystore_calls_callback_once() {
+    setup();
+
+    let mut requester = MockApprovalRequester::new();
+    requester
+        .expect_request_sign_approval()
+        .returning(|_| Ok(true));
+    // .once() — mockall fails on drop if the callback is not called exactly once.
+    requester
+        .expect_request_list_approval()
+        .once()
+        .returning(|| Ok(true));
+
+    // No replace() called — keystore is uninitialized; the callback must fire exactly once.
+    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(
+        response[0], 12,
+        "expected IDENTITIES_ANSWER after approved callback"
+    );
+    assert_eq!(
+        u32::from_be_bytes(response[1..5].try_into().unwrap()),
+        0,
+        "no keys loaded during callback, so list must be empty"
+    );
+
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_request_uninitialized_keystore_denied_returns_failure() {
+    setup();
+
+    let mut requester = MockApprovalRequester::new();
+    requester
+        .expect_request_sign_approval()
+        .returning(|_| Ok(true));
+    requester
+        .expect_request_list_approval()
+        .once()
+        .returning(|| Ok(false));
+
+    // No replace() called — keystore is uninitialized; the denied callback must yield FAILURE.
+    let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);
+    agent.start().unwrap();
+
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+
+    assert_eq!(
+        response[0], 5,
+        "expected FAILURE when list callback is denied"
+    );
+
+    agent.stop();
+}
