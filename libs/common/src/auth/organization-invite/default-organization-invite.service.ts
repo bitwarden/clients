@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -29,16 +29,24 @@ import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
 import { DirectOrganizationInvite } from "./direct-organization-invite";
+import { OpenOrganizationInvite } from "./open-organization-invite";
 import { OrgInviteKind } from "./org-invite-kind";
 import { OrganizationInvite } from "./organization-invite";
-import { DIRECT_ORGANIZATION_INVITE } from "./organization-invite-state";
+import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite-state";
 import { OrganizationInviteService } from "./organization-invite.service";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
-  private organizationInviteState: GlobalState<DirectOrganizationInvite | null>;
+  private directInviteState: GlobalState<DirectOrganizationInvite | null>;
+  private openInviteState: GlobalState<OpenOrganizationInvite | null>;
+  /**
+   * Merged stream of the two variant-specific state keys. Mutual exclusion is enforced
+   * by {@link setOrganizationInvite} so at most one of the two is non-null; the merge
+   * prefers direct, then open.
+   */
+  readonly activeInvite$: Observable<OrganizationInvite | null>;
   // In-memory dedup of policy lookups across one invite ceremony. The same invite
   // can be checked from login, registration, and accept in a single session;
-  // keyed by invite token, cleared whenever the stored invite is set or cleared
+  // keyed by invite token, cleared whenever a stored invite is set or cleared
   // so a transition can't leak stale entries.
   private policyCache = new Map<string, Policy[]>();
 
@@ -55,24 +63,49 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
   ) {
-    this.organizationInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
+    this.directInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
+    this.openInviteState = this.globalStateProvider.get(OPEN_ORGANIZATION_INVITE);
+    this.activeInvite$ = combineLatest([
+      this.directInviteState.state$,
+      this.openInviteState.state$,
+    ]).pipe(map(([direct, open]) => direct ?? open));
   }
 
   async getOrganizationInvite(): Promise<OrganizationInvite | null> {
-    return await firstValueFrom(this.organizationInviteState.state$);
+    return await firstValueFrom(this.activeInvite$);
   }
 
+  /**
+   * Writes the invite to the state key matching its `kind` and clears the opposite key,
+   * enforcing the "at most one stashed invite" mutual-exclusion invariant.
+   */
   async setOrganizationInvite(invite: OrganizationInvite): Promise<void> {
-    // TODO(PM-39706): dispatch to the matching state key once OPEN_ORGANIZATION_INVITE lands.
-    if (invite.kind !== OrgInviteKind.Direct) {
-      throw new Error("Open organization invite persistence is not yet implemented.");
+    switch (invite.kind) {
+      case OrgInviteKind.Direct:
+        await this.directInviteState.update(() => invite);
+        await this.openInviteState.update(() => null);
+        break;
+      case OrgInviteKind.Open:
+        await this.openInviteState.update(() => invite);
+        await this.directInviteState.update(() => null);
+        break;
     }
-    await this.organizationInviteState.update(() => invite);
     this.policyCache.clear();
   }
 
+  /** Clears both invite keys defensively. Open-only callers should use {@link clearOpenInvite}. */
   async clearOrganizationInvite(): Promise<void> {
-    await this.organizationInviteState.update(() => null);
+    await this.directInviteState.update(() => null);
+    await this.openInviteState.update(() => null);
+    this.policyCache.clear();
+  }
+
+  /**
+   * Clears only the open-invite key. Used by callers that should not wipe a concurrent
+   * stashed direct invite (e.g. the open-invite landing-page error path).
+   */
+  async clearOpenInvite(): Promise<void> {
+    await this.openInviteState.update(() => null);
     this.policyCache.clear();
   }
 

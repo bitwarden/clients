@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UserId } from "@bitwarden/user-core";
 
 import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
@@ -12,20 +14,36 @@ import { OrganizationInvite } from "./organization-invite";
  */
 export abstract class OrganizationInviteService {
   /**
-   * Returns the currently stored organization invite
+   * Merged stream of the variant-specific state keys, prefering direct over open.
+   * At most one is non-null at a time per the mutual-exclusion invariant enforced by
+   * {@link setOrganizationInvite}.
+   */
+  abstract activeInvite$: Observable<OrganizationInvite | null>;
+
+  /**
+   * Returns the currently stored organization invite (direct or open).
    */
   abstract getOrganizationInvite(): Promise<OrganizationInvite | null>;
 
   /**
-   * Stores a new organization invite. Pass a non-null OrganizationInvite; callers that
-   * want to remove the stored invite should use {@link clearOrganizationInvite}.
+   * Stores a new organization invite. Writes to the state key matching `invite.kind`
+   * and clears the opposite key (mutual exclusion). Callers that want to remove the
+   * stored invite should use {@link clearOrganizationInvite} or {@link clearOpenInvite}.
    */
   abstract setOrganizationInvite(invite: OrganizationInvite): Promise<void>;
 
   /**
-   * Clears the currently stored organization invite
+   * Clears both variant-specific state keys defensively. Use this for general "I'm done
+   * with any pending invite" cleanup. For open-only cleanup that must not affect a
+   * concurrent direct invite, use {@link clearOpenInvite}.
    */
   abstract clearOrganizationInvite(): Promise<void>;
+
+  /**
+   * Clears only the open-invite state key. Used by the open-invite landing-page error
+   * path so a malformed open-invite URL cannot wipe a concurrent stashed direct invite.
+   */
+  abstract clearOpenInvite(): Promise<void>;
 
   /**
    * Accepts the invite for the active user, or stashes it and logs out if the user must
