@@ -22,7 +22,6 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -42,7 +41,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
   let policyService: MockProxy<PolicyService>;
   let authService: MockProxy<AuthService>;
   let accountService: MockProxy<AccountService>;
-  let configService: MockProxy<ConfigService>;
 
   const mockUserId = newGuid() as UserId;
   const mockConfirmingUserId = newGuid() as UserId;
@@ -59,7 +57,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     policyService = mock<PolicyService>();
     authService = mock<AuthService>();
     accountService = mock<AccountService>();
-    configService = mock<ConfigService>();
 
     // Provide stable defaults for the auth unlock subscription in the constructor
     accountService.accounts$ = of({});
@@ -78,7 +75,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: AuthService, useValue: authService },
         { provide: AccountService, useValue: accountService },
-        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -91,7 +87,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       policyService,
       authService,
       accountService,
-      configService,
     );
 
     const mockOrgData = new OrganizationData({} as ProfileOrganizationResponse, {
@@ -514,8 +509,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       mockPublicKeyArray = new Uint8Array(new ArrayBuffer(4));
       jest.spyOn(Utils, "fromB64ToArray").mockReturnValue(mockPublicKeyArray);
 
-      configService.getFeatureFlag.mockResolvedValue(true);
-
       const organizations$ = new BehaviorSubject<Organization[]>([mockOrganization]);
       organizationService.organizations$.mockReturnValue(organizations$);
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
@@ -543,14 +536,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         mockUserId,
       );
     };
-
-    it("should return early when feature flag is disabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      await service.bulkAutoConfirmPendingUsers(mockUserId);
-
-      expect(organizationUserApiService.getPendingAutoConfirmUsers).not.toHaveBeenCalled();
-    });
 
     it("should return early when canManageAutoConfirm returns false", async () => {
       policyService.policyAppliesToUser$.mockReturnValue(of(false));
@@ -665,30 +650,11 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         policyService,
         authService,
         accountService,
-        configService,
       );
 
     beforeEach(() => {
       accountsSubject = new BehaviorSubject({} as Record<UserId, AccountInfo>);
       accountService.accounts$ = accountsSubject;
-      configService.getFeatureFlag.mockResolvedValue(true);
-    });
-
-    it("should not set up subscription when feature flag is disabled", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
-      authService.authStatusFor$.mockReturnValue(authStatusSubject);
-
-      const svc = createSweepService();
-      const spy = jest
-        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
-        .mockResolvedValue(undefined);
-
-      await Promise.resolve(); // flush feature flag check
-
-      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
-
-      expect(spy).not.toHaveBeenCalled();
     });
 
     it("should trigger sweep when a user account appears already in the Unlocked state (fresh login)", async () => {
@@ -699,8 +665,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const spy = jest
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
-
-      await Promise.resolve(); // flush feature flag check so subscription is active
 
       // Account becomes visible in accounts$ for the first time while already Unlocked
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
@@ -716,8 +680,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const spy = jest
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
-
-      await Promise.resolve(); // flush feature flag check so subscription is active
 
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
       expect(spy).not.toHaveBeenCalled();
@@ -736,8 +698,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
 
-      await Promise.resolve(); // flush feature flag check so subscription is active
-
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
 
       expect(spy).not.toHaveBeenCalled();
@@ -751,8 +711,6 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const spy = jest
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
-
-      await Promise.resolve(); // flush feature flag check so subscription is active
 
       // First emission: userId is new, subscription is set up, sweep fires once
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });

@@ -25,8 +25,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { StateProvider } from "@bitwarden/state";
@@ -45,19 +43,11 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     private policyService: PolicyService,
     private authService: AuthService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {
-    void this.initBulkAutoConfirmOnLoginSweep();
+    this.initBulkAutoConfirmOnLoginSweep();
   }
 
-  private async initBulkAutoConfirmOnLoginSweep(): Promise<void> {
-    const featureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.BulkAutoConfirmOnLogin,
-    );
-    if (!featureEnabled) {
-      return;
-    }
-
+  private initBulkAutoConfirmOnLoginSweep(): void {
     const seenUserIds = new Set<string>();
 
     this.accountService.accounts$
@@ -78,7 +68,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       )
       .subscribe((userId) => {
         this.bulkAutoConfirmPendingUsers(userId).catch(() => {
-          // intentionally swallowed — errors are transient (network, feature flag, etc.)
+          // intentionally swallowed — errors are transient (network, etc.)
         });
       });
   }
@@ -168,13 +158,6 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
   }
 
   async bulkAutoConfirmPendingUsers(userId: UserId): Promise<void> {
-    const featureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.BulkAutoConfirmOnLogin,
-    );
-    if (!featureEnabled) {
-      return;
-    }
-
     const org = await this.resolveAutoConfirmOrg(userId);
     if (!org) {
       return;

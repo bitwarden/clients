@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
@@ -133,7 +132,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
