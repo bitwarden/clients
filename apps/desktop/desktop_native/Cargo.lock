@@ -1009,6 +1009,7 @@ name = "desktop_core"
 version = "0.0.0"
 dependencies = [
  "aes",
+ "aes-gcm",
  "anyhow",
  "arboard",
  "ashpd 0.13.11",
