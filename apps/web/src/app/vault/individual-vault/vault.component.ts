@@ -115,6 +115,7 @@ import {
   VaultBatchActionComponent,
   ASSIGN_COLLECTIONS_DIALOG,
   BULK_DELETE_DIALOG,
+  VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -157,6 +158,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   selector: "app-vault",
   templateUrl: "vault.component.html",
   imports: [
+    VaultOrganizationUserNotificationsComponent,
     VaultHeaderComponent,
     VaultOnboardingComponent,
     VaultBannersComponent,
@@ -214,6 +216,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   protected readonly vaultBatchBarFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
   );
 
@@ -1124,11 +1131,32 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async addCollection(): Promise<void> {
+    const eligibleOrganizations = this.allOrganizations
+      .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
+      .sort(Utils.getSortFunction(this.i18nService, "name"));
+
+    // Default to the organization from the active vault filter when one is selected and eligible,
+    // mirroring the behavior used when creating a new item.
+    let filterOrganizationId =
+      this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+        ? this.activeFilter.organizationId
+        : null;
+    // When filtering by a collection, derive the org from that collection.
+    if (!filterOrganizationId && this.activeFilter.collectionId != null) {
+      const orgIdFromCollection = this.allCollections.find(
+        (c) => c.id === this.activeFilter.collectionId,
+      )?.organizationId;
+      if (orgIdFromCollection) {
+        filterOrganizationId = orgIdFromCollection;
+      }
+    }
+    const defaultOrganizationId =
+      eligibleOrganizations.find((o) => o.id === filterOrganizationId)?.id ??
+      eligibleOrganizations[0].id;
+
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
-        organizationId: this.allOrganizations
-          .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
-          .sort(Utils.getSortFunction(this.i18nService, "name"))[0].id,
+        organizationId: defaultOrganizationId,
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
         limitNestedCollections: true,
@@ -1213,6 +1241,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       await this.apiService.deleteCollection(collection.organizationId, collection.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       await this.collectionService.delete([collection.id as CollectionId], activeUserId);
+      // Deleting collections will alter the underlying ciphers, perform a full sync
+      // to ensure the vault has the most up to date cipher data.
+      await this.syncService.fullSync(true);
 
       this.toastService.showToast({
         variant: "success",

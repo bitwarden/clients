@@ -5,7 +5,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
-import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
@@ -48,7 +51,12 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
-import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
+import {
+  AutofillerCommand,
+  AutofillLifecycleCommand,
+  AutofillMessageCommand,
+  AutofillMessageSender,
+} from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
@@ -111,10 +119,12 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -178,7 +188,6 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
-      configService,
       userNotificationsSettings,
       messageListener,
       animationControlService,
@@ -530,6 +539,226 @@ describe("AutofillService", () => {
         frameId: 0,
         ...defaultExecuteScriptOptions,
       });
+    });
+
+    describe("post-injection start follow-up", () => {
+      let tabSendMessageSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+      });
+
+      afterEach(() => {
+        tabSendMessageSpy.mockRestore();
+      });
+
+      it("sends startAutofillMonitors after injection when the user is unlocked", async () => {
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: AutofillLifecycleCommand.start },
+          { frameId: sender.frameId },
+        );
+      });
+
+      it("sends startAutofillMonitors after injection when the user is locked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: AutofillLifecycleCommand.start },
+          { frameId: sender.frameId },
+        );
+      });
+
+      it("does not send startAutofillMonitors after injection when the user is logged out", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          { command: AutofillLifecycleCommand.start },
+          expect.anything(),
+        );
+      });
+
+      it("does not send startAutofillMonitors when the user logs out during injection", async () => {
+        // The injection awaits yield the event loop; simulate a logout
+        // completing in that window. The start gate must reflect the auth
+        // status at send time, not the snapshot taken before injection.
+        const injectSpy = jest
+          .spyOn(scriptInjectorService, "inject")
+          .mockImplementation(async () => {
+            activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+          });
+
+        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+        // Guard the race itself: the logout must have landed mid-injection,
+        // otherwise this degrades into the already-logged-out case above.
+        expect(injectSpy).toHaveBeenCalled();
+        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          { command: AutofillLifecycleCommand.start },
+          expect.anything(),
+        );
+      });
+    });
+  });
+
+  describe("handleAuthStatusTransition", () => {
+    let port: chrome.runtime.Port;
+    let tabSendMessageSpy: jest.SpyInstance;
+
+    beforeEach(async () => {
+      port = mock<chrome.runtime.Port>();
+      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
+      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+
+      // Stub per-tab injection — its own post-injection start message would
+      // pollute the spy before any auth transition under test fires.
+      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      // The first emission of the auth subscription pairs [undefined, Unlocked]
+      // and does not broadcast. Clear any setup-side calls before the test.
+      tabSendMessageSpy.mockClear();
+    });
+
+    afterEach(() => {
+      tabSendMessageSpy.mockRestore();
+    });
+
+    it("broadcasts startAutofillMonitors when leaving LoggedOut for Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.start },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts startAutofillMonitors when leaving LoggedOut for Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.start },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.stop },
+        { frameId: 0 },
+      );
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillerCommand.disable },
+        { frameId: 0 },
+      );
+    });
+
+    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
+
+      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillLifecycleCommand.stop },
+        { frameId: 0 },
+      );
+      expect(tabSendMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        { command: AutofillerCommand.disable },
+        { frameId: 0 },
+      );
+    });
+
+    it("does not broadcast on Unlocked → Locked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast on Locked → Unlocked", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      tabSendMessageSpy.mockClear();
+
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast when the status repeats", () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("auth subscription seed", () => {
+    // These cases require a different seed for the activeAccountStatus subject
+    // than the outer beforeEach sets up, so they reseed before the
+    // loadAutofillScriptsOnInstall subscription runs.
+    let port: chrome.runtime.Port;
+    let tabSendMessageSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      port = mock<chrome.runtime.Port>();
+      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
+      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
+    });
+
+    afterEach(() => {
+      tabSendMessageSpy.mockRestore();
+    });
+
+    it("does not broadcast when the service worker boots into LoggedOut", async () => {
+      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.LoggedOut);
+      authService.activeAccountStatus$ = activeAccountStatusMock$;
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not broadcast when the service worker boots into Locked", async () => {
+      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Locked);
+      authService.activeAccountStatus$ = activeAccountStatusMock$;
+
+      await autofillService.loadAutofillScriptsOnInstall();
+      await flushPromises();
+      autofillService["autofillScriptPortsSet"] = new Set([port]);
+
+      expect(tabSendMessageSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -1799,6 +2028,158 @@ describe("AutofillService", () => {
       );
 
       expect(value).toBeNull();
+    });
+
+    describe("when the page details contain targeted fields from targeting rules", () => {
+      let targetedPageDetail: AutofillPageDetails;
+      let generateTargetedFillScriptSpy: jest.SpyInstance;
+      let generateLoginFillScriptSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        const targetedField = createAutofillFieldMock({
+          opid: "targeted_field_0_username",
+          htmlID: "username",
+          fieldQualifier: "username",
+          targeted: true,
+        });
+        targetedPageDetail = createAutofillPageDetailsMock({ fields: [targetedField] });
+        generateTargetedFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateTargetedFillScript")
+          .mockReturnValue(new AutofillScript());
+        generateLoginFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateLoginFillScript")
+          .mockReturnValue(new AutofillScript());
+      });
+
+      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
+
+        expect(generateTargetedFillScriptSpy).toHaveBeenCalledWith(
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(false);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the user setting is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(false);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("generateTargetedFillScript", () => {
+    const buildTargetedPageDetails = (fields: AutofillField[]) =>
+      createAutofillPageDetailsMock({ fields });
+
+    const buildTargetedField = (overrides: Partial<AutofillField>) =>
+      createAutofillFieldMock({
+        targeted: true,
+        ...overrides,
+      });
+
+    it("skips newPassword fields for a normal Login cipher fill (avoids leaking current password)", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = CipherType.Login;
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField]),
+        options,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("fills newPassword fields with the cipher password when inlineMenuFillType is PasswordGeneration", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const confirmNewPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_1",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "generated-pass", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField, confirmNewPasswordField]),
+        options,
+      );
+
+      expect(result).not.toBeNull();
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        newPasswordField,
+        "generated-pass",
+      );
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        confirmNewPasswordField,
+        "generated-pass",
+      );
+    });
+
+    it("fills the current-password field via the standard mapping even on a PasswordGeneration fill", async () => {
+      const passwordField = buildTargetedField({
+        opid: "targeted_field_0_password_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.password,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([passwordField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        passwordField,
+        "stored-password",
+      );
     });
   });
 

@@ -1,12 +1,15 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   name = "freeFamiliesSponsorship";
@@ -15,12 +18,16 @@ export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 60;
   component = FreeFamiliesSponsorshipPolicyComponent;
+  v2 = {
+    component: SimpleTogglePolicyComponent,
+    name: "freeFamiliesSponsorshipPolicyTitleV2",
+    description: "freeFamiliesSponsorshipPolicyDescV2",
+  };
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "free-families-sponsorship.component.html",
-  imports: [SharedModule],
+  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyEditComponent {}

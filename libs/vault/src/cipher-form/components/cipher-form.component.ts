@@ -370,6 +370,14 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   }
 
   submit = async () => {
+    if (!this.config.organizationDataOwnershipDisabled && this.config.organizations.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("cannotSaveItemNoConfirmedOrgs"),
+      });
+      return;
+    }
+
     let successToast: string = "editedItem";
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();

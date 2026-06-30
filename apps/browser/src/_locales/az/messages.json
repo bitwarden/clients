@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Təşkilatınız, vahid daxil olma tələb edir."
   },
-  "welcomeBack": {
-    "message": "Yenidən xoş gəlmisiniz"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Giriş"
   },
   "setAStrongPassword": {
     "message": "Güclü bir parol təyin et"
@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Avto-doldur",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Avto-doldur",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
   },
-  "getMasterPasswordHint": {
-    "message": "Ana parol üçün ipucu alın"
+  "hint": {
+    "message": "İpucu"
   },
   "continue": {
     "message": "Davam"
@@ -394,7 +394,7 @@
     "message": "Saxla"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Saxla və doldur"
   },
   "move": {
     "message": "Daşı"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Giriş et"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden-ə giriş edin"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Giriş"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "E-poçtunuza göndərilən kodu daxil edin"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Doldurma köməyini istifadə et"
   },
+  "turnOnFillAssist": {
+    "message": "Doldurma köməyini işə sal"
+  },
+  "enableFillAssistDescription": {
+    "message": "Doldurma köməyi, sayta xas qaydaları istifadə edərək dəstəklənən saytlarda avto-doldurma dəqiqliyini artırır. Bu özəlliyi istifadə etdiyiniz zaman heç bir veri yığılmır və ya saxlanılmır."
+  },
+  "aboutFillAssist": {
+    "message": "Doldurma köməyi barədə"
+  },
   "enableContextMenuItem": {
     "message": "Konteks menyu seçimlərini göstər"
   },
@@ -1705,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Keçid açarı kimlik doğrulaması uğursuzdur"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Fərqli bir giriş üsulu istifadə edin"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1803,7 +1812,7 @@
     "message": "İkon server URL-si"
   },
   "sendUrl": {
-    "message": "Send server URL"
+    "message": "Send server URL-si"
   },
   "environmentSaved": {
     "message": "Mühit URL-ləri saxlanıldı."
@@ -2328,6 +2337,10 @@
     "message": "Yeni not",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Yeni SSH açarı",
     "description": "Header for new SSH key item type"
@@ -2368,6 +2381,10 @@
     "message": "Nota düzəliş et",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH açarına düzəliş et",
     "description": "Header for edit SSH key item type"
@@ -2407,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Nota bax",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "SSH açarına bax",
@@ -2484,6 +2505,10 @@
   },
   "selected": {
     "message": "Seçildi"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Toplu əməliyyat"
@@ -2882,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
+  "receiveMarketingEmails": {
+    "message": "Bitwarden yenilikləri barədə məktub alın."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -3942,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Ana parolla giriş et"
-  },
   "newAroundHere": {
     "message": "Burada yenisiniz?"
   },
@@ -4390,6 +4412,9 @@
   },
   "multipleInputEmails": {
     "message": "1 və ya daha çox e-poçt yararsızdır"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "E-poçt alıcı siyahısı 2500 xarakterdən çox ola bilməz. Davam etmək üçün bir və ya bir neçə alıcını xaric edin."
   },
   "inputTrimValidator": {
     "message": "Giriş, yalnız boşluq ehtiva etməməlidir.",
@@ -4978,6 +5003,20 @@
     "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edin",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Bitwarden ilkin parol meneceri olaraq ayarlana bilmir",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4989,6 +5028,22 @@
   "makeDefault": {
     "message": "İlkin olaraq təyin et",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "\"Bitwarden\"i brauzerinizin ilkin parol meneceriniz olaraq təyin edin"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "brauzerinizdən Bitwarden-ə ayarlarınızı dəyişdirmə icazəsini vermək üçün sorğu gələcək."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Kimlik məlumatları uğurla saxlanıldı!",
@@ -5663,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Uğurla təyin edilən kolleksiyalar"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "Heç nə seçməmisiniz."
@@ -6667,14 +6728,36 @@
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Send düzəlişlərini saxlama uğursuz oldu",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

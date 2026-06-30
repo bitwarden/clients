@@ -3,8 +3,7 @@
 import {
   CollectionView,
   Collection as CollectionDomain,
-} from "@bitwarden/common/admin-console/models/collections";
-
+} from "../../admin-console/models/collections";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { CollectionId, emptyGuid, OrganizationId } from "../../types/guid";
 

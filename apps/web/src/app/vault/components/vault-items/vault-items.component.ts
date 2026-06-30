@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   Observable,
   combineLatest,
@@ -154,10 +154,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected readonly batchBarService = inject(VaultBatchBarService, {
     optional: true,
   }) as VaultBatchBarService<C> | null;
-  protected readonly batchBarFlag = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
-    { initialValue: false },
-  );
 
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
@@ -291,21 +287,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    const hasCollectionsSelected = this.selection.selected.some((item) => item.collection);
-    if (
-      this.selection.selected.length === 0 ||
-      !this.userCanArchive ||
-      hasCollectionsSelected ||
-      this.showBulkTrashOptions
-    ) {
+    const selectedCiphers = this.selection.selected.filter((item) => item.cipher !== undefined);
+    if (selectedCiphers.length === 0 || !this.userCanArchive || this.showBulkTrashOptions) {
       return false;
     }
 
     return (
       this.userCanArchive &&
-      !this.selection.selected.find(
-        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-      )
+      !selectedCiphers.find((item) => item.cipher && item.cipher.archivedDate)
     );
   }
 
@@ -315,9 +304,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return false;
     }
 
-    return !this.selection.selected.find(
-      (item) => !item.cipher?.archivedDate || item.cipher?.organizationId,
-    );
+    return !this.selection.selected.find((item) => !item.cipher?.archivedDate);
   }
 
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
@@ -488,7 +475,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
+    return (organization?.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
   }
 
   protected canAssignCollections(cipher: C) {
@@ -542,10 +529,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // All ciphers are selectable, collections only if they can be edited or deleted
+    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted
     this.editableItems = items.filter(
       (item) =>
-        item.cipher !== undefined ||
+        (item.cipher !== undefined && this.canEditCipher(item.cipher)) ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );

@@ -1,13 +1,23 @@
-<bit-bulk-actions-bar [selectedCount]="service.selectedCount()" (clear)="service.selection.clear()">
-  @for (action of primaryActions(); track action.label) {
-    <bit-bulk-action [action]="action.action" [icon]="action.icon" [label]="action.label" />
-  }
+<!--
+  Rendered through a CDK overlay (see the component) so the fixed-position bar pins to
+  the viewport. Hosting it inline would place it inside the layout's `cdk-virtual-scrollable`
+  <main>, whose `contain: strict` establishes a containing block that traps `position: fixed`.
+-->
+<ng-template #barPortal>
+  <bit-bulk-actions-bar
+    [selectedCount]="service.selectedCount()"
+    (clear)="service.selection.clear()"
+  >
+    @for (action of primaryActions(); track action.label) {
+      <bit-bulk-action [action]="action.action" [icon]="action.icon" [label]="action.label" />
+    }
 
-  @for (action of overflowActions(); track action.label) {
-    <bit-bulk-additional-action
-      [action]="action.action"
-      [icon]="action.icon"
-      [label]="action.label"
-    />
-  }
-</bit-bulk-actions-bar>
+    @for (action of overflowActions(); track action.label) {
+      <bit-bulk-additional-action
+        [action]="action.action"
+        [icon]="action.icon"
+        [label]="action.label"
+      />
+    }
+  </bit-bulk-actions-bar>
+</ng-template>

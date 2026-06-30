@@ -1,6 +1,5 @@
-import { UserId } from "@bitwarden/common/types/guid";
-
 import { ApiService } from "../../../abstractions/api.service";
+import { UserId } from "../../../types/guid";
 import { PublicKeysResponseModel } from "../response/public-keys.response";
 
 import { KeyApiService } from "./abstractions/key-api-service.abstraction";
