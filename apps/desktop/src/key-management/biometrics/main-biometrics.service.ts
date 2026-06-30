@@ -1,5 +1,3 @@
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -16,7 +14,6 @@ import { OsBiometricService } from "./os-biometrics.service";
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
-  private linuxV2BiometricsEnabled = false;
 
   constructor(
     private i18nService: I18nService,
@@ -24,8 +21,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private logService: LogService,
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
-    private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
     if (platform === "win32") {
@@ -39,14 +34,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
       const OsBiometricsServiceMac = require("./os-biometrics-mac.service").default;
       this.osBiometricsService = new OsBiometricsServiceMac(this.i18nService, this.logService);
     } else if (platform === "linux") {
-      // eslint-disable-next-line
-      const OsBiometricsServiceLinux = require("./os-biometrics-linux.service").default;
-      this.osBiometricsService = new OsBiometricsServiceLinux(
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
-        this.logService,
-      );
+      this.osBiometricsService = new LinuxBiometricsSystem();
     } else {
       throw new Error("Unsupported platform");
     }
@@ -153,17 +141,5 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await this.osBiometricsService.hasPersistentKey(userId);
-  }
-
-  async enableLinuxV2Biometrics(): Promise<void> {
-    if (this.platform === "linux" && !this.linuxV2BiometricsEnabled) {
-      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for linux");
-      this.osBiometricsService = new LinuxBiometricsSystem();
-      this.linuxV2BiometricsEnabled = true;
-    }
-  }
-
-  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
-    return this.linuxV2BiometricsEnabled;
   }
 }
