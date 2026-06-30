@@ -5675,6 +5675,9 @@
   "openInvitePlanNotSupportedMessage": {
     "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
   },
+  "openInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
   "rememberEmail": {
     "message": "Remember email"
   },

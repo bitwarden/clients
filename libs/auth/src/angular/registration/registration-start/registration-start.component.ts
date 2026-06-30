@@ -10,7 +10,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
+import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-invite-kind";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -101,6 +104,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private organizationInviteService: OrganizationInviteService,
+    private i18nService: I18nService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -146,6 +151,11 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     const valid = this.validateForm();
 
     if (!valid) {
+      return;
+    }
+
+    const emailValue = this.email.value;
+    if (emailValue && !(await this.openInviteDomainAllowed(emailValue))) {
       return;
     }
 
@@ -206,6 +216,33 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
 
     return this.formGroup.valid;
+  }
+
+  /**
+   * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
+   * is in state, validates the entered email's domain against the link's `AllowedDomains`
+   * via the server. Sets a form-control error on the email field when the domain isn't
+   * allowed and returns false; returns true in all other cases (no open invite stashed,
+   * or domain allowed).
+   *
+   * Server-side enforcement also runs at accept time — this is layered UX, not a security
+   * boundary. The submit button stays enabled so the user can correct and retry.
+   */
+  private async openInviteDomainAllowed(email: string): Promise<boolean> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    const allowed = await this.organizationInviteService.validateOpenInviteEmailDomain(
+      invite.inviteLinkCode,
+      email,
+    );
+    if (!allowed) {
+      this.email.setErrors({
+        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+      });
+    }
+    return allowed;
   }
 
   goBack() {

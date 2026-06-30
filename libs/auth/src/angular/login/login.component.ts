@@ -26,6 +26,8 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-invite-kind";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -149,6 +151,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
     private passwordPreloginService: PasswordPreloginService,
+    private organizationInviteService: OrganizationInviteService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -594,12 +597,44 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   protected async continue(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>): Promise<void> {
     const isEmailValid = this.validateEmail();
-
-    if (isEmailValid) {
-      this.prefetchPasswordPreloginData();
-
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
+    if (!isEmailValid) {
+      return;
     }
+
+    const email = this.emailFormControl.value;
+    if (email && !(await this.openInviteDomainAllowed(email))) {
+      return;
+    }
+
+    this.prefetchPasswordPreloginData();
+    await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
+  }
+
+  /**
+   * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
+   * is in state, validates the entered email's domain against the link's `AllowedDomains`
+   * via the server. Sets a form-control error on the email field when the domain isn't
+   * allowed and returns false; returns true in all other cases (no open invite stashed,
+   * or domain allowed).
+   *
+   * Server-side enforcement also runs at accept time — this is layered UX, not a security
+   * boundary. The submit button stays enabled so the user can correct and retry.
+   */
+  private async openInviteDomainAllowed(email: string): Promise<boolean> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    const allowed = await this.organizationInviteService.validateOpenInviteEmailDomain(
+      invite.inviteLinkCode,
+      email,
+    );
+    if (!allowed) {
+      this.emailFormControl.setErrors({
+        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+      });
+    }
+    return allowed;
   }
 
   /**
