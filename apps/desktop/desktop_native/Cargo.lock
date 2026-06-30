@@ -4990,6 +4990,7 @@ checksum = "581fee95406bb13382d2f65cd4a908ca7b1e4c2f1917f143ba16efe98a589b5d"
 name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
+ "autofill_provider",
  "base64",
  "serde",
  "serde_json",
