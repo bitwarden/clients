@@ -44,7 +44,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
       this.osBiometricsService = new OsBiometricsServiceLinux(
         this.biometricStateService,
         this.encryptService,
-        this.cryptoFunctionService,
         this.logService,
       );
     } else {

@@ -11,7 +11,6 @@ import {
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -49,12 +48,11 @@ export class OrganizationVaultExportService
     keyGenerationService: KeyGenerationService,
     private keyService: KeyService,
     encryptService: EncryptService,
-    cryptoFunctionService: CryptoFunctionService,
     private collectionService: CollectionService,
     kdfConfigService: KdfConfigService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {
-    super(keyGenerationService, encryptService, cryptoFunctionService, kdfConfigService);
+    super(keyGenerationService, encryptService, kdfConfigService);
   }
 
   /** Creates a password protected export of an organizational vault.

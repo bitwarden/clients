@@ -1,20 +1,20 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { KdfConfig, KdfConfigService, KdfType } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { BitwardenCsvExportType, BitwardenPasswordProtectedFileFormat } from "../types";
 export class BaseVaultExportService {
   constructor(
     protected keyGenerationService: KeyGenerationService,
     protected encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
     private kdfConfigService: KdfConfigService,
   ) {}
 
@@ -25,7 +25,8 @@ export class BaseVaultExportService {
   ): Promise<string> {
     const kdfConfig: KdfConfig = await this.kdfConfigService.getKdfConfig(userId);
 
-    const salt = Utils.fromBufferToB64(await this.cryptoFunctionService.randomBytes(16));
+    await SdkLoadService.Ready;
+    const salt = Utils.fromBufferToB64(new SdkRandomNumberClient().gen_bytes(16));
 
     const key = await this.keyGenerationService.deriveVaultExportKey(password, salt, kdfConfig);
 

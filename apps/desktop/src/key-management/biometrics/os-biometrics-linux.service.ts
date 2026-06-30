@@ -1,14 +1,15 @@
 import { spawn } from "child_process";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { isFlatpak, isLinux, isSnapStore } from "../../utils";
 
@@ -43,7 +44,6 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
   constructor(
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
-    private cryptoFunctionService: CryptoFunctionService,
     private logService: LogService,
   ) {}
 
@@ -217,7 +217,8 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     }
     if (clientKeyHalf == null) {
       // Set a key half if it doesn't exist
-      clientKeyHalf = await this.cryptoFunctionService.randomBytes(32);
+      await SdkLoadService.Ready;
+      clientKeyHalf = new SdkRandomNumberClient().gen_bytes(32);
       const encKey = await this.encryptService.encryptBytes(clientKeyHalf, key);
       await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
     }

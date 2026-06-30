@@ -11,18 +11,6 @@ import { CsprngArray } from "../../../types/csprng";
  */
 export abstract class KeyGenerationService {
   /**
-   * Generates a key of the given length suitable for use in AES encryption
-   *
-   * @deprecated WARNING: DO NOT USE THIS FOR NEW CODE. Direct generation and handling of keys should only be done in the SDK,
-   * as memory safety cannot be ensured in a JS context.
-   *
-   * @param bitLength Length of key.
-   * 256 bits = 32 bytes
-   * 512 bits = 64 bytes
-   * @returns Generated key.
-   */
-  abstract createKey(bitLength: 256 | 512): Promise<SymmetricCryptoKey>;
-  /**
    * Generates key material from CSPRNG and derives a 64 byte key from it.
    * Uses HKDF, see {@link https://datatracker.ietf.org/doc/html/rfc5869 RFC 5869}
    * for details.
@@ -47,7 +35,7 @@ export abstract class KeyGenerationService {
    * @deprecated HAZMAT WARNING: DO NOT USE THIS FOR NEW CODE. CONTACT KEY MANAGEMENT IF YOU THINK YOU NEED TO. This is a low-level cryptographic function.
    * New functionality should not be built on top of it, and instead should be built in the sdk.
    *
-   * @remark The key material should be generated from {@link createKey}, or {@link createKeyWithPurpose}.
+   * @remark The key material should be generated from {@link createKeyWithPurpose}.
    * Uses HKDF, see {@link https://datatracker.ietf.org/doc/html/rfc5869 RFC 5869} for details.
    * @param material key material.
    * @param salt Salt for the key derivation function.

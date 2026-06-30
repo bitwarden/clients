@@ -13,11 +13,13 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
 import { DesktopAutofillSettingsService } from "../autofill/services/desktop-autofill-settings.service";
@@ -116,14 +118,15 @@ export class DuckDuckGoMessageHandlerService {
         return;
       }
 
-      const secret = await this.cryptoFunctionService.randomBytes(64);
-      this.duckduckgoSharedSecret = new SymmetricCryptoKey(secret);
-      const sharedKeyB64 = new SymmetricCryptoKey(secret).keyB64;
+      await SdkLoadService.Ready;
+      const secret = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+      this.duckduckgoSharedSecret = secret;
+      const sharedKeyB64 = secret.keyB64;
 
       await this.stateService.setDuckDuckGoSharedKey(sharedKeyB64);
 
       const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
-        secret,
+        secret.toEncoded(),
         remotePublicKey,
         HashAlgorithmForAsymmetricEncryption,
       );
