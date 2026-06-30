@@ -167,8 +167,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
       if (!enabled) {
         this.data.disable();
+        this.allowedSendTypesMultiSelectControl.disable();
       } else {
         this.data.enable();
+        this.allowedSendTypesMultiSelectControl.enable();
       }
     });
     // The MultiSelectComponent outputs full SelectItemView objects in its output array, but the
