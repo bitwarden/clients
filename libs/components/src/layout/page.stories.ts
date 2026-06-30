@@ -49,33 +49,24 @@ export default {
 type Story = StoryObj<PageComponent>;
 
 /**
- * `bit-page` fills `bit-layout`'s main content area as a full-height flex column:
- * a fixed `[slot=header]` and `[slot=footer]`, and a body (default slot) that fills
- * the remaining height and scrolls. Note the header and footer stay put while the
- * body scrolls.
+ * `bit-page` fills `bit-layout`'s main content area as a full-height flex column
+ * whose body fills the remaining height and scrolls.
  */
 export const Default: Story = {
   render: () => ({
     props: { rows: [...Array(60).keys()] },
     template: /* HTML */ `
-      <bit-layout disablePadding>
+      <bit-layout>
         <bit-side-nav></bit-side-nav>
         <bit-page>
-          <div slot="header" class="tw-mb-4 tw-flex tw-items-center tw-justify-between">
+          <div class="tw-mb-4 tw-flex tw-items-center tw-justify-between">
             <h1 bitTypography="h1" class="tw-mb-0">Page title</h1>
             <button bitButton buttonType="primary" type="button">Action</button>
           </div>
 
           @for (row of rows; track row) {
-          <p bitTypography="body1">
-            Row {{ row }} — the body fills the page height and scrolls; the header and footer stay
-            pinned.
-          </p>
+          <p bitTypography="body1">Row {{ row }} — the body fills the page height and scrolls.</p>
           }
-
-          <div slot="footer" class="tw-mt-4">
-            <button bitButton buttonType="secondary" type="button">Footer action</button>
-          </div>
         </bit-page>
       </bit-layout>
     `,

@@ -181,12 +181,7 @@ type VaultFilters = {
   ],
   template: `
     <bit-layout>
-      <bit-table-v2
-        [tableDef]="table"
-        [filter]="filter"
-        [presentation]="presentation()"
-        [maxHeight]="maxHeight()"
-      >
+      <bit-table-v2 [tableDef]="table" [filter]="filter" [presentation]="presentation()">
         <bit-table-toolbar>
           <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
           <button bitButton buttonType="primary" type="button" slot="end">New</button>
@@ -247,7 +242,6 @@ type VaultFilters = {
 })
 class DemoFilterableTableComponent {
   readonly presentation = input<"table" | "list">("table");
-  readonly maxHeight = input<string>();
 
   protected readonly data = signal(VAULT_ROWS);
   protected readonly table = defineTable<VaultRow>(this.data);
@@ -526,14 +520,13 @@ export const Default: Story = {
  * so the filtering chrome carries over unchanged — toggle the control to compare.
  */
 export const List: Story = {
-  args: { presentation: "list", maxHeight: "400px" },
+  args: { presentation: "list" },
   argTypes: {
     presentation: { control: "inline-radio", options: ["table", "list"] },
-    maxHeight: { control: "text" },
   },
   render: (args) => ({
     props: args,
-    template: `<demo-filterable-table [presentation]="presentation" [maxHeight]="maxHeight"></demo-filterable-table>`,
+    template: `<demo-filterable-table [presentation]="presentation"></demo-filterable-table>`,
   }),
 };
 
@@ -668,7 +661,7 @@ export const Scrollable: Story = {
     },
     template: `
       <bit-layout>
-        <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" maxHeight="400px">
+        <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" [height]="6">
           <bit-column sortable defaultSort="asc">
             <bit-header-cell>Id</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
@@ -688,10 +681,11 @@ export const Scrollable: Story = {
 };
 
 /**
- * `fill` makes the table grow to its container's height and scroll internally,
- * instead of sizing to content. Dropped into a `bit-page` body — a bounded,
- * full-height region — the table fills the main content area with the header
- * pinned. Compare with `Scrollable`, which caps the height via `maxHeight`.
+ * `height="fill"` makes the table grow to its container's height and scroll
+ * internally, instead of sizing to content. Dropped into a `bit-page` body — a
+ * bounded, full-height region — the table fills the main content area with the
+ * header pinned. Compare with `Scrollable`, which caps the body at a row count
+ * via `[height]`.
  */
 export const FillPage: Story = {
   render: () => ({
@@ -700,10 +694,10 @@ export const FillPage: Story = {
       trackBy: (_: number, item: DemoRow) => item.id,
     },
     template: `
-      <bit-layout disablePadding>
+      <bit-layout>
         <bit-page>
-          <h1 slot="header" bitTypography="h1" class="tw-mb-4">Members</h1>
-          <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" fill>
+          <h1 bitTypography="h1" class="tw-mb-4">Members</h1>
+          <bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [trackBy]="trackBy" height="fill">
             <bit-column sortable defaultSort="asc">
               <bit-header-cell>Id</bit-header-cell>
               <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>

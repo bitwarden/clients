@@ -37,7 +37,7 @@ const TAG_POOL = ["Personal", "Work", "Shared", "Archived", "Favorite", "Family"
   host: {
     class: "tw-flex tw-min-h-0 tw-flex-1 tw-flex-col",
   },
-  template: `<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" fill>
+  template: `<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" height="fill">
     <bit-column sortable defaultSort="asc">
       <bit-header-cell>Id</bit-header-cell>
       <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>

@@ -158,10 +158,10 @@ type RenderItem<T> =
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
     // height, so the table can hand a bounded height down to its scroll region.
-    "[class.tw-flex]": "fill()",
-    "[class.tw-flex-col]": "fill()",
-    "[class.tw-flex-1]": "fill()",
-    "[class.tw-min-h-0]": "fill()",
+    "[class.tw-flex]": "isFill()",
+    "[class.tw-flex-col]": "isFill()",
+    "[class.tw-flex-1]": "isFill()",
+    "[class.tw-min-h-0]": "isFill()",
   },
 })
 export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>
@@ -217,18 +217,18 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * Fixed row height in pixels for virtual scrolling. Setting it turns the
    * table into a virtual scroll viewport — virtual scrolling needs predictable
    * row geometry, so give columns explicit widths. Needs a bounded height —
-   * {@link maxHeight} or {@link fill}.
+   * set {@link height}.
    */
   readonly virtualRowHeight = input<number>();
 
   /**
-   * Max height of the table's scroll area, as any CSS length. When set, the body
-   * scrolls within this bound and the header stays pinned; omit to grow to content.
+   * How tall the table is. Omit to grow to content (manual tables size via a CSS
+   * class instead). `"fill"` grows to the host's height and scrolls the body within
+   * it — use inside a bounded, full-height container. A number caps the body at that
+   * many rows (minimum 4) before it scrolls; that cap needs a known row height, so it
+   * applies only when {@link virtualRowHeight} is set and is otherwise a no-op.
    */
-  readonly maxHeight = input<string>();
-
-  /** Grow to fill the host's height and scroll the body within it (use in a bounded flex container). */
-  readonly fill = input(false, { transform: booleanAttribute });
+  readonly height = input<"fill" | number>();
 
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
@@ -576,7 +576,16 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   protected readonly isVirtualized = computed(() => this.virtualRowHeight() !== undefined);
 
-  /** Outer container chrome: border, rounded corners, subtle shadow. Dropped in `list` presentation so rows float as cards. Becomes a fill flex column in {@link fill} mode. */
+  /** True when {@link height} is `"fill"`. */
+  protected readonly isFill = computed(() => this.height() === "fill");
+
+  /** Row-count cap from {@link height} (clamped to a minimum of 4), or undefined when it isn't a number. */
+  protected readonly maxRows = computed(() => {
+    const h = this.height();
+    return typeof h === "number" ? Math.max(4, Math.floor(h)) : undefined;
+  });
+
+  /** Outer container chrome: border, rounded corners, subtle shadow. Dropped in `list` presentation so rows float as cards. Becomes a fill flex column when {@link height} is `"fill"`. */
   protected readonly containerClass = computed(() => [
     ...(this.presentation() === "list"
       ? []
@@ -589,7 +598,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
           "tw-overflow-clip",
           "tw-shadow-[0px_1px_0.5px_0.05px_rgba(29,41,61,0.02)]",
         ]),
-    ...(this.fill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
+    ...(this.isFill() ? ["tw-flex", "tw-min-h-0", "tw-flex-1", "tw-flex-col"] : []),
   ]);
 
   /**
@@ -700,7 +709,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
 
   /**
    * Pixel height for the virtual-scroll viewport: the rows' natural height capped
-   * at {@link maxHeight}. The viewport needs an explicit height because CDK
+   * at {@link maxRows} rows. The viewport needs an explicit height because CDK
    * positions rows absolutely, so they contribute no in-flow height.
    */
   protected readonly viewportHeight = computed<string | undefined>(() => {
@@ -708,9 +717,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (rowHeight === undefined) {
       return undefined;
     }
-    const contentHeight = `${this.rows().length * rowHeight}px`;
-    const max = this.maxHeight();
-    return max ? `min(${max}, ${contentHeight})` : contentHeight;
+    const contentHeight = this.rows().length * rowHeight;
+    const maxRows = this.maxRows();
+    const height =
+      maxRows !== undefined ? Math.min(maxRows * rowHeight, contentHeight) : contentHeight;
+    return `${height}px`;
   });
 
   private readonly logService = inject(LogService, { optional: true });
@@ -731,10 +742,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       }
       return;
     }
-    if (this.isVirtualized() && !this.maxHeight() && !this.fill()) {
+    if (this.isVirtualized() && this.height() === undefined) {
       this.logService?.warning(
-        "bit-table-v2: virtualization (`virtualRowHeight`) needs a bounded height — set `maxHeight` " +
-          "or `fill` (inside a bounded container). Without one the viewport collapses and no rows render.",
+        "bit-table-v2: virtualization (`virtualRowHeight`) needs a bounded height — set `height` to a " +
+          'row count or `"fill"` (inside a bounded container). Without one the viewport collapses and no rows render.',
       );
     }
     if (this.isVirtualized() && this.paginator()) {

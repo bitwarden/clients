@@ -120,8 +120,8 @@ or set sort programmatically, bind `[(sort)]` to a `SortState` signal.
 ## Virtual scrolling
 
 Replace `bit-table-scroll` + `rowSize` with `<bit-table-v2>` + `[virtualRowHeight]` (row height in
-px) and a bounded height (`maxHeight` or `fill`). Split the single `bitRowDef` template into one
-`<bit-cell>` per column.
+px) and a bounded height (`[height]` — a row count or `"fill"`). Split the single `bitRowDef`
+template into one `<bit-cell>` per column.
 
 **v1**
 
@@ -139,7 +139,7 @@ px) and a bounded height (`maxHeight` or `fill`). Split the single `bitRowDef` t
 **v2**
 
 ```html
-<bit-table-v2 [tableDef]="table" [virtualRowHeight]="47" maxHeight="400px" [trackBy]="trackById">
+<bit-table-v2 [tableDef]="table" [virtualRowHeight]="47" [height]="6" [trackBy]="trackById">
   <bit-column sortable defaultSort="asc" width="120px">
     <bit-header-cell>Id</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>

@@ -11,7 +11,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   selector: "bit-kitchen-sink-app",
   imports: [KitchenSinkSharedModule],
   template: `
-    <bit-layout disablePadding>
+    <bit-layout>
       <bit-side-nav>
         <bit-nav-logo [openIcon]="logo" route="." [label]="'Kitchen Sink'"></bit-nav-logo>
         <bit-nav-item

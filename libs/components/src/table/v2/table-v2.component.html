@@ -63,10 +63,10 @@
 
   <div
     role="table"
-    [class.tw-flex]="fill()"
-    [class.tw-min-h-0]="fill()"
-    [class.tw-flex-1]="fill()"
-    [class.tw-flex-col]="fill()"
+    [class.tw-flex]="isFill()"
+    [class.tw-min-h-0]="isFill()"
+    [class.tw-flex-1]="isFill()"
+    [class.tw-flex-col]="isFill()"
   >
     @if (hasColumns()) {
       <!--
@@ -105,27 +105,26 @@
         <!--
           Virtualized body: only the rows live in the viewport. CDK positions
           rows absolutely (no in-flow height), so the viewport needs a bounded
-          height: an explicit `viewportHeight` (capped at `maxHeight`), or
+          height: an explicit `viewportHeight` (capped at `height` rows), or
           `flex-1` to fill the host in `fill` mode.
         -->
         <cdk-virtual-scroll-viewport
           [itemSize]="virtualRowHeight()!"
-          [style.height]="fill() ? null : viewportHeight()"
-          [class.tw-flex-1]="fill()"
-          [class.tw-min-h-0]="fill()"
+          [style.height]="isFill() ? null : viewportHeight()"
+          [class.tw-flex-1]="isFill()"
+          [class.tw-min-h-0]="isFill()"
         >
           <bit-row *cdkVirtualFor="let r of rows(); trackBy: trackBy(); templateCacheSize: 0">
             <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
           </bit-row>
         </cdk-virtual-scroll-viewport>
       } @else {
-        <!-- Non-virtualized body: scrolls within `maxHeight`, or fills the host in `fill` mode. -->
-        <div
-          class="tw-overflow-auto"
-          [style.max-height]="fill() ? null : maxHeight()"
-          [class.tw-flex-1]="fill()"
-          [class.tw-min-h-0]="fill()"
-        >
+        <!--
+          Non-virtualized body: fills the host in `fill` mode. A row-count cap
+          needs a known row height, so it's virtualization-only; non-virtualized
+          tables grow to content and size via a CSS class if they need a bound.
+        -->
+        <div class="tw-overflow-auto" [class.tw-flex-1]="isFill()" [class.tw-min-h-0]="isFill()">
           @if (groupingActive()) {
             <!--
               Grouped body: `renderItems()` interleaves group headers and rows.

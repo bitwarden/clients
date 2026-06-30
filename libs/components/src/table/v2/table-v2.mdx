@@ -517,34 +517,37 @@ search term) to the query string, table or not.
 ## Scrolling and the sticky header
 
 By default the table grows to fit its rows and scrolls with the page. To bound it instead — so the
-body scrolls and the header row stays pinned — give it a height in one of two ways:
+body scrolls and the header row stays pinned — set the `[height]` input:
 
-- **`[maxHeight]`** (any CSS length) — the table is as tall as its content, up to this cap, then
-  scrolls.
-- **`fill`** — the table grows to fill its container's height. Use it inside a bounded, full-height
-  region such as the body of a [`bit-page`](?path=/docs/component-library-layout-page--docs), which
-  is the idiomatic way to make a table fill the main content area:
+- **`height="fill"`** — the table grows to fill its container's height. Use it inside a bounded,
+  full-height region such as the body of a
+  [`bit-page`](?path=/docs/component-library-layout-page--docs), which is the idiomatic way to make
+  a table fill the main content area:
 
 ```html
 <bit-page>
-  <h1 slot="header" bitTypography="h1">Members</h1>
-  <bit-table-v2 [tableDef]="table" fill>…columns…</bit-table-v2>
+  <bit-table-v2 [tableDef]="table" height="fill">…columns…</bit-table-v2>
 </bit-page>
 ```
 
-`bit-page` owns the page's layout — a fixed header/footer and a fill body that scrolls — so the
-table stays out of the layout business; it just fills the box it's given. Reach for `maxHeight` when
-the table is one bounded block among others (a dialog, a card); reach for `fill` + `bit-page` when
-the table is the page.
+- **`[height]="N"`** — cap the body at `N` rows (minimum 4), then scroll. The row-count cap needs a
+  known row height, so it applies only to [virtualized](#virtual-scrolling) tables
+  (`[virtualRowHeight]`) and is a no-op otherwise.
+
+`bit-page` owns the page's layout — a full-height body that scrolls — so the table stays out of the
+layout business; it just fills the box it's given. Reach for `height="fill"` inside any bounded,
+full-height container (a `bit-page` body, a dialog); reach for `[height]="N"` to cap a virtualized
+list at a fixed number of rows. A non-virtualized table that needs a bound should use
+`height="fill"` in a height-constrained container, or size that container with CSS.
 
 ## Virtual scrolling
 
 For large datasets, set `[virtualRowHeight]` (the height per row, in px). The table renders inside a
 `cdk-virtual-scroll-viewport`; only the visible rows are stamped. Virtualization scrolls the table
-itself, so it needs a bounded height — **`[maxHeight]` or `fill`**:
+itself, so it needs a bounded height — set **`[height]`** to a row count or `"fill"`:
 
 ```html
-<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" maxHeight="400px" [trackBy]="trackById">
+<bit-table-v2 [tableDef]="table" [virtualRowHeight]="64" [height]="6" [trackBy]="trackById">
   …columns…
 </bit-table-v2>
 ```
