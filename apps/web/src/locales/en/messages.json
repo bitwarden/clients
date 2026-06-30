@@ -15548,6 +15548,114 @@
   "pamNoActivity": {
     "message": "No activity"
   },
+  "pamAuditLoadError": {
+    "message": "Could not load the audit trail"
+  },
+  "pamAuditEmptyTitle": {
+    "message": "No audit activity"
+  },
+  "pamAuditEmptyMessage": {
+    "message": "Privileged-access activity for the collections you manage in this organization will appear here."
+  },
+  "pamAuditSearchPlaceholder": {
+    "message": "Search the audit log"
+  },
+  "pamAuditNoMatchesTitle": {
+    "message": "No matching events"
+  },
+  "pamAuditNoMatchesMessage": {
+    "message": "No events match the current filters."
+  },
+  "pamAuditColumnTime": {
+    "message": "Time"
+  },
+  "pamAuditColumnEvent": {
+    "message": "Event"
+  },
+  "pamAuditColumnActor": {
+    "message": "Actor"
+  },
+  "pamAuditColumnRequester": {
+    "message": "Requester"
+  },
+  "pamAuditColumnItem": {
+    "message": "Item"
+  },
+  "pamAuditColumnDetail": {
+    "message": "Detail"
+  },
+  "pamAuditSystem": {
+    "message": "System"
+  },
+  "pamAuditKindRequestSubmitted": {
+    "message": "Access requested"
+  },
+  "pamAuditKindRequestApproved": {
+    "message": "Request approved"
+  },
+  "pamAuditKindRequestDenied": {
+    "message": "Request denied"
+  },
+  "pamAuditKindRequestCancelled": {
+    "message": "Request cancelled"
+  },
+  "pamAuditKindRequestExpiredUnanswered": {
+    "message": "Request expired without a decision"
+  },
+  "pamAuditKindRequestExpiredUnactivated": {
+    "message": "Approval expired unused"
+  },
+  "pamAuditKindLeaseActivated": {
+    "message": "Lease activated"
+  },
+  "pamAuditKindLeaseActivationRejected": {
+    "message": "Activation rejected"
+  },
+  "pamAuditKindLeaseExtended": {
+    "message": "Lease extended"
+  },
+  "pamAuditKindLeaseRevoked": {
+    "message": "Lease revoked"
+  },
+  "pamAuditKindLeaseEndedByHolder": {
+    "message": "Lease ended by holder"
+  },
+  "pamAuditKindLeaseExpired": {
+    "message": "Lease expired"
+  },
+  "pamAuditKindCredentialAccessed": {
+    "message": "Credential accessed"
+  },
+  "pamAuditKindCredentialAccessDenied": {
+    "message": "Credential access denied"
+  },
+  "pamAuditKindRuleCreated": {
+    "message": "Access rule created"
+  },
+  "pamAuditKindRuleUpdated": {
+    "message": "Access rule updated"
+  },
+  "pamAuditKindRuleDeleted": {
+    "message": "Access rule deleted"
+  },
+  "pamAuditKindLeasingKillSwitchTriggered": {
+    "message": "Kill switch triggered"
+  },
+  "pamAuditKindLeasingFreezeEnabled": {
+    "message": "Leasing frozen"
+  },
+  "pamAuditKindLeasingFreezeLifted": {
+    "message": "Leasing unfrozen"
+  },
+  "pamAuditKindUnknown": {
+    "message": "Unknown event"
+  },
+  "pamGovernanceTabOverview": {
+    "message": "Overview"
+  },
+  "pamGovernanceTabAudit": {
+    "message": "Audit log"
+  },
   "pamPendingBannerTitle": {
     "message": "Your access request is awaiting approval"
   },

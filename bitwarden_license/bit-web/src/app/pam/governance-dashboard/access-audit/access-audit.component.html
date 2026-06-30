@@ -1,0 +1,85 @@
+@switch (status()) {
+  @case ("loading") {
+    <p class="tw-text-muted">{{ "loading" | i18n }}</p>
+  }
+  @case ("error") {
+    <bit-callout type="danger" [title]="'errorOccurred' | i18n">
+      {{ "pamAuditLoadError" | i18n }}
+    </bit-callout>
+  }
+  @case ("empty") {
+    <bit-callout type="info" [title]="'pamAuditEmptyTitle' | i18n">
+      {{ "pamAuditEmptyMessage" | i18n }}
+    </bit-callout>
+  }
+  @case ("ready") {
+    <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
+      <bit-search
+        class="tw-grow tw-max-w-md"
+        [placeholder]="'pamAuditSearchPlaceholder' | i18n"
+        [formControl]="searchControl"
+      ></bit-search>
+      <bit-chip-filter
+        [placeholderText]="'pamAuditColumnEvent' | i18n"
+        placeholderIcon="bwi-filter"
+        [options]="kindOptions()"
+        [formControl]="kindControl"
+      ></bit-chip-filter>
+    </div>
+
+    @if (filteredRows().length === 0) {
+      <bit-callout type="info" [title]="'pamAuditNoMatchesTitle' | i18n">
+        {{ "pamAuditNoMatchesMessage" | i18n }}
+      </bit-callout>
+    } @else {
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "pamAuditColumnTime" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnEvent" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnActor" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnRequester" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnDetail" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (row of filteredRows(); track $index) {
+            <tr bitRow>
+              <td bitCell>
+                @if (row.requestId) {
+                  <a bitLink [routerLink]="[requestDetailBaseUrl, row.requestId]">
+                    <span [bitTooltip]="row.occurredAt | date: 'medium'">{{
+                      row.occurredAt | date: "short"
+                    }}</span>
+                  </a>
+                } @else {
+                  <span [bitTooltip]="row.occurredAt | date: 'medium'">{{
+                    row.occurredAt | date: "short"
+                  }}</span>
+                }
+              </td>
+              <td bitCell>{{ row.kindLabelKey | i18n }}</td>
+              <td bitCell>
+                @if (row.automated) {
+                  <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>
+                } @else {
+                  {{ row.actor }}
+                }
+              </td>
+              <td bitCell>{{ row.requester }}</td>
+              <td bitCell>
+                @if (row.cipherName) {
+                  <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
+                } @else {
+                  <span class="tw-text-muted">—</span>
+                }
+              </td>
+              <td bitCell>{{ row.detail }}</td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  }
+}

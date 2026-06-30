@@ -9,6 +9,7 @@ import { AccessLeaseRevokeRequest } from "../services/requests/access-lease-revo
 import { AccessRequestCreateRequest } from "../services/requests/access-request-create.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
 
+import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
 import { AccessLeaseResponse } from "./responses/access-lease.response";
 import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
 import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
@@ -112,6 +113,12 @@ export abstract class PamApiService {
    * shared history window.
    */
   abstract listManagedLeaseHistory(): Promise<AccessLeaseResponse[]>;
+  /**
+   * Governance read: the synthesized access-audit trail on the collections the caller can Manage, within the shared
+   * history window, newest first. Scope is resolved the same way as the approver inbox and lease history. Projected
+   * from existing PAM state — there is no audit record, so the trail reaches only as far back as the source rows live.
+   */
+  abstract listAccessAuditTrail(): Promise<AccessAuditEventResponse[]>;
 
   abstract listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>>;
   abstract getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse>;

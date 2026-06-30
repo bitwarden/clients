@@ -1,6 +1,7 @@
 import { concat, from, merge, Observable, of, Subject, switchMap, timer } from "rxjs";
 
 import {
+  AccessAuditEventResponse,
   AccessDecisionRequest,
   AccessEventService,
   AccessLeaseExtensionRequest,
@@ -153,6 +154,11 @@ export class DefaultPamApiService implements PamApiService {
   async listManagedLeaseHistory(): Promise<AccessLeaseResponse[]> {
     const r = await this.send("GET", "/leases/history", null, true);
     return new ListResponse(r, AccessLeaseResponse).data;
+  }
+
+  async listAccessAuditTrail(): Promise<AccessAuditEventResponse[]> {
+    const r = await this.send("GET", "/audit", null, true);
+    return new ListResponse(r, AccessAuditEventResponse).data;
   }
 
   async cancelAccessRequest(id: string): Promise<void> {

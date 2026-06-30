@@ -32,11 +32,13 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   TableModule,
+  TabsModule,
   TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { AccessAuditComponent } from "./access-audit/access-audit.component";
 import { KillSwitchComponent } from "./kill-switch/kill-switch.component";
 
 /**
@@ -87,6 +89,8 @@ type GovernanceRow = {
     LinkModule,
     I18nPipe,
     KillSwitchComponent,
+    TabsModule,
+    AccessAuditComponent,
   ],
 })
 export class GovernanceDashboardComponent implements OnInit {

@@ -26,6 +26,10 @@ export {
   AccessLeaseStatus,
   AccessLeaseResponse,
 } from "./abstractions/responses/access-lease.response";
+export {
+  AccessAuditEventKind,
+  AccessAuditEventResponse,
+} from "./abstractions/responses/access-audit-event.response";
 export { AccessRuleResponse } from "./abstractions/responses/access-rule.response";
 export { BulkRevokeResult } from "./abstractions/responses/bulk-revoke.result";
 export {
