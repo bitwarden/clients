@@ -102,6 +102,8 @@ export class WebLoginComponentService
         // Invited OrganizationUser row, OrgMembershipRequired means they have no
         // OrganizationUser row at all — but at this layer the rejection-to-recovery
         // contract is identical, so we share the handler.
+
+        // TODO: open org invite work will have to consider org invite kind.
         const orgInvite = await this.organizationInviteService.getOrganizationInvite();
         // Match on organizationId (stable) AND email (defensive). Org display names can
         // drift between when an invite is sent and when SSO is attempted; the id is the
