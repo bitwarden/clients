@@ -6,6 +6,7 @@ import { Component, HostListener, computed, inject, input, output, viewChild } f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -18,6 +19,7 @@ import {
   MenuTriggerForDirective,
   TableModule,
   LinkModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -52,10 +54,11 @@ interface CopyFieldConfig {
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    IconModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
   protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
@@ -90,6 +93,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   protected CipherType = CipherType;
 
   private platformUtilsService = inject(PlatformUtilsService);
+  private i18nService = inject(I18nService);
 
   protected readonly showArchiveButton = computed(() => {
     return (
@@ -132,7 +136,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   }
 
   protected readonly subtitle = computed(() => {
-    return CipherViewLikeUtils.subtitle(this.cipher());
+    return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
   });
 
   protected readonly isDeleted = computed(() => {
@@ -174,8 +178,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     }
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
-
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
 
   /**
    * Returns the list of copyable fields based on cipher type.
@@ -221,10 +223,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         return [{ field: "secureNote", title: "copyNote" }];
       case CipherType.BankAccount:
         return [
+          { field: "nameOnAccount", title: "copyNameOnAccount" },
           { field: "accountNumber", title: "copyAccountNumber" },
           { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "branchNumber", title: "copyBranchNumber" },
           { field: "pin", title: "copyPin" },
           { field: "iban", title: "copyIban" },
+          { field: "swiftCode", title: "copySwiftCode" },
         ];
       case CipherType.Passport:
         return [
@@ -238,10 +243,16 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         ];
       case CipherType.DriversLicense:
         return [
-          { field: "firstName", title: "copyFirstName" },
-          { field: "middleName", title: "copyMiddleName" },
-          { field: "lastName", title: "copyLastName" },
+          { field: "firstNameLicense", title: "copyFirstName" },
+          { field: "middleNameLicense", title: "copyMiddleName" },
+          { field: "lastNameLicense", title: "copyLastName" },
           { field: "licenseNumber", title: "copyLicenseNumber" },
+        ];
+      case CipherType.SshKey:
+        return [
+          { field: "privateKey", title: "copyPrivateKey" },
+          { field: "publicKey", title: "copyPublicKey" },
+          { field: "keyFingerprint", title: "copyFingerprint" },
         ];
       default:
         return [];

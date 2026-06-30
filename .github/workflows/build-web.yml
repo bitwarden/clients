@@ -58,6 +58,7 @@ permissions:
 jobs:
   setup:
     name: Setup
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'web-v')
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.version.outputs.value }}
@@ -126,6 +127,11 @@ jobs:
             license_type: "commercial"
             image_name: web-qa-cloud
             npm_command: build:bit:qa
+            git_metadata: true
+          - artifact_name: cloud-usqa2
+            license_type: "commercial"
+            image_name: web-qa2-cloud
+            npm_command: build:bit:usqa2
             git_metadata: true
           - artifact_name: ee
             license_type: "commercial"

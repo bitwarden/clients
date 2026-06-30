@@ -20,6 +20,11 @@ import { PositionIdentifier, defaultPositions } from "./default-positions";
 import { PopoverComponent } from "./popover.component";
 import { SpotlightService } from "./spotlight.service";
 
+/** Implement and provide as `useExisting` to redirect `[bitPopoverAnchorFor]` from the host to another element. */
+export abstract class PopoverElementProvider {
+  abstract readonly popoverAnchorElementRef: ElementRef<HTMLElement>;
+}
+
 /**
  * Directive that anchors a popover to any element with programmatic open/close control.
  * Use `[(popoverOpen)]` for two-way binding to control visibility from the host component.
@@ -66,7 +71,14 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
-  private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly popoverElementProvider = inject<PopoverElementProvider>(PopoverElementProvider, {
+    host: true,
+    optional: true,
+  });
+  private readonly elementRef = this.popoverElementProvider
+    ? this.popoverElementProvider.popoverAnchorElementRef
+    : inject<ElementRef<HTMLElement>>(ElementRef);
+
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly overlay = inject(Overlay);
 

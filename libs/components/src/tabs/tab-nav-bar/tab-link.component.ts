@@ -33,7 +33,7 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   // bitOverflowList can discover this tab-link as one of its items.
   hostDirectives: [OverflowItemDirective],
   host: {
-    class: "tw-block",
+    class: "tw-block tw-max-w-fit",
     "[class]":
       "overflowItem.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'",
   },

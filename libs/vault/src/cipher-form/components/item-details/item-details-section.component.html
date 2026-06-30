@@ -2,7 +2,7 @@
   <bit-section-header>
     <h2 bitTypography="h6">{{ "itemDetails" | i18n }}</h2>
     @if (showArchiveBadge()) {
-      <span bitBadge> {{ "archived" | i18n }} </span>
+      <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
     }
     @if (!config.hideIndividualVaultFields) {
       <button

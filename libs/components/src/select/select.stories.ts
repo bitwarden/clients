@@ -49,8 +49,8 @@ export const Default: Story = {
       <bit-form-field>
         <bit-label>Choose a value</bit-label>
         <bit-select [disabled]="disabled">
-          <bit-option value="value1" label="Value 1" icon="bwi-collection-shared"></bit-option>
-          <bit-option value="value2" label="Value 2" icon="bwi-collection-shared"></bit-option>
+          <bit-option value="value1" label="Value 1" icon="bwi-collection-shared" description="Very cool hint text that is also incredibly long, so helpful that it will need to truncate if you shrink the window width"></bit-option>
+          <bit-option value="value2" label="Value 2 very long label though so it will truncate on small screen" icon="bwi-collection-shared"></bit-option>
           <bit-option value="value3" label="Value 3" icon="bwi-collection-shared"></bit-option>
           <bit-option value="value4" label="Value 4" icon="bwi-collection-shared" disabled></bit-option>
         </bit-select>

@@ -1,14 +1,14 @@
-import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getByIds } from "@bitwarden/common/platform/misc";
 
+import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { getUserId } from "../../auth/services/account.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { getByIds } from "../../platform/misc";
 import { CipherLike } from "../types/cipher-like";
 
 /**
@@ -181,7 +181,6 @@ export class DefaultCipherAuthorizationService implements CipherAuthorizationSer
           map((allCollections) => allCollections.some((collection) => collection.manage)),
         );
       }),
-      shareReplay({ bufferSize: 1, refCount: false }),
     );
   }
 }

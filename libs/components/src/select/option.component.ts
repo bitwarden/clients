@@ -15,5 +15,7 @@ export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
 
   readonly label = input.required<string>();
 
+  readonly description = input<string>();
+
   readonly disabled = input(undefined, { transform: booleanAttribute });
 }

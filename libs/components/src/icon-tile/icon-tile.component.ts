@@ -20,7 +20,7 @@ const variantStyles: Record<IconTileVariant, string[]> = {
   warning: ["tw-bg-bg-warning-medium", "tw-border-border-warning-soft", "tw-text-fg-warning"],
   subtle: ["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"],
   dark: ["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"],
-  contrast: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-dark"],
+  contrast: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-heading"],
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {

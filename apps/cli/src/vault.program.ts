@@ -441,6 +441,8 @@ export class VaultProgram extends BaseProgram {
         const command = new ShareCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.organizationService,
         );
         const response = await command.run(id, organizationId, encodedJson);
         this.processResponse(response);

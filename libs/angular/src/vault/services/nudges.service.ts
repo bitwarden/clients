@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, shareReplay } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { UserKeyDefinition, NUDGES_DISK } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -165,10 +165,7 @@ export class NudgesService {
     const nudgeTypesWithBadge$ = nudgeTypes.map((nudge) => {
       return this.getNudgeService(nudge)
         .nudgeStatus$(nudge, userId)
-        .pipe(
-          map((status) => !status?.hasBadgeDismissed),
-          shareReplay({ refCount: false, bufferSize: 1 }),
-        );
+        .pipe(map((status) => !status?.hasBadgeDismissed));
     });
 
     return combineLatest(nudgeTypesWithBadge$).pipe(

@@ -40,8 +40,10 @@ export function getTrimmedCipherUris(cipher: CipherView): string[] {
   const uniqueDomains = new Set<string>();
 
   uris.forEach((u: { uri: string | undefined }) => {
-    const domain = Utils.getDomain(u.uri) ?? u.uri;
-    uniqueDomains.add(domain);
+    const domain = Utils.getDomain(u.uri) ?? u.uri?.trim();
+    if (domain) {
+      uniqueDomains.add(domain);
+    }
   });
   return Array.from(uniqueDomains);
 }

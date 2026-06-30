@@ -4,23 +4,19 @@
       <app-pop-out></app-pop-out>
     </ng-container>
   </popup-header>
-  <ng-container *ngIf="deletedCiphers$ | async as deletedItems">
-    <bit-callout
-      *ngIf="deletedItems.length"
-      type="warning"
-      title="{{ 'warning' | i18n | titlecase }}"
-    >
-      {{ "trashWarning" | i18n }}
-    </bit-callout>
+  @if (deletedCiphers$ | async; as deletedItems) {
+    @if (deletedItems.length) {
+      <bit-callout type="warning" title="{{ 'warning' | i18n | titlecase }}">
+        {{ "trashWarning" | i18n }}
+      </bit-callout>
+    }
 
-    <ng-container *ngIf="deletedItems.length; else noDeletedItems">
+    @if (deletedItems.length) {
       <app-trash-list-items-container
         [headerText]="'itemsInTrash' | i18n"
         [ciphers]="deletedItems"
       ></app-trash-list-items-container>
-    </ng-container>
-
-    <ng-template #noDeletedItems>
+    } @else {
       <bit-no-items
         [icon]="emptyTrashIcon"
         class="tw-flex tw-h-full tw-items-center tw-justify-center"
@@ -32,6 +28,6 @@
           {{ "noItemsInTrashDesc" | i18n }}
         </ng-container>
       </bit-no-items>
-    </ng-template>
-  </ng-container>
+    }
+  }
 </popup-page>

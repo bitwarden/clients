@@ -43,7 +43,12 @@ export class ReportVersioningService extends VersioningService<AccessReportPaylo
       this.logService.warning(
         `[ReportVersioningService] Report blob: unversioned (legacy) format detected — transforming to version ${this.currentVersion}`,
       );
-      const v1Data = validateApplicationHealthReportDetailArray(json);
+      const { data: v1Data, errors } = validateApplicationHealthReportDetailArray(json);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[ReportVersioningService] Dropped ${errors.length} invalid report element(s) during legacy transform:\n${errors.join("\n")}`,
+        );
+      }
       const data = this._transformLegacyReportToPayload(v1Data);
       return { data, wasLegacy: true };
     }

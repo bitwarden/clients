@@ -1,4 +1,4 @@
-import { DeviceType } from "@bitwarden/common/enums";
+import { DeviceType } from "../../enums";
 
 /**
  *  Returns the web store URL for the Bitwarden browser extension based on the device type.

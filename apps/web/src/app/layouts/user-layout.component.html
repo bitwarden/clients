@@ -11,13 +11,18 @@
       [text]="'tools' | i18n"
       route="tools"
       [open]="toolsNavGroupOpen()"
+      [bitPopoverAnchorFor]="importCoachmark.popover()"
+      [popoverOpen]="importCoachmarkOpen() && !sideNavService.open()"
+      [position]="coachmarkService.getStepPosition('importData')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="true"
     >
       <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
       <bit-nav-item
         [text]="'importNoun' | i18n"
         route="tools/import"
         [bitPopoverAnchorFor]="importCoachmark.popover()"
-        [popoverOpen]="importCoachmarkOpen()"
+        [popoverOpen]="importCoachmarkOpen() && sideNavService.open()"
         [position]="coachmarkService.getStepPosition('importData')"
         [closeOnBackdropClick]="false"
         [spotlight]="true"

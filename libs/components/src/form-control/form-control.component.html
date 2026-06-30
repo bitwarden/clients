@@ -1,27 +1,31 @@
+@let control = base.formControl();
 <label
-  class="tw-transition tw-items-start [&:has(input[type='checkbox'])]:tw-gap-1 [&:has(input[type='radio'])]:tw-gap-1.5 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-primary-600"
-  [ngClass]="[formControl().disabled ? 'tw-cursor-auto' : 'tw-cursor-pointer']"
+  class="tw-transition tw-items-start tw-gap-2 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-border-focus"
+  [class.tw-cursor-auto]="control.disabled"
+  [class.tw-cursor-pointer]="!control.disabled"
 >
   <ng-content></ng-content>
+  <!-- minor padding adjustment for visual alignment -->
   <span
-    class="tw-inline-flex tw-flex-col"
-    [ngClass]="formControl().disabled ? 'tw-text-muted' : 'tw-text-main'"
+    class="tw-inline-flex tw-flex-col tw-pt-px"
+    [class.tw-text-fg-inactive]="control.disabled"
+    [class.tw-text-fg-heading]="!control.disabled"
   >
-    <span bitTypography="body2">
+    <span bitTypography="body2" class="tw-leading-5 tw-font-medium">
       <ng-content select="bit-label"></ng-content>
-      @if (required) {
+      @if (control.required) {
         <span class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
       }
     </span>
-    @if (!hasError) {
+    @if (!control.hasError) {
       <span class="[&_bit-hint]:tw-mt-0 tw-leading-none">
         <ng-content select="bit-hint"></ng-content>
       </span>
     }
   </span>
 </label>
-@if (hasError) {
+@if (control.hasError) {
   <div class="tw-mt-1 tw-text-danger tw-text-xs tw-ms-0.5">
-    <i class="bwi bwi-error"></i> {{ displayError }}
+    <bit-icon name="bwi-error" /> {{ base.displayError }}
   </div>
 }

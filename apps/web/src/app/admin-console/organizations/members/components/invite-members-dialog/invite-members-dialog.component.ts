@@ -58,7 +58,7 @@ import {
   PermissionMode,
 } from "../../../shared/components/access-selector";
 import { MemberActionsService } from "../../services";
-import { MemberDialogResult } from "../member-dialog/member-dialog.component";
+import { MemberDialogResult } from "../member-dialog/member-dialog.types";
 import { commaSeparatedEmails } from "../member-dialog/validators/comma-separated-emails.validator";
 import {
   getEmailBatchLimit,
@@ -133,6 +133,10 @@ export class InviteMembersDialogComponent {
 
   readonly copyLink = async () => {
     await this.byLinkTab()?.copyLink();
+  };
+
+  readonly deactivateLink = async () => {
+    await this.byLinkTab()?.deactivateLink();
   };
 
   protected readonly formGroup = this.formBuilder.group({

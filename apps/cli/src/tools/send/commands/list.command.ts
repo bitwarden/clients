@@ -28,8 +28,8 @@ export class SendListCommand {
     }
 
     const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
-    const res = new ListResponse(sends.map((s) => new SendResponse(s, webVaultUrl)));
+    const sendUrl = env.getSendUrl();
+    const res = new ListResponse(sends.map((s) => new SendResponse(s, sendUrl)));
     return Response.success(res);
   }
 }

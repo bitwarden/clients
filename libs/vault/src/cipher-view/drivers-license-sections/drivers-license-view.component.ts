@@ -6,7 +6,6 @@ import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import {
-  CopyClickDirective,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -29,7 +28,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     TypographyModule,
     FormFieldModule,
     IconButtonModule,
-    CopyClickDirective,
     CopyCipherFieldDirective,
   ],
 })

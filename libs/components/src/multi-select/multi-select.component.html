@@ -1,27 +1,27 @@
 <ng-select
   [items]="baseItems()"
-  [(ngModel)]="selectedItems"
+  [ngModel]="selectedItems()"
   (ngModelChange)="onChange($event)"
   (blur)="onBlur()"
   bindLabel="listName"
   groupBy="parentGrouping"
   [placeholder]="placeholder()"
   [loading]="loading()"
-  [loadingText]="loadingText"
+  [loadingText]="loadingText()"
   notFoundText="{{ 'multiSelectNotFound' | i18n }}"
   clearAllText="{{ 'multiSelectClearAll' | i18n }}"
   [multiple]="true"
   [closeOnSelect]="false"
   (close)="onDropdownClosed()"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   [clearSearchOnAdd]="true"
-  [labelForId]="labelForId"
+  [labelForId]="searchInputId()"
   [keyDownFn]="keyDown"
   appendTo="body"
   outsideClickEvent="mousedown"
 >
   <ng-template ng-loadingspinner-tmp>
-    <bit-spinner size="small"></bit-spinner>
+    <bit-spinner size="sm" />
   </ng-template>
   <ng-template ng-label-tmp let-item="item" let-clear="clear">
     <bit-chip
@@ -29,7 +29,7 @@
       class="tw-me-1"
       [label]="item.labelName"
       [startIcon]="item.icon"
-      [disabled]="disabled"
+      [disabled]="disabled()"
       (dismissed)="clear(item)"
     ></bit-chip>
   </ng-template>
@@ -37,7 +37,7 @@
     <div class="tw-flex">
       <div class="tw-w-7 tw-flex-none">
         @if (isSelected(item)) {
-          <i class="bwi bwi-fw bwi-check" aria-hidden="true"></i>
+          <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
         }
       </div>
       <div class="tw-me-2 tw-flex-initial">
@@ -45,7 +45,7 @@
           <i class="bwi bwi-fw {{ item.icon }}" aria-hidden="true"></i>
         }
       </div>
-      <div class="tw-flex-1">
+      <div class="tw-flex-1" [attr.title]="item.listName">
         {{ item.listName }}
       </div>
     </div>

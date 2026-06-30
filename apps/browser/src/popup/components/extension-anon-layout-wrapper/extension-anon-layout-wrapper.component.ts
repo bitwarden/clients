@@ -13,6 +13,11 @@ import {
   AnonLayoutComponent,
   AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
+  ANON_LAYOUT_DEFAULTS,
+  ContentVerticalPaddingType,
+  FooterVerticalPaddingType,
+  HeroTextAlignmentType,
+  SecondaryContentLocationType,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -21,6 +26,8 @@ import { AccountSwitcherService } from "../../../auth/popup/account-switching/se
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
+
+import { EXTENSION_ANON_LAYOUT_DEFAULTS } from "./extension-anon-layout-defaults";
 
 export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showAcctSwitcher?: boolean;
@@ -60,6 +67,11 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
+  protected hidePageIcon?: boolean;
+  protected contentVerticalPadding?: ContentVerticalPaddingType;
+  protected footerVerticalPadding?: FooterVerticalPaddingType;
+  protected heroTextAlignment?: HeroTextAlignmentType;
+  protected secondaryContentLocation?: SecondaryContentLocationType;
 
   protected theme: string;
   protected logo = BitwardenLogo;
@@ -118,25 +130,37 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.pageIcon = firstChildRouteData["pageIcon"];
     }
 
-    this.hideFooter = Boolean(firstChildRouteData["hideFooter"]);
-    this.showReadonlyHostname = Boolean(firstChildRouteData["showReadonlyHostname"]);
-    this.maxWidth = firstChildRouteData["maxWidth"];
+    // When undefined, fall back to ANON_LAYOUT_DEFAULTS / EXTENSION_ANON_LAYOUT_DEFAULTS — single
+    // source of truth for route-init defaults, the reset emission, and the component-level
+    // input defaults.
+    this.showReadonlyHostname =
+      firstChildRouteData["showReadonlyHostname"] ?? ANON_LAYOUT_DEFAULTS.showReadonlyHostname;
+    this.maxWidth = firstChildRouteData["maxWidth"] ?? ANON_LAYOUT_DEFAULTS.maxWidth;
+    this.hideCardWrapper =
+      firstChildRouteData["hideCardWrapper"] ?? ANON_LAYOUT_DEFAULTS.hideCardWrapper;
+    this.hidePageIcon = firstChildRouteData["hidePageIcon"] ?? ANON_LAYOUT_DEFAULTS.hidePageIcon;
+    this.contentVerticalPadding =
+      firstChildRouteData["contentVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.contentVerticalPadding;
+    this.footerVerticalPadding =
+      firstChildRouteData["footerVerticalPadding"] ?? ANON_LAYOUT_DEFAULTS.footerVerticalPadding;
+    this.heroTextAlignment =
+      firstChildRouteData["heroTextAlignment"] ?? ANON_LAYOUT_DEFAULTS.heroTextAlignment;
 
-    if (firstChildRouteData["showAcctSwitcher"] !== undefined) {
-      this.showAcctSwitcher = Boolean(firstChildRouteData["showAcctSwitcher"]);
-    }
+    this.showAcctSwitcher =
+      firstChildRouteData["showAcctSwitcher"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showAcctSwitcher;
+    this.showBackButton =
+      firstChildRouteData["showBackButton"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showBackButton;
+    this.showLogo = firstChildRouteData["showLogo"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.showLogo;
+    this.hideFooter =
+      firstChildRouteData["hideFooter"] ?? EXTENSION_ANON_LAYOUT_DEFAULTS.hideFooter;
+    this.secondaryContentLocation =
+      firstChildRouteData["secondaryContentLocation"] ??
+      ANON_LAYOUT_DEFAULTS.secondaryContentLocation;
 
-    if (firstChildRouteData["showBackButton"] !== undefined) {
-      this.showBackButton = Boolean(firstChildRouteData["showBackButton"]);
-    }
-
-    if (firstChildRouteData["showLogo"] !== undefined) {
-      this.showLogo = Boolean(firstChildRouteData["showLogo"]);
-    }
-
-    if (firstChildRouteData["hideCardWrapper"] !== undefined) {
-      this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
-    }
+    // Cache the route-data payload so resetToCachedRouteData() can later restore it.
+    this.extensionAnonLayoutWrapperDataService.cacheRouteData(
+      firstChildRouteData as Partial<AnonLayoutWrapperData>,
+    );
   }
 
   private listenForServiceDataChanges() {
@@ -144,11 +168,11 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       .anonLayoutWrapperData$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data: ExtensionAnonLayoutWrapperData) => {
-        this.setAnonLayoutWrapperData(data);
+        this.setAnonLayoutWrapperDataFromService(data);
       });
   }
 
-  private setAnonLayoutWrapperData(data: ExtensionAnonLayoutWrapperData) {
+  private setAnonLayoutWrapperDataFromService(data: ExtensionAnonLayoutWrapperData) {
     if (!data) {
       return;
     }
@@ -192,6 +216,22 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     if (data.showLogo !== undefined) {
       this.showLogo = data.showLogo;
     }
+
+    if (data.hidePageIcon !== undefined) {
+      this.hidePageIcon = data.hidePageIcon;
+    }
+    if (data.contentVerticalPadding !== undefined) {
+      this.contentVerticalPadding = data.contentVerticalPadding;
+    }
+    if (data.footerVerticalPadding !== undefined) {
+      this.footerVerticalPadding = data.footerVerticalPadding;
+    }
+    if (data.heroTextAlignment !== undefined) {
+      this.heroTextAlignment = data.heroTextAlignment;
+    }
+    if (data.secondaryContentLocation !== undefined) {
+      this.secondaryContentLocation = data.secondaryContentLocation;
+    }
   }
 
   private handleStringOrTranslation(value: string | Translation): string {
@@ -215,6 +255,11 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
+    this.hidePageIcon = undefined;
+    this.contentVerticalPadding = undefined;
+    this.footerVerticalPadding = undefined;
+    this.heroTextAlignment = undefined;
+    this.secondaryContentLocation = undefined;
   }
 
   ngOnDestroy() {
