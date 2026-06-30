@@ -66,6 +66,7 @@ export enum FeatureFlag {
   BiometricsSDKIPC = "biometrics-sdk-ipc",
   NoLogoutOnKeyUpgradeRotation = "pm-31050-no-logout-key-upgrade-rotation",
   ForceUpgradeV2Encryption = "force-upgrade-v2-encryption",
+  EnableAccountEncryptionV2UserPasswordRegistration = "pm-27278-v2-password-registration",
 
   /* Tools */
   SendControls = "pm-31885-send-controls",
@@ -102,6 +103,7 @@ export enum FeatureFlag {
   PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
+  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -184,6 +186,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
+  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,
@@ -219,6 +222,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.BiometricsSDKIPC]: FALSE,
+  [FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration]: FALSE,
 
   /* Platform */
   [FeatureFlag.FedRampGovRegion]: FALSE,
