@@ -35,7 +35,7 @@ export enum OffboardingSurveyDialogResultType {
 }
 
 type Reason = {
-  value: string;
+  value: string | null;
   text: string;
 };
 
@@ -107,7 +107,7 @@ export class OffboardingSurveyComponent {
   protected readonly isBusiness: boolean;
 
   protected readonly formGroup = this.formBuilder.group({
-    reason: [null],
+    reason: [null as string | null],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
     otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
@@ -166,7 +166,7 @@ export class OffboardingSurveyComponent {
       : [this.formGroup.value.feedback];
 
     const request = {
-      reason: this.formGroup.value.reason,
+      reason: this.formGroup.value.reason!,
       feedback: feedbackParts.filter(Boolean).join("\n"),
     };
 
@@ -176,7 +176,7 @@ export class OffboardingSurveyComponent {
 
     this.toastService.showToast({
       variant: "success",
-      title: null,
+      title: undefined,
       message: this.i18nService.t("canceledSubscription"),
     });
 
