@@ -979,6 +979,9 @@
   "close": {
     "message": "Đóng"
   },
+  "done": {
+    "message": "Done"
+  },
   "delete": {
     "message": "Xóa"
   },
@@ -1203,6 +1206,10 @@
     "message": "Ghi chú mới",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Khóa SSH mới",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Chỉnh sửa ghi chú",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Sửa khóa SSH",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "Xem ghi chú",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Xem khóa SSH",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "Xóa mục"
+  },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
   },
   "deleteFolder": {
     "message": "Xóa thư mục"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "Bạn có chắc chắn muốn tiếp tục không?"
   },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
   "moveSelectedItemsDesc": {
     "message": "Chọn thư mục mà bạn muốn thêm $COUNT$ mục đã chọn vào.",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Không cho phép thành viên tạo loại mục thẻ. Các thẻ hiện có sẽ bị xóa tự động."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
   "restrictCardTypeImport": {
     "message": "Không thể nhập mục thẻ"
@@ -4866,6 +4941,12 @@
   "deletedCollections": {
     "message": "Đã xóa các bộ sưu tập"
   },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
   "deletedCollectionId": {
     "message": "Đã xóa bộ sưu tập $ID$.",
     "placeholders": {
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "và"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "You cannot log in with SSO until you have accepted an invitation to join $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "Bằng cách chọn ô này, bạn đồng ý với điều sau:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "Đã chọn"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Được đề xuất"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "Yêu cầu thành viên thiết lập đăng nhập hai bước."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Các thành viên tổ chức không phải là chủ sở hữu hoặc quản trị viên và không có cài đặt đăng nhập hai bước cho tài khoản của mình sẽ bị loại khỏi tổ chức và sẽ nhận được email thông báo về thay đổi này."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Bạn là thành viên của một tổ chức yêu cầu phải thiết lập xác thực hai bước cho tài khoản người dùng của bạn. Nếu bạn tắt tất cả các nhà cung cấp xác thực hai bước, bạn sẽ tự động bị loại khỏi tổ chức này."
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "Yêu cầu thành viên đăng nhập bằng phương thức đăng nhập một lần cho doanh nghiệp."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Điều kiện tiên quyết"
   },
   "requireSsoPolicyReq": {
     "message": "Chính sách Doanh nghiệp cho một tổ chức phải được bật trước khi kích hoạt chính sách này."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "Chính sách một tổ chức chưa được thiết lập."
@@ -6887,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. Learn more about "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Give all users a dedicated “My Items” space for managing their own logins."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Prompt users to move their vault items to the organization"
+  },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
   "organizationDataOwnership": {
     "message": "Thực thi quyền sở hữu dữ liệu của tổ chức"
   },
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Cài đặt Mặc định Tự động gõ phím trên Máy tính"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Desktop autotype default setting"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Bật Tự động gõ phím trên Máy tính mặc định cho thành viên. Thành viên có thể tắt Tự động gõ phím thủ công trong ứng dụng máy tính để bàn.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
   "disableSend": {
     "message": "Xóa Send"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "Không cho phép thành viên xuất dữ liệu từ kho lưu trữ cá nhân của họ."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "Đã hủy xuất kho"
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "Đã chỉnh sửa bộ sưu tập"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
   "baseUrl": {
     "message": "Địa chỉ máy chủ"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Bạn đã chọn $TOTAL_COUNT$ mục. Bạn không thể cập nhật $READONLY_COUNT$ mục vì bạn không có quyền chỉnh sửa.",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Xóa tài trợ Gói Bitwarden Gia đình miễn phí"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Remove sponsored Families plan"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Không cho phép thành viên đổi gói Gia đình thông qua tổ chức này."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Thanh toán bằng tài khoản ngân hàng chỉ khả dụng cho khách hàng ở Hoa Kỳ. Bạn sẽ được yêu cầu xác minh tài khoản ngân hàng của mình. Chúng tôi sẽ thực hiện một khoản tiền gửi nhỏ trong vòng 1-2 ngày làm việc tới. Nhập mã mô tả sao kê từ khoản tiền gửi này trên trang thanh toán của tổ chức để xác minh tài khoản ngân hàng. Việc không xác minh tài khoản ngân hàng sẽ dẫn đến thanh toán bị bỏ lỡ và đăng ký của bạn bị tạm ngưng."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Không cho phép thành viên mở khóa tài khoản của họ bằng mã PIN."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "Nhật ký sự kiện không được lưu trữ cho tổ chức của bạn. Nâng cấp lên gói Teams hoặc Enterprise để có toàn quyền truy cập vào nhật ký sự kiện của tổ chức."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Ngăn người dùng tạo tài khoản bên ngoài tổ chức của bạn bằng địa chỉ email từ các tên miền đã xác nhận."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Cần phải xác nhận tên miền trước khi kích hoạt chính sách này."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Before turning on this policy, you must claim a domain."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
     "message": "Thời gian mở kho vượt quá giới hạn do tổ chức của bạn đặt ra."
@@ -14347,7 +14507,17 @@
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$"
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Clicked vault banner button"
+  },
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "paymentSuccessful": {
+    "message": "Payment successful"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plan purchased"
+  },
+  "renewalDate": {
+    "message": "Renewal date"
+  },
+  "upgradeStatus": {
+    "message": "Upgrade status"
+  },
+  "processing": {
+    "message": "Processing"
+  },
+  "managePlanInWebApp": {
+    "message": "Manage plan in web app"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."

@@ -106,12 +106,18 @@ import {
   All,
   VaultItemsTransferService,
   NewCipherMenuComponent,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
+  VaultBatchActionComponent,
+  VaultBatchBarService,
   VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
+import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
+import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
 import { VaultItemEvent } from "./vault-items/vault-item-event";
 import { VaultListComponent } from "./vault-list.component";
 
@@ -139,11 +145,15 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     NewCipherMenuComponent,
     SearchModule,
     FormsModule,
+    VaultBatchActionComponent,
     VaultOrganizationUserNotificationsComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
+    VaultBatchBarService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsDesktopDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogDesktopAdapter },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -182,6 +192,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
+  private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected activeFilter: VaultFilter = new VaultFilter();
@@ -209,6 +220,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
       ),
     ),
+    { initialValue: false },
+  );
+
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
+    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
     { initialValue: false },
   );
 
@@ -564,6 +583,16 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.changeDetectorRef.markForCheck();
       });
 
+    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([allCollections, hasCiphers]) =>
+        this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
+      );
+
+    this.vaultBatchBarService?.completed$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
@@ -649,13 +678,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("view", formConfig);
+    if (await this.openDialog("view", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
@@ -680,26 +710,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("form", formConfig);
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async cloneCipher(cipher: CipherView) {
     if (await this.shouldReprompt(cipher)) {
       return;
     }
-    this.cipher.set(cipher);
     const formConfig = await this.cipherFormConfigService.buildConfig(
       "clone",
       cipher.id as CipherId,
       cipher.type,
     );
-    await this.openDialog("form", formConfig);
+    if (await this.openDialog("form", formConfig)) {
+      this.cipher.set(cipher);
+    }
   }
 
   async shareCipher(cipher: CipherView) {
@@ -974,22 +1006,31 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return !confirmed;
   }
 
-  private async openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
+  private async openDialog(
+    mode: VaultItemDialogMode,
+    formConfig: CipherFormConfig,
+  ): Promise<boolean> {
     if (this.activeDrawerRef != null && this.dirtyInput()) {
       const keepChanges = await this.wantsToSaveChanges();
       if (keepChanges) {
-        return;
+        return false;
       }
       await this.activeDrawerRef.close();
     }
-    this.activeDrawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
+    const drawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,
       restore: this.restore,
     });
-    this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
-      this.activeDrawerRef = undefined;
-      this.cipher.set(null);
+    this.activeDrawerRef = drawerRef;
+    drawerRef?.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      // Opening a new drawer closes the previous one, which emits `closed` after the new
+      // drawer is already active. Only clear state if this drawer is still the active one,
+      // so switching items doesn't wipe the newly-selected cipher used by copy shortcuts.
+      if (this.activeDrawerRef === drawerRef) {
+        this.activeDrawerRef = undefined;
+        this.cipher.set(null);
+      }
       void this.router.navigate([], {
         queryParams: { action: null, itemId: null },
         queryParamsHandling: "merge",
@@ -999,6 +1040,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.refresh();
       }
     });
+    return drawerRef != null;
   }
 
   private copyValue(cipher: CipherView, value: string, labelI18nKey: string, aType: string) {
