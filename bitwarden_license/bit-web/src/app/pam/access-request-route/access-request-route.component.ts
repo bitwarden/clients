@@ -52,6 +52,17 @@ import { historyDisplayStatus } from "../my-access-requests/my-request-row";
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
 /**
+ * i18n keys for a decision-log row's outcome. A Deny recorded on a request that did not end Denied is the lease ending
+ * (self-end or operator revoke), not a denial — mirroring the audit log's revoke-vs-denial discriminator.
+ */
+const DECISION_LABEL_KEYS = {
+  approved: "pamStatusApproved",
+  denied: "pamStatusDenied",
+  endedByHolder: "pamAuditKindLeaseEndedByHolder",
+  revoked: "pamAuditKindLeaseRevoked",
+} as const;
+
+/**
  * The dedicated, shareable page for a single access request (`/pam/requests/:id`).
  *
  * Reached by a link an approver/requester can hand to a colleague, or by clicking a request row in
@@ -168,13 +179,28 @@ export class AccessRequestRouteComponent implements OnInit {
     if (request == null) {
       return [];
     }
-    return request.decisions.map((decision) => ({
-      automatic: decision.deciderKind === AccessDeciderKind.Automatic,
-      who: decision.name || decision.email || decision.id,
-      approved: decision.verdict === AccessDecisionVerdict.Approve,
-      comment: decision.comment,
-      decidedAt: new Date(decision.decidedAt),
-    }));
+    return request.decisions.map((decision) => {
+      const denied = decision.verdict === AccessDecisionVerdict.Deny;
+      // A Deny recorded against a request that did not end Denied is the lease ending, not a denial: the revoke /
+      // self-end path stores its reason as a Deny decision. Mirror the audit log — a real denial only exists when the
+      // request status is Denied; otherwise the Deny is the lease ending, by the holder (self-end) or an operator.
+      const leaseEnd = denied && request.status !== AccessRequestStatus.Denied;
+      const outcome = !denied
+        ? "approved"
+        : !leaseEnd
+          ? "denied"
+          : decision.id === request.requesterId
+            ? "endedByHolder"
+            : "revoked";
+      return {
+        automatic: decision.deciderKind === AccessDeciderKind.Automatic,
+        who: decision.name || decision.email || decision.id,
+        outcome,
+        labelKey: DECISION_LABEL_KEYS[outcome],
+        comment: decision.comment,
+        decidedAt: new Date(decision.decidedAt),
+      };
+    });
   });
 
   protected readonly leaseActive = computed(

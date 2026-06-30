@@ -154,6 +154,13 @@ entity AccessRule {
     revision_date: Timestamp
     last_edited_by: User?
 
+    -- Soft-delete stamp. A deleted rule keeps its collection links (so the audit
+    -- trail can still scope rule_deleted through them) but no longer governs
+    -- access once deleted_at is set — every gating / admin read excludes it.
+    -- deleted = deleted_at set; deleted_by is the deleting admin.
+    deleted_at: Timestamp?
+    deleted_by: User?
+
     -- Projections
     has_human_approval: conditions.any(c => c.kind = HumanApproval)
     has_ip_allowlist: conditions.any(c => c.kind = IpAllowlist)
@@ -196,6 +203,9 @@ entity AccessRequest {
     -- approved request was never activated in time. Distinct from resolved_at,
     -- which (for an expired-while-approved request) keeps the approval time.
     expired_at: Timestamp? when status = expired
+    -- Refused-activation timestamp, last-only; the request stays approved and
+    -- re-activatable.
+    rejected_at: Timestamp?
     -- The approver, or null for a system / access-rule auto-decision. Persists
     -- once set — through activation and unactivated expiry — for the audit trail.
     approver: User? when status != pending
@@ -329,7 +339,8 @@ rule CipherOpenWithActiveLease {
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and mm.collection in collections).count = 0)
+        (AccessRule where enabled and deleted_at = null
+                       and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
     let active_leases = AccessLease where requester = member
@@ -349,7 +360,8 @@ rule CipherOpenRequiresAccessRequest {
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and mm.collection in collections).count = 0)
+        (AccessRule where enabled and deleted_at = null
+                       and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
     -- The rule governing the member's access, resolved by the union/OR policy
@@ -387,7 +399,8 @@ rule CipherOpenWithApprovedRequest {
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and mm.collection in collections).count = 0)
+        (AccessRule where enabled and deleted_at = null
+                       and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
     let active_leases = AccessLease where requester = member
@@ -431,7 +444,8 @@ rule CipherOpenPassthrough {
     let member_memberships = CollectionMembership where member = member
                                                     and collection in cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and mm.collection in collections).count = 0)
+        (AccessRule where enabled and deleted_at = null
+                       and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
     ensures: CipherOpened(member, cipher, null)
 }
@@ -777,6 +791,10 @@ rule LeaseActivationRejected {
         or now > request.activatable_until
         or (scheduled and now < request.requested_not_before)
     requires: cannot_start
+    -- Stamp the refusal so the audit log can synthesize lease_activation_rejected.
+    -- Last-write-wins: only the most recent refusal is retained. The request stays
+    -- approved and re-activatable; this does not transition status.
+    ensures: request.rejected_at = now
     ensures: LeaseActivationAudited(request: request, outcome: rejected)
 }
 
@@ -930,11 +948,21 @@ rule OrgAdminUpdatesAccessRule {
 
 rule OrgAdminDeletesAccessRule {
     when: DeleteAccessRule(admin, rule)
-    -- Deletion does not affect leases already granted under this rule;
-    -- they live out their windows. New opens against this rule's collections
-    -- fall through to the gating check, which now finds no rule and either
-    -- passes through (if no rule attaches) or hits a different rule.
-    ensures: not exists rule
+    -- Soft delete: stamp deleted_at / deleted_by rather than removing the row, so
+    -- the audit trail can still synthesize rule_deleted (the collection links are
+    -- preserved). A deleted rule no longer governs — every gating / admin read
+    -- excludes deleted_at != null (see CipherOpen* gating, GoverningRule, and the
+    -- AccessRulesAdminPage list). Idempotent: deleting an already-deleted rule is a
+    -- no-op (the guard keeps the first deleter and time). revision_date is left
+    -- untouched so the delete does not read as an edit.
+    --
+    -- Deletion does not affect leases already granted under this rule; they live
+    -- out their windows. New opens against this rule's collections fall through to
+    -- the gating check, which now skips the deleted rule and either passes through
+    -- (if no other rule attaches) or hits a different rule.
+    requires: rule.deleted_at = null
+    ensures: rule.deleted_at = now
+    ensures: rule.deleted_by = admin
 }
 
 -- ----------------------------------------------------------------------------
@@ -972,8 +1000,9 @@ deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 -- `GoverningRule(member, cipher)`: the single AccessRule that governs `member`'s
 -- access to `cipher` when the cipher is gated for them. Resolved by the same
 -- union/OR rule as cipher gating — the least-restrictive applicable rule wins.
--- Among the enabled rules on the collections through which `member` reaches
--- `cipher`, an AUTOMATIC grant is favoured over one that needs human approval:
+-- Among the enabled, non-deleted rules (deleted_at = null) on the collections
+-- through which `member` reaches `cipher`, an AUTOMATIC grant is favoured over one
+-- that needs human approval:
 --   - if any such rule has no human_approval condition and its automated conditions
 --     pass, that rule governs and the request auto-approves;
 --   - else if any such rule's automated conditions pass (necessarily one with human
@@ -1258,7 +1287,10 @@ surface AccessRulesAdminPage {
     context organization: Organization
 
     exposes:
-        for rule in AccessRule where organization = organization:
+        -- Deleted rules (deleted_at != null) are excluded — a soft-deleted rule no
+        -- longer appears in the admin list (it survives only for the audit trail).
+        for rule in AccessRule where organization = organization
+                                  and deleted_at = null:
             rule.name
             rule.description
             rule.conditions
@@ -1294,8 +1326,10 @@ surface GovernanceDashboard {
     context organization: Organization
 
     exposes:
-        -- Strip totals.
+        -- Strip totals. Deleted rules (deleted_at != null) are excluded — a
+        -- soft-deleted rule no longer governs and drops from the dashboard.
         AccessRule where organization = organization
+                     and deleted_at = null
                      and collections.count > 0
         AccessRequest where rule.organization = organization and status = pending
         -- All active leases in scope, surfaced by GET /leases/active.
@@ -1310,7 +1344,7 @@ surface GovernanceDashboard {
         -- Per-collection rows.
         for collection in Collection where organization = organization:
             collection.name
-            AccessRule where collections.contains(collection)
+            AccessRule where deleted_at = null and collections.contains(collection)
             CollectionMembership where collection = collection
             AccessRequest where collection = collection and status = pending
             AccessLease where collection = collection and status = active
@@ -1401,9 +1435,17 @@ invariant AtMostOneLeasingFreezePerOrg {
 -- ----------------------------------------------------------------------------
 
 
-open question "When an AccessRule is deleted while an associated AccessLease is still active, what happens to in-flight extension requests? Today the AccessLease keeps a reference to the deleted rule — implementation does not enforce referential cleanup."
+open question "When an AccessRule is soft-deleted (deleted_at set) while an associated AccessLease is still active, what happens to in-flight extension requests? The AccessLease keeps a reference to the now-deleted rule (the row is retained, so the reference still resolves), and the lease lives out its window — but an extension routes back through a rule that no longer governs. Does an extension against a deleted rule deny, or honour the original grant?"
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
+
+-- RESOLVED — org suspension and governance: a suspended (disabled) organization
+-- drops out of the caller's claim-based current context, which would empty every
+-- collection-scoped governance read (approver inbox, lease lists, audit trail).
+-- Governance stays FULLY available to org admins while the org is suspended — the
+-- manageable-collection resolution also reads the admin's confirmed memberships
+-- from the database (which include disabled orgs), so both review AND leasing
+-- actions (approve/deny/revoke) work during suspension.
 
 -- RESOLVED — when a member reaches a cipher through multiple gated collections with
 -- different rules, the governing rule is resolved by union/OR, favouring an automatic

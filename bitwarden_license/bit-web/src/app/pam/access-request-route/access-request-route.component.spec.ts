@@ -4,7 +4,11 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
 
-import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
+import {
+  AccessDeciderKind,
+  AccessDecisionVerdict,
+  AccessRequestDetailsResponse,
+} from "@bitwarden/bit-pam";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -89,6 +93,8 @@ describe("AccessRequestRouteComponent", () => {
     pamStatusCancelled: "Cancelled",
     pamStatusExpired: "Expired",
     pamStatusRevoked: "Revoked",
+    pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+    pamAuditKindLeaseRevoked: "Lease revoked",
     pamResolverAccessRule: "Access rule",
     pamInboxDuration1Hour: "1 hour",
     pamInboxStartAsap: "ASAP",
@@ -186,5 +192,42 @@ describe("AccessRequestRouteComponent", () => {
 
     expect(detail.cancel).toHaveBeenCalled();
     expect(toast.showToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "success" }));
+  }));
+
+  it("labels a holder self-end in the decision log, not as a denial", fakeAsync(() => {
+    // Approved request whose holder ended their own lease: the self-end is recorded as a Deny decision by the
+    // requester. It must read "Lease ended by holder" (matching the audit log), not "Denied".
+    detail.request$.next(
+      new AccessRequestDetailsResponse({
+        Id: "req-1",
+        CipherId: "cipher-1",
+        CollectionId: "col-1",
+        RequesterId: "holder",
+        Status: "approved",
+        SubmittedAt: "2026-06-24T13:00:00Z",
+        Decisions: [
+          {
+            DeciderKind: AccessDeciderKind.Human,
+            Id: "approver",
+            Name: "approver",
+            Verdict: AccessDecisionVerdict.Approve,
+            DecidedAt: "2026-06-24T13:11:39Z",
+          },
+          {
+            DeciderKind: AccessDeciderKind.Human,
+            Id: "holder",
+            Name: "holder",
+            Verdict: AccessDecisionVerdict.Deny,
+            DecidedAt: "2026-06-24T13:22:10Z",
+          },
+        ],
+      }),
+    );
+
+    const fixture = create();
+    const text: string = fixture.nativeElement.textContent;
+
+    expect(text).toContain("Lease ended by holder");
+    expect(text).not.toContain("Denied");
   }));
 });

@@ -133,8 +133,17 @@
         @for (decision of decisions(); track $index) {
           <li class="tw-flex tw-flex-col tw-gap-1">
             <div class="tw-flex tw-items-center tw-gap-2">
-              <span bitBadge [variant]="decision.approved ? 'success' : 'danger'">
-                {{ (decision.approved ? "pamStatusApproved" : "pamStatusDenied") | i18n }}
+              <span
+                bitBadge
+                [variant]="
+                  decision.outcome === 'approved'
+                    ? 'success'
+                    : decision.outcome === 'denied'
+                      ? 'danger'
+                      : 'secondary'
+                "
+              >
+                {{ decision.labelKey | i18n }}
               </span>
               <span>
                 @if (decision.automatic) {
