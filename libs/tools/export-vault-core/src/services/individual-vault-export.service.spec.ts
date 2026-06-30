@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
@@ -39,6 +40,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
   BitwardenJsonExport,
@@ -188,6 +190,12 @@ describe("VaultExportService", () => {
     kdfConfigService = mock<KdfConfigService>();
     apiService = mock<ApiService>();
     logService = mock<LogService>();
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(SdkRandomNumberClient.prototype, "gen_bytes").mockReturnValue(new Uint8Array(16));
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
