@@ -465,7 +465,7 @@ describe("SendReceiveCommand", () => {
       sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
       jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
-      const sendUrl = "https://send.bitwarden.eu/#/send/abc123/key456";
+      const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
       const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));

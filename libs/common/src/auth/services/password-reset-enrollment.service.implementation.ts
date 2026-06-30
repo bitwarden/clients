@@ -8,7 +8,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordEnrollmentRequest,
 } from "@bitwarden/admin-console/common";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -21,6 +20,8 @@ import { Utils } from "../../platform/misc/utils";
 import { UserKey } from "../../types/key";
 import { AccountService } from "../abstractions/account.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "../abstractions/password-reset-enrollment.service.abstraction";
+
+import { getUserId } from "./account.service";
 
 export class PasswordResetEnrollmentServiceImplementation implements PasswordResetEnrollmentServiceAbstraction {
   constructor(
