@@ -92,10 +92,19 @@ export class BulkDeleteDialogComponent {
     await Promise.all(deletePromises);
 
     if (this.cipherIds.length || this.unassignedCiphers.length) {
+      const cipherCount = this.cipherIds.length + this.unassignedCiphers.length;
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
+        message: this.i18nService.t(
+          this.permanent
+            ? cipherCount === 1
+              ? "permanentlyDeletedItem"
+              : "permanentlyDeletedItems"
+            : cipherCount === 1
+              ? "deletedItem"
+              : "deletedItems",
+        ),
       });
     }
     if (this.collections.length) {

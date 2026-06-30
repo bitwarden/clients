@@ -66,7 +66,15 @@ export class BulkDeleteDialogDesktopAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t(permanent ? "permanentlyDeletedItems" : "deletedItems"),
+      message: this.i18nService.t(
+        permanent
+          ? count === 1
+            ? "permanentlyDeletedItem"
+            : "permanentlyDeletedItems"
+          : count === 1
+            ? "deletedItem"
+            : "deletedItems",
+      ),
     });
 
     return BulkDeleteDialogResult.Deleted;
@@ -122,6 +130,8 @@ export class BulkDeleteDialogDesktopAdapter implements BulkDeleteDialogRef {
       return BulkDeleteDialogResult.Canceled;
     }
 
+    const cipherCount = cipherIds.length + unassignedCiphers.length;
+
     await Promise.all([
       this.bulkDelete.deleteCiphers({
         cipherIds,
@@ -134,7 +144,7 @@ export class BulkDeleteDialogDesktopAdapter implements BulkDeleteDialogRef {
 
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("deletedItems"),
+      message: this.i18nService.t(cipherCount === 1 ? "deletedItem" : "deletedItems"),
     });
     this.toastService.showToast({
       variant: "success",
