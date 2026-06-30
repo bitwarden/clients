@@ -1,9 +1,8 @@
-import { PrivateKeysResponseModel } from "@bitwarden/common/key-management/keys/response/private-keys.response";
-
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { PrivateKeysResponseModel } from "../../key-management/keys/response/private-keys.response";
 import { UserId } from "../../types/guid";
 
 import { BaseResponse } from "./base.response";
@@ -28,7 +27,14 @@ export class ProfileResponse extends BaseResponse {
   forcePasswordReset: boolean;
   usesKeyConnector: boolean;
   verifyDevices: boolean;
+  /**
+   * Sync data for confirmed organizations only
+   */
   organizations: ProfileOrganizationResponse[] = [];
+  /**
+   * Sync data for accepted and confirmed organizations
+   */
+  organizationsNew?: ProfileOrganizationResponse[];
   providers: ProfileProviderResponse[] = [];
   providerOrganizations: ProfileProviderOrganizationResponse[] = [];
 
@@ -63,6 +69,10 @@ export class ProfileResponse extends BaseResponse {
     const organizations = this.getResponseProperty("Organizations");
     if (organizations != null) {
       this.organizations = organizations.map((o: any) => new ProfileOrganizationResponse(o));
+    }
+    const organizationsNew = this.getResponseProperty("OrganizationsNew");
+    if (organizationsNew != null) {
+      this.organizationsNew = organizationsNew.map((o: any) => new ProfileOrganizationResponse(o));
     }
     const providers = this.getResponseProperty("Providers");
     if (providers != null) {

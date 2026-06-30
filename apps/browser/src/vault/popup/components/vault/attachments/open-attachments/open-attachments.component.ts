@@ -20,7 +20,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
+import { ItemModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { CipherFormContainer } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -28,14 +28,7 @@ import { CipherFormContainer } from "@bitwarden/vault";
 @Component({
   selector: "app-open-attachments",
   templateUrl: "./open-attachments.component.html",
-  imports: [
-    BadgeModule,
-    CommonModule,
-    ItemModule,
-    JslibModule,
-    TypographyModule,
-    PremiumBadgeComponent,
-  ],
+  imports: [CommonModule, ItemModule, JslibModule, TypographyModule, PremiumBadgeComponent],
 })
 export class OpenAttachmentsComponent implements OnInit {
   /** Cipher `id` */

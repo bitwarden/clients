@@ -8,47 +8,17 @@ import {
   HostListener,
   OnDestroy,
   ViewContainerRef,
+  inject,
   input,
 } from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
-import { MenuComponent } from "./menu.component";
+import { TooltipDirective } from "../tooltip/tooltip.directive";
 
-/**
- * Position strategies for context menus.
- * Tries positions in order: below-right, above-right, below-left, above-left
- */
-const CONTEXT_MENU_POSITIONS: ConnectedPosition[] = [
-  // below-right
-  {
-    originX: "start",
-    originY: "top",
-    overlayX: "start",
-    overlayY: "top",
-  },
-  // above-right
-  {
-    originX: "start",
-    originY: "bottom",
-    overlayX: "start",
-    overlayY: "bottom",
-  },
-  // below-left
-  {
-    originX: "end",
-    originY: "top",
-    overlayX: "end",
-    overlayY: "top",
-  },
-  // above-left
-  {
-    originX: "end",
-    originY: "bottom",
-    overlayX: "end",
-    overlayY: "bottom",
-  },
-];
+import { MenuPositionIdentifier, defaultPositions } from "./default-positions";
+import { MenuComponent } from "./menu.component";
 
 @Directive({
   selector: "[bitMenuTriggerFor]",
@@ -65,25 +35,41 @@ export class MenuTriggerForDirective implements OnDestroy {
 
   readonly menu = input.required<MenuComponent>({ alias: "bitMenuTriggerFor" });
 
+  /** Preferred opening position. CDK falls back through the remaining positions if the preferred one doesn't fit. */
+  readonly menuPosition = input<MenuPositionIdentifier>();
+
   private overlayRef: OverlayRef | null = null;
-  private defaultMenuConfig: OverlayConfig = {
-    panelClass: "bit-menu-panel",
-    hasBackdrop: true,
-    backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
-    scrollStrategy: this.overlay.scrollStrategies.reposition(),
-    positionStrategy: this.overlay
-      .position()
-      .flexibleConnectedTo(this.elementRef)
-      .withPositions([
-        { originX: "start", originY: "bottom", overlayX: "start", overlayY: "top" },
-        { originX: "end", originY: "bottom", overlayX: "end", overlayY: "top" },
-        { originX: "start", originY: "top", overlayX: "start", overlayY: "bottom" },
-        { originX: "end", originY: "top", overlayX: "end", overlayY: "bottom" },
-      ])
-      .withLockedPosition(true)
-      .withFlexibleDimensions(false)
-      .withPush(true),
-  };
+
+  /**
+   * Host tooltip (if any) on the same element. Suppressed while the menu is open so
+   * a `bitTooltip` can't pop over the active menu.
+   */
+  private readonly hostTooltip = inject(TooltipDirective, { self: true, optional: true });
+
+  private get positions(): ConnectedPosition[] {
+    const preferred = this.menuPosition();
+    if (!preferred) {
+      return defaultPositions;
+    }
+    const match = defaultPositions.find((p) => p.id === preferred);
+    return match ? [match, ...defaultPositions.filter((p) => p !== match)] : defaultPositions;
+  }
+
+  private get defaultMenuConfig(): OverlayConfig {
+    return {
+      panelClass: "bit-menu-panel",
+      hasBackdrop: true,
+      backdropClass: ["cdk-overlay-transparent-backdrop", "bit-menu-panel-backdrop"],
+      scrollStrategy: this.overlay.scrollStrategies.reposition(),
+      positionStrategy: this.overlay
+        .position()
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions(this.positions)
+        .withLockedPosition(true)
+        .withFlexibleDimensions(false)
+        .withPush(true),
+    };
+  }
   private closedEventsSub: Subscription | null = null;
   private keyDownEventsSub: Subscription | null = null;
   private menuCloseListenerSub: Subscription | null = null;
@@ -119,18 +105,23 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
 
     this.isOpen = true;
+    this.hostTooltip?.suppressed.set(true);
 
+    const baseConfig = this.defaultMenuConfig;
+    // For a zero-size point anchor (right-click), originX/originY collapse onto the
+    // click coordinate — only overlayX/overlayY drive placement, so the same positions
+    // we use for element anchors work here too.
     const positionStrategy = event
       ? this.overlay
           .position()
           .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
-          .withPositions(CONTEXT_MENU_POSITIONS)
+          .withPositions(this.positions)
           .withLockedPosition(false)
           .withFlexibleDimensions(false)
           .withPush(true)
-      : this.defaultMenuConfig.positionStrategy;
+      : baseConfig.positionStrategy;
 
-    const config = { ...this.defaultMenuConfig, positionStrategy, hasBackdrop: !event };
+    const config = { ...baseConfig, positionStrategy, hasBackdrop: !event };
 
     this.overlayRef = this.overlay.create(config);
 
@@ -142,11 +133,12 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.setupClosingActions(isContextMenu);
     this.setupMenuCloseListener();
 
-    if (menu.keyManager) {
-      menu.keyManager.setFirstItemActive();
+    const menuKeyManager = menu.keyManager();
+    if (menuKeyManager) {
+      menuKeyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
         .keydownEvents()
-        .subscribe((event: KeyboardEvent) => this.menu().keyManager?.onKeydown(event));
+        .subscribe((event: KeyboardEvent) => menuKeyManager.onKeydown(event));
     }
   }
 
@@ -164,14 +156,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     const positionStrategy = this.overlay
       .position()
       .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
-      .withPositions([
-        {
-          originX: "start",
-          originY: "top",
-          overlayX: "start",
-          overlayY: "top",
-        },
-      ]);
+      .withPositions(this.positions);
 
     this.overlayRef.updatePositionStrategy(positionStrategy);
   }
@@ -182,6 +167,7 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
 
     this.isOpen = false;
+    this.hostTooltip?.suppressed.set(false);
     this.disposeAll();
     this.menu().closed.emit();
   }
@@ -197,7 +183,7 @@ export class MenuTriggerForDirective implements OnDestroy {
         return keys.includes(event.key);
       }),
     );
-    const menuClosed = this.menu().closed;
+    const menuClosed = outputToObservable(this.menu().closed);
     const detachments = this.overlayRef.detachments();
 
     const closeEvents = isContextMenu

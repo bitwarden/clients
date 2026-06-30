@@ -1,9 +1,13 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 
 import { SvgModule } from "../svg";
 import { TypographyModule } from "../typography";
+
+import { LANDING_HERO_TEXT_ALIGNMENT_DEFAULT } from "./landing-defaults";
+
+export type HeroTextAlignmentType = "left" | "center";
 
 /**
  * Hero section component for landing pages featuring an optional icon, title, and subtitle.
@@ -37,4 +41,15 @@ export class LandingHeroComponent {
   readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
+
+  /**
+   * Horizontal alignment of the hero's title and subtitle. Defaults to "center".
+   * (The icon is always centered. Pair with `hidePageIcon: true` for a fully
+   * left-aligned hero block.)
+   */
+  readonly heroTextAlignment = input<HeroTextAlignmentType>(LANDING_HERO_TEXT_ALIGNMENT_DEFAULT);
+
+  protected readonly alignmentClasses = computed(() =>
+    this.heroTextAlignment() === "left" ? "tw-text-left" : "tw-text-center tw-mx-auto",
+  );
 }

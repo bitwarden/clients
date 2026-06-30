@@ -129,7 +129,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
         // auto-confirm does not allow the user to be part of any other organization (even if admin or owner)
         // so we can assume that the first organization is the relevant one.
         .pipe(map((organizations) => organizations[0])),
-      this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+      this.policyService.policyAppliesToUser$(PolicyType.AutomaticUserConfirmation, userId),
     ]).pipe(
       map(
         ([organization, policyEnabled]) =>

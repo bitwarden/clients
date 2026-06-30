@@ -4,6 +4,7 @@ import {
   ElementRef,
   afterNextRender,
   computed,
+  contentChild,
   contentChildren,
   effect,
   inject,
@@ -12,6 +13,7 @@ import {
 } from "@angular/core";
 
 import { OverflowItemDirective } from "./overflow-item.directive";
+import { OverflowTriggerDirective } from "./overflow-trigger.directive";
 import { pack } from "./pack";
 
 /**
@@ -64,12 +66,20 @@ export class OverflowListDirective {
   readonly itemsInput = input<readonly OverflowItemDirective[] | null>(null, { alias: "items" });
   readonly items = computed(() => this.itemsInput() ?? this.queriedItems());
 
+  /**
+   * Optional trailing affordance (typically a "More" button). When present, its
+   * width is reserved from the space available to items so packing leaves room
+   * for it next to the last visible item.
+   */
+  private readonly trigger = contentChild(OverflowTriggerDirective, { descendants: true });
+
   /** Horizontal gap between items, in pixels. Should match the CSS gap of the host. */
   readonly gap = input(0);
 
   // --- measurement signals (data pipeline inputs) ---
   private readonly containerWidth = signal(0);
   private readonly itemWidths = signal<readonly number[]>([]);
+  private readonly triggerWidth = signal(0);
 
   /** First item with `[pinned]=true`, or null if none. */
   private readonly pinIndex = computed(() => {
@@ -91,7 +101,19 @@ export class OverflowListDirective {
         overflow: [] as readonly number[],
       };
     }
-    return pack(widths, this.containerWidth(), this.gap(), this.pinIndex());
+    const containerWidth = this.containerWidth();
+    const gap = this.gap();
+    // First, check whether everything fits without reserving the trigger — when
+    // it does, the trigger will be hidden and won't consume layout, so we'd be
+    // overflowing items just to make room for an affordance we don't need.
+    const totalWidth = widths.reduce((sum, w, i) => sum + w + (i > 0 ? gap : 0), 0);
+    if (totalWidth <= containerWidth) {
+      return pack(widths, containerWidth, gap, this.pinIndex());
+    }
+    const triggerWidth = this.triggerWidth();
+    const reserved = triggerWidth > 0 ? triggerWidth + gap : 0;
+    const available = Math.max(0, containerWidth - reserved);
+    return pack(widths, available, gap, this.pinIndex());
   });
 
   /** Indices of items rendered in the visible row, in DOM order. */
@@ -117,14 +139,22 @@ export class OverflowListDirective {
             Math.ceil(item.elementRef.nativeElement.getBoundingClientRect().width),
           ),
         );
+        const trigger = this.trigger();
+        if (trigger) {
+          this.triggerWidth.set(
+            Math.ceil(trigger.elementRef.nativeElement.getBoundingClientRect().width),
+          );
+        }
         this.ready.set(true);
       });
       ro.observe(this.hostEl);
       this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
-    // Apply [hidden] to overflowed items, and flag the lone displayed item (if any)
-    // so consumers can gate truncation styling on it.
+    // Apply [hidden] to overflowed items and to the trailing trigger when there's
+    // nothing to surface; flag the lone displayed item (if any) so consumers can
+    // gate truncation styling on it. The trigger update is gated on `ready` so
+    // its first-pass measurement happens while it's still visible.
     effect(() => {
       const overflowList = this.overflow();
       const displayedList = this.displayed();
@@ -135,6 +165,12 @@ export class OverflowListDirective {
         item.elementRef.nativeElement.hidden = overflowSet.has(i);
         item.shouldShrink.set(i === lonelyIndex);
       });
+      if (this.ready()) {
+        const trigger = this.trigger();
+        if (trigger) {
+          trigger.elementRef.nativeElement.hidden = overflowList.length === 0;
+        }
+      }
     });
   }
 }

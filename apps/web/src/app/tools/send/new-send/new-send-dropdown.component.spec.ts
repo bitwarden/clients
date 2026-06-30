@@ -5,7 +5,6 @@ import { of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -74,24 +73,9 @@ describe("NewSendDropdownComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should open send dialog in a popup without feature flag", async () => {
+  it("should open send dialog in drawer", async () => {
     const openSpy = jest.spyOn(SendAddEditDialogComponent, "open");
     const openDrawerSpy = jest.spyOn(SendAddEditDialogComponent, "openDrawer");
-    mockConfigService.getFeatureFlag.mockResolvedValue(false);
-    openSpy.mockReturnValue({ closed: of({}) } as any);
-
-    await component.createSend(SendType.Text);
-
-    expect(openSpy).toHaveBeenCalled();
-    expect(openDrawerSpy).not.toHaveBeenCalled();
-  });
-
-  it("should open send dialog in drawer with feature flag", async () => {
-    const openSpy = jest.spyOn(SendAddEditDialogComponent, "open");
-    const openDrawerSpy = jest.spyOn(SendAddEditDialogComponent, "openDrawer");
-    mockConfigService.getFeatureFlag.mockImplementation(async (key) =>
-      key === FeatureFlag.SendUIRefresh ? true : false,
-    );
     const mockRef = { closed: of({}) };
     openDrawerSpy.mockReturnValue(mockRef as any);
 

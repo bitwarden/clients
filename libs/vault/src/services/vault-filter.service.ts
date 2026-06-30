@@ -44,13 +44,14 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
+
 import {
   VaultFilterServiceAbstraction,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "@bitwarden/vault";
+} from "..";
 
 const NestingDelimiter = "/";
 
@@ -173,7 +174,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
                   id: "passport",
                   name: this.i18nService.t("typePassport"),
                   type: CipherType.Passport,
-                  icon: "bwi-globe",
+                  icon: "bwi-passport",
                 } as CipherTypeFilter,
               ]
             : []),

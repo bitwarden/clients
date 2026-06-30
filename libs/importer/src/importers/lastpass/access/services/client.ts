@@ -3,7 +3,7 @@
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { LastpassLoginType, OtpMethod, Platform } from "../enums";
+import { OtpMethod, Platform } from "../enums";
 import {
   Account,
   Chunk,
@@ -70,20 +70,17 @@ export class Client {
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
         let encryptedPrivateKey = null;
 
-        if (clientInfo.loginType == LastpassLoginType.MasterPassword) {
-          encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
-          initVec = key.subarray(0, 16);
-        } else if (clientInfo.loginType == LastpassLoginType.Federated) {
+        if (session.encryptedPrivateKey.startsWith("!")) {
           // LastPass private key format is !<base64>|<base64>
           // Private key use AES-CBC encryption, with the first base64 string
           // being the initialization vector and the second base64 string
           // containing the actual encrypted key
           const parts = session.encryptedPrivateKey.split("|");
-          if (parts.length !== 2) {
+          if (parts.length < 2) {
             throw new Error("Invalid LastPass private key format, no | separator");
           }
-          if (!parts[0].startsWith("!")) {
-            throw new Error("Invalid LastPass private key format, no ! starting separator");
+          if (parts.length > 2) {
+            throw new Error("Invalid LastPass private key format, too many | separators");
           }
           // Remove the starting ! character, which is not a part of the initialization
           // vector, and then base64 decode
@@ -93,12 +90,14 @@ export class Client {
           }
           encryptedPrivateKey = Utils.fromB64ToArray(parts[1]);
         } else {
-          throw new Error("Unsupported LastPass login");
+          // This catch-all works with the older private key format that LastPass used, presumably
+          // we no longer need it, but is here just in case...
+          encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
+          initVec = key.subarray(0, 16);
         }
 
         privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
       }
-
       return this.parseVault(blob, key, privateKey, options);
     } finally {
       await this.logout(session, rest);

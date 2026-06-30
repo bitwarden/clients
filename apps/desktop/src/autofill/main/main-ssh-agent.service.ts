@@ -185,18 +185,36 @@ export class MainSshAgentService {
         this.agentStateV2 = null;
       }
     });
+
+    ipcMain.handle(
+      SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE,
+      async (_, { requestId, accepted }: { requestId: number; accepted: boolean }) => {
+        this.pendingRequests.get(requestId)?.(accepted);
+        this.pendingRequests.delete(requestId);
+      },
+    );
   }
 
   // Starts the Agent.
   // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
   private async initV2() {
-    const signCb = (data: sshagent_v2.SignRequestData) => this.requestSign(data);
+    const signCb = (_err: Error | null, data: sshagent_v2.SignRequestData) =>
+      this.requestSign(data);
+    const listCb = (_err: Error | null) => this.requestListKeys();
     try {
-      this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb);
+      this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb, listCb);
       this.logService.info("SSH agent v2 started");
     } catch (e: unknown) {
       this.logService.error("SSH agent v2 encountered an error: ", e);
     }
+  }
+
+  private requestListKeys(): Promise<boolean> {
+    const id = ++this.requestId;
+    return new Promise((resolve) => {
+      this.pendingRequests.set(id, resolve);
+      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST, { requestId: id });
+    });
   }
 
   private requestSign(data: sshagent_v2.SignRequestData): Promise<boolean> {
@@ -210,6 +228,7 @@ export class MainSshAgentService {
         processName: data.signRequest.processName,
         isAgentForwarding: data.signRequest.isForwarding,
         namespace: data.signRequest.namespace,
+        hostFingerprint: data.signRequest.hostFingerprint,
       });
     });
   }

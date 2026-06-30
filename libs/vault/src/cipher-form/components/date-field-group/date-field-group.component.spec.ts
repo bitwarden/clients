@@ -304,6 +304,39 @@ describe("DateFieldGroupComponent", () => {
 
       expect(component.internalForm.valid).toBe(true);
     }));
+
+    it("returns invalidDate with fieldCount 2 when only month is filled (no blur)", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "4", day: "", year: "" });
+      tick();
+      expect(component.validate()).toEqual({ invalidDate: true, fieldCount: 2 });
+    }));
+
+    it("returns invalidDate with fieldCount 1 when month and day are filled but year is missing (no blur)", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "4", day: "15", year: "" });
+      tick();
+      expect(component.validate()).toEqual({ invalidDate: true, fieldCount: 1 });
+    }));
+
+    it("returns null when all fields are empty (no blur)", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "", day: "", year: "" });
+      tick();
+      expect(component.validate()).toBeNull();
+    }));
+
+    it("returns null after filling fields and clearing them all (stale crossFieldRequired errors)", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "4", day: "", year: "" });
+      tick();
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
+      component.internalForm.patchValue({ month: "", day: "", year: "" });
+      tick();
+      expect(component.validate()).toBeNull();
+    }));
+
+    it("returns null when all fields are filled (no blur)", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "4", day: "15", year: "2025" });
+      tick();
+      expect(component.validate()).toBeNull();
+    }));
   });
 
   describe("onGroupBlur", () => {

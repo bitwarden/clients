@@ -241,72 +241,68 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       ).rejects.toEqual(Error("fail"));
     });
 
-    it("should throw error when report data validation fails", async () => {
+    it("should drop invalid report elements and log a warning", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
 
-      // Mock decryption to return invalid data
       mockEncryptService.decryptString
         .mockResolvedValueOnce(JSON.stringify([{ invalid: "data" }])) // invalid report data
         .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
         .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
 
-      await expect(
-        service.decryptRiskInsightsReport(
-          { organizationId: orgId, userId },
-          mockEncryptedData,
-          mockKey,
-        ),
-      ).rejects.toThrow(
-        /Report data validation failed.*This may indicate data corruption or tampering/,
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.reportData).toEqual([]);
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid report element"),
       );
     });
 
-    it("should throw error when summary data validation fails", async () => {
+    it("should default invalid summary fields to 0 and log a warning", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
 
-      // Clear and reset the mock
       mockEncryptService.decryptString.mockReset();
-
-      // Mock decryption - report data should succeed, summary should fail
       mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
-        .mockResolvedValueOnce(JSON.stringify({ invalid: "summary" })) // invalid summary data - fails here
-        .mockResolvedValueOnce(JSON.stringify(mockApplicationData)); // won't be called but prevents fallback
+        .mockResolvedValueOnce(JSON.stringify(mockReportData))
+        .mockResolvedValueOnce(JSON.stringify({ totalMemberCount: "10" })) // wrong type
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
 
-      await expect(
-        service.decryptRiskInsightsReport(
-          { organizationId: orgId, userId },
-          mockEncryptedData,
-          mockKey,
-        ),
-      ).rejects.toThrow(
-        /Summary data validation failed.*This may indicate data corruption or tampering/,
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.summaryData.totalMemberCount).toBe(0);
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Defaulted 1 invalid summary field"),
       );
     });
 
-    it("should throw error when application data validation fails", async () => {
+    it("should drop invalid application elements and log a warning", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
 
-      // Clear and reset the mock
       mockEncryptService.decryptString.mockReset();
-
-      // Mock decryption - report and summary should succeed, application should fail
       mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
-        .mockResolvedValueOnce(JSON.stringify(mockSummaryData)) // valid
-        .mockResolvedValueOnce(JSON.stringify([{ invalid: "application" }])); // invalid app data
+        .mockResolvedValueOnce(JSON.stringify(mockReportData))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify([{ invalid: "application" }]));
 
-      await expect(
-        service.decryptRiskInsightsReport(
-          { organizationId: orgId, userId },
-          mockEncryptedData,
-          mockKey,
-        ),
-      ).rejects.toThrow(
-        /Application data validation failed.*This may indicate data corruption or tampering/,
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.applicationData).toEqual([]);
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid application element"),
       );
     });
 
@@ -359,6 +355,48 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       expect(
         app.memberDetails.every((m) => m.cipherId === "00000000-0000-0000-0000-000000000000"),
       ).toBe(true);
+    });
+
+    it("should drop a bad report element from a V2 blob and log a warning without throwing", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      const registry: Record<string, MemberRegistryEntryData> = {
+        "member-1": { id: "member-1", userName: "Alice", email: "alice@example.com" },
+      };
+      const validReport: ApplicationHealthData = Object.assign(new ApplicationHealthData(), {
+        applicationName: "app.example.com",
+        passwordCount: 3,
+        atRiskPasswordCount: 1,
+        memberCount: 1,
+        atRiskMemberCount: 1,
+        memberRefs: { "member-1": true },
+        cipherRefs: { "cipher-a": true },
+      });
+      const badReport = Object.assign(new ApplicationHealthData(), validReport, {
+        applicationName: "", // empty name — invalid
+      });
+      const v2Blob = {
+        version: 1,
+        data: { reports: [badReport, validReport], memberRegistry: registry },
+      };
+
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify(v2Blob))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.reportData).toHaveLength(1);
+      expect(result.reportData[0].applicationName).toBe("app.example.com");
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid report payload"),
+      );
     });
 
     it("should return empty reportData array when V2 blob has empty reports", async () => {
@@ -422,7 +460,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
       expect(result.reportData[0].memberDetails[0].email).toBe("alice@example.com");
     });
 
-    it("should throw error for invalid date in application data", async () => {
+    it("should drop application elements with invalid date strings", async () => {
       mockKeyService.orgKeys$.mockReturnValue(orgKey$);
       mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
 
@@ -434,14 +472,31 @@ describe("LegacyRiskInsightsEncryptionService", () => {
         },
       ];
 
-      // Clear and reset the mock
       mockEncryptService.decryptString.mockReset();
-
-      // Mock decryption - report and summary succeed, application with invalid date fails
       mockEncryptService.decryptString
-        .mockResolvedValueOnce(JSON.stringify(mockReportData)) // valid
-        .mockResolvedValueOnce(JSON.stringify(mockSummaryData)) // valid
-        .mockResolvedValueOnce(JSON.stringify(invalidApplicationData)); // invalid date
+        .mockResolvedValueOnce(JSON.stringify(mockReportData))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(invalidApplicationData));
+
+      const result = await service.decryptRiskInsightsReport(
+        { organizationId: orgId, userId },
+        mockEncryptedData,
+        mockKey,
+      );
+
+      expect(result.applicationData).toEqual([]);
+      expect(mockLogService.warning).toHaveBeenCalled();
+    });
+
+    it("should throw when report data is not an array (structural failure)", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(orgKey$);
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
+
+      mockEncryptService.decryptString.mockReset();
+      mockEncryptService.decryptString
+        .mockResolvedValueOnce(JSON.stringify({ not: "an array" }))
+        .mockResolvedValueOnce(JSON.stringify(mockSummaryData))
+        .mockResolvedValueOnce(JSON.stringify(mockApplicationData));
 
       await expect(
         service.decryptRiskInsightsReport(
@@ -450,7 +505,7 @@ describe("LegacyRiskInsightsEncryptionService", () => {
           mockKey,
         ),
       ).rejects.toThrow(
-        /Application data validation failed.*This may indicate data corruption or tampering/,
+        /Report data validation failed.*This may indicate data corruption or tampering/,
       );
     });
   });

@@ -1,4 +1,5 @@
-import { Component, Input } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -41,6 +42,12 @@ export class NewSendDropdownComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
 
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   /** SendType provided for the markup to pass back the selected type of Send */
   protected sendType = SendType;
 
@@ -54,7 +61,6 @@ export class NewSendDropdownComponent {
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
-    private configService: ConfigService,
     private sendFormService: SendFormService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
@@ -64,6 +70,23 @@ export class NewSendDropdownComponent {
           : of(false),
       ),
     );
+  }
+
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.hideIcon) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "createSendV2";
+      } else {
+        return "createSend";
+      }
+    } else {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "create";
+      } else {
+        return "new";
+      }
+    }
   }
 
   /**
@@ -76,26 +99,18 @@ export class NewSendDropdownComponent {
       return;
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
-    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-    if (useRefresh) {
-      const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
-      if (sendFormDialogRef) {
-        this.sendFormDialogRef = sendFormDialogRef;
-        const result = await lastValueFrom(this.sendFormDialogRef.closed);
-        if (result?.result === SendItemDialogResult.Created && result?.send) {
-          await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
-            data: result.send,
-          });
-        }
+    const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+    });
+    if (sendFormDialogRef) {
+      this.sendFormDialogRef = sendFormDialogRef;
+      const result = await lastValueFrom(this.sendFormDialogRef.closed);
+      if (result?.result === SendItemDialogResult.Created && result?.send) {
+        await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+          data: result.send,
+        });
       }
-    } else {
-      SendAddEditDialogComponent.open(this.dialogService, {
-        formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
-      });
     }
   }
 

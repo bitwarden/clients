@@ -121,4 +121,31 @@ describe("TooltipDirective (visibility only)", () => {
     tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
   }));
+
+  it("tears down a visible tooltip when suppressed flips to true", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(true);
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+    expect(isVisible()).toBe(false);
+  }));
+
+  it("is a no-op on mouseenter while suppressed", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(false);
+  }));
 });

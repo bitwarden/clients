@@ -9,7 +9,6 @@ import {
   TypographyModule,
   FormFieldModule,
   IconButtonModule,
-  CopyClickDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -27,7 +26,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     TypographyModule,
     FormFieldModule,
     IconButtonModule,
-    CopyClickDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -53,8 +51,17 @@ export class PassportViewComponent {
     }
   }
 
-  toggleNationalIdentificationNumberVisible(event: boolean) {
+  async toggleNationalIdentificationNumberVisible(event: boolean) {
     this.revealNationalIdentificationNumber.set(event);
+
+    if (event) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledNationalIdentificationNumberVisible,
+        this.cipher().id,
+        false,
+        this.cipher().organizationId,
+      );
+    }
   }
 
   formatDate(dateStr: string | undefined): string {

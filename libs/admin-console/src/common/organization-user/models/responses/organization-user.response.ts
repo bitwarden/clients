@@ -51,12 +51,12 @@ export class OrganizationUserResponse extends BaseResponse {
 }
 
 export class OrganizationUserUserDetailsResponse extends OrganizationUserResponse {
-  name: string;
+  name: string | undefined;
   email: string;
   avatarColor: string;
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
 
   constructor(response: any) {
     super(response);
@@ -65,7 +65,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
     this.avatarColor = this.getResponseProperty("AvatarColor");
     this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
 
     if (this.email == null) {
       throw new Error("Missing required property: email");
@@ -74,12 +74,12 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
 }
 
 export class OrganizationUserDetailsResponse extends OrganizationUserResponse {
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
   ssoExternalId: string;
 
   constructor(response: any) {
     super(response);
-    this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
+    this.claimedByOrganization = this.getResponseProperty("ClaimedByOrganization") ?? false;
     this.ssoExternalId = this.getResponseProperty("SsoExternalId");
   }
 }
@@ -90,6 +90,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
   kdfIterations: number;
   kdfMemory: number | undefined;
   kdfParallelism: number | undefined;
+  masterPasswordSalt: string | undefined;
   resetPasswordKey: string;
   encryptedPrivateKey: string;
 
@@ -100,6 +101,7 @@ export class OrganizationUserResetPasswordDetailsResponse extends BaseResponse {
     this.kdfIterations = this.getResponseProperty("KdfIterations");
     this.kdfMemory = this.getResponseProperty("KdfMemory");
     this.kdfParallelism = this.getResponseProperty("KdfParallelism");
+    this.masterPasswordSalt = this.getResponseProperty("MasterPasswordSalt");
     this.resetPasswordKey = this.getResponseProperty("ResetPasswordKey");
     this.encryptedPrivateKey = this.getResponseProperty("EncryptedPrivateKey");
   }

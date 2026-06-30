@@ -94,12 +94,11 @@
                   <button
                     type="button"
                     bitMenuItem
+                    variant="danger"
                     *appCanDeleteCipher="cipher"
                     (click)="delete(cipher)"
                   >
-                    <span class="tw-text-danger">
-                      {{ "delete" | i18n }}
-                    </span>
+                    {{ "delete" | i18n }}
                   </button>
                 </bit-menu>
               </bit-item-action>

@@ -6,9 +6,11 @@ import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
 import {
+  AccessIntelligenceApiService,
   AccessIntelligenceDataService,
   AccessReportEncryptionService,
   CipherHealthService,
+  DefaultAccessIntelligenceApiService,
   DefaultAccessIntelligenceDataService,
   DefaultCipherHealthService,
   DefaultDrawerStateService,
@@ -16,9 +18,11 @@ import {
   DefaultReportGenerationService,
   DefaultReportPersistenceService,
   DrawerStateService,
+  FileReportPersistenceService,
   LegacyRiskInsightsEncryptionService,
   MemberCipherMappingService,
   ReportGenerationService,
+  ReportPersistenceFeatureFlagService,
   ReportPersistenceService,
 } from "@bitwarden/bit-common/dirt/access-intelligence/services";
 import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
@@ -44,6 +48,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -153,14 +158,33 @@ const v2Providers = [
     deps: [CipherHealthService, MemberCipherMappingService, LogService],
   }),
   safeProvider({
-    provide: ReportPersistenceService,
-    useClass: DefaultReportPersistenceService,
+    provide: AccessIntelligenceApiService,
+    useClass: DefaultAccessIntelligenceApiService,
+    deps: [ApiService],
+  }),
+  safeProvider({
+    provide: DefaultReportPersistenceService,
     deps: [
       RiskInsightsApiService,
       AccessReportEncryptionService,
       AccountServiceAbstraction,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: FileReportPersistenceService,
+    deps: [
+      AccessIntelligenceApiService,
+      AccessReportEncryptionService,
+      AccountServiceAbstraction,
+      LogService,
+      FileUploadService,
+    ],
+  }),
+  safeProvider({
+    provide: ReportPersistenceService,
+    useClass: ReportPersistenceFeatureFlagService,
+    deps: [FileReportPersistenceService, DefaultReportPersistenceService, ConfigService],
   }),
   safeProvider({
     provide: AccessIntelligenceDataService,
@@ -183,6 +207,16 @@ const v2Providers = [
     provide: AccessSecurityTasksService,
     useClass: DefaultAccessSecurityTasksService,
     deps: [AdminTaskService, SecurityTasksApiService, AccessIntelligenceDataService],
+  }),
+  safeProvider({
+    provide: RiskOverTimeService,
+    useClass: DefaultRiskOverTimeService,
+    deps: [
+      RiskInsightsApiService,
+      AccessReportEncryptionService,
+      AccountServiceAbstraction,
+      LogService,
+    ],
   }),
 ];
 

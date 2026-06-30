@@ -16,6 +16,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -33,8 +35,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
-  BadgeModule,
   BitIconButtonComponent,
+  ChipActionComponent,
   ButtonModule,
   CenterPositionStrategy,
   DIALOG_DATA,
@@ -129,7 +131,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
-    BadgeModule,
+    ChipActionComponent,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
@@ -219,6 +221,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   private readonly userCanArchive = toSignal(this.userCanArchive$, { initialValue: false });
 
+  private readonly pm32009NewItemTypes = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
+
   protected get isTrashFilter() {
     return !!this.cipher?.isDeleted;
   }
@@ -307,6 +314,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
+  private readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -324,6 +336,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
+    private configService: ConfigService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$
@@ -574,6 +587,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Refresh from local state so attachments modified during edit aren't stale in view mode.
+    const activeUserId = await firstValueFrom(this.userId$);
+    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    if (latestCipher != null) {
+      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
+    }
+
     // We're in Form mode, and we have a cipher, switch back to View mode.
     await this.changeMode("view");
   };
@@ -654,30 +674,70 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private updateTitle(): void {
     const translation: { [key: string]: { [key: number]: string } } = {
       view: {
-        [CipherType.Login]: "viewItemHeaderLogin",
-        [CipherType.Card]: "viewItemHeaderCard",
-        [CipherType.Identity]: "viewItemHeaderIdentity",
-        [CipherType.SecureNote]: "viewItemHeaderNote",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderLoginSentenceCase"
+          : "viewItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderCardSentenceCase"
+          : "viewItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderIdentitySentenceCase"
+          : "viewItemHeaderIdentity",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? "viewItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "viewItemHeaderNoteSentenceCase"
+            : "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
         [CipherType.BankAccount]: "viewItemHeaderBankAccount",
         [CipherType.DriversLicense]: "viewItemHeaderLicense",
         [CipherType.Passport]: "viewItemHeaderPassport",
       },
       new: {
-        [CipherType.Login]: "newItemHeaderLogin",
-        [CipherType.Card]: "newItemHeaderCard",
-        [CipherType.Identity]: "newItemHeaderIdentity",
-        [CipherType.SecureNote]: "newItemHeaderNote",
-        [CipherType.SshKey]: "newItemHeaderSshKey",
-        [CipherType.BankAccount]: "newItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
-        [CipherType.Passport]: "newItemHeaderPassport",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderLogin"
+          : "newItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderCard"
+          : "newItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderIdentity"
+          : "newItemHeaderIdentity",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderSecureNote"
+            : "newItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderNote"
+            : "newItemHeaderNote",
+        [CipherType.SshKey]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderSshKey"
+          : "newItemHeaderSshKey",
+        [CipherType.BankAccount]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderBankAccount"
+          : "newItemHeaderBankAccount",
+        [CipherType.DriversLicense]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderDriversLicense"
+          : "newItemHeaderDriversLicense",
+        [CipherType.Passport]: this.btnTextAddCreateFeatureFlag()
+          ? "addItemHeaderPassport"
+          : "newItemHeaderPassport",
       },
       edit: {
-        [CipherType.Login]: "editItemHeaderLogin",
-        [CipherType.Card]: "editItemHeaderCard",
-        [CipherType.Identity]: "editItemHeaderIdentity",
-        [CipherType.SecureNote]: "editItemHeaderNote",
+        [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderLoginSentenceCase"
+          : "editItemHeaderLogin",
+        [CipherType.Card]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderCardSentenceCase"
+          : "editItemHeaderCard",
+        [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
+          ? "editItemHeaderIdentitySentenceCase"
+          : "editItemHeaderIdentity",
+        [CipherType.SecureNote]: this.pm32009NewItemTypes()
+          ? "editItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "editItemHeaderNoteSentenceCase"
+            : "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
         [CipherType.BankAccount]: "editItemHeaderBankAccount",
         [CipherType.DriversLicense]: "editItemHeaderLicense",

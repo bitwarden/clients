@@ -20,6 +20,7 @@ import {
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
   EnvironmentService,
@@ -33,6 +34,7 @@ import { ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
   MockAccessIntelligenceDataService,
+  MockConfigService,
   MockDrawerStateService,
   MockFileDownloadService,
   MockLogService,
@@ -138,6 +140,7 @@ export const Default: Story = {
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
+          { provide: ConfigService, useClass: MockConfigService },
         ],
       },
     };
@@ -161,6 +164,7 @@ export const Loading: Story = {
         { provide: FileDownloadService, useClass: MockFileDownloadService },
         { provide: LogService, useClass: MockLogService },
         { provide: ToastService, useClass: MockToastService },
+        { provide: ConfigService, useClass: MockConfigService },
       ],
     },
   }),
@@ -191,6 +195,7 @@ export const Empty: Story = {
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
+          { provide: ConfigService, useClass: MockConfigService },
         ],
       },
     };
@@ -239,6 +244,7 @@ export const WithUnassignedTasks: Story = {
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
+          { provide: ConfigService, useClass: MockConfigService },
         ],
       },
     };
@@ -303,6 +309,7 @@ export const LargeDataset: Story = {
           { provide: FileDownloadService, useClass: MockFileDownloadService },
           { provide: LogService, useClass: MockLogService },
           { provide: ToastService, useClass: MockToastService },
+          { provide: ConfigService, useClass: MockConfigService },
         ],
       },
     };

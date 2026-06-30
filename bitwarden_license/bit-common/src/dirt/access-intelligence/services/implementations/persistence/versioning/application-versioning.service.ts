@@ -29,7 +29,12 @@ export class ApplicationVersioningService extends VersioningService<AccessReport
       this.logService.debug(
         `[ApplicationVersioningService] Application blob: version ${this.currentVersion} — no transformation needed`,
       );
-      const data = validateAccessReportSettingsDataArray(json.data);
+      const { data, errors } = validateAccessReportSettingsDataArray(json.data);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[ApplicationVersioningService] Dropped ${errors.length} invalid application setting(s):\n${errors.join("\n")}`,
+        );
+      }
       return { data, wasLegacy: false };
     }
 
@@ -38,7 +43,12 @@ export class ApplicationVersioningService extends VersioningService<AccessReport
       this.logService.warning(
         `[ApplicationVersioningService] Application blob: unversioned (legacy) format detected — transforming reviewedDate to string, targeting version ${this.currentVersion}`,
       );
-      const legacyApps = validateOrganizationReportApplicationArray(json);
+      const { data: legacyApps, errors } = validateOrganizationReportApplicationArray(json);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[ApplicationVersioningService] Dropped ${errors.length} invalid application element(s) during legacy transform:\n${errors.join("\n")}`,
+        );
+      }
       const data: AccessReportSettingsData[] = legacyApps.map((app) => ({
         applicationName: app.applicationName,
         isCritical: app.isCritical,

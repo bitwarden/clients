@@ -9,12 +9,11 @@
             bitCheckbox
             type="checkbox"
             [checked]="allAppsSelected()"
-            [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+            [bitTooltip]="'selectAll' | i18n"
             (change)="selectAllChanged($event.target)"
-            [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+            [attr.aria-label]="'selectAll' | i18n"
             [disabled]="dataSource().filteredData?.length === 0"
           />
-          <span>{{ "all" | i18n }}</span>
         }
       </th>
       <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>

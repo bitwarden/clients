@@ -1,7 +1,10 @@
-import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { PasswordProtectedKeyEnvelope, EphemeralPinEnvelopeState } from "@bitwarden/sdk-internal";
+import {
+  PasswordProtectedKeyEnvelope,
+  EncString,
+  EphemeralPinEnvelopeState,
+} from "@bitwarden/sdk-internal";
 
-import { EncryptedString } from "../crypto/models/enc-string";
+import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "../../platform/state";
 
 /**
  * The persistent (stored on disk) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
@@ -16,6 +19,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
     {
       deserializer: (jsonValue) => jsonValue,
       clearOn: ["logout"],
+      cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
     },
   );
 
@@ -37,11 +41,12 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
 /**
  * The PIN, encrypted by the UserKey.
  */
-export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncryptedString>(
+export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncString>(
   PIN_DISK,
   "userKeyEncryptedPin",
   {
     deserializer: (jsonValue) => jsonValue,
     clearOn: ["logout"],
+    cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
   },
 );
