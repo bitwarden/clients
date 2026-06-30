@@ -54,7 +54,7 @@
         <bit-toggle-group
           [selected]="collectionService.addAccessStatus$ | async"
           (selectedChange)="addAccessToggle($event)"
-          [attr.aria-label]="'addAccessFilter' | i18n"
+          [label]="'addAccessFilter' | i18n"
         >
           <bit-toggle [value]="0">
             {{ "all" | i18n }}

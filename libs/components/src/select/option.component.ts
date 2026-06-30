@@ -1,5 +1,7 @@
 import { Component, booleanAttribute, input } from "@angular/core";
 
+import { BitwardenIcon } from "../shared/icon";
+
 import { MappedOptionComponent } from "./option";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -9,7 +11,7 @@ import { MappedOptionComponent } from "./option";
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
 export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   readonly value = input.required<T>();
 
