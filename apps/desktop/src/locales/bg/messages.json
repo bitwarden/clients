@@ -154,6 +154,10 @@
     "message": "Преглед на бележката",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Преглед на защитената бележка",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "Преглед на SSH ключа",
     "description": "Header for view SSH key item type"
@@ -186,6 +190,10 @@
     "message": "Нова бележка",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Нова защитена бележка",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Нов SSH ключ",
     "description": "Header for new SSH key item type"
@@ -217,6 +225,10 @@
   "editItemHeaderNote": {
     "message": "Редактиране на бележката",
     "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Редактиране на защитената бележка",
+    "description": "Header for edit secure note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Редактиране на SSH ключа",
@@ -1934,6 +1946,10 @@
   },
   "selected": {
     "message": "Избрано"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Групови действия"
@@ -4639,6 +4655,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
+  },
+  "itemAssignedToCollections": {
+    "message": "Елементът е добавен към колекции"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Елементите са добавени към колекции"
   },
   "nothingSelected": {
     "message": "Не сте избрали нищо."

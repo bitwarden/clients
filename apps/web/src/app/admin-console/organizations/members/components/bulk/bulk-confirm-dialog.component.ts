@@ -1,7 +1,4 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import {
@@ -10,19 +7,29 @@ import {
   OrganizationUserBulkResponse,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { StateProvider } from "@bitwarden/common/platform/state";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+import {
+  AsyncActionsModule,
+  AvatarModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogService,
+  LinkModule,
+  TableModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BaseBulkConfirmComponent } from "./base-bulk-confirm.component";
 import { BulkUserDetails } from "./bulk-status.component";
@@ -32,53 +39,66 @@ type BulkConfirmDialogParams = {
   users: BulkUserDetails[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-confirm-dialog.component.html",
   selector: "member-bulk-comfirm-dialog",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncActionsModule,
+    AvatarModule,
+    ButtonModule,
+    CalloutModule,
+    DialogModule,
+    I18nPipe,
+    LinkModule,
+    TableModule,
+    UserNamePipe,
+  ],
 })
 export class BulkConfirmDialogComponent extends BaseBulkConfirmComponent {
-  organization: Organization;
-  organizationKey$: Observable<OrgKey>;
-  users: BulkUserDetails[];
+  private readonly dialogParams = inject<BulkConfirmDialogParams>(DIALOG_DATA);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationUserService = inject(OrganizationUserService);
 
-  constructor(
-    protected keyService: KeyService,
-    @Inject(DIALOG_DATA) protected dialogParams: BulkConfirmDialogParams,
-    protected encryptService: EncryptService,
-    private organizationUserApiService: OrganizationUserApiService,
-    protected i18nService: I18nService,
-    private stateProvider: StateProvider,
-    private organizationUserService: OrganizationUserService,
-  ) {
-    super(keyService, encryptService, i18nService);
+  protected readonly organization: Organization = this.dialogParams.organization;
+  protected readonly organizationKey$: Observable<OrgKey>;
 
-    this.organization = dialogParams.organization;
-    this.organizationKey$ = this.stateProvider.activeUserId$.pipe(
+  constructor() {
+    super();
+    this.users.set(this.dialogParams.users);
+
+    this.organizationKey$ = this.accountService.activeAccount$.pipe(
+      getUserId,
       switchMap((userId) => this.keyService.orgKeys$(userId)),
-      map((organizationKeysById) => organizationKeysById[this.organization.id as OrganizationId]),
-      takeUntilDestroyed(),
+      map((orgKeys) => {
+        const orgId = this.dialogParams.organization.id;
+        const orgKey = orgKeys?.[orgId] ?? undefined;
+        if (orgKey == null) {
+          throw new Error(`Organization key not found for org ${orgId}`);
+        }
+
+        return orgKey;
+      }),
     );
-    this.users = dialogParams.users;
   }
 
-  protected getCryptoKey = async (): Promise<SymmetricCryptoKey> =>
+  protected readonly getCryptoKey = async (): Promise<SymmetricCryptoKey> =>
     await firstValueFrom(this.organizationKey$);
 
-  protected getPublicKeys = async (): Promise<
+  protected readonly getPublicKeys = async (): Promise<
     ListResponse<OrganizationUserBulkPublicKeyResponse | ProviderUserBulkPublicKeyResponse>
   > =>
     await this.organizationUserApiService.postOrganizationUsersPublicKey(
       this.organization.id,
-      this.filteredUsers.map((user) => user.id),
+      this.filteredUsers().map((user) => user.id),
     );
 
-  protected isAccepted = (user: BulkUserDetails) =>
+  protected readonly isAccepted = (user: BulkUserDetails) =>
     user.status === OrganizationUserStatusType.Accepted;
 
-  protected postConfirmRequest = async (
+  protected readonly postConfirmRequest = async (
     userIdsWithKeys: { id: string; key: string }[],
   ): Promise<ListResponse<OrganizationUserBulkResponse | ProviderUserBulkResponse>> => {
     return await firstValueFrom(

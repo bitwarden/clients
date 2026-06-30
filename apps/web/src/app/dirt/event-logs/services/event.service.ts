@@ -442,6 +442,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Staged:
+        msg = this.i18nService.t("stagedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "stagedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       case EventType.OrganizationUser_ApprovedAuthRequest:
         msg = this.i18nService.t("approvedAuthRequest", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -496,6 +503,9 @@ export class EventService {
           "revokedUserIdSingleOrganizationNonCompliance",
           this.getShortId(ev.organizationUserId),
         );
+        break;
+      case EventType.OrganizationUser_NotificationBannerActionClicked:
+        msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
         break;
       // Org
       case EventType.Organization_Updated:

@@ -1,4 +1,7 @@
 #![allow(clippy::disallowed_macros)] // uniffi macros trip up clippy's evaluation
+#[cfg(feature = "uniffi")]
+uniffi::setup_scaffolding!("autofill_provider");
+
 mod assertion;
 mod lock_status;
 mod registration;
@@ -19,15 +22,9 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub use assertion::{
-    PasskeyAssertionRequest, PasskeyAssertionResponse, PasskeyAssertionWithoutUserInterfaceRequest,
-    PreparePasskeyAssertionCallback,
-};
 use futures::FutureExt;
-pub use lock_status::LockStatusResponse;
-pub use registration::{
-    PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
-};
+#[cfg(feature = "napi")]
+use napi_derive::napi;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tracing::{error, info};
 #[cfg(target_os = "macos")]
@@ -36,39 +33,26 @@ use tracing_subscriber::{
     layer::SubscriberExt,
     util::SubscriberInitExt,
 };
-pub use window_handle_query::WindowHandleQueryResponse;
 
-use crate::{
-    lock_status::{GetLockStatusCallback, LockStatusRequest},
-    window_handle_query::{GetWindowHandleQueryCallback, WindowHandleQueryRequest},
+pub use crate::{
+    assertion::{
+        PasskeyAssertionRequest, PasskeyAssertionResponse,
+        PasskeyAssertionWithoutUserInterfaceRequest, PreparePasskeyAssertionCallback,
+    },
+    lock_status::{LockStatusRequest, LockStatusResponse},
+    registration::{
+        PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
+    },
+    window_handle_query::{WindowHandleQueryRequest, WindowHandleQueryResponse},
 };
-
-#[cfg(target_os = "macos")]
-uniffi::setup_scaffolding!();
+use crate::{
+    lock_status::GetLockStatusCallback, window_handle_query::GetWindowHandleQueryCallback,
+};
 
 #[cfg(target_os = "macos")]
 static INIT: Once = Once::new();
 
-/// User verification preference for WebAuthn requests.
-#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum UserVerification {
-    Preferred,
-    Required,
-    Discouraged,
-}
-
-/// Coordinates representing a point on the screen.
-#[cfg_attr(target_os = "macos", derive(uniffi::Record))]
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Position {
-    pub x: i32,
-    pub y: i32,
-}
-
-#[cfg_attr(target_os = "macos", derive(uniffi::Error))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Error))]
 #[derive(Debug, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
@@ -98,7 +82,7 @@ trait Callback: Send + Sync {
 
 /// Store the connection status between the credential provider extension
 /// and the desktop application's IPC server.
-#[cfg_attr(target_os = "macos", derive(uniffi::Enum))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug)]
 pub enum ConnectionStatus {
     Connected,
@@ -153,7 +137,7 @@ pub enum ConnectionStatus {
 ///     // use client here
 /// }
 /// ```
-#[cfg_attr(target_os = "macos", derive(uniffi::Object))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Object))]
 pub struct AutofillProviderClient {
     to_server_send: tokio::sync::mpsc::Sender<String>,
 
@@ -168,11 +152,79 @@ pub struct AutofillProviderClient {
 
 /// Store native desktop status information to use for IPC communication
 /// between the application and the credential provider.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NativeStatus {
-    key: String,
-    value: String,
+    pub key: String,
+    pub value: String,
+}
+
+/// Coordinates representing a point on the screen.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+
+/// User verification preference for WebAuthn requests.
+#[cfg(not(feature = "napi"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum UserVerification {
+    Preferred,
+    Required,
+    Discouraged,
+}
+
+// This needs to be duplicated because the #[napi] field macro is a proc-macro,
+// not an attribute macro, so #[cfg_attr] doesn't work.
+/// User verification preference for WebAuthn requests.
+#[cfg(feature = "napi")]
+#[cfg_attr(feature = "napi", napi(string_enum, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum UserVerification {
+    #[napi(value = "preferred")]
+    Preferred,
+    #[napi(value = "required")]
+    Required,
+    #[napi(value = "discouraged")]
+    Discouraged,
+}
+
+/// Details about a native window.
+#[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
+#[cfg_attr(feature = "uniffi", derive(uniffi::Record))]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WindowDetails {
+    /// Coordinates of the center of the window, relative to
+    /// the top-left point on the screen.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Note that macOS APIs gives points relative to the bottom-left point on the
+    /// screen by default, so the y-coordinate will be flipped.
+    ///
+    /// ## Windows
+    /// On Windows, this must be logical pixels, not physical pixels.
+    pub position: Position,
+
+    /// Byte string representing the native OS window handle.
+    /// # Operating System Differences
+    ///
+    /// ## macOS
+    /// Unused.
+    ///
+    /// ## Windows
+    /// On Windows, this is a HWND.
+    pub handle: Option<Vec<u8>>,
 }
 
 // In our callback management, 0 is a reserved sequence number indicating that a message does not
@@ -285,13 +337,13 @@ impl AutofillProviderClient {
     }
 }
 
-#[cfg_attr(target_os = "macos", uniffi::export)]
+#[cfg_attr(feature = "uniffi", uniffi::export)]
 impl AutofillProviderClient {
     /// Asynchronously initiates a connection to the autofill service on the desktop client.
     ///
     /// See documentation at the top-level of [this struct][AutofillProviderClient] for usage
     /// information.
-    #[cfg_attr(target_os = "macos", uniffi::constructor)]
+    #[cfg_attr(feature = "uniffi", uniffi::constructor)]
     pub fn connect() -> Self {
         tracing::trace!("Autofill provider attempting to connect to Electron IPC...");
         let path = desktop_core::ipc::path(IPC_PATH);
@@ -345,7 +397,7 @@ impl AutofillProviderClient {
 }
 
 #[cfg(target_os = "macos")]
-#[uniffi::export]
+#[cfg_attr(feature = "uniffi", uniffi::export)]
 pub fn initialize_logging() {
     INIT.call_once(|| {
         let filter = EnvFilter::builder()
@@ -570,16 +622,6 @@ impl<T: Send + 'static> TimedCallback<T> {
                 tracing::error!("Callback channel used before response: multi-threading issue?");
             }
         }
-    }
-}
-
-impl PreparePasskeyRegistrationCallback for TimedCallback<PasskeyRegistrationResponse> {
-    fn on_complete(&self, credential: PasskeyRegistrationResponse) {
-        self.send(Ok(credential));
-    }
-
-    fn on_error(&self, error: BitwardenError) {
-        self.send(Err(error));
     }
 }
 

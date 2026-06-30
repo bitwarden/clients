@@ -979,6 +979,9 @@
   "close": {
     "message": "Fechar"
   },
+  "done": {
+    "message": "Concluído"
+  },
   "delete": {
     "message": "Eliminar"
   },
@@ -1203,6 +1206,10 @@
     "message": "Nova nota",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Nova nota segura",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Editar nota",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Editar nota segura",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "Ver nota",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Ver nota segura",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "Eliminar item"
+  },
+  "deleteItemsCount": {
+    "message": "Eliminar $COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Este item será movido para o lixo. Após 30 dias, será eliminado permanentemente."
+  },
+  "deleteItemsDesc": {
+    "message": "Estes itens serão movidos para o lixo. Após 30 dias, serão eliminados permanentemente."
+  },
+  "deleteItemPermanently": {
+    "message": "Eliminar item permanentemente"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Eliminar $COUNT$ itens permanentemente",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Não poderá recuperar este item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Não poderá recuperar estes itens."
+  },
+  "deleteSelection": {
+    "message": "Eliminar seleção"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Os itens e coleções selecionados serão eliminados permanentemente."
   },
   "deleteFolder": {
     "message": "Eliminar pasta"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "Tem a certeza de que deseja continuar?"
   },
+  "deleteCollection": {
+    "message": "Eliminar coleção"
+  },
+  "deleteCollectionsCount": {
+    "message": "Eliminar $COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Esta coleção será eliminada permanentemente."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Estas coleções serão eliminadas permanentemente."
+  },
   "moveSelectedItemsDesc": {
     "message": "Escolha uma pasta à qual pretende adicionar o(s) $COUNT$ item(ns) selecionado(s).",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Não permitir que os membros criem tipos de itens de cartão. Os cartões existentes serão automaticamente removidos."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Não permitir que os membros criem e armazenem itens do tipo Cartão nos seus cofres. Quando esta política estiver ativada, os cartões existentes serão automaticamente ocultados."
   },
   "restrictCardTypeImport": {
     "message": "Não é possível importar tipos de itens de cartão"
@@ -4866,6 +4941,12 @@
   "deletedCollections": {
     "message": "Coleções eliminadas"
   },
+  "collectionDeleted": {
+    "message": "Coleção eliminada"
+  },
+  "collectionsDeleted": {
+    "message": "Coleções eliminadas"
+  },
   "deletedCollectionId": {
     "message": "Coleção $ID$ eliminada.",
     "placeholders": {
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "e"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "Para concluir a aceitação deste convite, inicie sessão com a sua palavra-passe mestra."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "Não pode iniciar sessão com SSO enquanto não aceitar um convite para aderir a $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "Ao selecionar esta caixa, concorda com o seguinte:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "Selecionado(s)"
+  },
+  "selectedLowercase": {
+    "message": "selecionado(s)",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Recomendado"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "Exigir que os membros configurem a verificação de dois passos."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Os membros da organização que não sejam proprietários ou administradores e que não tenham configurado a verificação de dois passos para a sua conta serão removidos da organização e receberão um e-mail a notificá-los da alteração."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "É membro de uma organização que exige que a verificação de dois passos seja configurada na sua conta de utilizador. Se desativar todos os fornecedores de verificação de dois passos, será automaticamente removido destas organizações."
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "Exigir que os membros iniciem sessão com o método de início de sessão único Empresarial."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Pré-requisito"
   },
   "requireSsoPolicyReq": {
     "message": "A política empresarial de organização única tem de estar ativada antes de ativar esta política."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "Política de organização única não definida."
@@ -6882,10 +6994,22 @@
     "message": "Saiba mais sobre a transferência"
   },
   "promptUsersToMoveItems": {
-    "message": "Solicitar aos utilizadores que movam itens do cofre individual para a organização"
+    "message": "Pedir aos utilizadores para moverem itens individuais do cofre para a organização"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se optarem por sair, o respetivo acesso será revogado, podendo ser restaurado a qualquer momento."
+    "message": "Os membros serão convidados a transferir os seus itens para a organização ou a sair. Se saírem, o acesso será revogado, mas pode ser restaurado em qualquer momento."
+  },
+  "centralizeDataOwnershipDescV2": {
+    "message": "Todos os itens dos membros serão propriedade da organização e geridos por esta. Esta política não será aplicada aos proprietários nem aos administradores. Saiba mais sobre "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Ofereça a todos os utilizadores um espaço dedicado “Os meus itens” para gerirem as suas próprias credenciais."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Pedir aos utilizadores para moverem os seus itens do cofre para a organização"
+  },
+  "enablePolicy": {
+    "message": "Ativar política"
   },
   "organizationDataOwnership": {
     "message": "Reforçar a propriedade dos dados da organização"
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Definição predefinida da digitação automática no computador"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Definição predefinida da digitação automática no computador"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Ativar a digitação automática no computador por defeito para os membros. Os membros podem desativar manualmente a escrita automática no cliente Desktop.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Ativar a digitação automática no computador para os membros. Os membros poderão desativar manualmente a digitação automática na aplicação para computador."
   },
   "disableSend": {
     "message": "Remover Send"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "Não permitir que os membros exportem dados do seu cofre individual."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "Exportação do cofre removida"
@@ -9057,7 +9190,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimProvisioningBannerInfo": {
-    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "message": "A configuração desta definição enviará automaticamente convites a todos os utilizadores e grupos atribuídos no seu fornecedor de identidade (IdP).",
     "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "Coleções editadas"
   },
+  "editedCollection": {
+    "message": "Coleção editada"
+  },
   "baseUrl": {
     "message": "URL do servidor"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item atribuído a coleções"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Itens atribuídos a coleções"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Selecionou $TOTAL_COUNT$ itens. Não pode atualizar $READONLY_COUNT$ dos itens porque não tem permissões de edição.",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Remover o patrocínio do plano Bitwarden Familiar Gratuito"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Remover o plano Familiar patrocinado"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Não permitir que os membros resgatem um plano Familiar através desta organização."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Não permitir que os membros resgatem um plano Familiar patrocinado pela sua organização."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "O pagamento com uma conta bancária só está disponível para clientes nos Estados Unidos. Ser-lhe-á pedido que verifique a sua conta bancária. Efetuaremos um micro-depósito nos próximos 1-2 dias úteis. Introduza o código descritor do extrato deste depósito na página de faturação da organização para verificar a conta bancária. A não verificação da conta bancária resultará na falta de pagamento e na suspensão da sua subscrição."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Não permitir que os membros desbloqueiem a sua conta com um PIN."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "Os registos de eventos não são armazenados para a sua organização. Atualize para um plano Equipas ou Empresarial para obter acesso total aos registos de eventos da organização."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Impedir que os utilizadores criem contas fora da sua organização utilizando endereços de e-mail de domínios reclamados."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Impedir os membros de utilizarem o seu domínio reivindicado para criar contas Bitwarden fora da sua organização."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Um domínio tem de ser reclamado antes de ativar esta política."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Antes de ativar esta política, tem de reivindicar um domínio."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Saiba mais sobre domínios reivindicados"
   },
   "vaultTimeoutTooLarge": {
     "message": "O tempo limite do seu cofre excede as restrições definidas pela sua organização."
@@ -14347,7 +14507,17 @@
     "message": "Atualize regularmente os relatórios e as informações para detetar novos riscos e ver as métricas mais recentes à medida que a sua organização cresce."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ de $TOTAL$"
+    "message": "$CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Passo $CURRENT$ de $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Aviso",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Botão do banner do cofre clicado"
+  },
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Copiar"
+  },
+  "paymentSuccessful": {
+    "message": "Pagamento bem-sucedido"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "A sua atualização está a ser processada. Poderá demorar alguns minutos até ver as funcionalidades Premium no Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plano adquirido"
+  },
+  "renewalDate": {
+    "message": "Data de renovação"
+  },
+  "upgradeStatus": {
+    "message": "Estado da atualização"
+  },
+  "processing": {
+    "message": "A processar"
+  },
+  "managePlanInWebApp": {
+    "message": "Gerir plano na aplicação web"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Não foi possível guardar o item. Tem de estar confirmado na organização para poder guardar itens."
