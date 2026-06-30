@@ -28,6 +28,7 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   component = ActivateAutofillPolicyComponent;
   v2 = {
     component: ActivateAutofillV2PolicyComponent,
+    name: "enableAutofillOnPageLoad",
     showDescription: false,
   };
 
