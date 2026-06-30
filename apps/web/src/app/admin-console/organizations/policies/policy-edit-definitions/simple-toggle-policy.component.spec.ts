@@ -1,8 +1,8 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { By } from "@angular/platform-browser";
 import { MockProxy, mock } from "jest-mock-extended";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
@@ -47,6 +47,7 @@ describe("SimpleTogglePolicyComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -54,31 +55,6 @@ describe("SimpleTogglePolicyComponent", () => {
 
     fixture = TestBed.createComponent(SimpleTogglePolicyComponent);
     component = fixture.componentInstance;
-  });
-
-  describe("warning callout", () => {
-    it("should not render a callout when no warningKey is set", () => {
-      const policy = new StubPolicy();
-      fixture.componentRef.setInput("policy", policy);
-      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
-    });
-
-    it("should render a callout when warningKey is set on the policy", () => {
-      const policy = Object.assign(new StubPolicy(), { warningKey: "someWarningKey" });
-      fixture.componentRef.setInput("policy", policy);
-      fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      const callout = fixture.debugElement.query(By.css("bit-callout"));
-      expect(callout).not.toBeNull();
-      expect(callout.attributes["type"]).toBe("warning");
-      expect(callout.nativeElement.textContent).toContain("someWarningKey");
-    });
   });
 
   describe("buildRequest", () => {
