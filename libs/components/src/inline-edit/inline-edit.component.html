@@ -1,0 +1,56 @@
+@if (editing()) {
+  <form
+    class="tw-flex tw-w-64 tw-max-w-full tw-flex-col tw-gap-1"
+    [formGroup]="form"
+    [bitSubmit]="submit"
+  >
+    <div class="tw-flex tw-items-center tw-gap-2">
+      <input
+        bitAutofocus
+        bitInput
+        formControlName="value"
+        (keydown.escape)="cancel()"
+        [attr.aria-label]="label()"
+        class="tw-min-w-0 tw-flex-1 tw-text-base tw-font-normal tw-leading-normal"
+        [id]="idPrefix() + '_input_value'"
+      />
+      <button
+        type="submit"
+        bitIconButton="bwi-check"
+        buttonType="primary"
+        size="small"
+        bitFormButton
+        [label]="saveLabel()"
+        [id]="idPrefix() + '_button_save'"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-close"
+        buttonType="secondary"
+        size="small"
+        (click)="cancel()"
+        [label]="cancelLabel()"
+        [id]="idPrefix() + '_button_cancel'"
+      ></button>
+    </div>
+    @if (valueError(); as error) {
+      <bit-error [error]="error"></bit-error>
+    }
+  </form>
+} @else {
+  <!-- Value always shows; canEdit only gates the edit affordance. -->
+  <span class="tw-inline-flex tw-items-center tw-gap-1">
+    {{ displayValue() }}
+    @if (canEdit()) {
+      <button
+        type="button"
+        bitIconButton="bwi-pencil"
+        buttonType="subtleGhost"
+        size="small"
+        (click)="start()"
+        [label]="editLabel()"
+        [id]="idPrefix() + '_button_edit'"
+      ></button>
+    }
+  </span>
+}
