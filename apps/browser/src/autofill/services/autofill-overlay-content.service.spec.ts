@@ -103,8 +103,11 @@ describe("AutofillOverlayContentService", () => {
   });
 
   afterEach(() => {
-    // Disconnect observers and detach listeners so JSDOM can tear down
-    // cleanly between tests.
+    // Disconnect observers and detach listeners so JSDOM can tear down cleanly
+    // between tests. This cascades to autofillOverlayContentService.destroy(),
+    // which matters for the window-message tests: each test's setup adds a window
+    // "message" listener, and leaked listeners re-process and mutate the shared
+    // subFrameData of later tests.
     autofillInit?.destroy();
     jest.clearAllMocks();
     // Tests that opt into fake timers leak the configuration across cases;
@@ -2413,7 +2416,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     describe("getSubFrameOffsetsFromWindowMessage", () => {
-      it("sends a message to the parent to calculate the sub frame positioning", () => {
+      it("sends a message to the parent to calculate the sub frame positioning without leaking the frame url", () => {
         jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
         const subFrameId = 10;
 
@@ -2426,7 +2429,6 @@ describe("AutofillOverlayContentService", () => {
           {
             command: "calculateSubFramePositioning",
             subFrameData: {
-              url: window.location.href,
               frameId: subFrameId,
               left: 0,
               top: 0,
@@ -2436,12 +2438,21 @@ describe("AutofillOverlayContentService", () => {
           },
           "*",
         );
+        expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
+          expect.objectContaining({
+            subFrameData: expect.objectContaining({ url: expect.anything() }),
+          }),
+          expect.anything(),
+        );
       });
 
       describe("calculateSubFramePositioning", () => {
         beforeEach(() => {
           autofillOverlayContentService.startMonitoring();
-          jest.spyOn(globalThis.parent, "postMessage");
+          // Stub the relay so a forwarded message is recorded but not actually
+          // re-dispatched; calling through would cascade window messages into
+          // sibling tests via the shared (mutated) subFrameData object.
+          jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
           document.body.innerHTML = ``;
         });
 
@@ -2449,7 +2460,6 @@ describe("AutofillOverlayContentService", () => {
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2479,7 +2489,6 @@ describe("AutofillOverlayContentService", () => {
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2502,7 +2511,6 @@ describe("AutofillOverlayContentService", () => {
                 left: expect.any(Number),
                 parentFrameIds: [1, 2, 3],
                 top: expect.any(Number),
-                url: "https://example.com/",
                 subFrameDepth: expect.any(Number),
               },
             },
@@ -2510,20 +2518,19 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("posts the calculated sub frame data to the background", async () => {
+        it("drops an incoming message that carries a url instead of relaying it", async () => {
+          Object.defineProperty(window, "top", {
+            value: null,
+            writable: true,
+          });
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
           jest
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
-          // `calculateSubFramePositioning` calls `getCurrentTabFrameId` via
-          // `sendExtensionMessage`; that response is appended to
-          // `parentFrameIds`. The outer beforeEach mocks the spy to resolve
-          // `undefined`, so without an explicit override here the push is
-          // skipped and the assertion below fails.
-          sendExtensionMessageSpy.mockResolvedValue(4);
+          // A stale (pre-fix) or hostile descendant frame includes its url in the message.
           const subFrameData = {
-            url: "https://example.com/",
+            url: "https://example.com/secret?token=should-not-leak",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2538,16 +2545,119 @@ describe("AutofillOverlayContentService", () => {
           );
           await flushPromises();
 
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("drops an incoming message whose subFrameData fails the type guard", async () => {
+          // window.top is null and the iframe has a non-zero rect, so a message
+          // that passed the guard would be relayed; only the guard stops this one.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // Missing the required top/left/subFrameDepth numbers.
+          const subFrameData = { frameId: 10 };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("adds the iframe offset to the running position and posts the result to the background", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          // Distinct, non-zero left/top so the assertion catches an axis swap and
+          // proves the offset is accumulated onto the incoming values (not assigned).
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 5, top: 7 }));
+          // Zero padding/border so the offset is exactly the iframe's rect position.
+          jest
+            .spyOn(globalThis, "getComputedStyle")
+            .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+          // getCurrentTabFrameId resolves to the parent frame id appended to the chain.
+          sendExtensionMessageSpy.mockResolvedValue(4);
+          const subFrameData = {
+            frameId: 10,
+            left: 20,
+            top: 10,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: expect.any(Number),
-              top: expect.any(Number),
-              url: "https://example.com/",
+              left: 25, // 20 + iframe left 5
+              top: 17, // 10 + iframe top 7
               parentFrameIds: [1, 2, 3, 4],
-              subFrameDepth: expect.any(Number),
+              subFrameDepth: 1,
             },
           });
+        });
+
+        it("re-dispatches each relayed message back through the handler until the max depth is reached", async () => {
+          // This frame is not the top frame, so each hop relays to the parent.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          // Re-dispatch the relayed message back into the window so the handler
+          // genuinely re-processes it (exercising the cascade), rather than the
+          // no-op stub which would swallow the relay after a single call. (jsdom's
+          // real postMessage delivery is not driven by a single flushPromises.)
+          const postMessageSpy = jest
+            .spyOn(globalThis.parent, "postMessage")
+            .mockImplementation((message: any) => {
+              globalThis.dispatchEvent(new MessageEvent("message", { data: message }));
+            });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          const subFrameData = {
+            frameId: 10,
+            left: 0,
+            top: 0,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          // The relay was re-dispatched and re-handled on each hop, incrementing the
+          // shared depth until the guard tore the listeners down at the top frame.
+          expect(postMessageSpy.mock.calls.length).toBeGreaterThan(1);
+          expect(subFrameData.subFrameDepth).toBeGreaterThanOrEqual(MAX_SUB_FRAME_DEPTH);
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "destroyAutofillInlineMenuListeners",
+            expect.anything(),
+          );
         });
       });
     });

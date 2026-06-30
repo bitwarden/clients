@@ -3,6 +3,7 @@ import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
+import type { SubFrameOffsetWindowMessageData } from "../services/abstractions/autofill-overlay-content.service";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -582,4 +583,39 @@ export function areKeyValuesNull<T extends Record<string, any>>(
   const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
 
   return keysToCheck.every((key) => obj[key] == null);
+}
+
+/**
+ * Validates the shape of `subFrameData` and rejects any payload that carries a
+ * `url`. This is the *receive*-side counterpart to the *send*-side
+ * `SubFrameOffsetWindowMessageData` type: that type stops our own code from
+ * constructing a leaky payload at compile time, but any frame can post arbitrary
+ * data, so inbound messages must be validated at runtime before they are trusted.
+ *
+ * @param value - The untrusted `data` property of the window message event.
+ */
+export function isSubFramePositioningMessageData(
+  value: unknown,
+): value is { subFrameData: SubFrameOffsetWindowMessageData } {
+  if (typeof value !== "object" || value === null || !("subFrameData" in value)) {
+    return false;
+  }
+
+  const { subFrameData } = value as { subFrameData: unknown };
+  if (typeof subFrameData !== "object" || subFrameData === null || "url" in subFrameData) {
+    return false;
+  }
+
+  // Number.isFinite (not `typeof === "number"`) so NaN/Infinity are rejected: a
+  // non-finite subFrameDepth would defeat the MAX_SUB_FRAME_DEPTH relay guard.
+  const candidate = subFrameData as Record<string, unknown>;
+  return (
+    Number.isFinite(candidate.top) &&
+    Number.isFinite(candidate.left) &&
+    Number.isFinite(candidate.subFrameDepth) &&
+    (candidate.frameId === undefined || Number.isFinite(candidate.frameId)) &&
+    (candidate.parentFrameIds === undefined ||
+      (Array.isArray(candidate.parentFrameIds) &&
+        candidate.parentFrameIds.every((id) => Number.isFinite(id))))
+  );
 }
