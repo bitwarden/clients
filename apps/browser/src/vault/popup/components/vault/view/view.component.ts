@@ -131,6 +131,10 @@ export class ViewComponent {
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
@@ -155,6 +159,7 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -223,6 +228,7 @@ export class ViewComponent {
   }
 
   setHeader(type: CipherType) {
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
       [CipherType.Login]: this.btnTextAddCreateFeatureFlag()
         ? "viewItemHeaderLoginSentenceCase"
@@ -233,9 +239,11 @@ export class ViewComponent {
       [CipherType.Identity]: this.btnTextAddCreateFeatureFlag()
         ? "viewItemHeaderIdentitySentenceCase"
         : "viewItemHeaderIdentity",
-      [CipherType.SecureNote]: this.btnTextAddCreateFeatureFlag()
-        ? "viewItemHeaderNoteSentenceCase"
-        : "viewItemHeaderNote",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? "viewItemHeaderSecureNote"
+        : this.btnTextAddCreateFeatureFlag()
+          ? "viewItemHeaderNoteSentenceCase"
+          : "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       [CipherType.DriversLicense]: "viewItemHeaderLicense",

@@ -234,6 +234,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
+
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
@@ -426,6 +431,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
               FeatureFlag.PM29968_FillAfterSave,
             );
           }
+
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             params.cipherId,
@@ -517,6 +523,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   setHeader(mode: CipherFormMode, type: CipherType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
       [CipherType.Login]: isEditMode
         ? this.btnTextAddCreateFeatureFlag()
@@ -539,13 +546,19 @@ export class AddEditComponent implements OnInit, OnDestroy {
         : this.btnTextAddCreateFeatureFlag()
           ? "addItemHeaderIdentity"
           : "newItemHeaderIdentity",
-      [CipherType.SecureNote]: isEditMode
-        ? this.btnTextAddCreateFeatureFlag()
-          ? "editItemHeaderNoteSentenceCase"
-          : "editItemHeaderNote"
-        : this.btnTextAddCreateFeatureFlag()
-          ? "addItemHeaderNote"
-          : "newItemHeaderNote",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? isEditMode
+          ? "editItemHeaderSecureNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderSecureNote"
+            : "newItemHeaderSecureNote"
+        : isEditMode
+          ? this.btnTextAddCreateFeatureFlag()
+            ? "editItemHeaderNoteSentenceCase"
+            : "editItemHeaderNote"
+          : this.btnTextAddCreateFeatureFlag()
+            ? "addItemHeaderNote"
+            : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode
         ? "editItemHeaderSshKey"
         : this.btnTextAddCreateFeatureFlag()
