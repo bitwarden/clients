@@ -391,9 +391,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
+    const titleKey = ciphers.length === 1 ? "archiveItemsSingular" : "archiveItemsPlural";
+    const contentKey =
+      ciphers.length === 1 ? "archiveItemDialogContent" : "archiveItemsPluralDescription";
+    const successKey = ciphers.length === 1 ? "itemArchiveToast" : "bulkArchiveItems";
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveBulkItems" },
-      content: { key: "archiveBulkItemsConfirmDesc" },
+      title: { key: titleKey, placeholders: [ciphers.length] },
+      content: { key: contentKey },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
@@ -407,7 +413,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.archiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkArchiveItems"),
+        message: this.i18nService.t(successKey),
       });
       this.selection.clear();
       this._completed$.next();
