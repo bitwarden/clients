@@ -140,32 +140,29 @@
         *ngTemplateOutlet="recursiveFilters; context: { $implicit: filters() }"
       ></ng-container>
       @if (showAddLink()) {
-        <li class="filter-option">
-          <span class="filter-buttons">
-            <a href="#" routerLink="{{ addInfo()!.route }}" class="filter-button tw-truncate">
-              <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-              &nbsp;{{ addInfo()!.text | i18n }}
-            </a>
-          </span>
-        </li>
+        <ng-container *ngTemplateOutlet="addLink"></ng-container>
       }
     </ul>
   }
   @if (divider()) {
     <hr />
   }
-} @else if (showAddLink()) {
+} @else if (showAddLink() && data()) {
   <ul id="{{ headerNode().node.name }}-filters" class="filter-options">
-    <li class="filter-option">
-      <span class="filter-buttons">
-        <a href="#" routerLink="{{ addInfo()!.route }}" class="filter-button tw-truncate">
-          <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
-          &nbsp;{{ addInfo()!.text | i18n }}
-        </a>
-      </span>
-    </li>
+    <ng-container *ngTemplateOutlet="addLink"></ng-container>
   </ul>
   @if (divider()) {
     <hr />
   }
 }
+
+<ng-template #addLink>
+  <li class="filter-option">
+    <span class="filter-buttons">
+      <a href="#" routerLink="{{ addInfo()!.route }}" class="filter-button tw-truncate">
+        <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+        &nbsp;{{ addInfo()!.text | i18n }}
+      </a>
+    </span>
+  </li>
+</ng-template>
