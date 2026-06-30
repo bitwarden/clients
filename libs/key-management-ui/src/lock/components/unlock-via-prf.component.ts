@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, input, output } from "@angular/core";
+import { Component, Inject, OnInit, Optional, input, output } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -10,6 +10,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { AsyncActionsModule, ButtonModule, DialogService } from "@bitwarden/components";
 
+import { UnlockViaWebAuthnComponentService } from "../services/unlock-via-webauthn-component.service";
 import { WebAuthnPrfUnlockService } from "../services/webauthn-prf-unlock.service";
 
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -65,6 +66,9 @@ export class UnlockViaPrfComponent implements OnInit {
     private dialogService: DialogService,
     private i18nService: I18nService,
     private logService: LogService,
+    @Optional()
+    @Inject(UnlockViaWebAuthnComponentService)
+    private unlockViaWebAuthnComponentService?: UnlockViaWebAuthnComponentService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -81,12 +85,23 @@ export class UnlockViaPrfComponent implements OnInit {
     }
 
     this.unlocking = true;
+    let isRelayFlowInitiated = false;
 
     try {
       const userKey = await this.webAuthnPrfUnlockService.unlockVaultWithPrf(this.userId);
       this.unlockSuccess.emit(userKey);
     } catch (error) {
       this.logService.error("[UnlockViaPrfComponent] Failed to unlock via PRF:", error);
+
+      // Handle relay flow initiated - this is expected for Firefox
+      if (error instanceof Error && error.message === "RelayFlowInitiated") {
+        this.logService.info(
+          "[UnlockViaPrfComponent] Relay flow initiated, waiting for completion",
+        );
+        isRelayFlowInitiated = true;
+        // Don't reset unlocking state - the popup may be replaced by result popout
+        return;
+      }
 
       let errorMessage = this.i18nService.t("unexpectedError");
 
@@ -108,7 +123,46 @@ export class UnlockViaPrfComponent implements OnInit {
         type: "danger",
       });
     } finally {
+      // Only reset unlocking if relay flow was NOT initiated
+      if (!isRelayFlowInitiated) {
+        this.unlocking = false;
+      }
+    }
+  }
+
+  /**
+   * Handles PRF unlock via the web vault relay mechanism (Firefox).
+   * Opens the relay tab and waits for the result popout to complete the unlock.
+   */
+  private async unlockViaPrfWithRelay(): Promise<void> {
+    if (!this.unlockViaWebAuthnComponentService) {
+      return;
+    }
+
+    this.unlocking = true;
+
+    try {
+      this.logService.info("[UnlockViaPrfComponent] Starting relay-based PRF unlock");
+      await this.unlockViaWebAuthnComponentService.openWebVaultRelayTab();
+
+      // The relay tab has been opened. The actual unlock will happen in the
+      // unlock result popout component when the user completes the WebAuthn flow.
+      // We keep the button in a loading state to indicate something is happening.
+      this.logService.info("[UnlockViaPrfComponent] Relay tab opened, waiting for completion");
+
+      // Note: We don't reset unlocking state here because:
+      // 1. The popup may be closed/replaced by the result popout
+      // 2. If the user cancels, they'll navigate back and the component will re-initialize
+    } catch (error) {
+      this.logService.error("[UnlockViaPrfComponent] Failed to open relay tab:", error);
       this.unlocking = false;
+
+      await this.dialogService.openSimpleDialog({
+        title: { key: "error" },
+        content: this.i18nService.t("unexpectedError"),
+        acceptButtonText: { key: "ok" },
+        type: "danger",
+      });
     }
   }
 }
