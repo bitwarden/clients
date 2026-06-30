@@ -12,6 +12,7 @@ import {
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { OrgInviteKind } from "@bitwarden/common/auth/organization-invite/org-invite-kind";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -95,9 +96,16 @@ export class WebLoginComponentService
         // Match on organizationId (stable) AND email (defensive). Org display names can
         // drift between when an invite is sent and when SSO is attempted; the id is the
         // source of truth for "this stashed invite is for the org the server just rejected."
+        //
+        // Narrowed to direct invites: open invites carry no `organizationId` or `email`,
+        // and the SSO-callback / stash-match flow predates open invites — the open
+        // equivalent would need to match by `inviteLinkCode` against a server-supplied
+        // value, which today's PM-39774 callback contract doesn't provide. Tracked in
+        // the plan's "In-flight work to incorporate" section.
         const stashMatches =
-          orgInvite?.organizationId === params.organizationId &&
-          orgInvite?.email?.toLowerCase() === params.email.toLowerCase();
+          orgInvite?.kind === OrgInviteKind.Direct &&
+          orgInvite.organizationId === params.organizationId &&
+          orgInvite.email?.toLowerCase() === params.email.toLowerCase();
 
         if (stashMatches) {
           // Case A: matching stashed invite — auto-progress to MP entry and supply the
@@ -134,21 +142,27 @@ export class WebLoginComponentService
       return undefined;
     }
 
-    /**
-     * Check if the email on the org invite matches the email submitted in the login form. This is
-     * important because say userA at "userA@mail.com" clicks an emailed org invite link, but then
-     * on the login page form they change the email to "userB@mail.com". We don't want to apply the org
-     * invite in state to userB. Therefore we clear the login redirect url as well as the org invite,
-     * allowing userB to login as normal.
-     */
-    if (orgInvite.email !== email.toLowerCase()) {
-      await this.routerService.getAndClearLoginRedirectUrl();
-      await this.organizationInviteService.clearOrganizationInvite();
+    if (orgInvite.kind === OrgInviteKind.Direct) {
+      /**
+       * Check if the email on the direct org invite matches the email submitted in the login form.
+       * This is important because say userA at "userA@mail.com" clicks an emailed org invite link,
+       * but then on the login page form they change the email to "userB@mail.com". We don't want to
+       * apply the org invite in state to userB. Therefore we clear the login redirect url as well
+       * as the org invite, allowing userB to login as normal.
+       *
+       * Open invites carry no user identity, so this check doesn't apply — the
+       * AcceptOrgOpenInviteComponent and the upcoming Task 3 pre-auth domain check in
+       * LoginComponent handle the open-invite equivalents.
+       */
+      if (orgInvite.email !== email.toLowerCase()) {
+        await this.routerService.getAndClearLoginRedirectUrl();
+        await this.organizationInviteService.clearOrganizationInvite();
 
-      this.logService.error(
-        `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,
-      );
-      return undefined;
+        this.logService.error(
+          `WebLoginComponentService.getOrgPoliciesFromOrgInvite: Email mismatch. Expected: ${orgInvite.email}, Received: ${email}`,
+        );
+        return undefined;
+      }
     }
 
     const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
@@ -157,9 +171,20 @@ export class WebLoginComponentService
       return undefined;
     }
 
+    // Direct invites carry organizationId on the invite itself. Open invites don't, so derive
+    // it from the policies (all of which belong to the inviting org). If policies is empty,
+    // there's no MP/reset-password policy to honor regardless of variant.
+    const organizationId =
+      orgInvite.kind === OrgInviteKind.Direct
+        ? orgInvite.organizationId
+        : policies[0]?.organizationId;
+    if (organizationId == null) {
+      return undefined;
+    }
+
     const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
       policies,
-      orgInvite.organizationId,
+      organizationId,
     );
 
     const isPolicyAndAutoEnrollEnabled =
