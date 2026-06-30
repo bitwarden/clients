@@ -1,5 +1,5 @@
-import { NgModule } from "@angular/core";
-import { Route, RouterModule, Routes } from "@angular/router";
+import { inject, NgModule } from "@angular/core";
+import { CanMatchFn, Route, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -52,6 +52,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -65,6 +66,7 @@ import { CreateOrganizationComponent } from "./admin-console/settings/create-org
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
 import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
+import { AcceptOrgOpenInviteComponent } from "./auth/organization-invite/accept-org-open-invite.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
@@ -97,6 +99,16 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+
+/**
+ * Gates the open-invite landing route on `FeatureFlag.GenerateInviteLink`. When the flag
+ * is off the route doesn't match — Angular's router falls through to the wildcard, which
+ * matches the off-behavior contract ("route unregistered / 404") from the plan.
+ */
+const generateInviteLinkFlagEnabled: CanMatchFn = () =>
+  inject(ConfigService)
+    .getFeatureFlag$(FeatureFlag.GenerateInviteLink)
+    .pipe(map((flagValue) => flagValue === true));
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -211,6 +223,18 @@ const routes: Routes = [
             component: RegistrationFinishComponent,
           },
         ],
+      },
+      {
+        // Open organization invite link landing (PM-39706). The component handles
+        // both authenticated and unauthenticated users so no unauthGuardFn here.
+        // `canMatch` gates the route on the feature flag — when off, the route
+        // doesn't match and the user gets the standard 404 fallback. `deepLinkGuard`
+        // persists the URL for SSO + JIT replay (Task 6).
+        path: "join/:inviteLinkCode",
+        canMatch: [generateInviteLinkFlagEnabled],
+        canActivate: [deepLinkGuard()],
+        component: AcceptOrgOpenInviteComponent,
+        data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
         path: AuthRoute.Login,

@@ -5654,6 +5654,27 @@
       }
     }
   },
+  "openInviteAcceptFailed": {
+    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+  },
+  "openInviteNoSeatsTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openInviteNoSeatsMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
+  "openInviteNotFoundTitle": {
+    "message": "Invitation link not found"
+  },
+  "openInviteNotFoundMessage": {
+    "message": "This invitation link is invalid or no longer available."
+  },
+  "openInvitePlanNotSupportedTitle": {
+    "message": "Invitation link not available"
+  },
+  "openInvitePlanNotSupportedMessage": {
+    "message": "This organization's plan does not support invitation links. Contact your admin for assistance."
+  },
   "rememberEmail": {
     "message": "Remember email"
   },
