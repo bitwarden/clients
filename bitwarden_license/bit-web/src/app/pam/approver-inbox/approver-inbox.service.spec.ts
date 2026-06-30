@@ -41,7 +41,6 @@ function makeRow(
     OrganizationId: overrides.organizationId ?? "org-1",
     RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
-    RequestedTtlSeconds: 3600,
     RequestedNotAfter: overrides.requestedNotAfter,
     ExpiredAt: overrides.expiredAt,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",

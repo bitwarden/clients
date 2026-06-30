@@ -25,7 +25,6 @@ function response(id: string, status: AccessRequestStatus): AccessRequestDetails
     CollectionId: "col-1",
     RequesterUserId: "me",
     Status: status,
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-05-01T00:00:00Z",
   });
 }
@@ -216,7 +215,6 @@ describe("MyAccessRequestsService", () => {
         CollectionId: "col-1",
         RequesterUserId: "me",
         Status: "activated",
-        RequestedTtlSeconds: 3600,
         SubmittedAt: "2026-05-01T00:00:00Z",
         ProducedLeaseId: "lease-1",
         ProducedLeaseStatus: "active",

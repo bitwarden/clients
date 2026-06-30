@@ -5,6 +5,7 @@ import {
   AccessRequestStatus,
   Decision,
   findHumanDecision,
+  requestedWindowSeconds,
 } from "@bitwarden/bit-pam";
 import { BadgeVariant } from "@bitwarden/components";
 
@@ -34,7 +35,6 @@ export type MyRequestRow = {
   resolvedAt: Date | null;
   requestedNotBefore: Date | null;
   requestedNotAfter: Date | null;
-  requestedTtlSeconds: number;
   /** i18n key for a system / access-rule resolver; null when a human resolved. */
   resolverLabelKey: string | null;
   /** The human resolver's display name (name, falling back to email, then id); null otherwise. */
@@ -193,7 +193,6 @@ export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNam
       response.requestedNotBefore == null ? null : new Date(response.requestedNotBefore),
     requestedNotAfter:
       response.requestedNotAfter == null ? null : new Date(response.requestedNotAfter),
-    requestedTtlSeconds: response.requestedTtlSeconds,
     ...resolveResolver(response.status, human),
     approverComment: human?.comment ?? null,
     activationDeadline:
@@ -215,19 +214,20 @@ export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNam
  * the original is badged with the total time added and the lease's current end, and the extension
  * rows themselves are dropped.
  *
- * The join is self-contained on the extension's own fields: an applied extension carries
- * `requestedTtlSeconds` (the bump it added) and `requestedNotAfter` (the lease's end after it), and
- * the original that minted the lease has `producedLeaseId` equal to the same parent lease id the
+ * The join is self-contained on the extension's own fields: an applied extension's requested window
+ * spans the bump it added (prior end → `requestedNotAfter`, the lease's end after it), and the
+ * original that minted the lease has `producedLeaseId` equal to the same parent lease id the
  * extensions point at. The server applies an extension in place on approval and records it
  * `approved`; the mock/spec records it `activated`. Either counts toward the badge — a
  * pending/denied/cancelled extension never moved the lease end, so it does not.
  */
 /**
- * Sum the applied extensions per parent lease id. An applied extension carries `requestedTtlSeconds`
- * (the bump it added) and `requestedNotAfter` (the lease's end after it). The server applies an
- * extension in place on approval and records it `approved`; the mock/spec records it `activated`.
- * Either counts — a pending/denied/cancelled extension never moved the lease end, so it does not.
- * Keyed by the parent lease id (`extensionOfLeaseId`), so callers join by lease id.
+ * Sum the applied extensions per parent lease id. An applied extension's requested window spans the
+ * bump it added (its length, via {@link requestedWindowSeconds}) and ends at `requestedNotAfter`
+ * (the lease's end after it). The server applies an extension in place on approval and records it
+ * `approved`; the mock/spec records it `activated`. Either counts — a pending/denied/cancelled
+ * extension never moved the lease end, so it does not. Keyed by the parent lease id
+ * (`extensionOfLeaseId`), so callers join by lease id.
  */
 export function extensionsByLeaseId(
   responses: AccessRequestDetailsResponse[],
@@ -245,7 +245,7 @@ export function extensionsByLeaseId(
     const acc = byLease.get(response.extensionOfLeaseId) ?? { addedSeconds: 0, latestEndMs: 0 };
     const endMs = response.requestedNotAfter == null ? 0 : Date.parse(response.requestedNotAfter);
     byLease.set(response.extensionOfLeaseId, {
-      addedSeconds: acc.addedSeconds + response.requestedTtlSeconds,
+      addedSeconds: acc.addedSeconds + (requestedWindowSeconds(response) ?? 0),
       latestEndMs: Math.max(acc.latestEndMs, endMs),
     });
   }

@@ -62,7 +62,6 @@ type Fixture = {
   approverComment?: string | null;
   requestedNotBefore?: string | null;
   requestedNotAfter?: string | null;
-  requestedTtlSeconds?: number;
   producedLeaseId?: string | null;
   extensionOfLeaseId?: string | null;
 };
@@ -80,7 +79,6 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     Status: f.status,
     RequestedNotBefore: f.requestedNotBefore ?? null,
     RequestedNotAfter: f.requestedNotAfter ?? null,
-    RequestedTtlSeconds: f.requestedTtlSeconds ?? 3600,
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
@@ -178,7 +176,6 @@ const i18nMock = () =>
     pamApproversTbd: "Awaiting approval",
     pamResolverAccessRule: "Access rule",
     pamWindowUntil: "Until __$1__",
-    pamWindowTtlSeconds: "__$1__s",
     window: "Window",
     pamMyLeasesActiveSection: "Active leases",
     pamMyLeasesActiveEmpty: "No active leases",
@@ -366,7 +363,8 @@ export const WithExtension: Story = {
         submittedAt: new Date(now - 12 * oneHour).toISOString(),
         resolvedAt: new Date(now - 12 * oneHour).toISOString(),
         extensionOfLeaseId: "lease-r1",
-        requestedTtlSeconds: 7200,
+        // Window spans the +2h bump it added.
+        requestedNotBefore: new Date(now).toISOString(),
         requestedNotAfter: new Date(now + 2 * oneHour).toISOString(),
       }),
       makeResponse({

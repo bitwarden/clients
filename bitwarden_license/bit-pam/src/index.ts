@@ -59,6 +59,7 @@ export {
 } from "./helpers/access-rule-table";
 export { formatRemaining } from "./helpers/format-remaining";
 export { findHumanDecision } from "./helpers/find-human-decision";
+export { requestedWindowSeconds } from "./helpers/requested-window";
 export { formatRelativeTime, elapsedKey } from "./helpers/relative-time";
 export {
   MAX_LEASE_DURATION_SECONDS,

@@ -31,7 +31,6 @@ function request(id: string, requesterId = "user-other"): AccessRequestDetailsRe
     CollectionId: "col-1",
     RequesterId: requesterId,
     Status: "pending",
-    RequestedTtlSeconds: 3600,
     SubmittedAt: "2026-06-10T10:00:00Z",
     Reason: "Need access",
     RequesterName: "Bob",

@@ -64,7 +64,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
   status: AccessRequestStatus;
   requestedNotBefore: string | null;
   requestedNotAfter: string | null;
-  requestedTtlSeconds: number;
   reason: string | null;
   submittedAt: string;
   resolvedAt: string | null;
@@ -109,7 +108,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.status = this.getResponseProperty("Status");
     this.requestedNotBefore = this.getResponseProperty("RequestedNotBefore") ?? null;
     this.requestedNotAfter = this.getResponseProperty("RequestedNotAfter") ?? null;
-    this.requestedTtlSeconds = this.getResponseProperty("RequestedTtlSeconds");
     this.reason = this.getResponseProperty("Reason") ?? null;
     this.submittedAt = this.getResponseProperty("SubmittedAt");
     this.resolvedAt = this.getResponseProperty("ResolvedAt") ?? null;
