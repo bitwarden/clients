@@ -127,6 +127,30 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
         this.formGroup.patchValue({ email });
       }
     });
+
+    await this.applyOpenInviteTitleOverride();
+  }
+
+  /**
+   * When an `OpenOrganizationInvite` is in state, override the anon-layout title to
+   * "Join <organizationName>" so users see they're accepting an invite rather than
+   * generic "Create account" chrome. No icon override — the existing route-data icon
+   * (RegistrationUserAddIcon) is reused.
+   *
+   * Defense-in-depth flag check: the landing route is gated, but stale state from a
+   * prior flag-on session could persist into a flag-off session.
+   */
+  private async applyOpenInviteTitleOverride(): Promise<void> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return;
+    }
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return;
+    }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
+    });
   }
 
   private listenForQueryParamChanges() {
