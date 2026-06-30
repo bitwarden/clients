@@ -1,7 +1,7 @@
 @let organization = organization$ | async;
 @let selectedCollection = selectedCollection$ | async;
 @let filter = filter$ | async;
-@let refreshing = refreshingSubject$ | async;
+@let refreshing = isRefreshing$ | async;
 @let loading = loading$ | async;
 
 @if (organization) {
@@ -37,7 +37,7 @@
       <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
         <app-organization-vault-filter
           [organization]="organization"
-          [activeFilter]="activeFilter"
+          [activeFilter]="activeFilter()"
           [searchText]="currentSearchText$ | async"
           [ciphers$]="allCiphers$"
           (searchTextChange)="filterSearchText($event)"
@@ -50,9 +50,9 @@
         (hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0 tw-px-2.5'
       "
     >
-      @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
+      @if (showAddAccessToggle() && activeFilter().selectedCollectionNode) {
         <bit-toggle-group
-          [selected]="addAccessStatus$ | async"
+          [selected]="collectionService.addAccessStatus$ | async"
           (selectedChange)="addAccessToggle($event)"
           [attr.aria-label]="'addAccessFilter' | i18n"
         >
@@ -66,7 +66,7 @@
         </bit-toggle-group>
       }
 
-      @if (activeFilter.isDeleted) {
+      @if (activeFilter().isDeleted) {
         <bit-callout type="warning">
           {{ trashCleanupWarning }}
         </bit-callout>
@@ -99,8 +99,8 @@
           [showBulkEditCollectionAccess]="true"
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
-          [addAccessStatus]="addAccessStatus$ | async"
-          [addAccessToggle]="showAddAccessToggle"
+          [addAccessStatus]="collectionService.addAccessStatus$ | async"
+          [addAccessToggle]="showAddAccessToggle()"
           [activeCollection]="selectedCollection?.node"
         >
         </app-vault-items>
