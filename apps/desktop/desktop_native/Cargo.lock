@@ -355,6 +355,8 @@ dependencies = [
  "base64",
  "desktop_core",
  "futures",
+ "napi",
+ "napi-derive",
  "serde",
  "serde_json",
  "serde_with",
@@ -1059,6 +1061,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "autofill_provider",
  "autotype",
  "chromium_importer",
  "desktop_core",
