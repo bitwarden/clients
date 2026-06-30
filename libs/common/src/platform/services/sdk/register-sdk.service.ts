@@ -14,11 +14,11 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";

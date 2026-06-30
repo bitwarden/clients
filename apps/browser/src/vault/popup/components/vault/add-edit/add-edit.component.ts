@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
@@ -198,7 +198,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
   routeAfterDeletion: ROUTES_AFTER_EDIT_DELETION = "/tabs/vault";
-  protected showSaveAndFill = false;
+  protected saveAndFillEnabled = false;
   private fillOnSuccessfulSave = false;
 
   get loading() {
@@ -228,6 +228,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private get inSingleActionPopout() {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
+
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -355,8 +360,12 @@ export class AddEditComponent implements OnInit, OnDestroy {
       if (this.fillOnSuccessfulSave) {
         await this.vaultPopupAutofillService.doAutofill(cipher, false, true);
       }
-      await this.showLoginSavedNotification(cipher);
-      await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
+      if (this.saveAndFillEnabled) {
+        await this.showLoginSavedNotification(cipher);
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem);
+      } else {
+        await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, 1000);
+      }
       return;
     }
 
@@ -413,13 +422,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
           }
 
           if (params.fillAfterSave) {
-            const saveAndFillEnabled = await this.configService.getFeatureFlag(
+            this.saveAndFillEnabled = await this.configService.getFeatureFlag(
               FeatureFlag.PM29968_FillAfterSave,
             );
-            this.showSaveAndFill = saveAndFillEnabled;
-          } else {
-            this.showSaveAndFill = false;
           }
+
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             params.cipherId,
@@ -511,11 +518,18 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   setHeader(mode: CipherFormMode, type: CipherType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
       [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
       [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
       [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
-      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? isEditMode
+          ? "editItemHeaderSecureNote"
+          : "newItemHeaderSecureNote"
+        : isEditMode
+          ? "editItemHeaderNote"
+          : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
       [CipherType.BankAccount]: isEditMode
         ? "editItemHeaderBankAccount"
