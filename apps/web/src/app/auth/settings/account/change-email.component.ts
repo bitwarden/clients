@@ -91,7 +91,7 @@ export class ChangeEmailComponent implements OnInit {
 
     if (!this.userVerificationSuccessful()) {
       await this.changeEmailService.requestEmailToken(masterPassword, newEmail, userId);
-      this.disableUserVerificationAndNewEmailForm();
+      this.advanceToEmailOwnershipVerification();
     } else {
       const emailOtp = this.formGroup.value.emailOwnershipVerification;
       if (emailOtp == null) {
@@ -118,7 +118,7 @@ export class ChangeEmailComponent implements OnInit {
     }
   };
 
-  disableUserVerificationAndNewEmailForm() {
+  advanceToEmailOwnershipVerification() {
     this.formGroup.controls.userVerificationAndNewEmail.disable();
     this.formGroup.controls.emailOwnershipVerification.enable();
 
