@@ -218,8 +218,8 @@ export class Send extends Domain {
     send.expirationDate = obj.expirationDate != null ? new Date(obj.expirationDate) : null;
     send.emails = obj.emails ?? null;
     send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
-    send.text = obj.text != null ? SendText.fromSdk(obj.text) : undefined;
-    send.file = obj.file != null ? SendFile.fromSdk(obj.file) : undefined;
+    send.text = obj.text != null ? SendText.fromSdk(obj.text) : null;
+    send.file = obj.file != null ? SendFile.fromSdk(obj.file) : null;
     return send;
   }
 

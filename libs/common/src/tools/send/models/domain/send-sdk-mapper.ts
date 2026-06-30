@@ -10,9 +10,6 @@ import { Send } from "./send";
 /**
  * Bridges the client's `SEND_USER_ENCRYPTED` state to the SDK's send repository so the SDK can
  * read/write sends from the same state legacy sync already populates.
- *
- * Not yet registered: the SDK's `Repositories` interface has no `send` field in the pinned
- * version (see `client-managed-state.ts`). Once the SDK exposes one, register this mapper there.
  */
 export class SendRecordMapper implements SdkRecordMapper<SendData, SdkSend> {
   userKeyDefinition(): UserKeyDefinition<Record<string, SendData>> {
