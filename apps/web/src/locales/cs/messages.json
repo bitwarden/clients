@@ -979,6 +979,9 @@
   "close": {
     "message": "Zavřít"
   },
+  "done": {
+    "message": "Hotovo"
+  },
   "delete": {
     "message": "Smazat"
   },
@@ -1203,6 +1206,10 @@
     "message": "Nová poznámka",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Nová bezpečná poznámka",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Nový SSH klíč",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Upravit poznámku",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Upravit bezpečnou poznámku",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Upravit SSH klíč",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "Zobrazit poznámku",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Zobrazit bezpečnou poznámku",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Zobrazit SSH klíč",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "Smazat položku"
+  },
+  "deleteItemsCount": {
+    "message": "Smazat $COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Tato položka bude vysypána do Vašeho koše. Po 30 dnech bude trvale smazána."
+  },
+  "deleteItemsDesc": {
+    "message": "Tyto položky budou vysypány do Vašeho koše. Po 30 dnech budou trvale smazány."
+  },
+  "deleteItemPermanently": {
+    "message": "Trvale smazat položku"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Trvale smazat $COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Nebudete moci obnovit tuto položku."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Nebudete moci obnovit tyto položky."
+  },
+  "deleteSelection": {
+    "message": "Smazat výběr"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Vybrané položky a sbírky budou trvale smazány."
   },
   "deleteFolder": {
     "message": "Smazat složku"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "Opravdu chcete pokračovat?"
   },
+  "deleteCollection": {
+    "message": "Smazat sbírku"
+  },
+  "deleteCollectionsCount": {
+    "message": "Smazat $COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Tato sbírka bude trvale smazána."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Tyto sbírky budou trvale smazány."
+  },
   "moveSelectedItemsDesc": {
     "message": "Vyberte složku, do které chcete přidat $COUNT$ vybraných položek.",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Nepovolovat členům vytvářet typy položek karty. Existující karty budou automaticky odebrány."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Nedovolí členům vytvářet a ukládat položky týkající se platebních karet do svých trezorů. Pokud bude tato zásada zapnuta, stávající karty budou automaticky skryty."
   },
   "restrictCardTypeImport": {
     "message": "Nelze importovat typy položek karty"
@@ -4332,7 +4407,7 @@
     "message": "Upravit sbírku"
   },
   "viewCollection": {
-    "message": "Zobrazit kolekci"
+    "message": "Zobrazit sbírku"
   },
   "collectionInfo": {
     "message": "Informace o sbírce"
@@ -4865,6 +4940,12 @@
   },
   "deletedCollections": {
     "message": "Byly smazány sbírky."
+  },
+  "collectionDeleted": {
+    "message": "Sbírka byla smazána"
+  },
+  "collectionsDeleted": {
+    "message": "Kolekce byly smazány"
   },
   "deletedCollectionId": {
     "message": "Byla smazána sbírka $ID$.",
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "a"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "Chcete-li dokončit přijetí této pozvánky, přihlaste se pomocí hlavního hesla."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "Nemůžete se přihlásit pomocí SSO, dokud nepřijmete pozvánku do $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "Zaškrtnutím tohoto políčka souhlasíte s následujícím:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "Vybráno"
+  },
+  "selectedLowercase": {
+    "message": "vybráno",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Doporučeno"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "Bude požadovat po uživatelích nastavení dvoufázového přihlášení pro jejich osobní účty."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Členové organizace, kteří nejsou vlastníky nebo správci a kteří nemají povoleno dvoufázové přihlášení pro svůj osobní účet, budou odebráni z organizace a obdrží e-mail, který je o změně informuje."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Jste členem organizace, která vyžaduje použití dvoufázového přihlášení na Vašem uživatelském účtu. Pokud zakážete všechny poskytovatele dvoufázového přihlášení, budete z takovýchto organizací automaticky odebráni."
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "Vyžaduje přihlášení uživatelů pomocí metody jednotného podnikového přihlášení."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Předpoklady"
   },
   "requireSsoPolicyReq": {
     "message": "Před aktivací této zásady musí být povolena jednotná pravidla organizace."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "Jednotná pravidla organizace nebyla nastavena."
@@ -6887,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Členové budou vyzváni, aby buď převedli své položky do organizace nebo aby odešli. Pokud odejdou, jejich přístup je odvolán, ale může být kdykoliv obnoven."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "Všechny položky členů budou ve vlastnictví a správě organizace. Tato zásada se nevztahuje na vlastníky a správce. Další informace o "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Všem uživatelům poskytněte vyhrazený prostor \"Moje položky\" pro správu jejich vlastních přihlašovacích údajů."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Vyzvat uživatele k přesunutí jejich položek trezoru do organizace"
+  },
+  "enablePolicy": {
+    "message": "Povolit zásadu"
+  },
   "organizationDataOwnership": {
     "message": "Vynutit vlastnictví dat organizace"
   },
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Výchozí nastavení Desktop Autotype"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Výchozí nastavení autotypu na ploše"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Ve výchozím nastavení pro členy zapne Desktop Autotype. Uživatelé mohou v klientovi na počítači vypnout Desktop Autotype ručně.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Povolí členům automatické vyplňování v desktopové verzi. Členové budou moci automatické vyplňování v desktopovém klientovi ručně vypnout."
   },
   "disableSend": {
     "message": "Odebrat Send"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "Nedovolí, aby členové exportovali svá osobní data trezoru."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "Export trezoru byl odebrán"
@@ -9057,7 +9190,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimProvisioningBannerInfo": {
-    "message": "Configuring this setting will automatically send invitations to all assigned users and groups in your identity provider (IdP).",
+    "message": "Nastavením této volby se automaticky odešlou pozvánky všem přiřazeným uživatelům a skupinám ve Vašem poskytovateli identit (IdP).",
     "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "Upravené sbírky"
   },
+  "editedCollection": {
+    "message": "Upravená sbírka"
+  },
   "baseUrl": {
     "message": "URL serveru"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
+  },
+  "itemAssignedToCollections": {
+    "message": "Položka byla přiřazena do sbírek"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Položky byly přiřazeny do sbírek"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Odebrat sponzorství Free Bitwarden Families"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Odenbrat sponzorovaný plán Families"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Nedovolí, aby členové mohli prostřednictvím této organizace uplatnit Free Bitwarden Families."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Neumožní členům využívat plán \"Families\", který sponzoruje Vaše organizace."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Platba bankovním účtem je dostupná jen pro zákazníky ve Spojených státech. Budete požádáni o ověření Vašeho bankovního účtu. Mikrovklad provedeme během následujících 1-2 pracovních dnů. Pro ověření bankovního účtu zadejte kód popisu výpisu z této zálohy na fakturační stránce organizace. Pokud bankovní účet neověříte, bude to mít za následek neprovedení platby a pozastavení předplatného."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Nepovolí členům odemknout svůj účet pomocí PIN."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "Logy událostí nejsou uloženy pro Vaši organizaci. Aktualizujte na Týmy nebo plán Enterprise a získejte plný přístup k logům událostí."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Zabrání uživatelům ve vytváření účtů mimo Vaši organizaci pomocí e-mailových adres z nárokovaných domén."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Zabrání členům v tom, aby pomocí Vaší zaregistrované domény zakládali účty Bitwarden mimo Vaši organizaci."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Před aktivací této zásady musí být nárokována doména."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Než tuto zásadu aktivujete, musíte si doménu nárokovat."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Zjistěte více o nárokovaných doménách"
   },
   "vaultTimeoutTooLarge": {
     "message": "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací."
@@ -14347,7 +14507,17 @@
     "message": "Pravidelně aktualizujte přehledy a analýzy, abyste zachytili nová rizika a měli přehled o nejnovějších ukazatelích v souvislosti s růstem Vaší organizace."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ z $TOTAL$"
+    "message": "$CURRENT$ z $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Krok $CURRENT$ z $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Popisek",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Klepnutí na tlačítko banneru"
+  },
   "progressBar": {
     "message": "Ukazatel průběhu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Kopírovat"
+  },
+  "paymentSuccessful": {
+    "message": "Platba proběhla úspěšně"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Aktualizace je zpracovávána. Může trvat několik minut před tím, než v Bitwardenu uvidíte funkce Premium."
+  },
+  "planPurchased": {
+    "message": "Předplatné je zakoupeno"
+  },
+  "renewalDate": {
+    "message": "Datum obnovení"
+  },
+  "upgradeStatus": {
+    "message": "Stav aktualizace"
+  },
+  "processing": {
+    "message": "Zpracovávání"
+  },
+  "managePlanInWebApp": {
+    "message": "Spravovat předplatné ve webové aplikaci"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
