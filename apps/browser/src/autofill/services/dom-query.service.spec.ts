@@ -316,6 +316,52 @@ describe("DomQueryService", () => {
     });
   });
 
+  describe("setOwnedShadowHostTagNames (excludes the extension's own injected UI)", () => {
+    beforeEach(() => {
+      document.body.innerHTML = "";
+      domQueryService["knownShadowRoots"].clear();
+      domQueryService["pageContainsShadowDom"] = true;
+    });
+
+    it("does not detect an owned shadow host's root", () => {
+      const host = document.createElement("owned-menu");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+
+      expect(domQueryService.checkForNewShadowRoots([host])).toBe(false);
+    });
+
+    it("still detects a non-owned shadow host", () => {
+      const host = document.createElement("page-widget");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+
+      expect(domQueryService.checkForNewShadowRoots([host])).toBe(true);
+    });
+
+    it("ignores mutations inside an owned shadow host", () => {
+      const host = document.createElement("owned-menu");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+    });
+
+    it("still flags mutations inside a non-owned shadow host", () => {
+      const host = document.createElement("page-widget");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+    });
+  });
+
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
       document.body.innerHTML = "";

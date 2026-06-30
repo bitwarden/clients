@@ -215,6 +215,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
     }
+    this.refreshOwnedShadowHostTagNames();
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
@@ -1441,6 +1442,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     );
   }
 
+  // Keep dom-query's exclusion list current with the overlay's (randomized) injected tag names.
+  private refreshOwnedShadowHostTagNames(): void {
+    this.domQueryService.setOwnedShadowHostTagNames(
+      this.autofillOverlayContentService?.getOwnedInlineMenuTagNames() ?? [],
+    );
+  }
+
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1457,6 +1465,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
     this.purgeDetachedNodesIfDue();
 
+    this.refreshOwnedShadowHostTagNames();
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
     this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
