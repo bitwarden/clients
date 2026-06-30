@@ -7,7 +7,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { DirectOrganizationInvite } from "@bitwarden/common/auth/organization-invite/direct-organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -65,10 +65,10 @@ describe("WebRegistrationFinishService", () => {
   });
 
   describe("getOrgNameFromOrgInvite()", () => {
-    let orgInvite: OrganizationInvite | null;
+    let orgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite({
+      orgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -99,10 +99,10 @@ describe("WebRegistrationFinishService", () => {
   });
 
   describe("getMasterPasswordPolicyOptsFromOrgInvite()", () => {
-    let orgInvite: OrganizationInvite | null;
+    let orgInvite: DirectOrganizationInvite | null;
 
     beforeEach(() => {
-      orgInvite = new OrganizationInvite({
+      orgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -158,7 +158,7 @@ describe("WebRegistrationFinishService", () => {
     let userKeyEncString: EncString;
     let userKeyPair: [string, EncString];
 
-    let orgInvite: OrganizationInvite;
+    let orgInvite: DirectOrganizationInvite;
     let orgSponsoredFreeFamilyPlanToken: string;
     let acceptEmergencyAccessInviteToken: string;
     let emergencyAccessId: string;
@@ -186,7 +186,7 @@ describe("WebRegistrationFinishService", () => {
       userKeyEncString = new EncString("userKeyEncrypted");
       userKeyPair = ["publicKey", new EncString("privateKey")];
 
-      orgInvite = new OrganizationInvite({
+      orgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "organizationUserId",
         token: "orgInviteToken",
@@ -497,7 +497,7 @@ describe("WebRegistrationFinishService", () => {
     let salt: MasterPasswordSalt;
     let passwordInputResult: PasswordInputResult;
 
-    let orgInvite: OrganizationInvite;
+    let orgInvite: DirectOrganizationInvite;
     let orgSponsoredFreeFamilyPlanToken: string;
     let acceptEmergencyAccessInviteToken: string;
     let emergencyAccessId: string;
@@ -521,7 +521,7 @@ describe("WebRegistrationFinishService", () => {
         salt: salt,
       };
 
-      orgInvite = new OrganizationInvite({
+      orgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "00000000-0000-0000-0000-000000000003", // The SDK request converts these ids via asUuid, so they must be valid UUIDs.
         token: "orgInviteToken",
@@ -661,7 +661,7 @@ describe("WebRegistrationFinishService", () => {
     });
 
     it("throws if the provided organization id is not a valid UUID", async () => {
-      const badOrgInvite = new OrganizationInvite({
+      const badOrgInvite = new DirectOrganizationInvite({
         organizationId: "organizationId",
         organizationUserId: "not-a-uuid",
         token: "orgInviteToken",

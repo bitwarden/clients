@@ -1,14 +1,21 @@
 import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../platform/state";
 
-import { OrganizationInvite } from "./organization-invite";
+import { DirectOrganizationInvite } from "./direct-organization-invite";
 
-// We're storing the organization invite for 2 reasons:
-// 1. If the org requires a MP policy check, we need to keep track that the user has already been redirected when they return.
-// 2. The MP policy check happens on login/register flows, we need to store the token to retrieve the policies then.
-export const ORGANIZATION_INVITE = new KeyDefinition<OrganizationInvite | null>(
+/**
+ * Persisted direct organization invite (admin targeted a specific user by email). Stored
+ * across login/register/MP-policy detours and consumed at accept time.
+ *
+ * Storage string is still `"organizationInvite"` until a follow-up commit lands the
+ * `"directOrganizationInvite"` rename + state-provider migration. Renaming the variable
+ * to `DIRECT_ORGANIZATION_INVITE` ahead of the storage rename keeps in-code naming
+ * symmetric with the upcoming `OPEN_ORGANIZATION_INVITE` key without a destructive
+ * change to on-disk state.
+ */
+export const DIRECT_ORGANIZATION_INVITE = new KeyDefinition<DirectOrganizationInvite | null>(
   ORGANIZATION_INVITE_DISK,
   "organizationInvite",
   {
-    deserializer: (invite) => (invite ? OrganizationInvite.fromJSON(invite) : null),
+    deserializer: (invite) => (invite ? DirectOrganizationInvite.fromJSON(invite) : null),
   },
 );

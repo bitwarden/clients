@@ -29,7 +29,7 @@ import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
-import { OrganizationInvite } from "./organization-invite";
+import { DirectOrganizationInvite } from "./direct-organization-invite";
 
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;
@@ -281,7 +281,7 @@ describe("DefaultOrganizationInviteService", () => {
 
     describe("acceptAndInitOrganization encryption guards", () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
-      let invite: OrganizationInvite;
+      let invite: DirectOrganizationInvite;
 
       beforeEach(() => {
         invite = createOrgInvite({ initOrganization: true });
@@ -333,7 +333,7 @@ describe("DefaultOrganizationInviteService", () => {
     });
 
     describe("reset password enrollment errors", () => {
-      let invite: OrganizationInvite;
+      let invite: DirectOrganizationInvite;
 
       beforeEach(async () => {
         invite = createOrgInvite();
@@ -533,8 +533,8 @@ describe("DefaultOrganizationInviteService", () => {
   });
 });
 
-function createOrgInvite(custom: Partial<OrganizationInvite> = {}): OrganizationInvite {
-  return new OrganizationInvite({
+function createOrgInvite(custom: Partial<DirectOrganizationInvite> = {}): DirectOrganizationInvite {
+  return new DirectOrganizationInvite({
     email: "user@example.com",
     initOrganization: false,
     orgUserHasExistingUser: false,

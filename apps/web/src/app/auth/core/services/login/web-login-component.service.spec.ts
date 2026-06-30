@@ -8,7 +8,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
+import { DirectOrganizationInvite } from "@bitwarden/common/auth/organization-invite/direct-organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -92,7 +92,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite = new OrganizationInvite({
+    const orgInvite = new DirectOrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -191,7 +191,7 @@ describe("WebLoginComponentService", () => {
     const mockOrganizationId = "11111111-1111-1111-1111-111111111111";
     const mockEmail = "test@example.com";
     const orgInviteFor = (overrides: { email?: string; organizationId?: string } = {}) =>
-      new OrganizationInvite({
+      new DirectOrganizationInvite({
         organizationId: overrides.organizationId ?? mockOrganizationId,
         token: "token",
         email: overrides.email ?? mockEmail,

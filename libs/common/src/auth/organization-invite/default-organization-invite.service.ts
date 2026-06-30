@@ -28,12 +28,14 @@ import { GlobalState, GlobalStateProvider } from "../../platform/state";
 import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
+import { DirectOrganizationInvite } from "./direct-organization-invite";
+import { OrgInviteKind } from "./org-invite-kind";
 import { OrganizationInvite } from "./organization-invite";
-import { ORGANIZATION_INVITE } from "./organization-invite-state";
+import { DIRECT_ORGANIZATION_INVITE } from "./organization-invite-state";
 import { OrganizationInviteService } from "./organization-invite.service";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
-  private organizationInviteState: GlobalState<OrganizationInvite | null>;
+  private organizationInviteState: GlobalState<DirectOrganizationInvite | null>;
   // In-memory dedup of policy lookups across one invite ceremony. The same invite
   // can be checked from login, registration, and accept in a single session;
   // keyed by invite token, cleared whenever the stored invite is set or cleared
@@ -53,7 +55,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
   ) {
-    this.organizationInviteState = this.globalStateProvider.get(ORGANIZATION_INVITE);
+    this.organizationInviteState = this.globalStateProvider.get(DIRECT_ORGANIZATION_INVITE);
   }
 
   async getOrganizationInvite(): Promise<OrganizationInvite | null> {
@@ -61,6 +63,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async setOrganizationInvite(invite: OrganizationInvite): Promise<void> {
+    // TODO(PM-39706): dispatch to the matching state key once OPEN_ORGANIZATION_INVITE lands.
+    if (invite.kind !== OrgInviteKind.Direct) {
+      throw new Error("Open organization invite persistence is not yet implemented.");
+    }
     await this.organizationInviteState.update(() => invite);
     this.policyCache.clear();
   }
@@ -79,6 +85,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
   async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
+    // TODO(PM-39706): branch on invite.kind once open-invite accept is implemented.
+    if (invite.kind !== OrgInviteKind.Direct) {
+      throw new Error("Open organization invite acceptance is not yet implemented.");
+    }
+
     // Creation of a new org
     if (invite.initOrganization) {
       await this.acceptAndInitOrganization(invite, userId);
@@ -108,6 +119,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
+    // TODO(PM-39706): branch on invite.kind once getPoliciesByInviteLinkCode is wired up.
+    if (invite.kind !== OrgInviteKind.Direct) {
+      throw new Error("Open organization invite policy fetch is not yet implemented.");
+    }
+
     const cached = this.policyCache.get(invite.token);
     if (cached != null) {
       return cached;
@@ -141,7 +157,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async acceptAndInitOrganization(
-    invite: OrganizationInvite,
+    invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<void> {
     await this.prepareAcceptAndInitRequest(invite, userId).then((request) =>
@@ -156,7 +172,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async prepareAcceptAndInitRequest(
-    invite: OrganizationInvite,
+    invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
     const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
@@ -182,7 +198,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
   }
 
-  private async accept(invite: OrganizationInvite, userId: UserId): Promise<void> {
+  private async accept(invite: DirectOrganizationInvite, userId: UserId): Promise<void> {
     await this.prepareAcceptRequest(invite, userId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAccept(
         invite.organizationId,
@@ -196,7 +212,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async prepareAcceptRequest(
-    invite: OrganizationInvite,
+    invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptRequest> {
     const request = new OrganizationUserAcceptRequest();
@@ -228,7 +244,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return request;
   }
 
-  private async resetPasswordEnrollRequired(invite: OrganizationInvite): Promise<boolean> {
+  private async resetPasswordEnrollRequired(invite: DirectOrganizationInvite): Promise<boolean> {
     const policies = await this.getInvitePolicies(invite);
 
     if (policies == null || policies.length === 0) {
@@ -243,7 +259,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return result[1] && result[0].autoEnrollEnabled;
   }
 
-  private async masterPasswordPolicyCheckRequired(invite: OrganizationInvite): Promise<boolean> {
+  private async masterPasswordPolicyCheckRequired(
+    invite: DirectOrganizationInvite,
+  ): Promise<boolean> {
     const policies = await this.getInvitePolicies(invite);
 
     if (policies == null || policies.length === 0) {
@@ -254,7 +272,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
 
     let storedInvite = await this.getOrganizationInvite();
-    if (storedInvite != null && storedInvite.email !== invite.email) {
+    if (
+      storedInvite != null &&
+      storedInvite.kind === OrgInviteKind.Direct &&
+      storedInvite.email !== invite.email
+    ) {
       // clear stored invites if the email doesn't match
       await this.clearOrganizationInvite();
       storedInvite = null;
