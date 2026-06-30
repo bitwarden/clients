@@ -6,8 +6,6 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -39,12 +37,10 @@ describe("DefaultCollectionService", () => {
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
   let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
-  let authService: MockProxy<AuthService>;
 
   let userId: UserId;
 
   let cryptoKeys: ReplaySubject<Record<OrganizationId, OrgKey> | null>;
-  let authStatus$: ReplaySubject<AuthenticationStatus>;
 
   let collectionService: DefaultCollectionService;
 
@@ -57,14 +53,9 @@ describe("DefaultCollectionService", () => {
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     configService = mock();
     collectionEncryptionService = mock();
-    authService = mock();
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
-
-    authStatus$ = new ReplaySubject(1);
-    authStatus$.next(AuthenticationStatus.Unlocked);
-    authService.authStatusFor$.mockReturnValue(authStatus$);
 
     // Default: feature flag disabled so tests exercise the legacy path
     configService.getFeatureFlag$
@@ -93,7 +84,6 @@ describe("DefaultCollectionService", () => {
       stateProvider,
       configService,
       collectionEncryptionService,
-      authService,
     );
   });
 
@@ -275,6 +265,9 @@ describe("DefaultCollectionService", () => {
       configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
         .mockReturnValue(of(true));
+
+      // Emit non-null org keys so the gate passes by default
+      cryptoKeys.next({});
     });
 
     it("uses collectionEncryptionService.decryptMany when flag is enabled", async () => {
@@ -327,7 +320,7 @@ describe("DefaultCollectionService", () => {
       expect(result[1].name).toBe("Zebra");
     });
 
-    it("does not call decryptMany when account is locked", (done) => {
+    it("does not call decryptMany when org keys are null (locked)", (done) => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
       const decryptedView = collectionViewDataFactory(org1);
@@ -336,14 +329,14 @@ describe("DefaultCollectionService", () => {
       collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
 
       void setEncryptedState([collection1]).then(() => {
-        // Emit Locked (simulates locked / logged-out state)
-        authStatus$.next(AuthenticationStatus.Locked);
+        // Emit null to simulate locked state (org keys unavailable)
+        cryptoKeys.next(null);
 
         // decryptMany must not have been called yet
         expect(collectionEncryptionService.decryptMany).not.toHaveBeenCalled();
 
-        // Then unlock — this should unblock decryption
-        authStatus$.next(AuthenticationStatus.Unlocked);
+        // Then emit keys again to unblock decryption
+        cryptoKeys.next({});
       });
 
       collectionService
@@ -352,7 +345,7 @@ describe("DefaultCollectionService", () => {
         .subscribe({ complete: () => done() });
     });
 
-    it("starts decrypting after account transitions from locked to unlocked", async () => {
+    it("starts decrypting after org keys become available (locked → unlocked)", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
       const decryptedView = collectionViewDataFactory(org1);
@@ -361,9 +354,9 @@ describe("DefaultCollectionService", () => {
       await setEncryptedState([collection1]);
       collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
 
-      // Emit Locked first, then Unlocked
-      authStatus$.next(AuthenticationStatus.Locked);
-      authStatus$.next(AuthenticationStatus.Unlocked);
+      // Emit null first (locked), then real keys (unlocked)
+      cryptoKeys.next(null);
+      cryptoKeys.next({});
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
