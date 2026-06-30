@@ -8,6 +8,7 @@ import { newGuid } from "@bitwarden/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { OrganizationInviteLinkApiService } from "@bitwarden/organization-invite-link";
 import { UserId } from "@bitwarden/user-core";
 
 import { FakeGlobalStateProvider } from "../../../spec";
@@ -42,6 +43,7 @@ describe("DefaultOrganizationInviteService", () => {
   let logService: MockProxy<LogService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationUserApiService: MockProxy<OrganizationUserApiService>;
+  let organizationInviteLinkApiService: MockProxy<OrganizationInviteLinkApiService>;
   let i18nService: MockProxy<I18nService>;
   let globalStateProvider: FakeGlobalStateProvider;
 
@@ -55,6 +57,7 @@ describe("DefaultOrganizationInviteService", () => {
     logService = mock();
     organizationApiService = mock();
     organizationUserApiService = mock();
+    organizationInviteLinkApiService = mock();
     i18nService = mock();
     globalStateProvider = new FakeGlobalStateProvider();
 
@@ -68,6 +71,7 @@ describe("DefaultOrganizationInviteService", () => {
       logService,
       organizationApiService,
       organizationUserApiService,
+      organizationInviteLinkApiService,
       i18nService,
       globalStateProvider,
     );

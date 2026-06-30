@@ -10,6 +10,16 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// @bitwarden/organization-invite-link imports back from @bitwarden/common (BaseResponse,
+// ApiService, etc.), so this is a circular dependency in the static import graph. It
+// resolves at runtime because both libraries reach each other only through abstractions
+// that are bound at DI time. Acknowledged here per the same pattern used for the AC API
+// service imports above.
+import {
+  OrganizationInviteLinkAcceptRequest,
+  OrganizationInviteLinkApiService,
+  OrganizationInviteLinkValidateEmailDomainRequest,
+} from "@bitwarden/organization-invite-link";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -29,7 +39,11 @@ import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
 import { DirectOrganizationInvite } from "./direct-organization-invite";
-import { OpenOrganizationInvite } from "./open-organization-invite";
+import {
+  OpenOrgInviteSsoConfig,
+  OpenOrgInviteStatus,
+  OpenOrganizationInvite,
+} from "./open-organization-invite";
 import { OrgInviteKind } from "./org-invite-kind";
 import { OrganizationInvite } from "./organization-invite";
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite-state";
@@ -60,6 +74,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly logService: LogService,
     private readonly organizationApiService: OrganizationApiServiceAbstraction,
     private readonly organizationUserApiService: OrganizationUserApiService,
+    private readonly organizationInviteLinkApiService: OrganizationInviteLinkApiService,
     private readonly i18nService: I18nService,
     private readonly globalStateProvider: GlobalStateProvider,
   ) {
@@ -111,18 +126,28 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
   /**
    * Validates and accepts the organization invite if possible.
-   * Note: Users might need to pass a MP policy check before accepting an invite to an existing organization. If the user
-   * has not passed this check, they will be logged out and the invite will be stored for later use.
-   * @param invite an organization invite
-   * @param userId the user ID of the active user accepting the invite
-   * @returns a promise that resolves a boolean indicating if the invite was accepted.
+   *
+   * For direct invites: if the org enforces an MP policy and the user hasn't yet
+   * passed it, the invite is stashed and the user is logged out so they re-enter
+   * through the normal login flow (which validates the MP policy against their
+   * current master password). For open invites, the same MP-policy-detour applies,
+   * plus a ResetPassword auto-enroll path when the org's policy requires it.
+   *
+   * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
   async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
-    // TODO(PM-39706): branch on invite.kind once open-invite accept is implemented.
-    if (invite.kind !== OrgInviteKind.Direct) {
-      throw new Error("Open organization invite acceptance is not yet implemented.");
+    switch (invite.kind) {
+      case OrgInviteKind.Direct:
+        return await this.validateAndAcceptDirect(invite, userId);
+      case OrgInviteKind.Open:
+        return await this.validateAndAcceptOpen(invite, userId);
     }
+  }
 
+  private async validateAndAcceptDirect(
+    invite: DirectOrganizationInvite,
+    userId: UserId,
+  ): Promise<boolean> {
     // Creation of a new org
     if (invite.initOrganization) {
       await this.acceptAndInitOrganization(invite, userId);
@@ -138,7 +163,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // stash the invite and log the user out so they re-enter through the
     // normal flow, where login enforces the MP policy against their current
     // master password.
-    if (await this.masterPasswordPolicyCheckRequired(invite)) {
+    if (await this.directInviteMasterPasswordPolicyCheckRequired(invite)) {
       await this.setOrganizationInvite(invite);
       this.authService.logOut(() => {
         /* Do nothing */
@@ -151,32 +176,90 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return true;
   }
 
-  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
-    // TODO(PM-39706): branch on invite.kind once getPoliciesByInviteLinkCode is wired up.
-    if (invite.kind !== OrgInviteKind.Direct) {
-      throw new Error("Open organization invite policy fetch is not yet implemented.");
+  private async validateAndAcceptOpen(
+    invite: OpenOrganizationInvite,
+    userId: UserId,
+  ): Promise<boolean> {
+    // MP-policy detour for open invites: if the org requires a compliant MP and the
+    // user hasn't been through the detour yet (no matching stash), persist + log out
+    // so login can re-check the MP against their current password.
+    if (await this.openInviteMasterPasswordPolicyCheckRequired(invite)) {
+      await this.setOrganizationInvite(invite);
+      this.authService.logOut(() => {
+        /* Do nothing */
+      });
+      return false;
     }
 
-    const cached = this.policyCache.get(invite.token);
+    const resetPasswordKey = await this.computeOpenInviteResetPasswordKey(invite, userId);
+    await this.organizationInviteLinkApiService.accept(
+      new OrganizationInviteLinkAcceptRequest({
+        code: invite.inviteLinkCode,
+        resetPasswordKey,
+      }),
+    );
+
+    await this.apiService.refreshIdentityToken();
+    await this.clearOrganizationInvite();
+    return true;
+  }
+
+  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
+    const cacheKey = invite.kind === OrgInviteKind.Direct ? invite.token : invite.inviteLinkCode;
+    const cached = this.policyCache.get(cacheKey);
     if (cached != null) {
       return cached;
     }
 
     try {
-      const policies = await this.policyApiService.getPoliciesByToken(
-        invite.organizationId,
-        invite.token,
-        invite.email,
-        invite.organizationUserId,
-      );
+      const policies =
+        invite.kind === OrgInviteKind.Direct
+          ? await this.policyApiService.getPoliciesByToken(
+              invite.organizationId,
+              invite.token,
+              invite.email,
+              invite.organizationUserId,
+            )
+          : await this.policyApiService.getPoliciesByInviteLinkCode(invite.inviteLinkCode);
       if (policies != null) {
-        this.policyCache.set(invite.token, policies);
+        this.policyCache.set(cacheKey, policies);
       }
       return policies;
     } catch (e) {
       this.logService.error(e);
       return undefined;
     }
+  }
+
+  /**
+   * Fetches the public status of an open invite link by its code (anonymous endpoint).
+   * Throws ErrorResponse for 404 / 400 / network / 5xx — callers (the open-invite landing
+   * component) discriminate on `statusCode` to pick the right error UX.
+   */
+  async getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatus> {
+    const response = await this.organizationInviteLinkApiService.getStatus(code);
+    const sso: OpenOrgInviteSsoConfig | null =
+      response.sso == null
+        ? null
+        : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
+    return {
+      organizationName: response.organizationName,
+      seatsAvailable: response.seatsAvailable,
+      sso,
+    };
+  }
+
+  /**
+   * Validates whether an email's domain is permitted by an open invite link's
+   * `AllowedDomains` configuration. Consumed by `LoginComponent` /
+   * `RegistrationStartComponent` as a pre-auth UX check; server-side enforcement
+   * runs at accept time regardless.
+   */
+  async validateOpenInviteEmailDomain(code: string, email: string): Promise<boolean> {
+    const response = await this.organizationInviteLinkApiService.validateEmailDomain(
+      new OrganizationInviteLinkValidateEmailDomainRequest({ code, email }),
+    );
+    return response.isAllowed;
   }
 
   async getMasterPasswordPolicyOptionsForInvite(
@@ -292,7 +375,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return result[1] && result[0].autoEnrollEnabled;
   }
 
-  private async masterPasswordPolicyCheckRequired(
+  private async directInviteMasterPasswordPolicyCheckRequired(
     invite: DirectOrganizationInvite,
   ): Promise<boolean> {
     const policies = await this.getInvitePolicies(invite);
@@ -317,5 +400,77 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     // if we don't have an org invite stored, we know the user hasn't been redirected yet to check the MP policy
     const hasNotCheckedMasterPasswordYet = storedInvite == null;
     return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
+  }
+
+  private async openInviteMasterPasswordPolicyCheckRequired(
+    invite: OpenOrganizationInvite,
+  ): Promise<boolean> {
+    const policies = await this.getInvitePolicies(invite);
+    if (policies == null || policies.length === 0) {
+      return false;
+    }
+    const hasMasterPasswordPolicy = policies.some(
+      (p) => p.type === PolicyType.MasterPassword && p.enabled,
+    );
+
+    // Open invites carry no user identity, so there's no email-mismatch fork. The
+    // "have we been through the detour" signal is just whether a matching open-invite
+    // stash exists. If the stash holds a different open invite (different code), clear
+    // it so this invite gets fresh MP-policy treatment.
+    let storedInvite = await this.getOrganizationInvite();
+    if (
+      storedInvite != null &&
+      storedInvite.kind === OrgInviteKind.Open &&
+      storedInvite.inviteLinkCode !== invite.inviteLinkCode
+    ) {
+      await this.clearOrganizationInvite();
+      storedInvite = null;
+    }
+    const hasNotCheckedMasterPasswordYet = storedInvite == null;
+    return hasMasterPasswordPolicy && hasNotCheckedMasterPasswordYet;
+  }
+
+  /**
+   * Computes the encrypted user symmetric key for ResetPassword auto-enroll on an open
+   * invite accept, or returns undefined when the org's policy doesn't require it.
+   *
+   * Open invites carry no `organizationId`, so the orgId is derived from the policies
+   * (all of which belong to the inviting org).
+   */
+  private async computeOpenInviteResetPasswordKey(
+    invite: OpenOrganizationInvite,
+    userId: UserId,
+  ): Promise<string | undefined> {
+    const policies = await this.getInvitePolicies(invite);
+    if (policies == null || policies.length === 0) {
+      return undefined;
+    }
+
+    const organizationId = policies[0].organizationId;
+    const [resetPasswordOptions, enabled] = this.policyService.getResetPasswordPolicyOptions(
+      policies,
+      organizationId,
+    );
+    if (!enabled || !resetPasswordOptions.autoEnrollEnabled) {
+      return undefined;
+    }
+
+    const response = await this.organizationApiService.getKeys(organizationId);
+    if (response == null) {
+      throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
+    }
+    const publicKey = Utils.fromB64ToArray(response.publicKey);
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("User key is required to enroll in password reset.");
+    }
+
+    // RSA encrypt user's encKey.key with organization public key.
+    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
+    if (encryptedKey.encryptedString == null) {
+      throw new Error("Failed to encrypt user key for password reset enrollment.");
+    }
+    return encryptedKey.encryptedString;
   }
 }

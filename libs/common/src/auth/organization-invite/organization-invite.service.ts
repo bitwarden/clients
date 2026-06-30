@@ -5,6 +5,7 @@ import { UserId } from "@bitwarden/user-core";
 import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../admin-console/models/domain/policy";
 
+import { OpenOrgInviteStatus } from "./open-organization-invite";
 import { OrganizationInvite } from "./organization-invite";
 
 /**
@@ -73,4 +74,21 @@ export abstract class OrganizationInviteService {
   abstract getMasterPasswordPolicyOptionsForInvite(
     invite: OrganizationInvite,
   ): Promise<MasterPasswordPolicyOptions | undefined>;
+
+  /**
+   * Fetches the public status of an open invite link by its code (anonymous endpoint).
+   * Returns `{ organizationName, seatsAvailable, sso }` on 200; throws `ErrorResponse`
+   * with `statusCode === 404` (link not found) or `=== 400` (org plan doesn't support
+   * invite links). Other failures (network / 5xx) also throw.
+   */
+  abstract getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatus>;
+
+  /**
+   * Validates whether an email's domain is permitted by an open invite link's
+   * `AllowedDomains` configuration. Pre-auth UX check consumed by `LoginComponent`
+   * and `RegistrationStartComponent`; server-side enforcement runs at accept time
+   * regardless.
+   * @returns true if the email's domain is allowed, false if not.
+   */
+  abstract validateOpenInviteEmailDomain(code: string, email: string): Promise<boolean>;
 }
