@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
+  FormControl,
   FormGroup,
   UntypedFormBuilder,
   ValidationErrors,
@@ -25,6 +26,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { Option, SwitchComponent } from "@bitwarden/components";
 
@@ -53,6 +55,8 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly deletionHoursOptions: Option<SendDeletionDatePreset | null>[] = [];
 
   readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
     new SendControlsPolicyData(),
@@ -85,12 +89,23 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     }
   });
 
+  protected readonly showDeletionHours = new FormControl<boolean>(false);
+
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
   ) {
     super();
+    this.deletionHoursOptions = [
+      { label: this.i18nService.t("oneHour"), value: SendDeletionDatePreset.OneHour },
+      { label: this.i18nService.t("oneDay"), value: SendDeletionDatePreset.OneDay },
+      { label: this.i18nService.t("days", "2"), value: SendDeletionDatePreset.TwoDays },
+      { label: this.i18nService.t("days", "3"), value: SendDeletionDatePreset.ThreeDays },
+      { label: this.i18nService.t("days", "7"), value: SendDeletionDatePreset.SevenDays },
+      { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
+      { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
+    ];
   }
 
   async ngOnInit() {
@@ -119,10 +134,24 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
       if (!enabled) {
         this.data.disable();
+        this.showDeletionHours.disable();
       } else {
         this.data.enable();
+        this.showDeletionHours.enable();
       }
     });
+    this.data
+      .get("deletionHours")
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        // We don't emit an event here to prevent the following subscription from recursing
+        this.showDeletionHours.patchValue(value != null, { emitEvent: false });
+      });
+    this.showDeletionHours.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((checked) => {
+        this.data.patchValue({ deletionHours: checked ? SendDeletionDatePreset.ThreeDays : null });
+      });
     super.ngOnInit();
   }
 

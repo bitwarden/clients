@@ -7,8 +7,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 export const SendDisabledReason = Object.freeze({
   /** Send is not disabled */
@@ -112,6 +114,26 @@ export class SendPolicyService {
                 .split(",")
                 .map((d: string) => d.trim().toLowerCase())
                 .filter((d: string) => d.length > 0);
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  // Returns whatever deletion date preset is mandated by policy and the ID of the organization whose policy set it
+  readonly deletionDatePolicyInfo$: Observable<{
+    deletionHours: SendDeletionDatePreset | null;
+    orgId: OrganizationId | null;
+  } | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.deletionHours != null);
+              const deletionHours = (policy?.data?.deletionHours as SendDeletionDatePreset) ?? null;
+              const orgId = policy?.organizationId ?? null;
+              return { deletionHours, orgId };
             }),
           )
         : of(null),
