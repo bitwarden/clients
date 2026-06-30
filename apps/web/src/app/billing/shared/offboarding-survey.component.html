@@ -26,7 +26,7 @@
         </select>
       </bit-form-field>
     }
-    @if (formGroup.value.reason === "other") {
+    @if (isOtherReason()) {
       <bit-form-field class="-tw-mt-1">
         <input
           bitInput
