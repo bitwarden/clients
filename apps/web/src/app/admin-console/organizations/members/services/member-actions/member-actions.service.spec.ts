@@ -759,6 +759,92 @@ describe("MemberActionsService", () => {
     });
   });
 
+  describe("action predicates", () => {
+    const userWithStatus = (status: OrganizationUserStatusType, claimed = false) =>
+      ({ ...mockOrgUser, status, claimedByOrganization: claimed }) as OrganizationUserView;
+
+    describe("canConfirm", () => {
+      it("allows accepted members", () => {
+        expect(service.canConfirm(userWithStatus(OrganizationUserStatusType.Accepted))).toBe(true);
+      });
+
+      it.each([
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Confirmed,
+        OrganizationUserStatusType.Revoked,
+        OrganizationUserStatusType.Staged,
+      ])("denies %s members", (status) => {
+        expect(service.canConfirm(userWithStatus(status))).toBe(false);
+      });
+    });
+
+    describe("canReinvite", () => {
+      it("allows invited members", () => {
+        expect(service.canReinvite(userWithStatus(OrganizationUserStatusType.Invited))).toBe(true);
+      });
+
+      it("denies staged members", () => {
+        expect(service.canReinvite(userWithStatus(OrganizationUserStatusType.Staged))).toBe(false);
+      });
+    });
+
+    describe("canRestore", () => {
+      it("allows revoked members", () => {
+        expect(service.canRestore(userWithStatus(OrganizationUserStatusType.Revoked))).toBe(true);
+      });
+
+      it("denies staged members", () => {
+        expect(service.canRestore(userWithStatus(OrganizationUserStatusType.Staged))).toBe(false);
+      });
+    });
+
+    describe("canRevoke", () => {
+      it.each([
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Confirmed,
+        OrganizationUserStatusType.Staged,
+      ])("allows %s members", (status) => {
+        expect(service.canRevoke(userWithStatus(status))).toBe(true);
+      });
+
+      it("denies already revoked members", () => {
+        expect(service.canRevoke(userWithStatus(OrganizationUserStatusType.Revoked))).toBe(false);
+      });
+    });
+
+    describe("canRemove", () => {
+      it("allows members not claimed by the organization", () => {
+        expect(service.canRemove(userWithStatus(OrganizationUserStatusType.Staged, false))).toBe(
+          true,
+        );
+      });
+
+      it("denies members claimed by the organization", () => {
+        expect(service.canRemove(userWithStatus(OrganizationUserStatusType.Confirmed, true))).toBe(
+          false,
+        );
+      });
+    });
+
+    describe("canManageMember", () => {
+      it("denies staged members so only Revoke and Remove remain", () => {
+        expect(service.canManageMember(userWithStatus(OrganizationUserStatusType.Staged))).toBe(
+          false,
+        );
+      });
+
+      it.each([
+        OrganizationUserStatusType.Invited,
+        OrganizationUserStatusType.Accepted,
+        OrganizationUserStatusType.Confirmed,
+        OrganizationUserStatusType.Revoked,
+      ])("allows %s members", (status) => {
+        expect(service.canManageMember(userWithStatus(status))).toBe(true);
+      });
+    });
+  });
+
   describe("isProcessing signal", () => {
     it("should be false initially", () => {
       expect(service.isProcessing()).toBe(false);

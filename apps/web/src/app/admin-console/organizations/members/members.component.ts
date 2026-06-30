@@ -304,6 +304,30 @@ export class MembersComponent {
     );
   }
 
+  canConfirm(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canConfirm(user);
+  }
+
+  canReinvite(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canReinvite(user);
+  }
+
+  canRestore(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canRestore(user);
+  }
+
+  canRevoke(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canRevoke(user);
+  }
+
+  canRemove(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canRemove(user);
+  }
+
+  canManageMember(user: OrganizationUserView): boolean {
+    return this.memberActionsService.canManageMember(user);
+  }
+
   showEnrolledStatus(
     orgUser: OrganizationUserView,
     organization: Organization,
@@ -519,11 +543,11 @@ export class MembersComponent {
     ];
 
     const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.claimedByOrganization),
+      showBulkConfirmUsers: members.every((m) => this.memberActionsService.canConfirm(m)),
+      showBulkReinviteUsers: members.every((m) => this.memberActionsService.canReinvite(m)),
+      showBulkRestoreUsers: members.every((m) => this.memberActionsService.canRestore(m)),
+      showBulkRevokeUsers: members.every((m) => this.memberActionsService.canRevoke(m)),
+      showBulkRemoveUsers: members.every((m) => this.memberActionsService.canRemove(m)),
       showBulkDeleteUsers: members.every(
         (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),
