@@ -3617,8 +3617,8 @@
   "cancelSubscription": {
     "message": "Cancel subscription"
   },
-  "completeCancelation": {
-    "message": "Complete cancelation"
+  "completeCancellation": {
+    "message": "Complete cancellation"
   },
   "helpUsImprove": {
     "message": "Help us improve. Why are you canceling?"
