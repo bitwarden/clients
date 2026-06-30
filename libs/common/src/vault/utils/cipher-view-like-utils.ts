@@ -465,6 +465,35 @@ export class CipherViewLikeUtils {
 
     return undefined;
   };
+
+  /**
+   * Sorts ciphers so that a cipher with an exact hostname match to the
+   * given URL is moved to the front of the array. All other ciphers remain
+   * in their existing relative order. When no match is found or the match
+   * is already at position 0, the array is returned unchanged.
+   *
+   * @param ciphers - Array of ciphers to reorder. Mutated in place.
+   * @param url - The URL whose hostname is used for matching.
+   * @returns The same array reference with the best match at position 0.
+   */
+  static sortCiphersForUrl = <T extends CipherViewLike>(ciphers: T[], url: string): T[] => {
+    const hostname = Utils.getHostname(url);
+    if (!hostname) {
+      return ciphers;
+    }
+
+    const exactIdx = ciphers.findIndex((c) => {
+      const login = CipherViewLikeUtils.getLogin(c);
+      return login?.uris?.some((u) => u.uri && Utils.getHostname(u.uri) === hostname);
+    });
+
+    if (exactIdx > 0) {
+      const [match] = ciphers.splice(exactIdx, 1);
+      ciphers.unshift(match);
+    }
+
+    return ciphers;
+  };
 }
 
 /**

@@ -7,6 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { CipherContextMenuHandler } from "./cipher-context-menu-handler";
 import { MainContextMenuHandler } from "./main-context-menu-handler";
@@ -27,6 +28,7 @@ describe("CipherContextMenuHandler", () => {
     authService = mock();
     cipherService = mock();
 
+    jest.spyOn(CipherViewLikeUtils, "sortCiphersForUrl").mockImplementation((ciphers) => ciphers);
     jest.spyOn(MainContextMenuHandler, "removeAll").mockResolvedValue();
 
     sut = new CipherContextMenuHandler(

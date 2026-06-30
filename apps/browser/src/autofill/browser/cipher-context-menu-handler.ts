@@ -8,6 +8,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 import { AutofillCipherTypeId } from "../types";
 
@@ -47,11 +48,15 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-      CipherType.Card,
-      CipherType.Identity,
-    ]);
-    ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+    const ciphers = CipherViewLikeUtils.sortCiphersForUrl(
+      (
+        await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
+          CipherType.Card,
+          CipherType.Identity,
+        ])
+      ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)),
+      url,
+    );
 
     const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphers.reduce(
       (ciphersByType, cipher) => {

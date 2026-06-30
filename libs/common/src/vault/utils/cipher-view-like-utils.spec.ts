@@ -1110,4 +1110,67 @@ describe("CipherViewLikeUtils", () => {
       });
     });
   });
+
+  describe("sortCiphersForUrl", () => {
+    it("returns ciphers unchanged when url has no hostname", () => {
+      const ciphers = [new CipherView(), new CipherView()];
+
+      const result = CipherViewLikeUtils.sortCiphersForUrl(ciphers, "");
+
+      expect(result).toEqual(ciphers);
+    });
+
+    it("moves exact hostname match to position 0", () => {
+      const match = createCipherView();
+      match.login = { uris: [{ uri: "https://example.com/app", match: 1 }] } as any;
+      const other = new CipherView();
+
+      const result = CipherViewLikeUtils.sortCiphersForUrl(
+        [other, match],
+        "https://example.com/dashboard",
+      );
+
+      expect(result[0]).toEqual(match);
+      expect(result[1]).toEqual(other);
+    });
+
+    it("keeps match at position 0 when already first", () => {
+      const match = createCipherView();
+      match.login = { uris: [{ uri: "https://example.com/app", match: 1 }] } as any;
+      const other = new CipherView();
+
+      const result = CipherViewLikeUtils.sortCiphersForUrl(
+        [match, other],
+        "https://example.com/dashboard",
+      );
+
+      expect(result[0]).toEqual(match);
+      expect(result[1]).toEqual(other);
+    });
+
+    it("preserves order when no hostname matches", () => {
+      const a = createCipherView();
+      a.login = { uris: [{ uri: "https://other.com", match: 1 }] } as any;
+      const b = new CipherView();
+
+      const result = CipherViewLikeUtils.sortCiphersForUrl([a, b], "https://example.com/dashboard");
+
+      expect(result[0]).toEqual(a);
+      expect(result[1]).toEqual(b);
+    });
+
+    it("handles cipher with no login gracefully", () => {
+      const loginCipher = createCipherView();
+      loginCipher.login = { uris: [{ uri: "https://example.com/app", match: 1 }] } as any;
+      const nonLoginCipher = new CipherView();
+
+      const result = CipherViewLikeUtils.sortCiphersForUrl(
+        [loginCipher, nonLoginCipher],
+        "https://example.com/dashboard",
+      );
+
+      expect(result[0]).toEqual(loginCipher);
+      expect(result[1]).toEqual(nonLoginCipher);
+    });
+  });
 });
