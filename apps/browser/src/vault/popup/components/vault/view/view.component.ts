@@ -159,7 +159,6 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
-    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
