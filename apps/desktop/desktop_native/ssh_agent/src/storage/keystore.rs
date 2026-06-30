@@ -2,7 +2,10 @@
 //! implementation for storing SSH keys securely. All stored data is ephemeral and
 //! lost when the store is dropped.
 
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex,
+};
 
 use anyhow::Result;
 use desktop_core::secure_memory::{EncryptedMemoryStore, SecureMemoryStore};
@@ -52,6 +55,10 @@ pub trait KeyStore: Send + Sync {
 
     /// Clears the keystore of all keys.
     fn clear(&self);
+
+    /// Returns `true` if [`replace`](KeyStore::replace) has been called at least once since the
+    /// keystore was created or last cleared.
+    fn is_initialized(&self) -> bool;
 }
 
 /// A thread-safe, in-memory, and encrypted implementation of the [`KeyStore`] trait.
@@ -61,6 +68,7 @@ pub trait KeyStore: Send + Sync {
 /// All data is lost when the instance is dropped.
 pub struct InMemoryEncryptedKeyStore {
     secure_memory: Arc<Mutex<EncryptedMemoryStore<PublicKey>>>,
+    initialized: AtomicBool,
 }
 
 impl InMemoryEncryptedKeyStore {
@@ -69,6 +77,7 @@ impl InMemoryEncryptedKeyStore {
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::new())),
+            initialized: AtomicBool::new(false),
         }
     }
 }
@@ -138,6 +147,7 @@ impl KeyStore for InMemoryEncryptedKeyStore {
                 store.put(pub_key, bytes.as_slice());
             }
         }
+        self.initialized.store(true, Ordering::Relaxed);
         Ok(())
     }
 
@@ -146,6 +156,11 @@ impl KeyStore for InMemoryEncryptedKeyStore {
             .lock()
             .expect("Mutex is not poisoned")
             .clear();
+        self.initialized.store(false, Ordering::Relaxed);
+    }
+
+    fn is_initialized(&self) -> bool {
+        self.initialized.load(Ordering::Relaxed)
     }
 }
 
@@ -332,6 +347,36 @@ mod tests {
 
         let result = ks.get_all_public_keys_and_names().unwrap();
         assert_eq!(result.len(), 0);
+    }
+
+    #[test]
+    fn test_is_initialized_false_on_new() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        assert!(!ks.is_initialized());
+    }
+
+    #[test]
+    fn test_is_initialized_true_after_replace() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        ks.replace(vec![]).unwrap();
+        assert!(ks.is_initialized());
+    }
+
+    #[test]
+    fn test_is_initialized_true_after_replace_with_keys() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        let key = create_test_keydata_ed25519("key", "cipher");
+        ks.replace(vec![key]).unwrap();
+        assert!(ks.is_initialized());
+    }
+
+    #[test]
+    fn test_is_initialized_false_after_clear() {
+        let ks = InMemoryEncryptedKeyStore::new();
+        ks.replace(vec![]).unwrap();
+        assert!(ks.is_initialized());
+        ks.clear();
+        assert!(!ks.is_initialized());
     }
 
     #[test]

@@ -15,6 +15,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BitIconButtonComponent,
+  CheckboxModule,
   MenuModule,
   MenuTriggerForDirective,
   TableModule,
@@ -55,6 +56,7 @@ interface CopyFieldConfig {
     IconComponent,
     LinkModule,
     IconModule,
+    CheckboxModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -88,6 +90,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly showBatchBar = input<boolean>(false);
+  protected readonly selected = input<boolean>(false);
+  protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
 
   protected CipherType = CipherType;
