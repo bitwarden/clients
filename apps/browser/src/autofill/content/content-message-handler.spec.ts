@@ -100,6 +100,52 @@ describe("ContentMessageHandler", () => {
         referrer: "localhost",
       });
     });
+
+    it("sends a passkeyLoginResult message", () => {
+      postWindowMessage(
+        {
+          command: "passkeyLoginResult",
+          token: "token",
+          assertionData: "assertionData",
+          encryptedPrfOutput: { ciphertext: "ciphertext", iv: "iv" },
+          connectorPublicKey: "connectorPublicKey",
+        },
+        "https://localhost/",
+        window,
+      );
+
+      expect(sendMessageSpy).toHaveBeenCalledWith({
+        command: "passkeyLoginResult",
+        token: "token",
+        assertionData: "assertionData",
+        encryptedPrfOutput: { ciphertext: "ciphertext", iv: "iv" },
+        connectorPublicKey: "connectorPublicKey",
+        referrer: "localhost",
+        type: "login",
+      });
+    });
+
+    it("sends a passkeyUnlockResult message", () => {
+      postWindowMessage(
+        {
+          command: "passkeyUnlockResult",
+          credentialId: "credentialId",
+          encryptedPrfOutput: { ciphertext: "ciphertext", iv: "iv" },
+          connectorPublicKey: "connectorPublicKey",
+        },
+        "https://localhost/",
+        window,
+      );
+
+      expect(sendMessageSpy).toHaveBeenCalledWith({
+        command: "passkeyUnlockResult",
+        credentialId: "credentialId",
+        encryptedPrfOutput: { ciphertext: "ciphertext", iv: "iv" },
+        connectorPublicKey: "connectorPublicKey",
+        referrer: "localhost",
+        type: "unlock",
+      });
+    });
   });
 
   describe("handled extension messages", () => {
