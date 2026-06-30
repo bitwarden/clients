@@ -2,6 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
@@ -46,6 +47,7 @@ describe("SimpleTogglePolicyComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],

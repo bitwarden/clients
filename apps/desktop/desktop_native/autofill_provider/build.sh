@@ -15,8 +15,8 @@ mkdir -p ./tmp/target/universal-darwin/release/
 rustup target add aarch64-apple-darwin
 rustup target add x86_64-apple-darwin
 
-cargo build --package autofill_provider --target aarch64-apple-darwin --release
-cargo build --package autofill_provider --target x86_64-apple-darwin --release
+cargo build --package autofill_provider --target aarch64-apple-darwin --features uniffi --release
+cargo build --package autofill_provider --target x86_64-apple-darwin --features uniffi --release
 
 # Create universal libraries
 lipo -create ../target/aarch64-apple-darwin/release/libautofill_provider.a \
