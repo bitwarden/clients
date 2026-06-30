@@ -7722,6 +7722,18 @@
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "The single organization Enterprise policy must be turned on before activating this policy."
   },
+  "accountRecoveryPolicySingleOrgReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
+  },
+  "accountRecoveryPolicyDescV3Part1": {
+    "message": "Allow admins to help members regain access to their accounts when they're enrolled in "
+  },
+  "accountRecoveryDescLinkText": {
+    "message": "account recovery"
+  },
+  "accountRecoveryPolicyDescV3Part2": {
+    "message": ". Once this policy is turned on, existing members can enroll and, if you choose, new members will be automatically enrolled."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatic enrollment"
   },
