@@ -141,19 +141,27 @@ export class IndividualVaultExportService
             response,
             activeUserId,
           );
-          // Replace disallowed characters with "_" and ensure we don't have multiple "_" in a row
-          let attachmentFileName = attachment.fileName
-            .replace(/[/\\><:"|?*]/g, "_")
+          // We try to replace disallowed characters while preserving the filetype suffix, if it exists
+          const fileNameParts = attachment.fileName.split(".");
+          let attachmentFileName = attachment.fileName;
+          let attachmentFileSuffix = "";
+          if (fileNameParts.length > 1) {
+            attachmentFileName = fileNameParts.slice(0, -1).join("");
+            attachmentFileSuffix = `.${fileNameParts[fileNameParts.length - 1]}`;
+          }
+          attachmentFileName = attachmentFileName
+            .replace(/[/\\><:"|?*.]/g, "_")
             .replace(/__+/g, "_");
-          const filenameCount = attachmentNameMap.get(attachmentFileName);
+          let fullAttachmentName = `${attachmentFileName}${attachmentFileSuffix}`;
+          const filenameCount = attachmentNameMap.get(fullAttachmentName);
           if (filenameCount === undefined) {
-            attachmentNameMap.set(attachmentFileName, 1);
+            attachmentNameMap.set(fullAttachmentName, 1);
           } else {
-            attachmentNameMap.set(attachmentFileName, filenameCount + 1);
-            attachmentFileName += `_${filenameCount}`;
+            attachmentNameMap.set(fullAttachmentName, filenameCount + 1);
+            fullAttachmentName = `${attachmentFileName}_${filenameCount}${attachmentFileSuffix}`;
           }
 
-          cipherFolder.file(attachmentFileName, decBuf);
+          cipherFolder.file(fullAttachmentName, decBuf);
         } catch (error) {
           this.logService.error(`Failed to export attachment: Cipher Id: ${cipher.id}`, error);
           skippedAttachmentCount++;

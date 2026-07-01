@@ -474,9 +474,9 @@ describe("VaultExportService", () => {
       const cipherView2 = new CipherView(new Cipher(cipherData2));
       cipherView2.name = "mock-cipher-name";
       const attachmentView1 = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView1.fileName = "mock-file-name";
+      attachmentView1.fileName = "mock-file-name.json";
       const attachmentView2 = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView2.fileName = "mock-file-name";
+      attachmentView2.fileName = "mock-file-name.json";
       cipherView1.attachments = [attachmentView1];
       cipherView2.attachments = [attachmentView2];
       cipherService.ciphers$.mockReturnValue(of(cipherRecord));
@@ -497,11 +497,11 @@ describe("VaultExportService", () => {
       const exportZip = exportedVault as ExportedVaultAsBlob;
       const zip = await JSZip.loadAsync(exportZip.data);
       const attachment1 = await zip
-        .file("attachments/mock-cipher-name/mock-file-name")
+        .file("attachments/mock-cipher-name/mock-file-name.json")
         ?.async("blob");
       expect(attachment1).toBeDefined();
       const attachment2 = await zip
-        .file("attachments/mock-cipher-name_1/mock-file-name")
+        .file("attachments/mock-cipher-name_1/mock-file-name.json")
         ?.async("blob");
       expect(attachment2).toBeDefined();
     });
@@ -515,9 +515,9 @@ describe("VaultExportService", () => {
       const cipherView1 = new CipherView(new Cipher(cipherData1));
       cipherView1.name = "mock-cipher-name";
       const attachmentView1 = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView1.fileName = "mock-file-name";
+      attachmentView1.fileName = "mock-file-name.txt";
       const attachmentView2 = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView2.fileName = "mock-file-name";
+      attachmentView2.fileName = "mock-file-name.txt";
       cipherView1.attachments = [attachmentView1, attachmentView2];
       cipherService.ciphers$.mockReturnValue(of(cipherRecord));
       cipherService.getAllDecrypted.mockResolvedValue([cipherView1]);
@@ -537,11 +537,11 @@ describe("VaultExportService", () => {
       const exportZip = exportedVault as ExportedVaultAsBlob;
       const zip = await JSZip.loadAsync(exportZip.data);
       const attachment1 = await zip
-        .file("attachments/mock-cipher-name/mock-file-name")
+        .file("attachments/mock-cipher-name/mock-file-name.txt")
         ?.async("blob");
       expect(attachment1).toBeDefined();
       const attachment2 = await zip
-        .file("attachments/mock-cipher-name/mock-file-name_1")
+        .file("attachments/mock-cipher-name/mock-file-name_1.txt")
         ?.async("blob");
       expect(attachment2).toBeDefined();
     });
@@ -558,7 +558,7 @@ describe("VaultExportService", () => {
       const cipherView = new CipherView(new Cipher(cipherData));
       cipherView.name = "mock-cipher-name";
       const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
-      attachmentView.fileName = "mock-file-na" + badString + "me";
+      attachmentView.fileName = "mock-file-na" + badString + "me.txt";
       cipherView.attachments = [attachmentView];
       cipherService.ciphers$.mockReturnValue(of(cipherRecord));
       cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
@@ -578,7 +578,7 @@ describe("VaultExportService", () => {
       const exportZip = exportedVault as ExportedVaultAsBlob;
       const zip = await JSZip.loadAsync(exportZip.data);
       const attachment = await zip
-        .file("attachments/mock-cipher-name/mock-file-na_me")
+        .file("attachments/mock-cipher-name/mock-file-na_me.txt")
         ?.async("blob");
       expect(attachment).toBeDefined();
     },
