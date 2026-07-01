@@ -8,6 +8,7 @@ import {
   debounce,
   generateRandomCustomElementName,
   isReadonlyOrDisabledFormFieldElement,
+  isSubFramePositioningMessageData,
   sendExtensionMessage,
   setElementStyles,
   setupAutofillInitDisconnectAction,
@@ -275,5 +276,131 @@ describe("isReadonlyOrDisabledFormFieldElement", () => {
     const textarea = document.getElementById("field") as HTMLTextAreaElement;
     textarea.readOnly = true;
     expect(isReadonlyOrDisabledFormFieldElement(textarea)).toBe(true);
+  });
+});
+
+describe("isSubFramePositioningMessageData", () => {
+  const validSubFrameData = { top: 0, left: 0, subFrameDepth: 0 };
+
+  it("returns true for a minimal payload with the optional fields omitted", () => {
+    expect(isSubFramePositioningMessageData({ subFrameData: validSubFrameData })).toBe(true);
+  });
+
+  it("returns true when the optional frameId and parentFrameIds are present and well-typed", () => {
+    expect(
+      isSubFramePositioningMessageData({
+        subFrameData: { top: 1, left: 2, subFrameDepth: 3, frameId: 4, parentFrameIds: [0, 1, 2] },
+      }),
+    ).toBe(true);
+  });
+
+  it("returns true when parentFrameIds is an empty array", () => {
+    expect(
+      isSubFramePositioningMessageData({
+        subFrameData: { ...validSubFrameData, parentFrameIds: [] },
+      }),
+    ).toBe(true);
+  });
+
+  it("returns true when the numeric fields are negative", () => {
+    expect(
+      isSubFramePositioningMessageData({ subFrameData: { top: -10, left: -20, subFrameDepth: 0 } }),
+    ).toBe(true);
+  });
+
+  it("returns true for a payload sourced from JSON.parse (the realistic postMessage shape)", () => {
+    const data = JSON.parse(
+      '{"subFrameData":{"top":1,"left":2,"subFrameDepth":3,"frameId":4,"parentFrameIds":[0]}}',
+    );
+    expect(isSubFramePositioningMessageData(data)).toBe(true);
+  });
+
+  it("ignores unknown extra properties on subFrameData (only url is special-cased)", () => {
+    expect(
+      isSubFramePositioningMessageData({
+        subFrameData: { ...validSubFrameData, isCrossOriginSubframe: true, unexpected: "ignored" },
+      }),
+    ).toBe(true);
+  });
+
+  describe("rejecting a subFrameData that carries a url", () => {
+    it("rejects an own url with a string value", () => {
+      expect(
+        isSubFramePositioningMessageData({
+          subFrameData: { ...validSubFrameData, url: "https://example.com/secret?token=leak" },
+        }),
+      ).toBe(false);
+    });
+
+    it("rejects a url key even when its value is undefined", () => {
+      expect(
+        isSubFramePositioningMessageData({
+          subFrameData: { ...validSubFrameData, url: undefined },
+        }),
+      ).toBe(false);
+    });
+
+    it("rejects a url inherited from the prototype chain", () => {
+      const subFrameData = Object.assign(
+        Object.create({ url: "https://example.com/secret" }),
+        validSubFrameData,
+      );
+      expect(isSubFramePositioningMessageData({ subFrameData })).toBe(false);
+    });
+
+    it("rejects a url installed via setPrototypeOf", () => {
+      const subFrameData = { ...validSubFrameData };
+      Object.setPrototypeOf(subFrameData, { url: "https://example.com/secret" });
+      expect(isSubFramePositioningMessageData({ subFrameData })).toBe(false);
+    });
+
+    it("rejects a url present in a JSON.parse-sourced payload", () => {
+      const data = JSON.parse(
+        '{"subFrameData":{"top":0,"left":0,"subFrameDepth":0,"url":"https://leak"}}',
+      );
+      expect(isSubFramePositioningMessageData(data)).toBe(false);
+    });
+  });
+
+  it.each([
+    ["null", null],
+    ["undefined", undefined],
+    ["a string", "calculateSubFramePositioning"],
+    ["a number", 42],
+    ["an array", [validSubFrameData]],
+    ["an object without a subFrameData property", { command: "calculateSubFramePositioning" }],
+    ["a null subFrameData", { subFrameData: null }],
+    ["a non-object subFrameData", { subFrameData: "not-an-object" }],
+    ["an array subFrameData", { subFrameData: [0, 1] }],
+  ])("returns false when the data is %s", (_label, data) => {
+    expect(isSubFramePositioningMessageData(data)).toBe(false);
+  });
+
+  it.each([
+    ["top is missing", { left: 0, subFrameDepth: 0 }],
+    ["left is missing", { top: 0, subFrameDepth: 0 }],
+    ["subFrameDepth is missing", { top: 0, left: 0 }],
+    ["top is not a number", { top: "0", left: 0, subFrameDepth: 0 }],
+    ["left is not a number", { top: 0, left: "0", subFrameDepth: 0 }],
+    ["subFrameDepth is not a number", { top: 0, left: 0, subFrameDepth: "0" }],
+    ["top is NaN", { top: NaN, left: 0, subFrameDepth: 0 }],
+    ["subFrameDepth is Infinity", { top: 0, left: 0, subFrameDepth: Infinity }],
+    ["frameId is present but not a number", { top: 0, left: 0, subFrameDepth: 0, frameId: "1" }],
+    ["frameId is null", { top: 0, left: 0, subFrameDepth: 0, frameId: null }],
+    [
+      "parentFrameIds is not an array",
+      { top: 0, left: 0, subFrameDepth: 0, parentFrameIds: "0,1" },
+    ],
+    ["parentFrameIds is null", { top: 0, left: 0, subFrameDepth: 0, parentFrameIds: null }],
+    [
+      "parentFrameIds contains a non-number element",
+      { top: 0, left: 0, subFrameDepth: 0, parentFrameIds: [0, "1"] },
+    ],
+    [
+      "parentFrameIds contains NaN",
+      { top: 0, left: 0, subFrameDepth: 0, parentFrameIds: [0, NaN] },
+    ],
+  ])("returns false when subFrameData %s", (_label, subFrameData) => {
+    expect(isSubFramePositioningMessageData({ subFrameData })).toBe(false);
   });
 });
