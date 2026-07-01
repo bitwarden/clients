@@ -146,7 +146,7 @@ enum AccessAuditEventKind {
     -- JSON (Scenario 2).
     rule_updated |
     -- (SYNTH) a soft-deleted rule (deleted_at set); occurred_at = deleted_at,
-    -- actor = deleted_by, scoped through the preserved collection link. The row is
+    -- actor = deleted_by; scoped org-wide with the other rule kinds. The row is
     -- retained on delete, so the mark survives (Scenario 3).
     rule_deleted |
 
@@ -207,8 +207,8 @@ enum AccessAuditEventKind {
 --        (deleted = deleted_at set; deleted_by is the deleting admin). revision_date
 --        is left untouched so the delete does not read as an edit.
 --      - OrgAdminDeletesAccessRule: stamp deleted_at = now / deleted_by = admin
---        (idempotent) instead of `not exists rule`; the collection links are
---        preserved so rule_deleted can scope through them.
+--        (idempotent) instead of `not exists rule`; the retained row lets
+--        rule_deleted synthesize (scoped org-wide, like the other rule kinds).
 --      - RIPPLE: every read that gates on a rule also excludes deleted rules
 --        (deleted_at = null) — the cipher-open gating `AccessRule where enabled ...`,
 --        GoverningRule, and the admin/dashboard lists. A deleted rule no longer
@@ -235,11 +235,11 @@ config {
 -- Synthesis (deferred: the projection that builds the trail from entity state)
 -- ----------------------------------------------------------------------------
 
--- `AccessAuditTrail(viewer, organization, since)`: the synthesized audit events in
--- `organization` on the collections `viewer` manages (the same authority the
--- governance dashboard's lease lists use), occurring at or after `since` — the
--- projection over AccessRequest / AccessLease / AccessRule state described
--- kind-by-kind in the taxonomy above. Returns Set<AccessAuditEvent>. Deferred
+-- `AccessAuditTrail(viewer, organization, since)`: the synthesized audit events
+-- across the whole `organization` (the viewer holds the AccessEventLogs permission),
+-- occurring at or after `since` — the projection over AccessRequest / AccessLease /
+-- AccessRule state described kind-by-kind in the taxonomy above. Returns
+-- Set<AccessAuditEvent>. Deferred
 -- because the per-kind derivation is mechanical projection detail, not domain
 -- behaviour; the taxonomy IS its contract. The (DEFERRED) kinds contribute no
 -- events until their gap closes.
@@ -256,11 +256,11 @@ deferred AccessAuditTimeline    -- see: server-side audit projection over PAM en
 -- Actors
 -- ----------------------------------------------------------------------------
 
--- Governance audience, scoped to manageable collections: an org admin, or a
--- manager of at least one collection in the org. Each viewer sees the trail for
--- the collections they manage — an admin (manages all) effectively sees the whole
--- org; a collection manager sees only their slice. One rule, the same authority
--- the governance dashboard's lease lists already use.
+-- Governance audience: anyone who holds the AccessEventLogs permission on the
+-- organization (org owners and admins by default, plus any custom role granted it) —
+-- the same permission that gates the organization event log. A viewer sees the
+-- ENTIRE organization's trail, regardless of which collections they manage: audit
+-- visibility is a permission, not a function of collection management.
 actor GovernanceViewer {
     identified_by: pam/User
     within: pam/Organization
@@ -280,18 +280,16 @@ actor AccessRequestViewer {
 -- ----------------------------------------------------------------------------
 
 surface AccessAuditLog {
-    -- The privileged-access audit trail, scoped to the viewer's manageable
-    -- collections: structured rows the viewer can filter — the job the generic
-    -- event feed cannot do. Surfaced as a section of the governance dashboard —
-    -- the "what happened" companion to the dashboard's "what's happening now";
-    -- see the related link.
+    -- The privileged-access audit trail for the whole organization: structured rows
+    -- the viewer can filter — the job the generic event feed cannot do. Surfaced as
+    -- a section of the governance dashboard — the "what happened" companion to the
+    -- dashboard's "what's happening now"; see the related link.
     facing viewer: GovernanceViewer
 
     context organization: pam/Organization
 
     exposes:
-        -- The synthesized trail for the viewer's manageable collections, within the
-        -- view window.
+        -- The synthesized org-wide trail, within the view window.
         AccessAuditTrail(viewer, organization, now - config.audit_history_window)
 
     related:
@@ -314,14 +312,14 @@ surface AccessAuditLog {
         -- (latest edit only until rule-edit history lands). No CSV / auditor export
         -- in this pass (decided): the view is read-and-filter only.
         --
-        -- Scoping (decided): the trail is scoped to the viewer's manageable
-        -- collections — the same authority the dashboard's lease lists use — not
-        -- the whole org.
+        -- Scoping (decided): the trail is org-wide, authorized by the AccessEventLogs
+        -- permission — the same gate as the organization event log — not the viewer's
+        -- managed collections. Any holder of that permission sees the whole org.
         --
-        -- Org suspension: a suspended (disabled) organization drops from the caller's current context and the
-        -- collection-access reads exclude it, so the manageable-collection set — and this trail with it — is empty even
-        -- for an org admin. Shared with the lease governance reads, not specific to audit; see the pam.allium open
-        -- question on whether governance review should survive suspension.
+        -- Org suspension: a suspended (disabled) organization drops from the caller's current context, so the
+        -- AccessEventLogs permission check fails there and this trail is empty even for an org admin. Shared with the
+        -- lease governance reads, not specific to audit; see the pam.allium open question on whether governance review
+        -- should survive suspension.
         --
         -- Reach: bounded by audit_history_window, the default view window — not a
         -- retention guarantee. The trail reaches as far back as the source rows
@@ -362,10 +360,13 @@ surface AccessRequestTimeline {
 -- Open questions
 -- ----------------------------------------------------------------------------
 
--- RESOLVED — Audience: scoped to the viewer's manageable collections, not org-wide.
--- One rule serves org admins (all collections) and collection managers (their
--- slice), matching the governance dashboard's lease lists. See the GovernanceViewer
--- actor and AccessAuditTrail(viewer, organization, since).
+-- RESOLVED — Audience: org-wide, authorized by the AccessEventLogs permission (the
+-- same gate as the organization event log), NOT scoped to the viewer's manageable
+-- collections. Audit visibility is a permission, not a function of collection
+-- management, so any holder sees the entire organization's trail. (This reverses an
+-- earlier decision to scope by manageable collections, which hid rule-administration
+-- events whose rule did not yet govern a managed collection.) See the
+-- GovernanceViewer actor and AccessAuditTrail(viewer, organization, since).
 
 -- RESOLVED — Retention & export: view-window only for this pass. audit_history_window
 -- is the default reach, not a retention SLA, and there is no CSV / auditor export
