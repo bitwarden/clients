@@ -324,6 +324,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       interval: this.sub.plan.isAnnual ? "year" : "month",
       additionalServiceAccountPrice: this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
       baseServiceAccountCount: this.sub.plan.SecretsManager.baseServiceAccount,
+      graceServiceAccounts: this.sub.smServiceAccountsGrace ?? 0,
     };
   }
 

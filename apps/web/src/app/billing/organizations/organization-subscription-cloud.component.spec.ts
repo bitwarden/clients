@@ -669,4 +669,16 @@ describe("OrganizationSubscriptionCloudComponent.smOptions", () => {
 
     expect(component.smOptions.additionalServiceAccounts).toBe(0);
   });
+
+  it("passes the migration-grace count through to the adjust component options", () => {
+    setSub({ smServiceAccountsGrace: 30 });
+
+    expect(component.smOptions.graceServiceAccounts).toBe(30);
+  });
+
+  it("defaults the grace passthrough to 0 when absent", () => {
+    setSub({ smServiceAccountsGrace: undefined });
+
+    expect(component.smOptions.graceServiceAccounts).toBe(0);
+  });
 });
