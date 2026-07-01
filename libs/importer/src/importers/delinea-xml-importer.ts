@@ -90,7 +90,7 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
   }
 
   private convertFolderPathToName(folderPath: string) {
-    let folderName = folderPath.replace("\\", "/");
+    let folderName = folderPath.replace(/\\/g, "/");
     if (folderName.startsWith("/")) {
       folderName = folderName.slice(1);
     }
