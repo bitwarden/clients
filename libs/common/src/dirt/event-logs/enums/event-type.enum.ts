@@ -80,7 +80,8 @@ export enum EventType {
   OrganizationUser_Revoked_TwoFactorNonCompliance = 1520,
   OrganizationUser_Revoked_SingleOrganizationNonCompliance = 1521,
   OrganizationUser_NotificationBannerActionClicked = 1522,
-  OrganizationUser_InviteLinkAccepted = 1523,
+  OrganizationUser_Staged = 1523,
+  OrganizationUser_InviteLinkAccepted = 1524,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
