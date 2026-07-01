@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { BannerModule, FileUploadComponent } from "@bitwarden/components";
+import { BannerModule, FileInputComponent } from "@bitwarden/components";
 import { DiscountBadgeComponent } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
@@ -28,7 +28,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     DiscountBadgeComponent,
     EnterBillingAddressComponent,
     EnterPaymentMethodComponent,
-    FileUploadComponent,
+    FileInputComponent,
     HeaderModule,
     SharedModule,
   ],

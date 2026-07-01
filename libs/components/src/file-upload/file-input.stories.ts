@@ -7,15 +7,15 @@ import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { FileUploadComponent } from "./file-upload.component";
+import { FileInputComponent } from "./file-input.component";
 
 export default {
-  title: "Component Library/Form/File Upload",
-  component: FileUploadComponent,
+  title: "Component Library/Form/File Input",
+  component: FileInputComponent,
   decorators: [
     moduleMetadata({
       imports: [
-        FileUploadComponent,
+        FileInputComponent,
         BitLabelComponent,
         BitHintDirective,
         FormsModule,
@@ -45,14 +45,14 @@ export default {
       url: "https://www.figma.com/design/rKUVGKb7Kw3d6YGoQl6Ho7/Flowbite-Component-Mapping?node-id=42260-20194&m=dev",
     },
   },
-} as Meta<FileUploadComponent>;
+} as Meta<FileInputComponent>;
 
-type Story = StoryObj<FileUploadComponent>;
+type Story = StoryObj<FileInputComponent>;
 
 function createErroredControl(message: string): FormControl<File[]> {
-  // Errors must come from a validator, not setErrors. Angular's setUpControl
-  // calls updateValueAndValidity on mount, which re-runs validators and
-  // overwrites any errors set directly via setErrors.
+  // Errors must come from a validator, not setErrors. Angular's setUpControl calls
+  // updateValueAndValidity on mount, which re-runs validators and overwrites any errors set
+  // directly via setErrors.
   const control = new FormControl<File[]>([], {
     nonNullable: true,
     validators: [() => ({ custom: { message } })],
@@ -70,10 +70,10 @@ export const Default: Story = {
   render: (args) => ({
     props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
+      <bit-file-input [accept]="accept" [(ngModel)]="selectedFiles">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-input>
     `,
   }),
   args: {
@@ -91,10 +91,10 @@ export const Required: Story = {
       }),
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [formControl]="requiredControl">
+      <bit-file-input [accept]="accept" [formControl]="requiredControl">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-input>
     `,
   }),
   args: {
@@ -106,10 +106,10 @@ export const WithError: Story = {
   render: (args) => ({
     props: { ...args, fileControl: createErroredControl("File is too large") },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [formControl]="fileControl">
+      <bit-file-input [accept]="accept" [formControl]="fileControl">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-input>
     `,
   }),
   args: {
@@ -121,10 +121,10 @@ export const Disabled: Story = {
   render: (args) => ({
     props: { ...args, selectedFiles: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles" [disabled]="true">
+      <bit-file-input [accept]="accept" [(ngModel)]="selectedFiles" [disabled]="true">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
-      </bit-file-upload>
+      </bit-file-input>
     `,
   }),
   args: {
@@ -144,9 +144,9 @@ export const LongFileName: Story = {
       ],
     },
     template: /*html*/ `
-      <bit-file-upload [accept]="accept" [(ngModel)]="selectedFiles">
+      <bit-file-input [accept]="accept" [(ngModel)]="selectedFiles">
         <bit-label>Upload file</bit-label>
-      </bit-file-upload>
+      </bit-file-input>
     `,
   }),
   args: {

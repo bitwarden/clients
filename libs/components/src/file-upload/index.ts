@@ -1,2 +1,2 @@
-export { FileUploadComponent } from "./file-upload.component";
+export { FileInputComponent } from "./file-input.component";
 export { FileDropzoneComponent } from "./file-dropzone.component";

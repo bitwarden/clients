@@ -1,11 +1,11 @@
 import { CommonModule } from "@angular/common";
 import {
-  AfterContentChecked,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChildren,
+  effect,
   input,
   contentChild,
   viewChild,
@@ -16,7 +16,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 
-import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
 import { BitFormFieldControlDirective } from "./form-field-control.directive";
@@ -32,24 +31,66 @@ import { BitSuffixDirective } from "./suffix.directive";
     "[class]": "classList",
   },
 })
-export class BitFormFieldComponent implements AfterContentChecked {
-  readonly input = contentChild.required(BitFormFieldControlDirective);
+export class BitFormFieldComponent {
+  /**
+   * The projected form control directive (`bitInput`, `bitSelect`, etc.).
+   *
+   * Optional so that wrapper components (e.g. `bit-file-input`, `bit-file-dropzone`) can compose
+   * `bit-form-field` for its label / hint / error chrome while owning their own control and
+   * laying out a custom input. In that mode the wrapper supplies `labelForId` / `required` /
+   * `hasError` / `error` as inputs, and the field-container chrome is not rendered.
+   */
+  readonly input = contentChild(BitFormFieldControlDirective);
   readonly hint = contentChild(BitHintDirective);
   readonly label = contentChild(BitLabelComponent);
 
-  readonly error = viewChild(BitErrorComponent);
+  readonly errorComponent = viewChild(BitErrorComponent);
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
   readonly size = input<FieldContainerSize>("base");
 
+  /**
+   * State supplied by wrapper components that don't project a `BitFormFieldControlDirective`.
+   * Ignored when a control directive is present — the directive is the source of truth.
+   */
+  readonly labelForId = input<string>();
+  readonly required = input<boolean>();
+  readonly hasError = input<boolean>();
+  readonly error = input<[string, any]>();
+
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);
-  private readonly customInput = contentChild(BitCustomInputDirective);
 
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
-  protected readonly hasCustomInput = computed(() => this.customInput() != null);
+
+  /** Whether a projected control directive drives the field (standard usage). */
+  protected readonly hasControl = computed(() => this.input() != null);
+
+  protected readonly resolvedLabelForId = computed(
+    () => this.input()?.labelForId() ?? this.labelForId() ?? "",
+  );
+  protected readonly resolvedRequired = computed(
+    () => this.input()?.required() ?? this.required() ?? false,
+  );
+  protected readonly resolvedHasError = computed(
+    () => this.input()?.hasError() ?? this.hasError() ?? false,
+  );
+  protected readonly resolvedError = computed<[string, any] | undefined>(
+    () => this.input()?.error ?? this.error(),
+  );
+
+  /**
+   * Id of the element describing the control (error takes precedence over hint). Wrapper
+   * components read this to wire `aria-describedby` on their own focusable input.
+   */
+  readonly describedById = computed<string | undefined>(() => {
+    if (this.resolvedHasError()) {
+      return this.errorComponent()?.id;
+    }
+    return this.hint()?.id;
+  });
 
   protected get labelAndFieldContainerClasses(): string {
     return [
@@ -83,18 +124,14 @@ export class BitFormFieldComponent implements AfterContentChecked {
   }
 
   protected get readOnly(): boolean {
-    return !!this.input().readOnly();
+    return !!this.input()?.readOnly();
   }
 
-  ngAfterContentChecked(): void {
-    const error = this.error();
-    const hint = this.hint();
-    if (error) {
-      this.input().ariaDescribedBy.set(error.id);
-    } else if (hint) {
-      this.input().ariaDescribedBy.set(hint.id);
-    } else {
-      this.input().ariaDescribedBy.set(undefined);
-    }
+  constructor() {
+    // Wire the projected control's aria-describedby to the rendered error/hint. Wrapper
+    // components (no projected control) read `describedById` directly instead.
+    effect(() => {
+      this.input()?.ariaDescribedBy.set(this.describedById());
+    });
   }
 }

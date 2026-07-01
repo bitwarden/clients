@@ -4,7 +4,6 @@ import { FormControlModule } from "../form-control";
 import { InputModule } from "../input/input.module";
 import { MultiSelectModule } from "../multi-select/multi-select.module";
 
-import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorSummaryComponent } from "./error-summary.component";
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldComponent } from "./form-field.component";
@@ -18,7 +17,6 @@ import { BitSuffixDirective } from "./suffix.directive";
     InputModule,
     MultiSelectModule,
 
-    BitCustomInputDirective,
     BitErrorComponent,
     BitErrorSummaryComponent,
     BitFormFieldComponent,
@@ -31,7 +29,6 @@ import { BitSuffixDirective } from "./suffix.directive";
     InputModule,
     MultiSelectModule,
 
-    BitCustomInputDirective,
     BitErrorComponent,
     BitErrorSummaryComponent,
     BitFormFieldComponent,

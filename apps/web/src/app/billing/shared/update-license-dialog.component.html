@@ -7,12 +7,12 @@
 >
   <ng-container bitDialogContent>
     <p class="tw-mb-4">{{ "uploadLicenseFileDesc" | i18n: "bitwarden_license.json" }}</p>
-    <bit-file-upload formControlName="file" accept=".json">
+    <bit-file-input formControlName="file" accept=".json">
       <bit-label>{{
         (fromUserSubscriptionPage ? "uploadYourPremiumLicenseFile" : "uploadYourLicenseFile") | i18n
       }}</bit-label>
       <bit-hint>{{ "maxFileSizeSansPunctuation" | i18n }}</bit-hint>
-    </bit-file-upload>
+    </bit-file-input>
   </ng-container>
   <ng-container bitDialogFooter>
     <button

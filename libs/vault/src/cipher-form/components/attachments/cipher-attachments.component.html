@@ -80,12 +80,12 @@
 <form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
   @if (cipher()?.edit) {
     <bit-card>
-      <bit-file-upload formControlName="file">
+      <bit-file-input formControlName="file">
         <bit-label>{{ "addAttachment" | i18n }}</bit-label>
         @if (uploadProgress() === null) {
           <bit-hint>{{ "maxFileSizeSansPunctuation" | i18n }}</bit-hint>
         }
-      </bit-file-upload>
+      </bit-file-input>
       @if (uploadProgress() !== null) {
         <bit-progress-bar [value]="uploadProgress()" class="tw-block tw-mt-2" />
       }

@@ -1,0 +1,103 @@
+import { Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./file-input.stories";
+
+<Meta of={stories} />
+
+```ts
+import { FileInputComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+<Primary />
+
+<Controls />
+
+## Overview
+
+`bit-file-input` is a single-file picker rendered inline as a form field: a "Choose File" button
+followed by the selected filename (or a "No file selected" placeholder).
+
+For a drag-and-drop area that supports multiple files, use
+[`bit-file-dropzone`](/?path=/docs/component-library-form-file-dropzone--docs) instead.
+
+```html
+<bit-file-input accept=".json" formControlName="file">
+  <bit-label>License file</bit-label>
+  <bit-hint>JSON only</bit-hint>
+</bit-file-input>
+```
+
+The component is itself the form control — it wraps `<bit-form-field>` for the label, hint, and
+error chrome, is bound directly with `formControlName` / `[formControl]` / `[(ngModel)]`, and lays
+out the "Choose File" pill and filename readout inside the field container.
+
+<Canvas of={stories.Default} />
+
+### Required
+
+The `*` required indicator renders automatically when the bound `FormControl` has
+`Validators.required`.
+
+<Canvas of={stories.Required} />
+
+### With error
+
+<Canvas of={stories.WithError} />
+
+### Disabled
+
+<Canvas of={stories.Disabled} />
+
+### Long filename
+
+Filenames that exceed the available width are truncated in the middle so both the start and file
+extension remain visible.
+
+<Canvas of={stories.LongFileName} />
+
+## Guidelines
+
+### `accept` — file type hint
+
+Pass a comma-separated list of MIME types and/or file extensions to guide the browser's file picker.
+
+| Example value            | Allows                 |
+| ------------------------ | ---------------------- |
+| `"image/*"`              | Any image              |
+| `".pdf,.doc,.docx"`      | PDF and Word documents |
+| `"audio/mpeg,audio/wav"` | Specific audio formats |
+| `"image/*,.pdf"`         | Images and PDFs        |
+
+> **Important:** `accept` is a browser hint only — it filters the file picker but does not prevent
+> users from selecting other file types. Always validate file types on the server before processing.
+
+### Binding the selected file
+
+Bind via Angular reactive forms. The form value is always `File[]` — a single-element array once a
+file is chosen, or an empty array when none is selected.
+
+```html
+<bit-file-input formControlName="file">
+  <bit-label>License file</bit-label>
+</bit-file-input>
+```
+
+```ts
+form = new FormGroup({
+  file: new FormControl<File[]>([], { nonNullable: true }),
+});
+```
+
+### Error state
+
+The error border and message render automatically when the bound `FormControl` is `invalid` and
+`touched`. Use Angular validators on the control to drive the state.
+
+## Accessibility
+
+- Always provide a meaningful `<bit-label>` — it serves as the accessible label for the picker via
+  `bit-form-field`'s `<label [for]>` association.
+- The current selection is announced via an `aria-live` status region wired to the button through
+  `aria-describedby`.

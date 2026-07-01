@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 
-import { FileUploadComponent } from "@bitwarden/components";
+import { FileInputComponent } from "@bitwarden/components";
 
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
@@ -11,7 +11,7 @@ import { SecretsManagerPortingService } from "./services/sm-porting.service";
 import { SettingsRoutingModule } from "./settings-routing.module";
 
 @NgModule({
-  imports: [FileUploadComponent, SecretsManagerSharedModule, SettingsRoutingModule],
+  imports: [FileInputComponent, SecretsManagerSharedModule, SettingsRoutingModule],
   declarations: [
     SecretsManagerImportComponent,
     SecretsManagerExportComponent,
