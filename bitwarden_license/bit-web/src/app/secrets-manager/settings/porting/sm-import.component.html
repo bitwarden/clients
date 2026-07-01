@@ -1,10 +1,10 @@
 <app-header></app-header>
 
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-max-w-xl">
-  <bit-file-input formControlName="file" accept="application/JSON">
+  <bit-file-upload formControlName="file" accept="application/JSON">
     <bit-label>{{ "fileUpload" | i18n }}</bit-label>
     <bit-hint>{{ "acceptedFormats" | i18n }} Bitwarden (json)</bit-hint>
-  </bit-file-input>
+  </bit-file-upload>
   <div class="tw-my-4">
     {{ "or" | i18n }}
   </div>

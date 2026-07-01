@@ -1,11 +1,11 @@
 import { Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
 
-import * as stories from "./file-input.stories";
+import * as stories from "./file-upload.stories";
 
 <Meta of={stories} />
 
 ```ts
-import { FileInputComponent } from "@bitwarden/components";
+import { FileUploadComponent } from "@bitwarden/components";
 ```
 
 <Title />
@@ -16,17 +16,17 @@ import { FileInputComponent } from "@bitwarden/components";
 
 ## Overview
 
-`bit-file-input` is a single-file picker rendered inline as a form field: a "Choose File" button
+`bit-file-upload` is a single-file picker rendered inline as a form field: a "Choose File" button
 followed by the selected filename (or a "No file selected" placeholder).
 
 For a drag-and-drop area that supports multiple files, use
 [`bit-file-dropzone`](/?path=/docs/component-library-form-file-dropzone--docs) instead.
 
 ```html
-<bit-file-input accept=".json" formControlName="file">
+<bit-file-upload accept=".json" formControlName="file">
   <bit-label>License file</bit-label>
   <bit-hint>JSON only</bit-hint>
-</bit-file-input>
+</bit-file-upload>
 ```
 
 The component is itself the form control — it wraps `<bit-form-field>` for the label, hint, and
@@ -79,9 +79,9 @@ Bind via Angular reactive forms. The form value is always `File[]` — a single-
 file is chosen, or an empty array when none is selected.
 
 ```html
-<bit-file-input formControlName="file">
+<bit-file-upload formControlName="file">
   <bit-label>License file</bit-label>
-</bit-file-input>
+</bit-file-upload>
 ```
 
 ```ts

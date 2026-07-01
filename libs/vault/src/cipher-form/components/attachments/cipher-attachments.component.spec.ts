@@ -214,7 +214,7 @@ describe("CipherAttachmentsComponent", () => {
       submitBtnFixture.componentInstance.disabled.set(undefined as unknown as boolean);
       file = new File([""], "attachment.txt", { type: "text/plain" });
 
-      // Set the file via the reactive form control (CVA writes it back to bit-file-input)
+      // Set the file via the reactive form control (CVA writes it back to bit-file-upload)
       component.attachmentForm.controls.file.setValue([file]);
       fixture.detectChanges();
     });

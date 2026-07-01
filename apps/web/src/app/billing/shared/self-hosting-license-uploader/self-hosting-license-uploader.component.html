@@ -2,10 +2,10 @@
   {{ "uploadLicenseFileOrg" | i18n }}
 </p>
 <form [formGroup]="form" [bitSubmit]="submit">
-  <bit-file-input formControlName="file" accept="application/JSON">
+  <bit-file-upload formControlName="file" accept="application/JSON">
     <bit-label>{{ description | i18n }}</bit-label>
     <bit-hint>{{ "licenseFileDesc" | i18n: hintFileName }}</bit-hint>
-  </bit-file-input>
+  </bit-file-upload>
   <button type="submit" bitButton bitFormButton buttonType="primary">
     {{ "submit" | i18n }}
   </button>

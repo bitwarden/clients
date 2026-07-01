@@ -9,17 +9,17 @@ import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
-import { FileInputComponent } from "./file-input.component";
+import { FileUploadComponent } from "./file-upload.component";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <bit-file-input [formControl]="control" [accept]="accept">
+    <bit-file-upload [formControl]="control" [accept]="accept">
       <bit-label>Upload file</bit-label>
       <bit-hint>hint text</bit-hint>
-    </bit-file-input>
+    </bit-file-upload>
   `,
-  imports: [FileInputComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
+  imports: [FileUploadComponent, BitLabelComponent, BitHintDirective, ReactiveFormsModule],
 })
 class HostComponent {
   control = new FormControl<File[]>([], { nonNullable: true });
@@ -35,7 +35,7 @@ function selectFile(fixture: ComponentFixture<HostComponent>, file: File): void 
   fixture.detectChanges();
 }
 
-describe("FileInputComponent", () => {
+describe("FileUploadComponent", () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
 

@@ -27,22 +27,22 @@ let nextId = 0;
  *
  * @example
  * ```html
- * <bit-file-input formControlName="file" accept=".json">
+ * <bit-file-upload formControlName="file" accept=".json">
  *   <bit-label>License file</bit-label>
  *   <bit-hint>JSON only</bit-hint>
- * </bit-file-input>
+ * </bit-file-upload>
  * ```
  */
 @Component({
-  selector: "bit-file-input",
-  templateUrl: "./file-input.component.html",
+  selector: "bit-file-upload",
+  templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [BitFieldContainerDirective, BitFormFieldComponent, FileNameComponent, I18nPipe],
   host: {
     class: "tw-block",
   },
 })
-export class FileInputComponent implements ControlValueAccessor {
+export class FileUploadComponent implements ControlValueAccessor {
   /**
    * Accepted file types. Uses a comma separated list.
    *
@@ -70,7 +70,7 @@ export class FileInputComponent implements ControlValueAccessor {
   private readonly onChange = signal<(value: File[]) => void>(() => {});
   private readonly onTouched = signal<() => void>(() => {});
 
-  protected readonly inputId = `bit-file-input-${nextId++}`;
+  protected readonly inputId = `bit-file-upload-${nextId++}`;
   protected readonly statusId = `${this.inputId}-status`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());

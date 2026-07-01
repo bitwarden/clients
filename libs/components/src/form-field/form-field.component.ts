@@ -41,7 +41,7 @@ export class BitFormFieldComponent {
   /**
    * The projected form control directive (`bitInput`, `bitSelect`, etc.).
    *
-   * Optional so that wrapper components (e.g. `bit-file-input`, `bit-file-dropzone`) can compose
+   * Optional so that wrapper components (e.g. `bit-file-upload`, `bit-file-dropzone`) can compose
    * `bit-form-field` for its label / hint / error chrome while owning their own control and
    * laying out a custom input. In that mode the wrapper passes its control via `control`, and the
    * field-container chrome is not rendered.

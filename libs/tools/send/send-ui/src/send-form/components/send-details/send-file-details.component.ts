@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 
 import {
-  FileInputComponent,
+  FileUploadComponent,
   FormFieldModule,
   SectionComponent,
   TypographyModule,
@@ -16,7 +16,7 @@ import { SendFormService } from "../../abstractions/send-form.service";
   selector: "tools-send-file-details",
   templateUrl: "./send-file-details.component.html",
   imports: [
-    FileInputComponent,
+    FileUploadComponent,
     FormFieldModule,
     I18nPipe,
     ReactiveFormsModule,
