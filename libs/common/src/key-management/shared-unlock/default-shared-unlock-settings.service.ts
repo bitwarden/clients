@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import {
   SHARED_UNLOCK_SETTINGS_DISK,
@@ -42,14 +42,6 @@ export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsServ
       .pipe(map((v) => v ?? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP));
   }
 
-  async allowSharingUnlockStateWithDesktop(userId: UserId): Promise<boolean> {
-    return (
-      (await firstValueFrom(
-        this.stateProvider.getUserState$(ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP, userId),
-      )) ?? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP
-    );
-  }
-
   async setAllowSharingUnlockStateWithDesktop(value: boolean, userId: UserId): Promise<void> {
     await this.stateProvider
       .getUser(userId, ALLOW_SHARING_UNLOCK_STATE_WITH_DESKTOP)
@@ -60,14 +52,6 @@ export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsServ
     return this.stateProvider
       .getUserState$(ALLOW_SHARING_UNLOCK_STATE_WITH_WEB, userId)
       .pipe(map((v) => v ?? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_WEB));
-  }
-
-  async allowSharingUnlockStateWithWeb(userId: UserId): Promise<boolean> {
-    return (
-      (await firstValueFrom(
-        this.stateProvider.getUserState$(ALLOW_SHARING_UNLOCK_STATE_WITH_WEB, userId),
-      )) ?? DEFAULT_ALLOW_SHARING_UNLOCK_STATE_WITH_WEB
-    );
   }
 
   async setAllowSharingUnlockStateWithWeb(value: boolean, userId: UserId): Promise<void> {

@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/client-type";
@@ -71,7 +73,9 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
 
   private async enabled(userId: UserId): Promise<boolean> {
     if (this.platformUtilsService.getClientType() === ClientType.Browser) {
-      return await this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb(userId);
+      return await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
+      );
     } else {
       return true;
     }

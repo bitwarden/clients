@@ -98,7 +98,7 @@
     "webRequestAuthProvider"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
-  "__firefox__optional_permissions": ["nativeMessaging"],
+  "__firefox__optional_permissions": ["nativeMessaging", "privacy"],
   "__safari__optional_permissions": null,
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
