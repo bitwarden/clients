@@ -335,6 +335,78 @@ describe("WebLoginComponentService", () => {
       });
     });
 
+    describe("when error code is ssoOrgMembershipRequired", () => {
+      // The OrgMembershipRequired lane shares the same client-side match/no-match
+      // handler as InviteAcceptanceRequired (via switch fall-through), so we cover
+      // the key shapes here rather than duplicating the full InviteAcceptanceRequired
+      // suite. These tests pin the fall-through wiring so a future split (where a
+      // lane gets its own case body) is caught by the existing test names changing.
+
+      it("returns autoSubmit=true with the MP-entry layout override when stash org id + email match", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInviteFor());
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toEqual({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("returns autoSubmit=false and reuses the existing invite-acceptance toast when no invite is stashed", async () => {
+        // Existing user with no pending invite attempting SSO. The shared toast
+        // covers both this and the stale/wrong-org stash edge case (the server
+        // can't distinguish them), so we assert the same key fires.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+        i18nService.t.mockReturnValue("translated message");
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "ssoLoginRequiresInviteAcceptance",
+          mockOrganizationName,
+        );
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "warning",
+          title: null,
+          message: "translated message",
+          timeout: 10000,
+        });
+      });
+
+      it("returns autoSubmit=false and fires the warning toast when the stash org id does not match", async () => {
+        // Stale or wrong-org stash — fall through to the shared no-match path so the
+        // user isn't auto-progressed for a different org.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          orgInviteFor({ organizationId: "22222222-2222-2222-2222-222222222222" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
+      });
+    });
+
     describe("when error code is unrecognized or missing", () => {
       it("returns autoSubmit=false with no toast for an unknown error code", async () => {
         const result = await service.handleQueryParamErrors({
