@@ -16,8 +16,8 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
-  debounceTime,
   filter,
+  throttleTime,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -201,7 +201,7 @@ export class DefaultSdkService implements SdkService {
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
       // Do not emit when multiple state values are written in quick succession
-      debounceTime(20),
+      throttleTime(20),
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(
         ([
