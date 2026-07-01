@@ -35,9 +35,9 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
 /**
  * The access-audit tab on the governance dashboard: the synthesized PAM audit trail for one organization.
  *
- * The `/audit` endpoint is user-scoped (every collection the caller can Manage, across organizations), so the events
- * are filtered to this dashboard's organization client-side. Actor and requester display names come from the server's
- * denormalized fields; cipher and collection names are resolved from local vault state (see
+ * The `/organizations/{orgId}/audit` endpoint is org-scoped and authorized by the AccessEventLogs permission, so it
+ * returns the whole organization's trail. Actor and requester display names come from the server's denormalized
+ * fields; cipher and collection names are resolved from local vault state (see
  * {@link AccessRequestNameResolver}). Read-only — a projection, no actions; each row links to the request's detail page.
  * The toolbar filters (free-text + event kind) run client-side over the already-fetched window.
  */
@@ -95,9 +95,7 @@ export class AccessAuditComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      const events = (await this.pamApiService.listAccessAuditTrail()).filter(
-        (event) => event.organizationId === this.organizationId(),
-      );
+      const events = await this.pamApiService.listAccessAuditTrail(this.organizationId());
       // Cipher/collection names come from local vault state, not the (encrypted) denormalized response fields.
       const refs = events
         .filter((event) => event.cipherId != null && event.collectionId != null)
