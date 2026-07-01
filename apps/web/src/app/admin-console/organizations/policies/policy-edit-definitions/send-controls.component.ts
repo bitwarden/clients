@@ -17,6 +17,7 @@ import {
   UntypedFormBuilder,
   ValidationErrors,
   ValidatorFn,
+  Validators,
 } from "@angular/forms";
 import { Observable } from "rxjs";
 
@@ -82,11 +83,11 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File], this.atLeastOneValueValidator()],
+    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
   });
   readonly allowedSendTypesMultiSelectControl = new FormControl<
     (SelectItemView & { value: SendType })[]
-  >([], { validators: [this.atLeastOneValueValidator()] });
+  >([], { validators: [Validators.required] });
 
   private readonly dataFormValue = toSignal(this.data.valueChanges);
 
@@ -231,24 +232,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         return {
           multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },
         };
-      }
-      return null;
-    };
-  }
-
-  atLeastOneValueValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const errorResult: ValidationErrors = {
-        atLeastOneValueRequired: { message: this.i18nService.t("fieldRequiresAtLeastOneValue") },
-      };
-      if (control.value == null) {
-        return errorResult;
-      }
-      if (!Array.isArray(control.value)) {
-        return null;
-      }
-      if (control.value.length < 1) {
-        return errorResult;
       }
       return null;
     };
