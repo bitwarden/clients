@@ -98,6 +98,19 @@ describe("EnvironmentService", () => {
         send: "https://vault.bitwarden.eu",
       },
     },
+    {
+      region: Region.Gov,
+      expectedUrls: {
+        webVault: "https://vault.bitwarden-gov.com",
+        identity: "https://identity.bitwarden-gov.com",
+        api: "https://api.bitwarden-gov.com",
+        icons: "https://icons.bitwarden-gov.com",
+        notifications: "https://notifications.bitwarden-gov.com",
+        events: "https://events.bitwarden-gov.com",
+        scim: "https://scim.bitwarden-gov.com/v2",
+        send: "https://send.bitwarden-gov.com",
+      },
+    },
   ];
 
   describe("with user", () => {
