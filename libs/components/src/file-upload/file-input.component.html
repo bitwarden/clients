@@ -1,13 +1,8 @@
-<bit-form-field
-  [labelForId]="inputId"
-  [required]="required()"
-  [hasError]="hasError()"
-  [error]="error()"
->
+<bit-form-field [labelForId]="inputId" [control]="ngControl?.control">
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
   <div bitCustomInput>
-    <div bitFieldContainer [hasError]="hasError()">
+    <div bitFieldContainer [hasError]="formField()?.hasError() ?? false">
       <!-- The focusable control; bit-form-field's <label for> targets this via [id]. -->
       <button
         type="button"

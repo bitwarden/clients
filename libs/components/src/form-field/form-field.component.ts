@@ -5,11 +5,17 @@ import {
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   effect,
+  inject,
   input,
   contentChild,
+  signal,
   viewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AbstractControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
+import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -37,8 +43,8 @@ export class BitFormFieldComponent {
    *
    * Optional so that wrapper components (e.g. `bit-file-input`, `bit-file-dropzone`) can compose
    * `bit-form-field` for its label / hint / error chrome while owning their own control and
-   * laying out a custom input. In that mode the wrapper supplies `labelForId` / `required` /
-   * `hasError` / `error` as inputs, and the field-container chrome is not rendered.
+   * laying out a custom input. In that mode the wrapper passes its control via `control`, and the
+   * field-container chrome is not rendered.
    */
   readonly input = contentChild(BitFormFieldControlDirective);
   readonly hint = contentChild(BitHintDirective);
@@ -51,16 +57,23 @@ export class BitFormFieldComponent {
   readonly size = input<FieldContainerSize>("base");
 
   /**
-   * State supplied by wrapper components that don't project a `BitFormFieldControlDirective`.
-   * Ignored when a control directive is present — the directive is the source of truth.
+   * The control driving this field in wrapper mode (no projected `BitFormFieldControlDirective`).
+   * `required`, error state, and touched are derived from it, mirroring what the directive does
+   * for standard controls. Ignored when a control directive is present.
    */
+  readonly control = input<AbstractControl | null>();
+
+  /** Label target for wrapper mode — the id of the wrapper's focusable element. */
   readonly labelForId = input<string>();
-  readonly required = input<boolean>();
-  readonly hasError = input<boolean>();
-  readonly error = input<[string, any]>();
+
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);
+
+  // Bridges the wrapper-supplied control's status/touched RxJS events into the signal graph so
+  // the computeds below re-evaluate. (The directive does this itself for standard controls.)
+  private readonly controlEvent = signal<unknown>(null);
 
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
@@ -71,22 +84,47 @@ export class BitFormFieldComponent {
   protected readonly resolvedLabelForId = computed(
     () => this.input()?.labelForId() ?? this.labelForId() ?? "",
   );
-  protected readonly resolvedRequired = computed(
-    () => this.input()?.required() ?? this.required() ?? false,
-  );
-  protected readonly resolvedHasError = computed(
-    () => this.input()?.hasError() ?? this.hasError() ?? false,
-  );
-  protected readonly resolvedError = computed<[string, any] | undefined>(
-    () => this.input()?.error ?? this.error(),
-  );
+
+  protected readonly required = computed(() => {
+    const directive = this.input();
+    if (directive) {
+      return directive.required();
+    }
+    this.controlEvent();
+    return this.control()?.hasValidator(Validators.required) ?? false;
+  });
+
+  /** Public so wrapper components can reflect the error state in their own custom-input chrome. */
+  readonly hasError = computed(() => {
+    const directive = this.input();
+    if (directive) {
+      return directive.hasError();
+    }
+    this.controlEvent();
+    const control = this.control();
+    return control != null && control.invalid && control.touched;
+  });
+
+  protected readonly error = computed<[string, any] | undefined>(() => {
+    const directive = this.input();
+    if (directive) {
+      return directive.error;
+    }
+    this.controlEvent();
+    const errors = this.control()?.errors;
+    if (errors == null) {
+      return undefined;
+    }
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
+  });
 
   /**
    * Id of the element describing the control (error takes precedence over hint). Wrapper
    * components read this to wire `aria-describedby` on their own focusable input.
    */
   readonly describedById = computed<string | undefined>(() => {
-    if (this.resolvedHasError()) {
+    if (this.hasError()) {
       return this.errorComponent()?.id;
     }
     return this.hint()?.id;
@@ -132,6 +170,21 @@ export class BitFormFieldComponent {
     // components (no projected control) read `describedById` directly instead.
     effect(() => {
       this.input()?.ariaDescribedBy.set(this.describedById());
+    });
+
+    // Wrapper mode: bridge the supplied control's status/touched changes into the signal graph.
+    effect((onCleanup) => {
+      const control = this.control();
+      if (control == null) {
+        return;
+      }
+      const subscription = control.events
+        .pipe(
+          filter((e) => e instanceof StatusChangeEvent || e instanceof TouchedChangeEvent),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => this.controlEvent.set({}));
+      onCleanup(() => subscription.unsubscribe());
     });
   }
 }

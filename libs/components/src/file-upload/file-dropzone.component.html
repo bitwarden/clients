@@ -1,9 +1,4 @@
-<bit-form-field
-  [labelForId]="inputId"
-  [required]="required()"
-  [hasError]="hasError()"
-  [error]="error()"
->
+<bit-form-field [labelForId]="inputId" [control]="ngControl?.control">
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
   <div bitCustomInput>

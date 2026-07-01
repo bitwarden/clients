@@ -1,25 +1,15 @@
 import {
-  AfterViewInit,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   ElementRef,
   inject,
   input,
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  ControlValueAccessor,
-  NgControl,
-  StatusChangeEvent,
-  TouchedChangeEvent,
-  Validators,
-} from "@angular/forms";
-import { filter } from "rxjs";
+import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -31,9 +21,9 @@ import { FileNameComponent } from "./file-name.component";
 let nextId = 0;
 
 /**
- * A single-file picker rendered as a `bit-form-field`. The component is itself the form control
- * (`ControlValueAccessor`), so consumers bind it with `formControlName` / `[formControl]` /
- * `[(ngModel)]` and its value is always a `File[]` (`[]` = no file).
+ * A single-file picker composed over `bit-form-field`. The component is itself the form control
+ * (`ControlValueAccessor`), so consumers bind it the standard way — `formControlName` /
+ * `[formControl]` / `[(ngModel)]` — and its value is always a `File[]` (`[]` = no file).
  *
  * @example
  * ```html
@@ -52,7 +42,7 @@ let nextId = 0;
     class: "tw-block",
   },
 })
-export class FileInputComponent implements ControlValueAccessor, AfterViewInit {
+export class FileInputComponent implements ControlValueAccessor {
   /**
    * Accepted file types. Uses a comma separated list.
    *
@@ -66,20 +56,16 @@ export class FileInputComponent implements ControlValueAccessor, AfterViewInit {
    */
   readonly accept = input("");
 
-  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  private readonly ngControl = inject(NgControl, { optional: true, self: true });
-  private readonly destroyRef = inject(DestroyRef);
+  // Exposed to the template so its control can be handed to `bit-form-field` for label/error state.
+  protected readonly ngControl = inject(NgControl, { optional: true, self: true });
 
-  private readonly formField = viewChild(BitFormFieldComponent);
+  protected readonly formField = viewChild(BitFormFieldComponent);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
 
   private readonly _files = signal<File[]>([]);
   private readonly _disabledFromCva = signal(false);
-  // Bridges NgControl's RxJS status/touched events into the signal graph so `required`,
-  // `hasError`, and `error` re-evaluate when the bound control changes.
-  private readonly controlEvent = signal<unknown>(null);
 
   private readonly onChange = signal<(value: File[]) => void>(() => {});
   private readonly onTouched = signal<() => void>(() => {});
@@ -90,28 +76,6 @@ export class FileInputComponent implements ControlValueAccessor, AfterViewInit {
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
   protected readonly fileName = computed(() => this._files()[0]?.name);
 
-  protected readonly required = computed(() => {
-    this.controlEvent();
-    return (
-      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
-    );
-  });
-
-  protected readonly hasError = computed(() => {
-    this.controlEvent();
-    return this.ngControl?.status === "INVALID" && (this.ngControl?.touched ?? false);
-  });
-
-  protected readonly error = computed<[string, any] | undefined>(() => {
-    this.controlEvent();
-    const errors = this.ngControl?.errors;
-    if (errors == null) {
-      return undefined;
-    }
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
-  });
-
   /** Combined `aria-describedby` for the picker: form-field's hint/error plus the live status. */
   protected readonly describedBy = computed(
     () => [this.formField()?.describedById(), this.statusId].filter(Boolean).join(" ") || null,
@@ -121,15 +85,6 @@ export class FileInputComponent implements ControlValueAccessor, AfterViewInit {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
-  }
-
-  ngAfterViewInit(): void {
-    this.ngControl?.control?.events
-      .pipe(
-        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((e) => this.controlEvent.set(e));
   }
 
   writeValue(value: File[] | null): void {

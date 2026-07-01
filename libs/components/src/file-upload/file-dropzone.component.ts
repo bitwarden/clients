@@ -1,11 +1,9 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import {
-  AfterViewInit,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -14,15 +12,7 @@ import {
   viewChild,
   viewChildren,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  ControlValueAccessor,
-  NgControl,
-  StatusChangeEvent,
-  TouchedChangeEvent,
-  Validators,
-} from "@angular/forms";
-import { filter } from "rxjs";
+import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -65,7 +55,7 @@ let nextId = 0;
     class: "tw-block",
   },
 })
-export class FileDropzoneComponent implements ControlValueAccessor, AfterViewInit {
+export class FileDropzoneComponent implements ControlValueAccessor {
   /**
    * Accepted file types. Uses a comma separated list.
    *
@@ -85,11 +75,10 @@ export class FileDropzoneComponent implements ControlValueAccessor, AfterViewIni
   /** Allow multiple file selection. */
   readonly multiple = input(false, { transform: booleanAttribute });
 
-  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  private readonly ngControl = inject(NgControl, { optional: true, self: true });
-  private readonly destroyRef = inject(DestroyRef);
+  // Exposed to the template so its control can be handed to `bit-form-field` for label/error state.
+  protected readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly i18nService = inject(I18nService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
 
@@ -101,9 +90,6 @@ export class FileDropzoneComponent implements ControlValueAccessor, AfterViewIni
   readonly files = this._files.asReadonly();
 
   private readonly _disabledFromCva = signal(false);
-  // Bridges NgControl's RxJS status/touched events into the signal graph so `required`,
-  // `hasError`, and `error` re-evaluate when the bound control changes.
-  private readonly controlEvent = signal<unknown>(null);
   private readonly pendingFocusIndex = signal<number | null>(null);
   protected readonly isDragOver = signal(false);
   // Track drag enter/leave depth so dragging over child elements doesn't flicker the state.
@@ -117,28 +103,6 @@ export class FileDropzoneComponent implements ControlValueAccessor, AfterViewIni
   protected readonly listLabelId = `${this.inputId}-list-label`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
-
-  protected readonly required = computed(() => {
-    this.controlEvent();
-    return (
-      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
-    );
-  });
-
-  protected readonly hasError = computed(() => {
-    this.controlEvent();
-    return this.ngControl?.status === "INVALID" && (this.ngControl?.touched ?? false);
-  });
-
-  protected readonly error = computed<[string, any] | undefined>(() => {
-    this.controlEvent();
-    const errors = this.ngControl?.errors;
-    if (errors == null) {
-      return undefined;
-    }
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
-  });
 
   /**
    * Announced on focus arrival so screen readers read the current upload count. Empty when no
@@ -182,7 +146,7 @@ export class FileDropzoneComponent implements ControlValueAccessor, AfterViewIni
 
     if (this.disabled()) {
       base.push("tw-text-fg-inactive", "tw-border-border-base", "!tw-cursor-not-allowed");
-    } else if (this.hasError()) {
+    } else if (this.formField()?.hasError()) {
       base.push("tw-border-border-danger", "tw-cursor-pointer");
     } else if (this.isDragOver()) {
       base.push("tw-border-border-strong", "tw-cursor-pointer");
@@ -213,15 +177,6 @@ export class FileDropzoneComponent implements ControlValueAccessor, AfterViewIni
       }
       this.pendingFocusIndex.set(null);
     });
-  }
-
-  ngAfterViewInit(): void {
-    this.ngControl?.control?.events
-      .pipe(
-        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((e) => this.controlEvent.set(e));
   }
 
   writeValue(value: File[] | null): void {
