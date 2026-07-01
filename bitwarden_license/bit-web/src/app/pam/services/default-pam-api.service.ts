@@ -156,8 +156,8 @@ export class DefaultPamApiService implements PamApiService {
     return new ListResponse(r, AccessLeaseResponse).data;
   }
 
-  async listAccessAuditTrail(): Promise<AccessAuditEventResponse[]> {
-    const r = await this.send("GET", "/audit", null, true);
+  async listAccessAuditTrail(organizationId: string): Promise<AccessAuditEventResponse[]> {
+    const r = await this.send("GET", `/organizations/${organizationId}/audit`, null, true);
     return new ListResponse(r, AccessAuditEventResponse).data;
   }
 
