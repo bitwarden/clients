@@ -117,7 +117,7 @@ enum AccessAuditEventKind {
     lease_activated |
     -- (SYNTH) a refused activation, recorded as AccessRequest.rejected_at
     -- (last-only); actor = requester. Lossy by nature — refusals repeat — so the
-    -- full attempt history is deferred to the future-JSON bucket (Scenario 4 / 1).
+    -- full attempt history is deferred to the future serialized-detail bucket (Scenario 4 / 1).
     lease_activation_rejected |
     -- (SYNTH) the extension AccessRequest (extension_of set) + its approval; old end
     -- = its requested_not_before, new end = requested_not_after.
@@ -132,18 +132,18 @@ enum AccessAuditEventKind {
 
     -- Credential access ------------------------------------------------------
     -- (DEFERRED) opening a leased credential is a repeated event with no per-open
-    -- footprint; one row cannot hold N opens. Deferred to future JSON (Scenario 1).
+    -- footprint; one row cannot hold N opens. Deferred to a future serialized column (Scenario 1).
     credential_accessed |
     -- (DEFERRED) a blocked read (failed re-check) changes no state and repeats;
-    -- deferred to future JSON (Scenarios 1 + 4).
+    -- deferred to a future serialized column (Scenarios 1 + 4).
     credential_access_denied |
 
     -- Rule administration ----------------------------------------------------
     -- (SYNTH) AccessRule creation_date + last_edited_by.
     rule_created |
     -- (SYNTH, LATEST ONLY) revision_date + last_edited_by capture the MOST RECENT
-    -- edit; prior versions are overwritten. Full edit history is deferred to future
-    -- JSON (Scenario 2).
+    -- edit; prior versions are overwritten. Full edit history is deferred to a future
+    -- serialized column (Scenario 2).
     rule_updated |
     -- (SYNTH) a soft-deleted rule (deleted_at set); occurred_at = deleted_at,
     -- actor = deleted_by; scoped org-wide with the other rule kinds. The row is
@@ -170,11 +170,11 @@ enum AccessAuditEventKind {
 --
 --   1. REPEATED events (credential_accessed, credential_access_denied). One row
 --      cannot hold N occurrences. DECISION: skip now; record per-access detail in a
---      future JSON column on the lease. Until then these kinds contribute no events.
+--      future serialized column on the lease. Until then these kinds contribute no events.
 --
 --   2. OVERWRITES (rule_updated; a lease extension overwriting not_after). An
 --      in-place update destroys the prior value and who set it. DECISION: skip the
---      history now; capture prior versions in a future JSON column. rule_updated
+--      history now; capture prior versions in a future serialized column. rule_updated
 --      synthesizes the LATEST edit only (revision_date + last_edited_by). (Lease
 --      extension escapes the loss: pam.allium preserves the pre-extension end as the
 --      extension request's requested_not_before, so lease_extended is exact.)
@@ -191,7 +191,7 @@ enum AccessAuditEventKind {
 --      is nothing to stamp. DECISION: a single rejected_at on AccessRequest records
 --      the last refused activation (the actor is always the requester, so no
 --      "rejected_by" — it would carry no information). Last-only; the full refusal
---      history joins the future-JSON bucket (Scenario 1).
+--      history joins the future serialized-detail bucket (Scenario 1).
 
 -- ----------------------------------------------------------------------------
 -- Supporting changes in pam.allium (both landed)
