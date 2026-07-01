@@ -101,6 +101,10 @@ export class AdminSettingsComponent implements OnInit {
             showBrowserNotification: false,
           });
 
+          if (newValue) {
+            await this.autoConfirmService.bulkAutoConfirmPendingUsers(userId);
+          }
+
           // Auto-confirm users can only belong to one organization
           const organization = organizations[0];
           if (organization?.id) {
