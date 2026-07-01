@@ -723,6 +723,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.unlockService = new DefaultUnlockService(

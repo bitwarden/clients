@@ -1,4 +1,5 @@
 import {
+  catchError,
   combineLatest,
   delayWhen,
   filter,
@@ -21,6 +22,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -44,6 +46,7 @@ export class DefaultCollectionService implements CollectionService {
     protected stateProvider: StateProvider,
     private configService: ConfigService,
     private collectionEncryptionService: CollectionEncryptionService,
+    private logService: LogService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -118,6 +121,7 @@ export class DefaultCollectionService implements CollectionService {
             switchMap(([collections]) =>
               from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
                 map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
+                catchError((error: unknown) => this.handleBatchDecryptionFailure(error, userId)),
                 delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
               ),
             ),
@@ -130,12 +134,38 @@ export class DefaultCollectionService implements CollectionService {
         ]).pipe(
           switchMap(([collections, orgKeys]) =>
             this.decryptMany$(collections, orgKeys).pipe(
+              catchError((error: unknown) => this.handleBatchDecryptionFailure(error, userId)),
               delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
             ),
           ),
         );
       }),
     );
+  }
+
+  /**
+   * Handles a batch-level collection decryption failure (e.g. the SDK being unavailable, or an
+   * unexpected error decrypting the batch as a whole).
+   *
+   * Without this, a rejected/errored decryption batch would propagate an error through
+   * `decryptedCollections$`, which is cached per-user via `shareReplay`. Since that cache resets
+   * on error, the next subscriber (e.g. a component re-rendering) would immediately re-trigger
+   * decryption of the same batch, fail again, and log again - repeating indefinitely, filling up
+   * logs, and potentially crashing the app.
+   *
+   * Instead, we log the failure once here and fall back to an empty collection list, which is
+   * persisted via `setDecryptedCollections`. This prevents re-initialization (and therefore
+   * repeated decryption attempts) until the cache is explicitly invalidated, e.g. by `replace()`
+   * on the next full sync.
+   */
+  private handleBatchDecryptionFailure(
+    error: unknown,
+    userId: UserId,
+  ): Observable<CollectionView[]> {
+    this.logService.error(
+      `Failed to decrypt collections in batch for user ${userId}, falling back to an empty list: ${error}`,
+    );
+    return of([]);
   }
 
   async upsert(toUpdate: CollectionData, userId: UserId): Promise<void> {

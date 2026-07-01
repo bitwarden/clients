@@ -1,5 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { combineLatest, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import {
+  combineLatest,
+  first,
+  firstValueFrom,
+  of,
+  ReplaySubject,
+  takeWhile,
+  throwError,
+} from "rxjs";
 
 import {
   CollectionView,
@@ -11,6 +19,7 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -37,6 +46,7 @@ describe("DefaultCollectionService", () => {
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
   let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
+  let logService: MockProxy<LogService>;
 
   let userId: UserId;
 
@@ -53,6 +63,7 @@ describe("DefaultCollectionService", () => {
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     configService = mock();
     collectionEncryptionService = mock();
+    logService = mock();
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
@@ -84,6 +95,7 @@ describe("DefaultCollectionService", () => {
       stateProvider,
       configService,
       collectionEncryptionService,
+      logService,
     );
   });
 
@@ -224,6 +236,24 @@ describe("DefaultCollectionService", () => {
       // Expect decryptMany$ to be called only once
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
     });
+
+    it("falls back to an empty list and logs when a batch decryption errors", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
+      const collection1 = collectionDataFactory(org1);
+
+      jest
+        .spyOn(collectionService, "decryptMany$")
+        .mockReturnValue(throwError(() => new Error("Failed to decrypt batch")));
+
+      await setEncryptedState([collection1]);
+      cryptoKeys.next({ [org1]: orgKey1 });
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(result).toEqual([]);
+      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
+    });
   });
 
   describe("encryptedCollections$", () => {
@@ -362,6 +392,35 @@ describe("DefaultCollectionService", () => {
 
       expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
       expect(result).toContainPartialObjects([{ id: collection1.id }]);
+    });
+
+    it("falls back to an empty list and logs when decryptMany rejects (batch failure)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(result).toEqual([]);
+      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
+    });
+
+    it("does not retry a failed batch on repeated subscriptions (avoids infinite loop)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+
+      await firstValueFrom(collectionService.decryptedCollections$(userId));
+      await firstValueFrom(collectionService.decryptedCollections$(userId));
+      await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      // The failed batch should only ever be attempted once; subsequent reads use the
+      // cached (empty) fallback state instead of re-triggering decryption.
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
     });
   });
 

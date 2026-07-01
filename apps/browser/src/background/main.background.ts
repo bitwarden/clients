@@ -954,6 +954,7 @@ export default class MainBackground {
       this.stateProvider,
       this.configService,
       this.collectionEncryptionService,
+      this.logService,
     );
 
     this.keyConnectorService = new KeyConnectorService(
