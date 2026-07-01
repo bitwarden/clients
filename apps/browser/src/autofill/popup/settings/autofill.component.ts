@@ -65,12 +65,7 @@ import {
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
-import {
-  getPendingDefaultPasswordManagerApply,
-  setPendingDefaultPasswordManagerApply,
-} from "../../../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../../../platform/browser/browser-api";
-import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -236,24 +231,15 @@ export class AutofillComponent implements OnInit {
         this.browserClientVendor,
       );
 
-    if (await getPendingDefaultPasswordManagerApply()) {
-      if (await this.privacyPermissionGranted()) {
-        if (
-          !(await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-            this.browserClientVendor,
-          ))
-        ) {
-          await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-        }
-
-        await setPendingDefaultPasswordManagerApply(false);
-        this.defaultBrowserAutofillDisabled =
-          await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
-            this.browserClientVendor,
-          );
-      } else {
-        await setPendingDefaultPasswordManagerApply(false);
-      }
+    if (
+      (await this.autofillBrowserSettingsService.resumeGrantedPendingDefaultPasswordManagerApply(
+        this.browserClientVendor,
+      )) !== null
+    ) {
+      this.defaultBrowserAutofillDisabled =
+        await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+          this.browserClientVendor,
+        );
     }
 
     this.inlineMenuVisibility = await firstValueFrom(
@@ -548,16 +534,12 @@ export class AutofillComponent implements OnInit {
 
   async updateDefaultBrowserAutofillDisabled() {
     if (
-      this.browserClientVendor === BrowserClientVendors.Firefox &&
+      BrowserApi.isFirefox &&
       this.defaultBrowserAutofillDisabled &&
       !this.privacyPermissionIsGranted
     ) {
-      void BrowserApi.requestPermission({ permissions: ["privacy"] });
-      await setPendingDefaultPasswordManagerApply(true);
-
-      if (BrowserPopupUtils.inPopup(window) || BrowserPopupUtils.inPopout(window)) {
-        BrowserApi.closePopup(window);
-      }
+      void this.autofillBrowserSettingsService.requestPrivacyPermissionFromUserGesture();
+      await this.autofillBrowserSettingsService.completeFirefoxPopupPermissionFlow(window);
 
       return;
     }
@@ -569,10 +551,9 @@ export class AutofillComponent implements OnInit {
     }
 
     if (!privacyPermissionGranted) {
-      await setPendingDefaultPasswordManagerApply(true);
-      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      const granted =
+        await this.autofillBrowserSettingsService.ensurePrivacyPermissionForOverride();
       if (!granted) {
-        await setPendingDefaultPasswordManagerApply(false);
         await this.dialogService.openSimpleDialog({
           title: { key: "privacyPermissionAdditionNotGrantedTitle" },
           content: { key: "privacyPermissionAdditionNotGrantedDescription" },

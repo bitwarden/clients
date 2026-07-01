@@ -22,7 +22,6 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
-import { PolicyStep } from "../policy-edit-dialogs/models";
 
 type SaveOrganizationDataOwnershipPolicyRequest = SavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -78,12 +77,6 @@ export class OrganizationDataOwnershipPolicyV2Component
       }
     });
   }
-
-  override readonly policySteps: PolicyStep[] = [
-    {
-      sideEffect: () => this.savePolicy(),
-    },
-  ];
 
   readonly data = this.formBuilder.group({
     enableIndividualItemsTransfer: [{ value: false, disabled: true }],
