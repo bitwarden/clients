@@ -1,4 +1,5 @@
 import {
+  BankAccountView as SdkBankAccountView,
   CardListView,
   CipherListView,
   CopyableCipherFields,
@@ -7,9 +8,11 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
-import { CipherType } from "../enums";
+import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
+import { BankAccountView } from "../models/view/bank-account.view";
 import { CardView } from "../models/view/card.view";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
@@ -144,13 +147,78 @@ export class CipherViewLikeUtils {
     }
   };
 
-  /** @returns The subtitle of the cipher. */
-  static subtitle = (cipher: CipherViewLike): string | undefined => {
-    if (!this.isCipherListView(cipher)) {
-      return cipher.subTitle;
+  /**
+   * @returns The subtitle of the cipher.
+   *
+   * When `i18nService` is supplied, cipher types that depend on localized values
+   * (e.g. the bank-account `accountType` dropdown) produce a translated subtitle.
+   * Without `i18nService`, the cipher's raw `subTitle` / `subtitle` is returned —
+   * suitable for non-Angular callers (search indexing, CLI) where translation is
+   * unnecessary or unavailable.
+   */
+  static subtitle = (cipher: CipherViewLike, i18nService?: I18nService): string | undefined => {
+    const baseSubtitle = this.isCipherListView(cipher) ? cipher.subtitle : cipher.subTitle;
+
+    if (!i18nService) {
+      return baseSubtitle;
     }
 
-    return cipher.subtitle;
+    switch (this.getType(cipher)) {
+      case CipherType.BankAccount: {
+        const bankAccountSubtitle = this.bankAccountSubtitle(cipher, i18nService);
+        return bankAccountSubtitle ?? baseSubtitle;
+      }
+      default:
+        return baseSubtitle;
+    }
+  };
+
+  private static getBankAccount = (
+    cipher: CipherViewLike,
+  ): BankAccountView | SdkBankAccountView | null => {
+    // CipherListViewType only inlines `card` and `login` data — bank account is a plain
+    // string discriminator without nested view data, so there is nothing to read here.
+    if (this.isCipherListView(cipher)) {
+      return null;
+    }
+
+    return cipher.type === CipherType.BankAccount ? (cipher.bankAccount ?? null) : null;
+  };
+
+  private static bankAccountSubtitle = (
+    cipher: CipherViewLike,
+    i18nService: I18nService,
+  ): string | undefined => {
+    const bankAccount = this.getBankAccount(cipher);
+    if (!bankAccount) {
+      return undefined;
+    }
+
+    const accountTypeKey = bankAccount.accountType
+      ? BankAccountTypeI18nKeys[bankAccount.accountType as BankAccountType]
+      : undefined;
+    const translatedAccountType = accountTypeKey ? i18nService.t(accountTypeKey) : undefined;
+
+    let shownDigits: string | undefined = undefined;
+    if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 4) {
+      shownDigits = bankAccount.accountNumber?.slice(-4);
+    } else if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 1) {
+      const length = bankAccount.accountNumber?.length;
+      const negativeSlice = (length - 1) * -1;
+      shownDigits = bankAccount.accountNumber?.slice(negativeSlice);
+    }
+
+    if (translatedAccountType && shownDigits) {
+      return `${translatedAccountType}, *${shownDigits}`;
+    }
+    if (translatedAccountType) {
+      return translatedAccountType;
+    }
+    if (shownDigits) {
+      return `*${shownDigits}`;
+    }
+
+    return undefined;
   };
 
   /** @returns `true` when the cipher has attachments, false otherwise. */

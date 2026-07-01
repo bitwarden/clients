@@ -12,11 +12,28 @@
     </bit-callout>
   </div>
 }
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout>
+<cdk-virtual-scroll-viewport
+  [itemSize]="RowHeight"
+  bitScrollLayout
+  class="tw-transition-[padding-bottom] tw-duration-300 tw-ease-in-out"
+  [ngClass]="barVisible() ? 'tw-pb-[9rem]' : 'tw-pb-0'"
+>
   <div class="tw-mb-4 tw-px-6 tw-@container">
     <bit-table [dataSource]="dataSource" layout="fixed">
       <ng-container header>
         <tr>
+          @if (showBatchBar()) {
+            <th bitCell class="tw-w-10 tw-whitespace-nowrap">
+              <input
+                type="checkbox"
+                bitCheckbox
+                [disabled]="disabled() || isEmpty()"
+                (change)="toggleAll()"
+                [checked]="selection.hasValue() && isAllSelected"
+                [attr.aria-label]="'selectAll' | i18n"
+              />
+            </th>
+          }
           <!-- Individual or Organization vault -->
           <th
             bitCell
@@ -52,6 +69,9 @@
               [collection]="item.collection"
               [showOwner]="showOwner()"
               [organizations]="allOrganizations()"
+              [showBatchBar]="showBatchBar()"
+              [selected]="selection.isSelected(item)"
+              (checkboxChange)="selection.toggle(item)"
             ></tr>
           }
           @if (item.cipher) {
@@ -73,6 +93,9 @@
               (onEvent)="event($event)"
               [userCanArchive]="userCanArchive()"
               [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
+              [showBatchBar]="showBatchBar()"
+              [selected]="selection.isSelected(item)"
+              (checkboxChange)="selection.toggle(item)"
             ></tr>
           }
         </ng-container>
