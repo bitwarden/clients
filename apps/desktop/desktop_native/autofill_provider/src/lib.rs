@@ -15,7 +15,7 @@ use std::{
     fmt::Display,
     path::PathBuf,
     sync::{
-        atomic::AtomicU32,
+        atomic::{AtomicU32, AtomicU8},
         mpsc::{self, Receiver, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
@@ -85,7 +85,10 @@ trait Callback: Send + Sync {
 #[cfg_attr(feature = "uniffi", derive(uniffi::Enum))]
 #[derive(Debug)]
 pub enum ConnectionStatus {
+    /// connect() was called; the pipe handshake has not yet completed.
+    Connecting,
     Connected,
+    /// The connection was established and has since dropped.
     Disconnected,
 }
 
@@ -146,8 +149,8 @@ pub struct AutofillProviderClient {
     #[allow(clippy::type_complexity)]
     response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
 
-    // Flag to track connection status - atomic for thread safety without locks
-    connection_status: Arc<std::sync::atomic::AtomicBool>,
+    // Tracks connection lifecycle — see CONNECTION_* constants.
+    connection_status: Arc<AtomicU8>,
 }
 
 /// Store native desktop status information to use for IPC communication
@@ -231,6 +234,10 @@ pub struct WindowDetails {
 // have a callback.
 const NO_CALLBACK_INDICATOR: u32 = 0;
 
+const CONNECTION_CONNECTING: u8 = 0;
+const CONNECTION_CONNECTED: u8 = 1;
+const CONNECTION_DISCONNECTED: u8 = 2;
+
 #[cfg(not(test))]
 static IPC_PATH: &str = "af";
 #[cfg(test)]
@@ -265,7 +272,7 @@ impl AutofillProviderClient {
             response_callbacks_counter: AtomicU32::new(1), /* Start at 1 since 0 is reserved for
                                                             * "no callback" scenarios */
             response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
-            connection_status: Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            connection_status: Arc::new(AtomicU8::new(CONNECTION_CONNECTING)),
         };
 
         let queue = client.response_callbacks_queue.clone();
@@ -294,11 +301,11 @@ impl AutofillProviderClient {
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
-                            connection_status.store(true, std::sync::atomic::Ordering::Relaxed);
+                            connection_status
+                                .store(CONNECTION_CONNECTED, std::sync::atomic::Ordering::Relaxed);
                         }
                         Ok(SerializedMessage::Command(CommandMessage::Disconnected)) => {
-                            info!("Disconnected from server");
-                            connection_status.store(false, std::sync::atomic::Ordering::Relaxed);
+                            break;
                         }
                         Ok(SerializedMessage::Message {
                             sequence_number,
@@ -330,6 +337,12 @@ impl AutofillProviderClient {
                         }
                     };
                 }
+                // Channel closed — covers both clean disconnects and ipc::connect errors.
+                info!("Disconnected from server");
+                connection_status.store(
+                    CONNECTION_DISCONNECTED,
+                    std::sync::atomic::Ordering::Relaxed,
+                );
             });
         });
 
@@ -385,13 +398,13 @@ impl AutofillProviderClient {
 
     /// Return the status this client's connection to the desktop client.
     pub fn get_connection_status(&self) -> ConnectionStatus {
-        let is_connected = self
+        match self
             .connection_status
-            .load(std::sync::atomic::Ordering::Relaxed);
-        if is_connected {
-            ConnectionStatus::Connected
-        } else {
-            ConnectionStatus::Disconnected
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
+            CONNECTION_CONNECTED => ConnectionStatus::Connected,
+            CONNECTION_DISCONNECTED => ConnectionStatus::Disconnected,
+            _ => ConnectionStatus::Connecting,
         }
     }
 }
@@ -451,7 +464,7 @@ impl AutofillProviderClient {
         message: impl Serialize + DeserializeOwned,
         callback: Option<Box<dyn Callback>>,
     ) {
-        if let ConnectionStatus::Disconnected = self.get_connection_status() {
+        if !matches!(self.get_connection_status(), ConnectionStatus::Connected) {
             if let Some(callback) = callback {
                 callback.error(BitwardenError::Disconnected);
             }
