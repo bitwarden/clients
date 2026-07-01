@@ -174,7 +174,20 @@ export abstract class BaseEventsComponent implements OnDestroy {
     endDate: string,
     continuationToken: string,
   ): Promise<ListResponse<EventResponse>>;
-  protected abstract getUserName(r: EventResponse, userId: string): { name: string; email: string };
+  protected abstract getUserName(
+    r: EventResponse,
+    userId: string,
+  ): { name: string; email?: string };
+
+  /**
+   * User ids whose member events can be opened. Gates whether ids render as links.
+   * The default is empty — subclasses that don't resolve members (no org
+   * user map) have nothing linkable, so those ids render as plain text rather than dead links.
+   * Subclasses that do resolve members override this.
+   */
+  protected linkableMemberIds(): ReadonlySet<string> {
+    return new Set<string>();
+  }
 
   protected async loadAndParseEvents(
     startDate: string,
@@ -183,11 +196,14 @@ export abstract class BaseEventsComponent implements OnDestroy {
   ) {
     const response = await this.requestEvents(startDate, endDate, continuationToken);
 
+    const linkableMemberIds = this.linkableMemberIds();
+
     const events = await Promise.all(
       response.data.map(async (r) => {
         const userId = r.actingUserId == null ? r.userId : r.actingUserId;
         const options = new EventOptions();
         options.disableLink = !this.canUseSM;
+        options.linkableMemberIds = linkableMemberIds;
 
         const eventInfo = await this.eventService.getEventInfo(r, options);
         const user = this.getUserName(r, userId);
@@ -199,6 +215,7 @@ export abstract class BaseEventsComponent implements OnDestroy {
           appIcon: eventInfo.appIcon,
           appName: eventInfo.appName,
           userId: userId,
+          actingUserId: r.actingUserId,
           userName: userName,
           userEmail: user != null ? user.email : "",
           date: r.date,
