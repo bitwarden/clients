@@ -196,30 +196,6 @@ export class MemberActionsService {
     return result;
   }
 
-  canConfirm(user: OrganizationUserView): boolean {
-    return user.status === OrganizationUserStatusType.Accepted;
-  }
-
-  canReinvite(user: OrganizationUserView): boolean {
-    return user.status === OrganizationUserStatusType.Invited;
-  }
-
-  canRestore(user: OrganizationUserView): boolean {
-    return user.status === OrganizationUserStatusType.Revoked;
-  }
-
-  canRevoke(user: OrganizationUserView): boolean {
-    return user.status !== OrganizationUserStatusType.Revoked;
-  }
-
-  canRemove(user: OrganizationUserView): boolean {
-    return !user.claimedByOrganization;
-  }
-
-  canManageMember(user: OrganizationUserView): boolean {
-    return user.status !== OrganizationUserStatusType.Staged;
-  }
-
   allowResetPassword(
     orgUser: OrganizationUserView,
     organization: Organization,

@@ -416,7 +416,7 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
-                    @if (canReinvite(u)) {
+                    @if (u.canReinvite) {
                       <button
                         type="button"
                         bitMenuItem
@@ -426,7 +426,7 @@
                         {{ "resendInvitation" | i18n }}
                       </button>
                     }
-                    @if (canConfirm(u)) {
+                    @if (u.canConfirm) {
                       <button
                         type="button"
                         bitMenuItem
@@ -437,10 +437,10 @@
                         </span>
                       </button>
                     }
-                    @if (canConfirm(u) || canReinvite(u)) {
+                    @if (u.canConfirm || u.canReinvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
-                    @if (canManageMember(u)) {
+                    @if (u.canManageMember) {
                       <button
                         type="button"
                         bitMenuItem
@@ -491,7 +491,7 @@
                   }
 
                   @if (showUserManagementControls()) {
-                    @if (canRestore(u)) {
+                    @if (u.canRestore) {
                       <button
                         type="button"
                         bitMenuItem
@@ -501,7 +501,7 @@
                         {{ "restoreAccess" | i18n }}
                       </button>
                     }
-                    @if (canRevoke(u)) {
+                    @if (u.canRevoke) {
                       <button
                         type="button"
                         bitMenuItem
@@ -511,7 +511,7 @@
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
-                    @if (canRemove(u)) {
+                    @if (u.canRemove) {
                       <button
                         type="button"
                         bitMenuItem
