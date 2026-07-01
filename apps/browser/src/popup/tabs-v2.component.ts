@@ -15,9 +15,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BottomNavigationButton } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
-
-import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -42,12 +41,12 @@ export class TabsV2Component {
     map((disableSend) => !disableSend),
   );
 
-  protected navButtons$: Observable<NavButton[]> = combineLatest([
+  protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
     this.showSettingsBerry$.pipe(startWith(false)),
     this.sendEnabled$.pipe(startWith(true)),
   ]).pipe(
     map(([showBerry, sendEnabled]) => {
-      const buttons: NavButton[] = [
+      const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
           page: "/tabs/vault",
@@ -67,7 +66,7 @@ export class TabsV2Component {
                 page: "/tabs/send",
                 icon: SendInactive,
                 iconActive: SendActive,
-              } as NavButton,
+              } as BottomNavigationButton,
             ]
           : []),
         {
