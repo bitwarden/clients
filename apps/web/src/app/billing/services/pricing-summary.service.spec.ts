@@ -183,6 +183,39 @@ describe("PricingSummaryService", () => {
       expect(result.additionalStorageTotal).toBe(0);
       expect(result.storageGb).toBe(0);
     });
+
+    it("excludes permanent migration-grace accounts from the additional service account total", async () => {
+      mockSub.smServiceAccounts = 75;
+      mockSub.smServiceAccountsGrace = 20; // base 50, used 75 - 20 = 55 -> 5 additional @ $6
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        false,
+        50,
+      );
+
+      expect(result.additionalServiceAccount).toBe(5);
+      expect(result.additionalServiceAccountTotal).toBe(30); // 6 * 5
+    });
+
+    it("treats grace = 0 the same as the pre-grace calculation", async () => {
+      mockSub.smServiceAccountsGrace = 0;
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        false,
+        50,
+      );
+
+      expect(result.additionalServiceAccount).toBe(0); // base 50 vs used 5
+      expect(result.additionalServiceAccountTotal).toBe(0);
+    });
   });
 
   describe("getAdditionalServiceAccount", () => {
@@ -204,6 +237,29 @@ describe("PricingSummaryService", () => {
     it("should return additional service accounts when used exceeds base", () => {
       const result = service.getAdditionalServiceAccount(mockPlan, mockSub);
       expect(result).toBe(5); // Math.abs(50 - 55) = 5
+    });
+
+    it("subtracts permanent migration-grace accounts before pricing (PM-39805: base 20, used 75, grace 30 -> 25)", () => {
+      mockPlan.SecretsManager.baseServiceAccount = 20;
+      mockSub.smServiceAccounts = 75;
+      mockSub.smServiceAccountsGrace = 30;
+
+      const result = service.getAdditionalServiceAccount(mockPlan, mockSub);
+      expect(result).toBe(25); // Math.abs(20 - (75 - 30))
+    });
+
+    it("treats grace that cancels out the overage as zero billable (base 50, used 55, grace 5 -> 0)", () => {
+      mockSub.smServiceAccounts = 55;
+      mockSub.smServiceAccountsGrace = 5;
+
+      const result = service.getAdditionalServiceAccount(mockPlan, mockSub);
+      expect(result).toBe(0); // 50 - (55 - 5) = 0
+    });
+
+    it("treats an absent grace value as zero (unchanged from pre-grace behavior)", () => {
+      // mockSub has no smServiceAccountsGrace set
+      const result = service.getAdditionalServiceAccount(mockPlan, mockSub);
+      expect(result).toBe(5); // Math.abs(50 - 55)
     });
 
     it("should return 0 when used is less than or equal to base", () => {

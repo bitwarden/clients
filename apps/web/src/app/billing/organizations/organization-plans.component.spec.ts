@@ -204,6 +204,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager?: boolean;
     smSeats?: number;
     smServiceAccounts?: number;
+    smServiceAccountsGrace?: number;
   } = {},
 ) => {
   const {
@@ -217,6 +218,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager = false,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } = orgConfig;
 
   const mockOrganization = {
@@ -239,6 +241,7 @@ const setupMockUpgradeOrganization = (
     planType,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } as any);
 
   return mockOrganization;
@@ -1364,6 +1367,62 @@ describe("OrganizationPlansComponent", () => {
 
       expect(upgradeComponent.secretsManagerForm.controls.userSeats.value).toBe(5);
       expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(25);
+    });
+
+    it("should subtract permanent migration-grace accounts when prefilling additional service accounts", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 10,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 10 grace = 15 billable
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(15);
+    });
+
+    it("should clamp prefilled additional service accounts to zero when grace exceeds the billable count", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 30,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 30 grace = -5 -> clamped to 0
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(0);
     });
 
     it("should enable SM by default when enableSecretsManagerByDefault is true", async () => {

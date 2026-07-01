@@ -45,6 +45,9 @@
     <bit-hint>
       <div>
         {{ "includedMachineAccounts" | i18n: options.baseServiceAccountCount }}
+        <span *ngIf="options.graceServiceAccounts > 0">
+          {{ "graceMachineAccounts" | i18n: options.graceServiceAccounts }}
+        </span>
         {{ "addAdditionalMachineAccounts" | i18n: (monthlyServiceAccountPrice | currency: "$") }}
       </div>
       <div>
