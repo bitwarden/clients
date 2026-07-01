@@ -1,24 +1,33 @@
-<button
-  bitButton
-  [bitMenuTriggerFor]="itemOptions"
-  [buttonType]="buttonType"
-  type="button"
-  [startIcon]="!hideIcon ? 'bwi-plus' : undefined"
->
-  {{ (hideIcon ? "createSend" : "new") | i18n }}
-</button>
-<bit-menu #itemOptions>
-  <a bitMenuItem [routerLink]="buildRouterLink()" [queryParams]="buildQueryParams(sendType.Text)">
-    <i class="bwi bwi-file-text" slot="start" aria-hidden="true"></i>
-    {{ "sendTypeText" | i18n }}
-  </a>
-  <a bitMenuItem (click)="sendFileClick()" [title]="'popOutNewWindow' | i18n">
-    <div class="tw-flex tw-items-center tw-gap-2">
-      <i class="bwi bwi-file" slot="start" aria-hidden="true"></i>
-      {{ "sendTypeFile" | i18n }}
-      <app-premium-badge></app-premium-badge>
-    </div>
-    <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
-    <i class="bwi bwi-popout tw-text-muted" slot="end" aria-hidden="true"></i>
-  </a>
-</bit-menu>
+@if (allowedSendTypes().length === 1) {
+  <button bitButton [buttonType]="buttonType" type="button" (click)="onRestrictedClick()">
+    @if (!hideIcon) {
+      <bit-icon name="bwi-plus" class="tw-me-2" />
+    }
+    {{ (hideIcon ? "createSend" : "new") | i18n }}
+  </button>
+} @else {
+  <button
+    bitButton
+    [bitMenuTriggerFor]="itemOptions"
+    [buttonType]="buttonType"
+    type="button"
+    [startIcon]="!hideIcon ? 'bwi-plus' : undefined"
+  >
+    {{ (hideIcon ? "createSend" : "new") | i18n }}
+  </button>
+  <bit-menu #itemOptions>
+    <a bitMenuItem [routerLink]="buildRouterLink()" [queryParams]="buildQueryParams(sendType.Text)">
+      <bit-icon name="bwi-file-text" slot="start" />
+      {{ "sendTypeText" | i18n }}
+    </a>
+    <a bitMenuItem (click)="sendFileClick()" [title]="'popOutNewWindow' | i18n">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <bit-icon name="bwi-file" slot="start" />
+        {{ "sendTypeFile" | i18n }}
+        <app-premium-badge></app-premium-badge>
+      </div>
+      <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
+      <bit-icon name="bwi-popout" class="tw-text-muted" slot="end" />
+    </a>
+  </bit-menu>
+}
