@@ -85,7 +85,6 @@ export function createSampleApplications(count: number = 7): ApplicationHealthVi
  * @param count - Number of members to create (defaults to 5)
  */
 export function createSampleMembers(count: number = 5): DrawerMemberData[] {
-  const names = ["Alice Smith", "Bob Johnson", "Charlie Davis", "Diana Wilson", "Eve Martinez"];
   const emails = [
     "alice@example.com",
     "bob@example.com",
@@ -95,10 +94,8 @@ export function createSampleMembers(count: number = 5): DrawerMemberData[] {
   ];
   const atRiskCounts = [15, 8, 12, 5, 20];
 
-  return Array.from({ length: Math.min(count, names.length) }, (_, i) => ({
+  return Array.from({ length: Math.min(count, emails.length) }, (_, i) => ({
     email: emails[i],
-    userName: names[i],
-    userGuid: `user-${i + 1}`,
     atRiskApplicationCount: atRiskCounts[i],
   }));
 }
@@ -123,8 +120,6 @@ export function createMockCiphersWithIcons(): CipherView[] {
 export function createLargeDataset(count: number): DrawerMemberData[] {
   return Array.from({ length: count }, (_, i) => ({
     email: `user${i}@example.com`,
-    userName: `User ${i}`,
-    userGuid: `user-${i}`,
     // Use deterministic pattern instead of random: cycles through 1-25
     atRiskApplicationCount: (i % 25) + 1,
   }));
