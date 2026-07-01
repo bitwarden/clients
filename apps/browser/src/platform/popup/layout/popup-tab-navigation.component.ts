@@ -1,11 +1,10 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BitSvg } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SvgModule, LinkModule, BerryComponent } from "@bitwarden/components";
+import { A11yTitleDirective, SvgModule, BerryComponent } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export type NavButton = {
   label: string;
@@ -15,24 +14,21 @@ export type NavButton = {
   showBerry?: boolean;
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "popup-tab-navigation",
   templateUrl: "popup-tab-navigation.component.html",
-  imports: [CommonModule, LinkModule, RouterModule, JslibModule, SvgModule, BerryComponent],
+  imports: [RouterModule, SvgModule, BerryComponent, A11yTitleDirective, I18nPipe],
   host: {
-    class: "tw-block tw-size-full tw-flex tw-flex-col",
+    class: "tw-size-full tw-flex tw-flex-col",
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupTabNavigationComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() navButtons: NavButton[] = [];
+  private readonly i18nService = inject(I18nService);
 
-  constructor(private i18nService: I18nService) {}
+  readonly navButtons = input<NavButton[]>([]);
 
-  buttonTitle(navButton: NavButton) {
+  protected buttonTitle(navButton: NavButton) {
     const labelText = this.i18nService.t(navButton.label);
     return navButton.showBerry ? this.i18nService.t("labelWithNotification", labelText) : labelText;
   }
