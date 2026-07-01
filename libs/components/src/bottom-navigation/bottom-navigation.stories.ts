@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
@@ -19,25 +19,25 @@ import { I18nMockService } from "../utils";
 
 import { BottomNavigationButton, BottomNavigationComponent } from "./bottom-navigation.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-container",
   template: `
-    <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
+    <div
+      class="tw-h-[640px] tw-w-[480px] tw-flex tw-flex-col tw-border tw-border-solid tw-border-secondary-300"
+    >
       <ng-content></ng-content>
     </div>
   `,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryContainerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "story-page",
   template: `<div class="tw-p-4 tw-text-main">{{ name }} page</div>`,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryPageComponent {
   name = "";
@@ -125,9 +125,10 @@ export const Default: Story = {
     props: args,
     template: /*html*/ `
       <story-container>
-        <bit-bottom-navigation [navButtons]="navButtons">
+        <div class="tw-flex-1 tw-overflow-y-auto">
           <router-outlet></router-outlet>
-        </bit-bottom-navigation>
+        </div>
+        <bit-bottom-navigation [navButtons]="navButtons"></bit-bottom-navigation>
       </story-container>`,
   }),
   args: {
@@ -140,9 +141,10 @@ export const WithBerry: Story = {
     props: args,
     template: /*html*/ `
       <story-container>
-        <bit-bottom-navigation [navButtons]="navButtons">
+        <div class="tw-flex-1 tw-overflow-y-auto">
           <router-outlet></router-outlet>
-        </bit-bottom-navigation>
+        </div>
+        <bit-bottom-navigation [navButtons]="navButtons"></bit-bottom-navigation>
       </story-container>`,
   }),
   args: {

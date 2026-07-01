@@ -14,7 +14,6 @@ import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
   DialogModule,
   AvatarModule,
-  BottomNavigationComponent,
   ButtonModule,
   FormFieldModule,
   ToastModule,
@@ -32,6 +31,7 @@ import { PopupFocusWrapDirective } from "../platform/popup/components/popup-focu
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
+import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -72,7 +72,7 @@ import "../platform/popup/locales";
     PopOutComponent,
     PopupFocusWrapDirective,
     PopupPageComponent,
-    BottomNavigationComponent,
+    PopupTabNavigationComponent,
     PopupFooterComponent,
     PopupHeaderComponent,
     UserVerificationDialogComponent,

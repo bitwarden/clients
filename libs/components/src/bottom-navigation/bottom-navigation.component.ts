@@ -22,7 +22,7 @@ export type BottomNavigationButton = {
   templateUrl: "bottom-navigation.component.html",
   imports: [RouterModule, SvgModule, BerryComponent, A11yTitleDirective, I18nPipe],
   host: {
-    class: "tw-size-full tw-flex tw-flex-col",
+    class: "tw-block",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

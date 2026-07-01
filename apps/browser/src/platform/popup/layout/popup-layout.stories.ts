@@ -20,7 +20,6 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import {
   AvatarModule,
   BannerModule,
-  BottomNavigationComponent,
   ChipActionComponent,
   ButtonModule,
   I18nMockService,
@@ -38,6 +37,7 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 import { PopupFooterComponent } from "./popup-footer.component";
 import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
+import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -339,7 +339,7 @@ export default {
     moduleMetadata({
       imports: [
         ScrollLayoutDirective,
-        BottomNavigationComponent,
+        PopupTabNavigationComponent,
         PopupHeaderComponent,
         PopupPageComponent,
         PopupFooterComponent,
@@ -435,7 +435,7 @@ export default {
 
 type Story = StoryObj<PopupPageComponent>;
 
-type PopupTabNavigationStory = StoryObj<BottomNavigationComponent>;
+type PopupTabNavigationStory = StoryObj<PopupTabNavigationComponent>;
 
 const navButtons = (showBerry = false) => [
   {
@@ -470,9 +470,9 @@ export const DefaultPopupTabNavigation: PopupTabNavigationStory = {
     props: args,
     template: /*html*/ `
       <extension-container>
-        <bit-bottom-navigation [navButtons]="navButtons">
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
-        </bit-bottom-navigation>
+        </popup-tab-navigation>
       </extension-container>`,
   }),
   args: {
@@ -485,9 +485,9 @@ export const PopupTabNavigationWithBerry: PopupTabNavigationStory = {
     props: args,
     template: /*html*/ `
       <extension-container>
-        <bit-bottom-navigation [navButtons]="navButtons">
+        <popup-tab-navigation [navButtons]="navButtons">
           <router-outlet></router-outlet>
-        </bit-bottom-navigation>
+        </popup-tab-navigation>
       </extension-container>`,
   }),
   args: {
@@ -613,7 +613,7 @@ export const CenteredContent: Story = {
     props: args,
     template: /* HTML */ `
       <extension-container>
-        <bit-bottom-navigation>
+        <popup-tab-navigation>
           <popup-page>
             <popup-header slot="header" pageTitle="Centered Content"></popup-header>
             <div
@@ -626,7 +626,7 @@ export const CenteredContent: Story = {
               </bit-no-items>
             </div>
           </popup-page>
-        </bit-bottom-navigation>
+        </popup-tab-navigation>
       </extension-container>
     `,
   }),
@@ -637,12 +637,12 @@ export const Loading: Story = {
     props: args,
     template: /* HTML */ `
       <extension-container>
-        <bit-bottom-navigation>
+        <popup-tab-navigation>
           <popup-page [loading]="true">
             <popup-header slot="header" pageTitle="Page Header"></popup-header>
             Content would go here
           </popup-page>
-        </bit-bottom-navigation>
+        </popup-tab-navigation>
       </extension-container>
     `,
   }),
@@ -653,12 +653,12 @@ export const SkeletonLoading: Story = {
     props: { ...args, data: Array(8) },
     template: /* HTML */ `
       <extension-container>
-        <bit-bottom-navigation>
+        <popup-tab-navigation>
           <popup-page hideOverflow>
             <popup-header slot="header" pageTitle="Page Header"></popup-header>
             <vault-loading-skeleton></vault-loading-skeleton>
           </popup-page>
-        </bit-bottom-navigation>
+        </popup-tab-navigation>
       </extension-container>
     `,
   }),
