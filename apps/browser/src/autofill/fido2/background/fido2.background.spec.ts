@@ -32,6 +32,7 @@ import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-use
 
 import { Fido2ExtensionMessage } from "./abstractions/fido2.background";
 import { Fido2Background } from "./fido2.background";
+import { Fido2PageScriptFallbackTracker } from "./fido2-page-script-fallback-tracker";
 
 const sharedExecuteScriptOptions = { runAt: "document_start" };
 const sharedScriptInjectionDetails = { frame: "all_frames", ...sharedExecuteScriptOptions };
@@ -66,6 +67,7 @@ describe("Fido2Background", () => {
   let enablePasskeysMock$!: BehaviorSubject<boolean>;
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authServiceMock!: MockProxy<AuthService>;
+  let pageScriptFallbackTrackerMock!: MockProxy<Fido2PageScriptFallbackTracker>;
   let fido2Background!: Fido2Background;
 
   beforeEach(() => {
@@ -90,6 +92,7 @@ describe("Fido2Background", () => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authServiceMock = mock<AuthService>();
     authServiceMock.activeAccountStatus$ = activeAccountStatusMock$;
+    pageScriptFallbackTrackerMock = mock<Fido2PageScriptFallbackTracker>();
     fido2Background = new Fido2Background(
       logService,
       fido2ActiveRequestManager,
@@ -97,6 +100,7 @@ describe("Fido2Background", () => {
       vaultSettingsService,
       scriptInjectorServiceMock,
       authServiceMock,
+      pageScriptFallbackTrackerMock,
     );
     fido2Background["abortManager"] = abortManagerMock;
     abortManagerMock.runWithAbortController.mockImplementation((_requestId, runner) =>
@@ -501,6 +505,38 @@ describe("Fido2Background", () => {
         );
         expect(focusTabSpy).toHaveBeenCalledWith(tabMock.id);
         expect(focusWindowSpy).toHaveBeenCalledWith(tabMock.windowId);
+      });
+    });
+
+    describe("page-script fallback tracker integration", () => {
+      it("marks the originating tab when the client surfaces fallbackRequested", async () => {
+        fido2ClientService.assertCredential.mockRejectedValue({ fallbackRequested: true });
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(pageScriptFallbackTrackerMock.markFallbackInProgress).toHaveBeenCalledWith(
+          tabMock.id,
+        );
+      });
+
+      it("does not mark the tab for a non-fallback error", async () => {
+        fido2ClientService.assertCredential.mockRejectedValue(new Error("network unavailable"));
+        const message = mock<Fido2ExtensionMessage>({
+          command: "fido2GetCredentialRequest",
+          requestId: "123",
+          data: mock<AssertCredentialParams>(),
+        });
+
+        sendMockExtensionMessage(message, senderMock);
+        await flushPromises();
+
+        expect(pageScriptFallbackTrackerMock.markFallbackInProgress).not.toHaveBeenCalled();
       });
     });
   });

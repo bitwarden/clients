@@ -347,6 +347,8 @@ import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-men
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
+import { Fido2PageScriptFallbackTracker } from "../autofill/fido2/background/fido2-page-script-fallback-tracker";
+import { Fido2WebAuthnProxyBackground } from "../autofill/fido2/background/fido2-webauthn-proxy.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import {
   BrowserFido2ParentWindowReference,
@@ -507,6 +509,7 @@ export default class MainBackground {
   migrationRunner: MigrationRunner;
   taskSchedulerService: BrowserTaskSchedulerService;
   fido2Background: Fido2BackgroundAbstraction;
+  fido2WebAuthnProxyBackground: Fido2WebAuthnProxyBackground;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
@@ -1459,6 +1462,8 @@ export default class MainBackground {
 
     // Background
 
+    const fido2PageScriptFallbackTracker = new Fido2PageScriptFallbackTracker();
+
     this.fido2Background = new Fido2Background(
       this.logService,
       this.fido2ActiveRequestManager,
@@ -1466,6 +1471,16 @@ export default class MainBackground {
       this.vaultSettingsService,
       this.scriptInjectorService,
       this.authService,
+      fido2PageScriptFallbackTracker,
+    );
+
+    this.fido2WebAuthnProxyBackground = new Fido2WebAuthnProxyBackground(
+      this.logService,
+      this.fido2ClientService,
+      this.vaultSettingsService,
+      this.authService,
+      this.configService,
+      fido2PageScriptFallbackTracker,
     );
 
     const logoutService = new DefaultLogoutService(this.messagingService);
@@ -1788,6 +1803,7 @@ export default class MainBackground {
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
+    this.fido2WebAuthnProxyBackground.init();
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();

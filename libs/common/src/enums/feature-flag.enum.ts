@@ -30,6 +30,8 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  // TODO: PM-37790 - Remove this flag once the proxy-based passkey interception ships GA.
+  UseWebAuthenticationProxy = "pm-37790-use-webauthentication-proxy",
 
   /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
@@ -142,6 +144,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.UseWebAuthenticationProxy]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
