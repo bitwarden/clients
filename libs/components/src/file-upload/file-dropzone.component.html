@@ -1,4 +1,4 @@
-<bit-form-field [labelForId]="inputId" [control]="ngControl?.control">
+<bit-form-field [control]="formFieldControl" customInput>
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
   <div bitCustomInput>
@@ -60,6 +60,9 @@
 
     <span [id]="statusId" class="tw-sr-only">{{ filesUploadedStatus() }}</span>
 
+    <!-- Hint sits between the drop area and the file list; the wrapper owns this layout. -->
+    <ng-content select="bit-hint" />
+
     @if (files().length > 0) {
       <span [id]="listLabelId" class="tw-sr-only">{{ "uploadedFiles" | i18n }}</span>
       <ul [attr.aria-labelledby]="listLabelId" class="tw-list-none tw-p-0 tw-m-0">
@@ -86,6 +89,4 @@
       </ul>
     }
   </div>
-
-  <ng-content select="bit-hint" ngProjectAs="bit-hint" />
 </bit-form-field>

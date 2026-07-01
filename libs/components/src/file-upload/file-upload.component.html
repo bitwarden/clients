@@ -1,59 +1,58 @@
-<bit-form-field [labelForId]="inputId" [control]="ngControl?.control">
+<bit-form-field [control]="formFieldControl">
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
-  <div bitCustomInput>
-    <div bitFieldContainer [hasError]="formField()?.hasError() ?? false">
-      <!-- The focusable control; bit-form-field's <label for> targets this via [id]. -->
-      <button
-        type="button"
-        [id]="inputId"
-        [attr.aria-describedby]="describedBy()"
-        [attr.aria-disabled]="disabled() || null"
-        class="tw-shrink-0 tw-whitespace-nowrap tw-rounded-s-[11px] tw-border-0 tw-border-e tw-border-border-base tw-bg-bg-quaternary tw-px-3 tw-py-2 tw-text-sm tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
+  <!-- The focusable control; bit-form-field's <label for> targets this via [id]. Rendered as a
+       real bitPrefix so it reuses the field's pill styling. -->
+  <button
+    type="button"
+    bitPrefix
+    [id]="inputId"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-disabled]="disabled() || null"
+    class="tw-whitespace-nowrap tw-border-0 tw-bg-transparent tw-py-2 tw-text-sm tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
+    [class.tw-text-fg-inactive]="disabled()"
+    (click)="openPicker()"
+    (blur)="onBlur()"
+  >
+    {{ "chooseFile" | i18n }}
+  </button>
+
+  <!-- Filename readout in the field's default content. Clickable so the whole field opens the
+       picker; not a focus stop. -->
+  <div
+    class="tw-flex tw-size-full tw-items-center"
+    [class.tw-cursor-pointer]="!disabled()"
+    [class.tw-cursor-not-allowed]="disabled()"
+    (click)="openPicker()"
+  >
+    @if (fileName(); as name) {
+      <bit-file-name [name]="name" class="tw-text-sm" />
+    } @else {
+      <span
+        class="tw-text-sm"
+        [class.tw-text-fg-body-subtle]="!disabled()"
         [class.tw-text-fg-inactive]="disabled()"
-        (click)="openPicker()"
-        (blur)="onBlur()"
       >
-        {{ "chooseFile" | i18n }}
-      </button>
-
-      <!-- Filename readout. Clickable so the whole field opens the picker; not a focus stop. -->
-      <div
-        class="tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-pe-3"
-        [class.tw-cursor-pointer]="!disabled()"
-        [class.tw-cursor-not-allowed]="disabled()"
-        (click)="openPicker()"
-      >
-        @if (fileName(); as name) {
-          <bit-file-name [name]="name" class="tw-text-sm" />
-        } @else {
-          <span
-            class="tw-text-sm"
-            [class.tw-text-fg-body-subtle]="!disabled()"
-            [class.tw-text-fg-inactive]="disabled()"
-          >
-            {{ "noFileSelected" | i18n }}
-          </span>
-        }
-      </div>
-
-      <!-- Hidden native input, invoked programmatically by the button. -->
-      <input
-        #fileInput
-        type="file"
-        class="tw-sr-only"
-        tabindex="-1"
-        aria-hidden="true"
-        [accept]="accept()"
-        [disabled]="disabled() || null"
-        (change)="onFileChange($event)"
-      />
-    </div>
-
-    <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
-      {{ fileName() ? ("fileChosen" | i18n: fileName()) : ("chooseFile" | i18n) }}
-    </span>
+        {{ "noFileSelected" | i18n }}
+      </span>
+    }
   </div>
+
+  <!-- Hidden native input, invoked programmatically by the button. -->
+  <input
+    #fileInput
+    type="file"
+    class="tw-sr-only"
+    tabindex="-1"
+    aria-hidden="true"
+    [accept]="accept()"
+    [disabled]="disabled() || null"
+    (change)="onFileChange($event)"
+  />
+
+  <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
+    {{ fileName() ? ("fileChosen" | i18n: fileName()) : ("chooseFile" | i18n) }}
+  </span>
 
   <ng-content select="bit-hint" ngProjectAs="bit-hint" />
 </bit-form-field>

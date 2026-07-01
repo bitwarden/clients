@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
@@ -13,17 +14,19 @@ import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitFieldContainerDirective } from "../form-field/field-container.directive";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
+import { BitPrefixDirective } from "../form-field/prefix.directive";
 
 import { FileNameComponent } from "./file-name.component";
 
 let nextId = 0;
 
 /**
- * A single-file picker composed over `bit-form-field`. The component is itself the form control
- * (`ControlValueAccessor`), so consumers bind it the standard way — `formControlName` /
- * `[formControl]` / `[(ngModel)]` — and its value is always a `File[]` (`[]` = no file).
+ * A single-file picker composed over `bit-form-field`. The component hosts
+ * `BitFormFieldControlDirective` and is its own `ControlValueAccessor`, so it plugs into
+ * `bit-form-field` through the normal control path and consumers bind it the standard way —
+ * `formControlName` / `[formControl]` / `[(ngModel)]`. Its value is always a `File[]`.
  *
  * @example
  * ```html
@@ -37,7 +40,8 @@ let nextId = 0;
   selector: "bit-file-upload",
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BitFieldContainerDirective, BitFormFieldComponent, FileNameComponent, I18nPipe],
+  imports: [BitFormFieldComponent, BitPrefixDirective, FileNameComponent, I18nPipe],
+  hostDirectives: [BitFormFieldControlDirective],
   host: {
     class: "tw-block",
   },
@@ -58,10 +62,10 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  // Exposed to the template so its control can be handed to `bit-form-field` for label/error state.
-  protected readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  /** The hosted control directive `bit-form-field` reads its label / required / error state from. */
+  protected readonly formFieldControl = inject(BitFormFieldControlDirective);
 
-  protected readonly formField = viewChild(BitFormFieldComponent);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
 
   private readonly _files = signal<File[]>([]);
@@ -76,15 +80,18 @@ export class FileUploadComponent implements ControlValueAccessor {
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
   protected readonly fileName = computed(() => this._files()[0]?.name);
 
-  /** Combined `aria-describedby` for the picker: form-field's hint/error plus the live status. */
+  /** form-field's hint/error target (set on our directive) plus the live status region. */
   protected readonly describedBy = computed(
-    () => [this.formField()?.describedById(), this.statusId].filter(Boolean).join(" ") || null,
+    () =>
+      [this.formFieldControl.ariaDescribedBy(), this.statusId].filter(Boolean).join(" ") || null,
   );
 
   constructor() {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+    // Point the field's <label for> at the focusable "Choose File" button rather than the host.
+    effect(() => this.formFieldControl.labelForId.set(this.inputId));
   }
 
   writeValue(value: File[] | null): void {

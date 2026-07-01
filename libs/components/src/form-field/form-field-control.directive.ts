@@ -13,13 +13,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  AbstractControl,
-  NgControl,
-  StatusChangeEvent,
-  TouchedChangeEvent,
-  Validators,
-} from "@angular/forms";
+import { NgControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
 import { filter } from "rxjs";
 
 export type InputTypes =
@@ -33,44 +27,6 @@ export type InputTypes =
   | "file"
   | "date"
   | "time";
-
-/**
- * Whether the field should show its required indicator. `requiredOverride` covers the `required`
- * attribute set independently of a `Validators.required` on the control.
- */
-export function isControlRequired(
-  control: AbstractControl | null | undefined,
-  requiredOverride = false,
-): boolean {
-  return requiredOverride || (control?.hasValidator(Validators.required) ?? false);
-}
-
-/**
- * Whether the field should surface an error: invalid + touched, plus an optional disabled variant.
- */
-export function controlHasError(
-  control: AbstractControl | null | undefined,
-  showErrorsWhenDisabled = false,
-): boolean {
-  if (control == null) {
-    return false;
-  }
-  if (showErrorsWhenDisabled) {
-    return (
-      (control.status === "INVALID" || control.status === "DISABLED") &&
-      control.touched &&
-      control.errors != null
-    );
-  }
-  return control.status === "INVALID" && control.touched;
-}
-
-/** The first error on the control as a `[key, value]` tuple, for `bit-error`. */
-export function firstControlError(control: AbstractControl | null | undefined): [string, any] {
-  const errors = control?.errors ?? {};
-  const key = Object.keys(errors)[0];
-  return [key, errors[key]];
-}
 
 let nextId = 0;
 
@@ -103,17 +59,28 @@ export class BitFormFieldControlDirective implements AfterViewInit {
   readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
   readonly required: Signal<boolean> = computed(() => {
     this.controlEvent();
-    return isControlRequired(this.ngControl?.control, this.requiredInput());
+    return (
+      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
+    );
   });
 
   readonly showErrorsWhenDisabled = input(false);
   readonly hasError: Signal<boolean> = computed(() => {
     this.controlEvent();
-    return controlHasError(this.ngControl?.control, this.showErrorsWhenDisabled());
+    if (this.showErrorsWhenDisabled()) {
+      return !!(
+        (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
+        this.ngControl?.touched &&
+        this.ngControl?.errors != null
+      );
+    }
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
   });
 
   get error(): [string, any] {
-    return firstControlError(this.ngControl?.control);
+    const errors = this.ngControl?.errors ?? {};
+    const key = Object.keys(errors)[0];
+    return [key, errors[key]];
   }
 
   ngAfterViewInit() {

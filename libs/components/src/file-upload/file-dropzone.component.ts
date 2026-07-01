@@ -18,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonComponent } from "../button/button.component";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
@@ -51,6 +52,7 @@ let nextId = 0;
     IconTileComponent,
     I18nPipe,
   ],
+  hostDirectives: [BitFormFieldControlDirective],
   host: {
     class: "tw-block",
   },
@@ -77,12 +79,12 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  // Exposed to the template so its control can be handed to `bit-form-field` for label/error state.
-  protected readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  /** The hosted control directive `bit-form-field` reads its label / required / error state from. */
+  protected readonly formFieldControl = inject(BitFormFieldControlDirective);
   private readonly i18nService = inject(I18nService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
 
-  private readonly formField = viewChild(BitFormFieldComponent);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   private readonly deleteButtons = viewChildren("deleteBtn", { read: ElementRef });
 
@@ -121,7 +123,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
   protected readonly describedBy = computed(
     () =>
-      [this.formField()?.describedById(), this.files().length > 0 ? this.statusId : null]
+      [this.formFieldControl.ariaDescribedBy(), this.files().length > 0 ? this.statusId : null]
         .filter(Boolean)
         .join(" ") || null,
   );
@@ -146,7 +148,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
     if (this.disabled()) {
       base.push("tw-text-fg-inactive", "tw-border-border-base", "!tw-cursor-not-allowed");
-    } else if (this.formField()?.hasError()) {
+    } else if (this.formFieldControl.hasError()) {
       base.push("tw-border-border-danger", "tw-cursor-pointer");
     } else if (this.isDragOver()) {
       base.push("tw-border-border-strong", "tw-cursor-pointer");
@@ -161,6 +163,8 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+    // Point the field's <label for> at the dropzone's internal file input.
+    effect(() => this.formFieldControl.labelForId.set(this.inputId));
     // After a removal, restore focus to a sensible neighbor (the next delete button, or the
     // dropzone itself when the list is now empty).
     effect(() => {
