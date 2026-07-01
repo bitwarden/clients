@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, error, trace, warn};
+use tracing::{debug, error, info, trace, warn};
 
 use super::{
     auth_policy::{AuthPolicy, AuthRequest, SignRequest},
@@ -227,7 +227,7 @@ async fn handle_list_request<K: KeyStore, A: AuthPolicy>(
     };
 
     if !authorized {
-        debug!("List request denied by auth policy");
+        info!("List request denied.");
         return failure();
     }
 
@@ -417,14 +417,14 @@ mod tests {
 
     #[tokio::test]
     async fn list_request_when_denied_returns_failure() {
-        let keystore = Arc::new(MockKeyStore::new());
+        let keystore = MockKeyStore::new();
         let auth_policy = Arc::new(AlwaysDenyPolicy);
 
         let response = super::handle_message(
             &[REQUEST_IDENTITIES],
             None,
             &SessionBindState::default(),
-            &keystore,
+            &Arc::new(keystore),
             &auth_policy,
         )
         .await;
