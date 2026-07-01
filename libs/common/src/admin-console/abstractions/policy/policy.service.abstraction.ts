@@ -21,6 +21,8 @@ export abstract class PolicyService {
   /**
    * @returns all {@link Policy} objects of a given type that apply to the specified user.
    * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
+   * Policies are evaluated using the SDK and are enforced for organizations the user is in an
+   * accepted or confirmed status.
    * @param policyType the {@link PolicyType} to search for
    * @param userId the {@link UserId} to search against
    */
