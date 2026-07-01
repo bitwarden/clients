@@ -34,6 +34,7 @@ fn main() {
 
 /// Handles initialization and registration for the Bitwarden desktop app as a
 /// For now, also adds the authenticator
+#[allow(clippy::print_stdout)]
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set the custom panic hook
@@ -44,7 +45,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Only pause if not running in a debugger, etc.
         // On Windows, if the process is a console app, stdin/stdout might work differently
         // when launched from Explorer vs a terminal.
-
         println!("\nProgram panicked! Press Enter to exit...");
         std::io::stdin()
             .read_line(&mut String::new())
@@ -120,7 +120,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     -1 => {
                         let err = windows::core::Error::from_thread();
                         tracing::error!(%err, "Failed to read message from message loop, stopping server.");
-                        return Err(err)?;
+                        Err(err)?;
                     }
                     _ => unsafe {
                         let msg = msg.assume_init_ref();
@@ -133,13 +133,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Some(invalid) => {
             tracing::error!("Invalid command argument passed: {invalid}. Specify one of [serve]");
-            return Err(format!(
+            Err(format!(
                 "No command argument passed: {invalid}. Specify one of [serve]"
             ))?;
         }
         None => {
             tracing::error!("No command argument passed. Specify one of [serve]");
-            return Err("No command argument passed. Specify one of [serve]")?;
+            Err("No command argument passed. Specify one of [serve]")?;
         }
     };
 

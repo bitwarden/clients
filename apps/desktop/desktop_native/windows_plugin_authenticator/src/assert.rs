@@ -186,8 +186,9 @@ fn create_get_assertion_response(
 
 #[cfg(test)]
 mod tests {
-    use super::create_get_assertion_response;
     use win_webauthn::{CborParser, CborValue};
+
+    use super::create_get_assertion_response;
 
     #[test]
     fn test_create_native_assertion_response() {

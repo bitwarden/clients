@@ -15,15 +15,19 @@ impl HwndExt for HWND {
             GetWindowRect(*self, &mut window)?;
 
             // Calculate center in physical pixels
+            // when running as a separate process, we're not DPI aware, so the pixels are logical
+            // pixels, so we can return them directly.
             let center = (
                 (window.right + window.left) / 2,
                 (window.bottom + window.top) / 2,
             );
+            tracing::trace!(
+                "Passkey plugin client window coordinates for {:?}: {:?}",
+                *self,
+                center
+            );
 
-            tracing::debug!("Coordinates for {:?}: {center:?}", *self);
-            // when running as a separate process, we're not DPI aware, so the pixels are logical
-            // pixels
-            return Ok(center);
+            Ok(center)
         }
     }
 }
@@ -35,9 +39,10 @@ pub fn create_context_string(transaction_id: GUID, request_hash: &[u8]) -> Strin
 
 #[cfg(test)]
 mod tests {
-    use super::create_context_string;
     use base64::engine::{general_purpose::STANDARD, Engine as _};
     use windows::core::GUID;
+
+    use super::create_context_string;
 
     #[test]
     fn context_string_guid_round_trips() {

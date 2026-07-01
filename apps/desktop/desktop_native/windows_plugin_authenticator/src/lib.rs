@@ -2,12 +2,11 @@
 use std::{collections::HashSet, io::Read, path::PathBuf};
 
 use serde::Deserialize;
-use windows::ApplicationModel::Package;
-
 use win_webauthn::{
     plugin::{Clsid, PluginAddAuthenticatorOptions, WebAuthnPlugin},
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
+use windows::ApplicationModel::Package;
 
 pub const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
 pub const RPID: &str = "bitwarden.com";
@@ -31,7 +30,7 @@ pub fn register() -> Result<(), String> {
         dark_theme_logo_svg: Some(logo.to_string()),
         authenticator_info: AuthenticatorInfo {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
-            aaguid: aaguid,
+            aaguid,
             options: Some(HashSet::from([
                 "rk".to_string(),
                 "up".to_string(),
@@ -131,6 +130,9 @@ mod tests {
     fn parse_config_error_message_mentions_config_file() {
         let json = b"{}";
         let err = parse_config(json.as_slice()).unwrap_err();
-        assert!(err.contains("authenticator config file"), "error was: {err}");
+        assert!(
+            err.contains("authenticator config file"),
+            "error was: {err}"
+        );
     }
 }

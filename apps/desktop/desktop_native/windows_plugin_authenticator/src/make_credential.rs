@@ -8,7 +8,6 @@ use autofill_provider::{
     CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
     TimedCallback, UserVerification, WindowDetails,
 };
-use serde_json;
 use win_webauthn::{
     plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
     CborParser, CborValue, CtapTransport,
@@ -89,7 +88,7 @@ pub fn make_credential(
         user_name,
         client_data_hash,
         excluded_credentials,
-        user_verification: user_verification,
+        user_verification,
         supported_algorithms,
         client_window,
         context: Some(context),
@@ -98,7 +97,7 @@ pub fn make_credential(
     tracing::debug!("Make credential request - RP: {rp_id}");
 
     if let Ok(()) = cancellation_token.try_recv() {
-        return Err(format!("Request {:?} cancelled", request.transaction_id))?;
+        Err(format!("Request {:?} cancelled", request.transaction_id))?;
     }
 
     // Send registration request
@@ -115,13 +114,13 @@ pub fn make_credential(
     Ok(webauthn_response)
 }
 
-/// Helper for registration requests  
+/// Helper for registration requests
 fn send_registration_request(
     ipc_client: &dyn IpcClient,
     request: PasskeyRegistrationRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<PasskeyRegistrationResponse, String> {
-    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}", 
+    tracing::debug!("Registration request data - RP ID: {}, User ID: {} bytes, Client data hash: {} bytes, Algorithms: {:?}, Excluded credentials: {}",
         request.rp_id, request.user_handle.len(), request.client_data_hash.len(), request.supported_algorithms, request.excluded_credentials.len());
 
     let callback = Arc::new(TimedCallback::new());
@@ -171,7 +170,7 @@ fn create_make_credential_response(
         .to_vec();
     let attestation = PluginMakeCredentialResponse {
         format_type: att_fmt,
-        authenticator_data: authenticator_data,
+        authenticator_data,
         attestation_statement: None,
         attestation_object: None,
         credential_id: None,
@@ -193,8 +192,9 @@ fn create_make_credential_response(
 
 #[cfg(test)]
 mod tests {
-    use super::create_make_credential_response;
     use win_webauthn::CborWriter;
+
+    use super::create_make_credential_response;
 
     fn build_attestation_object(fmt: &str, auth_data: &[u8]) -> Vec<u8> {
         let mut buf = Vec::new();
@@ -227,7 +227,7 @@ mod tests {
         let mut writer = CborWriter::new(&mut buf);
         writer.write_map_start(1).unwrap();
         writer.write_text("authData").unwrap();
-        writer.write_bytes(&[1, 2, 3, 4]).unwrap();
+        writer.write_bytes([1, 2, 3, 4]).unwrap();
         assert!(create_make_credential_response(buf).is_err());
     }
 

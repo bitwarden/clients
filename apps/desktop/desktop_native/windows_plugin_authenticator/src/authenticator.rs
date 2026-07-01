@@ -38,10 +38,10 @@ pub(super) fn run_server(clsid: Clsid) -> Result<WebAuthnPlugin, String> {
     };
     let mut plugin = WebAuthnPlugin::new(clsid);
 
-    let r = plugin
+    plugin
         .register_server(authenticator_handler)
         .map_err(|err| err.to_string())?;
-    tracing::debug!("Registered the com library: {:?}", r);
+    tracing::debug!("Registered the com library");
     Ok(plugin)
 }
 
@@ -56,10 +56,14 @@ struct BitwardenPluginAuthenticator<Conn: IpcConnector> {
 impl<Conn: IpcConnector> BitwardenPluginAuthenticator<Conn> {
     fn get_client(&self) -> Result<Arc<Conn::Client>, String> {
         {
-            let mut client = self.client.lock().unwrap();
+            let mut client = self.client.lock().expect("not poisoned");
             match client.as_ref().map(|c| c.get_connection_status()) {
-                Some(ConnectionStatus::Connected | ConnectionStatus::Connecting) => {
-                    return Ok(client.as_ref().unwrap().clone());
+                Some(
+                    status @ ConnectionStatus::Connected | status @ ConnectionStatus::Connecting,
+                ) => {
+                    return client.as_ref()
+                        .cloned()
+                        .ok_or_else(|| format!("Connection status marked as {status:?}, but could not find reference to client"));
                 }
                 Some(ConnectionStatus::Disconnected) => {
                     tracing::debug!("IPC connection dropped, reconnecting");
@@ -86,7 +90,7 @@ impl<Conn: IpcConnector> BitwardenPluginAuthenticator<Conn> {
                 self.connector.sleep(wait_time);
                 continue;
             }
-            let mut client = self.client.lock().unwrap();
+            let mut client = self.client.lock().expect("not poisoned");
             if let Some(c) = client.as_ref() {
                 return Ok(c.clone()); // another thread connected while we slept
             }
@@ -110,7 +114,7 @@ impl<Conn: IpcConnector> BitwardenPluginAuthenticator<Conn> {
             self.connector.sleep(Duration::from_millis(200));
         }
         // Reset so the next get_client() starts a fresh connection attempt.
-        *self.client.lock().unwrap() = None;
+        *self.client.lock().expect("not poisoned") = None;
         Err("Timed out waiting for IPC connection to be established".to_string())
     }
 }
@@ -157,7 +161,7 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
         // Present the window if necessary
         let is_unlocked = client
             .get_lock_status(Duration::from_secs(3))
-            .map_or(false, |response| response.is_unlocked);
+            .is_ok_and(|response| response.is_unlocked);
         let needs_ui = needs_ui_for_assertion(is_unlocked, request.allow_credentials().count());
         if needs_ui {
             present_window(client.as_ref())?
@@ -196,7 +200,7 @@ impl<C: IpcConnector> PluginAuthenticator for BitwardenPluginAuthenticator<C> {
         {
             _ = cancellation_token.send(());
             let client = self.get_client()?;
-            let context = STANDARD.encode(transaction_id.to_u128().to_le_bytes().to_vec());
+            let context = STANDARD.encode(transaction_id.to_u128().to_le_bytes());
             tracing::debug!("Sending cancel operation for context: {context}");
             client.send_native_status("cancel-operation".to_string(), context);
         }
@@ -287,15 +291,17 @@ impl TryFrom<WindowHandleQueryResponse> for WindowDetails {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::ipc::{IpcClient, IpcConnector};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
     use autofill_provider::{
         ConnectionStatus, LockStatusResponse, PasskeyAssertionRequest,
         PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
         PreparePasskeyAssertionCallback, PreparePasskeyRegistrationCallback,
         WindowHandleQueryResponse,
     };
-    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    use super::*;
+    use crate::ipc::{IpcClient, IpcConnector};
 
     // -----------------------------------------------------------------------
     // Mock IPC client
