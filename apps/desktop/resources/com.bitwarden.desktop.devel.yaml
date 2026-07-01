@@ -15,7 +15,6 @@ finish-args:
   # fixed. The follow-up task is https://bitwarden.atlassian.net/browse/PM-31080.
   - --socket=x11
   - --device=dri
-  - --env=XDG_CURRENT_DESKTOP=Unity
   - --env=XCURSOR_PATH=/run/host/user-share/icons:/run/host/share/icons
   - --talk-name=org.kde.StatusNotifierWatcher
   - --talk-name=org.freedesktop.Notifications
