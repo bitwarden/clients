@@ -42,6 +42,7 @@ import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
 import { ColumnName } from "./column";
 import { FILTER_HOST, FilterHost } from "./filter-host";
 import { SortState, cycleSort } from "./sort-model";
+import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 
@@ -138,6 +139,18 @@ type RenderItem<T> =
   selector: "bit-table-v2",
   exportAs: "bitTableV2",
   templateUrl: "./table-v2.component.html",
+  // The header row scrolls horizontally in sync with the body; hide its own
+  // scrollbar so the body owns the single visible one.
+  styles: [
+    `
+      [data-hide-scrollbar] {
+        scrollbar-width: none;
+      }
+      [data-hide-scrollbar]::-webkit-scrollbar {
+        display: none;
+      }
+    `,
+  ],
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,
@@ -149,6 +162,7 @@ type RenderItem<T> =
     IconComponent,
     NoItemsComponent,
     SkeletonTextComponent,
+    SyncScrollLeftDirective,
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -563,6 +577,15 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     }
     return parts.join(" ");
   });
+
+  /**
+   * The table's horizontal scroll position, shared across its scroll containers —
+   * the header row and the body (the non-virtualized scroll div or the CDK
+   * viewport). {@link SyncScrollLeftDirective} two-way binds each to this signal,
+   * so scrolling any one moves them all in lockstep: the columns stay aligned
+   * while the header stays pinned vertically.
+   */
+  protected readonly horizontalScroll = signal(0);
 
   /** Registers a column. Called by {@link BitColumnComponent} via DI. */
   register(col: BitColumnComponent): void {

@@ -680,6 +680,83 @@ export const Scrollable: Story = {
   }),
 };
 
+type WideRow = {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  role: string;
+  location: string;
+  status: string;
+  updated: string;
+};
+
+const wideTable = defineTable<WideRow>(
+  signal(
+    [...Array(50).keys()].map((i) => ({
+      id: i + 1,
+      name: `Person ${i + 1}`,
+      email: `person${i + 1}@example.com`,
+      department: ["Engineering", "Design", "Support", "Sales"][i % 4],
+      role: ["Member", "Admin", "Owner"][i % 3],
+      location: ["Remote", "New York", "Berlin", "Tokyo"][i % 4],
+      status: i % 2 === 0 ? "Active" : "Invited",
+      updated: `2026-06-${String((i % 28) + 1).padStart(2, "0")}`,
+    })),
+  ),
+);
+
+/**
+ * Fixed-width columns whose combined width exceeds the table, in a width-capped
+ * container to force horizontal overflow. The header row and body are synced
+ * horizontal scroll containers, so scrolling either keeps the columns aligned while
+ * the header stays pinned vertically. The same wiring drives the virtualized body —
+ * swap in `[virtualRowHeight]` and it holds.
+ */
+export const ManyColumns: Story = {
+  render: () => ({
+    props: { table: wideTable },
+    template: `
+      <div class="tw-max-w-3xl">
+        <bit-table-v2 [tableDef]="table" [virtualRowHeight]="48" [height]="8">
+          <bit-column width="64px">
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column width="200px" sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column width="240px">
+            <bit-header-cell>Email</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.email; let row">{{ row.email }}</bit-cell>
+          </bit-column>
+          <bit-column width="160px" sortable>
+            <bit-header-cell>Department</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.department; let row">{{ row.department }}</bit-cell>
+          </bit-column>
+          <bit-column width="140px">
+            <bit-header-cell>Role</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.role; let row">{{ row.role }}</bit-cell>
+          </bit-column>
+          <bit-column width="160px">
+            <bit-header-cell>Location</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.location; let row">{{ row.location }}</bit-cell>
+          </bit-column>
+          <bit-column width="140px" sortable>
+            <bit-header-cell>Status</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.status; let row">{{ row.status }}</bit-cell>
+          </bit-column>
+          <bit-column width="160px" sortable>
+            <bit-header-cell>Updated</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.updated; let row">{{ row.updated }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      </div>
+    `,
+  }),
+};
+
 /**
  * `height="fill"` makes the table grow to its container's height and scroll
  * internally, instead of sizing to content. Dropped into a `bit-page` body — a

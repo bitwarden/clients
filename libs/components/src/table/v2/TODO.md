@@ -23,6 +23,13 @@ Grouping (`<bit-row-group>`) currently renders only in the **non-virtualized** b
   predicate `<bit-row-group>`s, for group sets too large to declare by hand.
 - **ARIA.** Group headers render as plain elements; revisit `role="rowgroup"` / heading semantics.
 
+## Horizontal scroll — remaining
+
+Fixed-width columns wider than the table scroll horizontally, with the header row synced to the
+body's `scrollLeft` for both the non-virtualized div and the CDK viewport (`table-v2.component.html`,
+`ManyColumns` story). Follow-up: a **sticky first column** (`position: sticky; left: 0` on the lead
+track — e.g. name or the selection checkbox) so it stays visible while the rest scrolls.
+
 ## Presentation
 
 - **List-mode sort control.** Sort headers are hidden in `list` presentation (no focusable
