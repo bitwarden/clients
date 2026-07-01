@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "electron-devtools": {
+    "electron-devtools-attach": {
       "type": "stdio",
       "command": "npx",
       "args": [
@@ -8,9 +8,10 @@
         "--browserUrl=http://localhost:9222",
         "--experimental-screencast"
       ],
-      "env": {}
+      "env": {},
+      "__comment": "This server is used to attach to a running electron app"
     },
-    "chrome-devtools": {
+    "chrome-devtools-attach": {
       "type": "stdio",
       "command": "npx",
       "args": [
@@ -19,7 +20,21 @@
         "--experimental-screencast",
         "--categoryExtensions"
       ],
-      "env": {}
+      "env": {},
+      "__comment": "This server is used to attach to a running chrome instance"
+    },
+    "chrome-devtools-headless": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@1.2.0",
+        "--experimental-screencast",
+        "--headless",
+        "--isolated",
+        "--categoryExtensions"
+      ],
+      "env": {},
+      "__comment": "This server is used for headless Chrome debugging. It can be launched concurrently"
     }
   }
 }
