@@ -78,6 +78,8 @@ describe("SettingsV2Component", () => {
 
     mockAutofillSettingsService = {
       showClipboardSettingUpdateNotification$: of(false),
+      autofillBrowserNudgeDisabled$: of(false),
+      setAutofillBrowserNudgeDisabled: jest.fn().mockResolvedValue(undefined),
     };
 
     jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue("Chrome");

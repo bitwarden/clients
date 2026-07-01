@@ -5171,6 +5171,12 @@
   "itemSuggestions": {
     "message": "Suggested items"
   },
+    "disableAutofillSetupNudge": {
+    "message": "Don't show reminders to disable the browser password manager"
+  },
+  "disableAutofillSetupNudgeHint": {
+    "message": "Hide the banner and settings badge prompting you to turn off built-in saved passwords (for example Chrome or Edge)."
+  },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
   },
