@@ -914,7 +914,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-      this.configService,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
