@@ -9,6 +9,7 @@ import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/ab
 import { ClientType } from "@bitwarden/common/enums";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -17,6 +18,7 @@ import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-util
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 
+import { UnlockViaWebAuthnComponentService } from "./unlock-via-webauthn-component.service";
 import { WebAuthnPrfUnlockService } from "./webauthn-prf-unlock.service";
 
 export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService {
@@ -30,6 +32,8 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     private platformUtilsService: PlatformUtilsService,
     private window: Window,
     private logService: LogService,
+    private configService: ConfigService,
+    private unlockViaWebAuthnComponentService?: UnlockViaWebAuthnComponentService,
   ) {
     this.navigatorCredentials = this.window.navigator.credentials;
   }
@@ -41,11 +45,8 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         return false;
       }
 
-      // PRF unlock is only supported on Web and Chromium-based browser extensions
+      // PRF unlock is supported on Web and browser extensions (including Firefox via relay)
       const clientType = this.platformUtilsService.getClientType();
-      if (clientType === ClientType.Browser && !this.platformUtilsService.isChromium()) {
-        return false;
-      }
       if (clientType !== ClientType.Web && clientType !== ClientType.Browser) {
         return false;
       }
@@ -95,6 +96,11 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
       throw new Error("No PRF credentials available for unlock");
     }
 
+    // Check if we should use the web vault relay mechanism (Firefox)
+    if (this.unlockViaWebAuthnComponentService?.shouldUseWebVaultRelay()) {
+      return this.unlockVaultWithPrfViaRelay(userId, credentials);
+    }
+
     const response = await this.performWebAuthnGetWithPrf(credentials, userId);
     const prfKey = await this.createPrfKeyFromResponse(response);
     const prfOption = await this.getPrfOptionForCredential(response.id, userId);
@@ -119,6 +125,38 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     }
 
     return userKey as UserKey;
+  }
+
+  /**
+   * Unlocks the vault using WebAuthn PRF via the web vault relay mechanism.
+   * Used for Firefox which cannot call credentials.get() with a custom RP ID from an extension.
+   *
+   * Note: This method opens the relay tab and returns. The actual unlock is completed
+   * by the unlock result popout component. This method never returns successfully - it
+   * either throws immediately on error, or the relay flow handles the unlock separately.
+   *
+   * @param userId The user ID to unlock vault for
+   * @param credentials Available PRF credentials for the user
+   * @throws Error always throws since the unlock is handled by the result popout
+   */
+  private async unlockVaultWithPrfViaRelay(
+    userId: UserId,
+    credentials: { credentialId: string; transports: string[] }[],
+  ): Promise<UserKey> {
+    this.logService.info("[PasskeyUnlockRelay] Starting relay-based PRF unlock");
+
+    if (!this.unlockViaWebAuthnComponentService) {
+      throw new Error("UnlockViaWebAuthnComponentService is required for relay-based unlock");
+    }
+
+    // Open the web vault relay tab
+    await this.unlockViaWebAuthnComponentService.openWebVaultRelayTab();
+
+    // The relay tab has been opened. The actual unlock will happen in the
+    // unlock result popout component when the user completes the WebAuthn flow.
+    // We throw a specific error that the caller can recognize to know the
+    // relay flow has been initiated.
+    throw new Error("RelayFlowInitiated");
   }
 
   /**

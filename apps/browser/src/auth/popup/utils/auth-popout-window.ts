@@ -10,6 +10,7 @@ const AuthPopoutType = {
   twoFactorAuthWebAuthn: "auth_twoFactorAuthWebAuthn",
   twoFactorAuthEmail: "auth_twoFactorAuthEmail",
   twoFactorAuthDuo: "auth_twoFactorAuthDuo",
+  passkeyResult: "auth_passkeyResult",
 } as const;
 
 const extensionUnlockUrls = new Set([
@@ -144,6 +145,23 @@ async function closeTwoFactorAuthDuoPopout() {
   await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.twoFactorAuthDuo);
 }
 
+/**
+ * Opens a popout that facilitates completing passkey result (login or unlock) with PRF.
+ */
+async function openPasskeyResultPopout(type: "login" | "unlock") {
+  const route = type === "login" ? "login-with-passkey-result" : "unlock-with-passkey-result";
+  await BrowserPopupUtils.openPopout(`popup/index.html#/${route}`, {
+    singleActionKey: AuthPopoutType.passkeyResult,
+  });
+}
+
+/**
+ * Closes the passkey result popout.
+ */
+async function closePasskeyResultPopout() {
+  await BrowserPopupUtils.closeSingleActionPopout(AuthPopoutType.passkeyResult);
+}
+
 export {
   AuthPopoutType,
   openUnlockPopout,
@@ -156,4 +174,6 @@ export {
   closeTwoFactorAuthEmailPopout,
   openTwoFactorAuthDuoPopout,
   closeTwoFactorAuthDuoPopout,
+  openPasskeyResultPopout,
+  closePasskeyResultPopout,
 };

@@ -12,8 +12,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultLoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/default-login-via-webauthn-component.service";
-import { LoginViaWebAuthnComponentService } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn-component.service";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -34,8 +32,10 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
+  DefaultLoginViaWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
+  LoginViaWebAuthnComponentService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
   SsoComponentService,
   TwoFactorAuthDuoComponentService,
@@ -139,6 +139,8 @@ import {
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
+  UnlockViaWebAuthnComponentService,
+  DefaultUnlockViaWebAuthnComponentService,
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
@@ -540,7 +542,14 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsService,
       WINDOW,
       LogService,
+      ConfigService,
+      UnlockViaWebAuthnComponentService,
     ],
+  }),
+  safeProvider({
+    provide: UnlockViaWebAuthnComponentService,
+    useClass: DefaultUnlockViaWebAuthnComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: ChangeEmailService,
@@ -552,6 +561,11 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       KeyServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: LoginViaWebAuthnComponentService,
+    useClass: DefaultLoginViaWebAuthnComponentService,
+    deps: [],
   }),
 ];
 

@@ -9,7 +9,9 @@ import {
   TwoFactorAuthSecurityKeyIcon,
   TwoFactorAuthSecurityKeyFailedIcon,
 } from "@bitwarden/assets/svg";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// These imports have been flagged as unallowed for this class. They may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LoginViaWebAuthnComponentService } from "@bitwarden/auth/angular";
 // eslint-disable-next-line no-restricted-imports
 import { LoginSuccessHandlerService } from "@bitwarden/auth/common";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
@@ -31,8 +33,6 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 
 import { JslibModule } from "../../jslib.module";
-
-import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component.service";
 
 export type State = "assert" | "assertFailed";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -76,6 +76,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
 
   constructor(
     private webAuthnLoginService: WebAuthnLoginServiceAbstraction,
+    private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
     private router: Router,
     private route: ActivatedRoute,
     private logService: LogService,
@@ -86,7 +87,6 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
-    private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
   ) {
     this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
     this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
@@ -112,6 +112,26 @@ export class LoginViaWebAuthnComponent implements OnInit {
   }
 
   private async authenticate() {
+    // Check if we should use the web vault relay mechanism (Firefox)
+    if (this.loginViaWebAuthnComponentService.shouldUseWebVaultRelay()) {
+      // Firefox path: hand off to the web vault connector page.
+      // The result comes back asynchronously via the background message handler,
+      // which will open the /login-with-passkey-result popout to complete login.
+      try {
+        await this.loginViaWebAuthnComponentService.openWebVaultRelayTab();
+        // Show "waiting" state - the actual login will happen in the result popout
+        this.currentState = "assert";
+        // The current popup window will be replaced by the result popout when done.
+        return;
+      } catch (error) {
+        this.validationService.showError(error);
+        this.currentState = "assertFailed";
+        this.setFailureIcon();
+        return;
+      }
+    }
+
+    // Chromium/Desktop path: call credentials.get() directly
     let assertion: WebAuthnLoginCredentialAssertionView;
     try {
       const options = await this.webAuthnLoginService.getCredentialAssertionOptions();

@@ -72,8 +72,9 @@ export class ExtensionLoginComponentService
   }
 
   /**
-   * Enable passkey login support for chromium-based browsers only.
-   * Neither Firefox nor safari support overriding the relying party ID in an extension.
+   * Enable passkey login support for chromium-based browsers and Firefox.
+   * Firefox is now supported via the web vault relay mechanism.
+   * Safari remains unsupported (different restrictions, no passkey support in extension context).
    *
    * https://github.com/w3c/webextensions/issues/238
    *
@@ -82,6 +83,8 @@ export class ExtensionLoginComponentService
    * https://developer.apple.com/forums/thread/774351
    */
   isLoginWithPasskeySupported(): boolean {
-    return this.platformUtilsService.isChromium();
+    // Firefox is now supported via the web vault relay mechanism.
+    // Safari remains unsupported (different restrictions, no passkey support in extension context).
+    return this.platformUtilsService.isChromium() || this.platformUtilsService.isFirefox();
   }
 }
