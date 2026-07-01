@@ -102,6 +102,7 @@ describe("PoliciesComponent", () => {
     mockPolicyService.policies$.mockReturnValue(of([]));
 
     mockConfigService = mock<ConfigService>();
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
@@ -392,6 +393,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -479,6 +481,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -497,8 +500,6 @@ describe("PoliciesComponent", () => {
 
   describe("edit", () => {
     it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
@@ -507,6 +508,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -525,8 +527,6 @@ describe("PoliciesComponent", () => {
     });
 
     it("should call custom dialog open method when specified", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
       const mockDialogRef = { close: jest.fn() };
       const mockCustomDialog = {
         open: jest.fn().mockReturnValue(mockDialogRef),
@@ -541,6 +541,7 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockCustomDialog as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -558,8 +559,6 @@ describe("PoliciesComponent", () => {
     });
 
     it("should pass organization to dialog", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
       const customOrg = { id: newGuid() as OrganizationId, name: "Custom Org" } as Organization;
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
@@ -569,6 +568,7 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -587,7 +587,11 @@ describe("PoliciesComponent", () => {
     });
 
     it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(PoliciesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
       const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {
@@ -604,6 +608,7 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
+        showEnabledBadge: false,
         display$: () => of(true),
       };
 

@@ -979,6 +979,9 @@
   "close": {
     "message": "Fermer"
   },
+  "done": {
+    "message": "Terminé"
+  },
   "delete": {
     "message": "Supprimer"
   },
@@ -1203,6 +1206,10 @@
     "message": "Nouvelle Note",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Nouvelle note sécurisée",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Nouvelle clé SSH",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Modifier la Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Modifier la note de sécurité",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Modifier la clé SSH",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "Afficher la Note",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Afficher la note sécurisée",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Afficher la clé SSH",
@@ -1619,6 +1634,45 @@
   "deleteItem": {
     "message": "Supprimer l'élément"
   },
+  "deleteItemsCount": {
+    "message": "Supprimer $COUNT$ éléments",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Cet élément sera envoyé à votre corbeille. Après 30 jours, il sera définitivement supprimé."
+  },
+  "deleteItemsDesc": {
+    "message": "Ces éléments seront envoyés à votre corbeille. Après 30 jours, ils seront supprimés définitivement."
+  },
+  "deleteItemPermanently": {
+    "message": "Supprimer l'élément définitivement"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Supprimer $COUNT$ éléments définitivement",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Vous ne pourrez pas récupérer cet élément."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Vous ne pourrez pas récupérer ces éléments."
+  },
+  "deleteSelection": {
+    "message": "Supprimer la sélection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Les éléments et les collections sélectionnés seront supprimés définitivement."
+  },
   "deleteFolder": {
     "message": "Supprimer le dossier"
   },
@@ -1739,9 +1793,6 @@
   "needAnotherOptionV1": {
     "message": "Besoin d'une autre option ?"
   },
-  "loginWithMasterPassword": {
-    "message": "Se connecter avec le mot de passe principal"
-  },
   "readingPasskeyLoading": {
     "message": "Lecture de la clé d'accès..."
   },
@@ -1751,7 +1802,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Échec de l'authentification par clé d'accès. Veuillez réessayer."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Utiliser une méthode de connexion différente"
   },
   "logInWithPasskey": {
@@ -1763,7 +1814,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Votre organisation nécessite une authentification unique."
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Content de vous revoir"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1916,7 @@
   "logIn": {
     "message": "Se connecter"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Se connecter à Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +2018,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Entrez l'adresse courriel de votre compte et l'indice de votre mot de passe vous sera envoyé"
-  },
-  "getMasterPasswordHint": {
-    "message": "Obtenir l'indice du mot de passe principal"
   },
   "emailRequired": {
     "message": "L'adresse électronique est requise."
@@ -2285,6 +2333,24 @@
   },
   "deleteSelectedConfirmation": {
     "message": "Êtes-vous sûr(e) de vouloir continuer ?"
+  },
+  "deleteCollection": {
+    "message": "Supprimer la collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Supprimer $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Cette collection sera supprimée définitivement."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Ces collections seront supprimées définitivement."
   },
   "moveSelectedItemsDesc": {
     "message": "Choisissez un dossier dans lequel vous souhaitez ajouter le(s) $COUNT$ élément(s) sélectionné(s).",
@@ -2886,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Ne pas autoriser les membres à créer des types d'éléments de carte. Les cartes existantes seront automatiquement supprimées."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Ne pas autoriser les membres à créer et enregistrer des éléments de carte de crédit dans leurs coffres. Lorsque cette politique est activée, les cartes existantes seront automatiquement cachées."
   },
   "restrictCardTypeImport": {
     "message": "Impossible d'importer les types de l'élément de la carte"
@@ -3740,6 +3809,60 @@
       }
     }
   },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "En guise de remerciement pour avoir été un client de longue date de Bitwarden, nous aimerions vous offrir une réduction de $AMOUNT$ à tous les $INTERVAL$ pour $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "$AMOUNT$ de réduction à chaque $INTERVAL$ a été appliqué pour $DURATION$.",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$DISCOUNT$ de réduction pour $LENGTH$ $DURATION$",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
   "neverExpires": {
     "message": "N'expire jamais"
   },
@@ -3766,6 +3889,27 @@
   },
   "discountApplied": {
     "message": "Réduction appliquée"
+  },
+  "discountForOneYear": {
+    "message": "pour un an"
+  },
+  "discountForMonths": {
+    "message": "pour $COUNT$ mois",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "jusqu'à $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "Le rabais a expiré. Veuillez vérifier le total de votre panier et réessayer."
@@ -4359,6 +4503,9 @@
   "adminDesc": {
     "message": " Les administrateurs peuvent voir et gérer tous les éléments, les collections et les utilisateurs de votre organisation."
   },
+  "adminRoleDesc": {
+    "message": "Gérer toutes les collections, les membres, les rapports et les paramètres de sécurité"
+  },
   "user": {
     "message": "Utilisateur"
   },
@@ -4794,6 +4941,12 @@
   "deletedCollections": {
     "message": "Collections supprimées"
   },
+  "collectionDeleted": {
+    "message": "Collection supprimée"
+  },
+  "collectionsDeleted": {
+    "message": "Collections supprimées"
+  },
   "deletedCollectionId": {
     "message": "Collection $ID$ supprimée.",
     "placeholders": {
@@ -4808,6 +4961,9 @@
   },
   "discardEditsConfirmation": {
     "message": "Si vous fermez cette vue, vos modifications non enregistrées seront annulées."
+  },
+  "discardEdits": {
+    "message": "Annuler les modifications"
   },
   "keepEditing": {
     "message": "Continuer à modifier"
@@ -5820,8 +5976,8 @@
   "nothingSelected": {
     "message": "Vous n'avez rien sélectionné."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Obtenez des conseils, des annonces et des opportunités de recherche de la part de Bitwarden dans votre boîte de réception."
+  "receiveMarketingEmails": {
+    "message": "Recevoir des mises à jour de Bitwarden dans votre messagerie."
   },
   "subscribe": {
     "message": "Abonnez-vous"
@@ -5896,6 +6052,18 @@
   },
   "and": {
     "message": "et"
+  },
+  "acceptInviteWithMasterPassword": {
+    "message": "Pour finir d'accepter cette invitation, connectez-vous avec votre mot de passe principal."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "Vous ne pouvez pas vous connecter avec SSO tant que vous n'avez pas accepté une invitation à rejoindre $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "acceptPolicies": {
     "message": "En cochant cette case vous acceptez ce qui suit :"
@@ -5986,6 +6154,10 @@
   },
   "selected": {
     "message": "Sélectionné(s)"
+  },
+  "selectedLowercase": {
+    "message": "sélectionné",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "Recommandé"
@@ -6138,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "Exiger des membres qu'ils mettent en place une authentification à deux facteurs."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "Les membres de l'organisation qui ne sont pas propriétaires ou administrateurs et qui n'ont pas configuré l'authentification à deux facteurs pour leur compte seront supprimés de l'organisation et recevront un courriel les informant de ce changement."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "Vous êtes un membre d'une organisation qui exige que l'authentification à deux facteurs soit configurée sur votre compte utilisateur. Si vous désactivez tous les fournisseurs d'authentification à deux facteurs, vous serez automatiquement retiré de ces organisations."
@@ -6407,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "Exiger que les membres se connectent avec la méthode du portail de connexion unique Entreprise."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "Prérequis"
   },
   "requireSsoPolicyReq": {
     "message": "La politique d'organisation unique Entreprise doit être activée avant d'activer cette politique."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "La politique « Organisation Unique » n'est pas activée."
@@ -6812,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Les membres seront invités à transférer leurs éléments à l'organisation ou à partir. S'ils quittent, leur accès est révoqué mais peut être restauré à tout moment."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "Tous les éléments des membres seront détenus et gérés par l'organisation. Cette politique ne sera pas appliquée pour les propriétaires et les administrateurs. En savoir plus sur "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Donnez à tous les utilisateurs un espace dédié \"Mes éléments\" pour gérer leurs propres identifiants."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Demander aux utilisateurs de déplacer leurs éléments de coffre vers l'organisation"
+  },
+  "enablePolicy": {
+    "message": "Activer la politique"
+  },
   "organizationDataOwnership": {
     "message": "Forcer la propriété des données de l'organisation"
   },
@@ -6935,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Réglage par Défaut de la Saisie Auto pour le Bureau"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Réglage par défaut de saisie automatique du bureau"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Activer la Saisie Auto pour le Bureau par défaut pour les membres. Les membres peuvent désactiver la Saisie Automatique manuellement dans l'application du Bureau.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Activer la saisie automatique de bureau pour les membres. Les membres seront en mesure de désactiver la saisie automatique manuellement dans le client de bureau."
   },
   "disableSend": {
     "message": "Supprimer le Send"
@@ -6957,6 +7162,21 @@
     "message": "En raison d'une politique de sécurité Entreprise, vous ne pouvez que supprimer un Send existant.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Non conforme à la politique Send de votre organisation",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Pour modifier ce Send, faites-en une copie. Si ce Send peut expirer à la date de suppression définie, aucune action n'est nécessaire",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Ce Send expirera automatiquement à la date de suppression définie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Faire une copie"
+  },
   "sendControls": {
     "message": "Contrôles du Send"
   },
@@ -6964,8 +7184,9 @@
     "message": "Définir les options pour créer et éditer les Sends, y compris la possibilité de supprimer les Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "Les membres de l'organisation qui peuvent gérer les politiques de sécurité de l'organisation sont exemptés de l'application de cette politique de sécurité."
+  "sendControlsPolicyDescV2": {
+    "message": "Configurer ce que les membres peuvent faire en utilisant Send. Les administrateurs et les propriétaires sont exemptés de cette politique.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Options Send",
@@ -7278,6 +7499,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Votre nouveau mot de passe ne peut être le même que votre mot de passe actuel."
   },
+  "hint": {
+    "message": "Indice"
+  },
   "hintEqualsPassword": {
     "message": "Votre indice de mot de passe ne peut pas être identique à votre mot de passe."
   },
@@ -7359,15 +7583,6 @@
   "resetPassword": {
     "message": "Réinitialiser le mot de passe"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "En poursuivant, $NAME$ sera déconnecté de sa session actuelle, ce qui l'obligera à se reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "En poursuivant, $NAME$ sera déconnecté de sa session actuelle, ce qui l'obligera à se reconnecter. Les sessions actives sur d'autres appareils peuvent rester actives pendant encore une heure.",
     "placeholders": {
@@ -7395,20 +7610,11 @@
   "accountRecoveryPolicy": {
     "message": "Administration de récupération du compte"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "Se basant sur la méthode de chiffrement, récupère les comptes lorsque des mots de passe principaux ou des appareils de confiance sont oubliés ou perdus."
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "Les comptes existants avec les mots de passe principaux exigeront que les membres s'inscrivent d'eux-mêmes avant que les administrateurs puissent récupérer leurs comptes. L'inscription automatique activera la récupération du compte pour les nouveaux membres."
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "La politique de sécurité d'organisation unique Entreprise doit être activée avant d'activer cette politique de sécurité."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Inscription automatique"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "Exiger que les nouveaux utilisateurs soient inscrits automatiquement"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "Cette organisation dispose d'une politique d'entreprise qui vous inscrira automatiquement à la réinitialisation du mot de passe. L'inscription permettra aux administrateurs de l'organisation de changer votre mot de passe principal."
@@ -7892,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "Ne pas autoriser les membres à exporter des données de leur coffre individuel."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "Export du coffre supprimé"
@@ -8979,6 +9188,10 @@
   "scimSettingsSaved": {
     "message": "Les paramètres SCIM ont été enregistrés avec succès",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "La configuration de ce paramètre enverra automatiquement des invitations à tous les utilisateurs et groupes assignés dans votre fournisseur d'identité (IdP).",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "Une seule intégration de ce type ($TYPE$) est autorisée. L'intégration en conflit est : $NAME$",
@@ -10864,6 +11077,9 @@
   "editedCollections": {
     "message": "Collections modifiées"
   },
+  "editedCollection": {
+    "message": "Collection modifiée"
+  },
   "baseUrl": {
     "message": "URL du serveur"
   },
@@ -11242,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Collections assignées avec succès"
+  },
+  "itemAssignedToCollections": {
+    "message": "Élément assigné aux collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Éléments assignés aux collections"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vous avez sélectionné $TOTAL_COUNT$ éléments. Vous ne pouvez pas mettre à jour $READONLY_COUNT$ de ces éléments parce que vous n'avez pas les autorisations pour les éditer.",
@@ -11885,6 +12107,15 @@
       "amount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "providerDiscountAmountOff": {
+    "message": "Remise de $AMOUNT$",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
       }
     }
   },
@@ -12533,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Supprimer le parrainage gratuit de Bitwarden Familles"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Supprimer le forfait Familles parrainé"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "N'autorisez pas les membres à échanger un plan Familles par l'intermédiaire de cette organisation."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "N'autorisez pas les membres à réclamer un plan Familles parrainé par votre organisation."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Le paiement avec un compte bancaire est seulement disponible pour les clients aux États-Unis. Vous devrez procéder à la vérification de votre compte bancaire. Nous effectuerons un micro-dépôt dans les 2 prochains jours ouvrables. Entrez le code du descripteur de relevé de ce dépôt sur la page de facturation de l'organisation pour compléter la vérification du compte bancaire. Si vous ne complétez pas la vérification de votre compte bancaire, cela résultera en un paiement manqué et votre abonnement sera suspendu."
@@ -12962,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "Ne pas autoriser les membres à déverrouiller leur compte avec un NIP."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "Les journaux d'événements ne sont pas conservés pour votre organisation. Mettez à niveau vers un forfait Équipes ou Entreprise pour obtenir un accès complet aux journaux d'événements de l'organisation."
@@ -13616,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Empêcher les utilisateurs de créer des comptes en dehors de votre organisation en utilisant les adresses courriel des domaines revendiqués."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Bloquer les membres d'utiliser votre domaine revendiqué pour créer des comptes Bitwarden en dehors de votre organisation."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Un domaine doit être réclamé avant d'activer cette politique de sécurité."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Avant d'activer cette politique, vous devez revendiquer un domaine."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "En savoir plus sur les domaines revendiqués"
   },
   "vaultTimeoutTooLarge": {
     "message": "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation."
@@ -14227,6 +14476,36 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "Conservez une forte sécurité des éléments de votre coffre-fort en vérifiant les rapports de vulnérabilités."
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "Surveiller l'activité de sécurité"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "Au fur et à mesure que vous examinez les applications et attribuez des tâches aux membres, les progrès de votre organisation en matière de sécurité apparaîtront ici."
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "Prioriser les risques"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "Examinez toutes les applications enregistrées dans votre coffre d'organisation et étoilez celles qui ont la plus haute priorité pour votre sécurité."
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "Corrigez vos plus grands risques"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "Vous suivrez ici les risques liés aux applications prioritaires et attribuerez des tâches aux membres pour renforcer leurs mots de passe."
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "Aider les membres à s'améliorer"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "Une fois que vous avez sélectionné des applications critiques, invitez les membres à changer les mots de passe à risque. Ils recevront un message dans leur extension Bitwarden."
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "Restez au courant des nouveaux risques"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "Rafraîchissez régulièrement les rapports et les observations pour attraper de nouveaux risques et voir les dernières mesures au rythme de la croissance de votre organisation."
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ de $TOTAL$",
     "placeholders": {
@@ -14240,14 +14519,45 @@
       }
     }
   },
+  "coachmarkStepIndicator": {
+    "message": "Étape $CURRENT$ de $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "multipleInputDomainsInvalid": {
+    "message": "Un ou plusieurs domaines sont invalides"
+  },
+  "domainNotAllowed": {
+    "message": "Inclure uniquement les domaines suivants : $DOMAINS$. Veuillez vérifier et réessayer",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "Contrôler si les membres peuvent utiliser Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "N'importe quel"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "Ceci a été rempli en utilisant des domaines revendiqués."
+  },
   "more": {
     "message": "Plus"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Votre compte bancaire doit être vérifié avant de pouvoir être utilisé pour cette mise à niveau. Veuillez vérifier votre compte bancaire ou choisir un autre mode de paiement."
-  },
-  "discardEdits": {
-    "message": "Annuler les modifications"
   },
   "discardEditsMessage": {
     "message": "Si vous fermez cette vue, vos modifications non enregistrées seront annulées"
@@ -14327,6 +14637,25 @@
     "message": "Sends a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Activer les contrôles Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "Autoriser"
+  },
+  "block": {
+    "message": "Bloquer"
+  },
+  "sendControlAccessOptions": {
+    "message": "Accéder aux options"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Toujours afficher l'adresse courriel du membre avec les destinataires"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Mot de passe défini par le membre"
+  },
   "hideMyEmail": {
     "message": "Masquer mon courriel aux destinataires."
   },
@@ -14377,9 +14706,18 @@
     "message": "Alerte",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Bouton de bannière du coffre cliqué"
+  },
   "progressBar": {
     "message": "Barre de progression",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Vérification du courriel"
+  },
+  "separateDomainsWithComma": {
+    "message": "Séparez les domaines par une virgule"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Vous ne pouvez pas importer des éléments dans Mes éléments qui font partie de plusieurs collections"
@@ -14431,6 +14769,27 @@
   },
   "copy": {
     "message": "Copier"
+  },
+  "paymentSuccessful": {
+    "message": "Paiement réussi"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Votre mise à niveau est en cours de traitement. Il peut s'écouler quelques minutes avant de voir les fonctionnalités Premium dans Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Abonnement souscrit"
+  },
+  "renewalDate": {
+    "message": "Date de renouvellement"
+  },
+  "upgradeStatus": {
+    "message": "Statut de mise à niveau"
+  },
+  "processing": {
+    "message": "En traitement"
+  },
+  "managePlanInWebApp": {
+    "message": "Gérer le plan dans l'application web"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Impossible d'enregistrer l'élément. Vous devez être confirmé à l'organisation pour enregistrer des éléments."

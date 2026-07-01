@@ -9,7 +9,6 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 
-
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {

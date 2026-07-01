@@ -1,8 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ListResponse } from "../../models/response/list.response";
@@ -14,6 +12,7 @@ import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../models/response/plan.response";
 import { PremiumCheckoutSessionResponse } from "../models/response/premium-checkout-session.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {

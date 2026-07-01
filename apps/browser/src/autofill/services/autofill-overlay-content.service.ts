@@ -40,6 +40,7 @@ import {
   elementIsSelectElement,
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
+  isSubFramePositioningMessageData,
   nodeIsAnchorElement,
   nodeIsButtonElement,
   nodeIsTypeSubmitElement,
@@ -52,7 +53,7 @@ import { getSubFrameUrlVariations } from "../utils/url-variations";
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+  SubFrameOffsetWindowMessageData,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
@@ -163,6 +164,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isFieldForIdentityUsername,
   };
 
+  private isMonitoring = false;
+
   constructor(
     private domQueryService: DomQueryService,
     private domElementVisibilityService: DomElementVisibilityService,
@@ -171,10 +174,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) {}
 
   /**
-   * Initializes the autofill overlay content service by setting up the mutation observers.
-   * The observers will be instantiated on DOMContentLoaded if the page is current loading.
+   * Attaches the global event listeners that drive inline menu placement and
+   * focus tracking. Defers attachment until DOMContentLoaded when the page
+   * is still loading. Idempotent.
    */
-  init() {
+  startMonitoring(): void {
+    if (this.isMonitoring) {
+      return;
+    }
+    this.isMonitoring = true;
     void this.getInlineMenuCardsVisibility();
     void this.getInlineMenuIdentitiesVisibility();
 
@@ -184,6 +192,46 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupGlobalEventListeners();
+  }
+
+  /**
+   * Detaches global and per-field event listeners, clears monitoring-scoped
+   * timers and caches, and resets focus tracking so a future
+   * `startMonitoring()` begins fresh. Idempotent.
+   */
+  stopMonitoring(): void {
+    this.isMonitoring = false;
+    globalThis.document.removeEventListener(
+      EVENTS.DOMCONTENTLOADED,
+      this.setupGlobalEventListeners,
+    );
+    globalThis.removeEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
+    globalThis.document.removeEventListener(
+      EVENTS.VISIBILITYCHANGE,
+      this.handleVisibilityChangeEvent,
+    );
+    globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleWindowFocusOutEvent);
+    this.removeOverlayRepositionEventListeners();
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.removeSubFrameFocusOutListeners();
+    this.formFieldElements.forEach((_autofillField, formFieldElement) => {
+      this.removeCachedFormFieldEventListeners(formFieldElement);
+      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
+    });
+    this.clearFocusInlineMenuListTimeout();
+    this.clearCloseInlineMenuOnRedirectTimeout();
+
+    // Clear caches so that message handlers that arrive while monitoring is stopped
+    // short-circuit on empty state instead of walking stale data.
+    this.formFieldElements.clear();
+    this.formElements.clear();
+    this.submitElements.clear();
+    this.focusableElements = [];
+    this.clearUserFilledFields();
+    this.mostRecentlyFocusedField = null;
+    this.focusedFieldData = null;
+    this.pageDetailsUpdateRequired = false;
   }
 
   /**
@@ -1533,17 +1581,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param message - The message object from the extension.
    */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
+    // `postMessage` accepts `any` message, which disables typechecking, so typecheck it early
+    const subFrameData: SubFrameOffsetWindowMessageData = {
+      frameId: message.subFrameId,
+      left: 0,
+      top: 0,
+      parentFrameIds: [0],
+      subFrameDepth: 0,
+    };
+
     globalThis.parent.postMessage(
       {
         command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-          parentFrameIds: [0],
-          subFrameDepth: 0,
-        } as SubFrameDataFromWindowMessage,
+        subFrameData,
       },
       "*",
     );
@@ -1588,8 +1638,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The message event.
    */
-  private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+  private calculateSubFramePositioning = async (event: MessageEvent<unknown>) => {
+    if (!isSubFramePositioningMessageData(event.data)) {
+      return;
+    }
+    const { subFrameData } = event.data;
 
     subFrameData.subFrameDepth++;
     if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
@@ -1604,7 +1657,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         const iframeElement = iframes[i];
         subFrameOffsets = this.calculateSubFrameOffsets(
           iframeElement,
-          subFrameData.url,
+          undefined,
           subFrameData.frameId,
         );
 
@@ -1880,28 +1933,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Destroys the autofill overlay content service. This method will
-   * disconnect the mutation observers and remove all event listeners.
+   * Stops monitoring (detaching listeners, clearing caches) and releases
+   * the userFilledFields reference for terminal disposal.
    */
   destroy() {
-    this.clearFocusInlineMenuListTimeout();
-    this.clearCloseInlineMenuOnRedirectTimeout();
-    this.formFieldElements.forEach((_autofillField, formFieldElement) => {
-      this.removeCachedFormFieldEventListeners(formFieldElement);
-      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
-      this.formFieldElements.delete(formFieldElement);
-    });
-    this.clearUserFilledFields();
+    this.stopMonitoring();
     this.userFilledFields = null;
-    globalThis.removeEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
-    globalThis.document.removeEventListener(
-      EVENTS.VISIBILITYCHANGE,
-      this.handleVisibilityChangeEvent,
-    );
-    globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.removeOverlayRepositionEventListeners();
-    this.removeRebuildSubFrameOffsetsListeners();
-    this.removeSubFrameFocusOutListeners();
   }
 }

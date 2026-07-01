@@ -580,3 +580,105 @@ describe("OrganizationSubscriptionCloudComponent.discountDurationLabel", () => {
     expect(component.discountDurationLabel()).toBeNull();
   });
 });
+
+describe("OrganizationSubscriptionCloudComponent.smOptions", () => {
+  const mockApiService = mock<ApiService>();
+  const mockI18nService = mock<I18nService>();
+  const mockLogService = mock<LogService>();
+  const mockOrganizationService = mock<OrganizationService>();
+  const mockAccountService = mock<AccountService>();
+  const mockOrganizationApiService = mock<OrganizationApiServiceAbstraction>();
+  const mockDialogService = mock<DialogService>();
+  const mockToastService = mock<ToastService>();
+  const mockOrganizationUserApiService = mock<OrganizationUserApiService>();
+  const mockDatePipe = mock<DatePipe>();
+  const mockOrganizationBillingClient = mock<OrganizationBillingClient>();
+
+  let component: OrganizationSubscriptionCloudComponent;
+
+  // Reported PM-39805 org: 75 total entitlement, 20 static baseline. Grace varies per case.
+  const setSub = (overrides: Record<string, unknown>) => {
+    component.sub = {
+      smSeats: 5,
+      maxAutoscaleSmSeats: 10,
+      maxAutoscaleSmServiceAccounts: 100,
+      smServiceAccounts: 75,
+      plan: {
+        isAnnual: false,
+        SecretsManager: {
+          seatPrice: 6,
+          additionalPricePerServiceAccount: 1,
+          baseServiceAccount: 20,
+        },
+      },
+      ...overrides,
+    } as any;
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        OrganizationSubscriptionCloudComponent,
+        { provide: ApiService, useValue: mockApiService },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: OrganizationApiServiceAbstraction, useValue: mockOrganizationApiService },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+              queryParams: {},
+              queryParamMap: { get: (_key: string): string | null => null },
+            },
+          },
+        },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: ToastService, useValue: mockToastService },
+        { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
+        { provide: DatePipe, useValue: mockDatePipe },
+        { provide: OrganizationBillingClient, useValue: mockOrganizationBillingClient },
+      ],
+    });
+
+    component = TestBed.inject(OrganizationSubscriptionCloudComponent);
+  });
+
+  it("subtracts permanent migration-grace accounts from the billable count (75 - 20 - 30 = 25)", () => {
+    setSub({ smServiceAccountsGrace: 30 });
+
+    expect(component.smOptions.additionalServiceAccounts).toBe(25);
+  });
+
+  it("treats an absent grace value as zero (pre-server behavior: 75 - 20 = 55)", () => {
+    setSub({ smServiceAccountsGrace: undefined });
+
+    expect(component.smOptions.additionalServiceAccounts).toBe(55);
+  });
+
+  it("treats grace = 0 the same as no grace (75 - 20 = 55)", () => {
+    setSub({ smServiceAccountsGrace: 0 });
+
+    expect(component.smOptions.additionalServiceAccounts).toBe(55);
+  });
+
+  it("clamps to zero when grace exceeds the billable count (bad server data: 75 - 20 - 80 -> 0)", () => {
+    setSub({ smServiceAccountsGrace: 80 });
+
+    expect(component.smOptions.additionalServiceAccounts).toBe(0);
+  });
+
+  it("passes the migration-grace count through to the adjust component options", () => {
+    setSub({ smServiceAccountsGrace: 30 });
+
+    expect(component.smOptions.graceServiceAccounts).toBe(30);
+  });
+
+  it("defaults the grace passthrough to 0 when absent", () => {
+    setSub({ smServiceAccountsGrace: undefined });
+
+    expect(component.smOptions.graceServiceAccounts).toBe(0);
+  });
+});

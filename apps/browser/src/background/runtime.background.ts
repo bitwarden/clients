@@ -25,6 +25,9 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
+import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -55,16 +58,23 @@ export default class RuntimeBackground {
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private browserInitialInstallService: BrowserInitialInstallService,
+    private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
 
-    if (chrome?.permissions?.onAdded) {
-      chrome.permissions.onAdded.addListener((permissions) => {
-        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
-      });
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     }
   }
 
@@ -258,24 +268,18 @@ export default class RuntimeBackground {
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
-    permissions: chrome.permissions.Permissions,
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
   ) {
-    if (!permissions.permissions?.includes("privacy")) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
       return;
     }
 
-    if (!chrome.storage?.session) {
-      return;
-    }
-
-    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    if (!result.pendingDefaultPasswordManagerApply) {
+    if (!(await isDefaultPasswordManagerPromptFeatureEnabled(this.configService))) {
       return;
     }
 
     try {
-      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+      await completePendingDefaultPasswordManagerApply();
     } catch (error) {
       this.logService.error(error);
     }
@@ -503,20 +507,23 @@ export default class RuntimeBackground {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        if (
-          this.onInstalledReason === "install" &&
-          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
-        ) {
-          await this.browserInitialInstallService.displayWelcomePage();
-
-          await this.autofillSettingsService.setInlineMenuVisibility(
-            AutofillOverlayVisibility.OnFieldFocus,
-          );
-
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
+        if (this.onInstalledReason === "install") {
+          if (await isDefaultPasswordManagerPromptFeatureEnabled(this.configService)) {
+            await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
           }
-          await this.browserInitialInstallService.setExtensionInstalled(true);
+
+          if (!(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))) {
+            await this.browserInitialInstallService.displayWelcomePage();
+
+            await this.autofillSettingsService.setInlineMenuVisibility(
+              AutofillOverlayVisibility.OnFieldFocus,
+            );
+
+            if (await this.environmentService.hasManagedEnvironment()) {
+              await this.environmentService.setUrlsToManagedEnvironment();
+            }
+            await this.browserInitialInstallService.setExtensionInstalled(true);
+          }
         }
 
         this.onInstalledReason = null;
