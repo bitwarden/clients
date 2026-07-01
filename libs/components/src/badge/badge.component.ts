@@ -2,13 +2,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   input,
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
+import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
 import { BitwardenIcon } from "../shared/icon";
+import { TooltipDirective } from "../tooltip/tooltip.directive";
 
 /**
  * @deprecated Use 'primary' instead. This variant will be removed in a future version.
@@ -94,15 +97,35 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
 @Component({
   selector: "span[bitBadge], bit-badge",
   imports: [IconComponent],
+  // OverflowItemDirective is applied to every badge so wrappers like
+  // `bit-badge-group` can let `bitOverflowList` measure and hide them. None
+  // of its inputs/outputs are exposed — `pinned` is internal-only, set
+  // programmatically by the wrapper.
+  //
+  // TooltipDirective surfaces the badge's text (or the `title` override) as a
+  // styled tooltip in place of the native `title` attribute; the content is
+  // wired up below from `titleContent()`.
+  hostDirectives: [OverflowItemDirective, TooltipDirective],
   templateUrl: "badge.component.html",
   host: {
     "[class]": "classList()",
-    "[attr.title]": "titleContent()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BadgeComponent {
   private readonly el = inject(ElementRef<HTMLElement>);
+  private readonly tooltip = inject(TooltipDirective);
+
+  constructor() {
+    // Drive the host tooltip from the computed title content, suppressing it
+    // entirely when there's nothing to show so a badge with no title doesn't
+    // open a blank tooltip on hover.
+    effect(() => {
+      const content = this.titleContent();
+      this.tooltip.tooltipContent.set(content ?? "");
+      this.tooltip.suppressed.set(!content);
+    });
+  }
 
   /**
    * Optional override for the tooltip content when content overflows.
@@ -123,7 +146,7 @@ export class BadgeComponent {
 
   /**
    * Whether to truncate long text with ellipsis when it exceeds maxWidthClass.
-   * When enabled, a title attribute is automatically added for accessibility.
+   * When enabled, a tooltip with the full text is automatically shown.
    */
   readonly truncate = input(true);
 
@@ -163,7 +186,8 @@ export class BadgeComponent {
   ]);
 
   /**
-   * Computed title content - only shows when content is overflowing
+   * Computed tooltip content — the custom `title` override when provided,
+   * otherwise the badge's own text while truncation is enabled.
    */
   protected readonly titleContent = computed(() => {
     // Use custom title if provided, otherwise use text content

@@ -5,6 +5,7 @@ export * from "./accordion";
 export * from "./anon-layout";
 export * from "./async-actions";
 export * from "./avatar";
+export * from "./badge-group";
 export * from "./badge-list";
 export * from "./badge";
 export * from "./banner";
