@@ -78,7 +78,7 @@ export class AdminSettingsComponent implements OnInit {
     const autoConfirmEnabled = (
       await firstValueFrom(this.autoConfirmService.configuration$(userId))
     ).enabled;
-    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled });
+    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled }, { emitEvent: false });
 
     this.formLoading.set(false);
 
