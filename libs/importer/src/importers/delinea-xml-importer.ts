@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -62,6 +62,9 @@ export class DelineaXmlImporter extends BaseImporter implements Importer {
             const field = new FieldView();
             field.name = item.slug;
             field.value = item.value;
+            if (item.slug === "password") {
+              field.type = FieldType.Hidden;
+            }
             cipher.fields.push(field);
           }
         }

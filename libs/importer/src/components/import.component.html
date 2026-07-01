@@ -448,6 +448,11 @@
           entries should be included in the export &rarr; Click on next to export into the location
           previously chosen.
         </ng-container>
+        <ng-container *ngIf="format === 'delineaxml'">
+          Log into your organization's Secret Server instance. Search for Export/Import using the
+          search box at the top of the screen and click the Export button to go to the Export page.
+          Follow the instructions on this page to export an XML file.
+        </ng-container>
       </bit-callout>
       @if (showLastPassOptions) {
         <import-lastpass
