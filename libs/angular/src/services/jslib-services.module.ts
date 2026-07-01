@@ -245,6 +245,7 @@ import {
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -279,6 +280,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -802,6 +804,11 @@ const safeProviders: SafeProvider[] = [
     provide: AvailableRegionsService,
     useClass: DefaultAvailableRegionsService,
     deps: [EnvironmentService, ConfigService],
+  }),
+  safeProvider({
+    provide: GovModeService,
+    useClass: DefaultGovModeService,
+    deps: [EnvironmentService],
   }),
   safeProvider({
     provide: InternalUserDecryptionOptionsServiceAbstraction,
