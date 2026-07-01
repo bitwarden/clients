@@ -11,7 +11,7 @@ const manifest = require("./webpack/manifest");
 const AngularCheckPlugin = require("./webpack/angular-check");
 
 module.exports.getEnv = function getEnv(params) {
-  const ENV = params.env || (process.env.ENV = process.env.NODE_ENV);
+  const ENV = params.env || process.env.ENV || process.env.NODE_ENV;
   const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
   const browser = process.env.BROWSER ?? "chrome";
 
@@ -48,6 +48,7 @@ module.exports.buildConfig = function buildConfig(params) {
   }
 
   const { ENV, manifestVersion, browser } = module.exports.getEnv(params);
+  const mode = process.env.NODE_ENV === "production" ? "production" : "development";
 
   console.log(`Building Manifest Version ${manifestVersion} app - ${params.configName} version`);
 
@@ -143,6 +144,8 @@ module.exports.buildConfig = function buildConfig(params) {
     new webpack.EnvironmentPlugin({
       FLAGS: envConfig.flags,
       DEV_FLAGS: ENV === "development" ? envConfig.devFlags : {},
+      ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
+      NODE_ENV: mode,
     }),
   ];
 
@@ -217,7 +220,7 @@ module.exports.buildConfig = function buildConfig(params) {
    */
   const mainConfig = {
     name: "main",
-    mode: ENV,
+    mode: mode,
     devtool: false,
 
     entry: {
@@ -456,7 +459,7 @@ module.exports.buildConfig = function buildConfig(params) {
      */
     const backgroundConfig = {
       name: "background",
-      mode: ENV,
+      mode: mode,
       devtool: false,
 
       entry: params.background.entry,

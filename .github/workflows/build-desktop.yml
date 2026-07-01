@@ -736,6 +736,121 @@ jobs:
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
+  windows-qa:
+    name: Windows QA Cloud-Region Build
+    runs-on: windows-2022
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    needs:
+      - setup
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: apps/desktop
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
+      - name: Install AST
+        run: dotnet tool install --global AzureSignTool --version 4.0.1
+
+      - name: Set up environment
+        run: choco install checksum --no-progress
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          choco --version
+          rustup show
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "code-signing-vault-url,
+            code-signing-client-id,
+            code-signing-tenant-id,
+            code-signing-client-secret,
+            code-signing-cert-name"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Cache Native Module
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$env:MODE"
+
+      - name: Build (QA cloud regions)
+        run: npm run build:qa
+
+      - name: Pack & Sign
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+        run: npm run pack:win
+
+      - name: Verify helper exe thumbprint matches hardcoded value
+        run: ./scripts/validate-chromium-importer-thumbprint.ps1
+
+      - name: Upload QA installer exe artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: Bitwarden-Installer-QA-${{ env._PACKAGE_VERSION }}.exe
+          path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          if-no-files-found: error
+
   windows-beta:
     name: Windows Beta Build
     runs-on: windows-2022
@@ -1475,6 +1590,184 @@ jobs:
         with:
           name: ${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
+          if-no-files-found: error
+
+  macos-qa:
+    name: MacOS QA Cloud-Region Build
+    runs-on: macos-15
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    needs:
+      - setup
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.14.2'
+
+      - name: Set up Node-gyp
+        run: python -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          rustup show
+          xcodebuild -showsdks
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Download Provisioning Profiles secrets
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p "$HOME/secrets"
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            --output none
+
+      - name: Get certificates
+        run: |
+          mkdir -p "$HOME/certificates"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set up keychain
+        run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Set up provisioning profiles
+        run: |
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+
+      - name: Increment version
+        shell: pwsh
+        env:
+          BUILD_NUMBER: ${{ needs.setup.outputs.build_number }}
+        run: |
+          $package = Get-Content -Raw -Path electron-builder.json | ConvertFrom-Json
+          $package | Add-Member -MemberType NoteProperty -Name buildVersion -Value "$env:BUILD_NUMBER"
+          $package | ConvertTo-Json -Depth 32 | Set-Content -Path electron-builder.json
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Cache Native Module
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
+
+      - name: Build (QA cloud regions)
+        run: npm run build:qa
+
+      - name: Set up private auth key
+        id: setup-auth-key
+        env:
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+        run: |
+          mkdir ~/private_keys
+          KEY_PATH="$HOME/private_keys/auth_key.p8"
+          cat << EOF > "$KEY_PATH"
+          $APP_STORE_CONNECT_AUTH_KEY
+          EOF
+          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+
+      - name: Package & Sign (dist)
+        env:
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
+          CSC_FOR_PULL_REQUEST: true
+        run: npm run pack:mac
+
+      - name: Upload QA .dmg artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: Bitwarden-QA-${{ env._PACKAGE_VERSION }}-universal.dmg
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
   macos-package-mas:
