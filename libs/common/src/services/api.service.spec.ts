@@ -83,7 +83,10 @@ describe("ApiService", () => {
   describe("send", () => {
     it("handles ok GET", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       environmentService.getEnvironment$.mockReturnValue(
@@ -143,7 +146,10 @@ describe("ApiService", () => {
 
     it("authenticates with non-active user when user is passed in", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValueOnce(
@@ -573,7 +579,10 @@ describe("ApiService", () => {
 
     it("does not retry when request has no access token and returns 401", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       httpOperations.createRequest.mockImplementation((url, request) => {
@@ -609,6 +618,8 @@ describe("ApiService", () => {
 
       // Should only be called once (no retry)
       expect(nativeFetch).toHaveBeenCalledTimes(1);
+      // Unauthenticated requests must resolve their URL via the global environment.
+      expect(nativeFetch.mock.calls[0][0].url).toBe("https://global.example.com/something");
     });
 
     it("does not retry when request returns non-401 error", async () => {
@@ -659,7 +670,10 @@ describe("ApiService", () => {
 
     it("does not attempt to log out unauthenticated user", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       httpOperations.createRequest.mockImplementation((url, request) => {
@@ -694,11 +708,16 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Unauthorized" });
 
       expect(logoutCallback).not.toHaveBeenCalled();
+      // Unauthenticated requests must resolve their URL via the global environment.
+      expect(nativeFetch.mock.calls[0][0].url).toBe("https://global.example.com/something");
     });
 
     it("does not retry when hasResponse is false", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
@@ -1215,7 +1234,10 @@ describe("ApiService", () => {
 
     it("does not attempt to log out unauthenticated user", async () => {
       environmentService.environment$ = of({
-        getApiUrl: () => "https://example.com",
+        getApiUrl: () => "https://user-scoped.example.com",
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
+        getApiUrl: () => "https://global.example.com",
       } satisfies Partial<Environment> as Environment);
 
       httpOperations.createRequest.mockImplementation((url, request) => {
@@ -1250,6 +1272,8 @@ describe("ApiService", () => {
       ).rejects.toMatchObject({ message: "Forbidden" });
 
       expect(logoutCallback).not.toHaveBeenCalled();
+      // Unauthenticated requests must resolve their URL via the global environment.
+      expect(nativeFetch.mock.calls[0][0].url).toBe("https://global.example.com/something");
     });
   });
 

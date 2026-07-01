@@ -8,14 +8,15 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+
+
+import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
+import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-
-import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
-import { OrganizationConnectionType } from "../admin-console/enums";
+} from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -188,7 +189,8 @@ export class ApiService implements ApiServiceAbstraction {
         ? request.toIdentityToken()
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
@@ -1199,7 +1201,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     const env = await firstValueFrom(
       userId == null
-        ? this.environmentService.environment$
+        ? this.environmentService.globalEnvironment$
         : this.environmentService.getEnvironment$(userId),
     );
     const response = await this.fetch(
@@ -1407,7 +1409,8 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const path = `/sso/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + path, {
@@ -1638,7 +1641,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     const environment = await firstValueFrom(
       userIdMakingRequest == null
-        ? this.environmentService.environment$
+        ? this.environmentService.globalEnvironment$
         : this.environmentService.getEnvironment$(userIdMakingRequest),
     );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
