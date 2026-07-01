@@ -231,6 +231,10 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_BROWSER_DEFAULT_PASSWORD_MANAGER_PROMPT = new StateDefinition(
+  "vaultBrowserDefaultPasswordManagerPrompt",
+  "disk",
+);
 export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
   "vaultAutofillSimplifiedIcon",
   "disk",
