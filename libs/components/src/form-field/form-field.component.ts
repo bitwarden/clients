@@ -85,39 +85,40 @@ export class BitFormFieldComponent {
     () => this.input()?.labelForId() ?? this.labelForId() ?? "",
   );
 
-  protected readonly required = computed(() => {
+  /**
+   * Single source for the state the field renders: the projected directive's derived values when
+   * present, otherwise derived from the wrapper-supplied `control`. Resolving the source once here
+   * keeps `required` / `hasError` / `error` as trivial projections.
+   */
+  private readonly controlState = computed<{
+    required: boolean;
+    hasError: boolean;
+    error: [string, any] | undefined;
+  }>(() => {
     const directive = this.input();
     if (directive) {
-      return directive.required();
-    }
-    this.controlEvent();
-    return this.control()?.hasValidator(Validators.required) ?? false;
-  });
-
-  /** Public so wrapper components can reflect the error state in their own custom-input chrome. */
-  readonly hasError = computed(() => {
-    const directive = this.input();
-    if (directive) {
-      return directive.hasError();
+      return {
+        required: directive.required(),
+        hasError: directive.hasError(),
+        error: directive.error,
+      };
     }
     this.controlEvent();
     const control = this.control();
-    return control != null && control.invalid && control.touched;
+    const errors = control?.errors;
+    const firstKey = errors == null ? undefined : Object.keys(errors)[0];
+    return {
+      required: control?.hasValidator(Validators.required) ?? false,
+      hasError: control != null && control.invalid && control.touched,
+      error: firstKey == null ? undefined : [firstKey, errors![firstKey]],
+    };
   });
 
-  protected readonly error = computed<[string, any] | undefined>(() => {
-    const directive = this.input();
-    if (directive) {
-      return directive.error;
-    }
-    this.controlEvent();
-    const errors = this.control()?.errors;
-    if (errors == null) {
-      return undefined;
-    }
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
-  });
+  protected readonly required = computed(() => this.controlState().required);
+  protected readonly error = computed(() => this.controlState().error);
+
+  /** Public so wrapper components can reflect the error state in their own custom-input chrome. */
+  readonly hasError = computed(() => this.controlState().hasError);
 
   /**
    * Id of the element describing the control (error takes precedence over hint). Wrapper
