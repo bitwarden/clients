@@ -16,7 +16,6 @@ import {
 
 import {
   createBoundedArrayGuard,
-  createBoundedRecordGuard,
   createEnhancedBoundedArrayGuard,
   createValidator,
   isBoolean,
@@ -57,7 +56,6 @@ export const isMemberRegistryEntryData = createValidator<MemberRegistryEntryData
   userName: isBoundedStringOrUndefined,
   email: isBoundedString,
 });
-const isMemberRegistry = createBoundedRecordGuard(isMemberRegistryEntryData);
 
 export function isCipherId(value: unknown): value is CipherId {
   return value == null || isBoundedString(value);
@@ -95,7 +93,6 @@ const isApplicationHealthData = createValidator<ApplicationHealthData>({
   iconUri: isBoundedStringOrUndefined,
   iconCipherId: isBoundedStringOrUndefined,
 });
-const isApplicationHealthDataArray = createBoundedArrayGuard(isApplicationHealthData);
 
 /**
  * Type guard to validate OrganizationReportSummary structure
@@ -346,10 +343,13 @@ const isAccessReportSettingsData = createValidator<AccessReportSettingsData>({
 export const isAccessReportSettingsDataArray = createBoundedArrayGuard(isAccessReportSettingsData);
 
 /**
- * Validates and returns an array of AccessReportSettingsData
- * @throws Error if validation fails
+ * Validates an array of AccessReportSettingsData. Invalid elements are dropped from
+ * the returned data and recorded in `errors`. Throws on structural failures only
+ * (non-array, length > {@link BOUNDED_ARRAY_MAX_LENGTH}).
  */
-export function validateAccessReportSettingsDataArray(data: unknown): AccessReportSettingsData[] {
+export function validateAccessReportSettingsDataArray(
+  data: unknown,
+): ValidationResult<AccessReportSettingsData[]> {
   if (!Array.isArray(data)) {
     throw new Error(
       "Invalid application data: expected array of AccessReportSettingsData, received non-array",
@@ -362,44 +362,55 @@ export function validateAccessReportSettingsDataArray(data: unknown): AccessRepo
     );
   }
 
-  const invalidItems = data
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !isAccessReportSettingsData(item));
+  const validItems: AccessReportSettingsData[] = [];
+  const errors: string[] = [];
 
-  if (invalidItems.length > 0) {
-    const elementMessages = invalidItems.map(({ item, index }) => {
+  data.forEach((item, index) => {
+    if (isAccessReportSettingsData(item)) {
+      validItems.push(item);
+    } else {
       const fieldErrors = isAccessReportSettingsData.explain(item).join("; ");
-      return `  element[${index}]: ${fieldErrors}`;
-    });
-    throw new Error(
-      `Invalid application data: array contains ${invalidItems.length} invalid AccessReportSettingsData element(s)\n` +
-        elementMessages.join("\n"),
-    );
-  }
+      errors.push(`element[${index}]: ${fieldErrors}`);
+    }
+  });
 
-  if (!isAccessReportSettingsDataArray(data)) {
-    // Throw for type casting return
-    // Should never get here
-    throw new Error("Invalid application data");
-  }
-
-  return data;
+  return { data: validItems, errors };
 }
 
 /**
- * Validates and returns AccessReportPayload
- * @throws Error if validation fails
+ * Validates an AccessReportPayload. Invalid `reports[]` elements and `memberRegistry`
+ * entries are dropped from the returned data and recorded in `errors`. Throws on
+ * structural failures only (non-object payload, non-array `reports`, `reports` length
+ * or `memberRegistry` size > {@link BOUNDED_ARRAY_MAX_LENGTH}, non-object `memberRegistry`).
  */
-export function validateAccessReportPayload(data: unknown): AccessReportPayload {
+export function validateAccessReportPayload(data: unknown): ValidationResult<AccessReportPayload> {
   if (data == null || typeof data !== "object" || Array.isArray(data)) {
     throw new Error("Invalid report payload: expected object, received non-object");
   }
 
   const obj = data as Record<string, unknown>;
+  const errors: string[] = [];
 
-  if (!isApplicationHealthDataArray(obj["reports"])) {
-    throw new Error("Invalid report payload: reports array failed validation");
+  // reports: drop invalid elements; structural failures (non-array, length) still throw.
+  const rawReports = obj["reports"];
+  if (!Array.isArray(rawReports)) {
+    throw new Error("Invalid report payload: reports expected array, received non-array");
   }
+  if (rawReports.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    throw new Error(
+      `Invalid report payload: reports array length ${rawReports.length} exceeds maximum allowed length ${BOUNDED_ARRAY_MAX_LENGTH}`,
+    );
+  }
+
+  const reports: ApplicationHealthData[] = [];
+  rawReports.forEach((item, index) => {
+    if (isApplicationHealthData(item)) {
+      reports.push(item);
+    } else {
+      const fieldErrors = isApplicationHealthData.explain(item).join("; ");
+      errors.push(`reports[${index}]: ${fieldErrors}`);
+    }
+  });
 
   // Pre-normalize "" → undefined before validation for backwards compatibility with
   // blobs that stored empty string. The guard uses isBoundedStringOrUndefined which
@@ -416,10 +427,32 @@ export function validateAccessReportPayload(data: unknown): AccessReportPayload 
     }
   }
 
-  if (!isMemberRegistry(obj["memberRegistry"])) {
-    const errors = isMemberRegistry.explain(obj["memberRegistry"]).join("; ");
-    throw new Error(`Invalid report payload: memberRegistry failed validation: ${errors}`);
+  // memberRegistry: drop invalid entries; structural failures (non-object, size) still throw.
+  const rawRegistry = obj["memberRegistry"];
+  if (rawRegistry == null || typeof rawRegistry !== "object" || Array.isArray(rawRegistry)) {
+    throw new Error("Invalid report payload: memberRegistry expected object, received non-object");
   }
 
-  return data as AccessReportPayload;
+  const registryEntries = Object.entries(rawRegistry as Record<string, unknown>);
+  if (registryEntries.length > BOUNDED_ARRAY_MAX_LENGTH) {
+    throw new Error(
+      `Invalid report payload: memberRegistry size ${registryEntries.length} exceeds maximum allowed length ${BOUNDED_ARRAY_MAX_LENGTH}`,
+    );
+  }
+
+  const memberRegistry: Record<string, MemberRegistryEntryData> = {};
+  for (const [key, entry] of registryEntries) {
+    if (!isBoundedString(key)) {
+      errors.push(`memberRegistry: dropped entry with invalid key`);
+      continue;
+    }
+    if (isMemberRegistryEntryData(entry)) {
+      memberRegistry[key] = entry;
+    } else {
+      const fieldErrors = isMemberRegistryEntryData.explain(entry).join("; ");
+      errors.push(`memberRegistry["${key}"]: ${fieldErrors}`);
+    }
+  }
+
+  return { data: { reports, memberRegistry }, errors };
 }
