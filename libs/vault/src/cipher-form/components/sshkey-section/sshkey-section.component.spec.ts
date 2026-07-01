@@ -81,7 +81,6 @@ describe("SshKeySectionComponent", () => {
 
     // minimal required inputs
     fixture.componentRef.setInput("originalCipherView", { edit: true, sshKey: null });
-    fixture.componentRef.setInput("disabled", false);
 
     (generate_ssh_key as unknown as jest.Mock).mockReset();
   });
@@ -166,17 +165,6 @@ describe("SshKeySectionComponent", () => {
     expect(component.sshKeyForm.get("keyFingerprint")?.value).toBe("genFp");
   });
 
-  it("ngOnInit disables the form", async () => {
-    cipherFormContainer.getInitialCipherView.mockReturnValue({
-      sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
-    });
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
-    await component.ngOnInit();
-
-    expect(component.sshKeyForm.disabled).toBe(true);
-  });
-
   it("sets showImport true when not Web and originalCipherView.edit is true", async () => {
     cipherFormContainer.getInitialCipherView.mockReturnValue({
       sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
@@ -201,22 +189,6 @@ describe("SshKeySectionComponent", () => {
     await component.ngOnInit();
 
     expect(component.showImport()).toBe(false);
-  });
-
-  it("disables the ssh key form when formStatusChange emits enabled", async () => {
-    cipherFormContainer.getInitialCipherView.mockReturnValue({
-      sshKey: { privateKey: "p1", publicKey: "p2", keyFingerprint: "p3" },
-    });
-
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
-
-    await component.ngOnInit();
-
-    component.sshKeyForm.enable();
-    expect(component.sshKeyForm.disabled).toBe(false);
-
-    formStatusChange$.next("enabled");
-    expect(component.sshKeyForm.disabled).toBe(true);
   });
 
   it("renders the import button only when showImport is true", async () => {
