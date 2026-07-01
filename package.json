@@ -95,7 +95,7 @@
     "@webcomponents/custom-elements": "1.6.0",
     "@yao-pkg/pkg": "6.5.1",
     "angular-eslint": "20.7.0",
-    "autoprefixer": "10.4.22",
+    "autoprefixer": "10.5.2",
     "axe-playwright": "2.2.2",
     "babel-loader": "10.1.1",
     "base64-loader": "1.0.0",
