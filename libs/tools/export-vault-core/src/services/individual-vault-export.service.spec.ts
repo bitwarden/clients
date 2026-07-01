@@ -501,7 +501,7 @@ describe("VaultExportService", () => {
         ?.async("blob");
       expect(attachment1).toBeDefined();
       const attachment2 = await zip
-        .file("attachments/(1) mock-cipher-name/mock-file-name")
+        .file("attachments/mock-cipher-name_1/mock-file-name")
         ?.async("blob");
       expect(attachment2).toBeDefined();
     });
@@ -541,11 +541,48 @@ describe("VaultExportService", () => {
         ?.async("blob");
       expect(attachment1).toBeDefined();
       const attachment2 = await zip
-        .file("attachments/mock-cipher-name/(1) mock-file-name")
+        .file("attachments/mock-cipher-name/mock-file-name_1")
         ?.async("blob");
       expect(attachment2).toBeDefined();
     });
   });
+
+  it.each(["//", "\\\\", ">>", "<<", "::", '""', "||", "??", "**"])(
+    "should replace disallowed characters in attachment filenames with an underscore",
+    async (badString) => {
+      const cipherData = new CipherData();
+      cipherData.id = "mock-id-1";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id-1" as CipherId]: cipherData,
+      };
+      const cipherView = new CipherView(new Cipher(cipherData));
+      cipherView.name = "mock-cipher-name";
+      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView.fileName = "mock-file-na" + badString + "me";
+      cipherView.attachments = [attachmentView];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const exportedVault = await exportService.getExport(userId, "zip");
+
+      expect(exportedVault.type).toBe("application/zip");
+      const exportZip = exportedVault as ExportedVaultAsBlob;
+      const zip = await JSZip.loadAsync(exportZip.data);
+      const attachment = await zip
+        .file("attachments/mock-cipher-name/mock-file-na_me")
+        ?.async("blob");
+      expect(attachment).toBeDefined();
+    },
+  );
 
   describe("password protected export", () => {
     let exportedVault: ExportedVault;

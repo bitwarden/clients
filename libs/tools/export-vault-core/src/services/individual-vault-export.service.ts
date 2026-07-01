@@ -119,14 +119,14 @@ export class IndividualVaultExportService
       ) {
         continue;
       }
-
-      let cipherFolderName = cipher.name;
+      // Replace disallowed characters with "_" and ensure we don't have multiple "_" in a row
+      let cipherFolderName = cipher.name.replace(/[/\\><:"|?*]/g, "_").replace(/__+/g, "_");
       const cipherNameCount = cipherNameMap.get(cipher.name);
       if (cipherNameCount === undefined) {
         cipherNameMap.set(cipher.name, 1);
       } else {
         cipherNameMap.set(cipher.name, cipherNameCount + 1);
-        cipherFolderName = `(${cipherNameCount}) ${cipherFolderName}`;
+        cipherFolderName += `_${cipherNameCount}`;
       }
       const cipherFolder = attachmentsFolder.folder(cipherFolderName);
 
@@ -141,14 +141,16 @@ export class IndividualVaultExportService
             response,
             activeUserId,
           );
-
-          let attachmentFileName = attachment.fileName;
+          // Replace disallowed characters with "_" and ensure we don't have multiple "_" in a row
+          let attachmentFileName = attachment.fileName
+            .replace(/[/\\><:"|?*]/g, "_")
+            .replace(/__+/g, "_");
           const filenameCount = attachmentNameMap.get(attachmentFileName);
           if (filenameCount === undefined) {
             attachmentNameMap.set(attachmentFileName, 1);
           } else {
             attachmentNameMap.set(attachmentFileName, filenameCount + 1);
-            attachmentFileName = `(${filenameCount}) ${attachmentFileName}`;
+            attachmentFileName += `_${filenameCount}`;
           }
 
           cipherFolder.file(attachmentFileName, decBuf);
