@@ -14,7 +14,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
+import { AbstractControl, StatusChangeEvent, TouchedChangeEvent } from "@angular/forms";
 import { filter } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -24,7 +24,12 @@ import { BitLabelComponent } from "../form-control/label.component";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
-import { BitFormFieldControlDirective } from "./form-field-control.directive";
+import {
+  BitFormFieldControlDirective,
+  controlHasError,
+  firstControlError,
+  isControlRequired,
+} from "./form-field-control.directive";
 import { BitPrefixDirective } from "./prefix.directive";
 import { BitSuffixDirective } from "./suffix.directive";
 
@@ -93,7 +98,7 @@ export class BitFormFieldComponent {
   private readonly controlState = computed<{
     required: boolean;
     hasError: boolean;
-    error: [string, any] | undefined;
+    error: [string, any];
   }>(() => {
     const directive = this.input();
     if (directive) {
@@ -105,12 +110,10 @@ export class BitFormFieldComponent {
     }
     this.controlEvent();
     const control = this.control();
-    const errors = control?.errors;
-    const firstKey = errors == null ? undefined : Object.keys(errors)[0];
     return {
-      required: control?.hasValidator(Validators.required) ?? false,
-      hasError: control != null && control.invalid && control.touched,
-      error: firstKey == null ? undefined : [firstKey, errors![firstKey]],
+      required: isControlRequired(control),
+      hasError: controlHasError(control),
+      error: firstControlError(control),
     };
   });
 
