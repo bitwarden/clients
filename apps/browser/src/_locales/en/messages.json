@@ -5129,6 +5129,9 @@
   "defaultPasswordManagerPromptStep3": {
     "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
   },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Made Bitwarden your default browser password manager"
+  },
   "allow": {
     "message": "Allow",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"

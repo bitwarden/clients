@@ -25,12 +25,11 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
+import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
-import {
-  getPendingDefaultPasswordManagerApply,
-  setPendingDefaultPasswordManagerApply,
-} from "../autofill/utils/pending-default-password-manager.storage";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -59,6 +58,7 @@ export default class RuntimeBackground {
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private browserInitialInstallService: BrowserInitialInstallService,
+    private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -274,13 +274,12 @@ export default class RuntimeBackground {
       return;
     }
 
-    if (!(await getPendingDefaultPasswordManagerApply())) {
+    if (!(await isDefaultPasswordManagerPromptFeatureEnabled(this.configService))) {
       return;
     }
 
     try {
-      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await setPendingDefaultPasswordManagerApply(false);
+      await completePendingDefaultPasswordManagerApply();
     } catch (error) {
       this.logService.error(error);
     }
@@ -508,20 +507,23 @@ export default class RuntimeBackground {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        if (
-          this.onInstalledReason === "install" &&
-          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
-        ) {
-          await this.browserInitialInstallService.displayWelcomePage();
-
-          await this.autofillSettingsService.setInlineMenuVisibility(
-            AutofillOverlayVisibility.OnFieldFocus,
-          );
-
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
+        if (this.onInstalledReason === "install") {
+          if (await isDefaultPasswordManagerPromptFeatureEnabled(this.configService)) {
+            await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
           }
-          await this.browserInitialInstallService.setExtensionInstalled(true);
+
+          if (!(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))) {
+            await this.browserInitialInstallService.displayWelcomePage();
+
+            await this.autofillSettingsService.setInlineMenuVisibility(
+              AutofillOverlayVisibility.OnFieldFocus,
+            );
+
+            if (await this.environmentService.hasManagedEnvironment()) {
+              await this.environmentService.setUrlsToManagedEnvironment();
+            }
+            await this.browserInitialInstallService.setExtensionInstalled(true);
+          }
         }
 
         this.onInstalledReason = null;
