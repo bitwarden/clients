@@ -33,6 +33,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
   TooltipDirective,
@@ -217,7 +218,7 @@ export class LockComponent implements OnInit, OnDestroy {
             } else if (!prevBiometricsEnabled && this.unlockOptions?.biometrics.enabled) {
               await this.setDefaultActiveUnlockOption(this.unlockOptions);
               if (this.activeUnlockOption === UnlockOption.Biometrics) {
-                await this.handleBiometricsUnlockEnabled();
+                await this.handleBiometricsUnlockEnabled(this.activeAccount.id);
               }
             }
           }
@@ -294,7 +295,7 @@ export class LockComponent implements OnInit, OnDestroy {
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
     if (this.unlockOptions?.biometrics.enabled) {
-      await this.handleBiometricsUnlockEnabled();
+      await this.handleBiometricsUnlockEnabled(activeAccount.id);
     }
 
     this.lockComponentService
@@ -344,11 +345,11 @@ export class LockComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async handleBiometricsUnlockEnabled() {
+  private async handleBiometricsUnlockEnabled(userId: UserId) {
     this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
 
     const autoPromptBiometrics = await firstValueFrom(
-      this.biometricStateService.promptAutomatically$,
+      this.biometricStateService.promptAutomatically$(userId),
     );
 
     // TODO: PM-12546 - we need to make our biometric autoprompt experience consistent between the
@@ -356,7 +357,7 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
         this.loading = false;
-        await this.desktopAutoPromptBiometrics();
+        await this.desktopAutoPromptBiometrics(userId);
       }
     }
 
@@ -433,7 +434,7 @@ export class LockComponent implements OnInit, OnDestroy {
         return;
       }
 
-      await this.biometricStateService.setUserPromptCancelled();
+      await this.biometricStateService.setUserPromptCancelled(this.activeAccount.id);
 
       await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
       const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
@@ -582,7 +583,7 @@ export class LockComponent implements OnInit, OnDestroy {
       throw new Error("No active user.");
     }
 
-    await this.biometricStateService.resetUserPromptCancelled();
+    await this.biometricStateService.resetUserPromptCancelled(this.activeAccount.id);
 
     try {
       await this.encryptedMigrator.runMigrations(
@@ -733,7 +734,7 @@ export class LockComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async desktopAutoPromptBiometrics() {
+  private async desktopAutoPromptBiometrics(userId: UserId) {
     if (!this.unlockOptions?.biometrics?.enabled || this.biometricAsked) {
       return;
     }
@@ -743,7 +744,7 @@ export class LockComponent implements OnInit, OnDestroy {
     }
 
     // prevent the biometric prompt from showing if the user has already cancelled it
-    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
+    if (await firstValueFrom(this.biometricStateService.promptCancelled$(userId))) {
       return;
     }
 

@@ -11,15 +11,12 @@ import {
 } from "@angular/forms";
 import { Subject, firstValueFrom, take, filter, takeUntil } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
 import {
   DialogRef,
   AsyncActionsModule,
@@ -31,6 +28,8 @@ import {
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 /**
  * Validator for self-hosted environment settings form.

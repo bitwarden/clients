@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DiscountBadgeComponent, DiscountTypes } from "@bitwarden/pricing";
+
+import { DiscountBadgeComponent, DiscountTypes } from "../..";
 
 describe("DiscountBadgeComponent", () => {
   let component: DiscountBadgeComponent;

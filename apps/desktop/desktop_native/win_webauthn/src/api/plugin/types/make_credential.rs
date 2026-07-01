@@ -33,9 +33,16 @@ pub struct PluginMakeCredentialRequest<'a> {
     inner: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
+    operation_request_hash: Vec<u8>,
 }
 
 impl<'a> PluginMakeCredentialRequest<'a> {
+    /// The SHA-256 hash of the original plugin operation request. This must be
+    /// used when performing user verification requests for this request.
+    pub fn operation_request_hash(&self) -> &[u8] {
+        &self.operation_request_hash
+    }
+
     pub fn client_data_hash(&self) -> &[u8] {
         // SAFETY: clientDataHash is a required field, and when this is
         // constructed using Self::try_from_ptr(), the Windows decode API
@@ -102,6 +109,7 @@ impl<'a> PluginMakeCredentialRequest<'a> {
     /// - pbRequestSignature must be non-null and have the length specified in cbRequestSignature.
     pub(super) unsafe fn try_from_ptr(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<PluginMakeCredentialRequest<'a>, WinWebAuthnError> {
         if !matches!(
             request.requestType,
@@ -143,6 +151,7 @@ impl<'a> PluginMakeCredentialRequest<'a> {
             inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
             window_handle: request.hWnd,
             transaction_id: request.transactionId,
+            operation_request_hash: request_hash.0,
         })
     }
 }
