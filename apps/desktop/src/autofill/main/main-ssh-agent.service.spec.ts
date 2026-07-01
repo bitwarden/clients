@@ -68,11 +68,16 @@ describe("MainSshAgentService", () => {
   describe("v2 (useV2 = true)", () => {
     let capturedSignCb: (err: Error | null, data: sshagent_v2.SignRequestData) => Promise<boolean>;
 
+    let capturedListCb: (err: Error | null) => Promise<boolean>;
+
     beforeEach(async () => {
-      (sshagent_v2.SshAgentState.serve as jest.Mock).mockImplementation((sign: Function) => {
-        capturedSignCb = sign as any;
-        return Promise.resolve(mockAgentStateV2);
-      });
+      (sshagent_v2.SshAgentState.serve as jest.Mock).mockImplementation(
+        (sign: Function, list: Function) => {
+          capturedSignCb = sign as any;
+          capturedListCb = list as any;
+          return Promise.resolve(mockAgentStateV2);
+        },
+      );
 
       new MainSshAgentService(mockLogService, mockMessagingService);
       await ipcHandlers.get("sshagent.init")!({}, { useV2: true });
@@ -102,6 +107,10 @@ describe("MainSshAgentService", () => {
         expect(ipcHandlers.has("sshagent.stop")).toBe(true);
       });
 
+      it("should register sshagent.listkeysresponse IPC handler", () => {
+        expect(ipcHandlers.has("sshagent.listkeysresponse")).toBe(true);
+      });
+
       it("should not register sshagent.lock IPC handler", () => {
         expect(ipcHandlers.has("sshagent.lock")).toBe(false);
       });
@@ -128,8 +137,11 @@ describe("MainSshAgentService", () => {
     });
 
     describe("sshagent.init IPC handler", () => {
-      it("should call sshagent_v2.SshAgentState.serve with sign callback only", () => {
-        expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledWith(expect.any(Function));
+      it("should call sshagent_v2.SshAgentState.serve with sign and list callbacks", () => {
+        expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledWith(
+          expect.any(Function),
+          expect.any(Function),
+        );
       });
 
       it("should log success after serve resolves", async () => {
@@ -201,6 +213,34 @@ describe("MainSshAgentService", () => {
         await responseHandler({}, { requestId: 1, accepted: false });
 
         expect(await signPromise).toBe(false);
+      });
+    });
+
+    describe("requestListKeys (via list callback)", () => {
+      it("should send sshagent.listkeysrequest with a requestId", () => {
+        void capturedListCb(null);
+
+        expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.listkeysrequest", {
+          requestId: expect.any(Number),
+        });
+      });
+
+      it("should resolve with true when the renderer accepts", async () => {
+        const listPromise = capturedListCb(null);
+
+        const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
+        await responseHandler({}, { requestId: 1, accepted: true });
+
+        expect(await listPromise).toBe(true);
+      });
+
+      it("should resolve with false when the renderer rejects", async () => {
+        const listPromise = capturedListCb(null);
+
+        const responseHandler = ipcHandlers.get("sshagent.listkeysresponse")!;
+        await responseHandler({}, { requestId: 1, accepted: false });
+
+        expect(await listPromise).toBe(false);
       });
     });
 

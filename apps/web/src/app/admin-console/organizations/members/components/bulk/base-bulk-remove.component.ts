@@ -27,7 +27,7 @@ export abstract class BaseBulkRemoveComponent {
       this.statuses.set(newStatuses);
       this.done.set(true);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : String(e));
+      this.error.set((e as any)?.message ?? String(e));
     }
 
     this.loading.set(false);

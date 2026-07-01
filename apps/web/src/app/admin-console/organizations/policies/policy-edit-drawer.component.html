@@ -26,7 +26,7 @@
       @if (policy.warningKey) {
         <bit-callout type="warning">{{ policy.warningKey | i18n }}</bit-callout>
       }
-      @if (policy.showDescription) {
+      @if (policy.v2?.showDescription ?? policy.showDescription) {
         <p bitTypography="body1">{{ policy.v2?.description ?? policy.description | i18n }}</p>
       }
       <ng-template #policyForm></ng-template>
