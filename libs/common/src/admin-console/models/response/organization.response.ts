@@ -33,6 +33,7 @@ export class OrganizationResponse extends BaseResponse {
   usePam: boolean;
   smSeats?: number;
   smServiceAccounts?: number;
+  smServiceAccountsGrace?: number;
   maxAutoscaleSmSeats?: number;
   maxAutoscaleSmServiceAccounts?: number;
   limitCollectionCreation: boolean;
@@ -78,6 +79,7 @@ export class OrganizationResponse extends BaseResponse {
     this.usePam = this.getResponseProperty("UsePam") ?? false;
     this.smSeats = this.getResponseProperty("SmSeats");
     this.smServiceAccounts = this.getResponseProperty("SmServiceAccounts");
+    this.smServiceAccountsGrace = this.getResponseProperty("SmServiceAccountsGrace") ?? 0;
     this.maxAutoscaleSmSeats = this.getResponseProperty("MaxAutoscaleSmSeats");
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
