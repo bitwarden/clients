@@ -440,7 +440,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.unarchiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t(ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems"),
+        message: this.i18nService.t(
+          ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
+        ),
       });
       this.selection.clear();
       this._completed$.next();

@@ -218,7 +218,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     private toastService: ToastService,
     private accountService: AccountService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async ngOnInit() {
     const onlyPersonalItems = this.params.ciphers.every((c) => c.organizationId == null);
@@ -305,7 +305,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       let assignedMessageKey: string;
 
       if (batchBarEnabled) {
-        assignedMessageKey = this.collectionAssignmentToastKey(ciphersCount, selectedCollectionsCount);
+        assignedMessageKey = this.collectionAssignmentToastKey(
+          ciphersCount,
+          selectedCollectionsCount,
+        );
       } else {
         assignedMessageKey = "successfullyAssignedCollections";
       }
