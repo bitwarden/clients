@@ -6857,6 +6857,12 @@
   "accepted": {
     "message": "Accepted"
   },
+  "staged": {
+    "message": "Staged"
+  },
+  "stagedMemberTooltip": {
+    "message": "Pending account invitation"
+  },
   "sendLink": {
     "message": "Send link",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -7239,6 +7245,30 @@
   },
   "autoConfirmDisabledByPortal": {
     "message": "Removed Automatic user confirmation policy"
+  },
+  "inviteLinkEventCreated": {
+    "message": "Created invite link"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Edited allowed domains for invite link"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Deleted invite link"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Copied invite link"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Regenerated invite link"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
   },
   "system": {
     "message": "System"
@@ -11229,6 +11259,12 @@
   "editedCollection": {
     "message": "Edited collection"
   },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "baseUrl": {
     "message": "Server URL"
   },
@@ -11861,6 +11897,15 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "graceMachineAccounts": {
+    "message": "You have $COUNT$ machine accounts from your previous plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
       }
     }
   },

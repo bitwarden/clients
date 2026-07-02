@@ -346,14 +346,17 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import {
   BrowserFido2ParentWindowReference,
   BrowserFido2UserInterfaceService,
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
+import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
 import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
@@ -443,6 +446,7 @@ export default class MainBackground {
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
+  autofillLifecycleService: AutofillLifecycleService;
   autofillService: AutofillServiceAbstraction;
   containerService: ContainerService;
   auditService: AuditServiceAbstraction;
@@ -524,6 +528,7 @@ export default class MainBackground {
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
+  defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
   v2UpgradeTokenStateService: V2UpgradeTokenStateService;
@@ -1261,6 +1266,11 @@ export default class MainBackground {
       this.platformUtilsService,
       this.logService,
     );
+    this.autofillLifecycleService = new DefaultAutofillLifecycleService(
+      this.authService,
+      this.autofillSettingsService,
+      this.logService,
+    );
     this.autofillService = new AutofillService(
       this.cipherService,
       this.autofillSettingsService,
@@ -1276,6 +1286,7 @@ export default class MainBackground {
       this.userNotificationSettingsService,
       messageListener,
       this.animationControlService,
+      this.autofillLifecycleService,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1348,6 +1359,9 @@ export default class MainBackground {
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
+    this.defaultPasswordManagerPromptStateAccessor = new DefaultPasswordManagerPromptStateAccessor(
+      this.stateProvider,
+    );
 
     if (BrowserApi.isManifestVersion(3)) {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
@@ -1514,6 +1528,8 @@ export default class MainBackground {
       this.lockService,
       this.billingAccountProfileStateService,
       this.browserInitialInstallService,
+      this.autofillLifecycleService,
+      this.defaultPasswordManagerPromptStateAccessor,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1788,6 +1804,10 @@ export default class MainBackground {
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();
+    // Wire the autofill lifecycle before runtime init triggers script
+    // injection, so the onConnect listener is registered before any frame
+    // connects.
+    this.autofillLifecycleService.init();
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();

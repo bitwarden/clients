@@ -72,17 +72,29 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             try? await Task.sleep(nanoseconds: UInt64(100 * attempt + (delayMs * 1_000_000))) // Convert ms to nanoseconds
             let connectionStatus = newClient!.getConnectionStatus()
 
-            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            let statusString = switch connectionStatus {
+                case .connecting: "connecting"
+                case .connected: "connected"
+                case .disconnected: "disconnected"
+            }
+            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(statusString)")
 
             if connectionStatus == .connected {
                 logger.log("[autofill-extension] Successfully connected to Bitwarden (attempt \(attempt))")
                 break
-            } else {
-                if attempt < maxRetries {
-                    logger.log("[autofill-extension] Retrying connection")
-                } else {
-                    logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            } else if connectionStatus == .connecting {
+                // try to wait one more time while it's connecting
+                try? await Task.sleep(for: .milliseconds(100))
+                if newClient!.getConnectionStatus() == .connected {
+                    break
                 }
+            }
+
+            // client couldn't connect in deadline.
+            if attempt < maxRetries {
+                logger.log("[autofill-extension] Retrying connection")
+            } else {
+                logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(statusString)")
             }
         }
 
