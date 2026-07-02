@@ -140,19 +140,19 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
     switch (invite.kind) {
       case OrgInviteKind.Direct:
-        return await this.validateAndAcceptDirect(invite, userId);
+        return await this.validateAndAcceptDirectOrgInvite(invite, userId);
       case OrgInviteKind.Open:
-        return await this.validateAndAcceptOpen(invite, userId);
+        return await this.validateAndAcceptOpenOrgInvite(invite, userId);
     }
   }
 
-  private async validateAndAcceptDirect(
+  private async validateAndAcceptDirectOrgInvite(
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<boolean> {
     // Creation of a new org
     if (invite.initOrganization) {
-      await this.acceptAndInitOrganization(invite, userId);
+      await this.acceptDirectOrgInviteAndInitOrganization(invite, userId);
       return true;
     }
 
@@ -174,11 +174,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
 
     // We know the user has already logged in and passed a MP policy check
-    await this.accept(invite, userId);
+    await this.acceptDirectOrgInvite(invite, userId);
     return true;
   }
 
-  private async validateAndAcceptOpen(
+  private async validateAndAcceptOpenOrgInvite(
     invite: OpenOrganizationInvite,
     userId: UserId,
   ): Promise<boolean> {
@@ -308,11 +308,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return this.policyService.combinePoliciesIntoMasterPasswordPolicyOptions(policies);
   }
 
-  private async acceptAndInitOrganization(
+  private async acceptDirectOrgInviteAndInitOrganization(
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<void> {
-    await this.prepareAcceptAndInitRequest(invite, userId).then((request) =>
+    await this.prepareDirectOrgInviteAcceptAndInitRequest(invite, userId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAcceptInit(
         invite.organizationId,
         invite.organizationUserId,
@@ -323,7 +323,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     await this.clearOrganizationInvite();
   }
 
-  private async prepareAcceptAndInitRequest(
+  private async prepareDirectOrgInviteAcceptAndInitRequest(
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
@@ -350,8 +350,11 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     );
   }
 
-  private async accept(invite: DirectOrganizationInvite, userId: UserId): Promise<void> {
-    await this.prepareAcceptRequest(invite, userId).then((request) =>
+  private async acceptDirectOrgInvite(
+    invite: DirectOrganizationInvite,
+    userId: UserId,
+  ): Promise<void> {
+    await this.prepareDirectOrgInviteAcceptRequest(invite, userId).then((request) =>
       this.organizationUserApiService.postOrganizationUserAccept(
         invite.organizationId,
         invite.organizationUserId,
@@ -363,14 +366,14 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     await this.clearOrganizationInvite();
   }
 
-  private async prepareAcceptRequest(
+  private async prepareDirectOrgInviteAcceptRequest(
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptRequest> {
     const request = new OrganizationUserAcceptRequest();
     request.token = invite.token;
 
-    if (await this.resetPasswordEnrollRequired(invite)) {
+    if (await this.directInviteRequiresResetPasswordAutoEnroll(invite)) {
       const response = await this.organizationApiService.getKeys(invite.organizationId);
 
       if (response == null) {
@@ -396,8 +399,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return request;
   }
 
-  private async resetPasswordEnrollRequired(invite: DirectOrganizationInvite): Promise<boolean> {
-    const policies = await this.getOrgPoliciesForInvite(invite);
+  private async directInviteRequiresResetPasswordAutoEnroll(
+    directOrgInvite: DirectOrganizationInvite,
+  ): Promise<boolean> {
+    const policies = await this.getOrgPoliciesForInvite(directOrgInvite);
 
     if (policies == null || policies.length === 0) {
       return false;
@@ -405,7 +410,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
 
     const result = this.policyService.getResetPasswordPolicyOptions(
       policies,
-      invite.organizationId,
+      directOrgInvite.organizationId,
     );
     // Return true if policy enabled and auto-enroll enabled
     return result[1] && result[0].autoEnrollEnabled;

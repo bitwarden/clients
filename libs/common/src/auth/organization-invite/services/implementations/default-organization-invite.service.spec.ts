@@ -198,10 +198,10 @@ describe("DefaultOrganizationInviteService", () => {
     });
 
     it("fetches policies once when accepting an invite with non-MP policies and no stored invite", async () => {
-      // Regression: the email-mismatch guard in masterPasswordPolicyCheckRequired
+      // Regression: the email-mismatch guard in directInviteMasterPasswordPolicyCheckRequired
       // ran clearOrganizationInvite when storedInvite was null, wiping the
-      // freshly-populated policyCache and forcing resetPasswordEnrollRequired to
-      // re-fetch the same policies during the same accept() call.
+      // freshly-populated policyCache and forcing directInviteRequiresResetPasswordAutoEnroll
+      // to re-fetch the same policies during the same acceptDirectOrgInvite() call.
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([
         { type: PolicyType.SingleOrg, enabled: true } as Policy,
@@ -286,7 +286,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(authService.logOut).not.toHaveBeenCalled();
     });
 
-    describe("acceptAndInitOrganization encryption guards", () => {
+    describe("acceptDirectOrgInviteAndInitOrganization encryption guards", () => {
       const mockOrgKey = "orgPrivateKey" as unknown as OrgKey;
       let invite: DirectOrganizationInvite;
 
