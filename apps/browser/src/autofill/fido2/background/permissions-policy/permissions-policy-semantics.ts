@@ -75,6 +75,37 @@ export function getEffectiveAllowlist(
  *   expected to be already-normalized ASCII origin serializations (the parser's
  *   responsibility).
  */
+/**
+ * Rewrites a policy so every `{ type: "self" }` allowlist item is replaced by
+ * `{ type: "origin", value: ownerOrigin }`. Intended to be called on a frame's
+ * DECLARED policy after parsing, where `self` denotes the declaring document's
+ * own origin.
+ *
+ * Why: the delegation algorithm evaluates ancestor policies against the
+ * ORIGINAL requesting origin (a descendant's). Without resolution, a `self`
+ * token in an ancestor's declared policy would be interpreted as matching the
+ * descendant's origin — leaking through what should be a same-origin
+ * restriction. Resolving to explicit origins at build time keeps the resolver
+ * semantics uniform: `self` never crosses a frame boundary.
+ *
+ * Container policies (from the iframe `allow=` attribute) are already
+ * pre-resolved by the allow-attribute parser (which knows both origins), so
+ * this helper doesn't need to be applied to them.
+ */
+export function resolveSelfInPolicy(
+  policy: ParsedPermissionsPolicy,
+  ownerOrigin: string,
+): ParsedPermissionsPolicy {
+  const result = new Map<string, PermissionsPolicyDirective>();
+  for (const [feature, directive] of policy) {
+    const resolved: AllowlistItem[] = directive.allowlist.map((item) =>
+      item.type === "self" ? { type: "origin", value: ownerOrigin } : item,
+    );
+    result.set(feature, { feature, allowlist: resolved });
+  }
+  return result;
+}
+
 export function allowlistMatches(
   allowlist: readonly AllowlistItem[],
   requestingOrigin: string,

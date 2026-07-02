@@ -2,6 +2,7 @@ import {
   allowlistMatches,
   getEffectiveAllowlist,
   isFeatureAllowedByPolicy,
+  resolveSelfInPolicy,
 } from "./permissions-policy-semantics";
 import {
   AllowlistItem,
@@ -204,5 +205,75 @@ describe("allowlistMatches", () => {
     expect(
       allowlistMatches([{ type: "origin", value: "https://Example.com" }], REQUESTING_ORIGIN),
     ).toBe(false);
+  });
+});
+
+describe("resolveSelfInPolicy", () => {
+  const OWNER_ORIGIN = "https://owner.example";
+
+  it("replaces `{ type: 'self' }` items with the owner origin", () => {
+    const policy = policyOf({
+      feature: WebAuthnPermissionsPolicyFeature.Get,
+      allowlist: [{ type: "self" }],
+    });
+
+    const resolved = resolveSelfInPolicy(policy, OWNER_ORIGIN);
+
+    expect(resolved.get(WebAuthnPermissionsPolicyFeature.Get)?.allowlist).toEqual([
+      { type: "origin", value: OWNER_ORIGIN },
+    ]);
+  });
+
+  it("leaves wildcard items untouched", () => {
+    const policy = policyOf({
+      feature: WebAuthnPermissionsPolicyFeature.Get,
+      allowlist: [{ type: "wildcard" }],
+    });
+
+    const resolved = resolveSelfInPolicy(policy, OWNER_ORIGIN);
+
+    expect(resolved.get(WebAuthnPermissionsPolicyFeature.Get)?.allowlist).toEqual([
+      { type: "wildcard" },
+    ]);
+  });
+
+  it("leaves explicit origin items untouched", () => {
+    const other = "https://other.example";
+    const policy = policyOf({
+      feature: WebAuthnPermissionsPolicyFeature.Get,
+      allowlist: [{ type: "origin", value: other }],
+    });
+
+    const resolved = resolveSelfInPolicy(policy, OWNER_ORIGIN);
+
+    expect(resolved.get(WebAuthnPermissionsPolicyFeature.Get)?.allowlist).toEqual([
+      { type: "origin", value: other },
+    ]);
+  });
+
+  it("resolves mixed allowlists item-by-item", () => {
+    const other = "https://other.example";
+    const policy = policyOf({
+      feature: WebAuthnPermissionsPolicyFeature.Get,
+      allowlist: [
+        { type: "self" },
+        { type: "wildcard" },
+        { type: "origin", value: other },
+        { type: "self" },
+      ],
+    });
+
+    const resolved = resolveSelfInPolicy(policy, OWNER_ORIGIN);
+
+    expect(resolved.get(WebAuthnPermissionsPolicyFeature.Get)?.allowlist).toEqual([
+      { type: "origin", value: OWNER_ORIGIN },
+      { type: "wildcard" },
+      { type: "origin", value: other },
+      { type: "origin", value: OWNER_ORIGIN },
+    ]);
+  });
+
+  it("returns an empty policy for empty input", () => {
+    expect(resolveSelfInPolicy(policyOf(), OWNER_ORIGIN).size).toBe(0);
   });
 });

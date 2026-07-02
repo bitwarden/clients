@@ -254,6 +254,71 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
     });
   });
 
+  describe("ancestor `self`-only header restricts a cross-origin descendant (regression)", () => {
+    // Trace from AI-reviewer feedback (reviewer thread on
+    // `permissions-policy-semantics.ts:89`): if `{ type: 'self' }` matches any
+    // requesting origin, an ancestor's declared `feature=self` header fails to
+    // restrict cross-origin descendants that would otherwise pass container
+    // checks. Resolving `self` to the declaring frame's own origin in
+    // `buildFrameNode` closes the leak.
+    it("denies when middle's declared header is `self` and the request comes from a cross-origin descendant", async () => {
+      const TOP_URL = "https://top.example/";
+      const MIDDLE_URL = "https://middle.example/";
+      const INNER_URL = "https://inner.example/";
+
+      // Middle emits `publickey-credentials-get=self`.
+      const middleHeader = "publickey-credentials-get=self";
+      // Middle's iframe on inner grants everyone; top's iframe on middle also.
+      const wildcardAllow = "publickey-credentials-get *";
+
+      const parser: PermissionsPolicyParser = {
+        parseHeader: (raw) =>
+          raw === middleHeader
+            ? policyOf({
+                feature: WebAuthnPermissionsPolicyFeature.Get,
+                allowlist: [{ type: "self" }],
+              })
+            : new Map(),
+        parseAllowAttribute: (raw) =>
+          raw === wildcardAllow
+            ? policyOf({
+                feature: WebAuthnPermissionsPolicyFeature.Get,
+                allowlist: [{ type: "wildcard" }],
+              })
+            : new Map(),
+      };
+
+      const helper = new WebAuthnPermissionsPolicyBackground(
+        makeHeaderCache({
+          [`${TAB}:1`]: middleHeader, // middle's declared header
+        }),
+        makeIframeAllowCache({
+          // top's `allow=` on the middle iframe:
+          [`${TAB}:0:${MIDDLE_URL}`]: wildcardAllow,
+          // middle's `allow=` on the inner iframe:
+          [`${TAB}:1:${INNER_URL}`]: wildcardAllow,
+        }),
+        makeWebNavigation([frame(0, TOP_URL, -1), frame(1, MIDDLE_URL, 0), frame(2, INNER_URL, 1)]),
+        parser,
+      );
+
+      // With the bug present, the check would return true because
+      // `allowlistMatches([{self}], INNER_ORIGIN)` returned true. With the fix,
+      // middle's `[{self}]` resolves to `[{origin: MIDDLE_ORIGIN}]` at build
+      // time, and that doesn't match INNER_ORIGIN — so the ceremony is denied.
+      await expect(
+        helper.isFeatureAllowedForFrame(TAB, 2, WebAuthnPermissionsPolicyFeature.Get),
+      ).resolves.toBe(false);
+
+      // Sanity: middle's own use of the same feature is still permitted by
+      // its `self` header — `self` resolves to middle's origin, which matches
+      // when the requesting frame is middle itself.
+      await expect(
+        helper.isFeatureAllowedForFrame(TAB, 1, WebAuthnPermissionsPolicyFeature.Get),
+      ).resolves.toBe(true);
+    });
+  });
+
   describe("no-op parser default", () => {
     it("with no parser supplied, all declared/allow inputs parse to empty policies", async () => {
       // Top-level frame, header present, no parser → resolver sees empty

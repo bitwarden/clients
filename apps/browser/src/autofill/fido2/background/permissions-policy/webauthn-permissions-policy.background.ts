@@ -2,6 +2,7 @@ import { FrameNode, isWebAuthnFeatureAllowedForFrame } from "./frame-policy-reso
 import { IframeAllowCacheBackground } from "./iframe-allow-cache.background";
 import { PermissionsPolicyHeaderCacheBackground } from "./permissions-policy-header-cache.background";
 import { NoOpPermissionsPolicyParser, PermissionsPolicyParser } from "./permissions-policy-parser";
+import { resolveSelfInPolicy } from "./permissions-policy-semantics";
 import { ParsedPermissionsPolicy } from "./types";
 
 /**
@@ -89,7 +90,7 @@ export class WebAuthnPermissionsPolicyBackground {
       return null;
     }
 
-    const declared = this.parseDeclaredPolicy(tabId, frame.frameId);
+    const declared = this.parseDeclaredPolicy(tabId, frame.frameId, origin);
 
     if (frame.parentFrameId < 0) {
       // Top-level frame: no container, no parent.
@@ -114,12 +115,19 @@ export class WebAuthnPermissionsPolicyBackground {
     return { origin, declared, container, parent };
   }
 
-  private parseDeclaredPolicy(tabId: number, frameId: number): ParsedPermissionsPolicy {
+  private parseDeclaredPolicy(
+    tabId: number,
+    frameId: number,
+    frameOrigin: string,
+  ): ParsedPermissionsPolicy {
     const raw = this.headerCache.getRawHeader(tabId, frameId);
     if (raw == null) {
       return new Map();
     }
-    return this.parser.parseHeader(raw);
+    // Resolve `self` tokens to the frame's own origin. Without this, the
+    // delegation algorithm would misinterpret `self` in an ancestor's declared
+    // policy as matching the descendant's requesting origin when recursing.
+    return resolveSelfInPolicy(this.parser.parseHeader(raw), frameOrigin);
   }
 
   private parseContainerPolicy(
