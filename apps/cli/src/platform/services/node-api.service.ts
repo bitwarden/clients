@@ -47,7 +47,8 @@ export class NodeApiService extends ApiService {
   }
 
   async nativeFetch(request: Request): Promise<Response> {
-    const proxy = process.env.http_proxy || process.env.https_proxy;
+    const { getProxyForUrl } = await import("proxy-from-env");
+    const proxy = getProxyForUrl(request.url);
     if (proxy) {
       const { HttpsProxyAgent } = await import("https-proxy-agent");
       (request as any).agent = new HttpsProxyAgent(proxy);
