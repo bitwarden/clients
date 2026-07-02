@@ -74,7 +74,7 @@ describe("AdminSettingsComponent", () => {
 
     autoConfirmService.configuration$.mockReturnValue(of(mockAutoConfirmState));
     autoConfirmService.upsert.mockResolvedValue(undefined);
-    autoConfirmService.bulkAutoConfirmPendingUsers.mockReturnValue(of(undefined));
+    autoConfirmService.bulkAutoConfirmPendingUsers.mockResolvedValue(undefined);
     nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
     eventCollectionService.collect.mockResolvedValue(undefined);
     organizationService.organizations$.mockReturnValue(of([]));
