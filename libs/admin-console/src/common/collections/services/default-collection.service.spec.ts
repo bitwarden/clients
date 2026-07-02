@@ -1,13 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import {
-  combineLatest,
-  first,
-  firstValueFrom,
-  of,
-  ReplaySubject,
-  takeWhile,
-  throwError,
-} from "rxjs";
+import { combineLatest, filter, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import {
   CollectionView,
@@ -237,23 +229,8 @@ describe("DefaultCollectionService", () => {
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
     });
 
-    it("falls back to an empty list and logs when a batch decryption errors", async () => {
-      const org1 = Utils.newGuid() as OrganizationId;
-      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
-      const collection1 = collectionDataFactory(org1);
-
-      jest
-        .spyOn(collectionService, "decryptMany$")
-        .mockReturnValue(throwError(() => new Error("Failed to decrypt batch")));
-
-      await setEncryptedState([collection1]);
-      cryptoKeys.next({ [org1]: orgKey1 });
-
-      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
-
-      expect(result).toEqual([]);
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
-    });
+    // Note: the legacy (non-SDK) path intentionally has no batch-decryption error handling - see
+    // the comment in initializeDecryptedState. A decryptMany$ error here propagates as-is.
   });
 
   describe("encryptedCollections$", () => {
@@ -407,20 +384,56 @@ describe("DefaultCollectionService", () => {
       expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
     });
 
-    it("does not retry a failed batch on repeated subscriptions (avoids infinite loop)", async () => {
+    it("retries a failed batch on a fresh subscription so a transient failure recovers", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+      // Fail the first attempt (e.g. the SDK is not ready yet), then succeed.
+      collectionEncryptionService.decryptMany
+        .mockRejectedValueOnce(new Error("SDK not available"))
+        .mockResolvedValue([decryptedView]);
 
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
+      // First subscription hits the transient failure. The empty fallback is not cached.
+      const firstResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(firstResult).toEqual([]);
 
-      // The failed batch should only ever be attempted once; subsequent reads use the
-      // cached (empty) fallback state instead of re-triggering decryption.
-      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+      // A subsequent subscription re-attempts decryption (rather than serving a cached empty
+      // list) and recovers once the SDK is available.
+      const secondResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(secondResult).toContainPartialObjects([{ id: collection1.id }]);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(2);
+    });
+
+    it("emits the decrypted collections exactly once on success (no duplicate emission)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      const emissions: CollectionView[][] = [];
+      const sub = collectionService
+        .decryptedCollections$(userId)
+        .subscribe((v) => emissions.push(v));
+
+      // Deterministically wait until the decrypted result has been cached - that write is the
+      // mechanism that delivers the value to subscribers - then stop observing.
+      await firstValueFrom(
+        stateProvider
+          .getUser(userId, DECRYPTED_COLLECTION_DATA_KEY)
+          .state$.pipe(filter((state) => state != null)),
+      );
+      sub.unsubscribe();
+
+      // The decrypted result is delivered once via the cache re-emitting; the direct emission is
+      // dropped (ignoreElements) so subscribers never receive the same value twice.
+      expect(emissions).toHaveLength(1);
+      expect(emissions[0]).toContainPartialObjects([{ id: collection1.id }]);
     });
   });
 
