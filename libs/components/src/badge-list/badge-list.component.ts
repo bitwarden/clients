@@ -9,6 +9,12 @@ function transformMaxItems(value: number | undefined) {
 }
 
 /**
+ * @deprecated Use `bit-badge-group` with projected `<bit-badge>` children
+ * instead. The group component lets the consumer configure each badge
+ * (variant, icon, truncation, label) directly, rather than imposing a
+ * uniform variant on a `string[]` input. This component remains for
+ * backwards compatibility; new usages should adopt `bit-badge-group`.
+ *
  * Displays a collection of badges in a horizontal, wrapping layout.
  *
  * The component automatically handles overflow by showing a limited number of badges

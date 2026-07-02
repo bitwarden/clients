@@ -1,0 +1,15 @@
+<bit-chip-content size="large">
+  <button
+    bit-chip-content
+    [startIcon]="displayIcon()"
+    type="button"
+    class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-px-2 tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"
+    [class.tw-cursor-not-allowed]="disabled()"
+    [disabled]="disabled()"
+    [attr.aria-pressed]="active()"
+    [title]="label()"
+    (click)="flip()"
+  >
+    <span class="tw-block tw-min-w-0 tw-truncate">{{ label() }}</span>
+  </button>
+</bit-chip-content>

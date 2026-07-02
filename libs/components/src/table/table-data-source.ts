@@ -15,8 +15,8 @@ export type FilterFn<T> = (data: T) => boolean;
 // Loosely based on CDK TableDataSource
 //  https://github.com/angular/components/blob/main/src/material/table/table-data-source.ts
 export class TableDataSource<T> extends DataSource<T> {
-  private readonly _data: BehaviorSubject<T[]>;
-  private readonly _sort: BehaviorSubject<Sort>;
+  private readonly _data = new BehaviorSubject<T[]>([]);
+  private readonly _sort = new BehaviorSubject<Sort>({ direction: "asc" } as Sort);
   private readonly _filter = new BehaviorSubject<string | FilterFn<T>>(() => true);
   private readonly _renderData = new BehaviorSubject<T[]>([]);
   private _renderChangesSubscription: Subscription | null = null;
@@ -31,8 +31,6 @@ export class TableDataSource<T> extends DataSource<T> {
 
   constructor() {
     super();
-    this._data = new BehaviorSubject([] as T[]);
-    this._sort = new BehaviorSubject<Sort>({ direction: "asc" } as Sort);
   }
 
   get data() {
@@ -56,6 +54,9 @@ export class TableDataSource<T> extends DataSource<T> {
   get sort() {
     return this._sort.value;
   }
+
+  /** Emits the current `sort` and every subsequent change. */
+  readonly sort$: Observable<Sort> = this._sort.asObservable();
 
   /**
    * Filter to apply to the `data`.

@@ -113,38 +113,40 @@ export class KitchenSinkDialogWithAutofocusComponent {
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule],
   template: `
-    <bit-header title="Kitchen Sink" icon="bwi-collection">
-      <bit-breadcrumbs slot="breadcrumbs">
-        @for (item of navItems; track item) {
-          <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
-            {{ item.name }}
-          </bit-breadcrumb>
-        }
-      </bit-breadcrumbs>
-      <bit-search
-        [bitPopoverAnchorFor]="tourStep1"
-        [popoverOpen]="tourService.tourStep() === 1"
-        [spotlight]="true"
-        [position]="'below-center'"
-      />
-      <button
-        bitLink
-        [bitPopoverTriggerFor]="myPopover"
-        #triggerRef="popoverTrigger"
-        type="button"
-        aria-label="Popover trigger link"
-        slot="secondary"
-      >
-        <bit-icon name="bwi-question-circle" />
-      </button>
-      <bit-avatar text="BW"></bit-avatar>
-      <bit-tab-nav-bar slot="tabs">
-        <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
-        <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
-      </bit-tab-nav-bar>
-    </bit-header>
+    <bit-page>
+      <bit-header title="Kitchen Sink" icon="bwi-collection">
+        <bit-breadcrumbs slot="breadcrumbs">
+          @for (item of navItems; track item) {
+            <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
+              {{ item.name }}
+            </bit-breadcrumb>
+          }
+        </bit-breadcrumbs>
+        <bit-search
+          [bitPopoverAnchorFor]="tourStep1"
+          [popoverOpen]="tourService.tourStep() === 1"
+          [spotlight]="true"
+          [position]="'below-center'"
+        />
+        <button
+          bitLink
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          type="button"
+          aria-label="Popover trigger link"
+          slot="secondary"
+        >
+          <bit-icon name="bwi-question-circle" />
+        </button>
+        <bit-avatar text="BW"></bit-avatar>
+        <bit-tab-nav-bar slot="tabs">
+          <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
+          <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
+        </bit-tab-nav-bar>
+      </bit-header>
 
-    <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
+    </bit-page>
 
     <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
