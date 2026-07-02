@@ -166,6 +166,15 @@ export class NativeMessagingMain {
       throw new Error(`Unable to find proxy binary: ${binaryPath}`);
     }
 
+    // Firefox-based browsers may not have created their native messaging host directory yet.
+    // Create it when the browser is installed so the manifest below can be written.
+    for (const { installDir, nmhsDir } of this.getFirefoxNMHSDirsToCreate()) {
+      if (existsSync(installDir) && !existsSync(nmhsDir)) {
+        await fs.mkdir(nmhsDir, { recursive: true });
+        this.logService.info(`[Native messaging] Created missing manifest directory ${nmhsDir}`);
+      }
+    }
+
     switch (process.platform) {
       case "win32": {
         const destination = path.join(this.userPath, "browsers");
@@ -256,13 +265,45 @@ export class NativeMessagingMain {
                 path.join(value, "com.8bit.bitwarden.json"),
                 await this.generateFirefoxJson(sandboxedProxyBinaryPath),
               );
-            } else if (key === "Chrome" || key === "Chromium" || key === "Microsoft Edge") {
+            } else if (
+              key === "Chrome" ||
+              key === "Chromium" ||
+              key === "Microsoft Edge" ||
+              key === "Brave"
+            ) {
               await this.writeManifest(
                 path.join(value, "com.8bit.bitwarden.json"),
                 await this.generateChromeJson(sandboxedProxyBinaryPath),
               );
             } else {
               this.logService.warning(`Flatpak ${key} not supported, skipping.`);
+            }
+          } else {
+            this.logService.warning(`${key} not found, skipping.`);
+          }
+        }
+
+        // Snap browser
+        for (const [key, value] of Object.entries(this.getSnapNMHS())) {
+          if (existsSync(value)) {
+            const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
+            await this.linkOrCopy(binaryPath, sandboxedProxyBinaryPath);
+            this.logService.info(
+              `[Native messaging] Hard-linked ${binaryPath} to ${sandboxedProxyBinaryPath}`,
+            );
+
+            if (key === "Firefox") {
+              await this.writeManifest(
+                path.join(value, "com.8bit.bitwarden.json"),
+                await this.generateFirefoxJson(sandboxedProxyBinaryPath),
+              );
+            } else if (key === "Chromium" || key === "Brave" || key === "Microsoft Edge") {
+              await this.writeManifest(
+                path.join(value, "com.8bit.bitwarden.json"),
+                await this.generateChromeJson(sandboxedProxyBinaryPath),
+              );
+            } else {
+              this.logService.warning(`Snap ${key} not supported, skipping.`);
             }
           } else {
             this.logService.warning(`${key} not found, skipping.`);
@@ -339,6 +380,11 @@ export class NativeMessagingMain {
           await this.removeIfExists(path.join(value, ".bitwarden_desktop_proxy"));
         }
 
+        for (const [, value] of Object.entries(this.getSnapNMHS())) {
+          await this.removeIfExists(path.join(value, "com.8bit.bitwarden.json"));
+          await this.removeIfExists(path.join(value, ".bitwarden_desktop_proxy"));
+        }
+
         break;
       }
       default:
@@ -381,11 +427,12 @@ export class NativeMessagingMain {
         "HKCU",
         "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
-      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Brave: [
         "HKCU",
         "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
+      // Community Maintained. No official support provided
+      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
     };
   }
 
@@ -402,6 +449,7 @@ export class NativeMessagingMain {
       "Microsoft Edge Beta": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Beta/`,
       "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
       "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
+      // Community Maintained. No official support provided
       Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
       Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
       Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
@@ -415,8 +463,9 @@ export class NativeMessagingMain {
       Chrome: `${this.homedir()}/.config/google-chrome/`,
       Chromium: `${this.homedir()}/.config/chromium/`,
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
-      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
       Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
+      // Community Maintained. No official support provided
+      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
     };
   }
 
@@ -426,7 +475,56 @@ export class NativeMessagingMain {
       Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
       Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
       "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/`,
+      Brave: `${this.homedir()}/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/NativeMessagingHosts/`,
     };
+  }
+
+  private getSnapNMHS() {
+    return {
+      Firefox: `${this.homedir()}/snap/firefox/common/.mozilla/native-messaging-hosts/`,
+      Chromium: `${this.homedir()}/snap/chromium/common/chromium/NativeMessagingHosts/`,
+      Brave: `${this.homedir()}/snap/brave/current/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/`,
+      "Microsoft Edge": `${this.homedir()}/snap/microsoft-edge-dev/current/.config/microsoft-edge-dev/NativeMessagingHosts/`,
+    };
+  }
+
+  /*
+    Firefox-based browsers create their native messaging host directory lazily and, unlike the
+    chromium-based browsers, have no fallback to another browser's path. So when the browser is
+    installed (its parent/app directory exists) but the manifest directory has not been created
+    yet, we create it up front so the manifest can be installed.
+  */
+  private getFirefoxNMHSDirsToCreate(): { installDir: string; nmhsDir: string }[] {
+    const home = this.homedir();
+    switch (process.platform) {
+      case "darwin": {
+        const appSupport = `${home}/Library/Application Support`;
+        return [
+          {
+            installDir: `${appSupport}/Firefox/`,
+            nmhsDir: `${appSupport}/Mozilla/NativeMessagingHosts/`,
+          },
+          { installDir: `${appSupport}/Zen/`, nmhsDir: `${appSupport}/Zen/NativeMessagingHosts/` },
+        ];
+      }
+      case "linux":
+        return [
+          // Unsandboxed
+          { installDir: `${home}/.mozilla/`, nmhsDir: `${home}/.mozilla/native-messaging-hosts/` },
+          // Snap
+          {
+            installDir: `${home}/snap/firefox/`,
+            nmhsDir: `${home}/snap/firefox/common/.mozilla/native-messaging-hosts/`,
+          },
+          // Flatpak
+          {
+            installDir: `${home}/.var/app/org.mozilla.firefox/`,
+            nmhsDir: `${home}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
+          },
+        ];
+      default:
+        return [];
+    }
   }
 
   private async writeManifest(destination: string, manifest: object) {
