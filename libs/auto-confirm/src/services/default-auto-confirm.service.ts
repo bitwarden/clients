@@ -65,12 +65,10 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
             catchError(() => EMPTY),
           ),
         ),
+        switchMap((userId) => this.bulkAutoConfirmPendingUsers(userId)),
+        catchError(() => EMPTY),
       )
-      .subscribe((userId) => {
-        this.bulkAutoConfirmPendingUsers(userId).catch(() => {
-          // intentionally swallowed — errors are transient (network, etc.)
-        });
-      });
+      .subscribe();
   }
 
   private async resolveAutoConfirmOrg(userId: UserId): Promise<Organization | null> {
