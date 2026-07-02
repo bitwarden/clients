@@ -102,8 +102,8 @@ import { VaultModule } from "./vault/individual-vault/vault.module";
 
 /**
  * Gates the open-invite landing route on `FeatureFlag.GenerateInviteLink`. When the flag
- * is off the route doesn't match — Angular's router falls through to the wildcard, which
- * matches the off-behavior contract ("route unregistered / 404") from the plan.
+ * is off the route doesn't match — Angular's router falls through to the wildcard, so
+ * users hit the standard 404 fallback.
  */
 const generateInviteLinkFlagEnabled: CanMatchFn = () =>
   inject(ConfigService)
@@ -225,11 +225,11 @@ const routes: Routes = [
         ],
       },
       {
-        // Open organization invite link landing (PM-39706). The component handles
-        // both authenticated and unauthenticated users so no unauthGuardFn here.
+        // Open organization invite link landing. The component handles both
+        // authenticated and unauthenticated users so no unauthGuardFn here.
         // `canMatch` gates the route on the feature flag — when off, the route
         // doesn't match and the user gets the standard 404 fallback. `deepLinkGuard`
-        // persists the URL for SSO + JIT replay (Task 6).
+        // persists the URL so SSO + JIT flows can replay it after auth.
         path: "join/:inviteLinkCode",
         canMatch: [generateInviteLinkFlagEnabled],
         canActivate: [deepLinkGuard()],

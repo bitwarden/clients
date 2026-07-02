@@ -133,8 +133,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
 
     // SSO-required orgs route straight to /sso. The deepLinkGuard() on this route
     // persisted the inbound URL on the initial unauth visit; once the user reaches
-    // Unlocked post-SSO + JIT account setup (per Task 6 — pending product), the
-    // guard replays /#/join/{code}?key={key} and authedHandler fires accept.
+    // Unlocked post-SSO + JIT account setup, the guard replays
+    // /#/join/{code}?key={key} and authedHandler fires accept.
     if (invite.sso?.required) {
       await this.router.navigate(["/sso"], {
         queryParams: { identifier: invite.sso.orgSsoId },
