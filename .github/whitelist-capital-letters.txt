@@ -11,7 +11,6 @@
 ./apps/web/Dockerfile
 ./apps/desktop/resources/installerSidebar.bmp
 ./apps/desktop/resources/appx/SplashScreen.png
-./apps/desktop/resources/appx/BadgeLogo.png
 ./apps/desktop/resources/appx/Square150x150Logo.png
 ./apps/desktop/resources/appx/StoreLogo.png
 ./apps/desktop/resources/appx/Wide310x150Logo.png
