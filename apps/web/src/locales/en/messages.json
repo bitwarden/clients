@@ -11870,6 +11870,15 @@
       }
     }
   },
+  "graceMachineAccounts": {
+    "message": "You have $COUNT$ machine accounts from your previous plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
+      }
+    }
+  },
   "addAdditionalMachineAccounts": {
     "message": "You can add additional machine accounts for $COST$ per month.",
     "placeholders": {
