@@ -38,6 +38,7 @@ export enum RegistrationStartState {
 const DEFAULT_MARKETING_EMAILS_PREF_BY_REGION: Record<Region, boolean> = {
   [Region.US]: true,
   [Region.EU]: false,
+  [Region.Gov]: false,
   [Region.SelfHosted]: false,
 };
 
