@@ -60,6 +60,7 @@ zbus_polkit = { workspace = true, optional = true }
 core-foundation = { workspace = true, optional = true }
 desktop_objc = { path = "../objc" }
 homedir = { workspace = true }
+libc = { workspace = true }
 secmem-proc = { workspace = true }
 security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
