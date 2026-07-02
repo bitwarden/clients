@@ -181,4 +181,43 @@ describe("parseHeader", () => {
       expect(parseHeader("publickey-credentials-get=*, ").size).toBe(0);
     });
   });
+
+  describe("rejects top-level non-dictionary input", () => {
+    // `Permissions-Policy` is defined as an sf-dictionary (RFC 8941 §4.2.2).
+    // If the input at the top level can't be interpreted as a dictionary at
+    // all, our parser must return an empty map so the resolver falls back to
+    // spec defaults. These tests document that guarantee — combined with the
+    // dictionary-conformance suite (all 26 WG dictionary tests), they replace
+    // the need to run the WG list / item / token / string / boolean suites,
+    // whose surface area our parser deliberately never traverses.
+
+    it("rejects a bare integer at the top level", () => {
+      expect(parseHeader("42").size).toBe(0);
+    });
+
+    it("rejects a bare decimal at the top level", () => {
+      expect(parseHeader("1.5").size).toBe(0);
+    });
+
+    it("rejects a bare quoted string at the top level", () => {
+      expect(parseHeader('"hello"').size).toBe(0);
+    });
+
+    it("rejects a bare inner-list at the top level", () => {
+      expect(parseHeader("(a b c)").size).toBe(0);
+    });
+
+    it("rejects a bare boolean at the top level", () => {
+      expect(parseHeader("?1").size).toBe(0);
+      expect(parseHeader("?0").size).toBe(0);
+    });
+
+    it("rejects a bare byte-sequence at the top level", () => {
+      expect(parseHeader(":dGVzdA==:").size).toBe(0);
+    });
+
+    it("rejects a bare date at the top level (RFC 9651)", () => {
+      expect(parseHeader("@1659578233").size).toBe(0);
+    });
+  });
 });
