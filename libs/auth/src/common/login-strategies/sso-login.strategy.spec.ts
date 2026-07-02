@@ -370,7 +370,7 @@ describe("SsoLoginStrategy", () => {
       expect(keyService.setUserKey).not.toHaveBeenCalled();
     });
 
-    it("logs when a device key is found but no decryption keys were recieved in token response", async () => {
+    it("logs when a device key is found but no decryption keys were received in token response", async () => {
       // Arrange
       const userDecryptionOpts = userDecryptionOptsServerResponseWithTdeOption;
       userDecryptionOpts.TrustedDeviceOption.EncryptedPrivateKey = null;

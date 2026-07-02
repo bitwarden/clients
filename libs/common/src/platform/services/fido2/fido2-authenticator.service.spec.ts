@@ -190,7 +190,7 @@ describe("FidoAuthenticatorService", () => {
         await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
 
-      /** Devation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
+      /** Deviation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
       it("should not inform user of duplication when the excluded credential belongs to an organization", async () => {
         userInterfaceSession.informExcludedCredential.mockResolvedValue();
         excludedCipher.organizationId = "someOrganizationId";
@@ -331,7 +331,7 @@ describe("FidoAuthenticatorService", () => {
       });
 
       /** Spec: If any error occurred while creating the new credential object, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         const encryptedCipher = Symbol();
         userInterfaceSession.confirmNewCredential.mockResolvedValue({
           cipherId: existingCipher.id,
@@ -789,7 +789,7 @@ describe("FidoAuthenticatorService", () => {
       });
 
       /** Spec: If any error occurred while generating the assertion signature, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.getAssertion(params, windowReference);

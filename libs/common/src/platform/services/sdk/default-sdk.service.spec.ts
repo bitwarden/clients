@@ -33,7 +33,7 @@ import { DefaultSdkService } from "./default-sdk.service";
 
 class TestSdkLoadService extends SdkLoadService {
   protected override load(): Promise<void> {
-    // Simulate successfull WASM load
+    // Simulate successful WASM load
     return Promise.resolve();
   }
 }

@@ -2,4 +2,4 @@
 
 Owned by: platform
 
-Services for sending and recieving messages from different contexts of the same application.
+Services for sending and receiving messages from different contexts of the same application.

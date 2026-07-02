@@ -315,7 +315,7 @@ describe("FidoAuthenticatorService", () => {
         expect(result.extensions.credProps?.rk).toBe(false);
       });
 
-      it("should return credProps = undefiend when the extension is not requested", async () => {
+      it("should return credProps = undefined when the extension is not requested", async () => {
         const params = createParams({
           authenticatorSelection: { residentKey: "required", userVerification: "required" },
           extensions: {},
@@ -341,7 +341,7 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toBeInstanceOf(DOMException);
       });
 
-      // This keeps sensetive information form leaking
+      // This keeps sensitive information form leaking
       it("should throw NotAllowedError if authenticator throws unknown error", async () => {
         const params = createParams();
         authenticator.makeCredential.mockRejectedValue(new Error("unknown error"));
@@ -528,7 +528,7 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toBeInstanceOf(DOMException);
       });
 
-      // This keeps sensetive information form leaking
+      // This keeps sensitive information form leaking
       it("should throw NotAllowedError if authenticator throws unknown error", async () => {
         const params = createParams();
         authenticator.getAssertion.mockRejectedValue(new Error("unknown error"));

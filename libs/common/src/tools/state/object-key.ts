@@ -71,7 +71,7 @@ export function isObjectKey(key: any): key is ObjectKey<unknown> {
   return key.target === "object" && "format" in key && "classifier" in key;
 }
 
-/** Converts an object key to a plaform-compatible `UserKeyDefinition`. */
+/** Converts an object key to a platform-compatible `UserKeyDefinition`. */
 export function toUserKeyDefinition<State, Secret, Disclosed>(
   key: ObjectKey<State, Secret, Disclosed>,
 ) {
