@@ -21,7 +21,7 @@ edition = "2021"
 publish = false
 
 [workspace.dependencies]
-aes = "=0.8.4"
+aes = "=0.9.1"
 aes-gcm = "=0.10.3"
 anyhow = "=1.0.103"
 arboard = { version = "=3.6.1", default-features = false }
