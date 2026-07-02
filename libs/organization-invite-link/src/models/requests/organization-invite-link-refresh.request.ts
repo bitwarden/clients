@@ -1,14 +1,14 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkRefreshRequest {
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
 
-  constructor(c: { encryptedInviteKey: EncString; encryptedOrgKey?: EncString | undefined }) {
-    if (!c.encryptedInviteKey?.encryptedString) {
+  constructor(c: { encryptedInviteKey: InviteKeyEnvelope; encryptedOrgKey?: string | undefined }) {
+    if (!c.encryptedInviteKey) {
       throw new Error("EncryptedInviteKey is required.");
     }
-    this.encryptedInviteKey = c.encryptedInviteKey.encryptedString;
-    this.encryptedOrgKey = c.encryptedOrgKey?.encryptedString ?? undefined;
+    this.encryptedInviteKey = c.encryptedInviteKey;
+    this.encryptedOrgKey = c.encryptedOrgKey ?? undefined;
   }
 }

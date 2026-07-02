@@ -150,7 +150,9 @@ export class ByLinkTabComponent {
     if (inviteLink) {
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
     } else {
-      await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains);
+      await firstValueFrom(
+        this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains),
+      );
     }
 
     this.form.markAsPristine();
@@ -177,7 +179,7 @@ export class ByLinkTabComponent {
 
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
-    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId());
+    await firstValueFrom(this.inviteLinkService.refreshInviteLink(userId, this.organizationId()));
 
     this.toastService.showToast({
       variant: "success",

@@ -1,13 +1,14 @@
 import { Jsonify } from "type-fest";
 
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkResponseModel extends BaseResponse {
   id: string;
   code: string;
   organizationId: string;
   allowedDomains: string[];
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
   creationDate: string;
 
@@ -28,7 +29,7 @@ export class OrganizationInviteLink {
   code: string;
   organizationId: string;
   allowedDomains: string[];
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
   creationDate: string;
 

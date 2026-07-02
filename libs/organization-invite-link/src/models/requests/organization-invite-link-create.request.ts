@@ -1,24 +1,24 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkCreateRequest {
   allowedDomains: string[];
-  encryptedInviteKey: string;
+  encryptedInviteKey: InviteKeyEnvelope;
   encryptedOrgKey: string | undefined;
 
   constructor(c: {
     allowedDomains: string[];
-    encryptedInviteKey: EncString;
-    encryptedOrgKey?: EncString | undefined;
+    encryptedInviteKey: InviteKeyEnvelope;
+    encryptedOrgKey?: string | undefined;
   }) {
     if (!c.allowedDomains || c.allowedDomains.length === 0) {
       throw new Error("At least one allowed domain is required.");
     }
-    if (!c.encryptedInviteKey?.encryptedString) {
+    if (!c.encryptedInviteKey) {
       throw new Error("EncryptedInviteKey is required.");
     }
 
     this.allowedDomains = c.allowedDomains;
-    this.encryptedInviteKey = c.encryptedInviteKey.encryptedString;
-    this.encryptedOrgKey = c.encryptedOrgKey?.encryptedString ?? undefined;
+    this.encryptedInviteKey = c.encryptedInviteKey;
+    this.encryptedOrgKey = c.encryptedOrgKey ?? undefined;
   }
 }

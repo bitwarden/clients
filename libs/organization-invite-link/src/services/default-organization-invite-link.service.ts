@@ -1,12 +1,10 @@
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { map, Observable, of, switchMap } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { KeyService } from "@bitwarden/key-management";
+import { InviteKeyEnvelope, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
@@ -22,12 +20,10 @@ import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-
 
 export class DefaultOrganizationInviteLinkService implements OrganizationInviteLinkService {
   constructor(
-    private readonly keyService: KeyService,
-    private readonly encryptService: EncryptService,
-    private readonly keyGenerationService: KeyGenerationService,
     private readonly apiService: OrganizationInviteLinkApiService,
     private readonly stateProvider: StateProvider,
     private readonly environmentService: EnvironmentService,
+    private readonly sdkService: SdkService,
   ) {}
 
   inviteLink$(
@@ -40,17 +36,21 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  async createInviteLink(
+  createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
-  ): Promise<void> {
-    const encryptedInviteKey = await this.generateEncryptedKey(userId, orgId);
-    const request = new OrganizationInviteLinkCreateRequest({ allowedDomains, encryptedInviteKey });
-    const response = await this.apiService.create(orgId, request);
-    const inviteLink = new OrganizationInviteLink(response);
-
-    await this.upsert(userId, inviteLink);
+  ): Observable<void> {
+    return this.generateEncryptedKey(userId, orgId).pipe(
+      switchMap((encryptedInviteKey) => {
+        const request = new OrganizationInviteLinkCreateRequest({
+          allowedDomains,
+          encryptedInviteKey,
+        });
+        return this.apiService.create(orgId, request);
+      }),
+      switchMap((response) => this.upsert(userId, new OrganizationInviteLink(response))),
+    );
   }
 
   async updateInviteLink(
@@ -65,13 +65,14 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, inviteLink);
   }
 
-  async refreshInviteLink(userId: UserId, orgId: OrganizationId) {
-    const encryptedInviteKey = await this.generateEncryptedKey(userId, orgId);
-    const request = new OrganizationInviteLinkRefreshRequest({ encryptedInviteKey });
-    const response = await this.apiService.refresh(orgId, request);
-    const inviteLink = new OrganizationInviteLink(response);
-
-    await this.upsert(userId, inviteLink);
+  refreshInviteLink(userId: UserId, orgId: OrganizationId): Observable<void> {
+    return this.generateEncryptedKey(userId, orgId).pipe(
+      switchMap((encryptedInviteKey) => {
+        const request = new OrganizationInviteLinkRefreshRequest({ encryptedInviteKey });
+        return this.apiService.refresh(orgId, request);
+      }),
+      switchMap((response) => this.upsert(userId, new OrganizationInviteLink(response))),
+    );
   }
 
   reconstructUrl(
@@ -79,12 +80,14 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     inviteLink: OrganizationInviteLink,
   ): Observable<string> {
-    return this.getOrgKey(userId, orgId).pipe(
-      switchMap((orgKey) => {
-        const encKey = new EncString(inviteLink.encryptedInviteKey);
-        return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
+    return this.sdkService.userClient$(userId).pipe(
+      map((sdk) => {
+        using ref = sdk.take();
+        return ref.value
+          .invite_link()
+          .unseal_invite_key(asUuid<SdkOrganizationId>(orgId), inviteLink.encryptedInviteKey);
       }),
-      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
+      switchMap((inviteKey) => this.buildInviteUrl(inviteLink.code, inviteKey)),
     );
   }
 
@@ -127,29 +130,18 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     return inviteLink;
   }
 
-  private getOrgKey(userId: UserId, orgId: OrganizationId) {
-    return this.keyService.orgKeys$(userId).pipe(
-      map((orgKeys) => {
-        const orgKey = orgKeys?.[orgId] ?? undefined;
-        if (orgKey == null) {
-          throw new Error(`Organization key not found for org ${orgId}`);
-        }
-
-        return orgKey;
+  private generateEncryptedKey(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<InviteKeyEnvelope> {
+    return this.sdkService.userClient$(userId).pipe(
+      map((sdk) => {
+        using ref = sdk.take();
+        const bundle = ref.value
+          .invite_link()
+          .generate_invite_crypto_bundle(asUuid<SdkOrganizationId>(orgId));
+        return bundle.sealedInviteKeyEnvelope;
       }),
     );
-  }
-
-  /**
-   * Generates and returns an encrypted invite key.
-   *
-   * TODO: Replace with `generateOrganizationInviteCryptoBundle` from the SDK once available.
-   */
-  private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<EncString> {
-    // Important: this rawInviteKey must never be sent to the server!
-    const rawInviteKey = await this.keyGenerationService.createKey(256);
-    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
-    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
-    return encryptedInviteKey;
   }
 }

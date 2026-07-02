@@ -12,13 +12,14 @@ export abstract class OrganizationInviteLinkService {
   ): Observable<OrganizationInviteLink | undefined>;
 
   /**
-   * Create a new invite link for the organization.
+   * Create a new invite link for the organization. Returns an Observable that completes
+   * once the SDK key generation, API call, and local state update have all succeeded.
    */
   abstract createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
-  ): Promise<void>;
+  ): Observable<void>;
 
   /**
    * Update the allowed domains on an existing invite link.
@@ -30,9 +31,10 @@ export abstract class OrganizationInviteLinkService {
   ): Promise<void>;
 
   /**
-   * Refresh the invite link via the server endpoint.
+   * Refresh the invite link via the server endpoint. Returns an Observable that completes
+   * once the SDK key generation, API call, and local state update have all succeeded.
    */
-  abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
+  abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Observable<void>;
 
   /**
    * Reconstruct and returns an Observable containing the shareable URL for the provided
