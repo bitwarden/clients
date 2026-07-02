@@ -1,6 +1,7 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
+import { createMeter, stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -64,6 +65,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
+  private lastDetachedPurgeAt = -Infinity;
+  private readonly detachedPurgeThrottleMs = 1000;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
@@ -82,6 +85,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
+
+  private readonly monitorMutationBatch = createMeter(
+    { name: "mutationBatch", bits: 10 },
+    "records",
+    "inShadow",
+  );
+  private readonly monitorRequireUpdateLocation = createMeter("requireUpdateLocation");
+  private readonly monitorRequireUpdateShadow = createMeter("requireUpdateShadow");
+  private readonly monitorRequireUpdateNewShadowRoot = createMeter("requireUpdateNewShadowRoot");
+  private readonly monitorProcessMutations = createMeter("processMutations");
+  private readonly monitorUpdateCachedVisibility = createMeter("updateCachedVisibility");
+  private readonly monitorSetupOverlayOnField = createMeter("setupOverlayOnField");
+  private readonly monitorBackoff = createMeter("mutationBackoff", "burst", "adaptiveMs");
+  private readonly monitorCandidateOverflow = createMeter("shadowCandidateOverflow");
+  private readonly monitorScheduleSkipped = createMeter("scheduleSkipped");
+
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -111,6 +130,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+
+    // Wrap before allocating the observer so the instrumented handler is registered.
+    this.handleMutationObserverMutation = stopwatch(
+      "handleMutationObserverMutation",
+      this.handleMutationObserverMutation,
+    );
+    this.handleNewShadowRoots = stopwatch("handleNewShadowRoots", this.handleNewShadowRoots);
+    this.queryAutofillFormAndFieldElements = stopwatch(
+      "queryAutofillFormAndFieldElements",
+      this.queryAutofillFormAndFieldElements,
+    );
 
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
@@ -185,6 +215,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
     }
+    this.refreshOwnedShadowHostTagNames();
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
@@ -549,6 +580,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
+    this.monitorUpdateCachedVisibility();
     this.autofillFieldElements.forEach(async (autofillField, element) => {
       const previouslyViewable = autofillField.viewable;
       autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
@@ -1402,6 +1434,21 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
+  private get hasPendingWork(): boolean {
+    return (
+      this.pendingAttributeMutations.size > 0 ||
+      this.pendingTopLayerTargets.size > 0 ||
+      this.pendingChildListUpdate
+    );
+  }
+
+  // Keep dom-query's exclusion list current with the overlay's (randomized) injected tag names.
+  private refreshOwnedShadowHostTagNames(): void {
+    this.domQueryService.setOwnedShadowHostTagNames(
+      this.autofillOverlayContentService?.getOwnedInlineMenuTagNames() ?? [],
+    );
+  }
+
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1415,9 +1462,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
+    // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
+    this.purgeDetachedNodesIfDue();
+
+    this.refreshOwnedShadowHostTagNames();
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
+    this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
+
     if (hasMutationsInShadowRoot) {
+      this.monitorRequireUpdateShadow();
       this.debouncedRequirePageDetailsUpdate();
     }
 
@@ -1443,22 +1497,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const shouldSchedule =
-      this.pendingAttributeMutations.size === 0 &&
-      this.pendingTopLayerTargets.size === 0 &&
-      !this.pendingChildListUpdate;
+    // Drain only when idle AND this batch added work; no-op drains are pure overhead.
+    const queueWasIdle = !this.hasPendingWork;
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType === 1 instead of `instanceof Element` — works across realms (adopted-from-iframe).
-        if (mutation.target.nodeType !== 1) {
+        if (!nodeIsElement(mutation.target)) {
           continue;
         }
         const attributeName = mutation.attributeName?.toLowerCase();
         if (!attributeName) {
           continue;
         }
-        const target = mutation.target as Element;
+        const target = mutation.target;
         let attributeNames = this.pendingAttributeMutations.get(target);
         if (!attributeNames) {
           attributeNames = new Set();
@@ -1469,21 +1520,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
-        this.pendingChildListUpdate = true;
+        // Gate the noFieldsFound-invalidating flag; skip the walk once it's set.
+        if (!this.pendingChildListUpdate && this.mutationAddsOrRemovesFormField(mutation)) {
+          this.pendingChildListUpdate = true;
+        }
         for (const node of mutation.addedNodes ?? []) {
-          if (node.nodeType !== 1) {
+          if (!nodeIsElement(node)) {
             continue;
           }
-          const element = node as Element;
-          if (this.shouldListenToTopLayerCandidate(element)) {
-            this.pendingTopLayerTargets.add(element);
+          if (this.shouldListenToTopLayerCandidate(node)) {
+            this.pendingTopLayerTargets.add(node);
           }
         }
       }
     }
 
-    if (shouldSchedule) {
+    if (queueWasIdle && this.hasPendingWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
+    } else if (queueWasIdle) {
+      this.monitorScheduleSkipped();
     }
   };
 
@@ -1493,6 +1548,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleWindowLocationMutation() {
+    this.monitorRequireUpdateLocation();
     this.currentLocationHref = globalThis.location.href;
 
     this.domRecentlyMutated = true;
@@ -1518,6 +1574,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private processMutations = () => {
+    this.monitorProcessMutations();
     // Swap first so reentrant mutations during processing land in fresh structures
     // and drain on the next cycle, mirroring the queue-swap the previous design relied on.
     const drainingAttributeMutations = this.pendingAttributeMutations;
@@ -1527,8 +1584,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    this.purgeDetachedFieldMetadata();
-    this.domQueryService.purgeDetachedShadowRoots();
+    // Drain-time purge: throttled, so this only does work when the window elapsed since the wake-purge.
+    this.purgeDetachedNodesIfDue();
 
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
       return;
@@ -1581,6 +1638,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
+  // One sweep per throttle window; -Infinity start lets the first call always run.
+  private purgeDetachedNodesIfDue(): void {
+    const now = performance.now();
+    if (now - this.lastDetachedPurgeAt < this.detachedPurgeThrottleMs) {
+      return;
+    }
+    this.lastDetachedPurgeAt = now;
+    this.purgeDetachedFieldMetadata();
+    this.domQueryService.purgeDetachedShadowRoots();
+  }
+
   private purgeDetachedFieldMetadata(): void {
     for (const formElement of this._autofillFormElements.keys()) {
       if (!formElement.isConnected) {
@@ -1629,6 +1697,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
     if (hasNewShadowRoots) {
+      this.monitorRequireUpdateNewShadowRoot();
       this.debouncedRequirePageDetailsUpdate();
     }
   };
@@ -1648,6 +1717,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
+          this.monitorCandidateOverflow();
           // Release element refs immediately; we won't process them this window.
           this.pendingMutationAddedElements.clear();
           return;
@@ -1656,7 +1726,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
+  private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
+    return (
+      this.nodeListContainsFormField(mutation.addedNodes) ||
+      this.nodeListContainsFormField(mutation.removedNodes)
+    );
+  }
+
+  private nodeListContainsFormField(nodes: NodeList | undefined): boolean {
+    if (!nodes) {
+      return false;
+    }
+    for (const node of nodes) {
+      if (!nodeIsElement(node)) {
+        continue;
+      }
+      if (
+        node.matches(this.formFieldQueryString) ||
+        node.querySelector(this.formFieldQueryString) !== null
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private isShadowRootCandidate(node: Node): node is Element {
+    // FIXME (PM-39772): same-realm only — iframe-adopted (foreign-realm) hosts fall through here
+    // and are detected only later, not on insert.
     if (!(node instanceof Element)) {
       return false;
     }
@@ -1743,6 +1840,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
+
+    this.monitorBackoff(this.mutationBurstCount, adaptiveTimeout);
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
@@ -1943,6 +2042,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
+    this.monitorSetupOverlayOnField();
     if (!this.autofillOverlayContentService) {
       return;
     }
