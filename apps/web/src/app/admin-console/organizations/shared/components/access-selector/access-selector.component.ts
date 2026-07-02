@@ -250,11 +250,10 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
     effect(() => {
       const val = this.items();
-      const selected = (
-        this.pendingValue() ??
-        this.selectionList.formArray.getRawValue() ??
-        []
-      ).concat(val.filter((m) => m.readonly));
+      const pending = this.pendingValue();
+      const selected = (pending ?? this.selectionList.formArray.getRawValue() ?? []).concat(
+        val.filter((m) => m.readonly),
+      );
       this.selectionList.populateItems(
         val.map((m) => {
           m.icon = m.icon ?? this.itemIcon(m); // Ensure an icon is set
@@ -263,6 +262,11 @@ export class AccessSelectorComponent implements ControlValueAccessor {
         selected,
       );
       this.selectedItems.set([...this.selectionList.selectedItems]);
+      // Clear after applying so subsequent items reloads use live form state,
+      // not the original writeValue — otherwise user permission changes get overwritten.
+      if (pending !== null) {
+        this.pendingValue.set(null);
+      }
     });
 
     effect(() => {
