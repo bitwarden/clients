@@ -7138,9 +7138,6 @@
   "promptUsersToMoveItemsV2": {
     "message": "Prompt users to move their vault items to the organization"
   },
-  "enablePolicy": {
-    "message": "Enable policy"
-  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -14984,5 +14981,8 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
   }
 }

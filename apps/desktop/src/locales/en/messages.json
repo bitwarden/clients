@@ -5604,5 +5604,8 @@
   },
   "deleteCollectionsDesc": {
     "message": "These collections will be permanently deleted."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
   }
 }
