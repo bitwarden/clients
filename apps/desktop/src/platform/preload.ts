@@ -6,23 +6,23 @@ import { ThemeType, LogLevelType } from "@bitwarden/common/platform/enums";
 import { ForwardedIpcMessage, IpcMessage } from "@bitwarden/common/platform/ipc";
 
 import {
-  EncryptedMessageResponse,
-  LegacyMessageWrapper,
-  Message,
-  UnencryptedMessageResponse,
-} from "../models/native-messaging";
-import {
-  EnvAccessTokenLocation,
-  accessTokenLocation,
   allowBrowserintegrationOverride,
   isAppImage,
-  isDev,
   isFlatpak,
   isMacAppStore,
   isSnapStore,
   isWindowsPortable,
   isWindowsStore,
-} from "../utils";
+  EnvAccessTokenLocation,
+  accessTokenLocation,
+} from "../main/platform-utils.main";
+import {
+  EncryptedMessageResponse,
+  LegacyMessageWrapper,
+  Message,
+  UnencryptedMessageResponse,
+} from "../models/native-messaging";
+import { isDev } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 

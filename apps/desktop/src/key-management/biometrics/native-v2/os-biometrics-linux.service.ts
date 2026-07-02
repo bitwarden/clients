@@ -5,7 +5,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics_v2, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
-import { isSnapStore, isFlatpak, isLinux } from "../../../utils";
+import { isSnapStore, isFlatpak, isLinux } from "../../../main/platform-utils.main";
 import { OsBiometricService } from "../os-biometrics.service";
 
 const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>

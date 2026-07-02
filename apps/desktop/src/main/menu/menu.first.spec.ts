@@ -3,7 +3,7 @@ import { BrowserWindow, dialog, MenuItem } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import * as utils from "../../utils";
+import * as utils from "../platform-utils.main";
 import { UpdaterMain } from "../updater.main";
 
 import { FirstMenu } from "./menu.first";
@@ -15,7 +15,7 @@ jest.mock("electron", () => ({
   MenuItem: jest.fn(),
 }));
 
-jest.mock("../../utils", () => ({
+jest.mock("../platform-utils.main", () => ({
   isMacAppStore: jest.fn().mockReturnValue(false),
   isWindowsStore: jest.fn().mockReturnValue(false),
   isSnapStore: jest.fn().mockReturnValue(false),

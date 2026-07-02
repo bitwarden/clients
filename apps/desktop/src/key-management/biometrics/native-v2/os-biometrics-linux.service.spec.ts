@@ -22,7 +22,7 @@ jest.mock("@bitwarden/desktop-napi", () => ({
 
 const mockKey = new Uint8Array(64);
 
-jest.mock("../../../utils", () => ({
+jest.mock("../../../main/platform-utils.main", () => ({
   isFlatpak: jest.fn(() => false),
   isLinux: jest.fn(() => true),
   isSnapStore: jest.fn(() => false),

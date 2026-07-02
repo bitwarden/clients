@@ -10,7 +10,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
-import { isFlatpak, isLinux, isSnapStore } from "../../utils";
+import { isFlatpak, isLinux, isSnapStore } from "../../main/platform-utils.main";
 
 import { OsBiometricService } from "./os-biometrics.service";
 
