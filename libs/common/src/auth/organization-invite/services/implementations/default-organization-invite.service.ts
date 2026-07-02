@@ -474,9 +474,6 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   /**
    * Computes the encrypted user symmetric key for ResetPassword auto-enroll on an open
    * invite accept, or returns undefined when the org's policy doesn't require it.
-   *
-   * Open invites carry no `organizationId`, so the orgId is derived from the policies
-   * (all of which belong to the inviting org).
    */
   private async computeOpenInviteResetPasswordKey(
     invite: OpenOrganizationInvite,
@@ -487,16 +484,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return undefined;
     }
 
-    const organizationId = policies[0].organizationId;
     const [resetPasswordOptions, enabled] = this.policyService.getResetPasswordPolicyOptions(
       policies,
-      organizationId,
+      invite.organizationId,
     );
     if (!enabled || !resetPasswordOptions.autoEnrollEnabled) {
       return undefined;
     }
 
-    const response = await this.organizationApiService.getKeys(organizationId);
+    const response = await this.organizationApiService.getKeys(invite.organizationId);
     if (response == null) {
       throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
     }

@@ -675,7 +675,10 @@ describe("DefaultOrganizationInviteService", () => {
     it("computes an encrypted resetPasswordKey and accepts when ResetPassword auto-enroll is required", async () => {
       const open = createOpenOrgInvite();
       const policies = [
-        { type: PolicyType.ResetPassword, organizationId: "org-id" } as unknown as Policy,
+        {
+          type: PolicyType.ResetPassword,
+          organizationId: open.organizationId,
+        } as unknown as Policy,
       ];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
       policyService.getResetPasswordPolicyOptions.mockReturnValue([
@@ -693,8 +696,11 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.validateAndAcceptInvite(open, activeUserId);
 
       expect(result).toBe(true);
-      expect(policyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(policies, "org-id");
-      expect(organizationApiService.getKeys).toHaveBeenCalledWith("org-id");
+      expect(policyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
+        policies,
+        open.organizationId,
+      );
+      expect(organizationApiService.getKeys).toHaveBeenCalledWith(open.organizationId);
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalled();
       expect(organizationInviteLinkApiService.accept).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -707,7 +713,10 @@ describe("DefaultOrganizationInviteService", () => {
     it("throws when ResetPassword auto-enroll is required but the org keys fetch returns null", async () => {
       const open = createOpenOrgInvite();
       const policies = [
-        { type: PolicyType.ResetPassword, organizationId: "org-id" } as unknown as Policy,
+        {
+          type: PolicyType.ResetPassword,
+          organizationId: open.organizationId,
+        } as unknown as Policy,
       ];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
       policyService.getResetPasswordPolicyOptions.mockReturnValue([
