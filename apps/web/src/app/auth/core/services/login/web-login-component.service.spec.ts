@@ -111,9 +111,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns undefined", async () => {
+    it("returns undefined if getOrgPoliciesForInvite returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
@@ -130,7 +130,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -204,7 +204,7 @@ describe("WebLoginComponentService", () => {
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
 
         expect(result).toBeUndefined();
-        expect(organizationInviteService.getInvitePolicies).not.toHaveBeenCalled();
+        expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
       });
 
       it("derives organizationId from policies[0] and returns PasswordPolicies when flag is on", async () => {
@@ -219,7 +219,7 @@ describe("WebLoginComponentService", () => {
         configService.getFeatureFlag
           .calledWith(FeatureFlag.GenerateInviteLink)
           .mockResolvedValue(true);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
           false,
@@ -246,7 +246,7 @@ describe("WebLoginComponentService", () => {
         configService.getFeatureFlag
           .calledWith(FeatureFlag.GenerateInviteLink)
           .mockResolvedValue(true);
-        organizationInviteService.getInvitePolicies.mockResolvedValue([]);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue([]);
 
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
 

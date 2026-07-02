@@ -67,7 +67,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         unauthedHandler: (urlParams) => this.unauthedHandler(urlParams),
         // Scoped to the open key so a malformed open-invite URL doesn't wipe a
         // concurrent stashed direct invite.
-        onError: () => this.organizationInviteService.clearOpenInvite(),
+        onError: () => this.organizationInviteService.clearOpenOrgInvite(),
       },
     );
     this.loading = false;
@@ -80,7 +80,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * `AcceptFlowService`'s generic error path.
    */
   private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatusResponse | null> {
-    const result = await this.organizationInviteService.getOpenInviteStatus(code);
+    const result = await this.organizationInviteService.getOpenOrgInviteStatus(code);
     switch (result.kind) {
       case "ok":
         return result.status;

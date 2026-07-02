@@ -392,13 +392,13 @@ describe("DefaultOrganizationInviteService", () => {
     });
   });
 
-  describe("getInvitePolicies", () => {
+  describe("getOrgPoliciesForInvite", () => {
     it("returns policies on first fetch", async () => {
       const invite = createOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      const result = await sut.getInvitePolicies(invite);
+      const result = await sut.getOrgPoliciesForInvite(invite);
 
       expect(result).toEqual(policies);
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
@@ -414,7 +414,7 @@ describe("DefaultOrganizationInviteService", () => {
       const error = new Error("fetch failed");
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
 
-      const result = await sut.getInvitePolicies(invite);
+      const result = await sut.getOrgPoliciesForInvite(invite);
 
       expect(result).toBeUndefined();
       expect(logService.error).toHaveBeenCalledWith(error);
@@ -425,8 +425,8 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
@@ -436,9 +436,9 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
       await sut.setOrganizationInvite(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -448,9 +448,9 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
       await sut.clearOrganizationInvite();
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -460,8 +460,8 @@ describe("DefaultOrganizationInviteService", () => {
       const inviteB = createOrgInvite({ token: "tokenB" });
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
-      await sut.getInvitePolicies(inviteA);
-      await sut.getInvitePolicies(inviteB);
+      await sut.getOrgPoliciesForInvite(inviteA);
+      await sut.getOrgPoliciesForInvite(inviteB);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -470,8 +470,8 @@ describe("DefaultOrganizationInviteService", () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
 
-      await sut.getInvitePolicies(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -561,12 +561,12 @@ describe("DefaultOrganizationInviteService", () => {
     });
   });
 
-  describe("clearOpenInvite", () => {
+  describe("clearOpenOrgInvite", () => {
     it("clears the open invite", async () => {
       const open = createOpenOrgInvite();
       await sut.setOrganizationInvite(open);
 
-      await sut.clearOpenInvite();
+      await sut.clearOpenOrgInvite();
 
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
@@ -574,7 +574,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("leaves a stashed direct invite intact (clears only the open key)", async () => {
       await sut.setOrganizationInvite(createOrgInvite());
 
-      await sut.clearOpenInvite();
+      await sut.clearOpenOrgInvite();
 
       const stored = await sut.getOrganizationInvite();
       expect(stored?.kind).toBe(OrgInviteKind.Direct);
@@ -604,13 +604,13 @@ describe("DefaultOrganizationInviteService", () => {
     });
   });
 
-  describe("getInvitePolicies (open branch)", () => {
+  describe("getOrgPoliciesForInvite (open branch)", () => {
     it("routes open invites to getPoliciesByInviteLinkCode keyed by inviteLinkCode", async () => {
       const open = createOpenOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
 
-      const result = await sut.getInvitePolicies(open);
+      const result = await sut.getOrgPoliciesForInvite(open);
 
       expect(result).toEqual(policies);
       expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledWith(
@@ -623,8 +623,8 @@ describe("DefaultOrganizationInviteService", () => {
       const open = createOpenOrgInvite();
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue([]);
 
-      await sut.getInvitePolicies(open);
-      await sut.getInvitePolicies(open);
+      await sut.getOrgPoliciesForInvite(open);
+      await sut.getOrgPoliciesForInvite(open);
 
       expect(policyApiService.getPoliciesByInviteLinkCode).toHaveBeenCalledTimes(1);
     });
@@ -634,7 +634,7 @@ describe("DefaultOrganizationInviteService", () => {
       const error = new Error("link fetch failed");
       policyApiService.getPoliciesByInviteLinkCode.mockRejectedValue(error);
 
-      const result = await sut.getInvitePolicies(open);
+      const result = await sut.getOrgPoliciesForInvite(open);
 
       expect(result).toBeUndefined();
       expect(logService.error).toHaveBeenCalledWith(error);
@@ -724,7 +724,7 @@ describe("DefaultOrganizationInviteService", () => {
     });
   });
 
-  describe("getOpenInviteStatus", () => {
+  describe("getOpenOrgInviteStatus", () => {
     it("returns ok with a mapped non-SSO status on success", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
         organizationId: "org-id",
@@ -733,7 +733,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: null,
       } as any);
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({
         kind: "ok",
@@ -755,7 +755,7 @@ describe("DefaultOrganizationInviteService", () => {
         sso: { orgSsoId: "acme-sso", required: true },
       } as any);
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result.kind).toBe("ok");
       if (result.kind === "ok") {
@@ -769,7 +769,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "not-found" });
     });
@@ -780,7 +780,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "plan-not-supported" });
     });
@@ -795,7 +795,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
       organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
     });
@@ -803,7 +803,7 @@ describe("DefaultOrganizationInviteService", () => {
     it("returns unexpected with .message for non-ErrorResponse Error throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue(new Error("network gone"));
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
     });
@@ -811,19 +811,19 @@ describe("DefaultOrganizationInviteService", () => {
     it("returns unexpected with String(e) for unknown throws", async () => {
       organizationInviteLinkApiService.getStatus.mockRejectedValue("bare string");
 
-      const result = await sut.getOpenInviteStatus("abc");
+      const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
     });
   });
 
-  describe("validateOpenInviteEmailDomain", () => {
+  describe("validateOpenOrgInviteEmailDomain", () => {
     it("returns true when the API reports the email is allowed", async () => {
       organizationInviteLinkApiService.validateEmailDomain.mockResolvedValue({
         isAllowed: true,
       } as any);
 
-      const result = await sut.validateOpenInviteEmailDomain("abc", "user@example.com");
+      const result = await sut.validateOpenOrgInviteEmailDomain("abc", "user@example.com");
 
       expect(result).toBe(true);
       expect(organizationInviteLinkApiService.validateEmailDomain).toHaveBeenCalledWith(
@@ -836,7 +836,7 @@ describe("DefaultOrganizationInviteService", () => {
         isAllowed: false,
       } as any);
 
-      const result = await sut.validateOpenInviteEmailDomain("abc", "user@example.com");
+      const result = await sut.validateOpenOrgInviteEmailDomain("abc", "user@example.com");
 
       expect(result).toBe(false);
     });

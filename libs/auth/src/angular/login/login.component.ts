@@ -650,7 +650,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
       return true;
     }
-    const allowed = await this.organizationInviteService.validateOpenInviteEmailDomain(
+    const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
       invite.inviteLinkCode,
       email,
     );

@@ -1,7 +1,7 @@
 import { OpenOrgInviteStatusResponse } from "./open-org-invite-status.response";
 
 /**
- * Result contract returned by `OrganizationInviteService.getOpenInviteStatus(code)`.
+ * Result contract returned by `OrganizationInviteService.getOpenOrgInviteStatus(code)`.
  * The service classifies known server outcomes into typed kinds so consumers can
  * `switch` exhaustively instead of reaching into `ErrorResponse.statusCode`.
  *

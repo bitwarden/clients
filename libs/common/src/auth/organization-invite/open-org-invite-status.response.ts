@@ -11,7 +11,7 @@ export interface OpenOrgInviteSsoConfig {
 
 /**
  * Successful-response shape from the open-invite status endpoint
- * (`OrganizationInviteService.getOpenInviteStatus(code)`). The service wraps this
+ * (`OrganizationInviteService.getOpenOrgInviteStatus(code)`). The service wraps this
  * in an {@link OpenOrgInviteStatusResult} to encapsulate the endpoint's error
  * modes into a single discriminated return.
  */

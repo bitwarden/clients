@@ -110,7 +110,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     this.policyCache.clear();
   }
 
-  /** Clears both invite keys defensively. Open-only callers should use {@link clearOpenInvite}. */
+  /** Clears both invite keys defensively. Open-only callers should use {@link clearOpenOrgInvite}. */
   async clearOrganizationInvite(): Promise<void> {
     await this.directInviteState.update(() => null);
     await this.openInviteState.update(() => null);
@@ -121,7 +121,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * Clears only the open-invite key. Used by callers that should not wipe a concurrent
    * stashed direct invite (e.g. the open-invite landing-page error path).
    */
-  async clearOpenInvite(): Promise<void> {
+  async clearOpenOrgInvite(): Promise<void> {
     await this.openInviteState.update(() => null);
     this.policyCache.clear();
   }
@@ -206,7 +206,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return true;
   }
 
-  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
+  async getOrgPoliciesForInvite(invite: OrganizationInvite): Promise<Policy[] | undefined> {
     const cacheKey = invite.kind === OrgInviteKind.Direct ? invite.token : invite.inviteLinkCode;
     const cached = this.policyCache.get(cacheKey);
     if (cached != null) {
@@ -233,7 +233,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
   }
 
-  async getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatusResult> {
+  async getOpenOrgInviteStatus(code: string): Promise<OpenOrgInviteStatusResult> {
     try {
       const response = await this.organizationInviteLinkApiService.getStatus(code);
       // TODO: PM-39815 — server is moving the "plan doesn't support invite links"
@@ -291,7 +291,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * `RegistrationStartComponent` as a pre-auth UX check; server-side enforcement
    * runs at accept time regardless.
    */
-  async validateOpenInviteEmailDomain(code: string, email: string): Promise<boolean> {
+  async validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean> {
     const response = await this.organizationInviteLinkApiService.validateEmailDomain(
       new OrganizationInviteLinkValidateEmailDomainRequest({ code, email }),
     );
@@ -301,7 +301,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async getMasterPasswordPolicyOptionsForInvite(
     invite: OrganizationInvite,
   ): Promise<MasterPasswordPolicyOptions | undefined> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
     if (policies == null) {
       return undefined;
     }
@@ -397,7 +397,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async resetPasswordEnrollRequired(invite: DirectOrganizationInvite): Promise<boolean> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
 
     if (policies == null || policies.length === 0) {
       return false;
@@ -414,7 +414,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   private async directInviteMasterPasswordPolicyCheckRequired(
     invite: DirectOrganizationInvite,
   ): Promise<boolean> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
 
     if (policies == null || policies.length === 0) {
       return false;
@@ -441,7 +441,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   private async openInviteMasterPasswordPolicyCheckRequired(
     invite: OpenOrganizationInvite,
   ): Promise<boolean> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
     if (policies == null || policies.length === 0) {
       return false;
     }
@@ -477,7 +477,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     invite: OpenOrganizationInvite,
     userId: UserId,
   ): Promise<string | undefined> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
     if (policies == null || policies.length === 0) {
       return undefined;
     }

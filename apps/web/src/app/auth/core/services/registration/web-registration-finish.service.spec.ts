@@ -124,13 +124,13 @@ describe("WebRegistrationFinishService", () => {
 
     it("returns null when the policies are undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toBeNull();
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
     });
 
     it("returns the master password policy options from the organization invite when it exists", async () => {
@@ -138,14 +138,14 @@ describe("WebRegistrationFinishService", () => {
       const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
 
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(masterPasswordPolicies);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(masterPasswordPolicies);
       policyService.masterPasswordPolicyOptions$.mockReturnValue(of(masterPasswordPolicyOptions));
 
       const result = await service.getMasterPasswordPolicyOptsFromOrgInvite();
 
       expect(result).toEqual(masterPasswordPolicyOptions);
       expect(organizationInviteService.getOrganizationInvite).toHaveBeenCalled();
-      expect(organizationInviteService.getInvitePolicies).toHaveBeenCalledWith(orgInvite);
+      expect(organizationInviteService.getOrgPoliciesForInvite).toHaveBeenCalledWith(orgInvite);
     });
   });
 

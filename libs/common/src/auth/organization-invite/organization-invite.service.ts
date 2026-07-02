@@ -29,14 +29,14 @@ export abstract class OrganizationInviteService {
   /**
    * Stores a new organization invite. Writes to the state key matching `invite.kind`
    * and clears the opposite key (mutual exclusion). Callers that want to remove the
-   * stored invite should use {@link clearOrganizationInvite} or {@link clearOpenInvite}.
+   * stored invite should use {@link clearOrganizationInvite} or {@link clearOpenOrgInvite}.
    */
   abstract setOrganizationInvite(invite: OrganizationInvite): Promise<void>;
 
   /**
    * Clears both variant-specific state keys defensively. Use this for general "I'm done
    * with any pending invite" cleanup. For open-only cleanup that must not affect a
-   * concurrent direct invite, use {@link clearOpenInvite}.
+   * concurrent direct invite, use {@link clearOpenOrgInvite}.
    */
   abstract clearOrganizationInvite(): Promise<void>;
 
@@ -44,7 +44,7 @@ export abstract class OrganizationInviteService {
    * Clears only the open-invite state key. Used by the open-invite landing-page error
    * path so a malformed open-invite URL cannot wipe a concurrent stashed direct invite.
    */
-  abstract clearOpenInvite(): Promise<void>;
+  abstract clearOpenOrgInvite(): Promise<void>;
 
   /**
    * Accepts the invite for the active user, or stashes it and logs out if the user must
@@ -62,11 +62,11 @@ export abstract class OrganizationInviteService {
    * never leave stale entries behind.
    * @returns all enabled policies for the org, or undefined on fetch error.
    */
-  abstract getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined>;
+  abstract getOrgPoliciesForInvite(invite: OrganizationInvite): Promise<Policy[] | undefined>;
 
   /**
    * Derives the master-password policy options enforced by an invite's organization. Uses
-   * {@link getInvitePolicies} internally, so repeat calls for the same invite honor the
+   * {@link getOrgPoliciesForInvite} internally, so repeat calls for the same invite honor the
    * per-token cache and do not re-fetch.
    * @returns the org's combined MP requirements, or undefined if the policy fetch failed or
    *   the org has no MP policy enabled.
@@ -83,7 +83,7 @@ export abstract class OrganizationInviteService {
    * failures (network / 5xx / non-`ErrorResponse` throws) return `unexpected` with a
    * best-effort message.
    */
-  abstract getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatusResult>;
+  abstract getOpenOrgInviteStatus(code: string): Promise<OpenOrgInviteStatusResult>;
 
   /**
    * Validates whether an email's domain is permitted by an open invite link's
@@ -92,5 +92,5 @@ export abstract class OrganizationInviteService {
    * regardless.
    * @returns true if the email's domain is allowed, false if not.
    */
-  abstract validateOpenInviteEmailDomain(code: string, email: string): Promise<boolean>;
+  abstract validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean>;
 }

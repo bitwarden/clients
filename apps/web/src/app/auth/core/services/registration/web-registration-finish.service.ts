@@ -60,7 +60,7 @@ export class WebRegistrationFinishService
       return null;
     }
 
-    const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
+    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
 
     if (policies == null) {
       return null;

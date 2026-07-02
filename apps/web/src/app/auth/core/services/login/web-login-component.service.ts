@@ -233,7 +233,7 @@ export class WebLoginComponentService
       }
     }
 
-    const policies = await this.organizationInviteService.getInvitePolicies(orgInvite);
+    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
 
     if (policies == null) {
       return undefined;
