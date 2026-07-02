@@ -205,13 +205,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Classifies accept-endpoint failures by matching the server's response message against
-   * the string constants defined in the server error files under
-   * `server/src/Core/AdminConsole/OrganizationFeatures/`:
-   *   - `InviteLinks/Errors.cs`
-   *   - `OrganizationUsers/AcceptMembership/Errors.cs`
-   *   - `OrganizationUsers/AutoConfirmUser/Errors.cs`
-   *   - `Policies/PolicyRequirements/Errors/SingleOrganizationPolicyErrors.cs`
+   * Classifies accept-endpoint failures by matching the server's response message
    *
    * String matching is the only client-side discriminator today — the server does not
    * emit a stable error code on these responses. When a message changes on the server
