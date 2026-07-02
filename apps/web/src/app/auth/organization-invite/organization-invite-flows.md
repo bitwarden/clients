@@ -43,7 +43,7 @@ org's SSO settings):
 ## Entry point: `/accept-organization`
 
 The email link points at `/accept-organization` with query params parsed by
-[`OrganizationInvite.fromUrlParams`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite.ts).
+[`OrganizationInvite.fromUrlParams`](../../../../../../../libs/common/src/auth/organization-invite/models/organization-invite.ts).
 Required params: `organizationId`, `organizationUserId`, `email`,
 `organizationName`, `token`, `initOrganization`, `orgUserHasExistingUser`.
 Optional: `orgSsoIdentifier` (only when the inviting org has SSO + the SSO-login
@@ -94,7 +94,7 @@ success toast + navigate to `/`. Returns `false` → silently exit.
 2. `unauthedHandler` stashes invite → `/finish-signup?email=...`
 3. User completes registration form
    - `WebRegistrationFinishService.getOrgNameFromOrgInvite` displays the org name
-   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getInvitePolicies(invite)`, and applies them to the password validator on the registration form
+   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getOrgPoliciesForInvite(invite)`, and applies them to the password validator on the registration form
    - `buildRegisterRequest` attaches the invite token + `organizationUserId` to the server registration request for token validation
 4. Server creates the user; client auto-logs them in
 5. `deepLinkGuard` replays the persisted `/accept-organization` URL once auth status is `Unlocked` (see [Deep-link replay mechanism](#deep-link-replay-mechanism))
@@ -111,7 +111,7 @@ post-login force-set-password redirect.
 2. `unauthedHandler` stashes invite → `/login?email=...`
 3. User submits their existing master password
    - `LoginComponent.submit` calls `WebLoginComponentService.getOrgPoliciesFromOrgInvite`
-   - That reads the stashed invite, validates the email matches (else clears stash + redirect URL), and fetches policies via `getInvitePolicies(invite)`
+   - That reads the stashed invite, validates the email matches (else clears stash + redirect URL), and fetches policies via `getOrgPoliciesForInvite(invite)`
    - Policies are passed into `PasswordLoginCredentials` as `masterPasswordPoliciesFromOrgInvite`
 4. Login proceeds normally. `PasswordLoginStrategy` authenticates successfully regardless of policy compliance.
 5. Post-auth, `PasswordLoginStrategy` evaluates the supplied master password against the combined policy options:
@@ -234,7 +234,7 @@ and paste it into a tab that's already signed in. In that case:
    no stored invite = user has not been redirected through the MP check
    yet). The service then stashes the invite and calls
    `authService.logOut` — see
-   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts)
+   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts)
    (the branch inside `validateAndAcceptInvite`).
 4. Logout returns the user to `/login`, where the existing-user flow runs
    normally: the stash drives policy fetching, the MP is evaluated against
@@ -245,7 +245,7 @@ and paste it into a tab that's already signed in. In that case:
    `masterPasswordPolicyCheckRequired` returns `false` and `accept()` runs.
 
 The branch is unit-tested in
-[`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.spec.ts)
+[`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.spec.ts)
 ("logs out the user and stores the invite when a master password policy check
 is required"), but there is no end-to-end / component-level test exercising
 the paste-into-authed-session entry. Worth covering.
@@ -258,7 +258,7 @@ the paste-into-authed-session entry. Worth covering.
 
 `OrganizationInvite` is persisted to disk via `GlobalStateProvider` under the
 `ORGANIZATION_INVITE_DISK` key (see
-[`organization-invite-state.ts`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite-state.ts)).
+[`organization-invite.state.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/organization-invite.state.ts)).
 Disk persistence is what makes the stash survive the navigation away to
 `/login` / `/sso` / `/finish-signup` and the SSO IdP round-trip.
 
@@ -306,8 +306,8 @@ re-mount.
 
 ### Policy cache
 
-`DefaultOrganizationInviteService.getInvitePolicies(invite)` caches the policy
+`DefaultOrganizationInviteService.getOrgPoliciesForInvite(invite)` caches the policy
 list per invite token on the service instance. The cache is cleared on
 `setOrganizationInvite` and `clearOrganizationInvite` so a state transition
 never leaks stale entries. See the field comment in
-[`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts).
+[`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts).
