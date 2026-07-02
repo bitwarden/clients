@@ -416,7 +416,7 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
-                    @if (u.status === userStatusType.Invited) {
+                    @if (u.canReinvite) {
                       <button
                         type="button"
                         bitMenuItem
@@ -426,7 +426,7 @@
                         {{ "resendInvitation" | i18n }}
                       </button>
                     }
-                    @if (u.status === userStatusType.Accepted) {
+                    @if (u.canConfirm) {
                       <button
                         type="button"
                         bitMenuItem
@@ -437,36 +437,36 @@
                         </span>
                       </button>
                     }
-                    @if (
-                      u.status === userStatusType.Accepted || u.status === userStatusType.Invited
-                    ) {
+                    @if (u.canConfirm || u.canReinvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
-                    >
-                      <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
-                    </button>
-                    @if (organization.useGroups) {
+                    @if (u.canManageMember) {
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
+                        <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
                       </button>
+                      @if (organization.useGroups) {
+                        <button
+                          type="button"
+                          bitMenuItem
+                          (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
+                        >
+                          <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
+                      >
+                        <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
+                        {{ "collections" | i18n }}
+                      </button>
+                      <bit-menu-divider></bit-menu-divider>
                     }
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
-                    >
-                      <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
-                      {{ "collections" | i18n }}
-                    </button>
-                    <bit-menu-divider></bit-menu-divider>
                     @if (organization.useEvents && u.status === userStatusType.Confirmed) {
                       <button
                         type="button"
@@ -491,7 +491,7 @@
                   }
 
                   @if (showUserManagementControls()) {
-                    @if (u.status === userStatusType.Revoked) {
+                    @if (u.canRestore) {
                       <button
                         type="button"
                         bitMenuItem
@@ -501,7 +501,7 @@
                         {{ "restoreAccess" | i18n }}
                       </button>
                     }
-                    @if (u.status !== userStatusType.Revoked) {
+                    @if (u.canRevoke) {
                       <button
                         type="button"
                         bitMenuItem
@@ -511,7 +511,7 @@
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
-                    @if (!u.claimedByOrganization) {
+                    @if (u.canRemove) {
                       <button
                         type="button"
                         bitMenuItem

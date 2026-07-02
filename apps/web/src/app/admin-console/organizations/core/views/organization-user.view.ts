@@ -1,19 +1,16 @@
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-  RevocationReasonType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Guid, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserView {
   id: Guid;
   userId: UserId;
   type: OrganizationUserType;
   revocationReason: RevocationReasonType;
-  status: OrganizationUserStatusType;
+  readonly status: OrganizationUserStatusType;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean = false;
   name: string | undefined;
@@ -34,6 +31,13 @@ export class OrganizationUserView {
   collectionNames: string[] = [];
   groupNames: string[] = [];
 
+  readonly canConfirm: boolean;
+  readonly canReinvite: boolean;
+  readonly canRestore: boolean;
+  readonly canRevoke: boolean;
+  readonly canRemove: boolean;
+  readonly canManageMember: boolean;
+
   constructor(c: {
     id: Guid;
     userId: UserId;
@@ -44,6 +48,7 @@ export class OrganizationUserView {
     permissions: PermissionsApi;
     avatarColor: string;
     name: string | undefined;
+    claimedByOrganization?: boolean;
   }) {
     this.id = c.id;
     this.userId = c.userId;
@@ -54,6 +59,14 @@ export class OrganizationUserView {
     this.permissions = c.permissions;
     this.avatarColor = c.avatarColor;
     this.name = c.name;
+    this.claimedByOrganization = c.claimedByOrganization ?? false;
+
+    this.canConfirm = this.status === OrganizationUserStatusType.Accepted;
+    this.canReinvite = this.status === OrganizationUserStatusType.Invited;
+    this.canRestore = this.status === OrganizationUserStatusType.Revoked;
+    this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
+    this.canRemove = !this.claimedByOrganization;
+    this.canManageMember = this.status !== OrganizationUserStatusType.Staged;
   }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
@@ -67,6 +80,7 @@ export class OrganizationUserView {
       permissions: response.permissions,
       avatarColor: response.avatarColor,
       name: response.name,
+      claimedByOrganization: response.claimedByOrganization,
     });
 
     view.resetPasswordEnrolled = response.resetPasswordEnrolled;
@@ -74,7 +88,6 @@ export class OrganizationUserView {
     view.usesKeyConnector = response.usesKeyConnector;
     view.hasMasterPassword = response.hasMasterPassword;
     view.accessSecretsManager = response.accessSecretsManager;
-    view.claimedByOrganization = response.claimedByOrganization;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));

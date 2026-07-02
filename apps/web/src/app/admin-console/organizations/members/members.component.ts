@@ -258,11 +258,7 @@ export class MembersComponent {
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
-    const confirmUserSideEffect = () => {
-      user.status = this.userStatusType.Confirmed;
-      this.dataSource().replaceUser(user);
-    };
-
+    const sideEffect = async () => await this.load(organization);
     const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
     if (publicKeyResult == null) {
@@ -271,7 +267,7 @@ export class MembersComponent {
     }
 
     const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
-    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
+    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, sideEffect);
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
@@ -519,11 +515,11 @@ export class MembersComponent {
     ];
 
     const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.claimedByOrganization),
+      showBulkConfirmUsers: members.every((m) => m.canConfirm),
+      showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkRestoreUsers: members.every((m) => m.canRestore),
+      showBulkRevokeUsers: members.every((m) => m.canRevoke),
+      showBulkRemoveUsers: members.every((m) => m.canRemove),
       showBulkDeleteUsers: members.every(
         (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),
