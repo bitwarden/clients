@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The PAM Audit Log: condensed</title>
+    <style>
+      :root {
+        --ink: #16161d;
+        --ink-soft: #40404d;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --line-strong: #d1d5db;
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --brand: #175ddc;
+        --brand-ink: #123fa0;
+        --brand-wash: #eef3fe;
+        --green: #0f7a43;
+        --green-wash: #e9f6ee;
+        --amber: #9a5b00;
+        --amber-wash: #fdf3e3;
+        --red: #b32020;
+        --red-wash: #fceceb;
+        --radius: 10px;
+        --maxw: 820px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 17px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 0 24px 100px;
+      }
+
+      /* ---- Masthead ---------------------------------------------------------- */
+      header.masthead {
+        background: linear-gradient(150deg, #10225a 0%, #175ddc 100%);
+        color: #fff;
+        padding: 48px 0 38px;
+        border-bottom: 4px solid #0c1a44;
+      }
+      header.masthead .wrap {
+        padding-bottom: 0;
+      }
+      .kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #bcd0ff;
+        margin: 0 0 12px;
+      }
+      header.masthead h1 {
+        font-size: 36px;
+        line-height: 1.12;
+        margin: 0 0 14px;
+        letter-spacing: -0.02em;
+        font-weight: 800;
+      }
+      header.masthead p.lede {
+        font-size: 18px;
+        line-height: 1.5;
+        margin: 0 0 24px;
+        color: #e6eeff;
+        max-width: 42em;
+      }
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 22px;
+        font-size: 13.5px;
+        color: #cdddff;
+        border-top: 1px solid rgba(255, 255, 255, 0.18);
+        padding-top: 16px;
+      }
+      .meta-row b {
+        color: #fff;
+        font-weight: 600;
+      }
+      .meta-row a {
+        color: #dbe6ff;
+      }
+
+      /* ---- Sections ---------------------------------------------------------- */
+      section {
+        margin-top: 46px;
+      }
+      h2.sec {
+        font-size: 25px;
+        letter-spacing: -0.015em;
+        margin: 0 0 8px;
+        padding-top: 8px;
+        font-weight: 750;
+      }
+      .sec-num {
+        color: var(--brand);
+        font-weight: 800;
+        margin-right: 10px;
+      }
+      h3 {
+        font-size: 18px;
+        margin: 28px 0 6px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 15px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 14.5px;
+        margin-top: -2px;
+      }
+      strong {
+        font-weight: 680;
+      }
+      em.term {
+        font-style: normal;
+        font-weight: 650;
+        color: var(--brand-ink);
+      }
+      ul {
+        margin: 0 0 15px;
+        padding-left: 22px;
+      }
+      li {
+        margin: 0 0 8px;
+      }
+      code {
+        font-family: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+        font-size: 0.85em;
+        background: #eef0f3;
+        border: 1px solid #e1e4e9;
+        border-radius: 5px;
+        padding: 1px 5px;
+        color: #2a2f45;
+        word-break: break-word;
+      }
+
+      /* ---- Callouts ---------------------------------------------------------- */
+      .callout {
+        border-radius: var(--radius);
+        padding: 18px 20px 8px;
+        margin: 20px 0;
+        border: 1px solid;
+        border-left-width: 5px;
+      }
+      .callout .h {
+        font-weight: 750;
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        margin: 0 0 8px;
+      }
+      .callout ul {
+        margin-bottom: 12px;
+      }
+      .callout.key {
+        background: var(--brand-wash);
+        border-color: #bcd0ff;
+        border-left-color: var(--brand);
+      }
+      .callout.key .h {
+        color: var(--brand-ink);
+      }
+      .callout.warn {
+        background: var(--amber-wash);
+        border-color: #f0d19a;
+        border-left-color: var(--amber);
+      }
+      .callout.warn .h {
+        color: var(--amber);
+      }
+      .callout.danger {
+        background: var(--red-wash);
+        border-color: #f2c4c1;
+        border-left-color: var(--red);
+      }
+      .callout.danger .h {
+        color: var(--red);
+      }
+      .callout.good {
+        background: var(--green-wash);
+        border-color: #b8e0c6;
+        border-left-color: var(--green);
+      }
+      .callout.good .h {
+        color: var(--green);
+      }
+      .callout p:last-child {
+        margin-bottom: 12px;
+      }
+
+      /* two-up callouts */
+      .duo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 20px 0;
+      }
+      .duo .callout {
+        margin: 0;
+      }
+
+      /* Bottom-line lead box */
+      .lead {
+        background: #0f1730;
+        color: #eaf0ff;
+        border-radius: 12px;
+        padding: 22px 26px 24px;
+        margin: 30px 0 8px;
+      }
+      .lead .h {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+        font-weight: 700;
+        color: #9dc0ff;
+        margin: 0 0 10px;
+      }
+      .lead p {
+        font-size: 17.5px;
+        line-height: 1.55;
+        margin: 0;
+      }
+      .lead b {
+        color: #cfe0ff;
+        font-weight: 680;
+      }
+
+      /* ---- Tables ------------------------------------------------------------ */
+      .tablecard {
+        overflow-x: auto;
+        margin: 20px 0;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14.5px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 14px;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+      }
+      thead th {
+        background: #f0f2f6;
+        font-size: 12.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ink-soft);
+        font-weight: 700;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr:hover {
+        background: #fafbfc;
+      }
+      td.grp {
+        font-weight: 700;
+        color: var(--brand-ink);
+        white-space: nowrap;
+      }
+      .yes {
+        color: var(--green);
+        font-weight: 800;
+      }
+      .no {
+        color: var(--red);
+        font-weight: 800;
+      }
+      .mid {
+        color: var(--amber);
+        font-weight: 800;
+      }
+      .cellnote {
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      /* ---- Footer ------------------------------------------------------------ */
+      footer {
+        margin-top: 56px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      footer code {
+        font-size: 12.5px;
+      }
+
+      @media (max-width: 680px) {
+        body {
+          font-size: 16px;
+        }
+        header.masthead h1 {
+          font-size: 28px;
+        }
+        .duo {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+          font-size: 12pt;
+        }
+        header.masthead {
+          background: #10225a !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .callout,
+        .tablecard,
+        .lead {
+          break-inside: avoid;
+        }
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="wrap">
+        <p class="kicker">Privileged Access Management &middot; Governance</p>
+        <h1>The PAM Audit Log</h1>
+        <p class="lede">
+          What the synthesized trail is, why it isn&rsquo;t a compliance-grade record, and the
+          lowest-effort way to fix that without blowing the deadline.
+        </p>
+        <div class="meta-row">
+          <span><b>Status:</b> Discussion draft (condensed)</span>
+          <span><b>Date:</b> 1 July 2026</span>
+          <span><b>Long form:</b> <code>pam-audit.html</code></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div class="lead">
+        <div class="h">Bottom line</div>
+        <p>
+          The synthesized audit log is a fine in-product <b>view</b>, but it is a projection of live
+          data, not a <b>record</b>: immutability, tamper-evidence, and guaranteed capture cannot be
+          added to a projection. The fix that fits the deadline is to
+          <b>start writing audit events now</b>: behind the interface that already exists
+          (<code>IAccessAuditEventRepository</code>), into a dedicated MSSQL table committed in the
+          same transaction as the action, then repoint that interface at a generic / Cosmos platform
+          later if one gets built.
+          <b
+            >Agree with the long-term generic vision; don&rsquo;t make PAM the project that builds
+            it.</b
+          >
+        </p>
+      </div>
+
+      <!-- =================================================================== -->
+      <section id="situation">
+        <h2 class="sec"><span class="sec-num">1</span>The situation</h2>
+        <p>
+          PAM lets a member request temporary, approved access to a protected credential, hold it
+          for a fixed window, and lose it when the window closes. The lifecycle the log has to
+          describe: a request is <em class="term">submitted</em>,
+          <em class="term">approved or denied</em>, <em class="term">activated</em> into a
+          time-boxed lease, <em class="term">used</em> to open the secret, and finally
+          <em class="term">expired or revoked</em>.
+        </p>
+        <p>
+          Governance needs to answer afterwards:
+          <em class="term"
+            >who requested access to what, who decided, who opened the secret, and when did it
+            end?</em
+          >
+          That is the audit log. Unlike an activity feed, a privileged-access trail is expected to
+          be <strong>complete, immutable, tamper-evident, and guaranteed to exist</strong>.
+        </p>
+        <p>
+          A dedicated PAM audit table was <strong>declined</strong>, not on technical merit but
+          because a new table is only welcome if it is generic enough to serve many purposes. So
+          today the trail is <strong>synthesized at query time</strong> from data the PAM entities
+          already keep. No new table, no stored audit records.
+        </p>
+      </section>
+
+      <!-- =================================================================== -->
+      <section id="record">
+        <h2 class="sec">
+          <span class="sec-num">2</span>Why the synthesized log isn&rsquo;t a record
+        </h2>
+        <p>
+          Because nothing is stored, the trail is reconstructed on demand from the same live rows
+          that normal operations edit and delete. It covers the request and lease lifecycle and rule
+          administration; it <strong>cannot</strong> capture credential opens, full rule-edit
+          history, or the kill-switch / freeze; those are deferred and simply don&rsquo;t appear.
+        </p>
+
+        <div class="callout key">
+          <div class="h">The rule it runs on</div>
+          <p>
+            An event can be reconstructed
+            <strong
+              >only if it left a durable, distinct, single-occurrence mark on a surviving
+              row.</strong
+            >
+            Break any of those and it can&rsquo;t be synthesized at all.
+          </p>
+        </div>
+
+        <h3>The four ways it breaks, and the compromise each forced</h3>
+        <div class="tablecard">
+          <table>
+            <thead>
+              <tr>
+                <th>How synthesis breaks</th>
+                <th>What we had to do</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="grp">
+                  Repeated events<br /><span class="cellnote">credential opens</span>
+                </td>
+                <td>
+                  Defer them: one row can&rsquo;t remember N opens. They contribute nothing today. A
+                  per-open serialized list on the lease would capture them.
+                </td>
+              </tr>
+              <tr>
+                <td class="grp">Overwrites<br /><span class="cellnote">rule edits</span></td>
+                <td>
+                  Keep only the <em>latest</em> edit; prior versions and who made them are lost.
+                </td>
+              </tr>
+              <tr>
+                <td class="grp">Hard deletes<br /><span class="cellnote">rule removed</span></td>
+                <td>
+                  Switch delete to <em>soft-delete</em> and hide the row from every active read, a
+                  real behaviour change.
+                </td>
+              </tr>
+              <tr>
+                <td class="grp">
+                  Refused attempts<br /><span class="cellnote">activation rejected</span>
+                </td>
+                <td>Add a field to leave a mark, but it records only the <em>last</em> refusal.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="sub">
+          Every fix is either &ldquo;capture less&rdquo; or &ldquo;bend the model to preserve a
+          mark&rdquo;: effort spent approximating what a written record would give for free.
+        </p>
+
+        <div class="callout danger">
+          <div class="h">The gap is structural, not a backlog</div>
+          <p>
+            Three things an auditor expects (<strong
+              >immutable, tamper-evident, guaranteed capture</strong
+            >) cannot be added to a projection. They are properties of a
+            <em>separate, write-once store</em>. No amount of iteration on a re-reading of mutable
+            data produces them; the gap closes only when the record is
+            <strong>written</strong> instead of <strong>derived</strong>.
+          </p>
+        </div>
+
+        <div class="tablecard">
+          <table>
+            <thead>
+              <tr>
+                <th>What an audit record needs</th>
+                <th>Synthesized trail (today)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Immutable / append-only</td>
+                <td>
+                  <span class="no">&#10007;</span>
+                  <span class="cellnote">it <em>is</em> the mutable business data</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Tamper-evident</td>
+                <td>
+                  <span class="no">&#10007;</span>
+                  <span class="cellnote">no independent copy to check against</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Guaranteed capture</td>
+                <td>
+                  <span class="no">&#10007;</span>
+                  <span class="cellnote">no separate write to fail on</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Complete</td>
+                <td>
+                  <span class="no">&#10007;</span>
+                  <span class="cellnote">deferred kinds absent; edit / access history lost</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Independent retention &amp; export</td>
+                <td>
+                  <span class="no">&#10007;</span>
+                  <span class="cellnote">dies with the source rows</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Always-on (no entitlement)</td>
+                <td>
+                  <span class="yes">&#10003;</span>
+                  <span class="cellnote">rides on PAM&rsquo;s own data</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Rich queryability</td>
+                <td>
+                  <span class="mid">&#9679;</span>
+                  <span class="cellnote">partial, limited to what rows carry</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <section id="storage">
+        <h2 class="sec"><span class="sec-num">3</span>Dedicated vs generic / CosmosDB</h2>
+        <p>
+          The live counter-proposal is a <strong>generic audit/event store on CosmosDB</strong>,
+          motivated by <strong>scale</strong>. It bundles two separable decisions
+          (generic-vs-PAM-specific, and Cosmos-vs-SQL), and the Cosmos rationale is
+          <em>contingent on the first</em>: it is right for the high-volume event firehose (every
+          login, view and sync), but PAM audit is orders of magnitude smaller. Events and audits
+          pull in <strong>opposite directions</strong>:
+        </p>
+
+        <div class="tablecard">
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>Event log (activity feed)</th>
+                <th>Audit trail (compliance)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="grp">Binding constraint</td>
+                <td><strong>Volume</strong>: throughput at scale</td>
+                <td><strong>Integrity</strong>: nothing lost or altered</td>
+              </tr>
+              <tr>
+                <td class="grp">Durability</td>
+                <td>Best-effort (queue &rarr; Table Storage)</td>
+                <td>Guaranteed: no silent loss</td>
+              </tr>
+              <tr>
+                <td class="grp">Mutability</td>
+                <td>Append, disposable</td>
+                <td>Immutable, tamper-evident</td>
+              </tr>
+              <tr>
+                <td class="grp">Query</td>
+                <td>Scope + date</td>
+                <td>Many dimensions + drill-downs</td>
+              </tr>
+              <tr>
+                <td class="grp">Best-fit tool</td>
+                <td>Cosmos / Table Storage (scale)</td>
+                <td>Transactional SQL (integrity)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          So the scale argument is real; it just lands on the <em>event platform</em>, not
+          PAM&rsquo;s trail. Judged fairly:
+        </p>
+
+        <div class="duo">
+          <div class="callout good">
+            <div class="h">Where generic / Cosmos wins</div>
+            <ul>
+              <li><strong>Scale</strong> for the firehose, its actual purpose.</li>
+              <li>
+                <strong>Politically survivable</strong>, and matches precedent (events are already
+                NoSQL-in-cloud).
+              </li>
+              <li><strong>Schema flexibility</strong> for heterogeneous payloads.</li>
+              <li><strong>One platform</strong> beats N bespoke per-feature tables.</li>
+            </ul>
+          </div>
+          <div class="callout danger">
+            <div class="h">Where it costs you, under a deadline</div>
+            <ul>
+              <li>
+                <strong>Scope explosion</strong>: &ldquo;ship PAM audit&rdquo; becomes &ldquo;build
+                the org&rsquo;s audit platform.&rdquo;
+              </li>
+              <li>
+                <strong>Guaranteed capture gets harder</strong>: a separate store is a dual-write
+                needing an outbox.
+              </li>
+              <li>
+                <strong>Queryability</strong>: point/partition reads vs governance drill-downs.
+              </li>
+              <li><strong>New surface + self-hosted</strong> needs a SQL backend regardless.</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="sub">
+          On guaranteed capture specifically: PAM&rsquo;s writes are already in MSSQL, so a
+          dedicated audit row commits <em>in the same transaction</em>; moving it to Cosmos is what
+          turns that into a cross-store dual-write. And the swap-later path already exists: the
+          event log runs on Table Storage (cloud) and SQL (self-host) behind one
+          <code>IEventRepository</code>, chosen at deploy time, with no Cosmos in the stack yet.
+        </p>
+
+        <div class="callout key">
+          <div class="h">The reconciliation</div>
+          <p>
+            The one thing you cannot defer is <strong>starting to write a durable record</strong>:
+            synthesized has no write to redirect later, so &ldquo;migrate later&rdquo; only works if
+            you write now. Ship the dedicated MSSQL table behind the existing seam for the deadline;
+            repoint it at the generic platform later, exactly as
+            <code>IEventRepository</code> already swaps backends.
+          </p>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <section id="questions">
+        <h2 class="sec"><span class="sec-num">4</span>Open questions</h2>
+        <ul>
+          <li>
+            <strong>Compliance targets.</strong> Do SOC&nbsp;2 / ISO&nbsp;27001 / HIPAA actually
+            require immutable, tamper-evident privileged-access logs? That decides whether Section 2
+            is &ldquo;must-fix&rdquo; or &ldquo;nice to have.&rdquo;
+          </li>
+          <li>
+            <strong>Best-effort or guaranteed?</strong> Do we hold the line on &ldquo;access fails
+            if it can&rsquo;t be logged&rdquo;? The synthesized model can&rsquo;t offer it.
+          </li>
+          <li>
+            <strong>Credential-open auditing.</strong> Who opened the secret, and how often, is the
+            one genuinely high-volume PAM stream; if required, it could justify a Cosmos-class store
+            as a <em>separate</em> stream while governance actions stay transactional.
+          </li>
+          <li>
+            <strong>Retention &amp; export</strong> independent of operational-data lifecycle.
+          </li>
+          <li>
+            <strong>Ownership boundary</strong> with the team that owns the existing event log:
+            parallel emission stands, but who owns the governance-grade store?
+          </li>
+          <li>
+            <strong>Audience &amp; the &ldquo;generic-only&rdquo; constraint</strong>: can it be
+            revisited given the Section 3 argument?
+          </li>
+        </ul>
+      </section>
+
+      <footer>
+        <p>
+          Condensed from the full discussion document (<code>pam-audit.html</code>) and the
+          canonical spec <code>pam-audit.allium</code>. Discussion draft, not a decision record.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
