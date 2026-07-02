@@ -106,7 +106,8 @@ export class WebLoginComponentService
          *    would require both a stashed open invite and a pending direct-invite
          *    row on the server for the same org.
          *
-         * No match → warning toast.
+         * No match → warning toast. Covers: no invite stashed, a stashed invite
+         * for a different org, or a stashed direct invite with an email mismatch.
          */
         const orgInvite = await this.organizationInviteService.getOrganizationInvite();
         const directMatch =
@@ -138,7 +139,8 @@ export class WebLoginComponentService
          *    normally trigger `InviteAcceptanceRequired` instead; direct+match
          *    lands here only if the row was revoked between click and SSO attempt.
          *
-         * No match → warning toast.
+         * No match → warning toast. Covers: no invite stashed, or a stashed
+         * invite for a different org.
          */
         const orgInvite = await this.organizationInviteService.getOrganizationInvite();
         const directMatch =
