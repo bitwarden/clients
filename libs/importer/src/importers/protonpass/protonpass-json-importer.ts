@@ -6,6 +6,7 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -14,12 +15,14 @@ import { Importer } from "../importer";
 import { processNames } from "./protonpass-import-utils";
 import {
   ProtonPassCreditCardItemContent,
+  ProtonPassCustomItemContent,
   ProtonPassIdentityItemContent,
   ProtonPassIdentityItemExtraSection,
   ProtonPassItemExtraField,
   ProtonPassItemState,
   ProtonPassJsonFile,
   ProtonPassLoginItemContent,
+  ProtonPassSshKeyItemContent,
 } from "./types/protonpass-json-type";
 
 export class ProtonPassJsonImporter extends BaseImporter implements Importer {
@@ -104,6 +107,30 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
           });
         }
       }
+    });
+  }
+
+  private processExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[]) {
+    extraFields?.forEach((extraField) => {
+      this.processKvp(
+        cipher,
+        extraField.fieldName,
+        extraField.type == "totp" ? extraField.data.totpUri : extraField.data.content,
+        extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
+      );
+    });
+  }
+
+  private processSections(cipher: CipherView, sections: ProtonPassIdentityItemExtraSection[]) {
+    sections?.forEach((section) => {
+      section.sectionFields?.forEach((field) => {
+        this.processKvp(
+          cipher,
+          field.fieldName,
+          field.data.content,
+          field.type === "hidden" ? FieldType.Hidden : FieldType.Text,
+        );
+      });
     });
   }
 
@@ -225,6 +252,33 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
                 extraField.type === "hidden" ? FieldType.Hidden : FieldType.Text,
               );
             }
+            break;
+          }
+          case "alias": {
+            // An alias is an email-forwarding address; map it to a login with the
+            // alias address as the username so the item (and its data) is preserved.
+            cipher.login.username = this.getValueOrDefault(item.aliasEmail);
+            this.processExtraFields(cipher, item.data.extraFields);
+            break;
+          }
+          case "sshKey": {
+            const sshKeyContent = item.data.content as ProtonPassSshKeyItemContent;
+            cipher.type = CipherType.SshKey;
+            cipher.sshKey = new SshKeyView();
+            cipher.sshKey.privateKey = this.getValueOrDefault(sshKeyContent.privateKey, "");
+            cipher.sshKey.publicKey = this.getValueOrDefault(sshKeyContent.publicKey, "");
+            cipher.sshKey.keyFingerprint = this.getValueOrDefault(sshKeyContent.fingerprint, "");
+            this.processExtraFields(cipher, item.data.extraFields);
+            this.processSections(cipher, sshKeyContent.sections);
+            break;
+          }
+          case "custom": {
+            const customContent = item.data.content as ProtonPassCustomItemContent;
+            cipher.type = CipherType.SecureNote;
+            cipher.secureNote = new SecureNoteView();
+            cipher.secureNote.type = SecureNoteType.Generic;
+            this.processExtraFields(cipher, item.data.extraFields);
+            this.processSections(cipher, customContent.sections);
             break;
           }
           default:

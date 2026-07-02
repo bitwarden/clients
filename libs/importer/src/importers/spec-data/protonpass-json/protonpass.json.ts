@@ -276,6 +276,91 @@ export const testData: ProtonPassJsonFile = {
           modifyTime: 1725708208,
           pinned: false,
         },
+        {
+          itemId: "REDACTED_CUSTOM_ITEM_ID",
+          shareId:
+            "SN5uWo4WZF2uT5wIDqtbdpkjuxCbNTOIdf-JQ_DYZcKYKURHiZB5csS1a1p9lklvju9ni42l08IKzwQG0B2ySg==",
+          data: {
+            metadata: {
+              name: "Custom Item",
+              note: "custom item note",
+              itemUuid: "00000001",
+            },
+            extraFields: [
+              {
+                fieldName: "Account number",
+                type: "text",
+                data: {
+                  content: "123456789",
+                },
+              },
+              {
+                fieldName: "PIN",
+                type: "hidden",
+                data: {
+                  content: "0000",
+                },
+              },
+            ],
+            type: "custom",
+            content: {
+              sections: [
+                {
+                  sectionName: "Extra section",
+                  sectionFields: [
+                    {
+                      fieldName: "SectionField",
+                      type: "text",
+                      data: {
+                        content: "section value",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          state: 1,
+          aliasEmail: null,
+          contentFormatVersion: 7,
+          createTime: 1777041612,
+          modifyTime: 1777041612,
+          pinned: false,
+        },
+        {
+          itemId: "REDACTED_SSH_KEY_ITEM_ID",
+          shareId:
+            "SN5uWo4WZF2uT5wIDqtbdpkjuxCbNTOIdf-JQ_DYZcKYKURHiZB5csS1a1p9lklvju9ni42l08IKzwQG0B2ySg==",
+          data: {
+            metadata: {
+              name: "SSH Key Item",
+              note: "",
+              itemUuid: "00000002",
+            },
+            extraFields: [
+              {
+                fieldName: "Host",
+                type: "text",
+                data: {
+                  content: "example.com",
+                },
+              },
+            ],
+            type: "sshKey",
+            content: {
+              privateKey:
+                "-----BEGIN PRIVATE KEY-----\nPRIVATEKEYCONTENT\n-----END PRIVATE KEY-----\n",
+              publicKey: "ssh-ed25519 AAAAPUBLICKEY",
+              sections: [],
+            },
+          },
+          state: 1,
+          aliasEmail: null,
+          contentFormatVersion: 7,
+          createTime: 1777041700,
+          modifyTime: 1777041700,
+          pinned: false,
+        },
       ],
     },
     REDACTED_VAULT_ID_B: {
