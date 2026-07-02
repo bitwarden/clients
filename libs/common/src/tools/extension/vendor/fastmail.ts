@@ -20,6 +20,6 @@ export const FastmailExtensions: ExtensionMetadata[] = [
       selfHost: "maybe",
       baseUrl: "https://api.fastmail.com",
     },
-    requestedFields: [Field.token],
+    requestedFields: [Field.token, Field.prefix],
   },
 ];
