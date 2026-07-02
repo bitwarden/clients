@@ -311,6 +311,21 @@ describe("DefaultCipherEncryptionService", () => {
       expect(results.length).toBe(0);
       expect(mockSdkClient.vault().ciphers().encrypt_list).not.toHaveBeenCalled();
     });
+
+    it("propagates the underlying error instead of an opaque EmptyError", async () => {
+      const sdkError = new Error("Failed to decrypt cipher key");
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .encrypt_list.mockImplementation(() => {
+          throw sdkError;
+        });
+
+      await expect(cipherEncryptionService.encryptMany([cipherViewObj], userId)).rejects.toBe(
+        sdkError,
+      );
+      expect(logService.error).toHaveBeenCalled();
+    });
   });
 
   describe("encryptCipherForRotation", () => {
