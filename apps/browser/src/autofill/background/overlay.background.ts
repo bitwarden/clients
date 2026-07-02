@@ -1914,8 +1914,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameTopOffset = subFrameOffsets?.top ?? 0;
     const subFrameLeftOffset = subFrameOffsets?.left ?? 0;
 
-    const { width, height } = this.focusedFieldData.focusedFieldRects;
-    let { top, left } = this.focusedFieldData.focusedFieldRects;
+    const { height } = this.focusedFieldData.focusedFieldRects;
+    let { width, top, left } = this.focusedFieldData.focusedFieldRects;
     const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
 
     if (this.isTotpFieldForCurrentField()) {
@@ -1925,6 +1925,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         if (bounds) {
           ({ left, top } = bounds);
         }
+      } else if (
+        this.focusedFieldData.isCursorFollowerTotp &&
+        left !== undefined &&
+        width !== undefined &&
+        top !== undefined &&
+        height !== undefined
+      ) {
+        // Single hidden cursor-following TOTP input (e.g. Stripe's CodePuncher).
+        // Position the badge above the right edge of the container, matching the
+        // above-and-right-aligned style used for multi-input TOTP forms.
+        const containerRight = left + width;
+        top = top - height * 0.5;
+        left = containerRight - height * 0.5; // center the badge on the right edge of the container
+        width = height; // zeroes out (width - height) in the standard formula below
       }
     }
 
