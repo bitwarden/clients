@@ -8,10 +8,12 @@ export class MessageResponse implements BaseResponse {
   message: string | null;
   raw: string;
   noColor = false;
+  toStderr = false;
 
-  constructor(title: string, message: string | null) {
+  constructor(title: string, message: string | null, toStderr = false) {
     this.object = "message";
     this.title = title;
     this.message = message;
+    this.toStderr = toStderr;
   }
 }
