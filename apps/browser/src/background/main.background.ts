@@ -1314,6 +1314,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.sdkService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(

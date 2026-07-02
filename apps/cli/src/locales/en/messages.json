@@ -20,6 +20,15 @@
   "invalidFilePassword": {
     "message": "Invalid file password, please use the password you entered when you created the export file."
   },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "importPasswordRequired": {
     "message": "File is password protected, please provide a decryption password."
   },
