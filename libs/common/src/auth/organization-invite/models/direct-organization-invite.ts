@@ -1,8 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { isId } from "../../types/guid";
-
-import { OrgInviteKind } from "./org-invite-kind";
+import { isId } from "../../../types/guid";
+import { OrgInviteKind } from "../enums/org-invite-kind.enum";
 
 /**
  * Documents the URL query param contract emitted by the server for direct organization

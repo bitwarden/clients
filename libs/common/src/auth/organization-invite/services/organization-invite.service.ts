@@ -2,11 +2,10 @@ import { Observable } from "rxjs";
 
 import { UserId } from "@bitwarden/user-core";
 
-import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
-import { Policy } from "../../admin-console/models/domain/policy";
-
-import { OpenOrgInviteStatusResult } from "./open-org-invite-status-result";
-import { OrganizationInvite } from "./organization-invite";
+import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../../admin-console/models/domain/policy";
+import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
+import { OrganizationInvite } from "../types/organization-invite.type";
 
 /**
  * Owns the in-flight organization invite: persisted across login/register/MP-policy

@@ -1,7 +1,6 @@
-import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../platform/state";
-
-import { DirectOrganizationInvite } from "./direct-organization-invite";
-import { OpenOrganizationInvite } from "./open-organization-invite";
+import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../../../platform/state";
+import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
+import { OpenOrganizationInvite } from "../../models/open-organization-invite";
 
 /**
  * Persisted direct organization invite (admin targeted a specific user by email).

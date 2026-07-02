@@ -22,31 +22,34 @@ import {
 } from "@bitwarden/organization-invite-link";
 import { UserId } from "@bitwarden/user-core";
 
-import { ApiService } from "../../abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../admin-console/enums";
-import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
-import { Policy } from "../../admin-console/models/domain/policy";
-import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { ErrorResponse } from "../../models/response/error.response";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { Utils } from "../../platform/misc/utils";
-import { GlobalState, GlobalStateProvider } from "../../platform/state";
-import { OrgKey } from "../../types/key";
-import { AuthService } from "../abstractions/auth.service";
+import { ApiService } from "../../../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../../../admin-console/models/domain/policy";
+import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { ErrorResponse } from "../../../../models/response/error.response";
+import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { Utils } from "../../../../platform/misc/utils";
+import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
+import { OrgKey } from "../../../../types/key";
+import { AuthService } from "../../../abstractions/auth.service";
+import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
+import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
+import { OpenOrganizationInvite } from "../../models/open-organization-invite";
+import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
+import {
+  OpenOrgInviteStatus,
+  OpenOrgInviteSsoConfig,
+} from "../../types/open-org-invite-status.type";
+import { OrganizationInvite } from "../../types/organization-invite.type";
+import { OrganizationInviteService } from "../organization-invite.service";
 
-import { DirectOrganizationInvite } from "./direct-organization-invite";
-import { OpenOrgInviteStatus, OpenOrgInviteSsoConfig } from "./open-org-invite-status";
-import { OpenOrgInviteStatusResult } from "./open-org-invite-status-result";
-import { OpenOrganizationInvite } from "./open-organization-invite";
-import { OrgInviteKind } from "./org-invite-kind";
-import { OrganizationInvite } from "./organization-invite";
-import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite-state";
-import { OrganizationInviteService } from "./organization-invite.service";
+import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite.state";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   private directInviteState: GlobalState<DirectOrganizationInvite | null>;

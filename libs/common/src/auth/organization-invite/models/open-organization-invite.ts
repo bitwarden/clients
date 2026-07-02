@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "./open-org-invite-status";
-import { OrgInviteKind } from "./org-invite-kind";
+import { OrgInviteKind } from "../enums/org-invite-kind.enum";
+import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-invite-status.type";
 
 /**
  * URL contract for the open invite link route: `/#/join/:inviteLinkCode?key={inviteKey}`.

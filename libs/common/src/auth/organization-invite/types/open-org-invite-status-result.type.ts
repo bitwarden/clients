@@ -1,4 +1,4 @@
-import { OpenOrgInviteStatus } from "./open-org-invite-status";
+import { OpenOrgInviteStatus } from "./open-org-invite-status.type";
 
 /**
  * Result contract returned by `OrganizationInviteService.getOpenOrgInviteStatus(code)`.

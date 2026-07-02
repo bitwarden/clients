@@ -1,5 +1,5 @@
-import { DirectOrganizationInvite } from "./direct-organization-invite";
-import { OpenOrganizationInvite } from "./open-organization-invite";
+import { DirectOrganizationInvite } from "../models/direct-organization-invite";
+import { OpenOrganizationInvite } from "../models/open-organization-invite";
 
 /**
  * Discriminated union of organization invite variants:

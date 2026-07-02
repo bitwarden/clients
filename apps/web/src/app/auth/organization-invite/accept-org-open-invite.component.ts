@@ -6,12 +6,12 @@ import { firstValueFrom } from "rxjs";
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountWarning } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OpenOrgInviteStatus } from "@bitwarden/common/auth/organization-invite/open-org-invite-status";
 import {
   OpenOrganizationInvite,
+  OpenOrgInviteStatus,
   OpenOrgInviteUrlParams,
-} from "@bitwarden/common/auth/organization-invite/open-organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {

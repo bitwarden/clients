@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "./open-org-invite-status";
+import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-invite-status.type";
+
 import { OpenOrganizationInvite, OpenOrgInviteUrlParams } from "./open-organization-invite";
 
 describe("OpenOrganizationInvite", () => {
