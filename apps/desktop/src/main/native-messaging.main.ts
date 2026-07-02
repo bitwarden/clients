@@ -14,6 +14,10 @@ import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
+// Per-message native-messaging payloads are noisy (and now also carry reachability keepalive
+// frames). Keep their verbose logging off by default; flip locally when debugging the channel.
+const CONTENT_LOGGING_ENABLED = false;
+
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
@@ -101,7 +105,9 @@ export class NativeMessagingMain {
         case ipc.IpcMessageType.Message:
           try {
             const msgJson = JSON.parse(msg.message);
-            this.logService.debug("Native messaging message:", msgJson);
+            if (CONTENT_LOGGING_ENABLED) {
+              this.logService.debug("Native messaging message:", msgJson);
+            }
             this._messages$.next(msg);
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
@@ -136,7 +142,9 @@ export class NativeMessagingMain {
   }
 
   sendTo(clientId: number, message: object) {
-    this.logService.debug("Native messaging targeted reply to client", clientId, ":", message);
+    if (CONTENT_LOGGING_ENABLED) {
+      this.logService.debug("Native messaging targeted reply to client", clientId, ":", message);
+    }
     this.ipcServer?.sendTo(clientId, JSON.stringify(message));
   }
 
@@ -490,35 +498,39 @@ export class NativeMessagingMain {
         });
 
         for (const profile of profiles) {
-          try {
-            // Read the profile Preferences file and find the extension commands section
-            const prefs = JSON.parse(
-              await fs.readFile(path.join(chromePath, profile, "Preferences"), "utf8"),
-            );
-            const commands: Map<string, any> = prefs.extensions.commands;
+          // Chrome writes keyboard-shortcut assignments to "Preferences" only once they have been
+          // assigned; a freshly-loaded dev extension may have the relevant commands in
+          // "Secure Preferences" but not yet in "Preferences", so scan both files.
+          for (const prefsFile of ["Preferences", "Secure Preferences"]) {
+            try {
+              const prefs = JSON.parse(
+                await fs.readFile(path.join(chromePath, profile, prefsFile), "utf8"),
+              );
+              const commands: Map<string, any> = prefs.extensions?.commands;
 
-            // If one of the commands is autofill_login or generate_password, we know it's probably the Bitwarden extension
-            for (const { command_name, extension } of Object.values(commands)) {
-              if (command_name === "autofill_login" || command_name === "generate_password") {
-                ids.add(`chrome-extension://${extension}/`);
-                this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+              // If one of the commands is autofill_login or generate_password, we know it's probably the Bitwarden extension
+              for (const { command_name, extension } of Object.values(commands ?? {})) {
+                if (command_name === "autofill_login" || command_name === "generate_password") {
+                  ids.add(`chrome-extension://${extension}/`);
+                  this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                }
               }
-            }
 
-            // Match via settings too. Sometimes global commands don't register properly.
-            const settings: Map<string, any> = prefs.extensions.settings;
-            for (const [extension, setting] of Object.entries(settings)) {
-              if (setting.commands) {
-                for (const [command_name] of Object.entries(setting.commands)) {
-                  if (command_name === "autofill_login" || command_name === "generate_password") {
-                    ids.add(`chrome-extension://${extension}/`);
-                    this.logService.info(`Found extension ${chromePath}: ${extension}`);
+              // Match via settings too. Sometimes global commands don't register properly.
+              const settings: Map<string, any> = prefs.extensions?.settings;
+              for (const [extension, setting] of Object.entries(settings ?? {})) {
+                if (setting.commands) {
+                  for (const [command_name] of Object.entries(setting.commands)) {
+                    if (command_name === "autofill_login" || command_name === "generate_password") {
+                      ids.add(`chrome-extension://${extension}/`);
+                      this.logService.info(`Found extension ${chromePath}: ${extension}`);
+                    }
                   }
                 }
               }
+            } catch (e) {
+              this.logService.info(`Error reading preferences: ${e}`);
             }
-          } catch (e) {
-            this.logService.info(`Error reading preferences: ${e}`);
           }
         }
       } catch {
