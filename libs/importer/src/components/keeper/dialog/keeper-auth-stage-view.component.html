@@ -1,0 +1,315 @@
+@let currentStage = stage();
+
+@switch (currentStage.kind) {
+  <!-- Choose how to approve this device (email link, push, 2FA). -->
+  @case ("selectApproval") {
+    <keeper-stage-shell
+      [title]="'deviceApprovalNeeded' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmApproval()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body1">{{ "selectApprovalMethodDesc" | i18n }}</p>
+        <bit-radio-group [formControl]="approvalMethodControl" [block]="true">
+          @for (method of currentStage.methods; track method) {
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getApprovalMethodLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
+          }
+        </bit-radio-group>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Waiting for the user to approve via email link or push notification.
+       Email variant shows a code input + Resend link; push variant just spins. -->
+  @case ("approvalCode") {
+    @if (currentStage.variant === "email") {
+      <keeper-stage-shell
+        [title]="'deviceApprovalNeeded' | i18n"
+        [email]="email()"
+        [primaryLabel]="'continue' | i18n"
+        (primary)="submitCode()"
+        [secondaryLabel]="'tryAnotherMethod' | i18n"
+        (secondary)="tryAnother()"
+        (close)="cancel()"
+      >
+        <div bitDialogContent>
+          <p bitTypography="body1">{{ "approvalEmailDesc" | i18n }}</p>
+          <form (ngSubmit)="submitCode()">
+            <bit-form-field disableMargin>
+              <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+              <input bitInput type="text" [formControl]="codeControl" />
+            </bit-form-field>
+          </form>
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-2 tw-text-xs"
+            (click)="resend()"
+          >
+            {{ "resendCode" | i18n }}
+          </button>
+        </div>
+      </keeper-stage-shell>
+    } @else if (currentStage.variant === "admin") {
+      <keeper-stage-shell
+        [title]="'deviceApprovalNeeded' | i18n"
+        [email]="email()"
+        [primaryLabel]="'tryAnotherMethod' | i18n"
+        (primary)="tryAnother()"
+        [secondaryLabel]="'cancel' | i18n"
+        (secondary)="cancelAdminApproval()"
+        (close)="cancelAdminApproval()"
+      >
+        <div bitDialogContent>
+          <div class="tw-flex tw-flex-col tw-items-center">
+            <bit-spinner class="tw-mb-4"></bit-spinner>
+            <h3 bitTypography="h3">{{ "adminApprovalRequested" | i18n }}</h3>
+            <p bitTypography="body1" class="tw-text-center">
+              {{ "adminDeviceApprovalPushDesc" | i18n }}
+            </p>
+          </div>
+        </div>
+      </keeper-stage-shell>
+    } @else {
+      <keeper-stage-shell
+        [title]="'deviceApprovalNeeded' | i18n"
+        [email]="email()"
+        [primaryLabel]="'tryAnotherMethod' | i18n"
+        (primary)="tryAnother()"
+        [secondaryLabel]="'cancel' | i18n"
+        (secondary)="cancel()"
+        (close)="cancel()"
+      >
+        <div bitDialogContent>
+          <div class="tw-flex tw-flex-col tw-items-center">
+            <bit-spinner class="tw-mb-4"></bit-spinner>
+            <h3 bitTypography="h3">{{ "keeperPushSent" | i18n }}</h3>
+            <p bitTypography="body1" class="tw-text-center">
+              {{ "otherDeviceApprovalPushDesc" | i18n }}
+            </p>
+          </div>
+        </div>
+      </keeper-stage-shell>
+    }
+  }
+
+  <!-- Pick which 2FA method to use (only shown when more than one is available). -->
+  @case ("selectTwoFactor") {
+    <keeper-stage-shell
+      [title]="'selectTwoFactorMethod' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmTwoFactor()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <bit-radio-group [formControl]="twoFactorMethodControl" [block]="true">
+          @for (method of currentStage.methods; track method) {
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getTwoFactorLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
+          }
+        </bit-radio-group>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Enter the 2FA code (TOTP/SMS/etc) or wait for a push-style 2FA approval.
+       The "hidden" variant is used for device-approval-via-2FA where Keeper
+       doesn't tell us which method the user has configured. -->
+  @case ("twoFactorCode") {
+    <keeper-stage-shell
+      [title]="getTwoFactorCodeTitle(currentStage) | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="currentStage.needsInput ? submitCode() : submitPush()"
+      [secondaryLabel]="(currentStage.hidden ? 'tryAnotherMethod' : 'cancel') | i18n"
+      (secondary)="currentStage.hidden ? tryAnother() : cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        @if (currentStage.needsInput) {
+          <p bitTypography="body1">{{ getTwoFactorCodePrompt(currentStage) | i18n }}</p>
+          <form (ngSubmit)="submitCode()">
+            <bit-form-field disableMargin>
+              <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+              <input bitInput type="text" [formControl]="codeControl" appInputVerbatim />
+            </bit-form-field>
+          </form>
+          @if (currentStage.canResend) {
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-mt-2 tw-text-xs"
+              (click)="resend()"
+            >
+              {{ "resendCode" | i18n }}
+            </button>
+          }
+        } @else {
+          <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
+        }
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Pick which Duo Security method to use (push, SMS, voice, passcode). -->
+  @case ("selectDuo") {
+    <keeper-stage-shell
+      [title]="'duoVerification' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmDuo()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body1">{{ currentStage.phoneNumber }}</p>
+        <bit-radio-group [formControl]="duoMethodControl" [block]="true" class="tw-mt-4">
+          @for (method of currentStage.methods; track method) {
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getDuoLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
+          }
+        </bit-radio-group>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Waiting for the user to approve a Duo push or voice call. -->
+  @case ("duoPush") {
+    <keeper-stage-shell
+      [title]="'duoVerification' | i18n"
+      [email]="email()"
+      [primaryLabel]="'tryAnotherMethod' | i18n"
+      (primary)="tryAnother()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body1">{{ "duoPushWaiting" | i18n }}</p>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Pick how to handle Keeper DNA (push or manual code entry). -->
+  @case ("selectDna") {
+    <keeper-stage-shell
+      [title]="'keeperDnaVerification' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmDna()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <bit-radio-group [formControl]="dnaMethodControl" [block]="true">
+          @for (method of currentStage.methods; track method) {
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getDnaLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
+          }
+        </bit-radio-group>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Waiting for the user to approve a Keeper DNA push (Apple Watch, etc). -->
+  @case ("dnaPush") {
+    <keeper-stage-shell
+      [title]="'keeperDnaVerification' | i18n"
+      [email]="email()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <div class="tw-flex tw-flex-col tw-items-center">
+          <bit-spinner class="tw-mb-4"></bit-spinner>
+          <p bitTypography="body1" class="tw-text-center">
+            {{ "keeperDnaPushWaiting" | i18n }}
+          </p>
+        </div>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Cloud SSO on desktop/web: the IdP opens in the system browser and the
+       user pastes the token back. The browser extension auto-captures the
+       token and skips this stage entirely. -->
+  @case ("ssoToken") {
+    <keeper-stage-shell
+      [title]="'ssoAuthRequired' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="submitSsoToken()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
+        <form (ngSubmit)="submitSsoToken()">
+          <bit-form-field disableMargin>
+            <bit-label>{{ "ssoToken" | i18n }}</bit-label>
+            <input bitInput type="text" [formControl]="ssoTokenControl" appInputVerbatim />
+          </bit-form-field>
+        </form>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Master password prompt. Server only requests it after device approval / 2FA. -->
+  @case ("password") {
+    <keeper-stage-shell
+      [title]="'masterPassword' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="submitPassword()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+      [loading]="passwordSubmitting()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>
+        <form (ngSubmit)="submitPassword()">
+          <bit-form-field disableMargin>
+            <bit-label>{{ "masterPassword" | i18n }}</bit-label>
+            <input bitInput type="password" [formControl]="passwordControl" appInputVerbatim />
+            <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+          </bit-form-field>
+        </form>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Generic error display. The OK button dismisses and ends the flow. -->
+  @case ("error") {
+    <keeper-stage-shell
+      [title]="'errorOccurred' | i18n"
+      [primaryLabel]="'ok' | i18n"
+      (primary)="dismissError()"
+      (close)="dismissError()"
+    >
+      <div bitDialogContent>
+        <bit-callout type="danger">
+          {{ currentStage.message | i18n }}
+        </bit-callout>
+      </div>
+    </keeper-stage-shell>
+  }
+}

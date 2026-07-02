@@ -305,6 +305,7 @@
       matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
+        "@bufbuild/protobuf",
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
