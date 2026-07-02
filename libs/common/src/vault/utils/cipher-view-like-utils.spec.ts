@@ -262,7 +262,7 @@ describe("CipherViewLikeUtils", () => {
         cipherListView.type = "secureNote";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.SecureNote);
 
-        cipherListView.type = "bankAccount";
+        cipherListView.type = { bankAccount: { accountNumber: "1234", accountType: "checking" } };
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
 
         cipherListView.type = "driversLicense";
@@ -362,18 +362,29 @@ describe("CipherViewLikeUtils", () => {
         expect(i18nService.t).not.toHaveBeenCalled();
       });
 
-      it("falls back to the SDK-provided subtitle for a CipherListView bank account", () => {
-        // CipherListViewType encodes bank account as a plain string discriminator and does
-        // not carry accountType/accountNumber inline. The SDK's pre-computed `subtitle` is
-        // the only signal we have.
+      it("falls back to the SDK-provided subtitle for a CipherListView bank account without inline data", () => {
         const cipherListView = {
-          type: "bankAccount",
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
           subtitle: "SDK-provided fallback",
         } as CipherListView;
 
         expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
           "SDK-provided fallback",
         );
+      });
+
+      it("computes a translated subtitle from the inline data of a CipherListView bank account", () => {
+        const cipherListView = {
+          type: {
+            bankAccount: { accountNumber: "987651234", accountType: BankAccountType.Checking },
+          },
+          subtitle: "SDK-provided fallback",
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.subtitle(cipherListView, i18nService)).toBe(
+          "translated:bankAccountTypeChecking, *1234",
+        );
+        expect(i18nService.t).toHaveBeenCalledWith("bankAccountTypeChecking");
       });
 
       it("returns the base subtitle for non-bank-account ciphers even when i18nService is provided", () => {
@@ -767,7 +778,6 @@ describe("CipherViewLikeUtils", () => {
 
       it("returns true for copyable fields in a bank account cipher", () => {
         const cipherListView = {
-          type: "bankAccount",
           copyableFields: [
             "BankAccountNameOnAccount",
             "BankAccountAccountNumber",
@@ -777,6 +787,7 @@ describe("CipherViewLikeUtils", () => {
             "BankAccountIban",
             "BankAccountSwift",
           ],
+          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
         } as CipherListView;
 
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "nameOnAccount")).toBe(true);
