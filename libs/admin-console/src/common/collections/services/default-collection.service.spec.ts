@@ -1,12 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import {
   combineLatest,
+  filter,
   first,
   firstValueFrom,
   of,
   ReplaySubject,
+  take,
   takeWhile,
-  throwError,
+  tap,
+  toArray,
 } from "rxjs";
 
 import {
@@ -236,24 +239,6 @@ describe("DefaultCollectionService", () => {
       // Expect decryptMany$ to be called only once
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
     });
-
-    it("falls back to an empty list and logs when a batch decryption errors", async () => {
-      const org1 = Utils.newGuid() as OrganizationId;
-      const orgKey1 = makeSymmetricCryptoKey<OrgKey>(64, 1);
-      const collection1 = collectionDataFactory(org1);
-
-      jest
-        .spyOn(collectionService, "decryptMany$")
-        .mockReturnValue(throwError(() => new Error("Failed to decrypt batch")));
-
-      await setEncryptedState([collection1]);
-      cryptoKeys.next({ [org1]: orgKey1 });
-
-      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
-
-      expect(result).toEqual([]);
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
-    });
   });
 
   describe("encryptedCollections$", () => {
@@ -326,6 +311,34 @@ describe("DefaultCollectionService", () => {
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
       expect(result).toEqual([]);
+    });
+
+    it("emits the decrypted collections exactly once on success (no duplicate emission)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      const emissions: CollectionView[][] = [];
+      const sub = collectionService
+        .decryptedCollections$(userId)
+        .subscribe((v) => emissions.push(v));
+
+      // Deterministically wait until the decrypted result has been cached - that write is the
+      // mechanism that delivers the value to subscribers - then stop observing.
+      await firstValueFrom(
+        stateProvider
+          .getUser(userId, DECRYPTED_COLLECTION_DATA_KEY)
+          .state$.pipe(filter((state) => state != null)),
+      );
+      sub.unsubscribe();
+
+      // The decrypted result is delivered once via the cache re-emitting; the direct emission is
+      // dropped (ignoreElements) so subscribers never receive the same value twice.
+      expect(emissions).toHaveLength(1);
+      expect(emissions[0]).toContainPartialObjects([{ id: collection1.id }]);
     });
 
     it("sorts results returned from collectionEncryptionService", async () => {
@@ -407,20 +420,59 @@ describe("DefaultCollectionService", () => {
       expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
     });
 
-    it("does not retry a failed batch on repeated subscriptions (avoids infinite loop)", async () => {
+    it("retries a failed batch on a fresh subscription so a transient failure recovers", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+      // Fail the first attempt (e.g. the SDK is not ready yet), then succeed.
+      collectionEncryptionService.decryptMany
+        .mockRejectedValueOnce(new Error("SDK not available"))
+        .mockResolvedValue([decryptedView]);
 
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
-      await firstValueFrom(collectionService.decryptedCollections$(userId));
+      // First subscription hits the transient failure. The empty fallback is not cached.
+      const firstResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(firstResult).toEqual([]);
 
-      // The failed batch should only ever be attempted once; subsequent reads use the
-      // cached (empty) fallback state instead of re-triggering decryption.
-      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+      // A subsequent subscription re-attempts decryption (rather than serving a cached empty
+      // list) and recovers once the SDK is available.
+      const secondResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(secondResult).toContainPartialObjects([{ id: collection1.id }]);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(2);
+    });
+
+    it("recovers a live subscriber when an input re-emits after a transient failure (no re-subscribe)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany
+        .mockRejectedValueOnce(new Error("SDK not available"))
+        .mockResolvedValue([decryptedView]);
+
+      // A single live subscription. When the transient failure emits [], re-emit org keys - a live
+      // combineLatest input - to trigger a retry WITHOUT re-subscribing. Because the failed attempt
+      // did not cache an empty list, decrypted state is still null and the combineLatest is still
+      // the active inner, so the existing subscriber re-decrypts and recovers.
+      const emissions = await firstValueFrom(
+        collectionService.decryptedCollections$(userId).pipe(
+          tap((views) => {
+            if (views.length === 0) {
+              cryptoKeys.next({ [org1]: makeSymmetricCryptoKey<OrgKey>(64, 1) });
+            }
+          }),
+          take(2),
+          toArray(),
+        ),
+      );
+
+      expect(emissions[0]).toEqual([]);
+      expect(emissions[1]).toContainPartialObjects([{ id: collection1.id }]);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(2);
     });
   });
 
