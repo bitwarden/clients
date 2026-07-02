@@ -8,6 +8,23 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+type FirefoxProxyInfo = {
+  host?: string;
+  port?: number;
+  type?: string;
+};
+
+// see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/onAuthRequired#additional_objects
+type AuthRequiredDetailsWithProxyInfo = chrome.webRequest.OnAuthRequiredDetails & {
+  isProxy?: boolean;
+  scheme?: string;
+  challenger?: {
+    host?: string;
+    port?: number;
+  };
+  proxyInfo?: FirefoxProxyInfo;
+};
+
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
@@ -28,20 +45,29 @@ export default class WebRequestBackground {
         details: chrome.webRequest.OnAuthRequiredDetails,
         callback: (response: chrome.webRequest.BlockingResponse | null) => void,
       ) => {
-        if (!details.url || this.pendingAuthRequests.has(details.requestId)) {
+        if (this.pendingAuthRequests.has(details.requestId)) {
           if (callback) {
             callback(null);
           }
           return;
         }
+
+        const authUrl = this.getAuthUrl(details);
+        if (authUrl == null) {
+          if (callback) {
+            callback(null);
+          }
+          return;
+        }
+
         this.pendingAuthRequests.add(details.requestId);
         if (this.isFirefox) {
           // eslint-disable-next-line
           return new Promise(async (resolve, reject) => {
-            await this.resolveAuthCredentials(details.url, resolve, reject);
+            await this.resolveAuthCredentials(authUrl, resolve, reject);
           });
         } else {
-          await this.resolveAuthCredentials(details.url, callback, callback);
+          await this.resolveAuthCredentials(authUrl, callback, callback);
         }
       }) as any,
       { urls: ["http://*/*", "https://*/*"] },
@@ -54,6 +80,30 @@ export default class WebRequestBackground {
     this.webRequest.onErrorOccurred.addListener((details) => this.completeAuthRequest(details), {
       urls: ["http://*/*", "https://*/*"],
     });
+  }
+
+  private getAuthUrl(details: chrome.webRequest.OnAuthRequiredDetails): string | null {
+    const authDetails = details as AuthRequiredDetailsWithProxyInfo;
+
+    if (authDetails.isProxy !== true) {
+      return details.url ?? null;
+    }
+
+    if (authDetails.scheme !== "basic") {
+      return null;
+    }
+
+    const host = authDetails.proxyInfo?.host ?? authDetails.challenger?.host;
+    const port = authDetails.proxyInfo?.port ?? authDetails.challenger?.port;
+
+    if (host == null || host === "") {
+      return null;
+    }
+
+    const protocol = authDetails.proxyInfo?.type === "https" ? "https" : "http";
+    const portPart = port == null ? "" : `:${port}`;
+
+    return `${protocol}://${host}${portPart}`;
   }
 
   private async resolveAuthCredentials(
