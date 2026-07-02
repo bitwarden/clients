@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import { WebAuthnPrfUnlockService } from "@bitwarden/key-management-ui";
@@ -14,10 +15,12 @@ describe("WebLockComponentService", () => {
 
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
+  let sharedUnlockFollowerService: MockProxy<SharedUnlockFollowerService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+    sharedUnlockFollowerService = mock<SharedUnlockFollowerService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -29,6 +32,10 @@ describe("WebLockComponentService", () => {
         {
           provide: WebAuthnPrfUnlockService,
           useValue: webAuthnPrfUnlockService,
+        },
+        {
+          provide: SharedUnlockFollowerService,
+          useValue: sharedUnlockFollowerService,
         },
       ],
     });
