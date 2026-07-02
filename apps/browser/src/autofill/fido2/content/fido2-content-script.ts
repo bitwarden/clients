@@ -6,6 +6,7 @@ import {
 import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
+import { reportIframeAttributesWhenReady } from "./iframe-allow-reporter";
 import {
   InsecureAssertCredentialParams,
   InsecureCreateCredentialParams,
@@ -34,6 +35,13 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   messenger.handler = handleFido2Message;
   const port = chrome.runtime.connect({ name: Fido2PortName.InjectedScript });
   port.onDisconnect.addListener(handlePortOnDisconnect);
+
+  // Report this frame's iframe `allow=` attributes to the background so the
+  // Permissions Policy gate can consult them when evaluating cross-origin
+  // sub-frames. No-op when this frame has no iframes.
+  reportIframeAttributesWhenReady(globalContext.document, (command, payload) =>
+    sendExtensionMessage(command, payload),
+  );
 
   /**
    * Handles FIDO2 credential requests and returns the result.
