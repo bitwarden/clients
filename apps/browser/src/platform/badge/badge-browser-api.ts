@@ -201,7 +201,7 @@ export class DefaultBadgeBrowserApi implements BadgeBrowserApi {
     }
 
     if ("opr" in self && BrowserApi.isManifestVersion(3)) {
-      // setIcon API is currenly broken for Opera MV3 extensions
+      // setIcon API is currently broken for Opera MV3 extensions
       // https://forums.opera.com/topic/75680/opr-sidebaraction-seticon-api-is-broken-access-to-extension-api-denied?_=1738349261570
       // The API currently crashes on MacOS
       return;
