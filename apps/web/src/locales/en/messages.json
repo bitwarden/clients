@@ -7297,6 +7297,30 @@
   "autoConfirmDisabledByPortal": {
     "message": "Removed Automatic user confirmation policy"
   },
+  "inviteLinkEventCreated": {
+    "message": "Created invite link"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Edited allowed domains for invite link"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Deleted invite link"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Copied invite link"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Regenerated invite link"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
@@ -11286,6 +11310,12 @@
   "editedCollection": {
     "message": "Edited collection"
   },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "baseUrl": {
     "message": "Server URL"
   },
@@ -15239,5 +15269,15 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
