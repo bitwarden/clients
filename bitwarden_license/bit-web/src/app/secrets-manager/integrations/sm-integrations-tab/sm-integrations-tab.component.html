@@ -1,0 +1,8 @@
+<section class="tw-mb-9">
+  <p bitTypography="body1">{{ descriptionKey | i18n }}</p>
+  <app-integration-grid
+    [integrations]="integrations() | filterIntegrations: integrationType"
+    [tooltipI18nKey]="tooltipKey"
+    [ariaI18nKey]="ariaKey"
+  ></app-integration-grid>
+</section>
