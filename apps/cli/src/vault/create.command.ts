@@ -19,6 +19,7 @@ import { CollectionExport } from "@bitwarden/common/models/export/collection.exp
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -227,15 +228,11 @@ export class CreateCommand {
       return Response.badRequest("Collection name is required.");
     }
     try {
-      const orgKey = await this.keyService.getOrgKey(req.organizationId);
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+      const orgKey = orgKeys?.[req.organizationId as OrganizationId] ?? null;
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
-      }
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-      if (!userId) {
-        return Response.badRequest("No user found.");
       }
       const organization = await firstValueFrom(
         this.organizationService
