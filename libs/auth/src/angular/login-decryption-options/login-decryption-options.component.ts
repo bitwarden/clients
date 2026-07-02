@@ -250,6 +250,12 @@ export class LoginDecryptionOptionsComponent implements OnInit {
 
     const autoEnrollStatus = await firstValueFrom(autoEnrollStatus$);
 
+    if (autoEnrollStatus == undefined) {
+      // getAutoEnrollStatus failed (the error was surfaced via validationService.showError above).
+      // Do not dereference undefined; leave newUserOrgId unset and stop here.
+      return;
+    }
+
     this.newUserOrgId = autoEnrollStatus.id;
   }
 
