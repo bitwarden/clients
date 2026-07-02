@@ -275,6 +275,8 @@ export class CreditCardAutoFillConstants {
     "num-carte",
     "cb-num",
     "card-pan",
+    "pan",
+    "src-pan",
   ];
 
   static readonly CardNumberFieldNameValues: string[] = [
