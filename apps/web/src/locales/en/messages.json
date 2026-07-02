@@ -15212,7 +15212,7 @@
     "message": "Could not load governance data"
   },
   "pamGovernanceTitle": {
-    "message": "Privileged access governance"
+    "message": "Governance"
   },
   "killSwitchDangerZoneTitle": {
     "message": "Danger zone"
