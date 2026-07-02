@@ -69,6 +69,7 @@ import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -120,7 +121,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
-    allowSharingUnlockState: true,
+    allowSharingUnlockStateWithDesktop: false,
+    allowSharingUnlockStateWithWeb: false,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -175,18 +177,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
   }
 
-  get sharedUnlockDescriptionKey(): string {
-    if (this.platformUtilsService.isSafari()) {
-      return "sharedUnlockDescriptionSafari";
-    }
-
-    if (this.platformUtilsService.isFirefox()) {
-      return "sharedUnlockDescriptionFirefox";
-    }
-
-    return "sharedUnlockDescription";
-  }
-
   async ngOnInit() {
     const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.showMasterPasswordOnClientRestartOption = hasMasterPassword;
@@ -213,8 +203,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.biometricStateService.promptAutomatically$(activeAccount.id),
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
-      allowSharingUnlockState: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
+      allowSharingUnlockStateWithDesktop: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(activeAccount.id),
+      ),
+      allowSharingUnlockStateWithWeb: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(activeAccount.id),
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
@@ -228,6 +221,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
+          }
+
+          // Biometrics status shouldn't be checked if permissions are needed.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
           }
 
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
@@ -321,10 +322,19 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.form.controls.allowSharingUnlockState.valueChanges
+    this.form.controls.allowSharingUnlockStateWithDesktop.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.updateAllowSharingUnlockState(enabled);
+          await this.updateAllowSharingUnlockStateWithDesktop(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.allowSharingUnlockStateWithWeb.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockStateWithWeb(enabled);
         }),
         takeUntil(this.destroy$),
       )
@@ -369,9 +379,58 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async requestNativeMessagingPermission(): Promise<boolean> {
+    if (await BrowserApi.permissionsGranted(["nativeMessaging"])) {
+      return true;
+    }
+
+    let threwError = false;
+    let granted = false;
+
+    try {
+      granted = (await BrowserApi.requestPermission({
+        permissions: ["nativeMessaging"],
+      })) as boolean;
+    } catch {
+      threwError = true;
+    }
+
+    if (threwError) {
+      if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "nativeMessaginPermissionSidebarTitle" },
+          content: { key: "nativeMessaginPermissionSidebarDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "info",
+        });
+        return false;
+      }
+    }
+
+    if (!granted) {
+      await this.dialogService.openSimpleDialog({
+        title: { key: "nativeMessaginPermissionErrorTitle" },
+        content: { key: "nativeMessaginPermissionErrorDesc" },
+        acceptButtonText: { key: "ok" },
+        cancelButtonText: null,
+        type: "danger",
+      });
+      return false;
+    }
+
+    return true;
+  }
+
   async updateBiometric(enabled: boolean) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (enabled) {
+      const granted = await this.requestNativeMessagingPermission();
+      if (!granted) {
+        this.form.controls.biometric.setValue(false);
+        return;
+      }
+
       try {
         await this.keyService.refreshAdditionalKeys(userId);
 
@@ -486,10 +545,34 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     return setupResult;
   }
 
-  async updateAllowSharingUnlockState(enabled: boolean) {
+  async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
+    if (enabled) {
+      if (
+        BrowserPopupUtils.inPopup(window) &&
+        !(await BrowserApi.permissionsGranted(["nativeMessaging"]))
+      ) {
+        await BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
+      }
+
+      const granted = await this.requestNativeMessagingPermission();
+      if (!granted) {
+        this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
-    if (!enabled) {
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
+  }
+
+  async updateAllowSharingUnlockStateWithWeb(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithDesktop.value) {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }

@@ -153,6 +153,13 @@ export class IpcBackgroundService extends IpcService {
    * using native messaging. It will automaticall retry and reconnect if the connection fails or is lost.
    */
   private async connectToDesktop() {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      this.logService.info(
+        "[IPC] Native messaging permission not granted, skipping connection to Bitwarden Desktop App",
+      );
+      return;
+    }
+
     let port: browser.runtime.Port | chrome.runtime.Port | undefined;
     try {
       port = BrowserApi.connectNative("com.8bit.bitwarden");
