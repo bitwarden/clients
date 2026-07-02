@@ -4,16 +4,19 @@ use std::{
 };
 
 use autofill_provider::{
-    AutofillProviderClient, CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse,
+    CallbackError, PasskeyAssertionRequest, PasskeyAssertionResponse,
     PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
     WindowDetails,
 };
 use win_webauthn::{plugin::PluginGetAssertionRequest, CborWriter};
 
-use crate::util::{create_context_string, HwndExt};
+use crate::{
+    ipc::IpcClient,
+    util::{create_context_string, HwndExt},
+};
 
 pub fn get_assertion(
-    ipc_client: &AutofillProviderClient,
+    ipc_client: &dyn IpcClient,
     request: PluginGetAssertionRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
@@ -86,7 +89,7 @@ pub fn get_assertion(
 
 /// Helper for assertion requests
 fn send_assertion_request(
-    ipc_client: &AutofillProviderClient,
+    ipc_client: &dyn IpcClient,
     request: PasskeyAssertionRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<PasskeyAssertionResponse, String> {

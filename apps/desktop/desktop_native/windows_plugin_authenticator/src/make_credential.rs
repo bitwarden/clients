@@ -5,18 +5,21 @@ use std::{
 };
 
 use autofill_provider::{
-    AutofillProviderClient, CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse,
-    Position, TimedCallback, UserVerification, WindowDetails,
+    CallbackError, PasskeyRegistrationRequest, PasskeyRegistrationResponse, Position,
+    TimedCallback, UserVerification, WindowDetails,
 };
 use win_webauthn::{
     plugin::{PluginMakeCredentialRequest, PluginMakeCredentialResponse},
     CborParser, CborValue, CtapTransport,
 };
 
-use crate::util::{create_context_string, HwndExt};
+use crate::{
+    ipc::IpcClient,
+    util::{create_context_string, HwndExt},
+};
 
 pub fn make_credential(
-    ipc_client: &AutofillProviderClient,
+    ipc_client: &dyn IpcClient,
     request: PluginMakeCredentialRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
@@ -113,7 +116,7 @@ pub fn make_credential(
 
 /// Helper for registration requests
 fn send_registration_request(
-    ipc_client: &AutofillProviderClient,
+    ipc_client: &dyn IpcClient,
     request: PasskeyRegistrationRequest,
     cancellation_token: Receiver<()>,
 ) -> Result<PasskeyRegistrationResponse, String> {
