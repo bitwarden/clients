@@ -48,6 +48,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -552,9 +553,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return this.getAllCipherTypeViews(currentTab, activeUserId);
     }
 
-    const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
-    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+    const url = currentTab.url || "";
+    const cipherViews = CipherViewLikeUtils.sortCiphersForUrl(
+      (await this.cipherService.getAllDecryptedForUrl(url, activeUserId)).sort((a, b) =>
+        this.cipherService.sortCiphersByLastUsedThenName(a, b),
+      ),
+      url,
+    );
 
     return this.cardAndIdentityCiphers
       ? cipherViews.concat(...this.cardAndIdentityCiphers)
@@ -576,12 +581,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.cardAndIdentityCiphers.clear();
-    const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
-        CipherType.Card,
-        CipherType.Identity,
-      ])
-    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+    const url = currentTab.url || "";
+    const cipherViews = CipherViewLikeUtils.sortCiphersForUrl(
+      (
+        await this.cipherService.getAllDecryptedForUrl(url, userId, [
+          CipherType.Card,
+          CipherType.Identity,
+        ])
+      ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)),
+      url,
+    );
 
     if (!this.cardAndIdentityCiphers) {
       return cipherViews;
