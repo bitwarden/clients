@@ -92,6 +92,24 @@ describe("SendOptionsComponent", () => {
     });
   });
 
+  describe("maxAccessCount serialization", () => {
+    // Regression: editing a send whose maxAccessCount is unset must patch null, not NaN.
+    // An undefined patch value used to flow through Number(undefined) === NaN and the SDK
+    // rejected it ("invalid type: floating point `NaN`, expected u32").
+    it.each([null, undefined])(
+      "patches null when the original maxAccessCount is %s",
+      (maxAccessCount) => {
+        mockSendFormService.patchSend.mockClear();
+        mockSendFormService.originalSendView.mockReturnValue({ maxAccessCount } as SendView);
+        cycleChangeDetection();
+
+        expect(mockSendFormService.patchSend).toHaveBeenCalled();
+        const updateFn = mockSendFormService.patchSend.mock.calls.at(-1)![0];
+        expect(updateFn({} as SendView).maxAccessCount).toBeNull();
+      },
+    );
+  });
+
   describe("Edit mode", () => {
     beforeEach(async () => {
       fixture.componentRef.setInput("editing", true);
