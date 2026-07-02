@@ -1,5 +1,5 @@
-import { inject, NgModule } from "@angular/core";
-import { CanMatchFn, Route, RouterModule, Routes } from "@angular/router";
+import { NgModule } from "@angular/core";
+import { Route, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
@@ -16,6 +16,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -52,7 +53,6 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -99,16 +99,6 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
-
-/**
- * Gates the open-invite landing route on `FeatureFlag.GenerateInviteLink`. When the flag
- * is off the route doesn't match — Angular's router falls through to the wildcard, so
- * users hit the standard 404 fallback.
- */
-const generateInviteLinkFlagEnabled: CanMatchFn = () =>
-  inject(ConfigService)
-    .getFeatureFlag$(FeatureFlag.GenerateInviteLink)
-    .pipe(map((flagValue) => flagValue === true));
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -227,12 +217,9 @@ const routes: Routes = [
       {
         // Open organization invite link landing. The component handles both
         // authenticated and unauthenticated users so no unauthGuardFn here.
-        // `canMatch` gates the route on the feature flag — when off, the route
-        // doesn't match and the user gets the standard 404 fallback. `deepLinkGuard`
-        // persists the URL so SSO + JIT flows can replay it after auth.
+        // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
         path: "join/:inviteLinkCode",
-        canMatch: [generateInviteLinkFlagEnabled],
-        canActivate: [deepLinkGuard()],
+        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
         component: AcceptOrgOpenInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
