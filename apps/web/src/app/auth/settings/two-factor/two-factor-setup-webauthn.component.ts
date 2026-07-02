@@ -5,15 +5,16 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
-import { UpdateTwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn-delete.request";
-import { UpdateTwoFactorWebAuthnRequest } from "@bitwarden/common/auth/models/request/update-two-factor-web-authn.request";
-import {
-  ChallengeResponse,
-  TwoFactorWebAuthnResponse,
-} from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import { WebAuthnChallengeResponse } from "@bitwarden/common/auth/models/response/web-authn-challenge.response";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorWebAuthnChallengeRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-challenge.request";
+import { TwoFactorWebAuthnDeleteAllRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete-all.request";
+import { TwoFactorWebAuthnDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-delete.request";
+import { TwoFactorWebAuthnUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-web-authn-update.request";
+import { TwoFactorWebAuthnChallengeResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-challenge.response";
+import { TwoFactorWebAuthnDeleteResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-delete.response";
+import { TwoFactorWebAuthnDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn-details.response";
+import { TwoFactorWebAuthnResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-web-authn.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -41,7 +42,7 @@ interface Key {
   name: string;
   configured: boolean;
   migrated?: boolean;
-  removePromise: Promise<TwoFactorWebAuthnResponse> | null;
+  removePromise: Promise<TwoFactorWebAuthnDeleteResponse> | null;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -73,14 +74,22 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   webAuthnError: boolean = false;
   webAuthnListening: boolean = false;
   webAuthnResponse: PublicKeyCredential | null = null;
-  challengePromise: Promise<ChallengeResponse> | undefined;
+  challengePromise: Promise<TwoFactorWebAuthnChallengeResponse> | undefined;
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
 
   override componentName = "app-two-factor-webauthn";
 
   protected formGroup: FormGroup;
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorWebAuthnResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>,
     private dialogRef: DialogRef,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
@@ -106,9 +115,9 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.auth(data);
   }
 
-  auth(authResponse: AuthResponse<TwoFactorWebAuthnResponse>) {
+  auth(authResponse: TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>) {
     super.auth(authResponse);
-    this.processResponse(authResponse.response);
+    this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -120,24 +129,25 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnRequest);
-
     if (this.webAuthnResponse == undefined || this.keyIdAvailable == undefined) {
       throw new Error("WebAuthn response or key ID is missing");
     }
 
-    request.deviceResponse = this.webAuthnResponse;
-    request.id = this.keyIdAvailable;
-    request.name = this.formGroup.value.name || "";
+    const request = new TwoFactorWebAuthnUpdateRequest(
+      this.webAuthnResponse,
+      this.formGroup.value.name || "",
+      this.keyIdAvailable,
+      this.requireUserVerificationToken(),
+    );
 
     const response = await this.twoFactorService.putTwoFactorWebAuthn(request);
-    this.processResponse(response);
+    this.applyWebAuthnDetails(response.webAuthn);
     this.toastService.showToast({
       title: this.i18nService.t("success"),
       message: this.i18nService.t("twoFactorProviderEnabled"),
       variant: "success",
     });
-    this.onUpdated.emit(response.enabled);
+    this.onUpdated.emit(response.webAuthn.enabled);
   }
 
   disable = async () => {
@@ -147,6 +157,31 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
       await this.dialogRef.close();
     }
   };
+
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Server's per-credential DELETE refuses to remove the last registered credential
+    // (lockout-prevention), so the only path to delete the WebAuthn enrollment entirely is the
+    // bulk endpoint.
+    const request = new TwoFactorWebAuthnDeleteAllRequest(this.requireUserVerificationToken());
+    await this.twoFactorService.deleteTwoFactorWebAuthnAll(request);
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
+  }
 
   async remove(key: Key) {
     if (this.keysConfiguredCount <= 1 || key.removePromise != null) {
@@ -163,13 +198,12 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (!confirmed) {
       return;
     }
-    const request = await this.buildRequestModel(UpdateTwoFactorWebAuthnDeleteRequest);
-    request.id = key.id;
+    const request = new TwoFactorWebAuthnDeleteRequest(key.id, this.requireUserVerificationToken());
     try {
       key.removePromise = this.twoFactorService.deleteTwoFactorWebAuthn(request);
       const response = await key.removePromise;
       key.removePromise = null;
-      await this.processResponse(response);
+      this.applyWebAuthnDetails(response.webAuthn);
     } catch (e) {
       this.logService.error(e);
     }
@@ -179,13 +213,17 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     if (this.keyIdAvailable == null) {
       return;
     }
-    const request = await this.buildRequestModel(SecretVerificationRequest);
+    const request = new TwoFactorWebAuthnChallengeRequest(this.requireUserVerificationToken());
     this.challengePromise = this.twoFactorService.getTwoFactorWebAuthnChallenge(request);
-    const challenge = await this.challengePromise;
-    this.readDevice(challenge);
+    const wrappedChallenge = await this.challengePromise;
+    if (wrappedChallenge.options == null) {
+      this.webAuthnError = true;
+      return;
+    }
+    this.readDevice(wrappedChallenge.options);
   };
 
-  private readDevice(webAuthnChallenge: ChallengeResponse) {
+  private readDevice(webAuthnChallenge: WebAuthnChallengeResponse) {
     // eslint-disable-next-line
     console.log("listening for key...");
     this.resetWebAuthn(true);
@@ -227,9 +265,14 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     throw new Error("Unable to find next available key ID");
   }
 
-  private processResponse(response: TwoFactorWebAuthnResponse) {
-    if (!response.keys || response.keys.length === 0) {
-      response.keys = [];
+  private processGetResponse(response: TwoFactorWebAuthnResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    this.applyWebAuthnDetails(response.webAuthn);
+  }
+
+  private applyWebAuthnDetails(webAuthnDetails: TwoFactorWebAuthnDetailsResponse) {
+    if (!webAuthnDetails.keys || webAuthnDetails.keys.length === 0) {
+      webAuthnDetails.keys = [];
     }
     this.resetWebAuthn();
     this.keys = [];
@@ -242,7 +285,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     this.keysConfiguredCount = 0;
 
     // Build configured keys
-    for (const key of response.keys) {
+    for (const key of webAuthnDetails.keys) {
       this.keysConfiguredCount++;
       this.keys.push({
         id: key.id,
@@ -259,7 +302,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     // While we don't have any technical constraints _at this time_, we should avoid
     // unbounded growth of key IDs over time as users add/remove keys;
     // this strategy gap-fills key IDs.
-    const existingIds = new Set(response.keys.map((k) => k.id));
+    const existingIds = new Set(webAuthnDetails.keys.map((k) => k.id));
     const nextId = this.findNextAvailableKeyId(existingIds);
 
     // Add unconfigured slot, which can be used to add a new key
@@ -271,17 +314,17 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     });
     this.keyIdAvailable = nextId;
 
-    this.enabled = response.enabled;
+    this.enabled = webAuthnDetails.enabled;
     this.onUpdated.emit(this.enabled);
   }
 
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>>,
   ) {
-    return dialogService.open<boolean, AuthResponse<TwoFactorWebAuthnResponse>>(
+    return dialogService.open<boolean, TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>>(
       TwoFactorSetupWebAuthnComponent,
-      config as DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>, boolean>,
+      config as DialogConfig<TwoFactorSetupDialogData<TwoFactorWebAuthnResponse>, boolean>,
     );
   }
 }

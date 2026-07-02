@@ -1,6 +1,10 @@
 import { BaseResponse } from "../../../models/response/base.response";
 
-export class TwoFactorEmailResponse extends BaseResponse {
+/**
+ * Email provider details. Embedded by the per-action
+ * `TwoFactorEmail{Get,Update}Response` wrappers.
+ */
+export class TwoFactorEmailDetailsResponse extends BaseResponse {
   enabled: boolean;
   email: string;
 

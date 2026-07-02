@@ -1,32 +1,17 @@
 import { BaseResponse } from "../../../models/response/base.response";
 import { Utils } from "../../../platform/misc/utils";
 
-export class TwoFactorWebAuthnResponse extends BaseResponse {
-  enabled: boolean;
-  keys: KeyResponse[];
-
-  constructor(response: any) {
-    super(response);
-    this.enabled = this.getResponseProperty("Enabled");
-    const keys = this.getResponseProperty("Keys");
-    this.keys = keys == null ? null : keys.map((k: any) => new KeyResponse(k));
-  }
-}
-
-export class KeyResponse extends BaseResponse {
-  name: string;
-  id: number;
-  migrated: boolean;
-
-  constructor(response: any) {
-    super(response);
-    this.name = this.getResponseProperty("Name");
-    this.id = this.getResponseProperty("Id");
-    this.migrated = this.getResponseProperty("Migrated");
-  }
-}
-
-export class ChallengeResponse extends BaseResponse implements PublicKeyCredentialCreationOptions {
+/**
+ * WebAuthn credential-creation options minted by the server. Implements the
+ * `PublicKeyCredentialCreationOptions` shape consumed by `navigator.credentials.create()`.
+ *
+ * Reused by both the 2FA settings flow (wrapped in `TwoFactorWebAuthnChallengeResponse`)
+ * and the passkey-login flow (wrapped in `WebauthnLoginCredentialCreateOptionsResponse`).
+ */
+export class WebAuthnChallengeResponse
+  extends BaseResponse
+  implements PublicKeyCredentialCreationOptions
+{
   attestation?: AttestationConveyancePreference;
   authenticatorSelection?: AuthenticatorSelectionCriteria;
   challenge: BufferSource;
