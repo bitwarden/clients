@@ -17,6 +17,10 @@ import { FileNameComponent } from "./file-name.component";
 
 let nextId = 0;
 
+/**
+ * Presentational list of attached files with name, size, and a delete button. Kept separate from
+ * `bit-file-dropzone` so it can be reused wherever a read/removable file list is needed.
+ */
 @Component({
   selector: "bit-file-list",
   templateUrl: "./file-list.component.html",
@@ -29,13 +33,13 @@ let nextId = 0;
 export class FileListComponent {
   protected readonly labelId = `bit-file-list-${nextId++}-label`;
 
-  /** Files to display in the list */
+  /** Files to display in the list. */
   readonly files = input<File[]>([]);
 
-  /** When true, hides the delete buttons */
+  /** When true, hides the delete buttons. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  /** Emits the file when its delete button is clicked */
+  /** Emits the file when its delete button is clicked. */
   readonly fileRemoved = output<File>();
 
   private readonly deleteButtons = viewChildren("deleteBtn", { read: ElementRef });

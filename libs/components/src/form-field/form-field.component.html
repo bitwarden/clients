@@ -1,19 +1,20 @@
 <div [class]="labelAndFieldContainerClasses">
   <label
     class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
-    [attr.for]="input().labelForId()"
+    [attr.for]="input()?.labelForId()"
   >
     <ng-content select="bit-label"></ng-content>
-    @if (input().required()) {
+    @if (input()?.required()) {
       <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }
   </label>
-  @if (hasCustomInput()) {
+  @if (customInput()) {
+    <!-- Wrapper mode: the composing component lays out its own control in this slot. -->
     <ng-content select="[bitCustomInput]"></ng-content>
   } @else {
     <div class="tw-flex tw-gap-2 tw-items-center">
-      <div bitFieldContainer [size]="size()" [hasError]="input().hasError()" [readOnly]="readOnly">
+      <div bitFieldContainer [size]="size()" [hasError]="input()?.hasError()" [readOnly]="readOnly">
         <div
           #prefixContainer
           [hidden]="!prefixHasChildren()"
@@ -39,12 +40,12 @@
       <ng-content select="[slot='inline-end']"></ng-content>
     </div>
   }
-  @switch (input().hasError()) {
+  @switch (input()?.hasError()) {
     @case (false) {
       <ng-content select="bit-hint"></ng-content>
     }
     @case (true) {
-      <bit-error [error]="input().error"></bit-error>
+      <bit-error [error]="input()?.error"></bit-error>
     }
   }
 </div>

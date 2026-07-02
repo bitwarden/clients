@@ -50,9 +50,9 @@ export default {
 type Story = StoryObj<FileUploadComponent>;
 
 function createErroredControl(message: string): FormControl<File[]> {
-  // Errors must come from a validator, not setErrors. Angular's setUpControl
-  // calls updateValueAndValidity on mount, which re-runs validators and
-  // overwrites any errors set directly via setErrors.
+  // Errors must come from a validator, not setErrors. Angular's setUpControl calls
+  // updateValueAndValidity on mount, which re-runs validators and overwrites any errors set
+  // directly via setErrors.
   const control = new FormControl<File[]>([], {
     nonNullable: true,
     validators: [() => ({ custom: { message } })],

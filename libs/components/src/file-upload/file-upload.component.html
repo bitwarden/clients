@@ -1,61 +1,32 @@
-<bit-form-field>
+<bit-form-field [control]="formFieldControl">
   <ng-content select="bit-label" ngProjectAs="bit-label" />
 
-  <!-- Ghost: hosts BitFormFieldControlDirective (via bitInput's hostDirectives)
-       so bit-form-field's contentChild query resolves. The proxy provides
-       NgControl pointing at the consumer's FormControl WITHOUT going through
-       reactive forms' setUpControl — that would otherwise replace the consumer's
-       validators with the directive's (empty) set and clobber pre-set errors. -->
-  <input
-    bitInput
-    [bitFormControlProxy]="boundControl"
-    type="hidden"
-    aria-hidden="true"
-    tabindex="-1"
-    [required]="required()"
-  />
-
-  <!-- Prefix: "Choose File" pill — focusable, opens the picker on click.
-       Becomes the labelForId target so bit-form-field's <label for> wraps and triggers it. -->
+  <!-- The focusable control; bit-form-field's <label for> targets this via [id]. Rendered as a
+       real bitPrefix so it reuses the field's pill styling. -->
   <button
     type="button"
     bitPrefix
     [id]="inputId"
+    [attr.aria-describedby]="describedBy()"
     [attr.aria-disabled]="disabled() || null"
-    [attr.aria-describedby]="statusId"
-    class="tw-bg-transparent tw-border-0 tw-text-sm tw-py-2 tw-whitespace-nowrap tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
+    class="tw-whitespace-nowrap tw-border-0 tw-bg-transparent tw-py-2 tw-text-sm tw-cursor-pointer aria-disabled:tw-cursor-not-allowed"
     [class.tw-text-fg-inactive]="disabled()"
-    (click)="openFilePicker()"
-    (blur)="onPickerBlur()"
+    (click)="openPicker()"
+    (blur)="onBlur()"
   >
     {{ "chooseFile" | i18n }}
   </button>
 
-  <!-- Hidden native file input, invoked programmatically by the prefix button. -->
-  <input
-    #fileInput
-    type="file"
-    aria-hidden="true"
-    tabindex="-1"
-    class="tw-sr-only"
-    [accept]="accept()"
-    [disabled]="disabled() || null"
-    (change)="onButtonFileChange($event)"
-    placeholder="{{ 'noFileSelected' | i18n }}"
-  />
-
-  <!-- Default slot: filename readout — renders inside bitFieldContainer.
-       Clickable so the entire field area opens the picker (matches the original
-       overlay-button behavior). Not focusable: the prefix button is the single
-       focus stop; this is a purely visual click target. -->
+  <!-- Filename readout in the field's default content. Clickable so the whole field opens the
+       picker; not a focus stop. -->
   <div
-    class="tw-flex tw-items-center tw-size-full"
+    class="tw-flex tw-size-full tw-items-center"
     [class.tw-cursor-pointer]="!disabled()"
     [class.tw-cursor-not-allowed]="disabled()"
-    (click)="openFilePicker()"
+    (click)="openPicker()"
   >
-    @if (fileLabel(); as label) {
-      <bit-file-name [name]="label" />
+    @if (fileName(); as name) {
+      <bit-file-name [name]="name" class="tw-text-sm" />
     } @else {
       <span
         class="tw-text-sm"
@@ -67,10 +38,20 @@
     }
   </div>
 
-  <!-- Separate aria-live span so the announced status doesn't conflict with the
-       prefix button's accessible name. Wired in via aria-describedby above. -->
+  <!-- Hidden native input, invoked programmatically by the button. -->
+  <input
+    #fileInput
+    type="file"
+    class="tw-sr-only"
+    tabindex="-1"
+    aria-hidden="true"
+    [accept]="accept()"
+    [disabled]="disabled() || null"
+    (change)="onFileChange($event)"
+  />
+
   <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
-    {{ fileLabel() ? ("fileChosen" | i18n: fileLabel()) : ("chooseFile" | i18n) }}
+    {{ fileName() ? ("fileChosen" | i18n: fileName()) : ("chooseFile" | i18n) }}
   </span>
 
   <ng-content select="bit-hint" ngProjectAs="bit-hint" />

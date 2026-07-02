@@ -10,151 +10,112 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { ControlValueAccessor, FormControl, NgControl } from "@angular/forms";
+import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitFormControlProxyDirective } from "../form-field/form-control-proxy.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { BitPrefixDirective } from "../form-field/prefix.directive";
-import { BitInputDirective } from "../input/input.directive";
 
 import { FileNameComponent } from "./file-name.component";
 
 let nextId = 0;
 
+/**
+ * A single-file picker composed over `bit-form-field`. The component hosts
+ * `BitFormFieldControlDirective` and is its own `ControlValueAccessor`, so it plugs into
+ * `bit-form-field` through the normal control path and consumers bind it the standard way —
+ * `formControlName` / `[formControl]` / `[(ngModel)]`. Its value is always a `File[]`.
+ *
+ * @example
+ * ```html
+ * <bit-file-upload formControlName="file" accept=".json">
+ *   <bit-label>License file</bit-label>
+ *   <bit-hint>JSON only</bit-hint>
+ * </bit-file-upload>
+ * ```
+ */
 @Component({
   selector: "bit-file-upload",
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    BitFormControlProxyDirective,
-    BitFormFieldComponent,
-    BitInputDirective,
-    BitPrefixDirective,
-    FileNameComponent,
-    I18nPipe,
-  ],
+  imports: [BitFormFieldComponent, BitPrefixDirective, FileNameComponent, I18nPipe],
+  hostDirectives: [BitFormFieldControlDirective],
   host: {
     class: "tw-block",
   },
 })
 export class FileUploadComponent implements ControlValueAccessor {
   /**
-   * Accepted file types. Uses comma separated list
+   * Accepted file types. Uses a comma separated list.
    *
    * @example
    * Images only: "image/*"
    * PDF and Word docs: ".pdf,.doc,.docx"
-   * Specific audio formats: "audio/mpeg,audio/wav"
-   * Mixed types: "image/*,.pdf"
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept#unique_file_type_specifiers
    *
-   * NOTE: This is only a browser html hint. Not a validation
-   **/
+   * NOTE: This is only a browser html hint, not validation.
+   */
   readonly accept = input("");
-
-  readonly required = input(false, { transform: booleanAttribute });
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
-  private readonly _files = signal<File[]>([]);
-  /** Current selection. External consumers should bind via CVA; this signal is read-only. */
-  readonly files = this._files.asReadonly();
-
-  private readonly _disabledFromCva = signal(false);
-  readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
-
-  private readonly cvaOnChange = signal<(value: File[]) => void>(() => {});
-  private readonly cvaOnTouched = signal<() => void>(() => {});
-
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  /** The hosted control directive `bit-form-field` reads its label / required / error state from. */
+  protected readonly formFieldControl = inject(BitFormFieldControlDirective);
 
-  /**
-   * Fallback control used when the component is mounted without a `formControl` /
-   * `ngModel` binding. `bit-form-field`'s `contentChild.required(BitFormFieldControlDirective)`
-   * resolves against the ghost input, which requires a FormControl on the same element.
-   */
-  private readonly fallbackControl = new FormControl<File[]>([], { nonNullable: true });
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
 
-  protected get boundControl(): FormControl<File[]> {
-    return (this.ngControl?.control as FormControl<File[]> | null) ?? this.fallbackControl;
+  private readonly _files = signal<File[]>([]);
+  private readonly _disabledFromCva = signal(false);
+
+  private readonly onChange = signal<(value: File[]) => void>(() => {});
+  private readonly onTouched = signal<() => void>(() => {});
+
+  protected readonly inputId = `bit-file-upload-${nextId++}`;
+  protected readonly statusId = `${this.inputId}-status`;
+
+  protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
+  protected readonly fileName = computed(() => this._files()[0]?.name);
+
+  /** form-field's hint/error target (set on our directive) plus the live status region. */
+  protected readonly describedBy = computed(
+    () =>
+      [this.formFieldControl.ariaDescribedBy(), this.statusId].filter(Boolean).join(" ") || null,
+  );
+
+  constructor() {
+    if (this.ngControl != null) {
+      this.ngControl.valueAccessor = this;
+    }
+    // Point the field's <label for> at the focusable "Choose File" button rather than the host.
+    effect(() => this.formFieldControl.labelForId.set(this.inputId));
   }
 
-  /** Required for NG_VALUE_ACCESSOR. Form value is always `File[]` ([] = no file). */
   writeValue(value: File[] | null): void {
-    const incoming = value ?? [];
-    this._files.set(incoming.slice(0, 1));
+    this._files.set((value ?? []).slice(0, 1));
   }
 
   registerOnChange(fn: (value: File[]) => void): void {
-    this.cvaOnChange.set(fn);
+    this.onChange.set(fn);
   }
 
   registerOnTouched(fn: () => void): void {
-    this.cvaOnTouched.set(fn);
+    this.onTouched.set(fn);
   }
 
   setDisabledState(isDisabled: boolean): void {
     this._disabledFromCva.set(isDisabled);
   }
 
-  protected readonly inputId = `bit-file-upload-${nextId++}`;
-  protected readonly statusId = `${this.inputId}-status`;
-
-  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
-  private readonly innerFormFieldControl = viewChild(BitFormFieldControlDirective);
-
-  constructor() {
-    if (this.ngControl != null) {
-      this.ngControl.valueAccessor = this;
-    }
-    // Self-stabilizing override: re-run whenever labelForId changes (e.g. the
-    // directive's own effect resets it to its host id) and re-point it at the
-    // visible "Choose File" pill so the rendered <label [for]> targets the
-    // user-facing control rather than the hidden ghost input.
-    effect(() => {
-      const inner = this.innerFormFieldControl();
-      if (!inner) {
-        return;
-      }
-      if (inner.labelForId() !== this.inputId) {
-        inner.labelForId.set(this.inputId);
-      }
-    });
+  /** Marks the control touched when the picker loses focus so required errors can surface. */
+  protected onBlur(): void {
+    this.onTouched()();
   }
 
-  protected readonly fileLabel = computed(() => {
-    const files = this.files();
-    if (files.length) {
-      return files[0].name;
-    }
-    return undefined;
-  });
-
-  protected onFilesSelected(newFiles: File[]): void {
-    this.cvaOnTouched()();
-    this._files.set(newFiles.length > 0 ? [newFiles[0]] : []);
-    this.emitCvaChange();
-  }
-
-  /**
-   * Fires `cvaOnTouched` when the visible focusable element (the "Choose File"
-   * prefix button) loses focus. Without this, Validators.required errors never
-   * surface because the FormControl never transitions to `touched` unless the
-   * user actually picks a file.
-   */
-  protected onPickerBlur(): void {
-    this.cvaOnTouched()();
-  }
-
-  private emitCvaChange(): void {
-    this.cvaOnChange()(this.files());
-  }
-
-  protected openFilePicker(): void {
+  protected openPicker(): void {
     if (this.disabled()) {
       return;
     }
@@ -165,11 +126,13 @@ export class FileUploadComponent implements ControlValueAccessor {
     }
   }
 
-  protected onButtonFileChange(event: Event): void {
+  protected onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
-
-    if (input.files?.length) {
-      this.onFilesSelected(Array.from(input.files));
+    if (!input.files?.length) {
+      return;
     }
+    this.onTouched()();
+    this._files.set([input.files[0]]);
+    this.onChange()(this._files());
   }
 }

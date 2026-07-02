@@ -30,9 +30,9 @@ For a single-file inline picker without the drag/drop affordance, use
 </bit-file-dropzone>
 ```
 
-The component is internally form-field-shaped — it wraps `<bit-form-field>` and renders the dropzone
-into a dedicated `[bitCustomInput]` slot so the dashed border doesn't nest inside the form-field's
-rounded container.
+The component is itself the form control — it wraps `<bit-form-field>` for the label, hint, and
+error chrome, is bound directly with `formControlName` / `[formControl]` / `[(ngModel)]`, and lays
+out the dropzone itself so the dashed border doesn't nest inside the form-field's rounded container.
 
 <Canvas of={stories.Default} />
 
