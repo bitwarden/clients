@@ -255,3 +255,33 @@ export const Compact: Story = {
     `,
   }),
 };
+
+/**
+ * Demonstrates two-stage responsiveness in a constrained wrapper: enough
+ * primary actions exist that even compact (icon-only) buttons can't all fit.
+ * The bar pushes the trailing primaries into the additional-actions menu,
+ * separated from the existing additional actions by a `<bit-menu-divider>`.
+ * Drag the Storybook frame wider to watch primaries move back out into the bar.
+ */
+export const WithOverflow: Story = {
+  render: (args) => ({
+    props: { ...args, noop },
+    template: /*html*/ `
+      <div
+        class="tw-relative tw-w-[260px] tw-h-32"
+        style="transform: translateX(0)"
+      >
+        <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+          <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+          <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+          <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
+          <bit-bulk-action [action]="noop" icon="bwi-star" label="Favorite" />
+          <bit-bulk-action [action]="noop" icon="bwi-lock" label="Lock" />
+
+          <bit-bulk-additional-action [action]="noop" icon="bwi-upload" label="Export" />
+          <bit-bulk-additional-action [action]="noop" label="Move to organization" />
+        </bit-bulk-actions-bar>
+      </div>
+    `,
+  }),
+};
