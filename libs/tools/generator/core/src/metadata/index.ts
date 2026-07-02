@@ -9,6 +9,7 @@ import passphrase from "./password/eff-word-list";
 import password from "./password/random-password";
 import { CredentialType, CredentialAlgorithm } from "./type";
 import effWordList from "./username/eff-word-list";
+import loginEmail from "./email/login-email";
 
 /** Credential generators hosted natively by the credential generator system.
  *  These are supplemented by generators from the {@link ExtensionService}.
@@ -28,6 +29,9 @@ export const BuiltIn = Object.freeze({
 
   /** username generator using the EFF word list */
   effWordList,
+
+  /** username generator returning the current user email */
+  loginEmail,
 });
 
 // `CredentialAlgorithm` is defined in terms of `ABT`; supplying
