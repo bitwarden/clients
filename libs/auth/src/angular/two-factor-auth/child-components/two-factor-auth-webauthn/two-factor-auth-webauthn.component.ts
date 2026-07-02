@@ -105,7 +105,8 @@ export class TwoFactorAuthWebAuthnComponent implements OnInit, OnDestroy {
 
   private async buildWebAuthnIFrame() {
     if (this.win != null && this.webAuthnSupported) {
-      const env = await firstValueFrom(this.environmentService.environment$);
+      // Use the global environment because the user-scoped environment is not set until authentication is complete.
+      const env = await firstValueFrom(this.environmentService.globalEnvironment$);
       const webVaultUrl = env.getWebVaultUrl();
       this.webAuthnIframe = new WebAuthnIFrame(
         this.win,

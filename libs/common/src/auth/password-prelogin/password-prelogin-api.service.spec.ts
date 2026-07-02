@@ -26,6 +26,9 @@ describe("PasswordPreloginApiService", () => {
     environmentService.environment$ = of({
       getIdentityUrl: () => identityUrl,
     } satisfies Partial<Environment> as Environment);
+    environmentService.globalEnvironment$ = of({
+      getIdentityUrl: () => identityUrl,
+    } satisfies Partial<Environment> as Environment);
 
     sut = new PasswordPreloginApiService(apiService, environmentService);
   });
@@ -83,6 +86,9 @@ describe("PasswordPreloginApiService", () => {
     it("uses the identity url from the environment", async () => {
       const customIdentityUrl = "https://custom.identity.bitwarden.com";
       environmentService.environment$ = of({
+        getIdentityUrl: () => customIdentityUrl,
+      } satisfies Partial<Environment> as Environment);
+      environmentService.globalEnvironment$ = of({
         getIdentityUrl: () => customIdentityUrl,
       } satisfies Partial<Environment> as Environment);
 

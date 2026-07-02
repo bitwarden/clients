@@ -82,6 +82,7 @@ describe("ExtensionTwoFactorAuthDuoComponentService", () => {
 
       const environmentBSubject = new BehaviorSubject(mockEnvironment);
       environmentService.environment$ = environmentBSubject.asObservable();
+      environmentService.globalEnvironment$ = environmentBSubject.asObservable();
 
       // Act
       await extensionTwoFactorAuthDuoComponentService.launchDuoFrameless(duoFramelessUrl);

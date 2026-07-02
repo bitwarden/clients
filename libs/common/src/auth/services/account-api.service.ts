@@ -36,7 +36,8 @@ export class AccountApiServiceImplementation implements AccountApiService {
   async registerSendVerificationEmail(
     request: RegisterSendVerificationEmailRequest,
   ): Promise<null | string> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     try {
       const response = await this.apiService.send(
@@ -65,7 +66,8 @@ export class AccountApiServiceImplementation implements AccountApiService {
   async registerVerificationEmailClicked(
     request: RegisterVerificationEmailClickedRequest,
   ): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     try {
       const response = await this.apiService.send(
@@ -85,7 +87,8 @@ export class AccountApiServiceImplementation implements AccountApiService {
   }
 
   async registerFinish(request: RegisterFinishRequest): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     try {
       const response = await this.apiService.send(

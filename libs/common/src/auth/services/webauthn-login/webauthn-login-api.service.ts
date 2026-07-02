@@ -13,7 +13,8 @@ export class WebAuthnLoginApiService implements WebAuthnLoginApiServiceAbstracti
   ) {}
 
   async getCredentialAssertionOptions(): Promise<CredentialAssertionOptionsResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const response = await this.apiService.send(
       "GET",
       `/accounts/webauthn/assertion-options`,

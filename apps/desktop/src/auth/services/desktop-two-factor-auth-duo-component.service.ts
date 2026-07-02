@@ -42,8 +42,9 @@ export class DesktopTwoFactorAuthDuoComponentService implements TwoFactorAuthDuo
     };
 
     // we're using the connector here as a way to set a cookie with translations
-    // before continuing to the duo frameless url
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // before continuing to the duo frameless url.
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const launchUrl =
       env.getWebVaultUrl() +
       "/duo-redirect-connector.html" +

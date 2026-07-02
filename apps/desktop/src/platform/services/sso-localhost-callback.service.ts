@@ -65,7 +65,8 @@ export class SSOLocalhostCallbackService {
     email: string,
     orgSsoIdentifier?: string,
   ): Promise<{ ssoCode: string; recvState: string }> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     return new Promise((resolve, reject) => {
       const callbackServer = http.createServer((req, res) => {
