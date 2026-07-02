@@ -46,7 +46,7 @@ const mockOrganizationUserApiService = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Remove Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Remove Dialog",
   component: BulkRemoveDialogComponent,
   decorators: [
     moduleMetadata({

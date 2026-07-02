@@ -55,7 +55,7 @@ function makeResult(failedIds: string[]): BulkActionResult {
 }
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Reinvite Failure Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Reinvite Failure Dialog",
   component: BulkReinviteFailureDialogComponent,
   decorators: [
     moduleMetadata({
