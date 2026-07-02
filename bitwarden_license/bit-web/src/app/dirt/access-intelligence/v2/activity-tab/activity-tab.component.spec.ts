@@ -14,7 +14,6 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -84,8 +83,6 @@ describe("ActivityTabComponent", () => {
   let mockDialogService: jest.Mocked<DialogService>;
   let mockI18nService: jest.Mocked<I18nService>;
   let mockRiskOverTimeService: MockRiskOverTimeService;
-  let mockConfigService: { getFeatureFlag$: jest.Mock };
-  let trendChartFlag$: BehaviorSubject<boolean>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -127,11 +124,6 @@ describe("ActivityTabComponent", () => {
       setDataView: jest.fn(),
     };
 
-    trendChartFlag$ = new BehaviorSubject<boolean>(false);
-    mockConfigService = {
-      getFeatureFlag$: jest.fn().mockReturnValue(trendChartFlag$),
-    };
-
     await TestBed.configureTestingModule({
       imports: [ActivityTabComponent],
       providers: [
@@ -141,7 +133,6 @@ describe("ActivityTabComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
         { provide: RiskOverTimeService, useValue: mockRiskOverTimeService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     })
@@ -397,20 +388,6 @@ describe("ActivityTabComponent", () => {
     });
   });
 
-  // ==================== Local State ====================
-
-  describe("Local State", () => {
-    it("should update extendPasswordChangeWidget signal", () => {
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
-
-      testAccess(component).setExtendPasswordWidget(true);
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(true);
-
-      testAccess(component).setExtendPasswordWidget(false);
-      expect(testAccess(component).extendPasswordChangeWidget()).toBe(false);
-    });
-  });
-
   // ==================== Edge Cases ====================
 
   describe("Edge Cases", () => {
@@ -519,15 +496,7 @@ describe("ActivityTabComponent", () => {
   // ==================== Trend Chart ====================
 
   describe("Trend Chart", () => {
-    it("should not initialize the trend chart service when the flag is off", () => {
-      fixture.detectChanges();
-
-      expect(mockRiskOverTimeService.initialize).not.toHaveBeenCalled();
-      expect(testAccess(component).trendChartEnabled()).toBe(false);
-    });
-
-    it("should initialize the trend chart service when the flag is enabled", () => {
-      trendChartFlag$.next(true);
+    it("should initialize the trend chart service on init", () => {
       fixture.detectChanges();
 
       expect(mockRiskOverTimeService.initialize).toHaveBeenCalledTimes(1);
@@ -536,16 +505,21 @@ describe("ActivityTabComponent", () => {
         DEFAULT_TIME_PERIOD,
         TrendWidgetViewType.Applications,
       );
-      expect(testAccess(component).trendChartEnabled()).toBe(true);
     });
 
-    it("should not re-initialize when the flag re-emits true", () => {
-      trendChartFlag$.next(true);
-      fixture.detectChanges();
-      trendChartFlag$.next(true);
+    it("should re-initialize when the organization id changes", () => {
       fixture.detectChanges();
 
-      expect(mockRiskOverTimeService.initialize).toHaveBeenCalledTimes(1);
+      const newOrgId = "org-456" as OrganizationId;
+      fixture.componentRef.setInput("organizationId", newOrgId);
+      fixture.detectChanges();
+
+      expect(mockRiskOverTimeService.initialize).toHaveBeenCalledTimes(2);
+      expect(mockRiskOverTimeService.initialize).toHaveBeenLastCalledWith(
+        newOrgId,
+        DEFAULT_TIME_PERIOD,
+        TrendWidgetViewType.Applications,
+      );
     });
 
     it("should expose riskOverTimeData/loading/error signals from the service", () => {
