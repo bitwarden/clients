@@ -18,21 +18,51 @@
           [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
           [defaultMatchDetection]="defaultMatchDetection$ | async"
           [index]="i"
+          [showAppLabel]="showAddAppDropdown()"
         ></vault-autofill-uri-option>
       }
     </ng-container>
 
     @if (autofillOptionsForm.enabled) {
-      <button
-        type="button"
-        bitLink
-        linkType="primary"
-        [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
-        (click)="addUri({ uri: null, matchDetection: null }, true)"
-        startIcon="bwi-plus"
-      >
-        {{ "addWebsite" | i18n }}
-      </button>
+      @if (showAddAppDropdown()) {
+        <button
+          type="button"
+          bitLink
+          linkType="primary"
+          [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
+          startIcon="bwi-plus"
+          [bitMenuTriggerFor]="addUriMenu"
+        >
+          {{ "addWebsiteOrApp" | i18n }}
+        </button>
+        <bit-menu #addUriMenu>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="addUri({ uri: null, matchDetection: null }, true)"
+          >
+            {{ "website" | i18n }}
+          </button>
+          <button
+            type="button"
+            bitMenuItem
+            (click)="addUri({ uri: desktopAppUriPrefix, matchDetection: null }, true)"
+          >
+            {{ "app" | i18n }}
+          </button>
+        </bit-menu>
+      } @else {
+        <button
+          type="button"
+          bitLink
+          linkType="primary"
+          [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
+          (click)="addUri({ uri: null, matchDetection: null }, true)"
+          startIcon="bwi-plus"
+        >
+          {{ "addWebsite" | i18n }}
+        </button>
+      }
     }
 
     @if (autofillOnPageLoadEnabled$ | async) {
