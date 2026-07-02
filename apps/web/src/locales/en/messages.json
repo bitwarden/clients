@@ -6848,6 +6848,12 @@
   "maxAccessCount": {
     "message": "Maximum access count"
   },
+  "incrementMaxAccessCount": {
+    "message": "Increment maximum access count"
+  },
+  "decrementMaxAccessCount": {
+    "message": "Decrement maximum access count"
+  },
   "disabled": {
     "message": "Disabled"
   },

@@ -9,10 +9,32 @@
           <bit-label>{{ "maxAccessCount" | i18n }}</bit-label>
           <input
             bitInput
+            type="text"
+            inputmode="numeric"
             formControlName="maxAccessCount"
             [readonly]="!editing()"
-            id="maxAccessCountInput"
+            id="send-options_input_max-access-count"
           />
+          @if (editing()) {
+            <div bitSuffix ngProjectAs="[bitSuffix]" class="tw-flex tw-items-center">
+              <button
+                type="button"
+                bitIconButton="bwi-minus-circle"
+                size="small"
+                [label]="'decrementMaxAccessCount' | i18n"
+                (click)="decrementMaxAccessCount()"
+                data-testid="decrement-max-access-count"
+              ></button>
+              <button
+                type="button"
+                bitIconButton="bwi-plus-circle"
+                size="small"
+                [label]="'incrementMaxAccessCount' | i18n"
+                (click)="incrementMaxAccessCount()"
+                data-testid="increment-max-access-count"
+              ></button>
+            </div>
+          }
           @if (editing()) {
             <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
           }
