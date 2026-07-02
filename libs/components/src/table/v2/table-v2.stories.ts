@@ -554,6 +554,36 @@ export const CustomCell: Story = {
   }),
 };
 
+/**
+ * `width` on `<bit-column>` sets the column's grid track. Use content-independent
+ * values so columns align across every row: a fixed length, `1fr` (the default,
+ * an equal share of the remainder), or `minmax(min, max)`. Here Id is a fixed
+ * `80px`, Name takes the remaining space, and Other is bounded with
+ * `minmax(120px, 200px)`. Avoid `max-content` / `min-content` / `auto` — they size
+ * per row and drift out of alignment.
+ */
+export const ColumnSizing: Story = {
+  render: () => ({
+    props: { table: basicTable },
+    template: `
+      <bit-table-v2 [tableDef]="table">
+        <bit-column width="80px">
+          <bit-header-cell>Id (80px)</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+        </bit-column>
+        <bit-column>
+          <bit-header-cell>Name (1fr)</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column width="minmax(120px, 200px)">
+          <bit-header-cell>Other (minmax)</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+        </bit-column>
+      </bit-table-v2>
+    `,
+  }),
+};
+
 const userTable = defineTable<UsersRow>(
   signal([
     { id: 1, name: "Alex Johnson", email: "alex@example.com", starred: true },

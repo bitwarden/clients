@@ -49,14 +49,15 @@ export class BitColumnComponent {
   readonly sortFn = input<SortFn>();
 
   /**
-   * Grid track size for this column. Any valid `grid-template-columns` track
-   * value works: `"120px"`, `"1fr"`, `"max-content"`, `"minmax(240px, 480px)"`.
-   * Defaults to `"1fr"` (equal share of remainder) when unset.
+   * Grid track size for this column. Use a content-independent track so columns
+   * align across every row: a fixed length (`"120px"`), `"1fr"` (the default —
+   * equal share of the remainder), or `"minmax(240px, 1fr)"`.
    *
-   * Caveat: intrinsic sizing keywords (`max-content`, `min-content`, `auto`)
-   * compute per-row in the current grid implementation, so they won't
-   * cross-align under virtualization. Use explicit pixel widths or `fr`
-   * units when alignment across rows matters.
+   * Not supported: intrinsic keywords (`max-content`, `min-content`, `auto`).
+   * Each row is laid out as its own grid, so an intrinsic track is measured per
+   * row and columns drift out of alignment — and intrinsic sizing can't work
+   * under virtualization at all (it needs every row measured). Stick to
+   * `px` / `fr` / `minmax`.
    */
   readonly width = input<string>();
 

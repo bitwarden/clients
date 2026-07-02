@@ -90,12 +90,12 @@ Each `<bit-column>` is a thin wrapper carrying column-level metadata. The column
 template, and the row context come from a `*bitCellDef` child; the header markup comes from a
 `<bit-header-cell>` child.
 
-| Input         | Type                | Notes                                                           |
-| ------------- | ------------------- | --------------------------------------------------------------- |
-| `sortable`    | `boolean`           | Click-to-sort on the header.                                    |
-| `defaultSort` | `"asc"` \| `"desc"` | Initial sort direction. First column with this set wins.        |
-| `sortFn`      | `SortFn`            | Custom comparator. See [Sorting](#sorting).                     |
-| `width`       | `string`            | Grid track size (e.g. `"120px"`, `"1fr"`). Defaults to `"1fr"`. |
+| Input         | Type                | Notes                                                                      |
+| ------------- | ------------------- | -------------------------------------------------------------------------- |
+| `sortable`    | `boolean`           | Click-to-sort on the header.                                               |
+| `defaultSort` | `"asc"` \| `"desc"` | Initial sort direction. First column with this set wins.                   |
+| `sortFn`      | `SortFn`            | Custom comparator. See [Sorting](#sorting).                                |
+| `width`       | `string`            | Grid track size. See [Column sizing](#column-sizing). Defaults to `"1fr"`. |
 
 ### `*bitCellDef` — the cell template
 
@@ -126,6 +126,33 @@ directive — the column reads the cell's template directly, and the column key 
 
 The sort button affordance is added by `<bit-header-cell>` automatically when the surrounding
 `<bit-column>` is sortable. Click toggles direction; aria-sort and aria-pressed are wired for you.
+
+### Column sizing
+
+Each column maps to one CSS grid track, set with `width` on `<bit-column>`. Every row — the header
+included — is laid out on the **same** track list, which is what keeps columns aligned.
+
+**Supported values.** Use content-independent tracks; they align across every row:
+
+- **`"1fr"`** (default) — an equal share of the remaining space. Omit `width` to get this.
+- **a fixed length** — `"120px"`, `"20rem"`.
+- **`minmax(min, max)`** — bound a fluid column, e.g. `"minmax(240px, 1fr)"`.
+
+Mix them freely — `fr` columns split whatever the fixed columns leave. Cells truncate by default, so
+a narrow `1fr` column ellipses its content rather than widening the table. Fixed widths whose total
+exceeds the table trigger horizontal scrolling (see
+[Scrolling and the sticky header](#scrolling-and-the-sticky-header)).
+
+<Canvas of={stories.ColumnSizing} />
+
+**Not supported: `max-content`, `min-content`, `auto`.** The table lays out each row as its own
+grid, so an intrinsic track is measured independently per row and the columns drift out of
+alignment. Intrinsic sizing also can't work under [virtual scrolling](#virtual-scrolling) at all —
+it needs every row measured, not just the visible ones. Stick to `px` / `fr` / `minmax`. (Cross-row
+intrinsic sizing for non-virtualized tables may arrive later via CSS subgrid; treat these keywords
+as reserved until then.)
+
+The internal selection-checkbox column is a fixed `40px` and isn't configurable.
 
 ### Synthetic columns
 
