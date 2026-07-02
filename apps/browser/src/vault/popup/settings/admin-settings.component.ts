@@ -117,9 +117,12 @@ export class AdminSettingsComponent implements OnInit {
             : EventType.Organization_AutoConfirmDisabled_Admin,
         ),
         withLatestFrom(this.organizations$.pipe(map((organizations) => organizations[0]))),
-        switchMap(([event, organization]) =>
-          this.eventCollectionService.collect(event, undefined, true, organization.id),
-        ),
+        switchMap(([event, organization]) => {
+          if (!organization) {
+            return of(undefined);
+          }
+          return this.eventCollectionService.collect(event, undefined, true, organization.id);
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

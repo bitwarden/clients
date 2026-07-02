@@ -74,6 +74,7 @@ describe("AdminSettingsComponent", () => {
 
     autoConfirmService.configuration$.mockReturnValue(of(mockAutoConfirmState));
     autoConfirmService.upsert.mockResolvedValue(undefined);
+    autoConfirmService.bulkAutoConfirmPendingUsers.mockReturnValue(of(undefined));
     nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
     eventCollectionService.collect.mockResolvedValue(undefined);
     organizationService.organizations$.mockReturnValue(of([]));
@@ -224,37 +225,31 @@ describe("AdminSettingsComponent", () => {
       warningDialogSpy.mockRestore();
     });
 
-    it("calls bulkAutoConfirmPendingUsers when toggle is enabled and warning confirmed", fakeAsync(async () => {
-      await component.ngOnInit();
-      fixture.detectChanges();
-
-      component["adminForm"].controls.autoConfirm.setValue(true);
-      tick();
-
-      expect(autoConfirmService.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(userId);
-    }));
-
-    it("does not call bulkAutoConfirmPendingUsers when toggle is disabled", fakeAsync(async () => {
+    it("calls bulkAutoConfirmPendingUsers when auto-confirm is enabled", fakeAsync(async () => {
       autoConfirmService.configuration$.mockReturnValue(
         of({ ...mockAutoConfirmState, enabled: true }),
       );
 
       await component.ngOnInit();
       fixture.detectChanges();
+      tick();
 
-      component["adminForm"].controls.autoConfirm.setValue(false);
+      expect(autoConfirmService.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(userId);
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when auto-confirm is disabled", fakeAsync(async () => {
+      await component.ngOnInit();
+      fixture.detectChanges();
       tick();
 
       expect(autoConfirmService.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
     }));
 
-    it("does not call bulkAutoConfirmPendingUsers when warning dialog is cancelled", fakeAsync(async () => {
+    it("does not call bulkAutoConfirmPendingUsers when auto-confirm configuration is never enabled", fakeAsync(async () => {
       warningDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
 
       await component.ngOnInit();
       fixture.detectChanges();
-
-      component["adminForm"].controls.autoConfirm.setValue(true);
       tick();
 
       expect(autoConfirmService.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
