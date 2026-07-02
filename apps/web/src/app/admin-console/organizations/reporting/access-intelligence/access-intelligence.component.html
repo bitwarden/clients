@@ -1,0 +1,152 @@
+<app-header></app-header>
+
+<div class="tw-min-h-screen tw-flex tw-flex-col">
+  <div class="tw-mb-4">
+    <p class="tw-text-main tw-max-w-4xl">
+      Analyze organization ciphers for password health issues and member access. This simplified
+      version loads all data upfront and runs all checks in parallel.
+    </p>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg tw-mb-4">
+    <!-- Run Report Button -->
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      (click)="runReport()"
+      [disabled]="isProcessing()"
+    >
+      @if (isProcessing()) {
+        <i class="bwi bwi-spinner bwi-spin tw-mr-2" aria-hidden="true"></i>
+        Processing
+      } @else {
+        <i class="bwi bwi-play tw-mr-2" aria-hidden="true"></i>
+        Run Analysis
+      }
+    </button>
+  </div>
+
+  <!-- Progress Section -->
+  @if (showProgress()) {
+    <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg tw-mb-4">
+      <!-- Main Progress -->
+      <div class="tw-mb-4">
+        <div class="tw-flex tw-justify-between tw-text-sm tw-mb-1">
+          <span class="tw-text-muted">{{ getProgressMessage() }}</span>
+          <span class="tw-text-muted">{{ getOverallProgress() | number: "1.0-0" }}%</span>
+        </div>
+        <bit-progress [barWidth]="getOverallProgress()" bgColor="primary"></bit-progress>
+      </div>
+
+      <!-- Completion Status -->
+      @if (state() === AccessIntelligenceState.Complete) {
+        <div class="tw-flex tw-items-center tw-gap-2 tw-text-success-600">
+          <i class="bwi bwi-check-circle" aria-hidden="true"></i>
+          <span>Analysis complete</span>
+        </div>
+      }
+
+      <!-- Error Status -->
+      @if (state() === AccessIntelligenceState.Error && error()) {
+        <div class="tw-flex tw-items-center tw-gap-2 tw-text-danger-600">
+          <i class="bwi bwi-error" aria-hidden="true"></i>
+          <span>{{ error() }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Results Section -->
+  @if (result()) {
+    <!-- Summary Cards -->
+    <div class="tw-grid tw-grid-cols-4 tw-gap-4 tw-mb-6">
+      <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+        <div class="tw-text-3xl tw-font-bold tw-text-main">
+          {{ result()!.totalCipherCount }}
+        </div>
+        <div class="tw-text-muted tw-text-sm">Total Ciphers</div>
+      </div>
+      <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+        <div class="tw-text-3xl tw-font-bold tw-text-danger-600">
+          {{ result()!.atRiskCipherCount }}
+        </div>
+        <div class="tw-text-muted tw-text-sm">At-Risk Ciphers</div>
+      </div>
+      <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+        <div class="tw-text-3xl tw-font-bold tw-text-main">
+          {{ result()!.totalMemberCount }}
+        </div>
+        <div class="tw-text-muted tw-text-sm">Total Members</div>
+      </div>
+      <div class="tw-p-4 tw-bg-background-alt tw-rounded-lg">
+        <div class="tw-text-3xl tw-font-bold tw-text-danger-600">
+          {{ result()!.atRiskMemberCount }}
+        </div>
+        <div class="tw-text-muted tw-text-sm">Members at Risk</div>
+      </div>
+    </div>
+
+    <!-- Ciphers Table -->
+    <div class="tw-bg-background-alt tw-rounded-lg tw-overflow-hidden">
+      <table bitTable class="tw-w-full">
+        <thead>
+          <tr bitHeaderRow>
+            <th bitHeaderCell>Name</th>
+            <th bitHeaderCell class="tw-text-center">Weak</th>
+            <th bitHeaderCell class="tw-text-center">Reused</th>
+            <th bitHeaderCell class="tw-text-center">Exposed</th>
+            <th bitHeaderCell class="tw-text-center">Members</th>
+            <th bitHeaderCell class="tw-text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of result()!.ciphers; track item.cipher.id) {
+            <tr bitRow>
+              <td bitCell>
+                <div class="tw-flex tw-flex-col">
+                  <span class="tw-font-medium">{{ item.cipher.name }}</span>
+                  @if (item.cipher.login?.username) {
+                    <span class="tw-text-muted tw-text-sm">{{ item.cipher.login.username }}</span>
+                  }
+                </div>
+              </td>
+              <td bitCell class="tw-text-center">
+                @if (item.health.isWeak) {
+                  <span bitBadge variant="warning">Weak</span>
+                } @else {
+                  <span class="tw-text-muted">-</span>
+                }
+              </td>
+              <td bitCell class="tw-text-center">
+                @if (item.health.isReused) {
+                  <span bitBadge variant="warning">Reused</span>
+                } @else {
+                  <span class="tw-text-muted">-</span>
+                }
+              </td>
+              <td bitCell class="tw-text-center">
+                @if (item.health.isExposed) {
+                  <span bitBadge variant="danger">{{ item.health.exposedCount }}x</span>
+                } @else {
+                  <span class="tw-text-muted">-</span>
+                }
+              </td>
+              <td bitCell class="tw-text-center">
+                {{ item.memberCount }}
+              </td>
+              <td bitCell class="tw-text-center">
+                @if (isCipherAtRisk(item.health)) {
+                  <span bitBadge variant="danger">At Risk</span>
+                } @else {
+                  <span bitBadge variant="success">Healthy</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
