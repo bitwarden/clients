@@ -1,4 +1,5 @@
 import {
+  asyncScheduler,
   combineLatest,
   concatMap,
   Observable,
@@ -16,8 +17,8 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
-  debounceTime,
   filter,
+  throttleTime,
 } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -200,8 +201,9 @@ export class DefaultSdkService implements SdkService {
       v2UpgradeToken$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(
-      // Do not emit when multiple state values are written in quick succession
-      debounceTime(20),
+      // Do not emit when multiple state values are written in quick succession.
+      // leading: emit immediately on first change; trailing: always process the final state in a burst.
+      throttleTime(20, asyncScheduler, { leading: true, trailing: true }),
       // switchMap is required to allow the clean-up logic to be executed when `combineLatest` emits a new value.
       switchMap(
         ([
