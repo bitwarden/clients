@@ -85,6 +85,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return await this.organizationInviteService.getOpenInviteStatus(code);
     } catch (e) {
       if (e instanceof ErrorResponse && e.statusCode === 404) {
+        // TODO: placeholder — pending design. Icon (AccountWarning) and copy
+        // (openInviteNotFoundTitle / openInviteNotFoundMessage in
+        // apps/web/src/locales/en/messages.json) are stand-ins until design
+        // provides the final asset + strings. Server response for 404 carries
+        // no org name, so copy stays generic.
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "openInviteNotFoundTitle" },
           pageIcon: AccountWarning,
@@ -93,6 +98,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         return null;
       }
       if (e instanceof ErrorResponse && e.statusCode === 400) {
+        // TODO: placeholder — pending design. Icon (AccountWarning) and copy
+        // (openInvitePlanNotSupportedTitle / openInvitePlanNotSupportedMessage
+        // in apps/web/src/locales/en/messages.json) are stand-ins until design
+        // provides the final asset + strings. Server response for 400 carries
+        // no org name, so copy stays generic.
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "openInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
@@ -140,6 +150,11 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   private async authedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
+    // Status is fetched here too (not just in unauthedHandler) because this handler
+    // can be reached without going through unauthedHandler first — an authenticated
+    // user pasting a `/join/<code>?key=<key>` URL directly into their session has no
+    // stashed invite state to hydrate from. The fetch also gives us fresh error
+    // surfaces (404 / 400 / no-seats) to render before committing an accept.
     const status = await this.fetchStatusOrShowError(urlParams.inviteLinkCode);
     if (status == null) {
       return;

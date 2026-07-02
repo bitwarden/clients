@@ -714,6 +714,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     return {
       pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
       pageSubtitle: this.emailFormControl.value,
+      // TODO: placeholder — pending design. LockIcon is a stand-in for the
+      // MP-entry sub-state of the open-invite flow until design specifies the
+      // final asset.
       pageIcon: this.Icons.LockIcon,
     };
   }
