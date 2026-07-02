@@ -197,9 +197,10 @@ export default {
         _event,
         data: {
           windowTitle: string;
+          windowHandle: number[];
         },
       ) => {
-        const { windowTitle } = data;
+        const { windowTitle, windowHandle } = data;
 
         fn(windowTitle, (error, vaultData) => {
           if (error) {
@@ -212,7 +213,7 @@ export default {
           }
 
           if (vaultData !== null) {
-            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
+            ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, { ...vaultData, windowHandle });
           }
         });
       },

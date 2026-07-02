@@ -1,4 +1,4 @@
-import { ipcMain, globalShortcut } from "electron";
+import { ipcMain, globalShortcut, dialog } from "electron";
 
 import { autotype } from "@bitwarden/desktop-napi";
 import { LogService } from "@bitwarden/logging";
@@ -49,6 +49,9 @@ export class MainDesktopAutotypeService {
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
       ) {
+        if (vaultData.windowHandle) {
+          autotype.focusWindow(vaultData.windowHandle, true);
+        }
         this.doAutotype(vaultData, this.autotypeKeyboardShortcut.getArrayFormat());
       }
     });
@@ -95,11 +98,33 @@ export class MainDesktopAutotypeService {
 
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
-      () => {
+      async () => {
+        // Capture the foreground window title and handle before showing the dialog,
+        // because opening the dialog changes the foreground window.
         const windowTitle = autotype.getForegroundWindowTitle();
+        const windowHandle = autotype.getForegroundWindowHandle();
+
+        const { response } = await dialog.showMessageBox({
+          type: "question",
+          buttons: ["Yes", "No"],
+          defaultId: 0,
+          cancelId: 1,
+          noLink: true,
+          title: "Bitwarden Autotype",
+          message:
+            "Press yes if you want to autotype into this window, this is a lot of text for a test: " +
+            windowTitle,
+        });
+
+        if (response !== 0) {
+          // Restore focus to the target app even when the user declines.
+          autotype.focusWindow(windowHandle, false);
+          return;
+        }
 
         this.windowMain.win.webContents.send(AUTOTYPE_IPC_CHANNELS.LISTEN, {
           windowTitle,
+          windowHandle,
         });
       },
     );
