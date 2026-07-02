@@ -21,9 +21,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   // Stale entries (roots whose hosts left the DOM) are harmless — querying them
   // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
-  // Tag names of the extension's own injected shadow hosts (inline menu); excluded from
-  // scanning/observation so the collector doesn't watch — and churn on — its own UI.
-  private ownedShadowHostTagNames = new Set<string>();
+  private isOwnedShadowHost: (host: Element) => boolean = () => false;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -119,13 +117,13 @@ export class DomQueryService implements DomQueryServiceInterface {
     return mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
       // Ignore our own injected shadow hosts — observing them churns on the menu's own styling.
-      return root instanceof ShadowRoot && !this.ownedShadowHostTagNames.has(root.host.tagName);
+      return root instanceof ShadowRoot && !this.isOwnedShadowHost(root.host);
     });
   };
 
-  /** Tag names of the extension's own injected shadow hosts, excluded from scanning/observation. */
-  setOwnedShadowHostTagNames = (tagNames: string[]): void => {
-    this.ownedShadowHostTagNames = new Set(tagNames.map((name) => name.toUpperCase()));
+  /** Identity predicate for the extension's own injected shadow hosts, excluded from scanning/observation. */
+  setOwnedShadowHostPredicate = (predicate: (host: Element) => boolean): void => {
+    this.isOwnedShadowHost = predicate;
   };
 
   /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
@@ -495,8 +493,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       return null;
     }
 
-    // Skip the extension's own injected shadow hosts so we never detect or observe them.
-    if (this.ownedShadowHostTagNames.has(node.tagName)) {
+    if (this.isOwnedShadowHost(node)) {
       return null;
     }
 

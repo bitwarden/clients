@@ -9,7 +9,7 @@ export interface DomQueryService {
   updatePageContainsShadowDom(): boolean;
   checkMutationsInShadowRoots(mutations: MutationRecord[]): boolean;
   checkForNewShadowRoots(addedElements?: Element[]): boolean;
-  setOwnedShadowHostTagNames(tagNames: string[]): void;
+  setOwnedShadowHostPredicate(predicate: (host: Element) => boolean): void;
   resetObservedShadowRoots(): void;
   purgeDetachedShadowRoots(): void;
   queryDeepSelector(selector: string): Element | null;

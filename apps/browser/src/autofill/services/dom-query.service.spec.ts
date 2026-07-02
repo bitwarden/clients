@@ -316,7 +316,7 @@ describe("DomQueryService", () => {
     });
   });
 
-  describe("setOwnedShadowHostTagNames (excludes the extension's own injected UI)", () => {
+  describe("setOwnedShadowHostPredicate (excludes the extension's own injected UI by identity)", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
       domQueryService["knownShadowRoots"].clear();
@@ -324,38 +324,40 @@ describe("DomQueryService", () => {
     });
 
     it("does not detect an owned shadow host's root", () => {
-      const host = document.createElement("owned-menu");
+      const host = document.createElement("div");
       host.attachShadow({ mode: "open" });
       document.body.appendChild(host);
-      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
 
       expect(domQueryService.checkForNewShadowRoots([host])).toBe(false);
     });
 
-    it("still detects a non-owned shadow host", () => {
-      const host = document.createElement("page-widget");
-      host.attachShadow({ mode: "open" });
-      document.body.appendChild(host);
-      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+    it("detects a different host of the same tag — matched by identity, not tag name", () => {
+      const owned = document.createElement("div");
+      owned.attachShadow({ mode: "open" });
+      const pageHost = document.createElement("div");
+      pageHost.attachShadow({ mode: "open" });
+      document.body.append(owned, pageHost);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
 
-      expect(domQueryService.checkForNewShadowRoots([host])).toBe(true);
+      expect(domQueryService.checkForNewShadowRoots([pageHost])).toBe(true);
     });
 
     it("ignores mutations inside an owned shadow host", () => {
-      const host = document.createElement("owned-menu");
+      const host = document.createElement("div");
       const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
       document.body.appendChild(host);
-      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
 
       const mutation = { target: inner } as unknown as MutationRecord;
       expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
     });
 
     it("still flags mutations inside a non-owned shadow host", () => {
-      const host = document.createElement("page-widget");
+      const host = document.createElement("div");
       const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
       document.body.appendChild(host);
-      domQueryService.setOwnedShadowHostTagNames(["OWNED-MENU"]);
+      domQueryService.setOwnedShadowHostPredicate(() => false);
 
       const mutation = { target: inner } as unknown as MutationRecord;
       expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);

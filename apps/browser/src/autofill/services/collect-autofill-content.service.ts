@@ -1,7 +1,6 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
-import { createMeter, stopwatch } from "../content/performance";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -85,22 +84,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
-
-  private readonly monitorMutationBatch = createMeter(
-    { name: "mutationBatch", bits: 10 },
-    "records",
-    "inShadow",
-  );
-  private readonly monitorRequireUpdateLocation = createMeter("requireUpdateLocation");
-  private readonly monitorRequireUpdateShadow = createMeter("requireUpdateShadow");
-  private readonly monitorRequireUpdateNewShadowRoot = createMeter("requireUpdateNewShadowRoot");
-  private readonly monitorProcessMutations = createMeter("processMutations");
-  private readonly monitorUpdateCachedVisibility = createMeter("updateCachedVisibility");
-  private readonly monitorSetupOverlayOnField = createMeter("setupOverlayOnField");
-  private readonly monitorBackoff = createMeter("mutationBackoff", "burst", "adaptiveMs");
-  private readonly monitorCandidateOverflow = createMeter("shadowCandidateOverflow");
-  private readonly monitorScheduleSkipped = createMeter("scheduleSkipped");
-
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -131,17 +114,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
 
-    // Wrap before allocating the observer so the instrumented handler is registered.
-    this.handleMutationObserverMutation = stopwatch(
-      "handleMutationObserverMutation",
-      this.handleMutationObserverMutation,
-    );
-    this.handleNewShadowRoots = stopwatch("handleNewShadowRoots", this.handleNewShadowRoots);
-    this.queryAutofillFormAndFieldElements = stopwatch(
-      "queryAutofillFormAndFieldElements",
-      this.queryAutofillFormAndFieldElements,
-    );
-
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
       root: null,
@@ -149,6 +121,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       // Safari doesn't seem to function properly with a threshold of 1.
       threshold: 0.9999,
     });
+
+    // Match owned inline-menu hosts by identity, not tag name — a tag-name match would
+    // over-exclude same-tag page elements and is spoofable by the page.
+    this.domQueryService.setOwnedShadowHostPredicate(
+      (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
+    );
   }
 
   /**
@@ -215,7 +193,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
     }
-    this.refreshOwnedShadowHostTagNames();
 
     // Check for targeting rules before running heuristic collection
     if (this.pageTargetingRules === undefined) {
@@ -580,7 +557,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
-    this.monitorUpdateCachedVisibility();
     this.autofillFieldElements.forEach(async (autofillField, element) => {
       const previouslyViewable = autofillField.viewable;
       autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
@@ -1442,13 +1418,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     );
   }
 
-  // Keep dom-query's exclusion list current with the overlay's (randomized) injected tag names.
-  private refreshOwnedShadowHostTagNames(): void {
-    this.domQueryService.setOwnedShadowHostTagNames(
-      this.autofillOverlayContentService?.getOwnedInlineMenuTagNames() ?? [],
-    );
-  }
-
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1465,13 +1434,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
     this.purgeDetachedNodesIfDue();
 
-    this.refreshOwnedShadowHostTagNames();
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
-    this.monitorMutationBatch(mutations.length, hasMutationsInShadowRoot);
-
     if (hasMutationsInShadowRoot) {
-      this.monitorRequireUpdateShadow();
       this.debouncedRequirePageDetailsUpdate();
     }
 
@@ -1537,8 +1502,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (queueWasIdle && this.hasPendingWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
-    } else if (queueWasIdle) {
-      this.monitorScheduleSkipped();
     }
   };
 
@@ -1548,7 +1511,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @private
    */
   private handleWindowLocationMutation() {
-    this.monitorRequireUpdateLocation();
     this.currentLocationHref = globalThis.location.href;
 
     this.domRecentlyMutated = true;
@@ -1574,7 +1536,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private processMutations = () => {
-    this.monitorProcessMutations();
     // Swap first so reentrant mutations during processing land in fresh structures
     // and drain on the next cycle, mirroring the queue-swap the previous design relied on.
     const drainingAttributeMutations = this.pendingAttributeMutations;
@@ -1697,7 +1658,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
     if (hasNewShadowRoots) {
-      this.monitorRequireUpdateNewShadowRoot();
       this.debouncedRequirePageDetailsUpdate();
     }
   };
@@ -1717,7 +1677,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
-          this.monitorCandidateOverflow();
           // Release element refs immediately; we won't process them this window.
           this.pendingMutationAddedElements.clear();
           return;
@@ -1840,8 +1799,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
       adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
-
-    this.monitorBackoff(this.mutationBurstCount, adaptiveTimeout);
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
@@ -2042,7 +1999,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
-    this.monitorSetupOverlayOnField();
     if (!this.autofillOverlayContentService) {
       return;
     }
