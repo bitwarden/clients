@@ -107,56 +107,41 @@ describe("ExtensionTwoFactorAuthComponentService", () => {
   });
 
   describe("closeSingleActionPopouts", () => {
-    it("should call closeSsoAuthResultPopout if in SSO auth result popout", async () => {
-      const inSingleActionPopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
-        .mockImplementation((_, key) => {
-          return key === AuthPopoutType.ssoAuthResult;
-        });
+    it("closes every auth popout unconditionally", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValue(false);
 
       await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
 
-      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(1);
       expect(closeSsoAuthResultPopout).toHaveBeenCalled();
-    });
-
-    it("should call closeTwoFactorAuthWebAuthnPopout if in two factor auth webauthn popout", async () => {
-      const inSingleActionPopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
-        .mockImplementation((_, key) => {
-          return key === AuthPopoutType.twoFactorAuthWebAuthn;
-        });
-
-      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
-
-      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(2);
       expect(closeTwoFactorAuthWebAuthnPopout).toHaveBeenCalled();
-    });
-
-    it("should call closeTwoFactorAuthEmailPopout if in two factor auth email popout", async () => {
-      const inSingleActionPopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
-        .mockImplementation((_, key) => {
-          return key === AuthPopoutType.twoFactorAuthEmail;
-        });
-
-      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
-
-      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(3);
       expect(closeTwoFactorAuthEmailPopout).toHaveBeenCalled();
+      expect(closeTwoFactorAuthDuoPopout).toHaveBeenCalled();
     });
 
-    it("should call closeTwoFactorAuthDuoPopout if in two factor auth duo popout", async () => {
-      const inSingleActionPopoutSpy = jest
-        .spyOn(BrowserPopupUtils, "inSingleActionPopout")
-        .mockImplementation((_, key) => {
-          return key === AuthPopoutType.twoFactorAuthDuo;
-        });
+    it.each([
+      ["ssoAuthResult", AuthPopoutType.ssoAuthResult],
+      ["twoFactorAuthWebAuthn", AuthPopoutType.twoFactorAuthWebAuthn],
+      ["twoFactorAuthEmail", AuthPopoutType.twoFactorAuthEmail],
+      ["twoFactorAuthDuo", AuthPopoutType.twoFactorAuthDuo],
+    ])(
+      "returns true when the current view is in the %s popout",
+      async (_name, currentPopoutType) => {
+        jest
+          .spyOn(BrowserPopupUtils, "inSingleActionPopout")
+          .mockImplementation((_, key) => key === currentPopoutType);
 
-      await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
+        const result = await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
 
-      expect(inSingleActionPopoutSpy).toHaveBeenCalledTimes(4);
-      expect(closeTwoFactorAuthDuoPopout).toHaveBeenCalled();
+        expect(result).toBe(true);
+      },
+    );
+
+    it("returns false when the current view is not in any auth popout", async () => {
+      jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValue(false);
+
+      const result = await extensionTwoFactorAuthComponentService.closeSingleActionPopouts();
+
+      expect(result).toBe(false);
     });
   });
 
