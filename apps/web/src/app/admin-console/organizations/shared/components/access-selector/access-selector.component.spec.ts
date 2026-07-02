@@ -123,6 +123,76 @@ describe("AccessSelectorComponent", () => {
       );
     });
 
+    it("should preserve permission changes when items input re-emits", () => {
+      // Arrange — set up item with an initial writeValue, then change permission in the table
+      const collectionItem = {
+        id: "123",
+        type: AccessItemType.Group,
+        labelName: "Group 1",
+        listName: "Group 1",
+      };
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.View },
+      ]);
+      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      fixture.detectChanges();
+
+      component.changeSelectedItemPerm(0, CollectionPermission.Edit);
+
+      const mockChange = jest.fn();
+      component.registerOnChange(mockChange);
+
+      // Act — items input re-emits (simulating async stream re-emission)
+      fixture.componentRef.setInput("items", [collectionItem]);
+      fixture.detectChanges();
+
+      // Assert — re-emission must not revert the user's permission change
+      expect(mockChange.mock.lastCall?.[0]).toHaveProperty(
+        "[0].permission",
+        CollectionPermission.Edit,
+      );
+    });
+
+    it("should preserve table permission changes when writeValue is called again before items re-emit", () => {
+      // Arrange — simulate: permission dropdown changes → writeValue called → items re-emit
+      const collectionItem = {
+        id: "123",
+        type: AccessItemType.Group,
+        labelName: "Group 1",
+        listName: "Group 1",
+      };
+      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      fixture.detectChanges();
+
+      // First writeValue (initial load)
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.View },
+      ]);
+      fixture.detectChanges();
+
+      // User changes permission in the table
+      component.changeSelectedItemPerm(0, CollectionPermission.Manage);
+
+      // writeValue called again (simulating form patchValue from parent re-emission)
+      component.writeValue([
+        { id: "123", type: AccessItemType.Group, permission: CollectionPermission.Edit },
+      ]);
+      fixture.detectChanges();
+
+      const mockChange = jest.fn();
+      component.registerOnChange(mockChange);
+
+      // Act — items re-emit after the second writeValue
+      fixture.componentRef.setInput("items", [collectionItem]);
+      fixture.detectChanges();
+
+      // Assert — second writeValue value applies (Edit), not the stale first one (View)
+      expect(mockChange.mock.lastCall?.[0]).toHaveProperty(
+        "[0].permission",
+        CollectionPermission.Edit,
+      );
+    });
+
     it("should emit value change when a row is removed", () => {
       // Arrange
       const mockChange = jest.fn();
