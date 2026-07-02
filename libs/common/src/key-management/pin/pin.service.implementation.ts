@@ -1,4 +1,4 @@
-import { PinLockType, PinSettingsClient } from "@bitwarden/sdk-internal";
+import { PinLockType, PinSettingsClient, SensitiveString } from "@bitwarden/sdk-internal";
 
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId } from "../../types/guid";
@@ -44,7 +44,7 @@ export class PinService implements PinServiceAbstraction {
   @assertParametersNonNull()
   async setPin(pin: string, pinLockType: PinLockType, userId: UserId): Promise<void> {
     return await this.withPinSettingsClient(userId, async (client) => {
-      return await client.set_pin(pin, pinLockType);
+      return await client.set_pin(pin as SensitiveString, pinLockType);
     });
   }
 
@@ -65,7 +65,7 @@ export class PinService implements PinServiceAbstraction {
   @assertParametersNonNull()
   async validatePin(pin: string, userId: UserId): Promise<boolean> {
     return await this.withPinSettingsClient(userId, async (client) => {
-      return await client.validate_pin(pin);
+      return await client.validate_pin(pin as SensitiveString);
     });
   }
 
