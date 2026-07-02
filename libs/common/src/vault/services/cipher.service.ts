@@ -225,6 +225,13 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }, this.clearCipherViewsForUser$);
 
+  cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
+    return this.cipherViews$(userId).pipe(
+      filterOutNullish(),
+      map((ciphers) => ciphers.find((cipher) => cipher.id === cipherId)),
+    );
+  }
+
   addEditCipherInfo$(userId: UserId): Observable<AddEditCipherInfo> {
     return this.addEditCipherInfoState(userId).state$;
   }

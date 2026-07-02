@@ -7,7 +7,7 @@ import { first, map } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordHistoryViewComponent } from "@bitwarden/vault";
@@ -67,7 +67,8 @@ export class PasswordHistoryComponent implements OnInit {
 
     const activeUserId = activeAccount.id as UserId;
 
-    const cipher = await this.cipherService.get(cipherId, activeUserId);
-    this.cipher = await this.cipherService.decrypt(cipher, activeUserId);
+    this.cipher = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, cipherId as CipherId),
+    );
   }
 }
