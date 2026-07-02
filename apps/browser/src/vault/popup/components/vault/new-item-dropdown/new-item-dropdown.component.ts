@@ -61,6 +61,11 @@ export class NewItemDropdownComponent implements OnInit {
     { initialValue: false },
   );
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   constructor(
     private dialogService: DialogService,
     private restrictedItemTypeService: RestrictedItemTypesService,
