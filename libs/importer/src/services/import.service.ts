@@ -17,6 +17,7 @@ import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ci
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -123,6 +124,7 @@ export class ImportService implements ImportServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -245,7 +247,7 @@ export class ImportService implements ImportServiceAbstraction {
         );
       case "lastpasscsv":
       case "passboltcsv":
-        return new LastPassCsvImporter();
+        return new LastPassCsvImporter(this.configService);
       case "keepassxcsv":
         return new KeePassXCsvImporter();
       case "aviracsv":
@@ -277,17 +279,17 @@ export class ImportService implements ImportServiceAbstraction {
       case "meldiumcsv":
         return new MeldiumCsvImporter();
       case "1password1pif":
-        return new OnePassword1PifImporter();
+        return new OnePassword1PifImporter(this.configService);
       case "1password1pux":
-        return new OnePassword1PuxImporter();
+        return new OnePassword1PuxImporter(this.configService);
       case "1passwordwincsv":
         return new OnePasswordWinCsvImporter();
       case "1passwordmaccsv":
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
-        return new KeeperCsvImporter();
+        return new KeeperCsvImporter(this.configService);
       case "keeperjson":
-        return new KeeperJsonImporter();
+        return new KeeperJsonImporter(this.configService);
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
@@ -297,7 +299,7 @@ export class ImportService implements ImportServiceAbstraction {
       case "pwsafexml":
         return new PasswordSafeXmlImporter();
       case "dashlanecsv":
-        return new DashlaneCsvImporter();
+        return new DashlaneCsvImporter(this.configService);
       case "dashlanejson":
         return new DashlaneJsonImporter();
       case "msecurecsv":
@@ -363,13 +365,13 @@ export class ImportService implements ImportServiceAbstraction {
       case "passkyjson":
         return new PasskyJsonImporter();
       case "protonpass":
-        return new ProtonPassJsonImporter(this.i18nService);
+        return new ProtonPassJsonImporter(this.i18nService, this.configService);
       case "passwordxpcsv":
         return new PasswordXPCsvImporter();
       case "netwrixpasswordsecure":
         return new NetwrixPasswordSecureCsvImporter();
       case "passworddepot17xml":
-        return new PasswordDepot17XmlImporter();
+        return new PasswordDepot17XmlImporter(this.configService);
       default:
         return null;
     }

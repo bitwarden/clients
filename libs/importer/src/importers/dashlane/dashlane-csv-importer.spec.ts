@@ -1,3 +1,6 @@
+import { mock } from "jest-mock-extended";
+
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { DashlaneCsvImporter } from "..";
@@ -8,369 +11,412 @@ import { multiplePersonalInfoData } from "../spec-data/dashlane-csv/multiple-per
 import { paymentsData } from "../spec-data/dashlane-csv/payments.csv";
 import { personalInfoData } from "../spec-data/dashlane-csv/personal-info.csv";
 import { secureNoteData } from "../spec-data/dashlane-csv/securenotes.csv";
+import { assertFieldsStructure } from "../spec-data/importer-test-utils";
 
 describe("Dashlane CSV Importer", () => {
   let importer: DashlaneCsvImporter;
+  const configService = mock<ConfigService>();
+
+  // Assert that an import was successful and return it
+  const getImportResult = async (data: string) => {
+    const result = await importer.parse(data);
+    expect(result).not.toBeNull();
+    expect(result).not.toBeUndefined();
+    expect(result.success).toEqual(true);
+    return result;
+  };
+
   beforeEach(() => {
-    importer = new DashlaneCsvImporter();
+    configService.getFeatureFlag.mockResolvedValue(false);
+    importer = new DashlaneCsvImporter(configService);
   });
 
   it("should parse login records", async () => {
-    const result = await importer.parse(credentialsData);
-    expect(result != null).toBe(true);
+    const result = await getImportResult(credentialsData);
 
-    const cipher = result.ciphers.shift();
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.name).toEqual("example.com");
     expect(cipher.login.username).toEqual("jdoe");
     expect(cipher.login.password).toEqual("somePassword");
     expect(cipher.login.totp).toEqual("someTOTPSeed");
     expect(cipher.login.uris.length).toEqual(1);
-    const uriView = cipher.login.uris.shift();
+    const uriView = cipher.login.uris[0];
     expect(uriView.uri).toEqual("https://www.example.com");
     expect(cipher.notes).toEqual("some note for example.com");
   });
 
   it("should parse login with totp when given otpUrl instead of otpSecret", async () => {
-    const result = await importer.parse(credentialsData_otpUrl);
-    expect(result != null).toBe(true);
+    const result = await getImportResult(credentialsData_otpUrl);
 
-    const cipher = result.ciphers.shift();
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
     expect(cipher.login.totp).toEqual("anotherTOTPSeed");
   });
 
   it("should parse an item and create a folder", async () => {
-    const result = await importer.parse(credentialsData);
+    const result = await getImportResult(credentialsData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
-    expect(result.folders.length).toBe(1);
-    expect(result.folders[0].name).toBe("Entertainment");
+    expect(result.folders.length).toEqual(1);
+    expect(result.folders[0].name).toEqual("Entertainment");
+    expect(result.folderRelationships.length).toEqual(1);
     expect(result.folderRelationships[0]).toEqual([0, 0]);
   });
 
-  it("should parse payment records", async () => {
-    const result = await importer.parse(paymentsData);
+  describe("should parse payment records", () => {
+    it("with new item types feature flag OFF", async () => {
+      const result = await getImportResult(paymentsData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
-    expect(result.ciphers.length).toBe(2);
+      expect(result.ciphers.length).toEqual(2);
 
-    // Account
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.Card);
-    expect(cipher.name).toBe("John's savings account");
-    expect(cipher.card.brand).toBeUndefined();
-    expect(cipher.card.cardholderName).toBe("John Doe");
-    expect(cipher.card.number).toBe("accountNumber");
-    expect(cipher.card.code).toBeUndefined();
-    expect(cipher.card.expMonth).toBeUndefined();
-    expect(cipher.card.expYear).toBeUndefined();
+      // Account
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Card);
+      expect(cipher.name).toEqual("John's savings account");
+      expect(cipher.card.brand).toBeUndefined();
+      expect(cipher.card.cardholderName).toEqual("John Doe");
+      expect(cipher.card.number).toEqual("accountNumber");
+      expect(cipher.card.code).toBeUndefined();
+      expect(cipher.card.expMonth).toBeUndefined();
+      expect(cipher.card.expYear).toBeUndefined();
 
-    expect(cipher.fields.length).toBe(4);
+      assertFieldsStructure(cipher.fields, [
+        ["type", "bank"],
+        ["routing_number", "routingNumber"],
+        ["country", "US"],
+        ["issuing_bank", "US-ALLY"],
+      ]);
 
-    expect(cipher.fields[0].name).toBe("type");
-    expect(cipher.fields[0].value).toBe("bank");
+      // CreditCard
+      const cipher2 = result.ciphers[1];
+      expect(cipher2.type).toEqual(CipherType.Card);
+      expect(cipher2.name).toEqual("John Doe");
+      expect(cipher2.card.brand).toEqual("Visa");
+      expect(cipher2.card.cardholderName).toEqual("John Doe");
+      expect(cipher2.card.number).toEqual("41111111111111111");
+      expect(cipher2.card.code).toEqual("123");
+      expect(cipher2.card.expMonth).toEqual("1");
+      expect(cipher2.card.expYear).toEqual("2023");
 
-    expect(cipher.fields[1].name).toBe("routing_number");
-    expect(cipher.fields[1].value).toBe("routingNumber");
+      assertFieldsStructure(cipher2.fields, [
+        ["type", "credit_card"],
+        ["country", "US"],
+      ]);
+    });
 
-    expect(cipher.fields[2].name).toBe("country");
-    expect(cipher.fields[2].value).toBe("US");
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const result = await getImportResult(paymentsData);
 
-    expect(cipher.fields[3].name).toBe("issuing_bank");
-    expect(cipher.fields[3].value).toBe("US-ALLY");
+      expect(result.ciphers.length).toEqual(2);
 
-    // CreditCard
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.type).toBe(CipherType.Card);
-    expect(cipher2.name).toBe("John Doe");
-    expect(cipher2.card.brand).toBe("Visa");
-    expect(cipher2.card.cardholderName).toBe("John Doe");
-    expect(cipher2.card.number).toBe("41111111111111111");
-    expect(cipher2.card.code).toBe("123");
-    expect(cipher2.card.expMonth).toBe("1");
-    expect(cipher2.card.expYear).toBe("2023");
+      // Account
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.BankAccount);
+      expect(cipher.name).toEqual("John's savings account");
+      expect(cipher.bankAccount.nameOnAccount).toEqual("John Doe");
+      expect(cipher.bankAccount.accountNumber).toEqual("accountNumber");
 
-    expect(cipher2.fields.length).toBe(2);
+      assertFieldsStructure(cipher.fields, [
+        ["routing_number", "routingNumber"],
+        ["country", "US"],
+        ["issuing_bank", "US-ALLY"],
+      ]);
 
-    expect(cipher2.fields[0].name).toBe("type");
-    expect(cipher2.fields[0].value).toBe("credit_card");
+      // CreditCard
+      const cipher2 = result.ciphers[1];
+      expect(cipher2.type).toEqual(CipherType.Card);
+      expect(cipher2.name).toEqual("John Doe");
+      expect(cipher2.card.brand).toEqual("Visa");
+      expect(cipher2.card.cardholderName).toEqual("John Doe");
+      expect(cipher2.card.number).toEqual("41111111111111111");
+      expect(cipher2.card.code).toEqual("123");
+      expect(cipher2.card.expMonth).toEqual("1");
+      expect(cipher2.card.expYear).toEqual("2023");
 
-    expect(cipher2.fields[1].name).toBe("country");
-    expect(cipher2.fields[1].value).toBe("US");
+      assertFieldsStructure(cipher2.fields, [
+        ["type", "credit_card"],
+        ["country", "US"],
+      ]);
+    });
   });
 
-  it("should parse ids records", async () => {
-    const result = await importer.parse(identityData);
+  describe("should parse ids records", () => {
+    it("with new item types feature flag OFF", async () => {
+      const result = await getImportResult(identityData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
+      expect(result.ciphers.length).toEqual(5);
 
-    // Type card
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.Identity);
-    expect(cipher.name).toBe("John Doe card");
-    expect(cipher.identity.fullName).toBe("John Doe");
-    expect(cipher.identity.firstName).toBe("John");
-    expect(cipher.identity.middleName).toBeUndefined();
-    expect(cipher.identity.lastName).toBe("Doe");
-    expect(cipher.identity.licenseNumber).toBe("123123123");
+      // Type card
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Identity);
+      expect(cipher.name).toEqual("John Doe card");
+      expect(cipher.identity.fullName).toEqual("John Doe");
+      expect(cipher.identity.firstName).toEqual("John");
+      expect(cipher.identity.middleName).toBeUndefined();
+      expect(cipher.identity.lastName).toEqual("Doe");
+      expect(cipher.identity.licenseNumber).toEqual("123123123");
 
-    expect(cipher.fields.length).toBe(3);
+      assertFieldsStructure(cipher.fields, [
+        ["type", "card"],
+        ["issue_date", "2022-1-30"],
+        ["expiration_date", "2032-1-30"],
+      ]);
 
-    expect(cipher.fields[0].name).toEqual("type");
-    expect(cipher.fields[0].value).toEqual("card");
+      // Type passport
+      const cipher2 = result.ciphers[1];
+      expect(cipher2.type).toEqual(CipherType.Identity);
+      expect(cipher2.name).toEqual("John Doe passport");
+      expect(cipher2.identity.fullName).toEqual("John Doe");
+      expect(cipher2.identity.firstName).toEqual("John");
+      expect(cipher2.identity.middleName).toBeUndefined();
+      expect(cipher2.identity.lastName).toEqual("Doe");
+      expect(cipher2.identity.passportNumber).toEqual("123123123");
 
-    expect(cipher.fields[1].name).toEqual("issue_date");
-    expect(cipher.fields[1].value).toEqual("2022-1-30");
+      assertFieldsStructure(cipher2.fields, [
+        ["type", "passport"],
+        ["issue_date", "2022-1-30"],
+        ["expiration_date", "2032-1-30"],
+        ["place_of_issue", "somewhere in Germany"],
+      ]);
 
-    expect(cipher.fields[2].name).toEqual("expiration_date");
-    expect(cipher.fields[2].value).toEqual("2032-1-30");
+      // Type license
+      const cipher3 = result.ciphers[2];
+      expect(cipher3.type).toEqual(CipherType.Identity);
+      expect(cipher3.name).toEqual("John Doe license");
+      expect(cipher3.identity.fullName).toEqual("John Doe");
+      expect(cipher3.identity.firstName).toEqual("John");
+      expect(cipher3.identity.middleName).toBeUndefined();
+      expect(cipher3.identity.lastName).toEqual("Doe");
+      expect(cipher3.identity.licenseNumber).toEqual("1234556");
+      expect(cipher3.identity.state).toEqual("DC");
 
-    // Type passport
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.type).toBe(CipherType.Identity);
-    expect(cipher2.name).toBe("John Doe passport");
-    expect(cipher2.identity.fullName).toBe("John Doe");
-    expect(cipher2.identity.firstName).toBe("John");
-    expect(cipher2.identity.middleName).toBeUndefined();
-    expect(cipher2.identity.lastName).toBe("Doe");
-    expect(cipher2.identity.passportNumber).toBe("123123123");
+      assertFieldsStructure(cipher3.fields, [
+        ["type", "license"],
+        ["issue_date", "2022-8-10"],
+        ["expiration_date", "2022-10-10"],
+      ]);
 
-    expect(cipher2.fields.length).toBe(4);
+      // Type social_security
+      const cipher4 = result.ciphers[3];
+      expect(cipher4.type).toEqual(CipherType.Identity);
+      expect(cipher4.name).toEqual("John Doe social_security");
+      expect(cipher4.identity.fullName).toEqual("John Doe");
+      expect(cipher4.identity.firstName).toEqual("John");
+      expect(cipher4.identity.middleName).toBeUndefined();
+      expect(cipher4.identity.lastName).toEqual("Doe");
+      expect(cipher4.identity.ssn).toEqual("123123123");
 
-    expect(cipher2.fields[0].name).toEqual("type");
-    expect(cipher2.fields[0].value).toEqual("passport");
-    expect(cipher2.fields[1].name).toEqual("issue_date");
-    expect(cipher2.fields[1].value).toEqual("2022-1-30");
-    expect(cipher2.fields[2].name).toEqual("expiration_date");
-    expect(cipher2.fields[2].value).toEqual("2032-1-30");
-    expect(cipher2.fields[3].name).toEqual("place_of_issue");
-    expect(cipher2.fields[3].value).toEqual("somewhere in Germany");
+      assertFieldsStructure(cipher4.fields, [["type", "social_security"]]);
 
-    // Type license
-    const cipher3 = result.ciphers.shift();
-    expect(cipher3.type).toBe(CipherType.Identity);
-    expect(cipher3.name).toBe("John Doe license");
-    expect(cipher3.identity.fullName).toBe("John Doe");
-    expect(cipher3.identity.firstName).toBe("John");
-    expect(cipher3.identity.middleName).toBeUndefined();
-    expect(cipher3.identity.lastName).toBe("Doe");
-    expect(cipher3.identity.licenseNumber).toBe("1234556");
-    expect(cipher3.identity.state).toBe("DC");
+      // Type tax_number
+      const cipher5 = result.ciphers[4];
+      expect(cipher5.type).toEqual(CipherType.Identity);
+      expect(cipher5.name).toEqual("tax_number");
+      expect(cipher5.identity.licenseNumber).toEqual("123123123");
 
-    expect(cipher3.fields.length).toBe(3);
-    expect(cipher3.fields[0].name).toEqual("type");
-    expect(cipher3.fields[0].value).toEqual("license");
-    expect(cipher3.fields[1].name).toEqual("issue_date");
-    expect(cipher3.fields[1].value).toEqual("2022-8-10");
-    expect(cipher3.fields[2].name).toEqual("expiration_date");
-    expect(cipher3.fields[2].value).toEqual("2022-10-10");
+      assertFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
+    });
 
-    // Type social_security
-    const cipher4 = result.ciphers.shift();
-    expect(cipher4.type).toBe(CipherType.Identity);
-    expect(cipher4.name).toBe("John Doe social_security");
-    expect(cipher4.identity.fullName).toBe("John Doe");
-    expect(cipher4.identity.firstName).toBe("John");
-    expect(cipher4.identity.middleName).toBeUndefined();
-    expect(cipher4.identity.lastName).toBe("Doe");
-    expect(cipher4.identity.ssn).toBe("123123123");
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const result = await getImportResult(identityData);
 
-    expect(cipher4.fields.length).toBe(1);
-    expect(cipher4.fields[0].name).toEqual("type");
-    expect(cipher4.fields[0].value).toEqual("social_security");
+      expect(result.ciphers.length).toEqual(5);
 
-    // Type tax_number
-    const cipher5 = result.ciphers.shift();
-    expect(cipher5.type).toBe(CipherType.Identity);
-    expect(cipher5.name).toBe("tax_number");
-    expect(cipher5.identity.licenseNumber).toBe("123123123");
+      // Type card
+      const cipher = result.ciphers[0];
+      expect(cipher.type).toEqual(CipherType.Identity);
+      expect(cipher.name).toEqual("John Doe card");
+      expect(cipher.identity.fullName).toEqual("John Doe");
+      expect(cipher.identity.firstName).toEqual("John");
+      expect(cipher.identity.middleName).toBeUndefined();
+      expect(cipher.identity.lastName).toEqual("Doe");
+      expect(cipher.identity.licenseNumber).toEqual("123123123");
 
-    expect(cipher5.fields.length).toBe(1);
-    expect(cipher5.fields[0].name).toEqual("type");
-    expect(cipher5.fields[0].value).toEqual("tax_number");
+      assertFieldsStructure(cipher.fields, [
+        ["type", "card"],
+        ["issue_date", "2022-1-30"],
+        ["expiration_date", "2032-1-30"],
+      ]);
+
+      // Type passport
+      const cipher2 = result.ciphers[1];
+      expect(cipher2.type).toEqual(CipherType.Passport);
+      expect(cipher2.name).toEqual("John Doe passport");
+      expect(cipher2.passport.givenName).toEqual("John");
+      expect(cipher2.passport.surname).toEqual("Doe");
+      expect(cipher2.passport.passportNumber).toEqual("123123123");
+      expect(cipher2.passport.issueDate).toEqual("2022-1-30");
+      expect(cipher2.passport.expirationDate).toEqual("2032-1-30");
+      expect(cipher2.passport.issuingCountry).toEqual("somewhere in Germany");
+
+      assertFieldsStructure(cipher2.fields, []);
+
+      // Type license
+      const cipher3 = result.ciphers[2];
+      expect(cipher3.type).toEqual(CipherType.DriversLicense);
+      expect(cipher3.name).toEqual("John Doe license");
+      expect(cipher3.driversLicense.firstName).toEqual("John");
+      expect(cipher3.driversLicense.middleName).toBeUndefined();
+      expect(cipher3.driversLicense.lastName).toEqual("Doe");
+      expect(cipher3.driversLicense.licenseNumber).toEqual("1234556");
+      expect(cipher3.driversLicense.issueDate).toEqual("2022-8-10");
+      expect(cipher3.driversLicense.expirationDate).toEqual("2022-10-10");
+      expect(cipher3.driversLicense.issuingCountry).toEqual("");
+      expect(cipher3.driversLicense.issuingState).toEqual("DC");
+
+      assertFieldsStructure(cipher3.fields, []);
+
+      // Type social_security
+      const cipher4 = result.ciphers[3];
+      expect(cipher4.type).toEqual(CipherType.Identity);
+      expect(cipher4.name).toEqual("John Doe social_security");
+      expect(cipher4.identity.fullName).toEqual("John Doe");
+      expect(cipher4.identity.firstName).toEqual("John");
+      expect(cipher4.identity.middleName).toBeUndefined();
+      expect(cipher4.identity.lastName).toEqual("Doe");
+      expect(cipher4.identity.ssn).toEqual("123123123");
+
+      assertFieldsStructure(cipher4.fields, [["type", "social_security"]]);
+
+      // Type tax_number
+      const cipher5 = result.ciphers[4];
+      expect(cipher5.type).toEqual(CipherType.Identity);
+      expect(cipher5.name).toEqual("tax_number");
+      expect(cipher5.identity.licenseNumber).toEqual("123123123");
+
+      assertFieldsStructure(cipher5.fields, [["type", "tax_number"]]);
+    });
   });
 
   it("should parse secureNote records", async () => {
-    const result = await importer.parse(secureNoteData);
+    const result = await getImportResult(secureNoteData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
-    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers.length).toEqual(1);
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.SecureNote);
-    expect(cipher.name).toBe("01");
-    expect(cipher.notes).toBe("test");
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.SecureNote);
+    expect(cipher.name).toEqual("01");
+    expect(cipher.notes).toEqual("test");
   });
 
   it("should parse personal information records (multiple identities)", async () => {
-    const result = await importer.parse(multiplePersonalInfoData);
+    const result = await getImportResult(multiplePersonalInfoData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
-    expect(result.ciphers.length).toBe(6);
+    expect(result.ciphers.length).toEqual(6);
 
     // name
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.SecureNote);
-    expect(cipher.name).toBe("MR John Doe");
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.SecureNote);
+    expect(cipher.name).toEqual("MR John Doe");
 
-    expect(cipher.fields.length).toBe(7);
-    expect(cipher.fields[0].name).toEqual("type");
-    expect(cipher.fields[0].value).toEqual("name");
-    expect(cipher.fields[1].name).toEqual("title");
-    expect(cipher.fields[1].value).toEqual("MR");
-    expect(cipher.fields[2].name).toEqual("first_name");
-    expect(cipher.fields[2].value).toEqual("John");
-    expect(cipher.fields[3].name).toEqual("last_name");
-    expect(cipher.fields[3].value).toEqual("Doe");
-    expect(cipher.fields[4].name).toEqual("login");
-    expect(cipher.fields[4].value).toEqual("jdoe");
-    expect(cipher.fields[5].name).toEqual("date_of_birth");
-    expect(cipher.fields[5].value).toEqual("2022-01-30");
-    expect(cipher.fields[6].name).toEqual("place_of_birth");
-    expect(cipher.fields[6].value).toEqual("world");
+    assertFieldsStructure(cipher.fields, [
+      ["type", "name"],
+      ["title", "MR"],
+      ["first_name", "John"],
+      ["last_name", "Doe"],
+      ["login", "jdoe"],
+      ["date_of_birth", "2022-01-30"],
+      ["place_of_birth", "world"],
+    ]);
 
     // email
-    const cipher2 = result.ciphers.shift();
-    expect(cipher2.type).toBe(CipherType.SecureNote);
-    expect(cipher2.name).toBe("Johns email");
+    const cipher2 = result.ciphers[1];
+    expect(cipher2.type).toEqual(CipherType.SecureNote);
+    expect(cipher2.name).toEqual("Johns email");
 
-    expect(cipher2.fields.length).toBe(4);
-    expect(cipher2.fields[0].name).toEqual("type");
-    expect(cipher2.fields[0].value).toEqual("email");
-    expect(cipher2.fields[1].name).toEqual("email");
-    expect(cipher2.fields[1].value).toEqual("jdoe@example.com");
-    expect(cipher2.fields[2].name).toEqual("email_type");
-    expect(cipher2.fields[2].value).toEqual("personal");
-    expect(cipher2.fields[3].name).toEqual("item_name");
-    expect(cipher2.fields[3].value).toEqual("Johns email");
+    assertFieldsStructure(cipher2.fields, [
+      ["type", "email"],
+      ["email", "jdoe@example.com"],
+      ["email_type", "personal"],
+      ["item_name", "Johns email"],
+    ]);
 
     // number
-    const cipher3 = result.ciphers.shift();
-    expect(cipher3.type).toBe(CipherType.SecureNote);
-    expect(cipher3.name).toBe("John's number");
+    const cipher3 = result.ciphers[2];
+    expect(cipher3.type).toEqual(CipherType.SecureNote);
+    expect(cipher3.name).toEqual("John's number");
 
-    expect(cipher3.fields.length).toBe(3);
-    expect(cipher3.fields[0].name).toEqual("type");
-    expect(cipher3.fields[0].value).toEqual("number");
-    expect(cipher3.fields[1].name).toEqual("item_name");
-    expect(cipher3.fields[1].value).toEqual("John's number");
-    expect(cipher3.fields[2].name).toEqual("phone_number");
-    expect(cipher3.fields[2].value).toEqual("+49123123123");
+    assertFieldsStructure(cipher3.fields, [
+      ["type", "number"],
+      ["item_name", "John's number"],
+      ["phone_number", "+49123123123"],
+    ]);
 
     // address
-    const cipher4 = result.ciphers.shift();
-    expect(cipher4.type).toBe(CipherType.SecureNote);
-    expect(cipher4.name).toBe("John's home address");
+    const cipher4 = result.ciphers[3];
+    expect(cipher4.type).toEqual(CipherType.SecureNote);
+    expect(cipher4.name).toEqual("John's home address");
 
-    expect(cipher4.fields.length).toBe(12);
-    expect(cipher4.fields[0].name).toEqual("type");
-    expect(cipher4.fields[0].value).toEqual("address");
-    expect(cipher4.fields[1].name).toEqual("item_name");
-    expect(cipher4.fields[1].value).toEqual("John's home address");
-    expect(cipher4.fields[2].name).toEqual("address");
-    expect(cipher4.fields[2].value).toEqual("1 some street");
-    expect(cipher4.fields[3].name).toEqual("country");
-    expect(cipher4.fields[3].value).toEqual("de");
-    expect(cipher4.fields[4].name).toEqual("state");
-    expect(cipher4.fields[4].value).toEqual("DE-0-NW");
-    expect(cipher4.fields[5].name).toEqual("city");
-    expect(cipher4.fields[5].value).toEqual("some city");
-    expect(cipher4.fields[6].name).toEqual("zip");
-    expect(cipher4.fields[6].value).toEqual("123123");
-    expect(cipher4.fields[7].name).toEqual("address_recipient");
-    expect(cipher4.fields[7].value).toEqual("John");
-    expect(cipher4.fields[8].name).toEqual("address_building");
-    expect(cipher4.fields[8].value).toEqual("1");
-    expect(cipher4.fields[9].name).toEqual("address_apartment");
-    expect(cipher4.fields[9].value).toEqual("1");
-    expect(cipher4.fields[10].name).toEqual("address_floor");
-    expect(cipher4.fields[10].value).toEqual("1");
-    expect(cipher4.fields[11].name).toEqual("address_door_code");
-    expect(cipher4.fields[11].value).toEqual("123");
+    assertFieldsStructure(cipher4.fields, [
+      ["type", "address"],
+      ["item_name", "John's home address"],
+      ["address", "1 some street"],
+      ["country", "de"],
+      ["state", "DE-0-NW"],
+      ["city", "some city"],
+      ["zip", "123123"],
+      ["address_recipient", "John"],
+      ["address_building", "1"],
+      ["address_apartment", "1"],
+      ["address_floor", "1"],
+      ["address_door_code", "123"],
+    ]);
 
     // website
-    const cipher5 = result.ciphers.shift();
-    expect(cipher5.type).toBe(CipherType.SecureNote);
-    expect(cipher5.name).toBe("Website");
+    const cipher5 = result.ciphers[4];
+    expect(cipher5.type).toEqual(CipherType.SecureNote);
+    expect(cipher5.name).toEqual("Website");
 
-    expect(cipher5.fields.length).toBe(3);
-    expect(cipher5.fields[0].name).toEqual("type");
-    expect(cipher5.fields[0].value).toEqual("website");
-    expect(cipher5.fields[1].name).toEqual("item_name");
-    expect(cipher5.fields[1].value).toEqual("Website");
-    expect(cipher5.fields[2].name).toEqual("url");
-    expect(cipher5.fields[2].value).toEqual("website.com");
+    assertFieldsStructure(cipher5.fields, [
+      ["type", "website"],
+      ["item_name", "Website"],
+      ["url", "website.com"],
+    ]);
 
     // 2nd name/identity
-    const cipher6 = result.ciphers.shift();
-    expect(cipher6.type).toBe(CipherType.SecureNote);
-    expect(cipher6.name).toBe("Mrs Jane Doe");
+    const cipher6 = result.ciphers[5];
+    expect(cipher6.type).toEqual(CipherType.SecureNote);
+    expect(cipher6.name).toEqual("Mrs Jane Doe");
 
-    expect(cipher6.fields.length).toBe(7);
-    expect(cipher6.fields[0].name).toEqual("type");
-    expect(cipher6.fields[0].value).toEqual("name");
-    expect(cipher6.fields[1].name).toEqual("title");
-    expect(cipher6.fields[1].value).toEqual("Mrs");
-    expect(cipher6.fields[2].name).toEqual("first_name");
-    expect(cipher6.fields[2].value).toEqual("Jane");
-    expect(cipher6.fields[3].name).toEqual("last_name");
-    expect(cipher6.fields[3].value).toEqual("Doe");
-    expect(cipher6.fields[4].name).toEqual("login");
-    expect(cipher6.fields[4].value).toEqual("jdoe");
-    expect(cipher6.fields[5].name).toEqual("date_of_birth");
-    expect(cipher6.fields[5].value).toEqual("2022-01-30");
-    expect(cipher6.fields[6].name).toEqual("place_of_birth");
-    expect(cipher6.fields[6].value).toEqual("earth");
+    assertFieldsStructure(cipher6.fields, [
+      ["type", "name"],
+      ["title", "Mrs"],
+      ["first_name", "Jane"],
+      ["last_name", "Doe"],
+      ["login", "jdoe"],
+      ["date_of_birth", "2022-01-30"],
+      ["place_of_birth", "earth"],
+    ]);
   });
 
   it("should combine personal information records to one identity if only one identity present", async () => {
-    const result = await importer.parse(personalInfoData);
+    const result = await getImportResult(personalInfoData);
 
-    expect(result).not.toBeNull();
-    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.Identity);
+    expect(cipher.name).toEqual("MR John Doe");
+    expect(cipher.identity.fullName).toEqual("MR John Doe");
+    expect(cipher.identity.title).toEqual("MR");
+    expect(cipher.identity.firstName).toEqual("John");
+    expect(cipher.identity.middleName).toBeUndefined();
+    expect(cipher.identity.lastName).toEqual("Doe");
+    expect(cipher.identity.username).toEqual("jdoe");
+    expect(cipher.identity.email).toEqual("jdoe@example.com");
+    expect(cipher.identity.phone).toEqual("+49123123123");
 
-    const cipher = result.ciphers.shift();
-    expect(cipher.type).toBe(CipherType.Identity);
-    expect(cipher.name).toBe("MR John Doe");
-    expect(cipher.identity.fullName).toBe("MR John Doe");
-    expect(cipher.identity.title).toBe("MR");
-    expect(cipher.identity.firstName).toBe("John");
-    expect(cipher.identity.middleName).toBeNull();
-    expect(cipher.identity.lastName).toBe("Doe");
-    expect(cipher.identity.username).toBe("jdoe");
-    expect(cipher.identity.email).toBe("jdoe@example.com");
-    expect(cipher.identity.phone).toBe("+49123123123");
-
-    expect(cipher.fields.length).toBe(9);
-    expect(cipher.fields[0].name).toBe("date_of_birth");
-    expect(cipher.fields[0].value).toBe("2022-01-30");
-
-    expect(cipher.fields[1].name).toBe("place_of_birth");
-    expect(cipher.fields[1].value).toBe("world");
-
-    expect(cipher.fields[2].name).toBe("email_type");
-    expect(cipher.fields[2].value).toBe("personal");
-
-    expect(cipher.fields[3].name).toBe("address_recipient");
-    expect(cipher.fields[3].value).toBe("John");
-
-    expect(cipher.fields[4].name).toBe("address_building");
-    expect(cipher.fields[4].value).toBe("1");
-
-    expect(cipher.fields[5].name).toBe("address_apartment");
-    expect(cipher.fields[5].value).toBe("1");
-
-    expect(cipher.fields[6].name).toBe("address_floor");
-    expect(cipher.fields[6].value).toBe("1");
-
-    expect(cipher.fields[7].name).toBe("address_door_code");
-    expect(cipher.fields[7].value).toBe("123");
-
-    expect(cipher.fields[8].name).toBe("url");
-    expect(cipher.fields[8].value).toBe("website.com");
+    assertFieldsStructure(cipher.fields, [
+      ["date_of_birth", "2022-01-30"],
+      ["place_of_birth", "world"],
+      ["email_type", "personal"],
+      ["address_recipient", "John"],
+      ["address_building", "1"],
+      ["address_apartment", "1"],
+      ["address_floor", "1"],
+      ["address_door_code", "123"],
+      ["url", "website.com"],
+    ]);
   });
 });
