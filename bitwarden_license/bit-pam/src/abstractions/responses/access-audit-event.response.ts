@@ -58,6 +58,8 @@ export class AccessAuditEventResponse extends BaseResponse {
   cipherName: string | null;
   /** Encrypted — decrypt before display. */
   collectionName: string | null;
+  /** The access rule's name — plaintext org configuration (not vault data), for rule administration events. */
+  ruleName: string | null;
   /** True when there is no human actor — a system / automatic event. */
   automated: boolean;
 
@@ -82,6 +84,7 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.requesterEmail = this.getResponseProperty("RequesterEmail") ?? null;
     this.cipherName = this.getResponseProperty("CipherName") ?? null;
     this.collectionName = this.getResponseProperty("CollectionName") ?? null;
+    this.ruleName = this.getResponseProperty("RuleName") ?? null;
     this.automated = this.getResponseProperty("Automated");
   }
 }

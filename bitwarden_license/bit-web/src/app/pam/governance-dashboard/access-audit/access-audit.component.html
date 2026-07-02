@@ -71,6 +71,8 @@
               <td bitCell>
                 @if (row.cipherName) {
                   <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
+                } @else if (row.ruleName) {
+                  {{ row.ruleName }}
                 } @else {
                   <span class="tw-text-muted">—</span>
                 }
