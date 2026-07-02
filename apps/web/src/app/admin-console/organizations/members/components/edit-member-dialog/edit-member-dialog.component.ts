@@ -36,6 +36,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import {
   A11yTitleDirective,
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CheckboxModule,
   DIALOG_DATA,
@@ -84,6 +85,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     A11yTitleDirective,
     AsyncActionsModule,
     AsyncPipe,
+    BadgeModule,
     ButtonModule,
     CheckboxModule,
     DialogModule,

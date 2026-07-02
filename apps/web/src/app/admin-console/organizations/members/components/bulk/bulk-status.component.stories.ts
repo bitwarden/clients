@@ -36,7 +36,7 @@ const mockLogService = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Status Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Status Dialog",
   component: BulkStatusComponent,
   decorators: [
     moduleMetadata({
