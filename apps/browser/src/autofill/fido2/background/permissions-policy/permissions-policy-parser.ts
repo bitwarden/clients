@@ -1,3 +1,5 @@
+import { parseAllowAttribute } from "./allow-attribute-parser";
+import { parseHeader } from "./header-parser";
 import { ParsedPermissionsPolicy } from "./types";
 
 /**
@@ -70,5 +72,24 @@ export class NoOpPermissionsPolicyParser implements PermissionsPolicyParser {
 
   parseAllowAttribute(): ParsedPermissionsPolicy {
     return new Map();
+  }
+}
+
+/**
+ * Default parser implementation used in production. Delegates to the hand-rolled
+ * `parseHeader` (RFC 8941 dictionary/inner-list subset relevant to Permissions
+ * Policy) and `parseAllowAttribute` (iframe `allow=` grammar) modules.
+ */
+export class DefaultPermissionsPolicyParser implements PermissionsPolicyParser {
+  parseHeader(rawHeaderValue: string): ParsedPermissionsPolicy {
+    return parseHeader(rawHeaderValue);
+  }
+
+  parseAllowAttribute(
+    rawAttributeValue: string,
+    iframeOrigin: string,
+    parentOrigin: string,
+  ): ParsedPermissionsPolicy {
+    return parseAllowAttribute(rawAttributeValue, iframeOrigin, parentOrigin);
   }
 }

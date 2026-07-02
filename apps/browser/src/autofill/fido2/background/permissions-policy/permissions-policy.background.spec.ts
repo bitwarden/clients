@@ -213,11 +213,10 @@ describe("PermissionsPolicyBackground", () => {
         orchestrator.isFeatureAllowedForFrame(1, 5, "publickey-credentials-get"),
       ).resolves.toBe(false);
 
-      // Now the content script reports the iframe with `allow=`. Even with the
-      // report recorded, the no-op parser returns an empty parsed policy, so
-      // the resolver still falls back to the container default (`self` =
-      // parent's origin) which denies the cross-origin child. This proves the
-      // round-trip end-to-end without depending on a real parser.
+      // Now the content script reports the iframe with `allow=`. The default
+      // parser resolves the attribute to `[{ origin: child.example }]`, so
+      // the container policy grants the feature to the iframe's own origin
+      // and the resolver permits it. Proves the round-trip end-to-end.
       void send(
         validReport([
           {
@@ -235,7 +234,7 @@ describe("PermissionsPolicyBackground", () => {
       ] as unknown[]);
       await expect(
         orchestrator.isFeatureAllowedForFrame(1, 5, "publickey-credentials-get"),
-      ).resolves.toBe(false);
+      ).resolves.toBe(true);
     });
   });
 

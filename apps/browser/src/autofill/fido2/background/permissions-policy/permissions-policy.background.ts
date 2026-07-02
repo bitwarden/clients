@@ -3,7 +3,10 @@ import { IframeAllowAttribute } from "../../content/iframe-allow-scraper";
 
 import { IframeAllowCacheBackground } from "./iframe-allow-cache.background";
 import { PermissionsPolicyHeaderCacheBackground } from "./permissions-policy-header-cache.background";
-import { PermissionsPolicyParser } from "./permissions-policy-parser";
+import {
+  DefaultPermissionsPolicyParser,
+  PermissionsPolicyParser,
+} from "./permissions-policy-parser";
 import { WebAuthnPermissionsPolicyBackground } from "./webauthn-permissions-policy.background";
 
 type RuntimeMessageListener = (
@@ -32,7 +35,7 @@ export class PermissionsPolicyBackground {
     private readonly chromeTabs: typeof chrome.tabs,
     private readonly chromeWebNavigation: typeof chrome.webNavigation,
     private readonly chromeRuntime: typeof chrome.runtime,
-    parser?: PermissionsPolicyParser,
+    parser: PermissionsPolicyParser = new DefaultPermissionsPolicyParser(),
   ) {
     this.headerCache = new PermissionsPolicyHeaderCacheBackground(
       this.chromeWebRequest,
