@@ -624,5 +624,46 @@ describe("PoliciesComponent", () => {
       });
       expect(mockDrawerDialog.open).not.toHaveBeenCalled();
     });
+
+    it("clears the drawer ref once it closes, so canDeactivate doesn't re-close a stale ref", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+
+      fixture = TestBed.createComponent(PoliciesComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      // Simulate the real DrawerRef behavior: calling close() on an already-closed ref
+      // short-circuits to `{ closed: false }`. If the component failed to clear its
+      // `drawerRef` signal after the drawer closed, canDeactivate() would call this again
+      // and incorrectly block navigation.
+      const closeSpy = jest.fn().mockResolvedValue({ closed: false });
+      const mockDrawerRef = { close: closeSpy, closed: of(undefined) };
+      const mockDrawerDialog = {
+        open: jest.fn(),
+        openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
+      };
+
+      const mockPolicy: BasePolicyEditDefinition = {
+        name: "Drawer Policy",
+        description: "Drawer Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        editDialogComponent: mockDrawerDialog as any,
+        showDescription: true,
+        showEnabledBadge: false,
+        display$: () => of(true),
+      };
+
+      // The drawer's `closed` observable (of(undefined)) completes synchronously once
+      // subscribed, simulating a save/cancel that already closed the drawer.
+      await component.edit(mockPolicy, mockOrg);
+
+      const canLeave = await component.canDeactivate();
+
+      expect(canLeave).toBe(true);
+      expect(closeSpy).not.toHaveBeenCalled();
+    });
   });
 });
