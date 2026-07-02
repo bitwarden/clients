@@ -12,25 +12,25 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-import { ApiService } from "../../abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../admin-console/enums";
-import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
-import { Policy } from "../../admin-console/models/domain/policy";
-import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { Utils } from "../../platform/misc/utils";
-import { GlobalState, GlobalStateProvider } from "../../platform/state";
-import { OrgKey } from "../../types/key";
-import { AuthService } from "../abstractions/auth.service";
+import { ApiService } from "../../../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../../../admin-console/models/domain/policy";
+import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { Utils } from "../../../../platform/misc/utils";
+import { GlobalState, GlobalStateProvider } from "../../../../platform/state";
+import { OrgKey } from "../../../../types/key";
+import { AuthService } from "../../../abstractions/auth.service";
+import { OrganizationInvite } from "../../models/organization-invite";
+import { OrganizationInviteService } from "../organization-invite.service";
 
-import { OrganizationInvite } from "./organization-invite";
-import { ORGANIZATION_INVITE } from "./organization-invite-state";
-import { OrganizationInviteService } from "./organization-invite.service";
+import { ORGANIZATION_INVITE } from "./organization-invite.state";
 
 export class DefaultOrganizationInviteService implements OrganizationInviteService {
   private organizationInviteState: GlobalState<OrganizationInvite | null>;
@@ -107,7 +107,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return true;
   }
 
-  async getInvitePolicies(invite: OrganizationInvite): Promise<Policy[] | undefined> {
+  async getOrgPoliciesForInvite(invite: OrganizationInvite): Promise<Policy[] | undefined> {
     const cached = this.policyCache.get(invite.token);
     if (cached != null) {
       return cached;
@@ -133,7 +133,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   async getMasterPasswordPolicyOptionsForInvite(
     invite: OrganizationInvite,
   ): Promise<MasterPasswordPolicyOptions | undefined> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
     if (policies == null) {
       return undefined;
     }
@@ -229,7 +229,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async resetPasswordEnrollRequired(invite: OrganizationInvite): Promise<boolean> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
 
     if (policies == null || policies.length === 0) {
       return false;
@@ -244,7 +244,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   private async masterPasswordPolicyCheckRequired(invite: OrganizationInvite): Promise<boolean> {
-    const policies = await this.getInvitePolicies(invite);
+    const policies = await this.getOrgPoliciesForInvite(invite);
 
     if (policies == null || policies.length === 0) {
       return false;

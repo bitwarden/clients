@@ -114,8 +114,10 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  DefaultOrganizationInviteService,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,

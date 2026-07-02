@@ -4,8 +4,10 @@ import { firstValueFrom } from "rxjs";
 
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconModule, ToastService } from "@bitwarden/components";

@@ -10,26 +10,26 @@ import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-import { FakeGlobalStateProvider } from "../../../spec";
-import { ApiService } from "../../abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
-import { PolicyApiServiceAbstraction } from "../../admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../admin-console/enums";
-import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
-import { Policy } from "../../admin-console/models/domain/policy";
-import { ResetPasswordPolicyOptions } from "../../admin-console/models/domain/reset-password-policy-options";
-import { OrganizationKeysResponse } from "../../admin-console/models/response/organization-keys.response";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { LogService } from "../../platform/abstractions/log.service";
-import { Utils } from "../../platform/misc/utils";
-import { OrgKey } from "../../types/key";
-import { AuthService } from "../abstractions/auth.service";
+import { FakeGlobalStateProvider } from "../../../../../spec";
+import { ApiService } from "../../../../abstractions/api.service";
+import { OrganizationApiServiceAbstraction } from "../../../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { PolicyApiServiceAbstraction } from "../../../../admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "../../../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../../../admin-console/enums";
+import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/domain/master-password-policy-options";
+import { Policy } from "../../../../admin-console/models/domain/policy";
+import { ResetPasswordPolicyOptions } from "../../../../admin-console/models/domain/reset-password-policy-options";
+import { OrganizationKeysResponse } from "../../../../admin-console/models/response/organization-keys.response";
+import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../../key-management/crypto/models/enc-string";
+import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { LogService } from "../../../../platform/abstractions/log.service";
+import { Utils } from "../../../../platform/misc/utils";
+import { OrgKey } from "../../../../types/key";
+import { AuthService } from "../../../abstractions/auth.service";
+import { OrganizationInvite } from "../../models/organization-invite";
 
 import { DefaultOrganizationInviteService } from "./default-organization-invite.service";
-import { OrganizationInvite } from "./organization-invite";
 
 describe("DefaultOrganizationInviteService", () => {
   let sut: DefaultOrganizationInviteService;
@@ -385,13 +385,13 @@ describe("DefaultOrganizationInviteService", () => {
     });
   });
 
-  describe("getInvitePolicies", () => {
+  describe("getOrgPoliciesForInvite", () => {
     it("returns policies on first fetch", async () => {
       const invite = createOrgInvite();
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      const result = await sut.getInvitePolicies(invite);
+      const result = await sut.getOrgPoliciesForInvite(invite);
 
       expect(result).toEqual(policies);
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledWith(
@@ -407,7 +407,7 @@ describe("DefaultOrganizationInviteService", () => {
       const error = new Error("fetch failed");
       policyApiService.getPoliciesByToken.mockRejectedValue(error);
 
-      const result = await sut.getInvitePolicies(invite);
+      const result = await sut.getOrgPoliciesForInvite(invite);
 
       expect(result).toBeUndefined();
       expect(logService.error).toHaveBeenCalledWith(error);
@@ -418,8 +418,8 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(1);
     });
@@ -429,9 +429,9 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
       await sut.setOrganizationInvite(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -441,9 +441,9 @@ describe("DefaultOrganizationInviteService", () => {
       const policies = [{ type: PolicyType.MasterPassword, enabled: true } as Policy];
       policyApiService.getPoliciesByToken.mockResolvedValue(policies);
 
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
       await sut.clearOrganizationInvite();
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -453,8 +453,8 @@ describe("DefaultOrganizationInviteService", () => {
       const inviteB = createOrgInvite({ token: "tokenB" });
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
-      await sut.getInvitePolicies(inviteA);
-      await sut.getInvitePolicies(inviteB);
+      await sut.getOrgPoliciesForInvite(inviteA);
+      await sut.getOrgPoliciesForInvite(inviteB);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
@@ -463,8 +463,8 @@ describe("DefaultOrganizationInviteService", () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue(null as any);
 
-      await sut.getInvitePolicies(invite);
-      await sut.getInvitePolicies(invite);
+      await sut.getOrgPoliciesForInvite(invite);
+      await sut.getOrgPoliciesForInvite(invite);
 
       expect(policyApiService.getPoliciesByToken).toHaveBeenCalledTimes(2);
     });
