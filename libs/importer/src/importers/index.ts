@@ -14,6 +14,7 @@ export { ButtercupCsvImporter } from "./buttercup-csv-importer";
 export { ClipperzHtmlImporter } from "./clipperz-html-importer";
 export { CodebookCsvImporter } from "./codebook-csv-importer";
 export { DashlaneCsvImporter, DashlaneJsonImporter } from "./dashlane";
+export { DelineaXmlImporter } from "./delinea-xml-importer";
 export { EncryptrCsvImporter } from "./encryptr-csv-importer";
 export { EnpassCsvImporter, EnpassJsonImporter } from "./enpass";
 export { FirefoxCsvImporter } from "./firefox-csv-importer";
