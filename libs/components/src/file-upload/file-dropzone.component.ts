@@ -18,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonComponent } from "../button/button.component";
+import { BitCustomInputDirective } from "../form-field/custom-input.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
@@ -46,6 +47,7 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ButtonComponent,
+    BitCustomInputDirective,
     BitFormFieldComponent,
     BitIconButtonComponent,
     FileNameComponent,

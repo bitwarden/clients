@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 
+import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
 import { BitFormFieldControlDirective } from "./form-field-control.directive";
@@ -57,17 +58,19 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   readonly size = input<FieldContainerSize>("base");
 
-  /**
-   * When set, the composing wrapper lays out its own control in the `[bitCustomInput]` slot and the
-   * field-container chrome is not rendered.
-   */
-  readonly customInput = input(false, { transform: booleanAttribute });
+  private readonly customInputChild = contentChild(BitCustomInputDirective);
 
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);
 
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
+
+  /**
+   * Whether a composing wrapper projected its own control into the `[bitCustomInput]` slot; when so
+   * the field-container chrome is not rendered.
+   */
+  protected readonly customInput = computed(() => this.customInputChild() != null);
 
   protected get labelAndFieldContainerClasses(): string {
     return [
