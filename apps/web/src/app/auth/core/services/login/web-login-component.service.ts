@@ -93,60 +93,105 @@ export class WebLoginComponentService
     }
 
     switch (params.error) {
-      case SsoRedirectErrorCode.InviteAcceptanceRequired:
-      case SsoRedirectErrorCode.OrgMembershipRequired: {
-        // Both errorCodes resolve to the same client-side UX: try to match a
-        // stashed invite for the redirect organization; on match auto-progress to MP
-        // entry, on no-match surface a generic toast and stay on email entry.
-        //
-        // They're modeled as distinct lanes on the server because the server-side
-        // preconditions differ — InviteAcceptanceRequired means the user has an
-        // Invited OrganizationUser row, OrgMembershipRequired means they have no
-        // OrganizationUser row at all — but at this layer the rejection-to-recovery
-        // contract is identical, so we share the handler.
-
-        // TODO: PM-39706 - open org invite work will have to consider org invite kind.
+      case SsoRedirectErrorCode.InviteAcceptanceRequired: {
+        /**
+         * Server tells us: the existing Bitwarden user has an unaccepted pending
+         * direct-invite for this org and tried to SSO before accepting it. SSO is
+         * refused until the invite is accepted.
+         *
+         * How a stashed invite is matched to this SSO redirect, by invite kind:
+         *  - Direct: org id + email. Email defends against a stashed invite meant
+         *    for a different SSO'd identity.
+         *  - Open: org id only (open invites carry no user identity). Rare here —
+         *    would require both a stashed open invite and a pending direct-invite
+         *    row on the server for the same org.
+         *
+         * No match → warning toast.
+         */
         const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-        // Match on organizationId (stable) AND email (defensive). Org display names can
-        // drift between when an invite is sent and when SSO is attempted; the id is the
-        // source of truth for "this stashed invite is for the org the server just rejected."
-        //
-        // Narrowed to direct invites: open invites carry no `organizationId` or `email`,
-        // and the SSO-callback / stash-match flow predates open invites — the open
-        // equivalent would need to match by `inviteLinkCode` against a server-supplied
-        // value, which today's PM-39774 callback contract doesn't provide. Tracked in
-        // the plan's "In-flight work to incorporate" section.
-        const stashMatches =
+        const directMatch =
           orgInvite?.kind === OrgInviteKind.Direct &&
           orgInvite.organizationId === params.organizationId &&
           orgInvite.email?.toLowerCase() === params.email.toLowerCase();
+        const openMatch =
+          orgInvite?.kind === OrgInviteKind.Open &&
+          orgInvite.organizationId === params.organizationId;
 
-        if (stashMatches) {
-          // Case A: matching stashed invite — auto-progress to MP entry and supply the
-          // override that LoginComponent threads into toggleLoginUiState.
-          return {
-            autoSubmit: true,
-            mpEntryLayoutOverride: {
-              pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
-              pageSubtitle: { key: "acceptInviteWithMasterPassword" },
-              pageIcon: LockIcon,
-            },
-          };
+        if (directMatch || openMatch) {
+          return this.autoProgressToMpEntry(params);
         }
-
-        // Case B: no matching stash. Two reasons can land here: an unclicked direct
-        // invite (InviteAcceptanceRequired) or no invite at all (OrgMembershipRequired).
-        this.toastService.showToast({
-          variant: "warning",
-          title: null,
-          message: this.i18nService.t("ssoLoginRequiresInviteAcceptance", params.organizationName),
-          timeout: 10000,
-        });
+        this.showInviteAcceptanceRequiredToast(params);
         return { autoSubmit: false };
       }
+
+      case SsoRedirectErrorCode.OrgMembershipRequired: {
+        /**
+         * Server tells us: the existing Bitwarden user tried to SSO into an org
+         * they have no membership record with — never directly invited, never
+         * joined. The IdP authenticated them, but the server has no linkage to
+         * complete SSO.
+         *
+         * How a stashed invite is matched to this SSO redirect, by invite kind:
+         *  - Open (primary case): org id only. Existing user clicked an open
+         *    invite for an org they've never joined.
+         *  - Direct: org id + email. Defensive — a pending direct-invite row would
+         *    normally trigger `InviteAcceptanceRequired` instead; direct+match
+         *    lands here only if the row was revoked between click and SSO attempt.
+         *
+         * No match → warning toast.
+         */
+        const orgInvite = await this.organizationInviteService.getOrganizationInvite();
+        const directMatch =
+          orgInvite?.kind === OrgInviteKind.Direct &&
+          orgInvite.organizationId === params.organizationId &&
+          orgInvite.email?.toLowerCase() === params.email.toLowerCase();
+        const openMatch =
+          orgInvite?.kind === OrgInviteKind.Open &&
+          orgInvite.organizationId === params.organizationId;
+
+        if (directMatch || openMatch) {
+          return this.autoProgressToMpEntry(params);
+        }
+        this.showInviteAcceptanceRequiredToast(params);
+        return { autoSubmit: false };
+      }
+
       default:
         return { autoSubmit: false };
     }
+  }
+
+  /**
+   * Builds the auto-progress-to-MP-entry response for a matched stashed invite. The
+   * user logs in with MP, then `deepLinkGuard` replays the invite's inbound URL
+   * (`/accept-organization/...` or `/join/...`) and the corresponding component's
+   * authedHandler fires the downstream accept. Same shape for both invite kinds.
+   */
+  private autoProgressToMpEntry(params: Params): {
+    autoSubmit: true;
+    mpEntryLayoutOverride: Partial<AnonLayoutWrapperData>;
+  } {
+    return {
+      autoSubmit: true,
+      mpEntryLayoutOverride: {
+        pageTitle: { key: "joinOrganizationName", placeholders: [params.organizationName] },
+        pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+        pageIcon: LockIcon,
+      },
+    };
+  }
+
+  /**
+   * Fires the shared "SSO for OrgX requires an invite" warning toast used by both
+   * error-code branches when no stashed invite matches the redirect org.
+   */
+  private showInviteAcceptanceRequiredToast(params: Params): void {
+    this.toastService.showToast({
+      variant: "warning",
+      title: null,
+      message: this.i18nService.t("ssoLoginRequiresInviteAcceptance", params.organizationName),
+      timeout: 10000,
+    });
   }
 
   async getOrgPoliciesFromOrgInvite(email: string): Promise<PasswordPolicies | undefined> {
