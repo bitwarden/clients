@@ -1,3 +1,4 @@
+import { parse } from "tldts";
 import { Jsonify } from "type-fest";
 
 import { LoginUriView as SdkLoginUriView } from "@bitwarden/sdk-internal";
@@ -7,6 +8,41 @@ import { View } from "../../../models/view/view";
 import { SafeUrls, UrlType } from "../../../platform/misc/safe-urls";
 import { Utils } from "../../../platform/misc/utils";
 import { LoginUri } from "../domain/login-uri";
+
+function isIpOrLocalhost(uriString: string | null | undefined): boolean {
+  if (uriString == null || Utils.isNullOrWhitespace(uriString)) {
+    return false;
+  }
+
+  try {
+    const parseResult = parse(uriString.trim(), {
+      validHosts: Utils.validHosts,
+      allowPrivateDomains: true,
+    });
+    if (parseResult == null) {
+      return false;
+    }
+    return parseResult.isIp === true || parseResult.hostname === "localhost";
+  } catch {
+    return false;
+  }
+}
+
+function getPort(uriString: string | null | undefined): string {
+  if (uriString == null) {
+    return "";
+  }
+  const trimmed = uriString.trim();
+  if (trimmed === "") {
+    return "";
+  }
+  // Utils.getUrl returns null for schemeless inputs without a dot, which
+  // includes "localhost:3000" and "[::1]:9001". Prepend a default scheme so
+  // the URL parser can extract the port.
+  const normalized = trimmed.includes("://") ? trimmed : "http://" + trimmed;
+  const url = Utils.getUrl(normalized);
+  return url?.port ?? "";
+}
 
 export class LoginUriView implements View {
   match?: UriMatchStrategySetting;
@@ -200,6 +236,12 @@ export class LoginUriView implements View {
     if (Utils.DomainMatchBlacklist.has(this.domain)) {
       const domainUrlHost = Utils.getHost(targetUri);
       return !Utils.DomainMatchBlacklist.get(this.domain)!.has(domainUrlHost);
+    }
+
+    // For IP/localhost hosts, also require port equality so different local
+    // services on the same host (e.g. :8080 vs :9090) are not collapsed.
+    if (isIpOrLocalhost(this.uri) && isIpOrLocalhost(targetUri)) {
+      return getPort(this.uri) === getPort(targetUri);
     }
 
     return true;

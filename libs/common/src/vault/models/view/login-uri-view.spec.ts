@@ -138,6 +138,105 @@ describe("LoginUriView", () => {
           loginUriNoMatch.matchesUri("https://example.org", new Set(), UriMatchStrategy.Never),
         ).toBe(false);
       });
+
+      describe("with IP address or localhost hosts", () => {
+        it("matches when ports are identical on the same IP", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5:9001");
+          expect(
+            uri.matchesUri("http://10.0.0.5:9001/login", exampleUris.noEquivalentDomains()),
+          ).toBe(true);
+        });
+
+        it("does not match when ports differ on the same IP", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5:9696");
+          expect(
+            uri.matchesUri("http://10.0.0.5:9001/login", exampleUris.noEquivalentDomains()),
+          ).toBe(false);
+        });
+
+        it("does not match when one side has a port and the other does not", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5");
+          expect(uri.matchesUri("http://10.0.0.5:9001", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+        });
+
+        it("matches when neither side has a port", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5");
+          expect(uri.matchesUri("http://10.0.0.5/path", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+        });
+
+        it("applies the same rule to localhost", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://localhost:3000");
+          expect(uri.matchesUri("http://localhost:3001", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+          expect(uri.matchesUri("http://localhost:3000/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+        });
+
+        it("applies the same rule to IPv6 hosts", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://[::1]:9001");
+          expect(uri.matchesUri("http://[::1]:9696", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+          expect(uri.matchesUri("http://[::1]:9001/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+        });
+
+        it("applies the same rule to private RFC 1918 ranges", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "http://172.16.0.10:8080");
+          expect(uri.matchesUri("http://172.16.0.10:8081", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+          expect(
+            uri.matchesUri("http://172.16.0.10:8080/admin", exampleUris.noEquivalentDomains()),
+          ).toBe(true);
+        });
+
+        it("matches schemeless saved localhost URI against scheme'd target with same port", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "localhost:3000");
+          expect(uri.matchesUri("http://localhost:3000/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+          expect(uri.matchesUri("http://localhost:3001", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+        });
+
+        it("matches schemeless saved IPv6 URI against scheme'd target with same port", () => {
+          const uri = uriFactory(UriMatchStrategy.Domain, "[::1]:9001");
+          expect(uri.matchesUri("http://[::1]:9001/x", exampleUris.noEquivalentDomains())).toBe(
+            true,
+          );
+          expect(uri.matchesUri("http://[::1]:9696", exampleUris.noEquivalentDomains())).toBe(
+            false,
+          );
+        });
+
+        it("treats default ports as equivalent to omitted ports", () => {
+          const httpDefault = uriFactory(UriMatchStrategy.Domain, "http://10.0.0.5:80");
+          expect(
+            httpDefault.matchesUri("http://10.0.0.5/admin", exampleUris.noEquivalentDomains()),
+          ).toBe(true);
+
+          const httpsDefault = uriFactory(UriMatchStrategy.Domain, "https://10.0.0.5:443");
+          expect(
+            httpsDefault.matchesUri("https://10.0.0.5/admin", exampleUris.noEquivalentDomains()),
+          ).toBe(true);
+        });
+      });
+
+      it("does not require port matching for regular domains", () => {
+        const uri = uriFactory(UriMatchStrategy.Domain, "https://example.com:8443");
+        expect(uri.matchesUri("https://example.com/login", exampleUris.noEquivalentDomains())).toBe(
+          true,
+        );
+      });
     });
 
     describe("using host matching", () => {
