@@ -51,14 +51,8 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
-import {
-  AutofillerCommand,
-  AutofillLifecycleCommand,
-  AutofillMessageCommand,
-  AutofillMessageSender,
-} from "../enums/autofill-message.enums";
+import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -73,6 +67,7 @@ import {
 import { flushPromises, triggerTestFailure } from "../spec/testing-utils";
 import * as qualification from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   CollectPageDetailsResponseMessage,
@@ -120,6 +115,7 @@ describe("AutofillService", () => {
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
   let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
+  const autofillLifecycleService = mock<AutofillLifecycleService>();
 
   beforeEach(() => {
     configService = mock<ConfigService>();
@@ -191,6 +187,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
       animationControlService,
+      autofillLifecycleService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -357,13 +354,6 @@ describe("AutofillService", () => {
       expect(autofillService.injectAutofillScripts).not.toHaveBeenCalledWith(tab3);
     });
 
-    it("sets up an extension runtime onConnect listener", async () => {
-      await autofillService.loadAutofillScriptsOnInstall();
-
-      // eslint-disable-next-line no-restricted-syntax
-      expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
-    });
-
     describe("handle inline menu visibility change", () => {
       beforeEach(async () => {
         await autofillService.loadAutofillScriptsOnInstall();
@@ -408,18 +398,12 @@ describe("AutofillService", () => {
   });
 
   describe("reloadAutofillScripts", () => {
-    it("re-injects the autofill scripts in all tabs and disconnects all connected ports", () => {
-      const port1 = mock<chrome.runtime.Port>();
-      const port2 = mock<chrome.runtime.Port>();
-      autofillService["autofillScriptPortsSet"] = new Set([port1, port2]);
+    it("retires all frames through the lifecycle service and re-injects the autofill scripts", () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
       void autofillService.reloadAutofillScripts();
 
-      expect(port1.disconnect).toHaveBeenCalled();
-      expect(port2.disconnect).toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
+      expect(autofillLifecycleService.retireAllFrames).toHaveBeenCalled();
       expect(autofillService["injectAutofillScriptsInAllTabs"]).toHaveBeenCalled();
     });
   });
@@ -541,224 +525,13 @@ describe("AutofillService", () => {
       });
     });
 
-    describe("post-injection start follow-up", () => {
-      let tabSendMessageSpy: jest.SpyInstance;
+    it("hands the injected frame to the lifecycle service to begin monitoring", async () => {
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
 
-      beforeEach(() => {
-        tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
-      });
-
-      afterEach(() => {
-        tabSendMessageSpy.mockRestore();
-      });
-
-      it("sends startAutofillMonitors after injection when the user is unlocked", async () => {
-        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
-
-        expect(tabSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
-          { command: AutofillLifecycleCommand.start },
-          { frameId: sender.frameId },
-        );
-      });
-
-      it("sends startAutofillMonitors after injection when the user is locked", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-
-        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
-
-        expect(tabSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
-          { command: AutofillLifecycleCommand.start },
-          { frameId: sender.frameId },
-        );
-      });
-
-      it("does not send startAutofillMonitors after injection when the user is logged out", async () => {
-        activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-
-        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
-
-        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
-          expect.anything(),
-          { command: AutofillLifecycleCommand.start },
-          expect.anything(),
-        );
-      });
-
-      it("does not send startAutofillMonitors when the user logs out during injection", async () => {
-        // The injection awaits yield the event loop; simulate a logout
-        // completing in that window. The start gate must reflect the auth
-        // status at send time, not the snapshot taken before injection.
-        const injectSpy = jest
-          .spyOn(scriptInjectorService, "inject")
-          .mockImplementation(async () => {
-            activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-          });
-
-        await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
-
-        // Guard the race itself: the logout must have landed mid-injection,
-        // otherwise this degrades into the already-logged-out case above.
-        expect(injectSpy).toHaveBeenCalled();
-        expect(tabSendMessageSpy).not.toHaveBeenCalledWith(
-          expect.anything(),
-          { command: AutofillLifecycleCommand.start },
-          expect.anything(),
-        );
-      });
-    });
-  });
-
-  describe("handleAuthStatusTransition", () => {
-    let port: chrome.runtime.Port;
-    let tabSendMessageSpy: jest.SpyInstance;
-
-    beforeEach(async () => {
-      port = mock<chrome.runtime.Port>();
-      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
-      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
-
-      // Stub per-tab injection — its own post-injection start message would
-      // pollute the spy before any auth transition under test fires.
-      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
-
-      await autofillService.loadAutofillScriptsOnInstall();
-      await flushPromises();
-      autofillService["autofillScriptPortsSet"] = new Set([port]);
-
-      // The first emission of the auth subscription pairs [undefined, Unlocked]
-      // and does not broadcast. Clear any setup-side calls before the test.
-      tabSendMessageSpy.mockClear();
-    });
-
-    afterEach(() => {
-      tabSendMessageSpy.mockRestore();
-    });
-
-    it("broadcasts startAutofillMonitors when leaving LoggedOut for Locked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-      tabSendMessageSpy.mockClear();
-
-      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-
-      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillLifecycleCommand.start },
-        { frameId: 0 },
+      expect(autofillLifecycleService.startMonitoringFrame).toHaveBeenCalledWith(
+        sender.tab,
+        sender.frameId,
       );
-    });
-
-    it("broadcasts startAutofillMonitors when leaving LoggedOut for Unlocked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-      tabSendMessageSpy.mockClear();
-
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-
-      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillLifecycleCommand.start },
-        { frameId: 0 },
-      );
-    });
-
-    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Unlocked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-
-      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillLifecycleCommand.stop },
-        { frameId: 0 },
-      );
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillerCommand.disable },
-        { frameId: 0 },
-      );
-    });
-
-    it("broadcasts stopAutofillMonitors and disableAutofiller when entering LoggedOut from Locked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-      tabSendMessageSpy.mockClear();
-
-      activeAccountStatusMock$.next(AuthenticationStatus.LoggedOut);
-
-      expect(tabSendMessageSpy).toHaveBeenCalledTimes(2);
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillLifecycleCommand.stop },
-        { frameId: 0 },
-      );
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ id: 1 }),
-        { command: AutofillerCommand.disable },
-        { frameId: 0 },
-      );
-    });
-
-    it("does not broadcast on Unlocked → Locked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not broadcast on Locked → Unlocked", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
-      tabSendMessageSpy.mockClear();
-
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not broadcast when the status repeats", () => {
-      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("auth subscription seed", () => {
-    // These cases require a different seed for the activeAccountStatus subject
-    // than the outer beforeEach sets up, so they reseed before the
-    // loadAutofillScriptsOnInstall subscription runs.
-    let port: chrome.runtime.Port;
-    let tabSendMessageSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      port = mock<chrome.runtime.Port>();
-      port.sender = { tab: createChromeTabMock({ id: 1 }), frameId: 0 };
-      tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
-      jest.spyOn(autofillService, "injectAutofillScripts").mockResolvedValue(undefined);
-    });
-
-    afterEach(() => {
-      tabSendMessageSpy.mockRestore();
-    });
-
-    it("does not broadcast when the service worker boots into LoggedOut", async () => {
-      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.LoggedOut);
-      authService.activeAccountStatus$ = activeAccountStatusMock$;
-
-      await autofillService.loadAutofillScriptsOnInstall();
-      await flushPromises();
-      autofillService["autofillScriptPortsSet"] = new Set([port]);
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
-    });
-
-    it("does not broadcast when the service worker boots into Locked", async () => {
-      activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Locked);
-      authService.activeAccountStatus$ = activeAccountStatusMock$;
-
-      await autofillService.loadAutofillScriptsOnInstall();
-      await flushPromises();
-      autofillService["autofillScriptPortsSet"] = new Set([port]);
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -5862,60 +5635,6 @@ describe("AutofillService", () => {
 
       expect(result).toBe(false);
       expect(autofillService["currentlyOpeningPasswordRepromptPopout"]).toBe(false);
-    });
-  });
-
-  describe("handleInjectedScriptPortConnection", () => {
-    it("ignores port connections that do not have the correct port name", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: "some-invalid-port-name",
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).not.toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
-    });
-
-    it("adds the connect port to the set of injected script ports and sets up an onDisconnect listener", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-      jest.spyOn(autofillService as any, "handleInjectScriptPortOnDisconnect");
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).toHaveBeenCalledWith(
-        autofillService["handleInjectScriptPortOnDisconnect"],
-      );
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-  });
-
-  describe("handleInjectScriptPortOnDisconnect", () => {
-    it("ignores port disconnections that do not have the correct port name", () => {
-      autofillService["autofillScriptPortsSet"].add(mock<chrome.runtime.Port>());
-
-      autofillService["handleInjectScriptPortOnDisconnect"](
-        mock<chrome.runtime.Port>({
-          name: "some-invalid-port-name",
-        }),
-      );
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-
-    it("removes the port from the set of injected script ports", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-      }) as any;
-      autofillService["autofillScriptPortsSet"].add(port);
-
-      autofillService["handleInjectScriptPortOnDisconnect"](port);
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
     });
   });
 });
