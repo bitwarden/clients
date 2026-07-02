@@ -209,12 +209,89 @@ describe("IntegrationContext", () => {
       expect(result).toBe("invalid-url");
     });
 
+    it("extracts the origin when extractOrigin is true", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website(
+        { website: "https://www.example.com/path" },
+        { extractOrigin: true },
+      );
+
+      expect(result).toBe("https://www.example.com");
+    });
+
+    it("falls back to the full URL when Utils.getUrl cannot extract the origin", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.website({ website: "invalid-url" }, { extractOrigin: true });
+
+      expect(result).toBe("invalid-url");
+    });
+
     it("truncates the website to maxLength", () => {
       const context = new IntegrationContext(EXAMPLE_META, null, i18n);
 
       const result = context.website({ website: "www.example.com" }, { maxLength: 3 });
 
       expect(result).toBe("www");
+    });
+  });
+
+  describe("prefix", () => {
+    it("returns empty string when website is missing", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: undefined });
+
+      expect(result).toBe("");
+    });
+
+    it("returns the second-level domain for a standard domain", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://example.com/path" });
+
+      expect(result).toBe("example");
+    });
+
+    it("returns prefix with underscore for a subdomain", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://foo.example.com/path" });
+
+      expect(result).toBe("foo_example");
+    });
+
+    it("returns prefix with underscores for a deep subdomain", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://foo.bar.example.com/path" });
+
+      expect(result).toBe("foo_bar_example");
+    });
+
+    it("returns localhost for localhost URLs", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://localhost:3000/path" });
+
+      expect(result).toBe("localhost");
+    });
+
+    it("returns an underscore-delimited value for IP addresses", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "https://127.0.0.1/path" });
+
+      expect(result).toBe("127_0_0");
+    });
+
+    it("returns empty string for an invalid URL", () => {
+      const context = new IntegrationContext(EXAMPLE_META, null, i18n);
+
+      const result = context.prefix({ website: "invalid-url" });
+
+      expect(result).toBe("");
     });
   });
 
