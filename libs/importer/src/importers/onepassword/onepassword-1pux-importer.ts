@@ -41,10 +41,6 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     // const personalVaults = account.vaults[0].filter((v) => v.attrs.type === VaultAttributeTypeEnum.Personal);
     account.vaults.forEach((vault: VaultsEntity) => {
       vault.items.forEach((item: Item) => {
-        if (item.state === "archived") {
-          return;
-        }
-
         const cipher = this.initLoginCipher();
 
         const category = item.categoryUuid as Category;
@@ -108,6 +104,15 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
 
         this.convertToNoteIfNeeded(cipher);
         this.cleanupCipher(cipher);
+
+        // Preserve 1Password's archive state on import (fixes #20694). The 1pux
+        // schema only tells us an item is archived, not WHEN it was archived,
+        // so we stamp the import time — this matches the behaviour of archiving
+        // a cipher manually in Bitwarden after the import.
+        if (item.state === "archived") {
+          cipher.archivedDate = new Date();
+        }
+
         this.result.ciphers.push(cipher);
       });
     });

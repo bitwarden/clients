@@ -61,14 +61,36 @@ describe("1Password 1Pux Importer", () => {
   const SecureNoteDataJson = JSON.stringify(SecureNoteData);
   const SanitizedExportJson = JSON.stringify(SanitizedExport);
 
-  it("should not import items with state 'archived'", async () => {
+  // Fixes #20694: items tagged "state: archived" in 1pux exports were being
+  // silently dropped, contradicting the help-center docs that state every 1pux
+  // entry is imported. They now land in Bitwarden with the archive flag set.
+  it("should import items with state 'archived' as archived ciphers", async () => {
     const importer = new OnePassword1PuxImporter();
-    const archivedLoginData = LoginData;
+    // Deep clone to avoid mutating the shared LoginData fixture across tests.
+    const archivedLoginData = JSON.parse(JSON.stringify(LoginData));
     archivedLoginData["accounts"][0]["vaults"][0]["items"][0]["state"] = "archived";
     const archivedDataJson = JSON.stringify(archivedLoginData);
+
     const result = await importer.parse(archivedDataJson);
+
     expect(result != null).toBe(true);
-    expect(result.ciphers.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+    const cipher = result.ciphers[0];
+    expect(cipher.archivedDate).toBeDefined();
+    expect(cipher.archivedDate).toBeInstanceOf(Date);
+    expect(cipher.isArchived).toBe(true);
+  });
+
+  it("should leave active items unarchived (regression guard)", async () => {
+    const importer = new OnePassword1PuxImporter();
+    // Sanity check: the default LoginData fixture has state=active and must
+    // still import without an archive flag after the #20694 fix.
+    const result = await importer.parse(LoginDataJson);
+
+    expect(result != null).toBe(true);
+    expect(result.ciphers.length).toBeGreaterThan(0);
+    expect(result.ciphers[0].archivedDate).toBeUndefined();
+    expect(result.ciphers[0].isArchived).toBe(false);
   });
 
   it("should parse login data", async () => {
