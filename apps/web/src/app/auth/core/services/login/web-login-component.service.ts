@@ -241,20 +241,9 @@ export class WebLoginComponentService
       return undefined;
     }
 
-    // Direct invites carry organizationId on the invite itself. Open invites don't, so derive
-    // it from the policies (all of which belong to the inviting org). If policies is empty,
-    // there's no MP/reset-password policy to honor regardless of variant.
-    const organizationId =
-      orgInvite.kind === OrgInviteKind.Direct
-        ? orgInvite.organizationId
-        : policies[0]?.organizationId;
-    if (organizationId == null) {
-      return undefined;
-    }
-
     const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
       policies,
-      organizationId,
+      orgInvite.organizationId,
     );
 
     const isPolicyAndAutoEnrollEnabled =

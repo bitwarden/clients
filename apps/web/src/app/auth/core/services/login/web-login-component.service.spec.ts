@@ -209,11 +209,8 @@ describe("WebLoginComponentService", () => {
         expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
       });
 
-      it("derives organizationId from policies[0] and returns PasswordPolicies when flag is on", async () => {
-        const orgIdFromPolicy = "policy-org-id";
-        const policy = new Policy();
-        (policy as unknown as { organizationId: string }).organizationId = orgIdFromPolicy;
-        const policies: Policy[] = [policy];
+      it("uses invite.organizationId and returns PasswordPolicies when flag is on", async () => {
+        const policies: Policy[] = [new Policy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
 
@@ -234,26 +231,13 @@ describe("WebLoginComponentService", () => {
 
         expect(internalPolicyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
           policies,
-          orgIdFromPolicy,
+          openInvite.organizationId,
         );
         expect(result).toEqual({
           policies,
           isPolicyAndAutoEnrollEnabled: false,
           enforcedPasswordPolicyOptions: masterPasswordPolicyOptions,
         });
-      });
-
-      it("returns undefined when flag is on but policies is empty (no orgId to derive)", async () => {
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
-        configService.getFeatureFlag
-          .calledWith(FeatureFlag.GenerateInviteLink)
-          .mockResolvedValue(true);
-        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue([]);
-
-        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
-
-        expect(result).toBeUndefined();
-        expect(internalPolicyService.getResetPasswordPolicyOptions).not.toHaveBeenCalled();
       });
     });
   });
