@@ -1301,6 +1301,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return cipherIcon;
     }
 
+    if (cipher.icon.icon.includes("bwi-key")) {
+      cipherIcon.append(buildSvgDomElement(keyIcon));
+      return cipherIcon;
+    }
+
     const iconClasses = cipher.icon.icon.split(" ");
     cipherIcon.classList.add("cipher-icon", "bwi", ...iconClasses);
     return cipherIcon;
@@ -1519,6 +1524,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     if (cipher.card) {
       return cipher.card;
+    }
+
+    if (cipher.sshKey) {
+      return cipher.sshKey;
     }
 
     return "";

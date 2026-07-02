@@ -170,9 +170,9 @@ export class ItemMoreOptionsComponent {
    * Determines if the cipher can be autofilled.
    */
   get canAutofill() {
-    return ([CipherType.Login, CipherType.Card, CipherType.Identity] as CipherType[]).includes(
-      CipherViewLikeUtils.getType(this.cipher),
-    );
+    return (
+      [CipherType.Login, CipherType.Card, CipherType.Identity, CipherType.SshKey] as CipherType[]
+    ).includes(CipherViewLikeUtils.getType(this.cipher));
   }
 
   get isLogin() {
