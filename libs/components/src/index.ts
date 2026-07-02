@@ -9,6 +9,7 @@ export * from "./badge-list";
 export * from "./badge";
 export * from "./banner";
 export * from "./berry";
+export * from "./bottom-navigation";
 export * from "./breadcrumbs";
 export * from "./bulk-actions-bar";
 export * from "./button";
