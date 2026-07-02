@@ -4,14 +4,11 @@ use std::{
 };
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use windows::{core::GUID, Win32::System::Com::CoTaskMemFree};
+use windows::core::GUID;
 
 use crate::{
     api::{
-        plugin::{
-            com::{ComBuffer, ComBufferExt},
-            crypto::Signature,
-        },
+        plugin::com::{ComBuffer, ComBufferExt},
         sys::plugin::{
             webauthn_plugin_add_authenticator, webauthn_plugin_authenticator_add_credentials,
             webauthn_plugin_authenticator_remove_all_credentials,

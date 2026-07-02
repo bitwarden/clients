@@ -3,15 +3,12 @@
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, Observable, of } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -25,8 +22,10 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   priority = 20;
   component = ResetPasswordPolicyComponent;
 
-  override display$(organization: Organization): Observable<boolean> {
-    return of(organization.useResetPassword);
+  display$(organization: Organization, configService: ConfigService) {
+    return configService
+      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
+      .pipe(map((drawerEnabled) => !drawerEnabled && organization.useResetPassword));
   }
 }
 
@@ -42,10 +41,7 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
   });
   showKeyConnectorInfo = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private organizationService: OrganizationService,
-  ) {
+  constructor(private formBuilder: FormBuilder) {
     super();
 
     this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
@@ -61,21 +57,7 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
   async ngOnInit() {
     super.ngOnInit();
 
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-
-    if (!userId) {
-      throw new Error("No user found.");
-    }
-
-    if (!this.policyResponse()) {
-      throw new Error("Policies not found");
-    }
-
-    const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
-    );
+    const organization = await firstValueFrom(this.organization$);
 
     if (!organization) {
       throw new Error("No organization found.");
