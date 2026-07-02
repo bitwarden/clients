@@ -30,6 +30,11 @@ describe("UserStatusPipe", () => {
     expect(i18nService.t).toHaveBeenCalledWith("confirmed");
   });
 
+  it("transforms OrganizationUserStatusType.Staged to 'staged'", () => {
+    expect(pipe.transform(OrganizationUserStatusType.Staged)).toBe("staged");
+    expect(i18nService.t).toHaveBeenCalledWith("staged");
+  });
+
   it("transforms OrganizationUserStatusType.Revoked to 'revoked'", () => {
     expect(pipe.transform(OrganizationUserStatusType.Revoked)).toBe("revoked");
     expect(i18nService.t).toHaveBeenCalledWith("revoked");

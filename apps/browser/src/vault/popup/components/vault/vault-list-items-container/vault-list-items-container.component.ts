@@ -371,7 +371,7 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
 
   constructor(
-    private i18nService: I18nService,
+    protected i18nService: I18nService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private passwordRepromptService: PasswordRepromptService,
     private cipherService: CipherService,
