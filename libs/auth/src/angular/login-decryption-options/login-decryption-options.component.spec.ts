@@ -1,3 +1,6 @@
+// Polyfill for Symbol.dispose required by the service's use of `using` keyword
+import "core-js/proposals/explicit-resource-management";
+
 // Mock asUuid to return the input value for test consistency
 jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
   asUuid: (x: any) => x,
@@ -163,7 +166,6 @@ describe("LoginDecryptionOptionsComponent", () => {
       jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk.service", () => ({
         asUuid: (x: any) => x,
       }));
-      (Symbol as any).dispose = Symbol("dispose");
 
       mockPrivateKey = "mock-private-key";
       mockSignedPublicKey = "mock-signed-public-key";
