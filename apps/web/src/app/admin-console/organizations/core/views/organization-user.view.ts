@@ -10,7 +10,7 @@ export class OrganizationUserView {
   userId: UserId;
   type: OrganizationUserType;
   revocationReason: RevocationReasonType;
-  status: OrganizationUserStatusType;
+  readonly status: OrganizationUserStatusType;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean = false;
   name: string | undefined;
