@@ -1,10 +1,16 @@
 import { Injectable } from "@angular/core";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import {
   OrganizationUserApiService,
   OrganizationUserInviteRequest,
+  OrganizationUserService,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { CoreOrganizationModule } from "../core-organization.module";
@@ -12,7 +18,12 @@ import { OrganizationUserAdminView } from "../views/organization-user-admin-view
 
 @Injectable({ providedIn: CoreOrganizationModule })
 export class UserAdminService {
-  constructor(private organizationUserApiService: OrganizationUserApiService) {}
+  constructor(
+    private organizationUserApiService: OrganizationUserApiService,
+    private organizationUserService: OrganizationUserService,
+    private organizationService: OrganizationService,
+    private accountService: AccountService,
+  ) {}
 
   async get(
     organizationId: OrganizationId,
@@ -52,7 +63,20 @@ export class UserAdminService {
     userId: Guid,
     organizationId: OrganizationId,
   ): Promise<void> {
-    await this.organizationUserApiService.putOrganizationUser(organizationId, userId, request);
+    await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((activeUserId) => this.organizationService.organizations$(activeUserId)),
+        getById(organizationId),
+        switchMap((organization) => {
+          if (organization == null) {
+            throw new Error("Organization not found");
+          }
+
+          return this.organizationUserService.updateUser(organization, userId, request);
+        }),
+      ),
+    );
   }
 
   async invite(emails: string[], user: OrganizationUserAdminView): Promise<void> {
