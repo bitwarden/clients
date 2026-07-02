@@ -1958,6 +1958,9 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
+  "removePasskeyConfirmation": {
+    "message": "Are you sure you want to remove the passkey from this item?"
+  },
   "removePasskeyInfo": {
     "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
   },
