@@ -41,6 +41,7 @@ import { AuthService } from "../../../abstractions/auth.service";
 import { OrgInviteKind } from "../../enums/org-invite-kind.enum";
 import { DirectOrganizationInvite } from "../../models/direct-organization-invite";
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
+import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
 import {
   OpenOrgInviteStatus,
@@ -137,16 +138,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    *
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
-  async validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean> {
-    switch (invite.kind) {
-      case OrgInviteKind.Direct:
-        return await this.validateAndAcceptDirectOrgInvite(invite, userId);
-      case OrgInviteKind.Open:
-        return await this.validateAndAcceptOpenOrgInvite(invite, userId);
-    }
-  }
-
-  private async validateAndAcceptDirectOrgInvite(
+  async validateAndAcceptDirectOrgInvite(
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<boolean> {
@@ -178,10 +170,10 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     return true;
   }
 
-  private async validateAndAcceptOpenOrgInvite(
+  async acceptOpenOrgInvite(
     invite: OpenOrganizationInvite,
     userId: UserId,
-  ): Promise<boolean> {
+  ): Promise<AcceptOpenOrgInviteResult> {
     // MP-policy detour for open invites: if the org requires a compliant MP and the
     // user hasn't been through the detour yet (no matching stash), persist + log out
     // so login can re-check the MP against their current password.
@@ -190,20 +182,109 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       this.authService.logOut(() => {
         /* Do nothing */
       });
-      return false;
+      return { kind: "stashed-for-mp-policy-detour" };
     }
 
-    const resetPasswordKey = await this.computeOpenInviteResetPasswordKey(invite, userId);
-    await this.organizationInviteLinkApiService.accept(
-      new OrganizationInviteLinkAcceptRequest({
-        code: invite.inviteLinkCode,
-        resetPasswordKey,
-      }),
-    );
+    try {
+      const orgPublicKeyEncryptedUserKey = await this.computeOpenInviteResetPasswordKey(
+        invite,
+        userId,
+      );
+      await this.organizationInviteLinkApiService.accept(
+        new OrganizationInviteLinkAcceptRequest({
+          code: invite.inviteLinkCode,
+          resetPasswordKey: orgPublicKeyEncryptedUserKey,
+        }),
+      );
+      await this.apiService.refreshIdentityToken();
+      await this.clearOrganizationInvite();
+      return { kind: "accepted" };
+    } catch (e) {
+      return this.classifyAcceptOpenOrgInviteError(e);
+    }
+  }
 
-    await this.apiService.refreshIdentityToken();
-    await this.clearOrganizationInvite();
-    return true;
+  /**
+   * Classifies accept-endpoint failures by matching the server's response message against
+   * the string constants defined in the server error files under
+   * `server/src/Core/AdminConsole/OrganizationFeatures/`:
+   *   - `InviteLinks/Errors.cs`
+   *   - `OrganizationUsers/AcceptMembership/Errors.cs`
+   *   - `OrganizationUsers/AutoConfirmUser/Errors.cs`
+   *   - `Policies/PolicyRequirements/Errors/SingleOrganizationPolicyErrors.cs`
+   *
+   * String matching is the only client-side discriminator today — the server does not
+   * emit a stable error code on these responses. When a message changes on the server
+   * without a matching update here, the case falls through to `unexpected` and the
+   * server's raw text is surfaced to the user; the flow degrades gracefully rather
+   * than breaking. Spec cases mirror these strings so a copy change fails tests.
+   */
+  private classifyAcceptOpenOrgInviteError(e: unknown): AcceptOpenOrgInviteResult {
+    if (!(e instanceof ErrorResponse)) {
+      return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+    }
+    if (e.statusCode === 404) {
+      return { kind: "link-not-found" };
+    }
+    if (e.statusCode !== 400) {
+      return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+    }
+
+    const message = e.getSingleMessage() ?? "";
+    if (message === "Your organization's plan does not support invite links.") {
+      return { kind: "plan-not-supported" };
+    }
+    if (message === "Your email domain is not allowed to join this organization.") {
+      return { kind: "email-domain-not-allowed" };
+    }
+    if (message === "You are already a member of this organization.") {
+      return { kind: "already-member" };
+    }
+    if (message === "Your organization access has been revoked.") {
+      return { kind: "org-access-revoked" };
+    }
+    if (message === "This organization has no available seats.") {
+      return { kind: "no-seats" };
+    }
+    // SeatAddFailed reads the same to the user as OrganizationHasNoAvailableSeats — both
+    // mean "seat unavailable"; the distinction is billing plumbing the user can't act on.
+    if (message.startsWith("Unable to join this organization right now.")) {
+      return { kind: "no-seats" };
+    }
+    if (
+      message ===
+      "You cannot join this organization until you enable two-step login on your user account."
+    ) {
+      return { kind: "two-factor-required" };
+    }
+    // Folds UserIsAMemberOfAnotherOrganization + UserIsAMemberOfAnOrganizationThatHasSingleOrgPolicy —
+    // both single-org policy variants share the same user-facing meaning.
+    if (message.startsWith("Member cannot join the organization")) {
+      return { kind: "single-org-policy-violation" };
+    }
+    // Folds UserCannotBelongToAnotherOrganization + OtherOrganizationDoesNotAllowOtherMembership —
+    // both auto-confirm policy variants share the same user-facing meaning.
+    if (message.startsWith("Cannot confirm this member")) {
+      return { kind: "auto-confirm-policy-violation" };
+    }
+    if (message === "Provider users cannot join organizations via invite link.") {
+      return { kind: "provider-user" };
+    }
+    // AutoConfirm's provider variant; same user-facing meaning as the direct provider block above.
+    if (
+      message.startsWith(
+        "An organization the user is a part of has enabled Automatic User Confirmation",
+      )
+    ) {
+      return { kind: "provider-user" };
+    }
+    if (message === "You can only be an admin of one free organization.") {
+      return { kind: "free-admin-limit" };
+    }
+    if (message === "Master Password reset is required, but not provided.") {
+      return { kind: "reset-password-key-required" };
+    }
+    return { kind: "unexpected", errorMessage: message };
   }
 
   async getOrgPoliciesForInvite(invite: OrganizationInvite): Promise<Policy[] | undefined> {

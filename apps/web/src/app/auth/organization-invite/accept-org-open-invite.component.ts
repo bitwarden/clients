@@ -170,20 +170,61 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
 
     const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.organizationInviteService.validateAndAcceptInvite(
-      invite,
-      activeUserId,
-    );
+    const result = await this.organizationInviteService.acceptOpenOrgInvite(invite, activeUserId);
 
-    if (success) {
-      this.toastService.showToast({
-        message: this.i18nService.t("invitationAcceptedDesc"),
-        variant: "success",
-        timeout: 10000,
-      });
-      await this.router.navigate(["/"]);
+    switch (result.kind) {
+      case "accepted":
+        this.toastService.showToast({
+          message: this.i18nService.t("invitationAcceptedDesc"),
+          variant: "success",
+          timeout: 10000,
+        });
+        await this.router.navigate(["/"]);
+        return;
+      case "stashed-for-mp-policy-detour":
+        // Service has already stashed the invite and logged the user out; when they
+        // re-authenticate, LoginComponent will replay the invite acceptance.
+        return;
+      case "link-not-found":
+        // TODO: placeholder — pending design. Reuses the same not-found stand-ins as
+        // fetchStatusOrShowError; final asset + copy land together.
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "openInviteNotFoundTitle" },
+          pageIcon: AccountWarning,
+        });
+        this.linkNotFound = true;
+        return;
+      case "plan-not-supported":
+        // TODO: placeholder — pending design. Reuses the plan-not-supported stand-ins.
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "openInvitePlanNotSupportedTitle" },
+          pageIcon: AccountWarning,
+        });
+        this.planNotSupported = true;
+        return;
+      case "no-seats":
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "openInviteNoSeatsTitle" },
+          pageIcon: AccountWarning,
+        });
+        this.noSeats = true;
+        return;
+      case "already-member":
+      case "email-domain-not-allowed":
+      case "org-access-revoked":
+      case "two-factor-required":
+      case "single-org-policy-violation":
+      case "auto-confirm-policy-violation":
+      case "provider-user":
+      case "free-admin-limit":
+      case "reset-password-key-required":
+        // TODO: dedicated UI per kind pending design. Until then, surface via the
+        // AcceptFlowService generic error path so the user sees the failedMessage toast.
+        // Note: `already-member` is success-adjacent and probably wants distinct UX
+        // (toast + navigate home) but the treatment is design's call.
+        throw new Error(`Open invite accept rejected: ${result.kind}`);
+      case "unexpected":
+        throw new Error(result.errorMessage);
     }
-    // If !success, validateAndAcceptInvite already stashed the invite and logged out;
-    // no further action needed here.
   }
 }

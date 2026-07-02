@@ -52,7 +52,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
 
   private async authedHandler(invite: DirectOrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.organizationInviteService.validateAndAcceptInvite(
+    const success = await this.organizationInviteService.validateAndAcceptDirectOrgInvite(
       invite,
       activeUserId,
     );

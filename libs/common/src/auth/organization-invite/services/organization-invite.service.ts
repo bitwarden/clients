@@ -4,6 +4,9 @@ import { UserId } from "@bitwarden/user-core";
 
 import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../../admin-console/models/domain/policy";
+import { DirectOrganizationInvite } from "../models/direct-organization-invite";
+import { OpenOrganizationInvite } from "../models/open-organization-invite";
+import { AcceptOpenOrgInviteResult } from "../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../types/open-org-invite-status-result.type";
 import { OrganizationInvite } from "../types/organization-invite.type";
 
@@ -46,12 +49,28 @@ export abstract class OrganizationInviteService {
   abstract clearOpenOrgInvite(): Promise<void>;
 
   /**
-   * Accepts the invite for the active user, or stashes it and logs out if the user must
-   * first satisfy the org's master-password policy. The stashed invite is consumed when
-   * the user returns after re-authenticating with a compliant master password.
+   * Accepts a direct organization invite for the active user, or stashes it and logs out
+   * if the user must first satisfy the org's master-password policy. The stashed invite
+   * is consumed when the user returns after re-authenticating with a compliant master
+   * password.
    * @returns true if the invite was accepted; false if it was stashed pending re-auth.
    */
-  abstract validateAndAcceptInvite(invite: OrganizationInvite, userId: UserId): Promise<boolean>;
+  abstract validateAndAcceptDirectOrgInvite(
+    invite: DirectOrganizationInvite,
+    userId: UserId,
+  ): Promise<boolean>;
+
+  /**
+   * Accepts an open organization invite for the active user. Returns a discriminated
+   * {@link AcceptOpenOrgInviteResult} classifying the outcome — success, MP-policy detour,
+   * or one of the server's known rejection modes. Unclassified failures (network, 5xx,
+   * unrecognized 400 messages, non-`ErrorResponse` throws) surface as `unexpected` with
+   * a best-effort message string so the caller can render something meaningful.
+   */
+  abstract acceptOpenOrgInvite(
+    invite: OpenOrganizationInvite,
+    userId: UserId,
+  ): Promise<AcceptOpenOrgInviteResult>;
 
   /**
    * Fetches all enabled policies for the inviting organization, authenticated via the invite token
