@@ -7,6 +7,7 @@ import {
   EventEmitter,
   forwardRef,
   Input,
+  input,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -140,9 +141,7 @@ export class UriOptionComponent implements ControlValueAccessor {
    * instead of "Website (URI)". Should only be true when the WindowsDesktopAutotypeGA feature
    * flag is enabled.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showAppLabel: boolean = false;
+  readonly showAppLabel = input(false);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -168,7 +167,7 @@ export class UriOptionComponent implements ControlValueAccessor {
 
   protected get uriLabel() {
     const isAppUri =
-      this.showAppLabel &&
+      this.showAppLabel() &&
       (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false);
 
     if (isAppUri) {
