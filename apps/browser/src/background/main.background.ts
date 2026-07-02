@@ -346,6 +346,7 @@ import WebRequestBackground from "../autofill/background/web-request.background"
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
 import { ContextMenuClickedHandler } from "../autofill/browser/context-menu-clicked-handler";
 import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-handler";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import { PermissionsPolicyBackground } from "../autofill/fido2/background/permissions-policy/permissions-policy.background";
@@ -525,6 +526,7 @@ export default class MainBackground {
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
   browserInitialInstallService: BrowserInitialInstallService;
+  defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
   v2UpgradeTokenStateService: V2UpgradeTokenStateService;
@@ -913,7 +915,6 @@ export default class MainBackground {
       this.policyService,
       this.authService,
       this.accountService,
-      this.configService,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
@@ -1350,6 +1351,9 @@ export default class MainBackground {
     );
 
     this.browserInitialInstallService = new BrowserInitialInstallService(this.stateProvider);
+    this.defaultPasswordManagerPromptStateAccessor = new DefaultPasswordManagerPromptStateAccessor(
+      this.stateProvider,
+    );
 
     if (BrowserApi.isManifestVersion(3)) {
       const registration = (self as unknown as { registration: ServiceWorkerRegistration })
@@ -1523,6 +1527,7 @@ export default class MainBackground {
       this.lockService,
       this.billingAccountProfileStateService,
       this.browserInitialInstallService,
+      this.defaultPasswordManagerPromptStateAccessor,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
