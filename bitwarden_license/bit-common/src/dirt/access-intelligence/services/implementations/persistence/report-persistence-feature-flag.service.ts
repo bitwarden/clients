@@ -23,14 +23,10 @@ export class ReportPersistenceFeatureFlagService extends ReportPersistenceServic
   loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
-    return this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage).pipe(
-      first(),
-      switchMap((useFileStorage) =>
-        useFileStorage
-          ? this.filePersistenceService.loadLastReport$(organizationId)
-          : this.defaultPersistenceService.loadLastReport$(organizationId),
-      ),
-    );
+    // Unlike the save methods, loads are not gated on the file-storage flag: the flag governs
+    // write format only. FileReportPersistenceService handles both the file-download path and an
+    // inline fallback, so it reads back reports in either format regardless of the flag's value.
+    return this.filePersistenceService.loadLastReport$(organizationId);
   }
 
   saveApplicationMetadata$(view: AccessReportView): Observable<void> {
