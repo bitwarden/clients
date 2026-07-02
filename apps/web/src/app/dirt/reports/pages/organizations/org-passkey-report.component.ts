@@ -39,14 +39,12 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
-} from "@bitwarden/vault";
-
-import { HeaderModule } from "../../../../layouts/header/header.module";
-import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
-} from "../../../../vault/components/vault-item-dialog/vault-item-dialog.component";
+} from "@bitwarden/vault";
+
+import { HeaderModule } from "../../../../layouts/header/header.module";
 import { AdminConsoleCipherFormConfigService } from "../../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 import {
   PasskeyCipherRow,
