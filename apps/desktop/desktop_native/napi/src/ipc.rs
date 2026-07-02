@@ -114,4 +114,76 @@ pub mod ipc {
             })
         }
     }
+
+    /// Ipc server for talking to the safari extension
+    #[napi]
+    pub struct SafariIpcServer {
+        #[cfg(target_os = "macos")]
+        server: desktop_core::ipc::safari_ipc_server::SafariIpcServer,
+    }
+
+    #[napi]
+    impl SafariIpcServer {
+        /// Create and start the buffered IPC server without blocking.
+        #[napi(factory)]
+        #[allow(clippy::unused_async)]
+        pub async fn listen(
+            #[napi(ts_arg_type = "(error: null | Error, message: string) => void")]
+            callback: ThreadsafeFunction<String>,
+        ) -> napi::Result<Self> {
+            #[cfg(target_os = "macos")]
+            {
+                let (send, mut recv) = tokio::sync::mpsc::channel::<String>(32);
+                tokio::spawn(async move {
+                    while let Some(message) = recv.recv().await {
+                        callback.call(Ok(message), ThreadsafeFunctionCallMode::NonBlocking);
+                    }
+                });
+
+                let server = desktop_core::ipc::safari_ipc_server::SafariIpcServer::start(send)
+                    .map_err(|e| {
+                        napi::Error::from_reason(format!(
+                            "Error listening to buffered server - Error: {e:?}"
+                        ))
+                    })?;
+
+                Ok(SafariIpcServer { server })
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                let _ = callback;
+                Err(napi::Error::from_reason(
+                    "Safari IPC server is only supported on macOS",
+                ))
+            }
+        }
+
+        /// Stop the buffered IPC server.
+        #[napi]
+        pub fn stop(&self) -> napi::Result<()> {
+            #[cfg(target_os = "macos")]
+            {
+                self.server.stop();
+            }
+            Ok(())
+        }
+
+        /// Buffer a message to send to the Safari extension. The safari extension will poll the
+        /// desktop app to collect the message.
+        #[napi]
+        pub fn enqueue(&self, message: String) -> napi::Result<()> {
+            #[cfg(target_os = "macos")]
+            {
+                self.server.enqueue(message);
+                Ok(())
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                let _ = message;
+                Err(napi::Error::from_reason(
+                    "Safari IPC server is only supported on macOS",
+                ))
+            }
+        }
+    }
 }
