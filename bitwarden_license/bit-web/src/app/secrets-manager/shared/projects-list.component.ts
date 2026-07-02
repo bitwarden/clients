@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, Output, OnInit, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { catchError, concatMap, map, Observable, of, Subject, switchMap, takeUntil } from "rxjs";
 
@@ -11,6 +12,8 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DialogService, TableDataSource, ToastService } from "@bitwarden/components";
@@ -43,6 +46,12 @@ export class ProjectsListComponent implements OnInit {
   protected viewEventsAllowed$: Observable<boolean>;
   protected isAdmin$: Observable<boolean>;
   private destroy$: Subject<void> = new Subject<void>();
+
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

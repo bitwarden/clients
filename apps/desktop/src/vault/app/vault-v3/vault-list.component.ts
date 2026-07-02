@@ -1,14 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { SelectionModel } from "@angular/cdk/collections";
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgClass } from "@angular/common";
 import { Component, input, output, effect, inject, computed } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, of, switchMap } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, Observable, of, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -29,9 +33,10 @@ import {
   IconButtonModule,
   NoItemsModule,
   CalloutComponent,
+  CheckboxModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { NewCipherMenuComponent, VaultItem } from "@bitwarden/vault";
+import { NewCipherMenuComponent, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-items/vault-cipher-row.component";
 import { VaultCollectionRowComponent } from "./vault-items/vault-collection-row.component";
@@ -56,6 +61,7 @@ type EmptyStateItem = {
     TableModule,
     I18nPipe,
     AsyncPipe,
+    NgClass,
     MenuModule,
     ButtonModule,
     IconButtonModule,
@@ -64,6 +70,7 @@ type EmptyStateItem = {
     NoItemsModule,
     NewCipherMenuComponent,
     CalloutComponent,
+    CheckboxModule,
   ],
 })
 export class VaultListComponent<C extends CipherViewLike> {
@@ -92,9 +99,43 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+  private configService = inject(ConfigService);
+  private batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
+    optional: true,
+  });
+
+  protected readonly showBatchBar = toSignal(
+    combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+      this.configService.getFeatureFlag$(FeatureFlag.PM37785_DesktopVaultBatchBar),
+    ]).pipe(map(([batchBarFlag, desktopBatchBarFlag]) => batchBarFlag && desktopBatchBarFlag)),
+    { initialValue: false },
+  );
+
+  protected readonly barVisible = computed(
+    () => this.showBatchBar() && (this.batchBarService?.selectedCount() ?? 0) > 0,
+  );
 
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private restrictedTypes: RestrictedCipherType[] = [];
+
+  get selection(): SelectionModel<VaultItem<C>> {
+    return this.batchBarService?.selection;
+  }
+
+  get isAllSelected(): boolean {
+    const cipherItems = this.dataSource.data?.filter((i) => i.cipher) ?? [];
+    return cipherItems.length > 0 && cipherItems.every((i) => this.selection.isSelected(i));
+  }
+
+  protected toggleAll(): void {
+    if (this.isAllSelected) {
+      this.selection.clear();
+    } else {
+      const cipherItems = this.dataSource.data?.filter((i) => i.cipher) ?? [];
+      this.selection.select(...cipherItems);
+    }
+  }
 
   constructor() {
     this.restrictedItemTypesService.restricted$.pipe(takeUntilDestroyed()).subscribe((types) => {
