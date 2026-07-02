@@ -374,27 +374,28 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     request.token = invite.token;
 
     if (await this.directInviteRequiresResetPasswordAutoEnroll(invite)) {
-      const response = await this.organizationApiService.getKeys(invite.organizationId);
+      const orgKeysResponse = await this.organizationApiService.getKeys(invite.organizationId);
 
-      if (response == null) {
+      if (orgKeysResponse == null) {
         throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
       }
 
-      const publicKey = Utils.fromB64ToArray(response.publicKey);
+      const orgPublicKey = Utils.fromB64ToArray(orgKeysResponse.publicKey);
 
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
       if (userKey == null) {
         throw new Error("User key is required to enroll in password reset.");
       }
 
-      // RSA Encrypt user's encKey.key with organization public key
-      const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
-      if (encryptedKey.encryptedString == null) {
+      const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+        userKey,
+        orgPublicKey,
+      );
+      if (orgPublicKeyEncryptedUserKey.encryptedString == null) {
         throw new Error("Failed to encrypt user key for password reset enrollment.");
       }
 
-      // Add reset password key to accept request
-      request.resetPasswordKey = encryptedKey.encryptedString;
+      request.resetPasswordKey = orgPublicKeyEncryptedUserKey.encryptedString;
     }
     return request;
   }
@@ -472,8 +473,13 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Computes the encrypted user symmetric key for ResetPassword auto-enroll on an open
-   * invite accept, or returns undefined when the org's policy doesn't require it.
+   * Encrypts the user key with the org's public key so the server can auto-enroll the
+   * user in the org's account-recovery flow as part of accepting an
+   * open invite.
+   *
+   * Returns undefined when the org's account-recovery policy doesn't auto-enroll
+   * accepting members. Callers set `resetPasswordKey` on the accept request to the
+   * returned value.
    */
   private async computeOpenInviteResetPasswordKey(
     invite: OpenOrganizationInvite,
@@ -492,22 +498,24 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       return undefined;
     }
 
-    const response = await this.organizationApiService.getKeys(invite.organizationId);
-    if (response == null) {
+    const orgKeysResponse = await this.organizationApiService.getKeys(invite.organizationId);
+    if (orgKeysResponse == null) {
       throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
     }
-    const publicKey = Utils.fromB64ToArray(response.publicKey);
+    const orgPublicKey = Utils.fromB64ToArray(orgKeysResponse.publicKey);
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
       throw new Error("User key is required to enroll in password reset.");
     }
 
-    // RSA encrypt user's encKey.key with organization public key.
-    const encryptedKey = await this.encryptService.encapsulateKeyUnsigned(userKey, publicKey);
-    if (encryptedKey.encryptedString == null) {
+    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
+      userKey,
+      orgPublicKey,
+    );
+    if (orgPublicKeyEncryptedUserKey.encryptedString == null) {
       throw new Error("Failed to encrypt user key for password reset enrollment.");
     }
-    return encryptedKey.encryptedString;
+    return orgPublicKeyEncryptedUserKey.encryptedString;
   }
 }
