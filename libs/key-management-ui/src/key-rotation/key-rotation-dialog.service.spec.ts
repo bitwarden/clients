@@ -84,14 +84,14 @@ describe("KeyRotationDialogService", () => {
       expect(mockLogoutService.logout).not.toHaveBeenCalled();
     });
 
-    it("shows success toast and logs out when rotation succeeds", async () => {
+    it("shows success toast and does not log out when rotation succeeds (QA upgrade rotation)", async () => {
       mockUserKeyRotationService.rotateUserKey.mockResolvedValue(true);
 
       const result = await sut.rotateKeys(masterPassword, mockUserId);
 
       expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
         { Password: { password: masterPassword } },
-        "Skip",
+        "CreateIfNeeded",
         mockUserId,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -100,7 +100,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
@@ -124,14 +124,14 @@ describe("KeyRotationDialogService", () => {
       );
     });
 
-    it("shows success toast and logs out when rotation succeeds", async () => {
+    it("shows success toast and does not log out when rotation succeeds (QA upgrade rotation)", async () => {
       mockUserKeyRotationService.rotateUserKey.mockResolvedValue(true);
 
       const result = await sut.rotateKeysForKeyConnector(mockUserId);
 
       expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
         { KeyConnector: { key_connector_url: mockKeyConnectorUrl } },
-        "Skip",
+        "CreateIfNeeded",
         mockUserId,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -140,7 +140,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
 
@@ -160,14 +160,14 @@ describe("KeyRotationDialogService", () => {
       mockDeviceTrustService.supportsDeviceTrustByUserId$.mockReturnValue(of(true));
     });
 
-    it("shows success toast and logs out when rotation succeeds", async () => {
+    it("shows success toast and does not log out when rotation succeeds (QA upgrade rotation)", async () => {
       mockUserKeyRotationService.rotateUserKey.mockResolvedValue(true);
 
       const result = await sut.rotateKeysForTDE(mockUserId);
 
       expect(mockUserKeyRotationService.rotateUserKey).toHaveBeenCalledWith(
         "Tde",
-        "Skip",
+        "CreateIfNeeded",
         mockUserId,
       );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
@@ -176,7 +176,7 @@ describe("KeyRotationDialogService", () => {
         message: "accountEncryptionKeyRotated-used-i18n",
         timeout: 15000,
       });
-      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUserId);
+      expect(mockLogoutService.logout).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
 

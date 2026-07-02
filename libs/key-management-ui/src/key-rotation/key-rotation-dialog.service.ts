@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { LogoutService, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -17,6 +18,7 @@ export class KeyRotationDialogService {
   private readonly userKeyRotationService = inject(UserKeyRotationServiceAbstraction);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
+  private readonly syncService = inject(SyncService);
   private readonly logoutService = inject(LogoutService);
   private readonly masterPasswordUnlockService = inject(MasterPasswordUnlockService);
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
@@ -43,13 +45,19 @@ export class KeyRotationDialogService {
       return false;
     }
 
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force regular rotation to behave as an
+    // SDK upgrade rotation ("CreateIfNeeded") that does not require a logout, to validate that
+    // mobile continues to validly access the account after a client-initiated rotation.
     const success = await this.userKeyRotationService.rotateUserKey(
       { Password: { password: masterPassword } },
-      "Skip",
+      "CreateIfNeeded",
       userId,
     );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -57,7 +65,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
     return false;
@@ -82,13 +90,17 @@ export class KeyRotationDialogService {
       throw new Error("Key Connector URL not found in user decryption options");
     }
 
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force upgrade rotation without logout.
     const success = await this.userKeyRotationService.rotateUserKey(
       { KeyConnector: { key_connector_url: keyConnectorUrl } },
-      "Skip",
+      "CreateIfNeeded",
       userId,
     );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -96,7 +108,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
     return false;
@@ -111,9 +123,17 @@ export class KeyRotationDialogService {
   async rotateKeysForTDE(userId: UserId): Promise<boolean> {
     // TDE keys are rotated as a part of standard key rotation.
     // The call only needs to indicate we're using TDE with no additional metadata required.
-    const success = await this.userKeyRotationService.rotateUserKey("Tde", "Skip", userId);
+    // QA (pm-31050-no-logout-key-upgrade-rotation): force upgrade rotation without logout.
+    const success = await this.userKeyRotationService.rotateUserKey(
+      "Tde",
+      "CreateIfNeeded",
+      userId,
+    );
 
     if (success) {
+      // QA: sync after rotation, same as upgrade rotation behavior.
+      await this.syncService.fullSync(true);
+
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -121,7 +141,7 @@ export class KeyRotationDialogService {
         timeout: 15000,
       });
 
-      await this.logoutService.logout(userId);
+      // QA: no logout — automatic/upgrade rotation keeps the session alive.
       return true;
     }
 
