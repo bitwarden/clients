@@ -4,8 +4,7 @@ pub const ENABLE_DEVELOPER_LOGGING: bool = true;
 
 // The absolute path to log file when developer logging is enabled
 // Change this to a suitable path for your environment
-pub const LOG_FILENAME: &str =
-    "C:\\Users\\awatk\\enable-dev-logging-for-chromium-importer\\log.txt";
+pub const LOG_FILENAME: &str = "C:\\Temp\\Bitwarden\\log.txt";
 
 /// Ensure the signature of the helper and main binary is validated in production builds
 ///
