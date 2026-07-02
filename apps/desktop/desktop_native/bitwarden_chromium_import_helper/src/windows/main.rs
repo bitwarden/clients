@@ -6,7 +6,10 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use chromium_importer::chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME};
+use chromium_importer::{
+    chromium::{verify_signature, ADMIN_TO_USER_PIPE_NAME},
+    config::ENABLE_DEVELOPER_LOGGING,
+};
 use clap::Parser;
 use scopeguard::defer;
 use tokio::{
@@ -32,7 +35,7 @@ use super::{
         decode_abe_key_blob, decode_base64, decrypt_with_dpapi_as_system,
         decrypt_with_dpapi_as_user, encode_base64,
     },
-    log::init_logging,
+    log::{init_logging, wait_for_keypress},
 };
 
 #[derive(Parser)]
@@ -171,34 +174,50 @@ fn run() -> Result<String> {
 
     debug!("Running as ADMINISTRATOR");
 
+    // `encrypted` and every decrypted intermediate below are key material that can
+    // decrypt the browser's saved credentials. Log only their lengths and per-stage outcome —
+    // never the bytes.
     let encrypted = decode_base64(&args.encrypted)?;
     debug!(
-        "Decoded encrypted data [{}] {:?}",
+        "Decoded base64 input: {} encrypted byte(s) from {} base64 char(s)",
         encrypted.len(),
-        encrypted
+        args.encrypted.len()
     );
 
     let system_decrypted = decrypt_with_dpapi_as_system(&encrypted)?;
     debug!(
-        "Decrypted data with DPAPI as SYSTEM {} {:?}",
-        system_decrypted.len(),
-        system_decrypted
+        "DPAPI (SYSTEM) decryption succeeded: {} byte(s) in -> {} byte(s) out",
+        encrypted.len(),
+        system_decrypted.len()
     );
 
     let user_decrypted = decrypt_with_dpapi_as_user(&system_decrypted, false)?;
     debug!(
-        "Decrypted data with DPAPI as USER {} {:?}",
-        user_decrypted.len(),
-        user_decrypted
+        "DPAPI (USER) decryption succeeded: {} byte(s) in -> {} byte(s) out",
+        system_decrypted.len(),
+        user_decrypted.len()
     );
 
     let key = decode_abe_key_blob(&user_decrypted)?;
-    debug!("Decoded ABE key blob {} {:?}", key.len(), key);
+    debug!(
+        "Decoded ABE key blob: recovered a {}-byte key; returning it base64-encoded over the pipe",
+        key.len()
+    );
 
     Ok(encode_base64(&key))
 }
 
 pub(crate) async fn main() {
+    // When developer logging is enabled the helper runs in a visible elevated console (see
+    // `decrypt_with_admin_exe_internal`). Hold the window open on every exit path — including
+    // early returns — so its output can be read before this short-lived process terminates.
+    // Declared first so it runs last, after the result/error has been sent back to the user.
+    defer! {
+        if ENABLE_DEVELOPER_LOGGING {
+            wait_for_keypress();
+        }
+    }
+
     init_logging();
 
     let mut client = match open_and_validate_pipe_server(ADMIN_TO_USER_PIPE_NAME).await {
