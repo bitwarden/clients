@@ -32,6 +32,7 @@ export interface OpenOrgInviteSsoConfig {
  * discriminate.
  */
 export interface OpenOrgInviteStatus {
+  organizationId: string;
   organizationName: string;
   seatsAvailable: boolean;
   sso: OpenOrgInviteSsoConfig | null;
@@ -49,6 +50,7 @@ export class OpenOrganizationInvite {
   readonly kind = OrgInviteKind.Open;
   inviteLinkCode: string;
   inviteKey: string;
+  organizationId: string;
   organizationName: string;
   /** Absent when the org has no SSO configured/enabled. */
   sso?: OpenOrgInviteSsoConfig;
@@ -56,11 +58,13 @@ export class OpenOrganizationInvite {
   constructor(data: {
     inviteLinkCode: string;
     inviteKey: string;
+    organizationId: string;
     organizationName: string;
     sso?: OpenOrgInviteSsoConfig;
   }) {
     this.inviteLinkCode = data.inviteLinkCode;
     this.inviteKey = data.inviteKey;
+    this.organizationId = data.organizationId;
     this.organizationName = data.organizationName;
     this.sso = data.sso;
   }
@@ -78,6 +82,7 @@ export class OpenOrganizationInvite {
     return new OpenOrganizationInvite({
       inviteLinkCode: urlParams.inviteLinkCode,
       inviteKey: urlParams.inviteKey,
+      organizationId: status.organizationId,
       organizationName: status.organizationName,
       sso: status.sso ?? undefined,
     });

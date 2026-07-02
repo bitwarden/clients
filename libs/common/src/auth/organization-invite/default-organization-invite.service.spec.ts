@@ -800,6 +800,7 @@ function createOpenOrgInvite(custom: Partial<OpenOrganizationInvite> = {}): Open
   return new OpenOrganizationInvite({
     inviteLinkCode: "invite-link-code",
     inviteKey: "invite-key",
+    organizationId: "open-org-id",
     organizationName: "Acme",
     ...custom,
   });

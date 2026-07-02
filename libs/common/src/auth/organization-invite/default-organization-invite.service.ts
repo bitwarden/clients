@@ -243,6 +243,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         ? null
         : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
     return {
+      organizationId: response.organizationId,
       organizationName: response.organizationName,
       seatsAvailable: response.seatsAvailable,
       sso,
