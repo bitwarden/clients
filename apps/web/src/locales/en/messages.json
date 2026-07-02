@@ -11259,6 +11259,12 @@
   "editedCollection": {
     "message": "Edited collection"
   },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "baseUrl": {
     "message": "Server URL"
   },
