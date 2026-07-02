@@ -10,7 +10,6 @@ import {
   input,
   signal,
   viewChild,
-  viewChildren,
 } from "@angular/core";
 import { ControlValueAccessor, NgControl } from "@angular/forms";
 
@@ -21,10 +20,8 @@ import { ButtonComponent } from "../button/button.component";
 import { BitCustomInputDirective } from "../form-field/custom-input.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
-import { BitIconButtonComponent } from "../icon-button/icon-button.component";
-import { IconTileComponent } from "../icon-tile/icon-tile.component";
 
-import { FileNameComponent } from "./file-name.component";
+import { FileListComponent } from "./file-list.component";
 
 let nextId = 0;
 
@@ -49,9 +46,7 @@ let nextId = 0;
     ButtonComponent,
     BitCustomInputDirective,
     BitFormFieldComponent,
-    BitIconButtonComponent,
-    FileNameComponent,
-    IconTileComponent,
+    FileListComponent,
     I18nPipe,
   ],
   hostDirectives: [BitFormFieldControlDirective],
@@ -88,7 +83,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
   private readonly liveAnnouncer = inject(LiveAnnouncer);
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
-  private readonly deleteButtons = viewChildren("deleteBtn", { read: ElementRef });
+  private readonly fileList = viewChild(FileListComponent);
 
   private readonly _files = signal<File[]>([]);
   readonly files = this._files.asReadonly();
@@ -104,7 +99,6 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
   protected readonly inputId = `bit-file-dropzone-${nextId++}`;
   protected readonly statusId = `${this.inputId}-status`;
-  protected readonly listLabelId = `${this.inputId}-list-label`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
@@ -178,8 +172,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
       if (remaining.length === 0) {
         this.fileInput()?.nativeElement.focus();
       } else {
-        const target = this.deleteButtons()[Math.min(idx, remaining.length - 1)];
-        (target?.nativeElement as HTMLButtonElement | undefined)?.focus();
+        this.fileList()?.focusDeleteAt(Math.min(idx, remaining.length - 1));
       }
       this.pendingFocusIndex.set(null);
     });
@@ -279,17 +272,6 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     this.announce(this.i18nService.t("fileRemoved", file.name));
     this.pendingFocusIndex.set(removedIndex);
     this.onChange()(this.files());
-  }
-
-  protected formatFileSize(bytes: number): string {
-    if (bytes === 0) {
-      return "0 B";
-    }
-    const units = ["B", "KB", "MB", "GB"];
-    const k = 1024;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const size = bytes / Math.pow(k, i);
-    return `${Number.isInteger(size) ? size : size.toFixed(1)} ${units[i]}`;
   }
 
   private addFiles(newFiles: File[]): void {
