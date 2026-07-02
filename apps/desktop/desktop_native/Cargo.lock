@@ -415,7 +415,7 @@ checksum = "6aeac2e1fe888769f34f05ac343bbef98b14d1ffb292ab69d4608b3abc86f2a2"
 dependencies = [
  "blowfish",
  "pbkdf2 0.12.2",
- "sha2",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -1039,7 +1039,7 @@ dependencies = [
  "security-framework-sys",
  "serde",
  "serde_json",
- "sha2",
+ "sha2 0.11.0",
  "ssh-key",
  "sysinfo",
  "thiserror 2.0.17",
@@ -1255,7 +1255,7 @@ dependencies = [
  "curve25519-dalek",
  "ed25519",
  "serde",
- "sha2",
+ "sha2 0.10.9",
  "signature",
  "subtle",
  "zeroize",
@@ -2528,7 +2528,7 @@ dependencies = [
  "pbkdf2 0.12.2",
  "rand 0.9.3",
  "serde",
- "sha2",
+ "sha2 0.10.9",
  "subtle",
  "tokio",
  "zbus",
@@ -2578,7 +2578,7 @@ dependencies = [
  "ecdsa",
  "elliptic-curve",
  "primeorder",
- "sha2",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -2590,7 +2590,7 @@ dependencies = [
  "ecdsa",
  "elliptic-curve",
  "primeorder",
- "sha2",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -2604,7 +2604,7 @@ dependencies = [
  "elliptic-curve",
  "primeorder",
  "rand_core 0.6.4",
- "sha2",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -3142,7 +3142,7 @@ dependencies = [
  "pkcs1",
  "pkcs8",
  "rand_core 0.6.4",
- "sha2",
+ "sha2 0.10.9",
  "signature",
  "spki",
  "subtle",
@@ -3506,6 +3506,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "sha2"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "446ba717509524cb3f22f17ecc096f10f4822d76ab5c0b9822c5f9c284e825f4"
+dependencies = [
+ "cfg-if",
+ "cpufeatures 0.3.0",
+ "digest 0.11.3",
+]
+
+[[package]]
 name = "sharded-slab"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3635,7 +3646,7 @@ checksum = "eb9242b9ef4108a78e8cd1a2c98e193ef372437f8c22be363075233321dd4a15"
 dependencies = [
  "base64ct",
  "pem-rfc7468",
- "sha2",
+ "sha2 0.10.9",
 ]
 
 [[package]]
@@ -3653,7 +3664,7 @@ dependencies = [
  "rand_core 0.6.4",
  "rsa",
  "sec1",
- "sha2",
+ "sha2 0.10.9",
  "signature",
  "ssh-cipher",
  "ssh-encoding",
@@ -3676,7 +3687,7 @@ dependencies = [
  "rkyv",
  "rsa",
  "serial_test",
- "sha2",
+ "sha2 0.11.0",
  "signature",
  "ssh-key",
  "sysinfo",
@@ -4310,7 +4321,7 @@ checksum = "2ebfe12e38930c3b851aea35e93fab1a6c29279cad7e8e273f29a21678fee8c0"
 dependencies = [
  "core-foundation",
  "sha1 0.10.6",
- "sha2",
+ "sha2 0.10.9",
  "windows-sys 0.61.2",
 ]
 
