@@ -1,12 +1,14 @@
 import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
@@ -24,7 +26,6 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   constructor(
     private readonly keyService: KeyService,
     private readonly encryptService: EncryptService,
-    private readonly keyGenerationService: KeyGenerationService,
     private readonly apiService: OrganizationInviteLinkApiService,
     private readonly stateProvider: StateProvider,
     private readonly environmentService: EnvironmentService,
@@ -147,7 +148,9 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
    */
   private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<EncString> {
     // Important: this rawInviteKey must never be sent to the server!
-    const rawInviteKey = await this.keyGenerationService.createKey(256);
+    // This format is currently incorrect and will not continue to work.
+    await SdkLoadService.Ready;
+    const rawInviteKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
     const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
     const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
     return encryptedInviteKey;

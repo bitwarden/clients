@@ -6,8 +6,8 @@ import { Opaque } from "type-fest";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
@@ -16,6 +16,7 @@ import {
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
@@ -140,7 +141,6 @@ export class TokenService implements TokenServiceAbstraction {
     private globalStateProvider: GlobalStateProvider,
     private readonly platformSupportsSecureStorage: boolean,
     private secureStorageService: AbstractStorageService,
-    private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
@@ -242,7 +242,10 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   private async createAndSaveAccessTokenKey(userId: UserId): Promise<AccessTokenKey> {
-    const newAccessTokenKey = (await this.keyGenerationService.createKey(512)) as AccessTokenKey;
+    await SdkLoadService.Ready;
+    const newAccessTokenKey = SymmetricCryptoKey.fromSdk(
+      PureCrypto.make_aes256_cbc_hmac_key(),
+    ) as AccessTokenKey;
 
     await this.secureStorageService.save<AccessTokenKey>(
       `${userId}${this.accessTokenKeySecureStorageKey}`,

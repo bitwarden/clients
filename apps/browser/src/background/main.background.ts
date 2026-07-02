@@ -746,7 +746,6 @@ export default class MainBackground {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -966,7 +965,6 @@ export default class MainBackground {
       this.tokenService,
       this.logService,
       this.organizationService,
-      this.keyGenerationService,
       logoutCallback,
       this.stateProvider,
       this.configService,
@@ -1020,7 +1018,6 @@ export default class MainBackground {
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.keyService,
       this.encryptService,
@@ -1322,7 +1319,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
@@ -1337,7 +1333,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
       this.restrictedItemTypesService,
