@@ -8,8 +8,12 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  DirectOrganizationInvite,
+  OpenOrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -92,7 +96,7 @@ describe("WebLoginComponentService", () => {
 
   describe("getOrgPoliciesFromOrgInvite", () => {
     const mockEmail = "test@example.com";
-    const orgInvite = new OrganizationInvite({
+    const orgInvite = new DirectOrganizationInvite({
       organizationId: "org-id",
       token: "token",
       email: mockEmail,
@@ -109,9 +113,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns undefined", async () => {
+    it("returns undefined if getOrgPoliciesForInvite returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
@@ -128,7 +132,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -184,6 +188,58 @@ describe("WebLoginComponentService", () => {
         expect(result).toBeUndefined();
       });
     });
+
+    describe("given an open organization invite is in state", () => {
+      const openInvite = new OpenOrganizationInvite({
+        inviteLinkCode: "link-code",
+        inviteKey: "link-key",
+        organizationId: "open-org-id",
+        organizationName: "Acme Corp",
+      });
+
+      it("returns undefined when the GenerateInviteLink flag is off", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(false);
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(result).toBeUndefined();
+        expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
+      });
+
+      it("uses invite.organizationId and returns PasswordPolicies when flag is on", async () => {
+        const policies: Policy[] = [new Policy()];
+        const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
+        const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
+
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(openInvite);
+        configService.getFeatureFlag
+          .calledWith(FeatureFlag.GenerateInviteLink)
+          .mockResolvedValue(true);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
+        internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
+          resetPasswordPolicyOptions,
+          false,
+        ]);
+        internalPolicyService.combinePoliciesIntoMasterPasswordPolicyOptions.mockReturnValue(
+          masterPasswordPolicyOptions,
+        );
+
+        const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
+
+        expect(internalPolicyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
+          policies,
+          openInvite.organizationId,
+        );
+        expect(result).toEqual({
+          policies,
+          isPolicyAndAutoEnrollEnabled: false,
+          enforcedPasswordPolicyOptions: masterPasswordPolicyOptions,
+        });
+      });
+    });
   });
 
   describe("handleQueryParamErrors", () => {
@@ -191,7 +247,7 @@ describe("WebLoginComponentService", () => {
     const mockOrganizationId = "11111111-1111-1111-1111-111111111111";
     const mockEmail = "test@example.com";
     const orgInviteFor = (overrides: { email?: string; organizationId?: string } = {}) =>
-      new OrganizationInvite({
+      new DirectOrganizationInvite({
         organizationId: overrides.organizationId ?? mockOrganizationId,
         token: "token",
         email: overrides.email ?? mockEmail,
@@ -333,6 +389,38 @@ describe("WebLoginComponentService", () => {
         expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
+
+      it("auto-progresses on open-invite match by org id when a direct pending row also exists server-side for the same org", async () => {
+        // User has an open invite in state AND the server has a pending direct-invite
+        // row for the same org (from an earlier admin invite). Server fires
+        // InviteAcceptanceRequired because of the direct row; client matches on the
+        // open invite's org id and auto-progresses. Post-MP-login, deepLinkGuard
+        // replays /join/... and open-invite accept runs; server dedupes against the
+        // existing pending row.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new OpenOrganizationInvite({
+            inviteLinkCode: "link-code",
+            inviteKey: "link-key",
+            organizationId: mockOrganizationId,
+            organizationName: mockOrganizationName,
+          }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgInviteAcceptanceRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toEqual({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
     });
 
     describe("when error code is ssoOrgMembershipRequired", () => {
@@ -393,6 +481,60 @@ describe("WebLoginComponentService", () => {
         // user isn't auto-progressed for a different org.
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           orgInviteFor({ organizationId: "22222222-2222-2222-2222-222222222222" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
+      });
+
+      it("auto-progresses on open-invite match by org id (existing Bitwarden user, never invited or joined server-side)", async () => {
+        // Existing user clicks /join/<code> for an SSO-required org they've never
+        // been invited to or joined. SSO succeeds against IdP; server refuses to
+        // create the OrgUser (no direct invite, no auto-provision) and fires
+        // OrgMembershipRequired. Client matches by org id (email is not on the open
+        // invite, so we skip that check for the open branch).
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new OpenOrganizationInvite({
+            inviteLinkCode: "link-code",
+            inviteKey: "link-key",
+            organizationId: mockOrganizationId,
+            organizationName: mockOrganizationName,
+          }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toEqual({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("does not auto-progress when the open invite is for a different org than the redirect", async () => {
+        // Open invite for OrgB stashed, redirect is for OrgA — fall through to
+        // the shared no-match toast. Matching by org id keeps this correct.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          new OpenOrganizationInvite({
+            inviteLinkCode: "link-code",
+            inviteKey: "link-key",
+            organizationId: "22222222-2222-2222-2222-222222222222",
+            organizationName: "Different Org",
+          }),
         );
 
         const result = await service.handleQueryParamErrors({

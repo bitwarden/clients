@@ -1,0 +1,13 @@
+@if (loading) {
+  <div class="tw-flex tw-justify-center tw-py-8">
+    <bit-spinner variant="primary" size="lg" [title]="'loading' | i18n"></bit-spinner>
+  </div>
+} @else if (noSeats) {
+  <p data-testid="open-invite-no-seats-message">{{ "openInviteNoSeatsMessage" | i18n }}</p>
+} @else if (linkNotFound) {
+  <p data-testid="open-invite-not-found-message">{{ "openInviteNotFoundMessage" | i18n }}</p>
+} @else if (planNotSupported) {
+  <p data-testid="open-invite-plan-not-supported-message">
+    {{ "openInvitePlanNotSupportedMessage" | i18n }}
+  </p>
+}

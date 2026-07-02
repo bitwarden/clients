@@ -12,12 +12,14 @@ export class OrganizationInviteLinkSsoResponseModel extends BaseResponse {
 }
 
 export class OrganizationInviteLinkStatusResponseModel extends BaseResponse {
+  organizationId: string; // TODO: this hasn't been added just yet (PM-39815)
   organizationName: string;
   seatsAvailable: boolean;
   sso: OrganizationInviteLinkSsoResponseModel | null;
 
   constructor(response: any) {
     super(response);
+    this.organizationId = this.getResponseProperty("OrganizationId");
     this.organizationName = this.getResponseProperty("OrganizationName");
     this.seatsAvailable = this.getResponseProperty("SeatsAvailable");
     const sso = this.getResponseProperty("Sso");

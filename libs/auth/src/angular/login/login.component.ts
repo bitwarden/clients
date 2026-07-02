@@ -14,7 +14,7 @@ import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil, skip, combineLatest, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
+import { LockIcon, VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -26,8 +26,13 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import {
+  OrgInviteKind,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -94,7 +99,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();
-  readonly Icons = { WaveIcon, VaultIcon };
+  readonly Icons = { WaveIcon, VaultIcon, LockIcon };
 
   clientType: ClientType;
   ClientType = ClientType;
@@ -149,6 +154,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
     private passwordPreloginService: PasswordPreloginService,
+    private organizationInviteService: OrganizationInviteService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -162,6 +168,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
     }
+
+    // Push the open-invite title last so it wins over any chrome the steps above
+    // (route data, defaultOnInit's auto-submit override) may have set. For the
+    // auto-submit path, defaultOnInit has already transitioned to MP entry by now
+    // and we still want the "Join <org>" title to take effect — but auto-submit
+    // only fires for direct invites today, so this is a no-op in that case.
+    await this.applyOpenInviteTitleOverride();
   }
 
   ngOnDestroy(): void {
@@ -531,6 +544,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
+      // Re-apply the open-invite title for back-nav from MP entry; the default push
+      // above would otherwise clobber it.
+      await this.applyOpenInviteTitleOverride();
+
       // Reset master password only when going from validated to not validated so that autofill can work properly
       this.formGroup.controls.masterPassword.reset();
 
@@ -594,12 +611,116 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   protected async continue(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>): Promise<void> {
     const isEmailValid = this.validateEmail();
-
-    if (isEmailValid) {
-      this.prefetchPasswordPreloginData();
-
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
+    if (!isEmailValid) {
+      return;
     }
+
+    const email = this.emailFormControl.value;
+    if (email && !(await this.openInviteDomainAllowed(email))) {
+      return;
+    }
+
+    // SSO-callback overrides (currently direct-invite only) take precedence; otherwise
+    // synthesize an override for the open-invite path so "Join <org>" survives the
+    // transition. Falls through to toggleLoginUiState's built-in default when neither
+    // applies.
+    const override = mpEntryLayoutOverride ?? (await this.buildOpenInviteMpEntryOverride());
+
+    this.prefetchPasswordPreloginData();
+    await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, override);
+  }
+
+  /**
+   * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
+   * is in state, validates the entered email's domain against the link's `AllowedDomains`
+   * via the server. Sets a form-control error on the email field when the domain isn't
+   * allowed and returns false; returns true in all other cases (no open invite stashed,
+   * or domain allowed).
+   *
+   * Server-side enforcement also runs at accept time — this is layered UX, not a security
+   * boundary. The submit button stays enabled so the user can correct and retry.
+   */
+  private async openInviteDomainAllowed(email: string): Promise<boolean> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    // Defense in depth: even though the open-invite landing route is gated by
+    // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
+    // could persist into a flag-off session. Skip the domain check when the
+    // feature is disabled.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return true;
+    }
+    const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+      invite.inviteLinkCode,
+      email,
+    );
+    if (!allowed) {
+      this.emailFormControl.setErrors({
+        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+      });
+    }
+    return allowed;
+  }
+
+  /**
+   * Returns the open-invite if one is in state and the feature is enabled; otherwise
+   * `null`. Centralizes the "should we apply open-invite chrome here?" predicate so
+   * the kind + flag guard isn't restated at every override site.
+   *
+   * Defense-in-depth flag check: the landing route is gated, but stale state from a
+   * prior flag-on session could persist into a flag-off session.
+   */
+  private async getActiveOpenInvite(): Promise<{ organizationName: string } | null> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return null;
+    }
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return null;
+    }
+    return invite;
+  }
+
+  /**
+   * Pushes the "Join <organizationName>" title for the email-entry surface when an
+   * open invite is in state. The override is the last write to the anon-layout
+   * wrapper data on this surface, so it survives until the next state transition
+   * (which is expected to re-apply it where needed — see `toggleLoginUiState`).
+   */
+  private async applyOpenInviteTitleOverride(): Promise<void> {
+    const invite = await this.getActiveOpenInvite();
+    if (invite == null) {
+      return;
+    }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
+    });
+  }
+
+  /**
+   * Builds the MP-entry anon-layout override for the open-invite path: preserves
+   * "Join <org>" title, surfaces the entered email as subtitle (matching the default
+   * MP-entry treatment), and swaps the icon to LockIcon as a placeholder until design
+   * specifies a final asset. Returns undefined when no open invite is in state or the
+   * feature is disabled, so the caller can fall through to the default override path.
+   */
+  private async buildOpenInviteMpEntryOverride(): Promise<
+    Partial<AnonLayoutWrapperData> | undefined
+  > {
+    const invite = await this.getActiveOpenInvite();
+    if (invite == null) {
+      return undefined;
+    }
+    return {
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
+      pageSubtitle: this.emailFormControl.value,
+      // TODO: placeholder — pending design. LockIcon is a stand-in for the
+      // MP-entry sub-state of the open-invite flow until design specifies the
+      // final asset.
+      pageIcon: this.Icons.LockIcon,
+    };
   }
 
   /**

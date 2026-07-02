@@ -1,14 +1,14 @@
 import { Jsonify } from "type-fest";
 
-import { OrganizationInvite } from "./organization-invite";
+import { DirectOrganizationInvite } from "./direct-organization-invite";
 
-describe("OrganizationInvite", () => {
+describe("DirectOrganizationInvite", () => {
   const validId = "00000000-0000-0000-0000-000000000001";
   const validUserId = "00000000-0000-0000-0000-000000000002";
 
   describe("constructor", () => {
     it("assigns all required fields", () => {
-      const invite = new OrganizationInvite({
+      const invite = new DirectOrganizationInvite({
         email: "user@example.com",
         initOrganization: true,
         orgUserHasExistingUser: false,
@@ -28,7 +28,7 @@ describe("OrganizationInvite", () => {
     });
 
     it("leaves orgSsoIdentifier undefined when not provided", () => {
-      const invite = new OrganizationInvite({
+      const invite = new DirectOrganizationInvite({
         email: "user@example.com",
         initOrganization: false,
         orgUserHasExistingUser: false,
@@ -42,7 +42,7 @@ describe("OrganizationInvite", () => {
     });
 
     it("assigns orgSsoIdentifier when provided", () => {
-      const invite = new OrganizationInvite({
+      const invite = new DirectOrganizationInvite({
         email: "user@example.com",
         initOrganization: false,
         orgUserHasExistingUser: false,
@@ -69,13 +69,13 @@ describe("OrganizationInvite", () => {
     });
 
     it("returns null when params is null", () => {
-      expect(OrganizationInvite.fromUrlParams(null as any)).toBeNull();
+      expect(DirectOrganizationInvite.fromUrlParams(null as any)).toBeNull();
     });
 
-    it("returns a fully populated OrganizationInvite when all required params are present", () => {
-      const result = OrganizationInvite.fromUrlParams(validParams());
+    it("returns a fully populated DirectOrganizationInvite when all required params are present", () => {
+      const result = DirectOrganizationInvite.fromUrlParams(validParams());
 
-      expect(result).toBeInstanceOf(OrganizationInvite);
+      expect(result).toBeInstanceOf(DirectOrganizationInvite);
       expect(result).toMatchObject({
         organizationId: validId,
         organizationUserId: validUserId,
@@ -100,7 +100,7 @@ describe("OrganizationInvite", () => {
       const params = validParams();
       delete params[key];
 
-      expect(OrganizationInvite.fromUrlParams(params)).toBeNull();
+      expect(DirectOrganizationInvite.fromUrlParams(params)).toBeNull();
     });
 
     it.each(["organizationId", "organizationUserId"])(
@@ -109,7 +109,7 @@ describe("OrganizationInvite", () => {
         const params = validParams();
         params[key] = "not-a-guid";
 
-        expect(OrganizationInvite.fromUrlParams(params)).toBeNull();
+        expect(DirectOrganizationInvite.fromUrlParams(params)).toBeNull();
       },
     );
 
@@ -126,7 +126,7 @@ describe("OrganizationInvite", () => {
         const params = validParams();
         params.initOrganization = input;
 
-        const result = OrganizationInvite.fromUrlParams(params);
+        const result = DirectOrganizationInvite.fromUrlParams(params);
 
         expect(result?.initOrganization).toBe(expected);
       },
@@ -143,7 +143,7 @@ describe("OrganizationInvite", () => {
         const params = validParams();
         params.orgUserHasExistingUser = input;
 
-        const result = OrganizationInvite.fromUrlParams(params);
+        const result = DirectOrganizationInvite.fromUrlParams(params);
 
         expect(result?.orgUserHasExistingUser).toBe(expected);
       },
@@ -153,7 +153,7 @@ describe("OrganizationInvite", () => {
       const params = validParams();
       params.orgSsoIdentifier = "sso-identifier";
 
-      const result = OrganizationInvite.fromUrlParams(params);
+      const result = DirectOrganizationInvite.fromUrlParams(params);
 
       expect(result?.orgSsoIdentifier).toBe("sso-identifier");
     });
@@ -161,11 +161,12 @@ describe("OrganizationInvite", () => {
 
   describe("fromJSON", () => {
     it("returns null when json is null", () => {
-      expect(OrganizationInvite.fromJSON(null as any)).toBeNull();
+      expect(DirectOrganizationInvite.fromJSON(null as any)).toBeNull();
     });
 
-    it("builds an OrganizationInvite from a valid JSON object", () => {
+    it("builds a DirectOrganizationInvite from a valid JSON object", () => {
       const json = {
+        kind: "direct",
         email: "user@example.com",
         initOrganization: true,
         orgSsoIdentifier: "sso-identifier",
@@ -174,11 +175,11 @@ describe("OrganizationInvite", () => {
         organizationName: "organizationName",
         organizationUserId: "organizationUserId",
         token: "token",
-      } satisfies Jsonify<OrganizationInvite>;
+      } satisfies Jsonify<DirectOrganizationInvite>;
 
-      const result = OrganizationInvite.fromJSON(json);
+      const result = DirectOrganizationInvite.fromJSON(json);
 
-      expect(result).toBeInstanceOf(OrganizationInvite);
+      expect(result).toBeInstanceOf(DirectOrganizationInvite);
       expect(result).toMatchObject(json);
     });
   });

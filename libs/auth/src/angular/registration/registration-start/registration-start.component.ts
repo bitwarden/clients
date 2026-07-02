@@ -10,7 +10,14 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { RegistrationCheckEmailIcon } from "@bitwarden/assets/svg";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
+import {
+  OrgInviteKind,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -101,6 +108,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private organizationInviteService: OrganizationInviteService,
+    private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
   }
@@ -118,6 +128,30 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       if (email) {
         this.formGroup.patchValue({ email });
       }
+    });
+
+    await this.applyOpenInviteTitleOverride();
+  }
+
+  /**
+   * When an `OpenOrganizationInvite` is in state, override the anon-layout title to
+   * "Join <organizationName>" so users see they're accepting an invite rather than
+   * generic "Create account" chrome. No icon override — the existing route-data icon
+   * (RegistrationUserAddIcon) is reused.
+   *
+   * Defense-in-depth flag check: the landing route is gated, but stale state from a
+   * prior flag-on session could persist into a flag-off session.
+   */
+  private async applyOpenInviteTitleOverride(): Promise<void> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return;
+    }
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return;
+    }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
     });
   }
 
@@ -146,6 +180,11 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     const valid = this.validateForm();
 
     if (!valid) {
+      return;
+    }
+
+    const emailValue = this.email.value;
+    if (emailValue && !(await this.openInviteDomainAllowed(emailValue))) {
       return;
     }
 
@@ -206,6 +245,40 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     }
 
     return this.formGroup.valid;
+  }
+
+  /**
+   * Pre-auth UX check for open-invite domain restrictions. When an `OpenOrganizationInvite`
+   * is in state, validates the entered email's domain against the link's `AllowedDomains`
+   * via the server. Sets a form-control error on the email field when the domain isn't
+   * allowed and returns false; returns true in all other cases (no open invite stashed,
+   * or domain allowed).
+   *
+   * Server-side enforcement also runs at accept time — this is layered UX, not a security
+   * boundary. The submit button stays enabled so the user can correct and retry.
+   */
+  private async openInviteDomainAllowed(email: string): Promise<boolean> {
+    const invite = await this.organizationInviteService.getOrganizationInvite();
+    if (invite?.kind !== OrgInviteKind.Open) {
+      return true;
+    }
+    // Defense in depth: even though the open-invite landing route is gated by
+    // `FeatureFlag.GenerateInviteLink`, stale state from a prior flag-on session
+    // could persist into a flag-off session. Skip the domain check when the
+    // feature is disabled.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return true;
+    }
+    const allowed = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+      invite.inviteLinkCode,
+      email,
+    );
+    if (!allowed) {
+      this.email.setErrors({
+        error: { message: this.i18nService.t("openInviteEmailDomainNotAllowed") },
+      });
+    }
+    return allowed;
   }
 
   goBack() {

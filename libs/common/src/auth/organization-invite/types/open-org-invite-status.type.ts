@@ -1,0 +1,24 @@
+/**
+ * SSO configuration snapshot for an open invite link, captured from the open-invite
+ * status endpoint. Present only when the inviting org has SSO both configured and
+ * enabled. Persisted on {@link OpenOrganizationInvite} so login/registration can
+ * decide SSO routing without re-calling status.
+ */
+export interface OpenOrgInviteSsoConfig {
+  orgSsoId: string;
+  required: boolean;
+}
+
+/**
+ * Domain snapshot of an open invite link's status, sourced from
+ * `OrganizationInviteService.getOpenOrgInviteStatus(code)`. Mapped from the wire
+ * response inside the service; the service wraps this in an
+ * {@link OpenOrgInviteStatusResult} to encapsulate the endpoint's error modes
+ * into a single discriminated return.
+ */
+export interface OpenOrgInviteStatus {
+  organizationId: string;
+  organizationName: string;
+  seatsAvailable: boolean;
+  sso: OpenOrgInviteSsoConfig | null;
+}

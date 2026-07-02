@@ -4,8 +4,10 @@ import { firstValueFrom } from "rxjs";
 
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  DirectOrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { IconModule, ToastService } from "@bitwarden/components";
@@ -34,9 +36,9 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
 
   async ngOnInit() {
     const qParams = await firstValueFrom(this.route.queryParams);
-    await this.acceptFlowService.run<OrganizationInvite>(qParams, {
+    await this.acceptFlowService.run<DirectOrganizationInvite>(qParams, {
       failedMessage: this.failedMessage,
-      parse: (p) => OrganizationInvite.fromUrlParams(p ?? {}),
+      parse: (p) => DirectOrganizationInvite.fromUrlParams(p ?? {}),
       authedHandler: (invite) => this.authedHandler(invite),
       unauthedHandler: (invite) => this.unauthedHandler(invite),
       getErrorMessage: (apiError) => this.getErrorMessage(apiError),
@@ -48,9 +50,9 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
     this.loading = false;
   }
 
-  private async authedHandler(invite: OrganizationInvite): Promise<void> {
+  private async authedHandler(invite: DirectOrganizationInvite): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const success = await this.organizationInviteService.validateAndAcceptInvite(
+    const success = await this.organizationInviteService.validateAndAcceptDirectOrgInvite(
       invite,
       activeUserId,
     );
@@ -70,7 +72,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
     await this.router.navigate(["/"]);
   }
 
-  private async unauthedHandler(invite: OrganizationInvite): Promise<void> {
+  private async unauthedHandler(invite: DirectOrganizationInvite): Promise<void> {
     await this.organizationInviteService.setOrganizationInvite(invite);
     await this.navigateInviteAcceptance(invite);
   }
@@ -109,7 +111,7 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
    * In certain scenarios, we want to accelerate the user through the accept org invite process
    * For example, if the user has a BW account already, we want them to be taken to login instead of creation.
    */
-  private async navigateInviteAcceptance(invite: OrganizationInvite): Promise<void> {
+  private async navigateInviteAcceptance(invite: DirectOrganizationInvite): Promise<void> {
     // if user exists, send user to login
     if (invite.orgUserHasExistingUser) {
       await this.router.navigate(["/login"], {
