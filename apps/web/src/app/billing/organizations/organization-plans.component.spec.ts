@@ -1259,6 +1259,29 @@ describe("OrganizationPlansComponent", () => {
 
       expect(component["familiesSponsorshipDiscount"]).toBe(products[0].PasswordManager.basePrice);
     });
+
+    it("should use createCloudHosted and not upgradeFromPremium when accepting sponsorship with a premium subscription", async () => {
+      hasPremiumPersonallySubject.next(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      patchOrganizationForm(component, {
+        name: "My Family Org",
+        billingEmail: "test@example.com",
+        productTier: ProductTierType.Families,
+        plan: PlanType.FamiliesAnnually,
+      });
+      patchBillingAddress(component);
+      setupMockPaymentMethodComponent(component, "mock_token", "card");
+
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-family-org-id" } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
   });
 
   describe("upgrade flow", () => {
@@ -2449,6 +2472,16 @@ describe("OrganizationPlansComponent", () => {
         await newFixture.whenStable();
 
         expect(newComponent.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when accepting a sponsorship even with premium personally", async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
       });
     });
 
