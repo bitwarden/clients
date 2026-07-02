@@ -11,7 +11,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
+import {
+  OrganizationInviteService,
+  OrgInviteKind,
+} from "@bitwarden/common/auth/organization-invite";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -96,8 +99,10 @@ export class WebRegistrationFinishService
     // web specific logic
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
+    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
+    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-    if (orgInvite != null) {
+    if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organization_user_id = this.toOptionalSdkOrganizationId(
         orgInvite.organizationUserId,
       );
@@ -162,8 +167,10 @@ export class WebRegistrationFinishService
     // web specific logic
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
     // Org user id and token are included here only for validation and two factor purposes.
+    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
+    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-    if (orgInvite != null) {
+    if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
     }
@@ -183,7 +190,7 @@ export class WebRegistrationFinishService
       registerRequest.providerUserId = providerUserId;
     }
 
-    // Alternative invite/acceptance tokens (org invite, org-sponsored
+    // Alternative invite/acceptance tokens (direct org invite, org-sponsored
     // family plan, emergency access, provider) are mutually exclusive with
     // emailVerificationToken — presence of any one of them proves email ownership
     // via the server-issued invite link, so the standalone email verification
