@@ -167,6 +167,7 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly form = this.formBuilder.group({
     // Security
     pin: [null as boolean | null],
+    pinLockWithMasterPassword: false,
     biometric: false,
     requireMasterPasswordOnAppRestart: true,
     autoPromptBiometrics: false,
@@ -264,6 +265,8 @@ export class SettingsDialogComponent implements OnInit {
 
     const initialValues = {
       pin: this.userHasPinSet(),
+      pinLockWithMasterPassword:
+        (await this.pinService.getPinLockType(this.currentUserId())) == "AfterFirstUnlock",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(this.currentUserId()),
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         this.currentUserId(),
@@ -315,6 +318,16 @@ export class SettingsDialogComponent implements OnInit {
       .pipe(
         concatMap(async (value) => {
           await this.updatePinHandler(value);
+          this.refreshTimeoutSettings$.next();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.pinLockWithMasterPassword.valueChanges
+      .pipe(
+        concatMap(async (value) => {
+          await this.updatePinLockWithMasterPasswordHandler(value);
           this.refreshTimeoutSettings$.next();
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -399,6 +412,13 @@ export class SettingsDialogComponent implements OnInit {
       const pinSet = await firstValueFrom(dialogRef.closed);
       this.userHasPinSet.set(pinSet);
       this.form.controls.pin.setValue(this.userHasPinSet(), { emitEvent: false });
+
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const requireMasterPasswordOnClientRestart =
+        (await this.pinService.getPinLockType(userId)) == "AfterFirstUnlock";
+      this.form.controls.pinLockWithMasterPassword.setValue(requireMasterPasswordOnClientRestart, {
+        emitEvent: false,
+      });
     } else {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
@@ -414,6 +434,18 @@ export class SettingsDialogComponent implements OnInit {
         await this.enrollPersistentBiometricIfNeeded(userId);
       }
       await this.pinService.unsetPin(userId);
+    }
+  }
+
+  private async updatePinLockWithMasterPasswordHandler(value: boolean) {
+    try {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const pin = await this.pinService.getPin(userId);
+      await this.pinService.setPin(pin, value ? "AfterFirstUnlock" : "BeforeFirstUnlock", userId);
+    } catch (error) {
+      this.logService.error("Error updating PIN lock type: ", error);
+      this.form.controls.pinLockWithMasterPassword.setValue(!value, { emitEvent: false });
+      this.validationService.showError(error);
     }
   }
 
@@ -707,19 +739,6 @@ export class SettingsDialogComponent implements OnInit {
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
     await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
-  }
-
-  protected get biometricText() {
-    switch (this.platformUtilsService.getDevice()) {
-      case DeviceType.MacOsDesktop:
-        return "unlockWithTouchId";
-      case DeviceType.WindowsDesktop:
-        return "unlockWithWindowsHello";
-      case DeviceType.LinuxDesktop:
-        return "unlockWithPolkit";
-      default:
-        throw new Error("Unsupported platform");
-    }
   }
 
   private getFormattedAutotypeShortcutText(shortcut: string[]) {

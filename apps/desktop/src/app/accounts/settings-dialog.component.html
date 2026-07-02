@@ -15,17 +15,10 @@
           <bit-session-timeout-settings [refreshTimeoutActionSettings]="refreshTimeoutSettings$" />
         </bit-section>
 
-        @if (pinEnabled() || form.value.pin) {
-          <bit-form-control class="tw-mt-4">
-            <input type="checkbox" bitCheckbox formControlName="pin" />
-            <bit-label>{{ "unlockWithPin" | i18n }}</bit-label>
-          </bit-form-control>
-        }
-
         @if (supportsBiometric()) {
-          <bit-form-control>
+          <bit-form-control class="tw-mt-4">
             <input type="checkbox" bitCheckbox formControlName="biometric" />
-            <bit-label>{{ biometricText | i18n }}</bit-label>
+            <bit-label>{{ "unlockWithBiometrics" | i18n }}</bit-label>
             @if (form.value.biometric && isMac) {
               <bit-hint>{{ "additionalTouchIdSettings" | i18n }}</bit-hint>
             }
@@ -63,6 +56,20 @@
               (change)="updateAutoPromptBiometrics()"
             />
             <bit-label>{{ "autoPromptTouchId" | i18n }}</bit-label>
+          </bit-form-control>
+        }
+
+        @if (pinEnabled() || form.value.pin) {
+          <bit-form-control>
+            <input type="checkbox" bitCheckbox formControlName="pin" />
+            <bit-label>{{ "unlockWithPin" | i18n }}</bit-label>
+          </bit-form-control>
+        }
+
+        @if (form.value.pin && userHasMasterPassword()) {
+          <bit-form-control class="tw-ms-5">
+            <input type="checkbox" bitCheckbox formControlName="pinLockWithMasterPassword" />
+            <bit-label>{{ "requireMasterPasswordOnAppRestart" | i18n }}</bit-label>
           </bit-form-control>
         }
       </bit-tab>
