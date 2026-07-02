@@ -16,8 +16,6 @@ import {
   elementIsSpanElement,
   nodeIsElement,
   elementIsTextAreaElement,
-  nodeIsFormElement,
-  nodeIsInputElement,
   sendExtensionMessage,
   getAttributeBoolean,
   getPropertyOrAttribute,
@@ -711,7 +709,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       formFieldElements = this.domQueryService.query<FormFieldElement>(
         globalThis.document.documentElement,
         this.formFieldQueryString,
-        (node: Node) => this.isNodeFormFieldElement(node),
+        (element: Element) => this.isElementFormFieldElement(element),
         this.mutationObserver,
       );
     }
@@ -1326,14 +1324,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const queriedElements = this.domQueryService.query<HTMLElement>(
       globalThis.document.documentElement,
       `form, ${this.formFieldQueryString}`,
-      (node: Node) => {
-        if (nodeIsFormElement(node)) {
-          formElements.push(node);
+      (element: Element) => {
+        if (elementIsFormElement(element)) {
+          formElements.push(element);
           return true;
         }
 
-        if (this.isNodeFormFieldElement(node)) {
-          formFieldElements.push(node as FormFieldElement);
+        if (this.isElementFormFieldElement(element)) {
+          formFieldElements.push(element as FormFieldElement);
           return true;
         }
 
@@ -1353,7 +1351,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      if (this.isNodeFormFieldElement(element)) {
+      if (this.isElementFormFieldElement(element)) {
         formFieldElements.push(element);
       }
     }
@@ -1363,26 +1361,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Checks if the passed node is a form field element.
-   * @param {Node} node
+   * @param {Node} element
    * @returns {boolean}
    * @private
    */
-  private isNodeFormFieldElement(node: Node): boolean {
-    if (!nodeIsElement(node)) {
-      return false;
-    }
-
-    const nodeTagName = node.tagName.toLowerCase();
+  private isElementFormFieldElement(element: Element): boolean {
+    const nodeTagName = element.tagName.toLowerCase();
 
     const nodeIsSpanElementWithAutofillAttribute =
-      nodeTagName === "span" && node.hasAttribute("data-bwautofill");
+      nodeTagName === "span" && element.hasAttribute("data-bwautofill");
     if (nodeIsSpanElementWithAutofillAttribute) {
       return true;
     }
 
-    const nodeHasBwIgnoreAttribute = node.hasAttribute("data-bwignore");
+    const nodeHasBwIgnoreAttribute = element.hasAttribute("data-bwignore");
     const nodeIsValidInputElement =
-      nodeTagName === "input" && !this.ignoredInputTypes.has((node as HTMLInputElement).type);
+      nodeTagName === "input" && !this.ignoredInputTypes.has((element as HTMLInputElement).type);
     if (nodeIsValidInputElement && !nodeHasBwIgnoreAttribute) {
       return true;
     }
@@ -2013,7 +2007,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.domQueryService.query<HTMLInputElement>(
         globalThis.document.documentElement,
         `input[type="password"]`,
-        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+        (element: Element) => elementIsInputElement(element) && element.type === "password",
       )?.length > 0
     );
   }
