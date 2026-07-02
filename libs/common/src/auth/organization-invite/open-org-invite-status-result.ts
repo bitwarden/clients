@@ -1,4 +1,4 @@
-import { OpenOrgInviteStatusResponse } from "./open-org-invite-status.response";
+import { OpenOrgInviteStatus } from "./open-org-invite-status";
 
 /**
  * Result contract returned by `OrganizationInviteService.getOpenOrgInviteStatus(code)`.
@@ -20,7 +20,7 @@ import { OpenOrgInviteStatusResponse } from "./open-org-invite-status.response";
  * of that kind above when the server change lands.
  */
 export type OpenOrgInviteStatusResult =
-  | { kind: "ok"; status: OpenOrgInviteStatusResponse }
+  | { kind: "ok"; status: OpenOrgInviteStatus }
   | { kind: "not-found" }
   | { kind: "plan-not-supported" }
   | { kind: "unexpected"; errorMessage: string };

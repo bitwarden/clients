@@ -1,9 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import {
-  OpenOrgInviteSsoConfig,
-  OpenOrgInviteStatusResponse,
-} from "./open-org-invite-status.response";
+import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "./open-org-invite-status";
 import { OrgInviteKind } from "./org-invite-kind";
 
 /**
@@ -19,7 +16,7 @@ export interface OpenOrgInviteUrlParams {
 /**
  * Domain object representing one open organization invite (admin published a reusable
  * link that anyone holding the URL can use to join; the link carries no user identity).
- * Hydrated from URL params + the status fetch ({@link fromUrlParamsAndStatusResponse}) or from
+ * Hydrated from URL params + the status fetch ({@link fromUrlParamsAndStatus}) or from
  * persisted state ({@link fromJSON}). Required fields are enforced by the constructor.
  *
  * Discriminates against {@link DirectOrganizationInvite} via {@link kind}.
@@ -48,19 +45,19 @@ export class OpenOrganizationInvite {
   }
 
   /**
-   * Factory: takes validated URL params + the status response and produces the
+   * Factory: takes validated URL params + the status snapshot and produces the
    * fully-formed invite.
    */
-  static fromUrlParamsAndStatusResponse(
+  static fromUrlParamsAndStatus(
     urlParams: OpenOrgInviteUrlParams,
-    statusResponse: OpenOrgInviteStatusResponse,
+    status: OpenOrgInviteStatus,
   ): OpenOrganizationInvite {
     return new OpenOrganizationInvite({
       inviteLinkCode: urlParams.inviteLinkCode,
       inviteKey: urlParams.inviteKey,
-      organizationId: statusResponse.organizationId,
-      organizationName: statusResponse.organizationName,
-      sso: statusResponse.sso ?? undefined,
+      organizationId: status.organizationId,
+      organizationName: status.organizationName,
+      sso: status.sso ?? undefined,
     });
   }
 

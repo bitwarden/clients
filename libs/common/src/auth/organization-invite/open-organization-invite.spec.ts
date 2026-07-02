@@ -1,9 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import {
-  OpenOrgInviteSsoConfig,
-  OpenOrgInviteStatusResponse,
-} from "./open-org-invite-status.response";
+import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "./open-org-invite-status";
 import { OpenOrganizationInvite, OpenOrgInviteUrlParams } from "./open-organization-invite";
 
 describe("OpenOrganizationInvite", () => {
@@ -51,15 +48,13 @@ describe("OpenOrganizationInvite", () => {
     });
   });
 
-  describe("fromUrlParamsAndStatusResponse", () => {
+  describe("fromUrlParamsAndStatus", () => {
     const validUrlParams = (): OpenOrgInviteUrlParams => ({
       inviteLinkCode: "invite-link-code",
       inviteKey: "invite-key",
     });
 
-    const validStatusResponse = (
-      overrides: Partial<OpenOrgInviteStatusResponse> = {},
-    ): OpenOrgInviteStatusResponse => ({
+    const validStatus = (overrides: Partial<OpenOrgInviteStatus> = {}): OpenOrgInviteStatus => ({
       organizationId: "organizationId",
       organizationName: "Acme Inc.",
       seatsAvailable: true,
@@ -68,9 +63,9 @@ describe("OpenOrganizationInvite", () => {
     });
 
     it("returns a fully populated OpenOrganizationInvite", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(
+      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
         validUrlParams(),
-        validStatusResponse({ sso: ssoConfig }),
+        validStatus({ sso: ssoConfig }),
       );
 
       expect(result).toBeInstanceOf(OpenOrganizationInvite);
@@ -84,19 +79,19 @@ describe("OpenOrganizationInvite", () => {
       });
     });
 
-    it("normalizes a null sso from the status response to undefined", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(
+    it("normalizes a null sso from the status to undefined", () => {
+      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
         validUrlParams(),
-        validStatusResponse({ sso: null }),
+        validStatus({ sso: null }),
       );
 
       expect(result.sso).toBeUndefined();
     });
 
-    it("carries sso through when the status response includes it", () => {
-      const result = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(
+    it("carries sso through when the status includes it", () => {
+      const result = OpenOrganizationInvite.fromUrlParamsAndStatus(
         validUrlParams(),
-        validStatusResponse({ sso: ssoConfig }),
+        validStatus({ sso: ssoConfig }),
       );
 
       expect(result.sso).toEqual(ssoConfig);

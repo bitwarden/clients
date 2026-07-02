@@ -6,7 +6,7 @@ import { firstValueFrom } from "rxjs";
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountWarning } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OpenOrgInviteStatusResponse } from "@bitwarden/common/auth/organization-invite/open-org-invite-status.response";
+import { OpenOrgInviteStatus } from "@bitwarden/common/auth/organization-invite/open-org-invite-status";
 import {
   OpenOrganizationInvite,
   OpenOrgInviteUrlParams,
@@ -79,7 +79,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * failures so the caller can short-circuit. `unexpected` re-throws into
    * `AcceptFlowService`'s generic error path.
    */
-  private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatusResponse | null> {
+  private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatus | null> {
     const result = await this.organizationInviteService.getOpenOrgInviteStatus(code);
     switch (result.kind) {
       case "ok":
@@ -128,7 +128,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(urlParams, status);
+    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
     await this.organizationInviteService.setOrganizationInvite(invite);
 
     // SSO-required orgs route straight to /sso. The deepLinkGuard() on this route
@@ -168,7 +168,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(urlParams, status);
+    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,

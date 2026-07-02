@@ -40,11 +40,8 @@ import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
 import { DirectOrganizationInvite } from "./direct-organization-invite";
+import { OpenOrgInviteStatus, OpenOrgInviteSsoConfig } from "./open-org-invite-status";
 import { OpenOrgInviteStatusResult } from "./open-org-invite-status-result";
-import {
-  OpenOrgInviteSsoConfig,
-  OpenOrgInviteStatusResponse,
-} from "./open-org-invite-status.response";
 import { OpenOrganizationInvite } from "./open-organization-invite";
 import { OrgInviteKind } from "./org-invite-kind";
 import { OrganizationInvite } from "./organization-invite";
@@ -240,7 +237,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
       // signal from a 400 InviteLinkNotAvailable error to a boolean field (e.g.,
       // LinksEnabled) on the successful status payload. When that lands:
       //   1. Add the field to OrganizationInviteLinkStatusResponseModel and
-      //      OpenOrgInviteStatusResponse.
+      //      OpenOrgInviteStatus.
       //   2. Return `{ kind: "plan-not-supported" }` from here when the field is
       //      false, before constructing the `ok` result below.
       //   3. Remove the 400 branch in the catch below (a stray 400 then falls
@@ -250,7 +247,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         response.sso == null
           ? null
           : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
-      const status: OpenOrgInviteStatusResponse = {
+      const status: OpenOrgInviteStatus = {
         organizationId: response.organizationId,
         organizationName: response.organizationName,
         seatsAvailable: response.seatsAvailable,

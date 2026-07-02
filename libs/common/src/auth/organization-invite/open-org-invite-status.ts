@@ -10,12 +10,13 @@ export interface OpenOrgInviteSsoConfig {
 }
 
 /**
- * Successful-response shape from the open-invite status endpoint
- * (`OrganizationInviteService.getOpenOrgInviteStatus(code)`). The service wraps this
- * in an {@link OpenOrgInviteStatusResult} to encapsulate the endpoint's error
- * modes into a single discriminated return.
+ * Domain snapshot of an open invite link's status, sourced from
+ * `OrganizationInviteService.getOpenOrgInviteStatus(code)`. Mapped from the wire
+ * response inside the service; the service wraps this in an
+ * {@link OpenOrgInviteStatusResult} to encapsulate the endpoint's error modes
+ * into a single discriminated return.
  */
-export interface OpenOrgInviteStatusResponse {
+export interface OpenOrgInviteStatus {
   organizationId: string;
   organizationName: string;
   seatsAvailable: boolean;
