@@ -239,6 +239,9 @@ apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-k
 apps/web/src/app/pam @bitwarden/team-pam-dev
 libs/pam @bitwarden/team-pam-dev
 
+## Automation driver ##
+libs/automation-driver @bitwarden/team-ai-sme @bitwarden/team-key-management-dev @bitwarden/team-platform-dev
+
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
 apps/browser/store/locales/en

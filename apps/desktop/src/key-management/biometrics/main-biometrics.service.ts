@@ -8,7 +8,10 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
+import { isDev } from "../../utils";
 
+import { AutomationBiometricsIPCListener } from "./automation-biometrics-ipc.listener";
+import { AutomationBiometricsService } from "./automation-biometrics.service";
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
@@ -28,7 +31,16 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private cryptoFunctionService: CryptoFunctionService,
   ) {
     super();
-    if (platform === "win32") {
+    if (process.env.USE_AUTOMATION_BIOMETRICS && isDev()) {
+      // Replace the OS biometric service with a fake, automation-controlled one so the native OS
+      // prompt never fires. Only ever active in dev mode with the env var set.
+      this.logService.warning(
+        "[BiometricsMain] USE_AUTOMATION_BIOMETRICS is set; using automation biometrics service",
+      );
+      const automationBiometricsService = new AutomationBiometricsService(this.logService);
+      this.osBiometricsService = automationBiometricsService;
+      new AutomationBiometricsIPCListener(automationBiometricsService, this.logService).init();
+    } else if (platform === "win32") {
       this.osBiometricsService = new WindowsBiometricsSystem(
         this.i18nService,
         this.windowMain,

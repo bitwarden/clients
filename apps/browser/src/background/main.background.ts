@@ -47,6 +47,7 @@ import {
   AutomaticUserConfirmationService,
   DefaultAutomaticUserConfirmationService,
 } from "@bitwarden/auto-confirm";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -1764,6 +1765,15 @@ export default class MainBackground {
 
   async bootstrap() {
     this.containerService.attachToGlobal(self);
+
+    AutomationDriver.attachToGlobalIfDev(
+      self,
+      this.platformUtilsService,
+      this.configService,
+      this.stateProvider,
+      this.messagingService,
+      { logService: this.logService },
+    );
 
     await this.sdkLoadService.loadAndInit();
     // Only the "true" background should run migrations
