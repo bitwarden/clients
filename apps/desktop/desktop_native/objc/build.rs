@@ -1,5 +1,17 @@
+// The Objective-C sources and the `cc`/`glob` build-dependencies are only available
+// on a macOS host (see the target-gated `build-dependencies` in Cargo.toml, which are
+// resolved against the host). Guard the compiling `main` with a host `cfg` so this
+// build script still compiles when building natively on other platforms.
 #[cfg(target_os = "macos")]
 fn main() {
+    // Build scripts run on the host, so the `#[cfg(target_os = "macos")]` above reflects
+    // the host, not the build target. When cross-compiling from macOS to another OS
+    // (e.g. Windows via `cargo xwin`) this `main` still runs, so check the target OS
+    // Cargo exposes and skip the Objective-C compilation for non-macOS targets.
+    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("macos") {
+        return;
+    }
+
     use glob::glob;
 
     // Compile Objective-C files
