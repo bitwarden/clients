@@ -19,6 +19,8 @@ export type AuditRow = {
   cipherName: string | null;
   /** Decrypted collection name from local vault state, or null. */
   collectionName: string | null;
+  /** The access rule's name (plaintext, provided by the server), for rule administration events; null otherwise. */
+  ruleName: string | null;
   /** An approver comment or a revoke reason, if any. */
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
@@ -102,10 +104,11 @@ export function toAuditRow(
     requester,
     cipherName,
     collectionName,
+    ruleName: event.ruleName,
     detail: event.detail,
     automated: event.automated,
     requestId: event.requestId,
-    searchText: [actor, requester, cipherName, collectionName, event.detail]
+    searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
       .filter((value): value is string => value != null)
       .join(" ")
       .toLowerCase(),

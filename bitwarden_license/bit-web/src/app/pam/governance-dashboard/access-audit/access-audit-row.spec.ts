@@ -1,6 +1,6 @@
-import { AccessAuditEventKind } from "@bitwarden/bit-pam";
+import { AccessAuditEventKind, AccessAuditEventResponse } from "@bitwarden/bit-pam";
 
-import { AuditRow, auditRowMatchesFilter } from "./access-audit-row";
+import { AuditRow, auditRowMatchesFilter, toAuditRow } from "./access-audit-row";
 
 function row(overrides: Partial<AuditRow> = {}): AuditRow {
   return {
@@ -11,6 +11,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     requester: "alice",
     cipherName: "prod db",
     collectionName: "production",
+    ruleName: null,
     detail: null,
     automated: false,
     requestId: null,
@@ -51,5 +52,26 @@ describe("auditRowMatchesFilter", () => {
     expect(
       auditRowMatchesFilter(revoked, { text: "carol", kind: AccessAuditEventKind.LeaseRevoked }),
     ).toBe(false);
+  });
+});
+
+describe("toAuditRow", () => {
+  it("shows the rule name as the item for a rule administration event", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.RuleCreated,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      ActorName: "admin",
+      RuleName: "prod-rule",
+      Automated: false,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.ruleName).toBe("prod-rule");
+    // A rule event has no cipher, so the item falls back to the rule name.
+    expect(result.cipherName).toBeNull();
+    // The rule name is part of the free-text search haystack.
+    expect(result.searchText).toContain("prod-rule");
   });
 });
