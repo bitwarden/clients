@@ -30,7 +30,7 @@ export abstract class AbstractSelfHostingLicenseUploaderComponent {
     }
 
     this.form = this.formBuilder.group({
-      file: [null, [Validators.required]],
+      file: [[] as File[], [Validators.required]],
     });
     this.submit = this.submit.bind(this);
   }
@@ -41,15 +41,6 @@ export abstract class AbstractSelfHostingLicenseUploaderComponent {
    */
   protected get formValue(): LicenseUploaderFormModel {
     return this.form.value as LicenseUploaderFormModel;
-  }
-
-  /**
-   * Triggered when a different license file is selected.
-   * @param event
-   */
-  onLicenseFileSelectedChanged(event: Event): void {
-    const element = event.target as HTMLInputElement;
-    this.form.value.file = element.files.length > 0 ? element.files[0] : null;
   }
 
   /**

@@ -28,8 +28,8 @@ import { SecretsManagerPortingApiService } from "../services/sm-porting-api.serv
 export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected orgId: string = null;
-  protected selectedFile: File;
   protected formGroup = new FormGroup({
+    file: new FormControl<File[]>([], { nonNullable: true }),
     pastedContents: new FormControl(""),
   });
 
@@ -55,9 +55,8 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   }
 
   submit = async () => {
-    const fileElement = document.getElementById("file") as HTMLInputElement;
     const importContents = await this.getImportContents(
-      fileElement,
+      this.formGroup.controls.file.value?.[0] ?? null,
       this.formGroup.get("pastedContents").value.trim(),
     );
 
@@ -102,22 +101,17 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
   };
 
   protected async getImportContents(
-    fileElement: HTMLInputElement,
+    selectedFile: File | null,
     pastedContents: string,
   ): Promise<string> {
-    const files = fileElement.files;
-
-    if (
-      (files == null || files.length === 0) &&
-      (pastedContents == null || pastedContents === "")
-    ) {
+    if (selectedFile == null && (pastedContents == null || pastedContents === "")) {
       return null;
     }
 
     let fileContents = pastedContents;
-    if (files != null && files.length > 0) {
+    if (selectedFile != null) {
       try {
-        const content = await this.getFileContents(files[0]);
+        const content = await this.getFileContents(selectedFile);
         if (content != null) {
           fileContents = content;
         }
@@ -133,16 +127,9 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     return fileContents;
   }
 
-  protected setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    const file = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-    this.selectedFile = file;
-  }
-
   private clearForm() {
-    (document.getElementById("file") as HTMLInputElement).value = "";
-    this.selectedFile = null;
     this.formGroup.reset({
+      file: [],
       pastedContents: "",
     });
   }

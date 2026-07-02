@@ -16,6 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
 
+import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
 import { BitFormFieldControlDirective } from "./form-field-control.directive";
@@ -32,8 +33,23 @@ import { BitSuffixDirective } from "./suffix.directive";
   },
 })
 export class BitFormFieldComponent implements AfterContentChecked {
-  readonly input = contentChild.required(BitFormFieldControlDirective);
-  readonly hint = contentChild(BitHintDirective);
+  private readonly projectedControl = contentChild(BitFormFieldControlDirective);
+
+  /**
+   * Lets a composing wrapper (e.g. `bit-file-upload`, `bit-file-dropzone`) supply the control
+   * directive it hosts, instead of projecting one into the content. Everything downstream reads
+   * the same `input()` regardless of the source.
+   */
+  readonly controlInput = input<BitFormFieldControlDirective | undefined>(undefined, {
+    alias: "control",
+  });
+
+  /** The control directive driving the field — from the wrapper input, else projected content. */
+  readonly input = computed(() => this.controlInput() ?? this.projectedControl());
+
+  // `descendants` so a hint a wrapper places inside its `[bitCustomInput]` slot is still found for
+  // the `aria-describedby` wiring below.
+  readonly hint = contentChild(BitHintDirective, { descendants: true });
   readonly label = contentChild(BitLabelComponent);
 
   readonly error = viewChild(BitErrorComponent);
@@ -42,11 +58,19 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   readonly size = input<FieldContainerSize>("base");
 
+  private readonly customInputChild = contentChild(BitCustomInputDirective);
+
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);
 
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
+
+  /**
+   * Whether a composing wrapper projected its own control into the `[bitCustomInput]` slot; when so
+   * the field-container chrome is not rendered.
+   */
+  protected readonly customInput = computed(() => this.customInputChild() != null);
 
   protected get labelAndFieldContainerClasses(): string {
     return [
@@ -80,18 +104,22 @@ export class BitFormFieldComponent implements AfterContentChecked {
   }
 
   protected get readOnly(): boolean {
-    return !!this.input().readOnly();
+    return !!this.input()?.readOnly();
   }
 
   ngAfterContentChecked(): void {
+    const input = this.input();
+    if (input == null) {
+      return;
+    }
     const error = this.error();
     const hint = this.hint();
     if (error) {
-      this.input().ariaDescribedBy.set(error.id);
+      input.ariaDescribedBy.set(error.id);
     } else if (hint) {
-      this.input().ariaDescribedBy.set(hint.id);
+      input.ariaDescribedBy.set(hint.id);
     } else {
-      this.input().ariaDescribedBy.set(undefined);
+      input.ariaDescribedBy.set(undefined);
     }
   }
 }

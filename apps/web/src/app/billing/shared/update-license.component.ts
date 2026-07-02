@@ -39,9 +39,8 @@ export class UpdateLicenseComponent implements OnInit {
   formPromise: Promise<void>;
   title: string = this.i18nService.t("updateLicense");
   updateLicenseForm = this.formBuilder.group({
-    file: [null],
+    file: [[] as File[]],
   });
-  licenseFile: File = null;
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -57,18 +56,13 @@ export class UpdateLicenseComponent implements OnInit {
       this.updateLicenseForm.updateValueAndValidity();
     }
   }
-  protected setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    const file: File = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-    this.licenseFile = file;
-  }
   submit = async () => {
     this.updateLicenseForm.markAllAsTouched();
     if (this.updateLicenseForm.invalid) {
       return;
     }
-    const files = this.licenseFile;
-    if (files == null) {
+    const file = (this.updateLicenseForm.get("file").value as File[])?.[0];
+    if (file == null) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -77,7 +71,7 @@ export class UpdateLicenseComponent implements OnInit {
       return;
     }
     const fd = new FormData();
-    fd.append("license", files);
+    fd.append("license", file);
 
     let updatePromise: Promise<void | unknown> = null;
     if (this.organizationId == null) {
