@@ -5,6 +5,7 @@
 use std::{
     alloc,
     mem::{size_of, ManuallyDrop, MaybeUninit},
+    ops::DerefMut,
     ptr::{self, NonNull},
     sync::{Arc, Mutex, OnceLock},
 };
@@ -27,7 +28,7 @@ use super::{
 };
 use crate::{
     api::{
-        plugin::{get_request_hash, get_request_signature},
+        plugin::{crypto::RequestHash, get_request_hash, SignedRequest},
         sys::plugin::{
             WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
             WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
@@ -271,44 +272,34 @@ impl PluginAuthenticatorComObject {
         }
     }
 
-    fn cancel_operation(&self, request: PluginCancelOperationRequest) -> windows::core::Result<()> {
-        let mut guard = self.in_flight_request.lock().expect("not poisoned");
-
-        let Some(ctx) = guard.as_ref() else {
-            tracing::warn!("Received a request to cancel an operation, but no context was found");
-            return Err(E_FAIL.into());
-        };
-        let incoming_id = request.transaction_id();
-        if ctx.transaction_id != incoming_id {
-            tracing::warn!(
-                "Attempting to cancel operation with mismatched transaction ID. Expected {:?}, received {:?}",
-                ctx.transaction_id,
-                incoming_id
-            );
-            return Err(E_FAIL.into());
+    fn cancel_operation(
+        &self,
+        ctx: &mut Option<RequestContext>,
+        request: PluginCancelOperationRequest,
+    ) -> windows::core::Result<()> {
+        match ctx.as_ref() {
+            Some(ctx) => {
+                let incoming_id = request.transaction_id();
+                if ctx.transaction_id != incoming_id {
+                    tracing::warn!(
+                        "Attempting to cancel operation with mismatched transaction ID. Expected {:?}, received {:?}",
+                        ctx.transaction_id,
+                        incoming_id
+                    );
+                    return Err(E_FAIL.into());
+                }
+            }
+            None => {
+                tracing::warn!(
+                    "Received a request to cancel an operation, but no context was found"
+                );
+                return Err(E_FAIL.into());
+            }
         }
-        let signature = request.request_signature().map_err(|err| {
-            tracing::error!(%err, "Invalid request signature buffer in CancelOperation");
-            E_INVALIDARG
-        })?;
-
-        tracing::debug!("Retrieving signing key");
-        let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
-            tracing::error!(%err, "Failed to get signing key for operation");
-            E_FAIL
-        })?;
-        tracing::debug!("Verifying signature");
-        op_pub_key
-            .verify_signature((&ctx.request_hash).into(), signature)
-            .map_err(|err| {
-                tracing::error!("Failed to verify request signature: {err}");
-                E_INVALIDARG
-            })?;
-        tracing::debug!("Signature verified");
 
         // Clean up request context here; regardless of whether the handler
         // succeeds or fails, we're ready for the next request.
-        _ = guard.take();
+        _ = ctx.take();
 
         // Pass to handler
         self.handler.cancel_operation(request).map_err(|err| {
@@ -368,24 +359,11 @@ impl PluginAuthenticatorComObject {
             "Method called with null request pointer from Windows. Aborting request.",
         ))?;
 
-        // Verify that the request came from the OS.
-        tracing::debug!("Verifying request");
         // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety
         // requirements as this function: the encoded request must be valid.
         let request_hash = unsafe { get_request_hash(request)? };
-        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements
-        // as this function: the encoded request must be valid.
-        let signature = unsafe { get_request_signature(request)? };
-        tracing::debug!("Retrieving signing key");
-        let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Failed to get signing key for operation",
-                err,
-            )
-        })?;
-        tracing::debug!("Verifying signature");
-        op_pub_key.verify_signature((&request_hash).into(), signature)?;
+        self.verify_request_signature(&request, (&request_hash).into())?;
+
         // SAFETY: We verified the request came from the operating system, so
         // trust that it is well-formed.
         let request: T =
@@ -415,6 +393,62 @@ impl PluginAuthenticatorComObject {
         Ok(request)
     }
 
+    /// Reads a pointer as a cancel operation request and verifies its signature
+    /// as coming from the OS.
+    ///
+    /// # Safety: The `request_ptr` must be convertible to a reference.
+    unsafe fn initialize_cancel_request<'a>(
+        &self,
+        ctx: Option<&RequestContext>,
+        request_ptr: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
+    ) -> Result<PluginCancelOperationRequest<'a>, WinWebAuthnError> {
+        if !request_ptr.is_aligned() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "cancel request pointer is unaligned",
+            ));
+        }
+
+        let request = unsafe { request_ptr.as_ref() }.ok_or(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "CancelOperation called with null request pointer from Windows. Aborting request.",
+        ))?;
+
+        let ctx = ctx.ok_or(WinWebAuthnError::new(
+            ErrorKind::WindowsInternal,
+            "No in-flight request found to cancel.",
+        ))?;
+
+        let request_hash = ctx.request_hash.clone();
+
+        self.verify_request_signature(&request, (&request_hash).into())?;
+
+        Ok(PluginCancelOperationRequest::from_ref(
+            request,
+            request_hash,
+        ))
+    }
+
+    /// Verifies a request signature.
+    fn verify_request_signature<T: SignedRequest>(
+        &self,
+        request: &T,
+        request_hash: RequestHash<'_>,
+    ) -> Result<(), WinWebAuthnError> {
+        // SAFETY: We're about to verify the signature, which will implicitly validate the length.
+        let signature = unsafe { request.get_request_signature()? };
+        tracing::debug!("Retrieving signing key");
+        let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to get signing key for operation",
+                err,
+            )
+        })?;
+        tracing::debug!("Verifying signature");
+        op_pub_key.verify_signature(request_hash, signature)?;
+        Ok(())
+    }
     fn complete_request(
         &self,
         request_transaction_id: GUID,
@@ -503,11 +537,19 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
         request_ptr: *const WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST,
     ) -> HRESULT {
         tracing::debug!("CancelOperation called");
-        let request = match request_ptr.try_into() {
+        let mut ctx = self.in_flight_request.lock().expect("not poisoned");
+        // SAFETY: We assume that the request from the OS is convertible to a
+        // reference. The method will verify that the request comes from the OS.
+        let init_result = unsafe { self.initialize_cancel_request(ctx.as_ref(), request_ptr) };
+        let request = match init_result {
             Ok(request) => request,
-            Err(err) => return err,
+            Err(err) => {
+                tracing::error!(%err, "Invalid request passed to CancelOperation");
+                return E_INVALIDARG;
+            }
         };
-        let result = self.cancel_operation(request);
+
+        let result = self.cancel_operation(ctx.deref_mut(), request);
         result.into()
     }
 

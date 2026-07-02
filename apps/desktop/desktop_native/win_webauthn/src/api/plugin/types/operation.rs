@@ -22,41 +22,6 @@ use crate::{
 
 // Generic Operation types
 
-/// Extract the signature from an operation request.
-///
-/// The signature is made by the OS over the SHA-256 hash of the operation
-/// request buffer using the signing key created during authenticator
-/// registration and retrievable via
-/// [webauthn_plugin_get_operation_signing_public_key](crate::plugin::crypto::webauthn_plugin_get_operation_signing_public_key).
-///
-/// # Safety
-/// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
-/// string of length `request.cbRequestSignature`.
-pub(in crate::api::plugin) unsafe fn get_request_signature(
-    request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-) -> Result<Signature<'_>, WinWebAuthnError> {
-    if request.pbRequestSignature.is_null() {
-        return Err(WinWebAuthnError::new(
-            ErrorKind::InvalidArguments,
-            "request signature buffer pointer is null",
-        ));
-    } else if !request.pbRequestSignature.is_aligned() {
-        return Err(WinWebAuthnError::new(
-            ErrorKind::InvalidArguments,
-            "request signature buffer pointer is not aligned",
-        ));
-    }
-
-    // SAFETY: The caller must make sure that the encoded request is valid.
-    let signature = unsafe {
-        std::slice::from_raw_parts(
-            request.pbRequestSignature,
-            request.cbRequestSignature as usize,
-        )
-    };
-    Ok(Signature::new(signature))
-}
-
 /// Calculate a SHA-256 hash over the request.
 ///
 /// # Safety
@@ -230,5 +195,44 @@ pub(crate) fn get_operation_signing_public_key(
             ErrorKind::WindowsInternal,
             "Windows returned null pointer when requesting operation signing public key",
         )),
+    }
+}
+
+pub(in crate::api::plugin) trait SignedRequest {
+    fn get_signature_parts(&self) -> (u32, *const u8);
+
+    /// Extract the signature from an operation request.
+    ///
+    /// The signature is made by the OS over the SHA-256 hash of the operation
+    /// request buffer using the signing key created during authenticator
+    /// registration and retrievable via
+    /// [webauthn_plugin_get_operation_signing_public_key](crate::plugin::crypto::webauthn_plugin_get_operation_signing_public_key).
+    ///
+    /// # Safety
+    /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
+    /// string of length `request.cbRequestSignature`.
+    unsafe fn get_request_signature(&self) -> Result<Signature<'_>, WinWebAuthnError> {
+        let (count, ptr) = self.get_signature_parts();
+        if ptr.is_null() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "request signature buffer pointer is null",
+            ));
+        } else if !ptr.is_aligned() {
+            return Err(WinWebAuthnError::new(
+                ErrorKind::InvalidArguments,
+                "request signature buffer pointer is not aligned",
+            ));
+        }
+
+        // SAFETY: The caller must make sure that the encoded request is valid.
+        let signature = unsafe { std::slice::from_raw_parts(ptr, count as usize) };
+        Ok(Signature::new(signature))
+    }
+}
+
+impl SignedRequest for &WEBAUTHN_PLUGIN_OPERATION_REQUEST {
+    fn get_signature_parts(&self) -> (u32, *const u8) {
+        (self.cbRequestSignature, self.pbRequestSignature)
     }
 }
