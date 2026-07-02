@@ -30,13 +30,18 @@ employ to decrypt their vaults after SSO authentication (configured under the
 org's SSO settings):
 
 - **Master password member decryption option**: server's
-  `SetInitialMasterPasswordCommand` accepts the user when they submit their
+  `FinishSsoJitProvisionMasterPasswordCommand` accepts the user when they submit their
   initial master password.
 - **Trusted Device Encryption (TDE) member decryption option**: server
   accepts the user during admin-recovery enrollment (the org feature that
   lets admins recover user accounts via a shared key — TDE users are enrolled
   automatically as part of first-device setup, and the acceptance is bundled
   into that server call).
+- **Key Connector member decryption option**: server's
+  `SetKeyConnectorKeyCommand` accepts the user when the client completes
+  key-connector provisioning — the client posts the master-key encryption key
+  to the org's self-hosted Key Connector service, then posts the wrapped user
+  key to Bitwarden.
 
 ---
 
@@ -150,7 +155,7 @@ After SSO they land in a "set initial password" flow.
 3. Server JIT-provisions the user
 4. Client navigates the user through "set initial password"
 5. User submits their new MP → `WebSetInitialPasswordService.setInitialPassword` (or `.initializePasswordJitPasswordUserV2Encryption` for the V2 path — V2 is the current SDK-based encryption path; V1 is the deprecated direct path)
-6. Server's `SetInitialMasterPasswordCommand`:
+6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
 7. Client-side cleanup, in `WebSetInitialPasswordService`:
@@ -187,12 +192,35 @@ The flow below covers the net-new TDE case:
    - `organizationInviteService.clearOrganizationInvite()`
 7. User completes device-trust setup and lands in `/vault`
 
-### Why two cleanup points
+### SSO + Key Connector
+
+Net-new Key Connector users JIT-provisioned into an org whose SSO decryption
+option is Key Connector. The master-key encryption key lives on the org's
+self-hosted Key Connector service; the client never derives an MP.
+
+1. Email link → `/accept-organization` → `unauthedHandler` stashes → `/sso`
+2. IdP auth + callback
+3. Server JIT-provisions the user
+4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
+5. User confirms hostname → `keyConnectorService.convertNewSsoUserToKeyConnector(userId)` POSTs the master-key encryption key to Key Connector, then POSTs the wrapped user key + account keys to Bitwarden via `POST /accounts/set-key-connector-key`.
+6. Server's `SetKeyConnectorKeyCommand` writes the crypto and accepts the user into the org as a side effect (via `AcceptOrgUserByOrgSsoIdAsync`).
+7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override:
+   - `routerService.getAndClearLoginRedirectUrl()`
+   - **No `organizationInviteService.clearOrganizationInvite()` anywhere in the KC path — base or override.** `fullSync` doesn't touch `ORGANIZATION_INVITE_DISK`, and no other post-accept code clears it either, so the stashed invite persists on disk after acceptance. Nothing immediately breaks because the override _does_ clear the login-redirect URL — `deepLinkGuard` never replays `/accept-organization`, so `authedHandler` doesn't re-consume the stale stash. It self-heals via the next invite-slot overwrite or the email-mismatch guard in `WebLoginComponentService`. Latent divergence from MP-SSO / TDE-SSO — arguably a bug.
+8. User lands in `/vault`
+
+### Why three cleanup points
 
 MP-SSO cleans up in `WebSetInitialPasswordService`, TDE-SSO in
-`WebLoginDecryptionOptionsService` — different services own the two
-account-setup paths. Consolidation tracked in
-[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
+`WebLoginDecryptionOptionsService`, and Key Connector-SSO in the web-app
+override of `ConfirmKeyConnectorDomainComponent` — different services own
+the three account-setup paths.
+
+MP and TDE both explicitly `clearOrganizationInvite()`. Key Connector never
+clears the stash; the invite sits on disk until an overwrite or the email-
+mismatch guard drops it. Consolidation of the MP + TDE pair is tracked in
+[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615); a KC fix would
+either extend that scope or land as its own follow-up.
 
 ---
 
