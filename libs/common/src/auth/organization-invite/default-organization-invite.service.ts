@@ -31,6 +31,7 @@ import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/m
 import { Policy } from "../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
+import { ErrorResponse } from "../../models/response/error.response";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
@@ -39,11 +40,12 @@ import { OrgKey } from "../../types/key";
 import { AuthService } from "../abstractions/auth.service";
 
 import { DirectOrganizationInvite } from "./direct-organization-invite";
+import { OpenOrgInviteStatusResult } from "./open-org-invite-status-result";
 import {
   OpenOrgInviteSsoConfig,
-  OpenOrgInviteStatus,
-  OpenOrganizationInvite,
-} from "./open-organization-invite";
+  OpenOrgInviteStatusResponse,
+} from "./open-org-invite-status.response";
+import { OpenOrganizationInvite } from "./open-organization-invite";
 import { OrgInviteKind } from "./org-invite-kind";
 import { OrganizationInvite } from "./organization-invite";
 import { DIRECT_ORGANIZATION_INVITE, OPEN_ORGANIZATION_INVITE } from "./organization-invite-state";
@@ -231,23 +233,56 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
   }
 
+  async getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatusResult> {
+    try {
+      const response = await this.organizationInviteLinkApiService.getStatus(code);
+      // TODO: PM-39815 — server is moving the "plan doesn't support invite links"
+      // signal from a 400 InviteLinkNotAvailable error to a boolean field (e.g.,
+      // LinksEnabled) on the successful status payload. When that lands:
+      //   1. Add the field to OrganizationInviteLinkStatusResponseModel and
+      //      OpenOrgInviteStatusResponse.
+      //   2. Return `{ kind: "plan-not-supported" }` from here when the field is
+      //      false, before constructing the `ok` result below.
+      //   3. Remove the 400 branch in the catch below (a stray 400 then falls
+      //      through to `unexpected`, which is the desired behavior).
+      // Consumer result contract is unchanged.
+      const sso: OpenOrgInviteSsoConfig | null =
+        response.sso == null
+          ? null
+          : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
+      const status: OpenOrgInviteStatusResponse = {
+        organizationId: response.organizationId,
+        organizationName: response.organizationName,
+        seatsAvailable: response.seatsAvailable,
+        sso,
+      };
+      return { kind: "ok", status };
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        return { kind: "not-found" };
+      }
+      if (e instanceof ErrorResponse && e.statusCode === 400) {
+        return { kind: "plan-not-supported" };
+      }
+      return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
+    }
+  }
+
   /**
-   * Fetches the public status of an open invite link by its code (anonymous endpoint).
-   * Throws ErrorResponse for 404 / 400 / network / 5xx — callers (the open-invite landing
-   * component) discriminate on `statusCode` to pick the right error UX.
+   * Best-effort message extractor for the `unexpected` kind on result-typed methods.
+   * `ErrorResponse.getSingleMessage()` surfaces the most user-facing string (validation
+   * errors first, then top-level `Message`); other `Error`s expose `.message`; unknown
+   * throws fall back to `String(e)`. Shared across result-typed methods so the fallback
+   * behavior stays consistent.
    */
-  async getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatus> {
-    const response = await this.organizationInviteLinkApiService.getStatus(code);
-    const sso: OpenOrgInviteSsoConfig | null =
-      response.sso == null
-        ? null
-        : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
-    return {
-      organizationId: response.organizationId,
-      organizationName: response.organizationName,
-      seatsAvailable: response.seatsAvailable,
-      sso,
-    };
+  private extractErrorMessage(e: unknown): string {
+    if (e instanceof ErrorResponse) {
+      return e.getSingleMessage();
+    }
+    if (e instanceof Error) {
+      return e.message;
+    }
+    return String(e);
   }
 
   /**

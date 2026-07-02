@@ -23,6 +23,7 @@ import { ResetPasswordPolicyOptions } from "../../admin-console/models/domain/re
 import { OrganizationKeysResponse } from "../../admin-console/models/response/organization-keys.response";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { ErrorResponse } from "../../models/response/error.response";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { Utils } from "../../platform/misc/utils";
@@ -724,8 +725,9 @@ describe("DefaultOrganizationInviteService", () => {
   });
 
   describe("getOpenInviteStatus", () => {
-    it("maps a non-SSO status response", async () => {
+    it("returns ok with a mapped non-SSO status on success", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
+        organizationId: "org-id",
         organizationName: "Acme",
         seatsAvailable: true,
         sso: null,
@@ -733,12 +735,21 @@ describe("DefaultOrganizationInviteService", () => {
 
       const result = await sut.getOpenInviteStatus("abc");
 
-      expect(result).toEqual({ organizationName: "Acme", seatsAvailable: true, sso: null });
+      expect(result).toEqual({
+        kind: "ok",
+        status: {
+          organizationId: "org-id",
+          organizationName: "Acme",
+          seatsAvailable: true,
+          sso: null,
+        },
+      });
       expect(organizationInviteLinkApiService.getStatus).toHaveBeenCalledWith("abc");
     });
 
-    it("maps an SSO-required status response", async () => {
+    it("returns ok with the SSO config carried through on the mapped status", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
+        organizationId: "org-id",
         organizationName: "Acme",
         seatsAvailable: true,
         sso: { orgSsoId: "acme-sso", required: true },
@@ -746,14 +757,63 @@ describe("DefaultOrganizationInviteService", () => {
 
       const result = await sut.getOpenInviteStatus("abc");
 
-      expect(result.sso).toEqual({ orgSsoId: "acme-sso", required: true });
+      expect(result.kind).toBe("ok");
+      if (result.kind === "ok") {
+        expect(result.status.sso).toEqual({ orgSsoId: "acme-sso", required: true });
+      }
     });
 
-    it("propagates API errors so callers can discriminate on statusCode", async () => {
-      const error = new Error("404 from server");
-      organizationInviteLinkApiService.getStatus.mockRejectedValue(error);
+    it("returns not-found when the server responds with 404", async () => {
+      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
+        statusCode: 404,
+      });
+      organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
 
-      await expect(sut.getOpenInviteStatus("abc")).rejects.toThrow(error);
+      const result = await sut.getOpenInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "not-found" });
+    });
+
+    it("returns plan-not-supported when the server responds with 400", async () => {
+      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
+        statusCode: 400,
+      });
+      organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
+
+      const result = await sut.getOpenInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "plan-not-supported" });
+    });
+
+    it("returns unexpected with the server's message for unclassified ErrorResponse", async () => {
+      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
+        statusCode: 500,
+        message: "boom",
+        getSingleMessage() {
+          return "boom";
+        },
+      });
+      organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
+
+      const result = await sut.getOpenInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "boom" });
+    });
+
+    it("returns unexpected with .message for non-ErrorResponse Error throws", async () => {
+      organizationInviteLinkApiService.getStatus.mockRejectedValue(new Error("network gone"));
+
+      const result = await sut.getOpenInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "network gone" });
+    });
+
+    it("returns unexpected with String(e) for unknown throws", async () => {
+      organizationInviteLinkApiService.getStatus.mockRejectedValue("bare string");
+
+      const result = await sut.getOpenInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "unexpected", errorMessage: "bare string" });
     });
   });
 

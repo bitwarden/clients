@@ -6,14 +6,13 @@ import { firstValueFrom } from "rxjs";
 import { AcceptFlowService } from "@bitwarden/angular/auth/accept-flow";
 import { AccountWarning } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OpenOrgInviteStatusResponse } from "@bitwarden/common/auth/organization-invite/open-org-invite-status.response";
 import {
   OpenOrganizationInvite,
-  OpenOrgInviteStatus,
   OpenOrgInviteUrlParams,
 } from "@bitwarden/common/auth/organization-invite/open-organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   AnonLayoutWrapperDataService,
@@ -75,16 +74,17 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   }
 
   /**
-   * Fetches the open-invite status and discriminates failures via ErrorResponse statusCode.
-   * Pushes the matching anon-layout error state and returns null when an expected error
-   * (404 / 400) occurs so the caller can short-circuit. Other failures rethrow into
-   * AcceptFlowService's generic error path.
+   * Fetches the open-invite status and dispatches on the service's discriminated result:
+   * pushes the matching anon-layout error state and returns null for classified
+   * failures so the caller can short-circuit. `unexpected` re-throws into
+   * `AcceptFlowService`'s generic error path.
    */
-  private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatus | null> {
-    try {
-      return await this.organizationInviteService.getOpenInviteStatus(code);
-    } catch (e) {
-      if (e instanceof ErrorResponse && e.statusCode === 404) {
+  private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatusResponse | null> {
+    const result = await this.organizationInviteService.getOpenInviteStatus(code);
+    switch (result.kind) {
+      case "ok":
+        return result.status;
+      case "not-found":
         // TODO: placeholder — pending design. Icon (AccountWarning) and copy
         // (openInviteNotFoundTitle / openInviteNotFoundMessage in
         // apps/web/src/locales/en/messages.json) are stand-ins until design
@@ -96,8 +96,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         });
         this.linkNotFound = true;
         return null;
-      }
-      if (e instanceof ErrorResponse && e.statusCode === 400) {
+      case "plan-not-supported":
         // TODO: placeholder — pending design. Icon (AccountWarning) and copy
         // (openInvitePlanNotSupportedTitle / openInvitePlanNotSupportedMessage
         // in apps/web/src/locales/en/messages.json) are stand-ins until design
@@ -109,8 +108,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         });
         this.planNotSupported = true;
         return null;
-      }
-      throw e;
+      case "unexpected":
+        throw new Error(result.errorMessage);
     }
   }
 
@@ -129,7 +128,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
+    const invite = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(urlParams, status);
     await this.organizationInviteService.setOrganizationInvite(invite);
 
     // SSO-required orgs route straight to /sso. The deepLinkGuard() on this route
@@ -169,7 +168,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       return;
     }
 
-    const invite = OpenOrganizationInvite.fromUrlParamsAndStatus(urlParams, status);
+    const invite = OpenOrganizationInvite.fromUrlParamsAndStatusResponse(urlParams, status);
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const success = await this.organizationInviteService.validateAndAcceptInvite(
       invite,

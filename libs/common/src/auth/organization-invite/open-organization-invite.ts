@@ -1,5 +1,9 @@
 import { Jsonify } from "type-fest";
 
+import {
+  OpenOrgInviteSsoConfig,
+  OpenOrgInviteStatusResponse,
+} from "./open-org-invite-status.response";
 import { OrgInviteKind } from "./org-invite-kind";
 
 /**
@@ -13,35 +17,9 @@ export interface OpenOrgInviteUrlParams {
 }
 
 /**
- * SSO configuration snapshot for an open invite link, captured at landing time from
- * the open-invite status endpoint. Persisted on {@link OpenOrganizationInvite} so
- * login/registration can decide SSO routing without re-calling status.
- *
- * Present only when the inviting org has SSO both configured and enabled.
- */
-export interface OpenOrgInviteSsoConfig {
-  orgSsoId: string;
-  required: boolean;
-}
-
-/**
- * Response shape from the open-invite status endpoint
- * (`OrganizationInviteService.getOpenInviteStatus(code)`). The wrapper resolves with
- * this shape on 200; 400 (org plan doesn't support invite links) and 404 (link not
- * found / org deleted / org disabled) throw `ErrorResponse` for the caller to
- * discriminate.
- */
-export interface OpenOrgInviteStatus {
-  organizationId: string;
-  organizationName: string;
-  seatsAvailable: boolean;
-  sso: OpenOrgInviteSsoConfig | null;
-}
-
-/**
  * Domain object representing one open organization invite (admin published a reusable
  * link that anyone holding the URL can use to join; the link carries no user identity).
- * Hydrated from URL params + the status fetch ({@link fromUrlParamsAndStatus}) or from
+ * Hydrated from URL params + the status fetch ({@link fromUrlParamsAndStatusResponse}) or from
  * persisted state ({@link fromJSON}). Required fields are enforced by the constructor.
  *
  * Discriminates against {@link DirectOrganizationInvite} via {@link kind}.
@@ -70,21 +48,19 @@ export class OpenOrganizationInvite {
   }
 
   /**
-   * Single happy-path factory: takes validated URL params + the status response and
-   * produces the fully-formed invite. The "partial" lifecycle moment (URL params known,
-   * status not yet fetched) is intentionally not modeled — there is no construction
-   * path that produces a half-populated invite.
+   * Factory: takes validated URL params + the status response and produces the
+   * fully-formed invite.
    */
-  static fromUrlParamsAndStatus(
+  static fromUrlParamsAndStatusResponse(
     urlParams: OpenOrgInviteUrlParams,
-    status: OpenOrgInviteStatus,
+    statusResponse: OpenOrgInviteStatusResponse,
   ): OpenOrganizationInvite {
     return new OpenOrganizationInvite({
       inviteLinkCode: urlParams.inviteLinkCode,
       inviteKey: urlParams.inviteKey,
-      organizationId: status.organizationId,
-      organizationName: status.organizationName,
-      sso: status.sso ?? undefined,
+      organizationId: statusResponse.organizationId,
+      organizationName: statusResponse.organizationName,
+      sso: statusResponse.sso ?? undefined,
     });
   }
 

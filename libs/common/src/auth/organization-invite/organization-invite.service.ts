@@ -5,7 +5,7 @@ import { UserId } from "@bitwarden/user-core";
 import { MasterPasswordPolicyOptions } from "../../admin-console/models/domain/master-password-policy-options";
 import { Policy } from "../../admin-console/models/domain/policy";
 
-import { OpenOrgInviteStatus } from "./open-organization-invite";
+import { OpenOrgInviteStatusResult } from "./open-org-invite-status-result";
 import { OrganizationInvite } from "./organization-invite";
 
 /**
@@ -77,11 +77,13 @@ export abstract class OrganizationInviteService {
 
   /**
    * Fetches the public status of an open invite link by its code (anonymous endpoint).
-   * Returns `{ organizationName, seatsAvailable, sso }` on 200; throws `ErrorResponse`
-   * with `statusCode === 404` (link not found) or `=== 400` (org plan doesn't support
-   * invite links). Other failures (network / 5xx) also throw.
+   * Returns a discriminated {@link OpenOrgInviteStatusResult} — `ok` with the status
+   * payload on success, or one of the classified failure kinds (`not-found`,
+   * `plan-not-supported`) matching the server's known error surfaces. Unclassified
+   * failures (network / 5xx / non-`ErrorResponse` throws) return `unexpected` with a
+   * best-effort message.
    */
-  abstract getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatus>;
+  abstract getOpenInviteStatus(code: string): Promise<OpenOrgInviteStatusResult>;
 
   /**
    * Validates whether an email's domain is permitted by an open invite link's
