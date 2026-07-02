@@ -8,7 +8,9 @@ class MultiMessageSender implements MessageSender {
     payload: Record<string, unknown> | T = {},
   ): void {
     for (const messageSender of this.innerMessageSenders) {
-      messageSender.send(commandDefinition, payload);
+      // This is technically an invalid cast but we just have to tell TypeScript
+      // it's one of the two so its okay with us passing the value along.
+      messageSender.send(commandDefinition as CommandDefinition<T>, payload);
     }
   }
 }
@@ -42,12 +44,6 @@ export abstract class MessageSender {
    *   be serialized and lose all prototype information.
    */
   abstract send(command: string, payload?: Record<string, unknown>): void;
-
-  /** Implementation of the other two overloads, read their docs instead. */
-  abstract send<T extends Record<string, unknown>>(
-    commandDefinition: CommandDefinition<T> | string,
-    payload: T | Record<string, unknown>,
-  ): void;
 
   /**
    * A helper method for combine multiple {@link MessageSender}'s.
