@@ -366,6 +366,15 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
    * `RegistrationStartComponent` as a pre-auth UX check; server-side enforcement
    * runs at accept time regardless.
    */
+  // TODO: needs product input on error handling. The endpoint can throw (404 when the
+  // invite link has been deleted, plus 5xx/transport). Today the throw propagates through
+  // LoginComponent.openInviteDomainAllowed / RegistrationStartComponent.openInviteDomainAllowed
+  // into continue() / submit() and only the global LoggingErrorHandler catches it — the user
+  // sees no toast, no form error, and the button click looks like a silent no-op. Options
+  // discussed: (a) fail-open and let the accept-flow's classified error path show
+  // "invite not found" post-auth; (b) fail-open + clear open-invite state on a definitive
+  // 404 so pre-auth "Joining <org>" hints stop lying; (c) also surface a toast at the
+  // domain-check step. Awaiting product's call.
   async validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean> {
     const response = await this.organizationInviteLinkApiService.validateEmailDomain(
       new OrganizationInviteLinkValidateEmailDomainRequest({ code, email }),
