@@ -133,9 +133,13 @@ entity AccessRule {
     conditions: List<Condition>
     collections: Set<Collection>
     default_lease_duration: Duration?
-    -- AccessLease constraint: hard ceiling on the total duration of any single lease
-    -- granted under this rule. When set, the lease window is clamped to at most
-    -- this long at start, regardless of what the requester asked for. Null = no cap.
+    -- AccessLease constraint: ceiling on the duration of a single lease AS MINTED —
+    -- when set, the lease window is clamped to at most this long at activation.
+    -- It deliberately does NOT bound the lease's cumulative life across extensions:
+    -- each approved extension pushes the end out past it. The control on cumulative
+    -- duration is per-extension approval, not arithmetic (see
+    -- ExtensionApprovedExtendsParentLease and the resolved note in Open questions).
+    -- Null = no cap.
     max_lease_duration: Duration?
     -- AccessLease constraint: when true, the rule asks for a per-cipher singleton — only
     -- one AccessLease active at a time for a given cipher, across all granted users.
@@ -183,30 +187,42 @@ entity AccessRequest {
     -- structurally at that submit rule; see oldest_rule for the WHY.
     rule: AccessRule
 
-    -- Window the requester wants access for.
-    requested_not_before: Timestamp?
-    requested_not_after: Timestamp?
-    requested_ttl: Duration
+    -- Activation window: the timestamps that bound WHEN this request may be
+    -- promoted to a lease, NOT the window the requester wants access for. Pinned
+    -- at submit (MemberSubmitsAccessRequest) for BOTH shapes:
+    --   Scheduled  → the requester's proposed [start, end].
+    --   On-demand  → [submitted_at, submitted_at + duration], where duration is
+    --                rule-derived (rule.default_lease_duration ??
+    --                config.fallback_lease_duration).
+    -- Approval AND activation are only possible up to lease_not_after (approval
+    -- may land before the window opens; activation may not). The lease minted at
+    -- activation runs [now, min(lease_not_after, now + rule.max_lease_duration)]
+    -- — its end is the window end, capped from the actual start; the requester
+    -- never names a duration. Null only on extension requests, which are never
+    -- promoted to a lease of their own (they apply in place).
+    lease_not_before: Timestamp?
+    lease_not_after: Timestamp?
 
     reason: String?
     submitted_at: Timestamp
 
-    -- Deadline for the request to be decided. After this point the request
-    -- auto-expires whether or not an approver has acted.
-    decision_deadline: submitted_at + config.request_decision_deadline
+    -- Global max-age cutoff: whatever its state, a request is invalid past this
+    -- age and auto-expires (cleanup of old requests, and the only bound on an
+    -- extension's pending phase).
+    valid_until: submitted_at + config.request_max_age
 
     -- Resolution
     -- An approved request is a *single-use grant*: the approver has granted
     -- access, but no AccessLease exists yet. The requester activates the approved
-    -- request (ActivateLease), which mints the AccessLease
-    -- and moves the request to `activated`. An approved request left unactivated
-    -- past its activatable_until bound transitions to `expired`. Single use: one
-    -- approved request yields at most one lease.
+    -- request (ActivateLease), which mints the AccessLease running to the
+    -- activation-window end, and moves the request to `activated`. An approved
+    -- request left unactivated past its actionable_until bound transitions to
+    -- `expired`. Single use: one approved request yields at most one lease.
     status: pending | approved | activated | denied | cancelled | expired
     -- Non-optional under its when-clause: every transition out of `pending` is
     -- structurally obliged to set it (and every resolution rule does).
     resolved_at: Timestamp when status != pending
-    -- When the request lapsed: the decision deadline passed while pending, or an
+    -- When the request lapsed: actionable_until passed while pending, or an
     -- approved request was never activated in time. Distinct from resolved_at,
     -- which (for an expired-while-approved request) keeps the approval time.
     expired_at: Timestamp? when status = expired
@@ -222,20 +238,14 @@ entity AccessRequest {
     -- correct for the request's whole life, whatever the lease's later status.
     lease: AccessLease with request = this
 
-    -- Deadline by which an on-demand approved request must be activated (the lease
-    -- started). Null until the request is resolved. For an on-demand approved
-    -- request this is the activatable_until bound; a scheduled approved request is
-    -- instead bounded by its requested window end (see activatable_until and
-    -- ApprovedRequestExpiresUnactivated). Distinct from decision_deadline, which
-    -- bounds the *pending* phase. Kept as its own field because MyAccessRequestsPage
-    -- exposes it for a countdown, and config.activation_deadline is a global setting.
-    activation_deadline: resolved_at + config.activation_deadline
-
-    -- Until when this approval is startable: the scheduled window end, or — for
-    -- on-demand — the activation deadline. One bound for start eligibility and
-    -- unactivated expiry, whatever the request's shape.
-    activatable_until: if requested_not_before != null: requested_not_after
-                       else: activation_deadline
+    -- The single upper bound on this request being actionable at all — deciding
+    -- a pending request AND starting an approved one: the activation-window end,
+    -- tightened by the max-age cutoff. For an extension (null window) it is the
+    -- max-age cutoff alone. Past it the request auto-expires whether pending or
+    -- approved (PendingRequestExpires / ApprovedRequestExpiresUnactivated).
+    -- MyAccessRequestsPage exposes it for the activation countdown.
+    actionable_until: if lease_not_after != null and lease_not_after < valid_until: lease_not_after
+                      else: valid_until
 
     -- If this request is an extension of an existing lease, the parent lease.
     extension_of: AccessLease?
@@ -300,15 +310,11 @@ config {
     -- AccessLease duration used when an access rule does not specify one.
     fallback_lease_duration: Duration = 1.hour
 
-    -- How long after submission a pending request remains valid before being
-    -- auto-expired without a decision. (Distinct from the lease window — this
-    -- is the "decision deadline".)
-    request_decision_deadline: Duration = 7.days
-
-    -- How long after approval an approved request remains activatable before it
-    -- auto-expires unused. Bounds the gap between approval and lease start, so a
-    -- stale approval cannot be cashed in long after its justifying context is gone.
-    activation_deadline: Duration = 24.hours
+    -- Global max age of a request: how long after submission it remains valid
+    -- in ANY non-terminal state (pending or approved) before auto-expiring.
+    -- Cleans up old requests, and caps how far ahead a scheduled window can
+    -- usefully be proposed — a window past this cutoff expires before it opens.
+    request_max_age: Duration = 60.days
 
     -- How far back resolved requests are surfaced in history views: the
     -- approver inbox history and the member's own requests page share this
@@ -476,11 +482,19 @@ rule CipherOpenPassthrough {
 
 rule MemberSubmitsAccessRequest {
     -- The member submits the Request Access modal for a gated cipher. THIS is
-    -- where the AccessRequest is created — not at cipher-open. A specific window
-    -- (window_start + window_end) makes it a scheduled request; otherwise it is an
-    -- on-demand request for the rule's default duration. Evaluation runs
+    -- where the AccessRequest is created — not at cipher-open. The activation
+    -- window is pinned here for BOTH shapes: a proposed window (window_start +
+    -- window_end) makes it a scheduled request; otherwise the window defaults to
+    -- [now, now + rule-derived duration] — an on-demand request, promotable
+    -- immediately. The requester never names a duration: the on-demand window
+    -- length comes from the pinned rule, and the lease minted at activation runs
+    -- to the window end either way (see ActivateLease). Evaluation runs
     -- immediately, so the submit response may already be approved.
     when: MemberSubmitsRequest(caller, target_cipher, reason?, window_start?, window_end?)
+    -- A proposed window is all-or-nothing: a start without an end (or vice
+    -- versa) is rejected rather than half-defaulted.
+    requires: window_start != null implies window_end != null
+    requires: window_end != null implies window_start != null
     let memberships = CollectionMembership where collection in target_cipher.collections
                                               and member = caller
     requires: memberships.count > 0
@@ -515,9 +529,8 @@ rule MemberSubmitsAccessRequest {
         cipher: target_cipher,
         collection: memberships.first.collection,
         rule: gating_rule,
-        requested_not_before: window_start,
-        requested_not_after: window_end,
-        requested_ttl: gating_rule.default_lease_duration ?? config.fallback_lease_duration,
+        lease_not_before: window_start ?? now,
+        lease_not_after: window_end ?? (now + (gating_rule.default_lease_duration ?? config.fallback_lease_duration)),
         reason: reason,
         submitted_at: now,
         status: pending
@@ -544,19 +557,17 @@ rule MemberRequestsLeaseExtension {
     -- AccessRequest pointing back at the parent lease, evaluated by the same
     -- rules as any request. On approval it extends the parent in place
     -- (ExtensionApprovedExtendsParentLease) rather than minting a new lease.
-    when: MemberRequestsExtension(member, lease, not_before?, not_after, reason?)
+    -- The member names no window and no duration: the extension amount is
+    -- rule-derived at apply time, and lease_not_before / lease_not_after stay
+    -- null because an extension is never promoted to a lease of its own.
+    when: MemberRequestsExtension(member, lease, reason?)
     requires: lease.status = active
     requires: lease.requester = member
-    requires: not_after > lease.not_after
-    let new_request_window = not_after - (not_before ?? now)
     ensures: AccessRequest.created(
         requester: lease.requester,
         cipher: lease.cipher,
         collection: lease.collection,
         rule: lease.rule,
-        requested_not_before: not_before,
-        requested_not_after: not_after,
-        requested_ttl: new_request_window,
         reason: reason,
         submitted_at: now,
         status: pending,
@@ -685,15 +696,19 @@ rule ApproverRetractsRequest {
 rule ExtensionApprovedExtendsParentLease {
     -- An approved extension applies in place: it pushes the parent lease's end
     -- out rather than minting a new lease the requester must start. Fires for
-    -- both auto- and human-approved extensions (transitions_to approved). If the
-    -- parent is no longer active it is denied instead — see
+    -- both auto- and human-approved extensions (transitions_to approved). The
+    -- push-out amount is rule-derived — the same duration an on-demand window
+    -- gets — added to the parent's current end; the requester names nothing. The
+    -- push-out is NOT clamped by max_lease_duration: cumulative lease life is
+    -- governed by per-extension approval, not arithmetic (resolved — see Open
+    -- questions). If the parent is no longer active it is denied instead — see
     -- ExtensionDeniedParentGone.
     when: request: AccessRequest.status transitions_to approved
     requires: request.extension_of != null
-    requires: request.requested_not_after != null
     let parent = request.extension_of
     requires: parent.status = active
-    ensures: parent.not_after = request.requested_not_after
+    ensures: parent.not_after = parent.not_after
+                                + (request.rule.default_lease_duration ?? config.fallback_lease_duration)
     ensures: request.status = activated
 }
 
@@ -718,21 +733,16 @@ rule ExtensionDeniedParentGone {
 -- is why even a scheduled request must be started by the requester inside its
 -- window, rather than springing to life on its own when the window opens).
 --
--- Two shapes, distinguished by whether the request named a scheduled start
--- (requested_not_before). Both run through ONE start rule (ActivateLease) and ONE
--- unactivated-expiry rule (ApprovedRequestExpiresUnactivated): the shape
--- difference is confined to the start-eligibility LOWER bound and the lease-END
--- formula. The shared upper bound for both start eligibility and unactivated
--- expiry is the request's activatable_until.
---
---   - Scheduled  → activatable only inside [requested_not_before,
---                  activatable_until = requested_not_after]; the lease runs from
---                  the moment of activation to the window end (never backdated to
---                  the window start), clamped to max_lease_duration from the
---                  actual start.
---   - On-demand  → no scheduled start (no lower bound); activatable any time up to
---                  activatable_until = the activation deadline; the lease runs from
---                  now for the requested duration.
+-- The two request shapes differ ONLY in how their activation window was
+-- populated at submit (a proposed [start, end] for scheduled; [submitted_at,
+-- submitted_at + rule-derived duration] for on-demand). From here on they are
+-- UNIFORM: one start rule (ActivateLease), one eligibility window
+-- [lease_not_before, actionable_until], one unactivated-expiry rule
+-- (ApprovedRequestExpiresUnactivated), and one lease-END formula — the lease
+-- runs from the moment of activation (never backdated to the window start) to
+-- the window end, clamped to max_lease_duration from the actual start. The
+-- rule's default duration already shaped the window at submit; it plays no
+-- part at activation.
 --
 -- single_active_lease contention is resolved here, at start, since this is when
 -- the lease comes into being: if RuleAllowsLease is false (the cipher's single slot
@@ -746,9 +756,9 @@ rule ExtensionDeniedParentGone {
 -- A failed activation NEVER consumes the approval. The request transitions to
 -- `activated` ONLY in the same transition that mints the lease (ActivateLease). Any
 -- rejected start — automated-condition mismatch, single_active_lease contention,
--- leasing freeze, or a lapsed window/deadline — leaves the request `approved` and
--- activatable for a retry up to activatable_until (the window end for scheduled,
--- the activation deadline for on-demand). This lease↔activated correspondence is
+-- leasing freeze, or a lapsed window — leaves the request `approved` and
+-- activatable for a retry up to actionable_until (the activation-window end,
+-- tightened by the max-age cutoff). This lease↔activated correspondence is
 -- pinned by the AtMostOneLeasePerActivatedRequest and NoLeaseWithoutActivatedRequest
 -- invariants; this prose does not restate it.
 --
@@ -764,26 +774,24 @@ rule ActivateLease {
     requires: request.status = approved
     requires: request.extension_of = null
     requires: request.requester = member
-    let scheduled = request.requested_not_before != null
-    -- Eligibility: a scheduled start is only available once its window opens;
-    -- both shapes share the activatable_until upper bound.
-    requires: not scheduled or now >= request.requested_not_before
-    requires: now <= request.activatable_until
+    -- Eligibility: only inside the activation window (both shapes carry one,
+    -- pinned at submit), and never past the max-age cutoff.
+    requires: now >= request.lease_not_before
+    requires: now <= request.actionable_until
     -- Automated conditions (e.g. ip_allowlist) are re-checked at start; a
     -- mismatch rejects the activation (see LeaseActivationRejected).
     requires: RuleAutomatedConditionsPass(request)
     requires: RuleAllowsLease(request.requester, request.cipher)
     -- Blocked while the org is under a leasing freeze (e.g. kill switch).
     requires: not exists LeasingFreeze{organization: request.rule.organization}
-    -- The lease runs from ACTIVATION (never backdated to a window start) to the
-    -- earliest applicable ceiling: the scheduled window end or the requested
-    -- duration, clamped to max_lease_duration from the actual start (anchoring
-    -- the cap at activation prevents a late start minting an already-expired lease).
-    let requested_end = if scheduled: request.requested_not_after
-                        else: now + request.requested_ttl
+    -- The lease runs from ACTIVATION (never backdated to the window start) to
+    -- the window end, clamped to max_lease_duration from the actual start
+    -- (anchoring the cap at activation prevents a late start minting an
+    -- already-expired lease).
+    let window_end = request.lease_not_after
     let cap_end = now + request.rule.max_lease_duration
-    let end = if cap_end != null and requested_end > cap_end: cap_end
-              else: requested_end
+    let end = if cap_end != null and window_end > cap_end: cap_end
+              else: window_end
     ensures: AccessLease.created(
         request: request,
         rule: request.rule,
@@ -804,22 +812,21 @@ rule LeaseActivationRejected {
     -- captured here so the attempt is audited even on failure: an automated
     -- condition no longer passes (e.g. ip_allowlist), single_active_lease
     -- contention (RuleAllowsLease is false), an org leasing freeze, or the
-    -- request's activation window/deadline has lapsed. The disjunction is the
+    -- request's activation window has not opened or has lapsed. The disjunction is the
     -- exact negation of ActivateLease's guards, so this rule and the start rule are
     -- mutually exclusive. Nothing is consumed: the request stays `approved` and
-    -- activatable for a retry within its window/deadline (see the
-    -- activation-section prose).
+    -- activatable for a retry within its window (see the activation-section
+    -- prose).
     when: MemberActivatesLease(member, request)
     requires: request.status = approved
     requires: request.extension_of = null
     requires: request.requester = member
-    let scheduled = request.requested_not_before != null
     let cannot_start =
         not RuleAutomatedConditionsPass(request)
         or not RuleAllowsLease(request.requester, request.cipher)
         or exists LeasingFreeze{organization: request.rule.organization}
-        or now > request.activatable_until
-        or (scheduled and now < request.requested_not_before)
+        or now > request.actionable_until
+        or now < request.lease_not_before
     requires: cannot_start
     -- Stamp the refusal so the audit log can synthesize lease_activation_rejected.
     -- Last-write-wins: only the most recent refusal is retained. The request stays
@@ -848,8 +855,10 @@ rule LeaseExpires {
 }
 
 rule PendingRequestExpires {
-    -- Pending requests that no approver ever decided eventually expire.
-    when: request: AccessRequest.decision_deadline <= now
+    -- A pending request expires once it is no longer actionable: its activation
+    -- window closed undecided (approval is not possible outside the window), or
+    -- it hit the global max-age cutoff — whichever came first (actionable_until).
+    when: request: AccessRequest.actionable_until <= now
     requires: request.status = pending
     ensures: request.status = expired
     ensures: request.resolved_at = now
@@ -861,12 +870,10 @@ rule PendingRequestExpires {
 
 rule ApprovedRequestExpiresUnactivated {
     -- An approved request the requester never activated lapses once it is no
-    -- longer startable — at its activatable_until bound, whatever its shape. For
-    -- an on-demand request that is the activation deadline; for a scheduled
-    -- request it is the window end (activation was only available inside the
-    -- window). resolved_at and approver keep the approval record; the lease was
-    -- never minted.
-    when: request: AccessRequest.activatable_until <= now
+    -- longer startable — its activation-window end, tightened by the max-age
+    -- cutoff (actionable_until), whatever its shape. resolved_at and approver
+    -- keep the approval record; the lease was never minted.
+    when: request: AccessRequest.actionable_until <= now
     requires: request.status = approved
     ensures: request.status = expired
     ensures: request.expired_at = now
@@ -1164,9 +1171,11 @@ surface CipherViewBanner {
 
 surface RequestAccessModal {
     -- Shown when the member opens a gated cipher they hold no lease/request for
-    -- (CipherOpenNeedsRequest). No AccessRequest exists yet: the member picks a
-    -- window and reason and submits, which creates it (MemberSubmitsAccessRequest).
-    -- Dismissing the modal without submitting creates nothing.
+    -- (CipherOpenNeedsRequest). No AccessRequest exists yet: the member optionally
+    -- picks a scheduled window (otherwise the request is on-demand and the window
+    -- defaults from the rule's duration at submit), adds a reason, and submits,
+    -- which creates it (MemberSubmitsAccessRequest). Dismissing the modal without
+    -- submitting creates nothing.
     facing requester: Member
 
     context target_cipher: Cipher
@@ -1198,7 +1207,7 @@ surface RequestAccessModal {
         RuleAllowsLease(requester, target_cipher)
 
     provides:
-        MemberSubmitsRequest(requester, target_cipher, reason, not_before, not_after)
+        MemberSubmitsRequest(requester, target_cipher, reason, window_start, window_end)
 }
 
 surface MyAccessRequestsPage {
@@ -1219,17 +1228,17 @@ surface MyAccessRequestsPage {
             r.submitted_at
             r.resolved_at
             r.approver_comment
-            r.requested_not_before
-            r.requested_not_after
+            r.lease_not_before
+            r.lease_not_after
 
         -- Activation countdown for approved-but-unactivated requests.
         for r in AccessRequest where requester = viewer and status = approved:
-            r.activation_deadline
+            r.actionable_until
 
     provides:
         -- Withdraw a not-yet-activated request. A pending request can always be
         -- withdrawn; an approved one only while its window can still produce access —
-        -- once requested_not_after passes it can no longer be started, so (like the
+        -- once lease_not_after passes it can no longer be started, so (like the
         -- Start action) Cancel is withheld and it awaits server-side expiry. (The
         -- transition itself, MemberCancelsOwnRequest, does not gate on the window; this
         -- guard is the client UX gating, mirroring MemberActivatesLease.)
@@ -1237,15 +1246,15 @@ surface MyAccessRequestsPage {
             when request.requester = viewer
              and (request.status = pending
                   or (request.status = approved
-                      and (request.requested_not_after = null
-                           or now <= request.requested_not_after)))
+                      and (request.lease_not_after = null
+                           or now <= request.lease_not_after)))
         -- Activate an approved request: start the lease when ready. Offered only
-        -- while the window can still produce access — once requested_not_after
+        -- while the window can still produce access — once lease_not_after
         -- passes, the server rejects activation, so the action is withheld.
         MemberActivatesLease(viewer, request)
             when request.status = approved and request.requester = viewer
-             and (request.requested_not_after = null
-                  or now <= request.requested_not_after)
+             and (request.lease_not_after = null
+                  or now <= request.lease_not_after)
 }
 
 surface ActiveLeasesPage {
@@ -1270,7 +1279,7 @@ surface ActiveLeasesPage {
     provides:
         ApproverRevokesLeaseAction(viewer, lease, reason)
             when lease.requester = viewer and lease.status = active
-        MemberRequestsExtension(viewer, lease, not_before, not_after, reason)
+        MemberRequestsExtension(viewer, lease, reason)
             when lease.requester = viewer and lease.status = active
 }
 
@@ -1289,8 +1298,8 @@ surface ApproverInbox {
             r.cipher
             r.collection
             r.requester
-            r.requested_not_before
-            r.requested_not_after
+            r.lease_not_before
+            r.lease_not_after
             r.reason
             r.submitted_at
 
@@ -1320,8 +1329,8 @@ surface ApproverInbox {
             when viewer != request.requester
              and (request.status = pending
                   or (request.status = approved
-                      and (request.requested_not_after = null
-                           or now <= request.requested_not_after)))
+                      and (request.lease_not_after = null
+                           or now <= request.lease_not_after)))
         ApproverRevokesLeaseAction(viewer, lease, reason)
             when lease.status = active
 }
@@ -1516,10 +1525,25 @@ invariant AtMostOneLeasingFreezePerOrg {
 -- Open questions
 -- ----------------------------------------------------------------------------
 
-
 open question "When an AccessRule is soft-deleted (deleted_at set) while an associated AccessLease is still active, what happens to in-flight extension requests? The AccessLease keeps a reference to the now-deleted rule (the row is retained, so the reference still resolves), and the lease lives out its window — but an extension routes back through a rule that no longer governs. Does an extension against a deleted rule deny, or honour the original grant?"
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
+
+-- RESOLVED — cumulative extension duration: repeated extensions may push a lease
+-- past max_lease_duration, deliberately. The control on cumulative lease life is
+-- per-extension APPROVAL, not arithmetic: every extension runs the full
+-- evaluation pipeline, so on a human-approval rule each increment is a fresh
+-- human authorization. On an automatic rule extensions renew unattended — but
+-- that grants nothing re-requesting doesn't already (a member can mint a fresh
+-- auto-approved lease the moment the old one lapses, with the same automated
+-- condition re-checks), so capping extensions while re-requests are unbounded
+-- would be control theater. max_lease_duration therefore bounds a single lease
+-- as minted, nothing more. Implementation consequences (weed targets): the wire
+-- layer's "extensions are always auto-approved" (AccessLeaseExtensionRequest)
+-- violates this for human-approval rules; the per-increment
+-- maxExtensionDurationSeconds cap is unnecessary here (increment is
+-- rule-derived, count is approval-bound); the impl's allowsExtensions toggle
+-- (may this rule be extended at all) is a separate, still-unmodeled axis.
 
 -- RESOLVED — org suspension and governance: a suspended (disabled) organization
 -- drops out of the caller's claim-based current context, which would empty every
@@ -1543,8 +1567,3 @@ open question "ApproverScope.specific names individual users. What happens if on
 -- is distinct from — and does not change — the union/OR policy that decides WHETHER a
 -- cipher is gated at all (one ungated path bypasses gating; see RuleBypassableCiphers)
 -- or the union/OR logic for single_active_lease (see SingleActiveLeaseApplies).
-
-
-
-
-
