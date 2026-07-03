@@ -174,8 +174,13 @@ entity AccessRequest {
     requester: User
     cipher: Cipher
     collection: Collection
-    -- The access rule that gated the cipher and that this request is being
-    -- evaluated against. Resolved at submit time from the cipher's collections.
+    -- The access rule that gated the cipher and that this request is evaluated
+    -- against. Resolved ONCE at submit time (MemberSubmitsAccessRequest) and PINNED
+    -- here, so a later rule edit or a rule appearing/disappearing on another path
+    -- cannot change how this in-flight request is governed — everything downstream
+    -- (evaluation, approver scope, lease shaping, activation re-checks) reads this
+    -- pinned rule, never a re-resolution. The oldest-wins resolution is encoded
+    -- structurally at that submit rule; see oldest_rule for the WHY.
     rule: AccessRule
 
     -- Window the requester wants access for.
@@ -364,10 +369,17 @@ rule CipherOpenRequiresAccessRequest {
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
-    -- The rule governing the member's access, resolved by the union/OR policy
-    -- (automatic favoured over needs-approval). See GoverningRule.
-    let gating_rule = GoverningRule(member, cipher)
+    -- The rule governing the member's access: the oldest (earliest creation_date)
+    -- enabled, non-deleted rule among the member's gated paths to the cipher. A
+    -- deterministic choice, pinned on the AccessRequest at submit. See oldest_rule.
+    let member_collections = member_memberships -> collection
+    let governing_candidates = AccessRule where enabled and deleted_at = null
+                                            and collections.any(c => c in member_collections)
+    -- oldest_rule breaks creation_date ties stably on rule id; the ordering itself
+    -- is asserted structurally below so creation_date drives resolution.
+    let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
+    requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
     let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
@@ -464,8 +476,18 @@ rule MemberSubmitsAccessRequest {
     let memberships = CollectionMembership where collection in cipher.collections
                                               and member = member
     requires: memberships.count > 0
-    let gating_rule = GoverningRule(member, cipher)
+    -- Governing-rule resolution, computed once here and PINNED on the created
+    -- AccessRequest.rule below (its RuleId stored at creation). The candidate set is
+    -- the enabled, non-deleted rules on the collections through which the member
+    -- reaches the cipher; the oldest (earliest creation_date) governs. The requires
+    -- clause asserts no candidate is older, so creation_date drives the choice
+    -- structurally; oldest_rule additionally breaks ties stably on rule id.
+    let member_collections = memberships -> collection
+    let governing_candidates = AccessRule where enabled and deleted_at = null
+                                            and collections.any(c => c in member_collections)
+    let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
+    requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
     let active_leases = AccessLease where requester = member
                                  and cipher = cipher
                                  and status = active
@@ -951,7 +973,7 @@ rule OrgAdminDeletesAccessRule {
     -- Soft delete: stamp deleted_at / deleted_by rather than removing the row, so
     -- the audit trail can still synthesize rule_deleted (the collection links are
     -- preserved). A deleted rule no longer governs — every gating / admin read
-    -- excludes deleted_at != null (see CipherOpen* gating, GoverningRule, and the
+    -- excludes deleted_at != null (see CipherOpen* gating, oldest_rule, and the
     -- AccessRulesAdminPage list). Idempotent: deleting an already-deleted rule is a
     -- no-op (the guard keeps the first deleter and time). revision_date is left
     -- untouched so the delete does not read as an edit.
@@ -997,25 +1019,39 @@ deferred EligibleRevokers     -- see: RevokeAccessLeaseCommand; cipher-lease-ban
 -- rejects the activation without consuming the approval.
 deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 
--- `GoverningRule(member, cipher)`: the single AccessRule that governs `member`'s
--- access to `cipher` when the cipher is gated for them. Resolved by the same
--- union/OR rule as cipher gating — the least-restrictive applicable rule wins.
--- Among the enabled, non-deleted rules (deleted_at = null) on the collections
--- through which `member` reaches `cipher`, an AUTOMATIC grant is favoured over one
--- that needs human approval:
---   - if any such rule has no human_approval condition and its automated conditions
---     pass, that rule governs and the request auto-approves;
---   - else if any such rule's automated conditions pass (necessarily one with human
---     approval), that rule governs and the request routes to a human;
---   - else any applicable rule governs and the request is auto-denied.
--- So a member is never sent to an approver when some path would auto-grant, and an
--- automatic rule that would *deny* (e.g. a failing IP allowlist) does not pre-empt a
--- path that needs approval but would grant. The resolved rule also supplies the
--- grant's lease shaping (default_lease_duration, max_lease_duration,
--- single_active_lease). Returns null when the cipher is not gated for the member
--- (some path is ungated; see CipherOpenPassthrough). Replaces the former arbitrary
--- `(AccessRule where ...).first` selection.
-deferred GoverningRule    -- see: server-side GoverningRuleResolver
+-- `oldest_rule(candidates)`: selection primitive for governing-rule resolution.
+-- Picks the AccessRule with the earliest creation_date from a candidate set,
+-- breaking ties on rule id (lowest id wins) so the choice is total and stable.
+-- Returns null for an empty set. The candidate set (enabled, non-deleted rules on
+-- the collections through which the member reaches the cipher) and the oldest-wins
+-- property are computed STRUCTURALLY at the call sites — CipherOpenRequiresAccessRequest
+-- and MemberSubmitsAccessRequest — where a requires clause asserts no candidate is
+-- older via creation_date. This selector exists only because a where-query yields
+-- an unordered Set with no positional `.first`, and to carry the id tie-break,
+-- which the spec language has no total-order primitive to express.
+--
+-- WHY oldest-wins (do not reintroduce the old behaviour): resolution favours
+-- neither an automatic grant over one needing human approval nor least-restriction
+-- of any kind — the oldest rule's conditions decide outright. Semantic consequence:
+-- a newer auto-approve rule on one path does NOT pre-empt an older human-approval
+-- rule on another path (or vice versa). A member may be routed to an approver even
+-- though a newer path would have auto-granted, because the older rule governs. This
+-- is the intended trade: determinism over least-restriction.
+--
+-- WHY pin at submit: resolution runs ONCE, at MemberSubmitsAccessRequest, and the
+-- resolved rule is pinned on the AccessRequest.rule (see that field). Everything
+-- downstream reads the pinned rule, never a re-resolution — so a later rule edit or
+-- a rule appearing/disappearing on another path cannot change how an in-flight
+-- request is governed. The property is therefore asserted at the creation
+-- transition only; drift after submit is intentional.
+--
+-- This is distinct from — and does not change — the union/OR policy that decides
+-- WHETHER the cipher is gated at all (an ungated path bypasses gating; see
+-- CipherOpenPassthrough / RuleBypassableCiphers) or the union/OR logic for
+-- single_active_lease (see SingleActiveLeaseApplies / RuleAllowsLease).
+--
+-- The server-side resolver still owns the implementation.
+deferred oldest_rule    -- see: server-side GoverningRuleResolver
 
 -- `RuleBypassableCiphers(rule)`: the ciphers in this rule's collections that a
 -- member could also reach through some collection with NO enabled access rule —
@@ -1033,12 +1069,16 @@ deferred RuleBypassableCiphers    -- see: server-side rule evaluation
 --                          (RouteToHumanApprovers)
 --   - "auto_approve"    → no human_approval and automated conditions pass
 --                          (AutoApproveWhenNoHumanApproval)
--- Forecasts the request DECISION only. single_active_lease availability is a
--- separate axis, surfaced alongside it via RuleAllowsLease(member, cipher): even an
--- "auto_approve" yields an approved request whose lease start can still fail
--- single_active_lease contention, re-checked for real at lease start. Both are
--- current-state hints, not guarantees — the member's source IP or the cipher's
--- active-lease set may change before they submit.
+-- Forecasts the request DECISION only, against the supplied `rule` — the one
+-- resolution picks right now (the oldest enabled, non-deleted rule on the
+-- member's gated paths; see oldest_rule). single_active_lease availability is a separate axis,
+-- surfaced alongside it via RuleAllowsLease(member, cipher): even an "auto_approve"
+-- yields an approved request whose lease start can still fail single_active_lease
+-- contention, re-checked for real at lease start. All are current-state hints, not
+-- guarantees — the member's source IP or the cipher's active-lease set may change
+-- before they submit, and because the governing rule is pinned deterministically at
+-- submit (oldest wins; see oldest_rule), a rule added or removed on another path
+-- in the meantime could change which rule actually governs the submitted request.
 deferred ForecastDecision    -- see: server-side rule evaluation (dry run)
 
 -- `SingleActiveLeaseApplies(member, cipher)`: true when EVERY collection through
@@ -1123,7 +1163,15 @@ surface RequestAccessModal {
 
     context cipher: Cipher
 
-    let gating_rule = GoverningRule(requester, cipher)
+    -- Same governing-rule resolution as MemberSubmitsAccessRequest, so the modal
+    -- previews the rule that would be pinned on submit (oldest wins; ties on rule
+    -- id via oldest_rule). Advisory: a rule added/removed on another path before
+    -- submit could change the pinned rule.
+    let member_collections = (CollectionMembership where member = requester
+                                                     and collection in cipher.collections) -> collection
+    let governing_candidates = AccessRule where enabled and deleted_at = null
+                                            and collections.any(c => c in member_collections)
+    let gating_rule = oldest_rule(governing_candidates)
 
     exposes:
         cipher.collections
@@ -1447,11 +1495,20 @@ open question "ApproverScope.specific names individual users. What happens if on
 -- from the database (which include disabled orgs), so both review AND leasing
 -- actions (approve/deny/revoke) work during suspension.
 
--- RESOLVED — when a member reaches a cipher through multiple gated collections with
--- different rules, the governing rule is resolved by union/OR, favouring an automatic
--- grant over one that needs human approval. See the GoverningRule deferred helper and
--- the cipher-open / rule-evaluation rules. (Mirrors the union logic used for cipher
--- access itself and for single_active_lease.)
+-- RESOLVED — when a member reaches a cipher through multiple gated collections
+-- carrying different enabled rules, WHICH rule governs was previously undefined /
+-- fragile (an automatic-favoured union/OR pick). Locked down: the OLDEST rule wins
+-- — the enabled, non-deleted rule with the earliest creation_date among the
+-- member's gated paths to the cipher (ties broken stably on rule id). Deterministic,
+-- with no favouring of automatic grants over human approval. Resolution happens
+-- once, at request submit time, and the resolved rule is PINNED on the AccessRequest
+-- (its RuleId stored at creation); all downstream logic reads the pinned rule, never
+-- a re-resolution. Trade-off, stated deliberately: a newer auto-approve rule no
+-- longer pre-empts an older human-approval rule — determinism over least-restriction.
+-- See the oldest_rule selector and the AccessRequest.rule field. NOTE: this
+-- is distinct from — and does not change — the union/OR policy that decides WHETHER a
+-- cipher is gated at all (one ungated path bypasses gating; see RuleBypassableCiphers)
+-- or the union/OR logic for single_active_lease (see SingleActiveLeaseApplies).
 
 
 
