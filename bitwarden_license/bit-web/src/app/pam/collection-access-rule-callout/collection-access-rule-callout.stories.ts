@@ -46,7 +46,7 @@ export default {
       imports: [RouterModule.forRoot([])],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(true) } },
-        { provide: LogService, useValue: { error: () => undefined } },
+        { provide: LogService, useValue: { error: (): void => undefined } },
         {
           provide: I18nService,
           useFactory: () =>

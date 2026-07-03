@@ -3,6 +3,7 @@ import { TestBed } from "@angular/core/testing";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { GatedCipherLike } from "@bitwarden/web-vault/app/vault/individual-vault/cipher-open-gate";
 
 import { PamCipherOpenGate } from "./cipher-open-gate.service";
 import { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
@@ -27,8 +28,8 @@ describe("PamCipherOpenGate", () => {
     gate = TestBed.inject(PamCipherOpenGate);
   });
 
-  const partial = { id: "cipher-1", partialData: '{"Name":"n"}' };
-  const notGated = { id: "cipher-1", partialData: undefined };
+  const partial: GatedCipherLike = { id: "cipher-1", partialData: '{"Name":"n"}' };
+  const notGated: GatedCipherLike = { id: "cipher-1", partialData: undefined };
 
   it("short-circuits to 'open' when partialData is null (not gated / lease already covers it)", async () => {
     const verdict = await gate.check(notGated, "user-1");
