@@ -74,6 +74,7 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
   acceptedUserCount: number;
   confirmedUserCount: number;
   revokedUserCount: number;
+  stagedUserCount: number;
 
   /** True when increased bulk limit feature is enabled (cloud environment) */
   readonly isIncreasedBulkLimitEnabled: Signal<boolean>;
@@ -100,6 +101,8 @@ export abstract class PeopleTableDataSource<T extends UserViewTypes> extends Tab
       this.data?.filter((u) => u.status === this.statusType.Confirmed).length ?? 0;
     this.revokedUserCount =
       this.data?.filter((u) => u.status === this.statusType.Revoked).length ?? 0;
+    this.stagedUserCount =
+      this.data?.filter((u) => u.status === OrganizationUserStatusType.Staged).length ?? 0;
 
     this.checkedUsersUpdated$.next();
   }
