@@ -62,4 +62,17 @@ export abstract class ConfigService {
    * Triggers a check that the config for the currently active user is up-to-date. If it is not, it will be fetched from the server and stored.
    */
   abstract ensureConfigFetched(): Promise<void>;
+
+  /**
+   * Device-level Beta Mode state. When enabled, the client sends the `Is-Prerelease` header on
+   * API requests so that feature flags evaluate with prerelease context. Applies to the entire
+   * installation regardless of which user is signed in.
+   */
+  abstract betaMode$: Observable<boolean>;
+
+  /**
+   * Sets the device-level Beta Mode state. Takes effect on subsequent API requests; feature
+   * flags re-evaluate on the next scheduled config fetch.
+   */
+  abstract setBetaMode(enabled: boolean): Promise<void>;
 }

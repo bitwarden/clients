@@ -50,6 +50,7 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TabsModule,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
@@ -126,6 +127,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly configService = inject(ConfigService);
   private readonly validationService = inject(ValidationService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly localeOptions: Option<string>[];
@@ -143,6 +145,10 @@ export class SettingsDialogComponent implements OnInit {
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
+  protected readonly showBetaToggle = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM39893BetaMode),
+    { initialValue: false },
+  );
   private readonly activeAccount = toSignal(this.accountService.activeAccount$, {
     requireSync: true,
   });
@@ -190,6 +196,7 @@ export class SettingsDialogComponent implements OnInit {
     autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
+    betaMode: false,
   });
 
   constructor() {
@@ -296,6 +303,7 @@ export class SettingsDialogComponent implements OnInit {
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
+      betaMode: await firstValueFrom(this.configService.betaMode$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -532,6 +540,32 @@ export class SettingsDialogComponent implements OnInit {
   protected async saveFavicons() {
     await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
+  }
+
+  protected async saveBetaMode() {
+    const enabled = this.form.value.betaMode ?? false;
+
+    if (enabled) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "enableBetaModeConfirmTitle" },
+        content: { key: "enableBetaModeConfirmContent" },
+        type: "warning",
+      });
+
+      if (!confirmed) {
+        this.form.controls.betaMode.setValue(false, { emitEvent: false });
+        return;
+      }
+
+      await this.configService.setBetaMode(true);
+      this.toastService.showToast({
+        variant: "info",
+        message: this.i18nService.t("betaModeEnabledToast"),
+      });
+      return;
+    }
+
+    await this.configService.setBetaMode(false);
   }
 
   protected async saveRunInBackground() {

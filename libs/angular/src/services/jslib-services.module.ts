@@ -274,6 +274,7 @@ import {
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
+import { prereleaseHeaderMiddleware } from "@bitwarden/common/platform/services/config/prerelease-header.middleware";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -2020,6 +2021,15 @@ const safeProviders: SafeProvider[] = [
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
     useFactory: (encryptedMigrationsScheduler: EncryptedMigrationsSchedulerService) => () => {},
     deps: [EncryptedMigrationsSchedulerService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
+    useFactory: (apiService: ApiServiceAbstraction, configService: ConfigService) => {
+      apiService.addMiddleware(prereleaseHeaderMiddleware(configService));
+      return () => Promise.resolve();
+    },
+    deps: [ApiServiceAbstraction, ConfigService],
     multi: true,
   }),
   safeProvider({

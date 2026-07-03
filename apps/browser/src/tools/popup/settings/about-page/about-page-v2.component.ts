@@ -1,12 +1,26 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, DestroyRef, OnInit, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
+import {
+  CardComponent,
+  CenterPositionStrategy,
+  CheckboxModule,
+  DialogService,
+  FormFieldModule,
+  ItemModule,
+  ToastService,
+} from "@bitwarden/components";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -37,19 +51,72 @@ const RateUrls = {
   imports: [
     CommonModule,
     RouterModule,
+    ReactiveFormsModule,
+    JslibModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
+    CardComponent,
+    CheckboxModule,
+    FormFieldModule,
     I18nPipe,
   ],
 })
-export class AboutPageV2Component {
+export class AboutPageV2Component implements OnInit {
+  private configService = inject(ConfigService);
+  private toastService = inject(ToastService);
+  private i18nService = inject(I18nService);
+  private formBuilder = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
+
+  protected betaModeForm = this.formBuilder.group({ betaMode: false });
+
+  protected readonly showBetaToggle = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM39893BetaMode),
+    { initialValue: false },
+  );
+
   constructor(
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
   ) {}
+
+  async ngOnInit(): Promise<void> {
+    const current = await firstValueFrom(this.configService.betaMode$);
+    this.betaModeForm.controls.betaMode.setValue(current, { emitEvent: false });
+
+    this.betaModeForm.controls.betaMode.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enabled) => {
+        void this.onBetaModeChange(enabled ?? false);
+      });
+  }
+
+  private async onBetaModeChange(enabled: boolean): Promise<void> {
+    if (enabled) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "enableBetaModeConfirmTitle" },
+        content: { key: "enableBetaModeConfirmContent" },
+        type: "warning",
+      });
+
+      if (!confirmed) {
+        this.betaModeForm.controls.betaMode.setValue(false, { emitEvent: false });
+        return;
+      }
+
+      await this.configService.setBetaMode(true);
+      this.toastService.showToast({
+        variant: "info",
+        message: this.i18nService.t("betaModeEnabledToast"),
+      });
+      return;
+    }
+
+    await this.configService.setBetaMode(false);
+  }
 
   about() {
     this.dialogService.open(AboutDialogComponent, {

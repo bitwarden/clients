@@ -6888,5 +6888,20 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "betaMode": {
+    "message": "Beta mode"
+  },
+  "betaModeDesc": {
+    "message": "Enable early access to features currently in prerelease testing"
+  },
+  "enableBetaModeConfirmTitle": {
+    "message": "Enable beta mode?"
+  },
+  "enableBetaModeConfirmContent": {
+    "message": "Beta features are still in testing and may be unstable or change without notice."
+  },
+  "betaModeEnabledToast": {
+    "message": "Beta mode enabled. Reopen the app to make sure all features refresh."
   }
 }

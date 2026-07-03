@@ -51,6 +51,10 @@ export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig>(CONFIG_DIS
   clearOn: ["logout"],
 });
 
+export const GLOBAL_BETA_MODE_ENABLED = new KeyDefinition<boolean>(CONFIG_DISK, "betaModeEnabled", {
+  deserializer: (v) => v ?? false,
+});
+
 export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, ApiUrl>(
   CONFIG_DISK,
   "byServer",
@@ -81,6 +85,8 @@ export class DefaultConfigService implements ConfigService {
   serverSettings$: Observable<ServerSettings>;
 
   cloudRegion$: Observable<Region>;
+
+  betaMode$: Observable<boolean>;
 
   private featureFlagOverrides$: Observable<Partial<
     Record<FeatureFlag, AllowedFeatureFlagTypes>
@@ -173,6 +179,34 @@ export class DefaultConfigService implements ConfigService {
     );
 
     this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
+
+    this.betaMode$ = this.stateProvider
+      .getGlobal(GLOBAL_BETA_MODE_ENABLED)
+      .state$.pipe(map((v) => v ?? false));
+  }
+
+  async setBetaMode(enabled: boolean): Promise<void> {
+    await this.stateProvider.getGlobal(GLOBAL_BETA_MODE_ENABLED).update(() => enabled);
+    await this.invalidateConfig();
+  }
+
+  /**
+   * Invalidates the cached server config so the next `serverConfig$` read is forced to refetch —
+   * instead of waiting up to `RETRIEVAL_INTERVAL` (1 hour) for the natural refresh cycle.
+   * Backdates the cached config's `utcDate` rather than clearing to null so consumers keep
+   * seeing the current flag values while the refresh is in flight.
+   */
+  private async invalidateConfig(): Promise<void> {
+    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    if (userId == null) {
+      return;
+    }
+    const existing = await firstValueFrom(this.userConfigFor$(userId));
+    if (existing == null) {
+      return;
+    }
+    existing.utcDate = new Date(0);
+    await this.stateProvider.setUserState(USER_SERVER_CONFIG, existing, userId);
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {

@@ -97,6 +97,20 @@
             <vault-permit-cipher-details-popover slot="end" />
           </bit-label>
         </bit-form-control>
+
+        @if (showBetaToggle()) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              id="settings-dialog_input_beta-mode"
+              formControlName="betaMode"
+              (change)="saveBetaMode()"
+            />
+            <bit-label>{{ "betaMode" | i18n }}</bit-label>
+            <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+          </bit-form-control>
+        }
       </bit-tab>
 
       <bit-tab [label]="'appPreferences' | i18n">

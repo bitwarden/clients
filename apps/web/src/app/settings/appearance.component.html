@@ -43,5 +43,17 @@
         <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
       </div>
     </div>
+    @if (showBetaToggle()) {
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          id="appearance_input_beta-mode"
+          formControlName="betaMode"
+        />
+        <bit-label>{{ "betaMode" | i18n }}</bit-label>
+        <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+      </bit-form-control>
+    }
   </form>
 </bit-container>

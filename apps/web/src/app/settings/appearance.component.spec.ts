@@ -2,12 +2,14 @@ import { ComponentFixture, fakeAsync, flush, TestBed } from "@angular/core/testi
 import { ReactiveFormsModule } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -17,10 +19,14 @@ describe("AppearanceComponent", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
+  let mockConfigService: MockProxy<ConfigService>;
+  let mockDialogService: MockProxy<DialogService>;
+  let mockToastService: MockProxy<ToastService>;
 
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
   const mockUserSetLocale$ = new BehaviorSubject<string | undefined>("en");
+  const mockBetaMode$ = new BehaviorSubject<boolean>(false);
 
   const mockSupportedLocales = ["en", "es", "fr", "de"];
   const mockLocaleNames = new Map([
@@ -34,6 +40,9 @@ describe("AppearanceComponent", () => {
     mockI18nService = mock<I18nService>();
     mockThemeStateService = mock<ThemeStateService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
+    mockConfigService = mock<ConfigService>();
+    mockDialogService = mock<DialogService>();
+    mockToastService = mock<ToastService>();
 
     mockI18nService.supportedTranslationLocales = mockSupportedLocales;
     mockI18nService.localeNames = mockLocaleNames;
@@ -45,6 +54,9 @@ describe("AppearanceComponent", () => {
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
+    mockConfigService.betaMode$ = mockBetaMode$;
+    mockConfigService.setBetaMode.mockResolvedValue(undefined);
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     mockDomainSettingsService.setShowFavicons.mockResolvedValue(undefined);
     mockThemeStateService.setSelectedTheme.mockResolvedValue(undefined);
@@ -56,6 +68,9 @@ describe("AppearanceComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: DialogService, useValue: mockDialogService },
+        { provide: ToastService, useValue: mockToastService },
       ],
     })
       .overrideComponent(AppearanceComponent, {
@@ -114,6 +129,7 @@ describe("AppearanceComponent", () => {
         enableFavicons: false,
         theme: ThemeTypes.Dark,
         locale: "es",
+        betaMode: false,
       });
     }));
 

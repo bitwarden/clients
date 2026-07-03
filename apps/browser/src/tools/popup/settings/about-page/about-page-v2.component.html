@@ -35,4 +35,22 @@
       </button>
     </bit-item>
   </bit-item-group>
+
+  @if (showBetaToggle()) {
+    <h2 bitTypography="h6" class="tw-font-medium tw-mt-4">{{ "betaMode" | i18n }}</h2>
+    <bit-card>
+      <form [formGroup]="betaModeForm">
+        <bit-form-control disableMargin>
+          <input
+            bitCheckbox
+            id="about-page_input_beta-mode"
+            formControlName="betaMode"
+            type="checkbox"
+          />
+          <bit-label>{{ "betaMode" | i18n }}</bit-label>
+          <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+        </bit-form-control>
+      </form>
+    </bit-card>
+  }
 </popup-page>
