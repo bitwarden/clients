@@ -48,6 +48,13 @@ external entity Cipher {
 external entity Collection {
     organization: Organization
     name: String
+    -- The access rule that gates PAM leasing for this collection, or null when leasing
+    -- is disabled for it. The rule↔collection link lives HERE, on the collection, as a
+    -- single reference — which is what structurally limits a collection to at most one
+    -- governing rule (there is no set to hold a second). A soft-deleted rule's link is
+    -- preserved (so rule_deleted stays scopable) until the collection is reassigned to a
+    -- new rule.
+    access_rule: AccessRule?
 }
 
 -- A user's membership in a collection. Gating of the collection's contents
@@ -131,7 +138,13 @@ entity AccessRule {
     description: String?
     -- Request-decision gates (see note above). ANDed: all must pass to approve.
     conditions: List<Condition>
-    collections: Set<Collection>
+    -- The collections this rule governs. Derived from the collections' back-reference
+    -- (Collection.access_rule = this), so the single source of truth for the link is on
+    -- the collection side. Because that reference is singular, at most one live rule can
+    -- govern a collection; a member reaching a cipher through several collections can
+    -- still surface several rules (per-path contention), which is what oldest_rule
+    -- arbitrates.
+    collections: Collection with access_rule = this
     default_lease_duration: Duration?
     -- AccessLease constraint: ceiling on the duration of a single lease AS MINTED —
     -- when set, the lease window is clamped to at most this long at activation.
@@ -185,6 +198,14 @@ entity AccessRequest {
     -- (evaluation, approver scope, lease shaping, activation re-checks) reads this
     -- pinned rule, never a re-resolution. The oldest-wins resolution is encoded
     -- structurally at that submit rule; see oldest_rule for the WHY.
+    --
+    -- IMPLEMENTATION STATUS — not yet pinned (aspirational): the server does not
+    -- persist this rule reference on the request today. It re-resolves the governing
+    -- rule (oldest wins; see oldest_rule) on every operation instead, so an in-flight
+    -- request's governing rule can drift if the rules on the member's paths change
+    -- between submit and a later read. Pinning at submit is the intended end state;
+    -- the re-resolution already uses the same deterministic oldest-wins selection, so
+    -- only the drift window is outstanding.
     rule: AccessRule
 
     -- Activation window: the timestamps that bound WHEN this request may be
@@ -950,20 +971,28 @@ rule OrgAdminCreatesAccessRule {
                             single_active_lease, enabled)
     requires: name.length > 0 and name.length <= 256
     requires: collections.all(c => c.organization = organization)
-    ensures: AccessRule.created(
-        organization: organization,
-        name: name,
-        description: description,
-        conditions: conditions,
-        collections: collections,
-        default_lease_duration: default_lease_duration,
-        max_lease_duration: max_lease_duration,
-        single_active_lease: single_active_lease,
-        enabled: enabled,
-        creation_date: now,
-        revision_date: now,
-        last_edited_by: admin
-    )
+    -- Each target collection must be free to govern: unlinked, or linked only to a
+    -- soft-deleted rule (a preserved audit link, reassignable). A collection already
+    -- governed by a live rule is rejected rather than silently stolen from it.
+    requires: collections.all(c => c.access_rule = null
+                                    or c.access_rule.deleted_at != null)
+    ensures:
+        let created = AccessRule.created(
+            organization: organization,
+            name: name,
+            description: description,
+            conditions: conditions,
+            default_lease_duration: default_lease_duration,
+            max_lease_duration: max_lease_duration,
+            single_active_lease: single_active_lease,
+            enabled: enabled,
+            creation_date: now,
+            revision_date: now,
+            last_edited_by: admin
+        )
+        -- Establish the link on the collection side (its single source of truth).
+        for c in collections:
+            c.access_rule = created
 }
 
 rule OrgAdminUpdatesAccessRule {
@@ -971,16 +1000,29 @@ rule OrgAdminUpdatesAccessRule {
                             collections, default_lease_duration?, max_lease_duration?,
                             single_active_lease, enabled)
     requires: name.length > 0 and name.length <= 256
+    -- Same free-to-govern check as create, but a collection already linked to THIS rule
+    -- is fine (it is being kept, not stolen).
+    requires: collections.all(c => c.access_rule = null
+                                    or c.access_rule = rule
+                                    or c.access_rule.deleted_at != null)
+    -- Collections this rule governs today that are no longer wanted; their link is cleared.
+    let removed = rule.collections - collections
     ensures: rule.name = name
     ensures: rule.description = description
     ensures: rule.conditions = conditions
-    ensures: rule.collections = collections
     ensures: rule.default_lease_duration = default_lease_duration
     ensures: rule.max_lease_duration = max_lease_duration
     ensures: rule.single_active_lease = single_active_lease
     ensures: rule.enabled = enabled
     ensures: rule.revision_date = now
     ensures: rule.last_edited_by = admin
+    -- Reconcile the links on the collection side: point the desired collections at this
+    -- rule and clear it from any it no longer governs.
+    ensures:
+        for c in collections:
+            c.access_rule = rule
+        for c in removed:
+            c.access_rule = null
 }
 
 rule OrgAdminDeletesAccessRule {
@@ -1521,6 +1563,21 @@ invariant AtMostOneLeasingFreezePerOrg {
             a != b implies a.organization != b.organization
 }
 
+-- One live rule per collection is now structural, not an invariant: the link lives on
+-- Collection.access_rule as a single reference, so a collection cannot hold two. See the
+-- Collection entity and AccessRule.collections.
+
+invariant OrgUniqueRuleNames {
+    -- Storage constraint (intentional gap), silent in the rule model but enforced by
+    -- the implementation: a live rule's name is unique within its organization
+    -- (create and update reject a duplicate, compared case-insensitively — the spec
+    -- has no case-fold primitive, so this expresses the distinctness only). Names are
+    -- otherwise bounded to 1..256 characters (see OrgAdminCreatesAccessRule).
+    for a in AccessRule where deleted_at = null:
+        for b in AccessRule where deleted_at = null:
+            a != b and a.organization = b.organization implies a.name != b.name
+}
+
 -- ----------------------------------------------------------------------------
 -- Open questions
 -- ----------------------------------------------------------------------------
@@ -1561,7 +1618,9 @@ open question "ApproverScope.specific names individual users. What happens if on
 -- with no favouring of automatic grants over human approval. Resolution happens
 -- once, at request submit time, and the resolved rule is PINNED on the AccessRequest
 -- (its RuleId stored at creation); all downstream logic reads the pinned rule, never
--- a re-resolution. Trade-off, stated deliberately: a newer auto-approve rule no
+-- a re-resolution. (Implementation status: the oldest-wins selection is live, but the
+-- pinning is not yet persisted — the rule is re-resolved each operation; see the
+-- AccessRequest.rule field.) Trade-off, stated deliberately: a newer auto-approve rule no
 -- longer pre-empts an older human-approval rule — determinism over least-restriction.
 -- See the oldest_rule selector and the AccessRequest.rule field. NOTE: this
 -- is distinct from — and does not change — the union/OR policy that decides WHETHER a
