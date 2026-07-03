@@ -7,8 +7,8 @@ import { durationLabel, reasonText, relativeStart, toApprovalRow } from "./appro
 function request(
   overrides: Partial<{
     reason: string | null;
-    requestedNotBefore: string | null;
-    requestedNotAfter: string | null;
+    leaseNotBefore: string | null;
+    leaseNotAfter: string | null;
     requesterName: string | null;
     requesterEmail: string | null;
     submittedAt: string;
@@ -20,8 +20,8 @@ function request(
     CollectionId: "col-1",
     RequesterUserId: "user-2",
     Status: "pending",
-    RequestedNotBefore: overrides.requestedNotBefore ?? null,
-    RequestedNotAfter: overrides.requestedNotAfter ?? null,
+    LeaseNotBefore: overrides.leaseNotBefore ?? null,
+    LeaseNotAfter: overrides.leaseNotAfter ?? null,
     Reason: overrides.reason ?? null,
     SubmittedAt: overrides.submittedAt ?? "2026-06-10T10:00:00Z",
     RequesterName: overrides.requesterName ?? "Bob",
@@ -48,10 +48,8 @@ describe("durationLabel", () => {
   /** A request whose window spans `seconds`, so the derived duration label can be asserted. */
   const window = (seconds: number) =>
     request({
-      requestedNotBefore: "2026-06-10T10:00:00Z",
-      requestedNotAfter: new Date(
-        Date.parse("2026-06-10T10:00:00Z") + seconds * 1000,
-      ).toISOString(),
+      leaseNotBefore: "2026-06-10T10:00:00Z",
+      leaseNotAfter: new Date(Date.parse("2026-06-10T10:00:00Z") + seconds * 1000).toISOString(),
     });
 
   it("renders sub-hour durations in minutes (min 1)", () => {
@@ -84,13 +82,9 @@ describe("durationLabel", () => {
   });
 
   it("returns null when the requested window is open-ended", () => {
+    expect(durationLabel(request({ leaseNotBefore: null, leaseNotAfter: null }))).toBeNull();
     expect(
-      durationLabel(request({ requestedNotBefore: null, requestedNotAfter: null })),
-    ).toBeNull();
-    expect(
-      durationLabel(
-        request({ requestedNotBefore: null, requestedNotAfter: "2026-06-10T11:00:00Z" }),
-      ),
+      durationLabel(request({ leaseNotBefore: null, leaseNotAfter: "2026-06-10T11:00:00Z" })),
     ).toBeNull();
   });
 });
@@ -99,28 +93,28 @@ describe("relativeStart", () => {
   const now = new Date("2026-06-10T12:00:00Z");
 
   it("returns the ASAP key when there is no start time", () => {
-    expect(relativeStart(request({ requestedNotBefore: null }), now)).toEqual({
+    expect(relativeStart(request({ leaseNotBefore: null }), now)).toEqual({
       key: "pamInboxStartAsap",
       value: null,
     });
   });
 
   it("returns today for a start within the current day", () => {
-    expect(relativeStart(request({ requestedNotBefore: "2026-06-10T15:00:00Z" }), now)).toEqual({
+    expect(relativeStart(request({ leaseNotBefore: "2026-06-10T15:00:00Z" }), now)).toEqual({
       key: "pamInboxStartToday",
       value: null,
     });
   });
 
   it("returns tomorrow for the next day", () => {
-    expect(relativeStart(request({ requestedNotBefore: "2026-06-11T09:00:00Z" }), now)).toEqual({
+    expect(relativeStart(request({ leaseNotBefore: "2026-06-11T09:00:00Z" }), now)).toEqual({
       key: "pamInboxStartTomorrow",
       value: null,
     });
   });
 
   it("returns the day count for further-out starts", () => {
-    expect(relativeStart(request({ requestedNotBefore: "2026-06-13T09:00:00Z" }), now)).toEqual({
+    expect(relativeStart(request({ leaseNotBefore: "2026-06-13T09:00:00Z" }), now)).toEqual({
       key: "pamInboxStartInDays",
       value: 3,
     });

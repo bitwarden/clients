@@ -66,10 +66,10 @@ describe("DefaultPamApiService", () => {
           CollectionId: "col-1",
           OrganizationId: "org-1",
           Status: "approved",
-          NotBefore: "2026-06-04T12:00:00Z",
-          NotAfter: "2026-06-04T13:00:00Z",
+          LeaseNotBefore: "2026-06-04T12:00:00Z",
+          LeaseNotAfter: "2026-06-04T13:00:00Z",
           Reason: "incident",
-          CreationDate: "2026-06-04T12:00:00Z",
+          SubmittedAt: "2026-06-04T12:00:00Z",
         },
       });
       const body = new AccessRequestCreateRequest({ durationSeconds: 3600, reason: "incident" });
@@ -87,7 +87,7 @@ describe("DefaultPamApiService", () => {
       expect(result.request).not.toBeNull();
       expect(result.request?.id).toBe("req-1");
       expect(result.request?.status).toBe("approved");
-      expect(result.request?.notAfter).toBe("2026-06-04T13:00:00Z");
+      expect(result.request?.leaseNotAfter).toBe("2026-06-04T13:00:00Z");
     });
 
     it("POSTs /leases/ciphers/{id} with a window body on the human path", async () => {
@@ -102,10 +102,10 @@ describe("DefaultPamApiService", () => {
           CollectionId: "col-1",
           OrganizationId: "org-1",
           Status: "pending",
-          NotBefore: "2026-06-05T09:00:00Z",
-          NotAfter: "2026-06-05T17:00:00Z",
+          LeaseNotBefore: "2026-06-05T09:00:00Z",
+          LeaseNotAfter: "2026-06-05T17:00:00Z",
           Reason: "Investigating prod incident #4821",
-          CreationDate: "2026-06-04T12:00:00Z",
+          SubmittedAt: "2026-06-04T12:00:00Z",
         },
       });
       const body = new AccessRequestCreateRequest({
@@ -128,7 +128,7 @@ describe("DefaultPamApiService", () => {
       expect(result.request?.id).toBe("req-1");
       expect(result.request?.status).toBe("pending");
       expect(result.request?.reason).toBe("Investigating prod incident #4821");
-      expect(result.request?.creationDate).toBe("2026-06-04T12:00:00Z");
+      expect(result.request?.submittedAt).toBe("2026-06-04T12:00:00Z");
     });
 
     it("pumps mutations$ after a successful automatic lease", async () => {
@@ -171,10 +171,10 @@ describe("DefaultPamApiService", () => {
           CollectionId: "col-1",
           OrganizationId: "org-1",
           Status: "pending",
-          NotBefore: "2026-06-05T09:00:00Z",
-          NotAfter: "2026-06-05T17:00:00Z",
+          LeaseNotBefore: "2026-06-05T09:00:00Z",
+          LeaseNotAfter: "2026-06-05T17:00:00Z",
           Reason: "incident",
-          CreationDate: "2026-06-04T12:00:00Z",
+          SubmittedAt: "2026-06-04T12:00:00Z",
         },
       });
       const mutations = jest.fn();

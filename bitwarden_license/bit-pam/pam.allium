@@ -199,13 +199,12 @@ entity AccessRequest {
     -- pinned rule, never a re-resolution. The oldest-wins resolution is encoded
     -- structurally at that submit rule; see oldest_rule for the WHY.
     --
-    -- IMPLEMENTATION STATUS — not yet pinned (aspirational): the server does not
-    -- persist this rule reference on the request today. It re-resolves the governing
-    -- rule (oldest wins; see oldest_rule) on every operation instead, so an in-flight
-    -- request's governing rule can drift if the rules on the member's paths change
-    -- between submit and a later read. Pinning at submit is the intended end state;
-    -- the re-resolution already uses the same deterministic oldest-wins selection, so
-    -- only the drift window is outstanding.
+    -- IMPLEMENTATION STATUS — pinned at submit: the resolved rule's id is now stored on
+    -- the request at creation (all creation paths — auto, human, extension) and surfaced
+    -- on the request reads, so the pin no longer drifts. Note the downstream operations
+    -- that would RE-CHECK conditions or shape the lease at activation do not read it yet —
+    -- but only because those re-checks are themselves not implemented (see the
+    -- activation-side gap), not because the pin is missing.
     rule: AccessRule
 
     -- Activation window: the timestamps that bound WHEN this request may be
@@ -1618,9 +1617,9 @@ open question "ApproverScope.specific names individual users. What happens if on
 -- with no favouring of automatic grants over human approval. Resolution happens
 -- once, at request submit time, and the resolved rule is PINNED on the AccessRequest
 -- (its RuleId stored at creation); all downstream logic reads the pinned rule, never
--- a re-resolution. (Implementation status: the oldest-wins selection is live, but the
--- pinning is not yet persisted — the rule is re-resolved each operation; see the
--- AccessRequest.rule field.) Trade-off, stated deliberately: a newer auto-approve rule no
+-- a re-resolution. (Implementation status: oldest-wins selection AND submit-time pinning
+-- are both live — the RuleId is stored at creation and surfaced on the request reads; see
+-- the AccessRequest.rule field.) Trade-off, stated deliberately: a newer auto-approve rule no
 -- longer pre-empts an older human-approval rule — determinism over least-restriction.
 -- See the oldest_rule selector and the AccessRequest.rule field. NOTE: this
 -- is distinct from — and does not change — the union/OR policy that decides WHETHER a

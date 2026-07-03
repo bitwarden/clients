@@ -59,10 +59,10 @@
               <span class="tw-text-muted">&nbsp;·&nbsp;{{ s.key | i18n: s.value }}</span>
             }
           </span>
-          @if (r.requestedNotBefore && r.requestedNotAfter) {
+          @if (r.leaseNotBefore && r.leaseNotAfter) {
             <div class="tw-text-xs tw-text-muted">
-              {{ r.requestedNotBefore | date: "short" }} &ndash;
-              {{ r.requestedNotAfter | date: "short" }}
+              {{ r.leaseNotBefore | date: "short" }} &ndash;
+              {{ r.leaseNotAfter | date: "short" }}
             </div>
           }
         </dd>

@@ -16,8 +16,8 @@ function item(
     status: string;
     producedLeaseId: string | null;
     producedLeaseStatus: string | null;
-    requestedNotBefore: string | null;
-    requestedNotAfter: string | null;
+    leaseNotBefore: string | null;
+    leaseNotAfter: string | null;
     resolvedAt: string | null;
     comment: string | null;
     cipherId: string;
@@ -34,8 +34,8 @@ function item(
     CollectionId: overrides.collectionId ?? "col-1",
     RequesterId: "user-2",
     Status: overrides.status ?? "denied",
-    RequestedNotBefore: overrides.requestedNotBefore ?? null,
-    RequestedNotAfter: overrides.requestedNotAfter ?? new Date(now - 60 * 60_000).toISOString(),
+    LeaseNotBefore: overrides.leaseNotBefore ?? null,
+    LeaseNotAfter: overrides.leaseNotAfter ?? new Date(now - 60 * 60_000).toISOString(),
     Reason: "Quarterly access review",
     SubmittedAt: new Date(now - 5 * 60 * 60_000).toISOString(),
     ResolvedAt: overrides.resolvedAt ?? new Date(now - 4 * 60 * 60_000).toISOString(),
@@ -107,8 +107,8 @@ export const Populated: Story = {
         status: "activated",
         producedLeaseId: "lease-1",
         producedLeaseStatus: "active",
-        requestedNotBefore: new Date(now - 30 * 60_000).toISOString(),
-        requestedNotAfter: new Date(now + 30 * 60_000).toISOString(),
+        leaseNotBefore: new Date(now - 30 * 60_000).toISOString(),
+        leaseNotAfter: new Date(now + 30 * 60_000).toISOString(),
         comment: "Approved for hotfix deploy",
         cipherId: "cipher-active",
         collectionId: "col-prod",

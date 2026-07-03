@@ -20,8 +20,8 @@ function row(
     collectionId: string;
     reason: string | null;
     submittedAt: string;
-    requestedNotBefore: string | null;
-    requestedNotAfter: string | null;
+    leaseNotBefore: string | null;
+    leaseNotAfter: string | null;
   }> = {},
 ): AccessRequestDetailsResponse {
   return new AccessRequestDetailsResponse({
@@ -30,8 +30,8 @@ function row(
     CollectionId: overrides.collectionId ?? "col-1",
     RequesterUserId: overrides.requesterId ?? "user-other",
     Status: "pending",
-    RequestedNotBefore: overrides.requestedNotBefore ?? null,
-    RequestedNotAfter: overrides.requestedNotAfter ?? null,
+    LeaseNotBefore: overrides.leaseNotBefore ?? null,
+    LeaseNotAfter: overrides.leaseNotAfter ?? null,
     Reason: overrides.reason ?? "Investigating a production incident",
     SubmittedAt: overrides.submittedAt ?? new Date(Date.now() - 7 * 60_000).toISOString(),
     RequesterName: overrides.requesterName ?? "Bob Engineer",
@@ -91,8 +91,8 @@ export const Populated: Story = {
         id: "b",
         collectionId: "col-staging",
         reason: null,
-        requestedNotBefore: new Date(Date.now() + 60 * 60_000).toISOString(),
-        requestedNotAfter: new Date(Date.now() + 3 * 60 * 60_000).toISOString(),
+        leaseNotBefore: new Date(Date.now() + 60 * 60_000).toISOString(),
+        leaseNotAfter: new Date(Date.now() + 3 * 60 * 60_000).toISOString(),
       }),
       // The viewer's own request — actions render disabled (self-approval guard).
       row({

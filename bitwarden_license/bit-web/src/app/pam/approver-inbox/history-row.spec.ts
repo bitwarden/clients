@@ -29,8 +29,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       status: string;
       producedLeaseId: string | null;
       producedLeaseStatus: AccessLeaseStatus | null;
-      requestedNotBefore: string | null;
-      requestedNotAfter: string | null;
+      leaseNotBefore: string | null;
+      leaseNotAfter: string | null;
     }> = {},
   ): AccessRequestDetailsResponse {
     const producedLeaseId = overrides.producedLeaseId ?? null;
@@ -40,8 +40,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       CollectionId: "col-1",
       RequesterId: "user-2",
       Status: overrides.status ?? "approved",
-      RequestedNotBefore: overrides.requestedNotBefore ?? earlier,
-      RequestedNotAfter: overrides.requestedNotAfter ?? later,
+      LeaseNotBefore: overrides.leaseNotBefore ?? earlier,
+      LeaseNotAfter: overrides.leaseNotAfter ?? later,
       SubmittedAt: "2026-06-10T10:00:00Z",
       ProducedLeaseId: producedLeaseId,
       // A minted lease defaults to "active"; tests that exercise an ended lease override this.
@@ -64,8 +64,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     const item = historyRow({
       status: "activated",
       producedLeaseId: "lease-1",
-      requestedNotBefore: "2026-06-10T09:00:00Z",
-      requestedNotAfter: "2026-06-10T10:00:00Z",
+      leaseNotBefore: "2026-06-10T09:00:00Z",
+      leaseNotAfter: "2026-06-10T10:00:00Z",
     });
     expect(bucketOf(item)).toBe("past");
   });
@@ -97,8 +97,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     const item = historyRow({
       status: "approved",
       producedLeaseId: null,
-      requestedNotBefore: later,
-      requestedNotAfter: muchLater,
+      leaseNotBefore: later,
+      leaseNotAfter: muchLater,
     });
     expect(bucketOf(item)).toBe("future");
   });
@@ -107,8 +107,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     const item = historyRow({
       status: "approved",
       producedLeaseId: null,
-      requestedNotBefore: "2026-06-10T09:00:00Z",
-      requestedNotAfter: "2026-06-10T10:00:00Z",
+      leaseNotBefore: "2026-06-10T09:00:00Z",
+      leaseNotAfter: "2026-06-10T10:00:00Z",
     });
     expect(bucketOf(item)).toBe("past");
   });
@@ -156,8 +156,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
       status: "activated",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "active",
-      requestedNotBefore: "2026-06-10T09:00:00Z",
-      requestedNotAfter: "2026-06-10T10:00:00Z",
+      leaseNotBefore: "2026-06-10T09:00:00Z",
+      leaseNotAfter: "2026-06-10T10:00:00Z",
     });
     expect(bucketOf(item)).toBe("past");
     expect(historyStatusLabelFor("past", item)).toBe("pamInboxHistoryStatusExpired");
@@ -167,8 +167,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     const item = historyRow({
       status: "activated",
       producedLeaseId: "lease-1",
-      requestedNotBefore: later,
-      requestedNotAfter: muchLater,
+      leaseNotBefore: later,
+      leaseNotAfter: muchLater,
     });
     expect(historyStatusLabelFor("future", item)).toBe("pamInboxHistoryGroupFuture");
   });
@@ -185,8 +185,8 @@ describe("history bucketing and labels (deferred lease minting)", () => {
     const item = historyRow({
       status: "approved",
       producedLeaseId: null,
-      requestedNotBefore: later,
-      requestedNotAfter: muchLater,
+      leaseNotBefore: later,
+      leaseNotAfter: muchLater,
     });
     expect(historyRelTimeFor(item, "future", now)).toEqual({
       key: "pamInboxHistoryStartsIn",
@@ -205,8 +205,8 @@ describe("flattenHistory", () => {
       CollectionId: "col-1",
       RequesterId: "user-2",
       Status: "activated",
-      RequestedNotBefore: "2026-06-10T11:00:00Z",
-      RequestedNotAfter: "2026-06-10T13:00:00Z",
+      LeaseNotBefore: "2026-06-10T11:00:00Z",
+      LeaseNotAfter: "2026-06-10T13:00:00Z",
       SubmittedAt: "2026-06-10T10:00:00Z",
       ResolvedAt: "2026-06-10T10:30:00Z",
       ProducedLeaseId: "lease-" + id,
@@ -226,8 +226,8 @@ describe("flattenHistory", () => {
       CollectionId: "col-1",
       RequesterId: "user-2",
       Status: "activated",
-      RequestedNotBefore: "2026-06-10T09:00:00Z",
-      RequestedNotAfter: "2026-06-10T10:00:00Z",
+      LeaseNotBefore: "2026-06-10T09:00:00Z",
+      LeaseNotAfter: "2026-06-10T10:00:00Z",
       SubmittedAt: "2026-06-10T08:00:00Z",
       ProducedLeaseId: "lease-a",
       ProducedLeaseStatus: "active",
@@ -256,8 +256,8 @@ describe("flattenHistory", () => {
       CollectionId: "col-1",
       RequesterId: "user-2",
       Status: "denied",
-      RequestedNotBefore: "2026-06-10T11:00:00Z",
-      RequestedNotAfter: "2026-06-10T13:00:00Z",
+      LeaseNotBefore: "2026-06-10T11:00:00Z",
+      LeaseNotAfter: "2026-06-10T13:00:00Z",
       SubmittedAt: "2026-06-10T10:00:00Z",
       ResolvedAt: "2026-06-10T10:30:00Z",
       Decisions: [

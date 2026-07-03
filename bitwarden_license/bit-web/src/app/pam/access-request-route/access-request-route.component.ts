@@ -210,10 +210,10 @@ export class AccessRequestRouteComponent implements OnInit {
   /** A live "ends in X" label while the produced lease is active and its window is still open. */
   protected readonly leaseRemaining = computed(() => {
     const request = this.request();
-    if (request == null || !this.leaseActive() || request.requestedNotAfter == null) {
+    if (request == null || !this.leaseActive() || request.leaseNotAfter == null) {
       return null;
     }
-    const remaining = Date.parse(request.requestedNotAfter) - this.nowMs();
+    const remaining = Date.parse(request.leaseNotAfter) - this.nowMs();
     return remaining > 0 ? formatRemaining(remaining) : null;
   });
 
@@ -223,11 +223,12 @@ export class AccessRequestRouteComponent implements OnInit {
     if (
       request == null ||
       request.status !== AccessRequestStatus.Approved ||
-      request.activationDeadline == null
+      request.leaseNotAfter == null
     ) {
       return null;
     }
-    return formatRemaining(Date.parse(request.activationDeadline) - this.nowMs());
+    // actionable_until: today the window end is the only actionable bound the server enforces.
+    return formatRemaining(Date.parse(request.leaseNotAfter) - this.nowMs());
   });
 
   protected readonly isRequester = computed(() => {
@@ -243,7 +244,7 @@ export class AccessRequestRouteComponent implements OnInit {
       request != null &&
       this.isRequester() &&
       request.status === AccessRequestStatus.Approved &&
-      (request.requestedNotAfter == null || Date.parse(request.requestedNotAfter) > this.nowMs())
+      (request.leaseNotAfter == null || Date.parse(request.leaseNotAfter) > this.nowMs())
     );
   });
 
@@ -258,7 +259,7 @@ export class AccessRequestRouteComponent implements OnInit {
     }
     return (
       request.status === AccessRequestStatus.Approved &&
-      (request.requestedNotAfter == null || Date.parse(request.requestedNotAfter) > this.nowMs())
+      (request.leaseNotAfter == null || Date.parse(request.leaseNotAfter) > this.nowMs())
     );
   });
 

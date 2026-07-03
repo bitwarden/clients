@@ -48,8 +48,8 @@ type ResponseFixture = {
   resolvedAt?: string | null;
   approverId?: string | null;
   approverComment?: string | null;
-  requestedNotBefore?: string | null;
-  requestedNotAfter?: string | null;
+  leaseNotBefore?: string | null;
+  leaseNotAfter?: string | null;
   producedLeaseId?: string | null;
   producedLeaseStatus?: AccessLeaseStatus | null;
   extensionOfLeaseId?: string | null;
@@ -62,8 +62,8 @@ function makeResponse(fixture: ResponseFixture): AccessRequestDetailsResponse {
     CollectionId: "col-1",
     RequesterUserId: "me",
     Status: fixture.status,
-    RequestedNotBefore: fixture.requestedNotBefore ?? null,
-    RequestedNotAfter: fixture.requestedNotAfter ?? null,
+    LeaseNotBefore: fixture.leaseNotBefore ?? null,
+    LeaseNotAfter: fixture.leaseNotAfter ?? null,
     Reason: null,
     SubmittedAt: fixture.submittedAt ?? "2026-05-01T00:00:00Z",
     ResolvedAt: fixture.resolvedAt ?? null,
@@ -332,8 +332,8 @@ describe("MyAccessRequestsListComponent", () => {
         resolvedAt: new Date().toISOString(),
         extensionOfLeaseId: "lease-1",
         // Window spans the +2h bump it added.
-        requestedNotBefore: "2026-06-20T13:00:00Z",
-        requestedNotAfter: "2026-06-20T15:00:00Z",
+        leaseNotBefore: "2026-06-20T13:00:00Z",
+        leaseNotAfter: "2026-06-20T15:00:00Z",
       }),
     ]);
 
@@ -381,8 +381,8 @@ describe("MyAccessRequestsListComponent", () => {
           resolvedAt: new Date().toISOString(),
           extensionOfLeaseId: "lease-1",
           // Window spans the +30m bump it added.
-          requestedNotBefore: "2026-06-20T14:30:00Z",
-          requestedNotAfter: "2026-06-20T15:00:00Z",
+          leaseNotBefore: "2026-06-20T14:30:00Z",
+          leaseNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],
       [makeLease("lease-1", "cipher-orig-1")],
@@ -428,7 +428,7 @@ describe("MyAccessRequestsListComponent", () => {
         status: "approved",
         resolvedAt: new Date().toISOString(),
         approverId: "user-7",
-        requestedNotAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        leaseNotAfter: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       }),
     ]);
     expect(
@@ -443,7 +443,7 @@ describe("MyAccessRequestsListComponent", () => {
         status: "approved",
         resolvedAt: new Date().toISOString(),
         approverId: "user-7",
-        requestedNotAfter: new Date(Date.now() - 60 * 1000).toISOString(),
+        leaseNotAfter: new Date(Date.now() - 60 * 1000).toISOString(),
       }),
     ]);
     expect(

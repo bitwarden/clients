@@ -125,7 +125,7 @@ export function historyRelTimeFor(
   now: Date,
 ): { key: string; value: string } | null {
   if (bucket === "future") {
-    const notBeforeMs = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
+    const notBeforeMs = item.leaseNotBefore ? Date.parse(item.leaseNotBefore) : null;
     if (notBeforeMs != null && notBeforeMs > now.getTime()) {
       return {
         key: "pamInboxHistoryStartsIn",
@@ -133,8 +133,8 @@ export function historyRelTimeFor(
       };
     }
     // Awaiting start inside an already-open window: show how long the approval stays startable.
-    if (isAwaitingStart(item) && item.requestedNotAfter) {
-      const startable = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
+    if (isAwaitingStart(item) && item.leaseNotAfter) {
+      const startable = formatRemaining(Date.parse(item.leaseNotAfter) - now.getTime());
       if (startable === "0s") {
         return null;
       }
@@ -142,8 +142,8 @@ export function historyRelTimeFor(
     }
     return null;
   }
-  if (bucket === "active" && item.requestedNotAfter) {
-    const remaining = formatRemaining(Date.parse(item.requestedNotAfter) - now.getTime());
+  if (bucket === "active" && item.leaseNotAfter) {
+    const remaining = formatRemaining(Date.parse(item.leaseNotAfter) - now.getTime());
     if (remaining === "0s") {
       return null;
     }
@@ -164,8 +164,8 @@ export function groupHistory(items: AccessRequestDetailsResponse[], now: Date): 
   const past: AccessRequestDetailsResponse[] = [];
 
   for (const item of items) {
-    const notBefore = item.requestedNotBefore ? Date.parse(item.requestedNotBefore) : null;
-    const notAfter = item.requestedNotAfter ? Date.parse(item.requestedNotAfter) : null;
+    const notBefore = item.leaseNotBefore ? Date.parse(item.leaseNotBefore) : null;
+    const notAfter = item.leaseNotAfter ? Date.parse(item.leaseNotAfter) : null;
 
     // A minted lease is real access only while its status is still "active": a revoked or expired
     // lease drops to Past regardless of its window, so the inbox never offers Revoke on a lease that
@@ -242,7 +242,7 @@ export function flattenHistory(
         canCancel:
           actionable &&
           isAwaitingStart(item) &&
-          (item.requestedNotAfter == null || Date.parse(item.requestedNotAfter) >= nowMs),
+          (item.leaseNotAfter == null || Date.parse(item.leaseNotAfter) >= nowMs),
         statusClass: historyStatusClassFor(bucket, item.status),
         statusLabel: historyStatusLabelFor(bucket, item),
         relTime: historyRelTimeFor(item, bucket, now),

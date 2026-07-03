@@ -30,7 +30,7 @@ function makeRow(
     collectionId: string;
     requesterId: string;
     organizationId: string;
-    requestedNotAfter: string;
+    leaseNotAfter: string;
     expiredAt: string;
   }> = {},
 ): AccessRequestDetailsResponse {
@@ -41,7 +41,7 @@ function makeRow(
     OrganizationId: overrides.organizationId ?? "org-1",
     RequesterUserId: overrides.requesterId ?? "user-2",
     Status: "pending",
-    RequestedNotAfter: overrides.requestedNotAfter,
+    LeaseNotAfter: overrides.leaseNotAfter,
     ExpiredAt: overrides.expiredAt,
     SubmittedAt: overrides.submittedAt ?? "2026-05-15T12:00:00Z",
     RequesterName: "Bob",
@@ -161,8 +161,8 @@ describe("ApproverInboxService", () => {
 
     it("excludes timed-out requests from the actionable list", async () => {
       await emitInbox([
-        makeRow({ id: "live", requestedNotAfter: "2999-01-01T00:00:00Z" }),
-        makeRow({ id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z" }),
+        makeRow({ id: "live", leaseNotAfter: "2999-01-01T00:00:00Z" }),
+        makeRow({ id: "timed-out", leaseNotAfter: "2000-01-01T00:00:00Z" }),
         makeRow({ id: "open-ended" }),
         makeRow({ id: "lapsed", expiredAt: "2000-01-01T00:00:00Z" }),
       ]);

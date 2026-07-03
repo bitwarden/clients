@@ -1,7 +1,7 @@
 import { AccessRequestDetailsResponse } from "../abstractions/responses/access-request-details.response";
 
 /**
- * Length of the requested access window in seconds — `requestedNotAfter − requestedNotBefore` —
+ * Length of the requested access window in seconds — `leaseNotAfter − leaseNotBefore` —
  * or null when either bound is missing (an open-ended request whose duration the window does not
  * pin down).
  *
@@ -11,10 +11,10 @@ import { AccessRequestDetailsResponse } from "../abstractions/responses/access-r
  * subtraction yields the added time.
  */
 export function requestedWindowSeconds(
-  request: Pick<AccessRequestDetailsResponse, "requestedNotBefore" | "requestedNotAfter">,
+  request: Pick<AccessRequestDetailsResponse, "leaseNotBefore" | "leaseNotAfter">,
 ): number | null {
-  if (request.requestedNotBefore == null || request.requestedNotAfter == null) {
+  if (request.leaseNotBefore == null || request.leaseNotAfter == null) {
     return null;
   }
-  return (Date.parse(request.requestedNotAfter) - Date.parse(request.requestedNotBefore)) / 1000;
+  return (Date.parse(request.leaseNotAfter) - Date.parse(request.leaseNotBefore)) / 1000;
 }

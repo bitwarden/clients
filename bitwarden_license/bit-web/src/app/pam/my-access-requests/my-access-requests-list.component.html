@@ -142,12 +142,12 @@
               </div>
             </td>
             <td bitCell>
-              @if (row.requestedNotBefore && row.requestedNotAfter) {
-                {{ row.requestedNotBefore | date: "short" }}
+              @if (row.leaseNotBefore && row.leaseNotAfter) {
+                {{ row.leaseNotBefore | date: "short" }}
                 &ndash;
-                {{ row.requestedNotAfter | date: "short" }}
-              } @else if (row.requestedNotAfter) {
-                {{ "pamWindowUntil" | i18n: (row.requestedNotAfter | date: "short") }}
+                {{ row.leaseNotAfter | date: "short" }}
+              } @else if (row.leaseNotAfter) {
+                {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
               }
             </td>
             <td bitCell>{{ row.submittedAt | date: "short" }}</td>

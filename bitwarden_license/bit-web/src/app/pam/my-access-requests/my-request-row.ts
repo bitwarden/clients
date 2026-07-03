@@ -33,15 +33,18 @@ export type MyRequestRow = {
   statusLabelKey: string;
   submittedAt: Date;
   resolvedAt: Date | null;
-  requestedNotBefore: Date | null;
-  requestedNotAfter: Date | null;
+  leaseNotBefore: Date | null;
+  leaseNotAfter: Date | null;
   /** i18n key for a system / access-rule resolver; null when a human resolved. */
   resolverLabelKey: string | null;
   /** The human resolver's display name (name, falling back to email, then id); null otherwise. */
   resolverName: string | null;
   approverComment: string | null;
-  /** Deadline to activate an approved on-demand request; null for other states. */
-  activationDeadline: Date | null;
+  /**
+   * Deadline to activate an approved request — the spec's actionable_until projection, derived from
+   * the activation-window end (the only actionable bound the server enforces today).
+   */
+  actionableUntil: Date | null;
   /**
    * The lease this request minted when activated, or null if it never produced one. Used to fold an
    * extension onto its original and to suppress the History row while that lease is still active (it
@@ -189,14 +192,11 @@ export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNam
     ...historyDisplayStatus(response),
     submittedAt: new Date(response.submittedAt),
     resolvedAt: response.resolvedAt == null ? null : new Date(response.resolvedAt),
-    requestedNotBefore:
-      response.requestedNotBefore == null ? null : new Date(response.requestedNotBefore),
-    requestedNotAfter:
-      response.requestedNotAfter == null ? null : new Date(response.requestedNotAfter),
+    leaseNotBefore: response.leaseNotBefore == null ? null : new Date(response.leaseNotBefore),
+    leaseNotAfter: response.leaseNotAfter == null ? null : new Date(response.leaseNotAfter),
     ...resolveResolver(response.status, human),
     approverComment: human?.comment ?? null,
-    activationDeadline:
-      response.activationDeadline == null ? null : new Date(response.activationDeadline),
+    actionableUntil: response.leaseNotAfter == null ? null : new Date(response.leaseNotAfter),
     producedLeaseId: response.producedLeaseId,
     // Defaults; buildMyRequestRows fills these in for an original whose lease was extended.
     extendedBySeconds: null,
@@ -215,7 +215,7 @@ export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNam
  * rows themselves are dropped.
  *
  * The join is self-contained on the extension's own fields: an applied extension's requested window
- * spans the bump it added (prior end → `requestedNotAfter`, the lease's end after it), and the
+ * spans the bump it added (prior end → `leaseNotAfter`, the lease's end after it), and the
  * original that minted the lease has `producedLeaseId` equal to the same parent lease id the
  * extensions point at. The server applies an extension in place on approval and records it
  * `approved`; the mock/spec records it `activated`. Either counts toward the badge — a
@@ -223,7 +223,7 @@ export function toRow(response: AccessRequestDetailsResponse, names: ResolvedNam
  */
 /**
  * Sum the applied extensions per parent lease id. An applied extension's requested window spans the
- * bump it added (its length, via {@link requestedWindowSeconds}) and ends at `requestedNotAfter`
+ * bump it added (its length, via {@link requestedWindowSeconds}) and ends at `leaseNotAfter`
  * (the lease's end after it). The server applies an extension in place on approval and records it
  * `approved`; the mock/spec records it `activated`. Either counts — a pending/denied/cancelled
  * extension never moved the lease end, so it does not. Keyed by the parent lease id
@@ -243,7 +243,7 @@ export function extensionsByLeaseId(
       continue;
     }
     const acc = byLease.get(response.extensionOfLeaseId) ?? { addedSeconds: 0, latestEndMs: 0 };
-    const endMs = response.requestedNotAfter == null ? 0 : Date.parse(response.requestedNotAfter);
+    const endMs = response.leaseNotAfter == null ? 0 : Date.parse(response.leaseNotAfter);
     byLease.set(response.extensionOfLeaseId, {
       addedSeconds: acc.addedSeconds + (requestedWindowSeconds(response) ?? 0),
       latestEndMs: Math.max(acc.latestEndMs, endMs),
