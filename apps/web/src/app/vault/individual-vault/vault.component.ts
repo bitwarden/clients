@@ -219,6 +219,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: false },
   );
 
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   organizations$ = this.accountService.activeAccount$
     .pipe(map((a) => a?.id))
     .pipe(switchMap((id) => (id ? this.organizationService.organizations$(id) : of([]))));
@@ -1687,9 +1692,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login.password;
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id) as CipherId),
+    );
+    return cipherView?.login.password;
   }
 }
 

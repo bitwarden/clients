@@ -746,8 +746,12 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.secretsManagerForm.controls.enabled.value) {
       this.secretsManagerForm.controls.userSeats.setValue(this.sub?.smSeats || 1);
       this.secretsManagerForm.controls.additionalServiceAccounts.setValue(
-        (this.sub?.smServiceAccounts ?? 0) -
-          (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0),
+        Math.max(
+          0,
+          (this.sub?.smServiceAccounts ?? 0) -
+            (this.currentPlan()?.SecretsManager?.baseServiceAccount ?? 0) -
+            (this.sub?.smServiceAccountsGrace ?? 0),
+        ),
       );
     }
 

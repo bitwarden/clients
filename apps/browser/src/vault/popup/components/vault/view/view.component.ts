@@ -23,6 +23,8 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -123,6 +125,10 @@ export class ViewComponent {
   routeAfterDeletion?: ROUTES_AFTER_EDIT_DELETION;
 
   private readonly autofillAllowed = toSignal(this.vaultPopupAutofillService.autofillAllowed$);
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
   private uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
   protected showFooter$: Observable<boolean>;
   protected userCanArchive$ = this.accountService.activeAccount$
@@ -147,6 +153,7 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private configService: ConfigService,
   ) {
     this.subscribeToParams();
   }
@@ -215,11 +222,14 @@ export class ViewComponent {
   }
 
   setHeader(type: CipherType) {
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
       [CipherType.Login]: "viewItemHeaderLogin",
       [CipherType.Card]: "viewItemHeaderCard",
       [CipherType.Identity]: "viewItemHeaderIdentity",
-      [CipherType.SecureNote]: "viewItemHeaderNote",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? "viewItemHeaderSecureNote"
+        : "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       [CipherType.DriversLicense]: "viewItemHeaderLicense",

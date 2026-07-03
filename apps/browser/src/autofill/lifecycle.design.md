@@ -4,15 +4,21 @@
 
 Bitwarden's autofill content scripts are injected into every page a user visits. They examine form fields, observe DOM mutations, position the inline menu, and surface notifications. That examination is valuable when the user has reason to want it, and inert work otherwise.
 
-One such case is alignment with login state:
+Autofill runs inside an environment shaped by three lifecycles it observes but does not own:
 
-- When there is no account logged in, observation is unnecessary.
-- When a user logs in, observation becomes necessary.
-- When a user logs out, observation should stop.
+- **The page lifecycle** — a page loads, then navigates. Within a single-page app a navigation swaps content without reloading the document, so a content script, once injected, persists across many navigations.
+- **The account lifecycle** — an account logs in, locks and unlocks, and logs out. Examination is warranted only while an account is logged in: it should begin at login and stop at logout.
+- **The extension lifecycle** — the extension process starts and stops. Firefox runs Manifest V2 with a persistent background page; Chrome runs Manifest V3, whose background is a service worker the browser terminates and restarts at will. In-memory background state is therefore durable on Firefox but ephemeral on Chrome, where it must be reconstructed on each restart.
 
-These transitions should be immediate, but this presents a problem. Once injected, a content script cannot be unloaded. Only extension context loss, such as during navigation or a page refresh, removes it. Refreshing is not an option, as it could lose the user's in-progress work. Neither can navigation be relied upon within single-page apps. Thus, the solution must toggle the monitoring feature in the content script.
+These three are out of autofill's control; autofill must align its own behavior with them. The obstacle is that a content script, once injected, cannot be unloaded — only extension context loss, such as a navigation or page refresh, removes it. Refreshing is not an option, as it could lose the user's in-progress work, and navigation cannot be relied upon within single-page apps. So examination cannot be governed by injecting and unloading content scripts; it must be toggled in place as the lifecycles above demand.
 
 ## Architecture
+
+Autofill's in-scope concern is the **monitoring lifecycle** — when autofill is actively engaged with a page. This work lives entirely in content scripts and is directed at the page: `AutofillMonitor` implementations examine fields and guard overlay integrity, and a separate page-transition monitor watches for loads and navigations.
+
+The background `AutofillLifecycleService` owns this lifecycle. It starts and stops the content-script monitors as the account lifecycle crosses the logged-in boundary, and rebuilds them across the extension lifecycle when Manifest V3 restarts. Page-transition reports flow to it, and it decides what they warrant. The monitors stay simple: they examine and report.
+
+Knowing which frames are live is one of the service's responsibilities. Every injected frame is a content script the service can address, and that knowledge is what protocol commands are sent to and what tells the service when a buffered transition can no longer be honored — when a frame is gone, a transition still waiting on it is abandoned.
 
 A content script's life has two scopes:
 
@@ -24,8 +30,6 @@ These scopes are formalized by separate interfaces. The `AutofillMonitor` contra
 Monitoring may be entered and exited many times during a single content script's life, absorbing every on-demand toggle. Disposal happens exactly once, at the end, and is irreversible.
 
 UI concerns — the autofill context menu, the overlay's event handlers, the notification surfaces — are deliberately _outside_ the monitoring scope. They are part of the always-on UI plane, not the examination system. Their interaction with monitoring is one-directional: they read monitoring's caches when monitoring is in flight, and find empty state when it is not. Empty state is a valid outcome at every UI consumer; the absence of monitoring data is itself the gate that keeps the UI inert.
-
-The **autofiller actor** (`autofiller.ts`) is a separate concern again. It performs auto-fill-on-page-load — it triggers fills, it does not examine field data — and follows an asymmetric lifecycle described below.
 
 ## The `AutofillMonitor` contract
 
@@ -68,18 +72,28 @@ Services that own both reversible and terminal work expose both methods. The ide
 
 This composition keeps each scope focused. Anything reversible belongs to monitoring; anything that requires graph-wide teardown belongs to disposal. The two never entangle.
 
-## The autofiller actor
+## The page lifecycle
 
-`apps/browser/src/autofill/content/autofiller.ts` is a separate content script that performs auto-fill-on-page-load. By design it acts only at page-load time; once a page is loaded and the autofill attempt has happened, the actor has nothing further to do until the URL changes. Because filling is bound to page load, an actor can be disabled without a reciprocal enable — disabling halts the URL-change poll, and the next page-load injection (gated separately) decides whether a fresh actor appears.
+A page-lifecycle monitor watches for the moments a page becomes ready to act on — its load, and the navigations that follow — and reports each as a transition. It does not examine field data and is **not** an `AutofillMonitor`. The autofiller (`apps/browser/src/autofill/content/autofiller.ts`) is the current monitor of this lifecycle: it polls for URL changes and, on each transition, reports a `pageTransitionDetected` fact to the background.
 
-The actor is **not** an `AutofillMonitor`; it triggers fills, it does not examine field data. Its lifecycle is asymmetric in three respects:
+Reporting is one-directional. The monitor states that a transition happened; it does not consult monitoring state, settings, or auth status, and it does not decide whether a fill should follow. Those are the background's decisions, made at a single evaluation point (see [Buffering transitions](#buffering-transitions)). This keeps the page-lifecycle monitor simple and lets new transition producers feed the same point without each re-deriving policy.
+
+The autofiller's content-script lifecycle is asymmetric in three respects:
 
 - **Injection-gated start.** `autofiller.js` is added to the injection list only when `triggeringOnPageLoad && autoFillOnPageLoadIsEnabled`, and `autoFillOnPageLoadIsEnabled` can only be true when the user is unlocked. Locked or logged-out users get no fresh autofiller on a navigation; injection itself is the authorization gate.
-- **Survives lock.** A running autofiller continues to poll for URL changes through `Unlocked → Locked`. The background ignores its fill requests while the vault is locked; on `Locked → Unlocked` the existing actor resumes triggering fills with no message exchange. Only logout disables a running actor.
+- **Survives lock.** A running autofiller continues to poll for URL changes through `Unlocked → Locked`. The background ignores its transition reports while the vault is locked; on `Locked → Unlocked` it resumes reporting with no message exchange. Only logout disables a running monitor.
 - **Message-driven disable on logout.** On the transition into `LoggedOut`, any running autofiller halts on receipt of `AutofillerCommand.disable`. The handler reuses the existing `handleExtensionDisconnect` cleanup — clearing the interval and any pending delay timeout — so disable and context-loss teardown share a single code path.
 - **Terminal teardown on context loss.** Already responds to `setupExtensionDisconnectAction`.
 
-There is no `enableAutofiller` message. Re-enabling happens by re-injection on the next page-load when the user is unlocked. The autofiller's content-script lifecycle, in full: _inject (when unlocked) → run → (disable on logout | dispose on context loss)_.
+There is no `enableAutofiller` message. Re-enabling happens by re-injection on the next page-load when the user is unlocked. The autofiller's content-script lifecycle, in full: _inject (when unlocked) → report transitions → (disable on logout | dispose on context loss)_.
+
+### Buffering transitions
+
+Autofill can only fill a frame that is monitoring — monitoring is what makes the page details available to act on. Autofill-on-load therefore depends on monitoring, and the two are not ordered against each other: injection adds the autofiller, which begins reporting at page load, while the `start monitors` command follows separately. A transition can be reported before monitoring has started on a freshly-injected frame.
+
+The background bridges that sequencing gap by buffering. A reported transition is held until its frame is monitoring, then resolved into a page-details collection; one reported after monitoring is already running resolves immediately; one whose frame is retired before monitoring starts — the frame disconnects, or the account logs out — is dropped rather than acted upon, so a pending transition never outlives the conditions that warranted it. The buffer keys on `(tab, frame)`, so simultaneous navigations across many frames each resolve independently.
+
+A resolved transition collects the frame's page details, and those details drive an autofill of the active tab.
 
 ## The lifecycle protocol
 
@@ -87,13 +101,15 @@ Lifecycle messages flow one-way from the background to content scripts. Three co
 
 - **start monitors** — content scripts begin or resume examination
 - **stop monitors** — content scripts pause examination
-- **disable autofiller** — running autofiller actors halt
+- **disable autofiller** — running autofillers halt their page-lifecycle reporting
 
 The first two are paired and symmetric; the third is asymmetric. All three commands are idempotent at their receivers, so the broadcast layer can fan out without worrying about exact receiver state.
 
 ### Routing
 
-The background maintains one routing-relevant data structure: the set of currently-connected content-script ports, indexed by `(tab, frame)`. Each injected bootstrap and each autofiller actor registers a port at injection time and deregisters on extension context loss. The set is consulted when a lifecycle command needs to fan out to every open content script.
+Knowing which frames are live (above) is what makes routing possible: each injected bootstrap and autofiller is a content script the service can address, from injection until extension context loss. A lifecycle command fans out to every live `(tab, frame)`.
+
+Frame liveness is in-memory background state, so it does not survive a Manifest V3 restart. On restart the background re-injects into every open tab, re-establishing both the connections it tracks and monitoring itself. That rebuild is on the critical path for autofill-on-page-load: because a fill depends on monitoring, a transition reported after a restart cannot be honored until monitoring has been re-established for its frame.
 
 ### Triggers
 
@@ -120,7 +136,7 @@ sequenceDiagram
     Note over CS: attach observers, begin examining
 ```
 
-Sent to every `(tab, frame)` in the port set.
+Sent to every live `(tab, frame)`.
 
 #### Logging out (any logged-in state → `LoggedOut`)
 
@@ -128,7 +144,7 @@ Sent to every `(tab, frame)` in the port set.
 sequenceDiagram
     participant BG as Background
     participant CS as Content script
-    participant AF as Autofiller actor
+    participant AF as Autofiller
     Note over BG: auth state crosses LoggedOut boundary
     BG->>CS: stop monitors
     Note over CS: detach observers, clear caches
@@ -136,15 +152,15 @@ sequenceDiagram
     Note over AF: halt interval
 ```
 
-`disable autofiller` is sent to every tab in the port set. Tabs that never had an autofiller (because the user was Locked at the time of their navigation) receive the message and no-op.
+`disable autofiller` is sent to every live tab. Tabs that never had an autofiller (because the user was Locked at the time of their navigation) receive the message and no-op.
 
 #### Locking the vault (`Unlocked → Locked`)
 
-No broadcast. Monitors continue. A running autofiller actor continues its URL-change poll; the background ignores its fill requests until the vault is unlocked again. New navigations during the locked window get no autofiller (injection gate).
+No broadcast. Monitors continue. A running autofiller continues its URL-change poll; the background ignores its transition reports until the vault is unlocked again. New navigations during the locked window get no autofiller (injection gate).
 
 #### Unlocking the vault (`Locked → Unlocked`)
 
-No broadcast. Monitors are already running. An autofiller actor surviving from a prior Unlocked window resumes triggering fills with no message exchange. Tabs that navigated during the locked window pick up an autofiller on their next navigation, via the injection gate.
+No broadcast. Monitors are already running. An autofiller surviving from a prior Unlocked window resumes reporting transitions with no message exchange. Tabs that navigated during the locked window pick up an autofiller on their next navigation, via the injection gate.
 
 #### New tab or frame on navigation
 

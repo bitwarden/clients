@@ -19,13 +19,13 @@ manual_test = []
 
 [dependencies]
 aes = { workspace = true }
+aes-gcm = { workspace = true }
 anyhow = { workspace = true }
 arboard = { workspace = true, features = ["wayland-data-control"] }
 base64 = { workspace = true }
 bitwarden-russh = { git = "https://github.com/bitwarden/bitwarden-russh.git", rev = "a641316227227f8777fdf56ac9fa2d6b5f7fe662" }
 bytes = { workspace = true }
 cbc = { workspace = true, features = ["alloc"] }
-chacha20poly1305 = { workspace = true }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
@@ -65,6 +65,7 @@ security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
+chacha20poly1305 = { workspace = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
