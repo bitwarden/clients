@@ -5,9 +5,6 @@ use super::protocol::SIGNamespace;
 use crate::{authorization::AuthError, crypto::PublicKey};
 
 /// Session-bind context for an SSH sign request.
-///
-/// Present only when the SSH client sent a `session-bind@openssh.com` extension before
-/// the sign request. Groups fields that are sourced from that extension together.
 #[derive(Debug, Clone)]
 pub struct SessionBindContext {
     /// Whether this is an agent forwarding request.
@@ -19,7 +16,7 @@ pub struct SessionBindContext {
 /// Connection-level context for an SSH sign request.
 #[derive(Debug, Clone)]
 pub struct ConnectionContext {
-    /// Name of the process making the request. Unavailable in sandboxed environments.
+    /// Name of the process making the request. Often unavailable in sandboxed environments.
     pub process_name: Option<String>,
     /// Session-bind context. `None` when no session-bind extension was received.
     pub session_bind: Option<SessionBindContext>,
