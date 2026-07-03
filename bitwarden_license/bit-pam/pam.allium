@@ -203,7 +203,9 @@ entity AccessRequest {
     -- past its activatable_until bound transitions to `expired`. Single use: one
     -- approved request yields at most one lease.
     status: pending | approved | activated | denied | cancelled | expired
-    resolved_at: Timestamp? when status != pending
+    -- Non-optional under its when-clause: every transition out of `pending` is
+    -- structurally obliged to set it (and every resolution rule does).
+    resolved_at: Timestamp when status != pending
     -- When the request lapsed: the decision deadline passed while pending, or an
     -- approved request was never activated in time. Distinct from resolved_at,
     -- which (for an expired-while-approved request) keeps the approval time.
@@ -262,8 +264,11 @@ entity AccessLease {
     not_after: Timestamp
 
     status: active | expired | revoked
-    revoked_at: Timestamp? when status = revoked
-    revoked_by: User? when status = revoked
+    -- Non-optional under their when-clause: every transition into `revoked` is
+    -- structurally obliged to stamp both (SettleLease, OrgAdminTriggersKillSwitch).
+    -- revocation_reason stays optional — a revoke may carry no reason.
+    revoked_at: Timestamp when status = revoked
+    revoked_by: User when status = revoked
     revocation_reason: String? when status = revoked
 
     -- Projections
@@ -340,20 +345,21 @@ config {
 -- client-only branch.
 
 rule CipherOpenWithActiveLease {
-    when: OpenCipher(member, cipher)
-    let member_memberships = CollectionMembership where member = member
-                                                    and collection in cipher.collections
+    when: OpenCipher(caller, target_cipher)
+    let member_memberships = CollectionMembership where member = caller
+                                                    and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
         (AccessRule where enabled and deleted_at = null
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
-    let active_leases = AccessLease where requester = member
-                                 and cipher = cipher
+    let active_leases = AccessLease where requester = caller
+                                 and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count > 0
-    ensures: CipherOpened(member, cipher, active_leases.first)
+    -- Singleton by AtMostOneActiveLeasePerRequesterCipher, so .first is deterministic.
+    ensures: CipherOpened(caller, target_cipher, active_leases.first)
 }
 
 rule CipherOpenRequiresAccessRequest {
@@ -361,9 +367,9 @@ rule CipherOpenRequiresAccessRequest {
     -- lease and no approved request → the member must request access. No
     -- AccessRequest is created here; the open only signals that the Request
     -- Access modal should be shown (created on MemberSubmitsAccessRequest).
-    when: OpenCipher(member, cipher)
-    let member_memberships = CollectionMembership where member = member
-                                                    and collection in cipher.collections
+    when: OpenCipher(caller, target_cipher)
+    let member_memberships = CollectionMembership where member = caller
+                                                    and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
         (AccessRule where enabled and deleted_at = null
                        and mm.collection in collections).count = 0)
@@ -380,17 +386,17 @@ rule CipherOpenRequiresAccessRequest {
     let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
     requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
-    let active_leases = AccessLease where requester = member
-                                 and cipher = cipher
+    let active_leases = AccessLease where requester = caller
+                                 and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
     -- CipherOpenWithApprovedRequest handles the already-approved-request case.
-    let approved_requests = AccessRequest where requester = member
-                                             and cipher = cipher
+    let approved_requests = AccessRequest where requester = caller
+                                             and cipher = target_cipher
                                              and status = approved
     requires: approved_requests.count = 0
-    ensures: CipherOpenNeedsRequest(member, cipher, gating_rule)
+    ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule)
     @guidance
         -- Implementation: the cipher-open round-trip reports that the cipher is
         -- gated and the caller holds no access, so the client shows the Request
@@ -407,24 +413,26 @@ rule CipherOpenWithApprovedRequest {
     -- access (or shows the upcoming window when a scheduled start has not
     -- arrived). Activation stays an explicit member action — see the
     -- MemberActivatesLease section.
-    when: OpenCipher(member, cipher)
-    let member_memberships = CollectionMembership where member = member
-                                                    and collection in cipher.collections
+    when: OpenCipher(caller, target_cipher)
+    let member_memberships = CollectionMembership where member = caller
+                                                    and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
         (AccessRule where enabled and deleted_at = null
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
-    let active_leases = AccessLease where requester = member
-                                 and cipher = cipher
+    let active_leases = AccessLease where requester = caller
+                                 and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
-    let approved_requests = AccessRequest where requester = member
-                                             and cipher = cipher
+    let approved_requests = AccessRequest where requester = caller
+                                             and cipher = target_cipher
                                              and status = approved
     requires: approved_requests.count > 0
-    ensures: CipherOpenAwaitingActivation(member, cipher, approved_requests.first)
+    -- Singleton by AtMostOneInFlightRequestPerRequesterCipher (extensions never
+    -- rest at `approved`), so .first is deterministic.
+    ensures: CipherOpenAwaitingActivation(caller, target_cipher, approved_requests.first)
     @guidance
         -- KNOWN DIVERGENCE: the current implementation (PamCipherOpenGate,
         -- cipher-open-gate.service.ts) instead activates a startable approved
@@ -452,14 +460,14 @@ rule CipherOpenPassthrough {
     -- cipher, or they reach it through at least one collection with no enabled
     -- rule — so gating does not apply (union-based collection access; admins are
     -- warned of the bypass via RuleBypassableCiphers).
-    when: OpenCipher(member, cipher)
-    let member_memberships = CollectionMembership where member = member
-                                                    and collection in cipher.collections
+    when: OpenCipher(caller, target_cipher)
+    let member_memberships = CollectionMembership where member = caller
+                                                    and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
         (AccessRule where enabled and deleted_at = null
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
-    ensures: CipherOpened(member, cipher, null)
+    ensures: CipherOpened(caller, target_cipher, null)
 }
 
 -- ----------------------------------------------------------------------------
@@ -469,12 +477,12 @@ rule CipherOpenPassthrough {
 rule MemberSubmitsAccessRequest {
     -- The member submits the Request Access modal for a gated cipher. THIS is
     -- where the AccessRequest is created — not at cipher-open. A specific window
-    -- (not_before + not_after) makes it a scheduled request; otherwise it is an
+    -- (window_start + window_end) makes it a scheduled request; otherwise it is an
     -- on-demand request for the rule's default duration. Evaluation runs
     -- immediately, so the submit response may already be approved.
-    when: MemberSubmitsRequest(member, cipher, reason?, not_before?, not_after?)
-    let memberships = CollectionMembership where collection in cipher.collections
-                                              and member = member
+    when: MemberSubmitsRequest(caller, target_cipher, reason?, window_start?, window_end?)
+    let memberships = CollectionMembership where collection in target_cipher.collections
+                                              and member = caller
     requires: memberships.count > 0
     -- Governing-rule resolution, computed once here and PINNED on the created
     -- AccessRequest.rule below (its RuleId stored at creation). The candidate set is
@@ -488,27 +496,27 @@ rule MemberSubmitsAccessRequest {
     let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
     requires: governing_candidates.all(r => gating_rule.creation_date <= r.creation_date)
-    let active_leases = AccessLease where requester = member
-                                 and cipher = cipher
+    let active_leases = AccessLease where requester = caller
+                                 and cipher = target_cipher
                                  and status = active
                                  and now < not_after
     requires: active_leases.count = 0
     -- No duplicate while an approved request or another pending request exists.
-    let approved_requests = AccessRequest where requester = member
-                                             and cipher = cipher
+    let approved_requests = AccessRequest where requester = caller
+                                             and cipher = target_cipher
                                              and status = approved
     requires: approved_requests.count = 0
-    let pending_requests = AccessRequest where requester = member
-                                            and cipher = cipher
+    let pending_requests = AccessRequest where requester = caller
+                                            and cipher = target_cipher
                                             and status = pending
     requires: pending_requests.count = 0
     ensures: AccessRequest.created(
-        requester: member,
-        cipher: cipher,
+        requester: caller,
+        cipher: target_cipher,
         collection: memberships.first.collection,
         rule: gating_rule,
-        requested_not_before: not_before,
-        requested_not_after: not_after,
+        requested_not_before: window_start,
+        requested_not_after: window_end,
         requested_ttl: gating_rule.default_lease_duration ?? config.fallback_lease_duration,
         reason: reason,
         submitted_at: now,
@@ -1137,20 +1145,20 @@ surface CipherViewBanner {
     -- view page when PAM gating applies. See cipher-lease-banner.component.
     facing viewer: Member
 
-    context cipher: Cipher
+    context target_cipher: Cipher
 
     exposes:
-        cipher.collections
+        target_cipher.collections
         -- Caller's lease/request state for this cipher, surfaced for the badge.
-        AccessLease where requester = viewer and cipher = cipher and status = active
-        AccessRequest where requester = viewer and cipher = cipher and status = pending
+        AccessLease where requester = viewer and cipher = target_cipher and status = active
+        AccessRequest where requester = viewer and cipher = target_cipher and status = pending
         -- Approved-but-unactivated request: banner offers "Start access".
-        AccessRequest where requester = viewer and cipher = cipher and status = approved
+        AccessRequest where requester = viewer and cipher = target_cipher and status = approved
 
     provides:
-        OpenCipher(viewer, cipher)
+        OpenCipher(viewer, target_cipher)
         MemberActivatesLease(viewer, request)
-            when request.requester = viewer and request.cipher = cipher
+            when request.requester = viewer and request.cipher = target_cipher
                                              and request.status = approved
 }
 
@@ -1161,48 +1169,48 @@ surface RequestAccessModal {
     -- Dismissing the modal without submitting creates nothing.
     facing requester: Member
 
-    context cipher: Cipher
+    context target_cipher: Cipher
 
     -- Same governing-rule resolution as MemberSubmitsAccessRequest, so the modal
     -- previews the rule that would be pinned on submit (oldest wins; ties on rule
     -- id via oldest_rule). Advisory: a rule added/removed on another path before
     -- submit could change the pinned rule.
     let member_collections = (CollectionMembership where member = requester
-                                                     and collection in cipher.collections) -> collection
+                                                     and collection in target_cipher.collections) -> collection
     let governing_candidates = AccessRule where enabled and deleted_at = null
                                             and collections.any(c => c in member_collections)
     let gating_rule = oldest_rule(governing_candidates)
 
     exposes:
-        cipher.collections
+        target_cipher.collections
         -- The rule being requested against, so the modal can show its conditions
         -- and default duration.
         gating_rule
         -- Optional dry run: what submitting now would yield (auto_approve /
         -- needs_approval / would_deny), computed without creating a request.
-        ForecastDecision(requester, cipher, gating_rule)
+        ForecastDecision(requester, target_cipher, gating_rule)
         -- Whether a lease could actually be started right now — i.e. the per-cipher
         -- single_active_lease slot is currently free for this member. Only binds when
         -- all of the member's paths to the cipher are single_active_lease-governed
         -- (union/OR); otherwise always startable. Lets the modal warn that an
         -- otherwise-auto_approve request could not be started yet because another lease
         -- is active on this cipher. A current-state hint, re-checked for real at start.
-        RuleAllowsLease(requester, cipher)
+        RuleAllowsLease(requester, target_cipher)
 
     provides:
-        MemberSubmitsRequest(requester, cipher, reason, not_before, not_after)
+        MemberSubmitsRequest(requester, target_cipher, reason, not_before, not_after)
 }
 
 surface MyAccessRequestsPage {
     -- "My requests" page: caller's own AccessRequest rows, bounded by the
     -- shared history window; the UI further splits them into pending and
     -- recent. See my-access-requests.component.
-    facing requester: Member
+    facing viewer: Member
 
-    context requester: Member
+    context viewer: Member
 
     exposes:
-        for r in AccessRequest where requester = requester
+        for r in AccessRequest where requester = viewer
                                   and (status = pending
                                        or resolved_at >= now - config.history_window):
             r.id
@@ -1215,7 +1223,7 @@ surface MyAccessRequestsPage {
             r.requested_not_after
 
         -- Activation countdown for approved-but-unactivated requests.
-        for r in AccessRequest where requester = requester and status = approved:
+        for r in AccessRequest where requester = viewer and status = approved:
             r.activation_deadline
 
     provides:
@@ -1225,8 +1233,8 @@ surface MyAccessRequestsPage {
         -- Start action) Cancel is withheld and it awaits server-side expiry. (The
         -- transition itself, MemberCancelsOwnRequest, does not gate on the window; this
         -- guard is the client UX gating, mirroring MemberActivatesLease.)
-        MemberCancelsRequest(requester, request)
-            when request.requester = requester
+        MemberCancelsRequest(viewer, request)
+            when request.requester = viewer
              and (request.status = pending
                   or (request.status = approved
                       and (request.requested_not_after = null
@@ -1234,8 +1242,8 @@ surface MyAccessRequestsPage {
         -- Activate an approved request: start the lease when ready. Offered only
         -- while the window can still produce access — once requested_not_after
         -- passes, the server rejects activation, so the action is withheld.
-        MemberActivatesLease(requester, request)
-            when request.status = approved and request.requester = requester
+        MemberActivatesLease(viewer, request)
+            when request.status = approved and request.requester = viewer
              and (request.requested_not_after = null
                   or now <= request.requested_not_after)
 }
@@ -1269,14 +1277,14 @@ surface ActiveLeasesPage {
 surface ApproverInbox {
     -- The approver's queue of pending requests plus a history view of
     -- resolved items. See approver-inbox.component.
-    facing approver: Approver
+    facing viewer: Approver
 
-    context approver: Approver
+    context viewer: Approver
 
     exposes:
         -- Pending bucket: requests the approver may decide.
         for r in AccessRequest where status = pending
-                                  and approver in EligibleApprovers(r):
+                                  and viewer in EligibleApprovers(r):
             r.id
             r.cipher
             r.collection
@@ -1289,7 +1297,7 @@ surface ApproverInbox {
         -- History bucket: requests the approver has decided or that resolved
         -- against this approver's scope, bounded by the shared history window.
         for r in AccessRequest where status != pending
-                                  and approver in EligibleApprovers(r)
+                                  and viewer in EligibleApprovers(r)
                                   and resolved_at >= now - config.history_window:
             r.id
             r.cipher
@@ -1301,20 +1309,20 @@ surface ApproverInbox {
             r.lease
 
     provides:
-        ApproverDecides(approver, request, verdict, comment)
-            when request.status = pending and approver != request.requester
+        ApproverDecides(viewer, request, verdict, comment)
+            when request.status = pending and viewer != request.requester
         -- Retract a not-yet-activated request the approver manages (→ denied). A
         -- pending one any time; an approved one only while its window can still
         -- produce access — past that it can no longer be started, so the action is
         -- withheld (the ApproverRetractsRequest transition ignores the window; this is
         -- the client UX gating).
-        ApproverCancelsRequest(approver, request)
-            when approver != request.requester
+        ApproverCancelsRequest(viewer, request)
+            when viewer != request.requester
              and (request.status = pending
                   or (request.status = approved
                       and (request.requested_not_after = null
                            or now <= request.requested_not_after)))
-        ApproverRevokesLeaseAction(approver, lease, reason)
+        ApproverRevokesLeaseAction(viewer, lease, reason)
             when lease.status = active
 }
 
@@ -1332,12 +1340,12 @@ surface AccessRulesAdminPage {
     -- Admin-only CRUD page for an org's access rules. See access-rules.component.
     facing admin: OrgAdmin
 
-    context organization: Organization
+    context org: Organization
 
     exposes:
         -- Deleted rules (deleted_at != null) are excluded — a soft-deleted rule no
         -- longer appears in the admin list (it survives only for the audit trail).
-        for rule in AccessRule where organization = organization
+        for rule in AccessRule where organization = org
                                   and deleted_at = null:
             rule.name
             rule.description
@@ -1355,7 +1363,7 @@ surface AccessRulesAdminPage {
             RuleBypassableCiphers(rule)
 
     provides:
-        CreateAccessRule(admin, organization, name, description, conditions,
+        CreateAccessRule(admin, org, name, description, conditions,
                          collections, default_lease_duration, max_lease_duration,
                          single_active_lease, enabled)
         UpdateAccessRule(admin, rule, name, description, conditions,
@@ -1371,37 +1379,37 @@ surface GovernanceDashboard {
     -- See governance-dashboard.component.
     facing admin: OrgAdmin
 
-    context organization: Organization
+    context org: Organization
 
     exposes:
         -- Strip totals. Deleted rules (deleted_at != null) are excluded — a
         -- soft-deleted rule no longer governs and drops from the dashboard.
-        AccessRule where organization = organization
+        AccessRule where organization = org
                      and deleted_at = null
                      and collections.count > 0
-        AccessRequest where rule.organization = organization and status = pending
+        AccessRequest where rule.organization = org and status = pending
         -- All active leases in scope, surfaced by GET /leases/active.
-        AccessLease where rule.organization = organization and status = active
+        AccessLease where rule.organization = org and status = active
         -- All recently-ended leases (expired or revoked) in scope, within the shared
         -- history window — surfaced by GET /leases/history. A lease's end is its
         -- revoked_at (revoked) or its not_after (expired).
-        AccessLease where rule.organization = organization
+        AccessLease where rule.organization = org
                      and ((status = revoked and revoked_at >= now - config.history_window)
                           or (status = expired and not_after >= now - config.history_window))
 
         -- Per-collection rows.
-        for collection in Collection where organization = organization:
-            collection.name
-            AccessRule where deleted_at = null and collections.contains(collection)
-            CollectionMembership where collection = collection
-            AccessRequest where collection = collection and status = pending
-            AccessLease where collection = collection and status = active
+        for col in Collection where organization = org:
+            col.name
+            AccessRule where deleted_at = null and collections.contains(col)
+            CollectionMembership where collection = col
+            AccessRequest where collection = col and status = pending
+            AccessLease where collection = col and status = active
 
     provides:
         -- Admins may revoke any single active lease directly, without the
         -- org-wide kill switch.
         ApproverRevokesLeaseAction(admin, lease, reason)
-            when lease.rule.organization = organization and lease.status = active
+            when lease.rule.organization = org and lease.status = active
 }
 
 surface KillSwitchControl {
@@ -1409,19 +1417,19 @@ surface KillSwitchControl {
     -- See kill-switch.component.
     facing admin: OrgAdmin
 
-    context organization: Organization
+    context org: Organization
 
     exposes:
-        AccessLease where rule.organization = organization and status = active
+        AccessLease where rule.organization = org and status = active
         -- Present while new leases are blocked org-wide.
-        LeasingFreeze where organization = organization
+        LeasingFreeze where organization = org
 
     provides:
         -- Revoke all active leases; optionally also block new ones from starting.
-        OrgKillSwitchActivated(admin, organization, block_new_leases)
+        OrgKillSwitchActivated(admin, org, block_new_leases)
         -- Lift the block so approved requests can be activated again.
-        OrgUnblocksNewLeases(admin, organization)
-            when exists LeasingFreeze{organization: organization}
+        OrgUnblocksNewLeases(admin, org)
+            when exists LeasingFreeze{organization: org}
 }
 
 -- ----------------------------------------------------------------------------
@@ -1444,16 +1452,42 @@ invariant NoLeaseWithoutActivatedRequest {
         lease.request.status = activated
 }
 
+invariant AtMostOneActiveLeasePerRequesterCipher {
+    -- A member holds at most one active lease per cipher. Holds transitively —
+    -- MemberSubmitsAccessRequest is blocked while an active lease exists, an
+    -- approved request is single-use, and an extension extends the parent in
+    -- place rather than minting a lease — but is pinned here as a first-class
+    -- obligation because reads rely on it: the `.first` on active_leases in
+    -- CipherOpenWithActiveLease is deterministic only because the set is a
+    -- singleton.
+    for a in AccessLease:
+        for b in AccessLease:
+            a != b and a.requester = b.requester and a.cipher = b.cipher
+                implies not (a.status = active and b.status = active)
+}
+
+invariant AtMostOneInFlightRequestPerRequesterCipher {
+    -- At most one non-extension request in {pending, approved} per
+    -- (requester, cipher): MemberSubmitsAccessRequest refuses to create a
+    -- request while another is pending or approved, and nothing else creates
+    -- one. Licenses the `.first` on approved_requests in
+    -- CipherOpenWithApprovedRequest — extensions never rest at `approved`
+    -- (they apply or deny in the same step they are approved), so that set is
+    -- a singleton too. Extension requests are excluded from this invariant:
+    -- MemberRequestsLeaseExtension has no duplicate guard, so several pending
+    -- extensions of one lease may coexist, and a pending extension survives
+    -- its parent lease's end alongside a fresh pending request.
+    for a in AccessRequest where extension_of = null:
+        for b in AccessRequest where extension_of = null:
+            a != b and a.requester = b.requester and a.cipher = b.cipher
+                implies not (a.status in {pending, approved}
+                             and b.status in {pending, approved})
+}
+
 invariant SelfApprovalForbidden {
     for request in AccessRequest where status in {approved, activated, denied}
                                     and approver != null:
         request.approver != request.requester
-}
-
-invariant RevokedLeasesHaveResolverFields {
-    for lease in AccessLease where status = revoked:
-        lease.revoked_at != null
-        lease.revoked_by != null
 }
 
 invariant SingleActiveLeaseRespected {
