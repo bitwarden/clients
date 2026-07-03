@@ -70,10 +70,10 @@ export class AboutPageV2Component implements OnInit {
   private formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
-  protected betaModeForm = this.formBuilder.group({ betaMode: false });
+  protected earlyAccessForm = this.formBuilder.group({ earlyAccess: false });
 
-  protected readonly showBetaToggle = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM39893BetaMode),
+  protected readonly showEarlyAccessToggle = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.EarlyAccess),
     { initialValue: false },
   );
 
@@ -84,38 +84,38 @@ export class AboutPageV2Component implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const current = await firstValueFrom(this.configService.betaMode$);
-    this.betaModeForm.controls.betaMode.setValue(current, { emitEvent: false });
+    const current = await firstValueFrom(this.configService.earlyAccess$);
+    this.earlyAccessForm.controls.earlyAccess.setValue(current, { emitEvent: false });
 
-    this.betaModeForm.controls.betaMode.valueChanges
+    this.earlyAccessForm.controls.earlyAccess.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled) => {
-        void this.onBetaModeChange(enabled ?? false);
+        void this.onEarlyAccessChange(enabled ?? false);
       });
   }
 
-  private async onBetaModeChange(enabled: boolean): Promise<void> {
+  private async onEarlyAccessChange(enabled: boolean): Promise<void> {
     if (enabled) {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "enableBetaModeConfirmTitle" },
-        content: { key: "enableBetaModeConfirmContent" },
+        title: { key: "enableEarlyAccessConfirmTitle" },
+        content: { key: "enableEarlyAccessConfirmContent" },
         type: "warning",
       });
 
       if (!confirmed) {
-        this.betaModeForm.controls.betaMode.setValue(false, { emitEvent: false });
+        this.earlyAccessForm.controls.earlyAccess.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.configService.setBetaMode(true);
+      await this.configService.setEarlyAccess(true);
       this.toastService.showToast({
         variant: "info",
-        message: this.i18nService.t("betaModeEnabledToast"),
+        message: this.i18nService.t("earlyAccessEnabledToast"),
       });
       return;
     }
 
-    await this.configService.setBetaMode(false);
+    await this.configService.setEarlyAccess(false);
   }
 
   about() {

@@ -21,8 +21,8 @@ describe("prereleaseHeaderMiddleware", () => {
     return { headers: new Headers() } as unknown as Request;
   }
 
-  it("sets Is-Prerelease header when beta mode is enabled", async () => {
-    configService.betaMode$ = of(true);
+  it("sets Is-Prerelease header when early access is enabled", async () => {
+    configService.earlyAccess$ = of(true);
     const middleware = prereleaseHeaderMiddleware(configService);
     const request = makeRequest();
 
@@ -33,8 +33,8 @@ describe("prereleaseHeaderMiddleware", () => {
     expect(next).toHaveBeenCalledWith(request);
   });
 
-  it("does not set the header when beta mode is disabled", async () => {
-    configService.betaMode$ = of(false);
+  it("does not set the header when early access is disabled", async () => {
+    configService.earlyAccess$ = of(false);
     const middleware = prereleaseHeaderMiddleware(configService);
     const request = makeRequest();
 
@@ -45,7 +45,7 @@ describe("prereleaseHeaderMiddleware", () => {
   });
 
   it("returns the response produced by next", async () => {
-    configService.betaMode$ = of(true);
+    configService.earlyAccess$ = of(true);
     const middleware = prereleaseHeaderMiddleware(configService);
 
     const result = await middleware(makeRequest(), next as FetchFn);

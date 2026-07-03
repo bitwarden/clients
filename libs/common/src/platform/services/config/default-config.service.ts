@@ -51,9 +51,13 @@ export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig>(CONFIG_DIS
   clearOn: ["logout"],
 });
 
-export const GLOBAL_BETA_MODE_ENABLED = new KeyDefinition<boolean>(CONFIG_DISK, "betaModeEnabled", {
-  deserializer: (v) => v ?? false,
-});
+export const GLOBAL_EARLY_ACCESS_ENABLED = new KeyDefinition<boolean>(
+  CONFIG_DISK,
+  "earlyAccessEnabled",
+  {
+    deserializer: (v) => v ?? false,
+  },
+);
 
 export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, ApiUrl>(
   CONFIG_DISK,
@@ -86,7 +90,7 @@ export class DefaultConfigService implements ConfigService {
 
   cloudRegion$: Observable<Region>;
 
-  betaMode$: Observable<boolean>;
+  earlyAccess$: Observable<boolean>;
 
   private featureFlagOverrides$: Observable<Partial<
     Record<FeatureFlag, AllowedFeatureFlagTypes>
@@ -180,13 +184,13 @@ export class DefaultConfigService implements ConfigService {
 
     this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
 
-    this.betaMode$ = this.stateProvider
-      .getGlobal(GLOBAL_BETA_MODE_ENABLED)
+    this.earlyAccess$ = this.stateProvider
+      .getGlobal(GLOBAL_EARLY_ACCESS_ENABLED)
       .state$.pipe(map((v) => v ?? false));
   }
 
-  async setBetaMode(enabled: boolean): Promise<void> {
-    await this.stateProvider.getGlobal(GLOBAL_BETA_MODE_ENABLED).update(() => enabled);
+  async setEarlyAccess(enabled: boolean): Promise<void> {
+    await this.stateProvider.getGlobal(GLOBAL_EARLY_ACCESS_ENABLED).update(() => enabled);
     await this.invalidateConfig();
   }
 

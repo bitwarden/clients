@@ -64,15 +64,15 @@ export abstract class ConfigService {
   abstract ensureConfigFetched(): Promise<void>;
 
   /**
-   * Device-level Beta Mode state. When enabled, the client sends the `Is-Prerelease` header on
-   * API requests so that feature flags evaluate with prerelease context. Applies to the entire
-   * installation regardless of which user is signed in.
+   * Device-level Early Access state. When enabled, the client sends the `Is-Prerelease` header
+   * on API requests so that feature flags evaluate with prerelease context. Applies to the
+   * entire installation regardless of which user is signed in.
    */
-  abstract betaMode$: Observable<boolean>;
+  abstract earlyAccess$: Observable<boolean>;
 
   /**
-   * Sets the device-level Beta Mode state. Takes effect on subsequent API requests; feature
+   * Sets the device-level Early Access state. Takes effect on subsequent API requests; feature
    * flags re-evaluate on the next scheduled config fetch.
    */
-  abstract setBetaMode(enabled: boolean): Promise<void>;
+  abstract setEarlyAccess(enabled: boolean): Promise<void>;
 }

@@ -40,11 +40,11 @@ export class AppearanceComponent implements OnInit {
     enableFavicons: true,
     theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
-    betaMode: false,
+    earlyAccess: false,
   });
 
-  protected readonly showBetaToggle = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM39893BetaMode),
+  protected readonly showEarlyAccessToggle = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.EarlyAccess),
     { initialValue: false },
   );
 
@@ -82,15 +82,15 @@ export class AppearanceComponent implements OnInit {
         enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
         theme: await firstValueFrom(this.themeStateService.selectedTheme$),
         locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
-        betaMode: await firstValueFrom(this.configService.betaMode$),
+        earlyAccess: await firstValueFrom(this.configService.earlyAccess$),
       },
       { emitEvent: false },
     );
 
-    this.form.controls.betaMode.valueChanges
+    this.form.controls.earlyAccess.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((enabled) => {
-        void this.onBetaModeChange(enabled ?? false);
+        void this.onEarlyAccessChange(enabled ?? false);
       });
 
     this.form.controls.enableFavicons.valueChanges
@@ -124,27 +124,27 @@ export class AppearanceComponent implements OnInit {
       .subscribe();
   }
 
-  private async onBetaModeChange(enabled: boolean): Promise<void> {
+  private async onEarlyAccessChange(enabled: boolean): Promise<void> {
     if (enabled) {
       const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "enableBetaModeConfirmTitle" },
-        content: { key: "enableBetaModeConfirmContent" },
+        title: { key: "enableEarlyAccessConfirmTitle" },
+        content: { key: "enableEarlyAccessConfirmContent" },
         type: "warning",
       });
 
       if (!confirmed) {
-        this.form.controls.betaMode.setValue(false, { emitEvent: false });
+        this.form.controls.earlyAccess.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.configService.setBetaMode(true);
+      await this.configService.setEarlyAccess(true);
       this.toastService.showToast({
         variant: "info",
-        message: this.i18nService.t("betaModeEnabledToast"),
+        message: this.i18nService.t("earlyAccessEnabledToast"),
       });
       return;
     }
 
-    await this.configService.setBetaMode(false);
+    await this.configService.setEarlyAccess(false);
   }
 }

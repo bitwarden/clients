@@ -501,7 +501,7 @@ describe("ConfigService", () => {
     });
   });
 
-  describe("beta mode", () => {
+  describe("early access", () => {
     let sut: DefaultConfigService;
 
     const buildService = () =>
@@ -519,45 +519,45 @@ describe("ConfigService", () => {
     });
 
     it("defaults to disabled when the app has never been opted in", async () => {
-      expect(await firstValueFrom(sut.betaMode$)).toBe(false);
+      expect(await firstValueFrom(sut.earlyAccess$)).toBe(false);
     });
 
-    it("setBetaMode toggles what betaMode$ emits", async () => {
-      await sut.setBetaMode(true);
-      expect(await firstValueFrom(sut.betaMode$)).toBe(true);
+    it("setEarlyAccess toggles what earlyAccess$ emits", async () => {
+      await sut.setEarlyAccess(true);
+      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
 
-      await sut.setBetaMode(false);
-      expect(await firstValueFrom(sut.betaMode$)).toBe(false);
+      await sut.setEarlyAccess(false);
+      expect(await firstValueFrom(sut.earlyAccess$)).toBe(false);
     });
 
     it("delivers live updates so middleware and UI subscribers see toggle flips without re-subscribing", async () => {
       const emissions: boolean[] = [];
-      const subscription = sut.betaMode$.subscribe((v) => emissions.push(v));
+      const subscription = sut.earlyAccess$.subscribe((v) => emissions.push(v));
 
-      await sut.setBetaMode(true);
-      await sut.setBetaMode(false);
-      await sut.setBetaMode(true);
+      await sut.setEarlyAccess(true);
+      await sut.setEarlyAccess(false);
+      await sut.setEarlyAccess(true);
       subscription.unsubscribe();
 
-      // Initial `false`, then each setBetaMode change; guards against a stale ReplaySubject or
+      // Initial `false`, then each setEarlyAccess change; guards against a stale ReplaySubject or
       // detached observable pipeline in a future refactor.
       expect(emissions).toEqual([false, true, false, true]);
     });
 
-    it("is not user-scoped: switching the active user does not change betaMode$", async () => {
-      // The design decision behind this is that Beta Mode targets the install/build, not the user.
-      await sut.setBetaMode(true);
+    it("is not user-scoped: switching the active user does not change earlyAccess$", async () => {
+      // The design decision behind this is that Early Access targets the install/build, not the user.
+      await sut.setEarlyAccess(true);
 
       await accountService.switchAccount(null);
-      expect(await firstValueFrom(sut.betaMode$)).toBe(true);
+      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
 
       await accountService.switchAccount(userId);
-      expect(await firstValueFrom(sut.betaMode$)).toBe(true);
+      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
     });
 
     describe("cache invalidation on toggle", () => {
-      // A user who toggles beta mode expects flag values to update on the very next read — not
-      // to wait up to RETRIEVAL_INTERVAL (1 hour) for the natural refresh cycle. setBetaMode
+      // A user who toggles early access expects flag values to update on the very next read — not
+      // to wait up to RETRIEVAL_INTERVAL (1 hour) for the natural refresh cycle. setEarlyAccess
       // invalidates the cached config by backdating its utcDate so that the next serverConfig$
       // subscription treats it as stale and refetches. Backdating (rather than clearing to null)
       // keeps the current flag values available to consumers during the refresh window instead of
@@ -568,7 +568,7 @@ describe("ConfigService", () => {
       });
 
       it("backdates the cached config so the pipeline's staleness check will force a refetch on the next read", async () => {
-        await sut.setBetaMode(true);
+        await sut.setEarlyAccess(true);
 
         const cached = await firstValueFrom(userState.state$);
         // olderThanRetrievalInterval treats utcDate < (now - RETRIEVAL_INTERVAL) as stale.
@@ -577,7 +577,7 @@ describe("ConfigService", () => {
       });
 
       it("preserves the cached feature flag data during the refresh window (backdate, not clear)", async () => {
-        await sut.setBetaMode(true);
+        await sut.setEarlyAccess(true);
 
         const cached = await firstValueFrom(userState.state$);
         // Consumers reading getFeatureFlag$ during the refresh window see the original flag data
@@ -589,8 +589,8 @@ describe("ConfigService", () => {
       it("no-ops safely when there is no cached config to invalidate", async () => {
         userState.nextState(null);
 
-        await expect(sut.setBetaMode(true)).resolves.not.toThrow();
-        expect(await firstValueFrom(sut.betaMode$)).toBe(true);
+        await expect(sut.setEarlyAccess(true)).resolves.not.toThrow();
+        expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
       });
     });
   });

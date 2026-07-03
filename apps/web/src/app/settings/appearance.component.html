@@ -43,16 +43,16 @@
         <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
       </div>
     </div>
-    @if (showBetaToggle()) {
+    @if (showEarlyAccessToggle()) {
       <bit-form-control>
         <input
           type="checkbox"
           bitCheckbox
-          id="appearance_input_beta-mode"
-          formControlName="betaMode"
+          id="appearance_input_early-access"
+          formControlName="earlyAccess"
         />
-        <bit-label>{{ "betaMode" | i18n }}</bit-label>
-        <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+        <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
+        <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
       </bit-form-control>
     }
   </form>

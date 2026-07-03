@@ -5,7 +5,7 @@ import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
 
 export function prereleaseHeaderMiddleware(configService: ConfigService): FetchMiddleware {
   return async (request: Request, next: FetchFn): Promise<Response> => {
-    const enabled = await firstValueFrom(configService.betaMode$);
+    const enabled = await firstValueFrom(configService.earlyAccess$);
     if (enabled) {
       request.headers.set("Is-Prerelease", "1");
     }

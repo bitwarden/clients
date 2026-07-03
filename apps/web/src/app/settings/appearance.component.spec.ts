@@ -26,7 +26,7 @@ describe("AppearanceComponent", () => {
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
   const mockUserSetLocale$ = new BehaviorSubject<string | undefined>("en");
-  const mockBetaMode$ = new BehaviorSubject<boolean>(false);
+  const mockEarlyAccess$ = new BehaviorSubject<boolean>(false);
 
   const mockSupportedLocales = ["en", "es", "fr", "de"];
   const mockLocaleNames = new Map([
@@ -54,8 +54,8 @@ describe("AppearanceComponent", () => {
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
-    mockConfigService.betaMode$ = mockBetaMode$;
-    mockConfigService.setBetaMode.mockResolvedValue(undefined);
+    mockConfigService.earlyAccess$ = mockEarlyAccess$;
+    mockConfigService.setEarlyAccess.mockResolvedValue(undefined);
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     mockDomainSettingsService.setShowFavicons.mockResolvedValue(undefined);
@@ -129,7 +129,7 @@ describe("AppearanceComponent", () => {
         enableFavicons: false,
         theme: ThemeTypes.Dark,
         locale: "es",
-        betaMode: false,
+        earlyAccess: false,
       });
     }));
 

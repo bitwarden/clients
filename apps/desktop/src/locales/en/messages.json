@@ -5605,19 +5605,19 @@
   "deleteCollectionsDesc": {
     "message": "These collections will be permanently deleted."
   },
-  "betaMode": {
-    "message": "Beta mode"
+  "earlyAccess": {
+    "message": "Early access"
   },
-  "betaModeDesc": {
+  "earlyAccessDesc": {
     "message": "Enable early access to features currently in prerelease testing"
   },
-  "enableBetaModeConfirmTitle": {
-    "message": "Enable beta mode?"
+  "enableEarlyAccessConfirmTitle": {
+    "message": "Enable early access?"
   },
-  "enableBetaModeConfirmContent": {
-    "message": "Beta features are still in testing and may be unstable or change without notice."
+  "enableEarlyAccessConfirmContent": {
+    "message": "Early access features are still in testing and may be unstable or change without notice."
   },
-  "betaModeEnabledToast": {
-    "message": "Beta mode enabled. Reopen to make sure all features refresh."
+  "earlyAccessEnabledToast": {
+    "message": "Early access enabled. Reopen to make sure all features refresh."
   }
 }

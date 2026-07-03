@@ -98,17 +98,17 @@
           </bit-label>
         </bit-form-control>
 
-        @if (showBetaToggle()) {
+        @if (showEarlyAccessToggle()) {
           <bit-form-control>
             <input
               type="checkbox"
               bitCheckbox
-              id="settings-dialog_input_beta-mode"
-              formControlName="betaMode"
-              (change)="saveBetaMode()"
+              id="settings-dialog_input_early-access"
+              formControlName="earlyAccess"
+              (change)="saveEarlyAccess()"
             />
-            <bit-label>{{ "betaMode" | i18n }}</bit-label>
-            <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+            <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
+            <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
           </bit-form-control>
         }
       </bit-tab>

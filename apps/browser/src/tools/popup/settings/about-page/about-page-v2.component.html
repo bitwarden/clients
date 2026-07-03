@@ -36,19 +36,19 @@
     </bit-item>
   </bit-item-group>
 
-  @if (showBetaToggle()) {
-    <h2 bitTypography="h6" class="tw-font-medium tw-mt-4">{{ "betaMode" | i18n }}</h2>
+  @if (showEarlyAccessToggle()) {
+    <h2 bitTypography="h6" class="tw-font-medium tw-mt-4">{{ "earlyAccess" | i18n }}</h2>
     <bit-card>
-      <form [formGroup]="betaModeForm">
+      <form [formGroup]="earlyAccessForm">
         <bit-form-control disableMargin>
           <input
             bitCheckbox
-            id="about-page_input_beta-mode"
-            formControlName="betaMode"
+            id="about-page_input_early-access"
+            formControlName="earlyAccess"
             type="checkbox"
           />
-          <bit-label>{{ "betaMode" | i18n }}</bit-label>
-          <bit-hint>{{ "betaModeDesc" | i18n }}</bit-hint>
+          <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
+          <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
         </bit-form-control>
       </form>
     </bit-card>
