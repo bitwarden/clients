@@ -48,63 +48,11 @@ import {
   AccessRuleDialogComponent,
   AccessRuleDialogResult,
 } from "./access-rule-dialog.component";
+import {
+  AccessRuleTemplateKey,
+  AccessRulesEmptyStateComponent,
+} from "./access-rules-empty-state.component";
 import { AccessRuleRow, AccessRulesService } from "./access-rules.service";
-
-type RuleTemplate = {
-  key: string;
-  icon: string;
-  titleKey: string;
-  descriptionKey: string;
-  tags: Array<{ icon: string; labelKey: string }>;
-  prefill: {
-    nameKey: string;
-    defaultLeaseDurationSeconds: number;
-    humanApprovalEnabled: boolean;
-    ipAllowlistEnabled: boolean;
-  };
-};
-
-const RULE_TEMPLATES: RuleTemplate[] = [
-  {
-    key: "time-limited",
-    icon: "bwi-clock",
-    titleKey: "pamTemplateTimeLimitedTitle",
-    descriptionKey: "pamTemplateTimeLimitedDescription",
-    tags: [{ icon: "bwi-file-text", labelKey: "pamTemplateTagNoConditions" }],
-    prefill: {
-      nameKey: "pamTemplateTimeLimitedName",
-      defaultLeaseDurationSeconds: 4 * 60 * 60,
-      humanApprovalEnabled: false,
-      ipAllowlistEnabled: false,
-    },
-  },
-  {
-    key: "approval-required",
-    icon: "bwi-users",
-    titleKey: "pamTemplateApprovalRequiredTitle",
-    descriptionKey: "pamTemplateApprovalRequiredDescription",
-    tags: [{ icon: "bwi-users", labelKey: "pamTemplateTagHumanApproval" }],
-    prefill: {
-      nameKey: "pamTemplateApprovalRequiredName",
-      defaultLeaseDurationSeconds: 60 * 60,
-      humanApprovalEnabled: true,
-      ipAllowlistEnabled: false,
-    },
-  },
-  {
-    key: "ip-restricted",
-    icon: "bwi-globe",
-    titleKey: "pamTemplateIpRestrictedTitle",
-    descriptionKey: "pamTemplateIpRestrictedDescription",
-    tags: [{ icon: "bwi-globe", labelKey: "pamTemplateTagIpAllowlist" }],
-    prefill: {
-      nameKey: "pamTemplateIpRestrictedName",
-      defaultLeaseDurationSeconds: 60 * 60,
-      humanApprovalEnabled: false,
-      ipAllowlistEnabled: true,
-    },
-  },
-];
 
 @Component({
   templateUrl: "./access-rules.component.html",
@@ -113,6 +61,7 @@ const RULE_TEMPLATES: RuleTemplate[] = [
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    AccessRulesEmptyStateComponent,
     AsyncActionsModule,
     BadgeModule,
     BulkActionComponent,
@@ -148,8 +97,6 @@ export class AccessRulesComponent {
   private readonly rows = toSignal(this.accessRules.rows$, {
     initialValue: [] as AccessRuleRow[],
   });
-
-  protected readonly ruleTemplates = RULE_TEMPLATES;
 
   protected readonly dataSource = new TableDataSource<AccessRuleRow>();
   /**
@@ -256,16 +203,47 @@ export class AccessRulesComponent {
 
   protected readonly openCreate = (): Promise<void> => this.openDialog({});
 
-  protected openFromTemplate(tmpl: RuleTemplate): void {
+  /** Prefill applied to the create dialog when a starter template is chosen on the empty state. */
+  private readonly templatePrefills: Record<
+    AccessRuleTemplateKey,
+    {
+      nameKey: string;
+      defaultLeaseDurationSeconds: number;
+      humanApprovalEnabled: boolean;
+      ipAllowlistEnabled: boolean;
+    }
+  > = {
+    "just-in-time": {
+      nameKey: "pamTemplateJustInTimeName",
+      defaultLeaseDurationSeconds: 60 * 60,
+      humanApprovalEnabled: false,
+      ipAllowlistEnabled: false,
+    },
+    "approval-required": {
+      nameKey: "pamTemplateApprovalRequiredName",
+      defaultLeaseDurationSeconds: 60 * 60,
+      humanApprovalEnabled: true,
+      ipAllowlistEnabled: false,
+    },
+    "ip-restricted": {
+      nameKey: "pamTemplateIpRestrictedName",
+      defaultLeaseDurationSeconds: 60 * 60,
+      humanApprovalEnabled: false,
+      ipAllowlistEnabled: true,
+    },
+  };
+
+  protected readonly openFromTemplate = (key: AccessRuleTemplateKey): void => {
+    const prefill = this.templatePrefills[key];
     void this.openDialog({
       template: {
-        name: this.i18nService.t(tmpl.prefill.nameKey),
-        defaultLeaseDurationSeconds: tmpl.prefill.defaultLeaseDurationSeconds,
-        humanApprovalEnabled: tmpl.prefill.humanApprovalEnabled,
-        ipAllowlistEnabled: tmpl.prefill.ipAllowlistEnabled,
+        name: this.i18nService.t(prefill.nameKey),
+        defaultLeaseDurationSeconds: prefill.defaultLeaseDurationSeconds,
+        humanApprovalEnabled: prefill.humanApprovalEnabled,
+        ipAllowlistEnabled: prefill.ipAllowlistEnabled,
       },
     });
-  }
+  };
 
   /**
    * Open a rule by routing to it: the `accessRuleId` query param is the source of

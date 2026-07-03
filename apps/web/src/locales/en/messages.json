@@ -14639,7 +14639,7 @@
     }
   },
   "pamAccessRulesSubheading": {
-    "message": "Control how members access sensitive collections."
+    "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
   "pamAccessRuleNew": {
     "message": "New rule"
@@ -14783,31 +14783,31 @@
     "message": "No access rules yet"
   },
   "pamNoAccessRulesYetDescription": {
-    "message": "Control who can access sensitive collections, for how long, and under what conditions. Create your first rule to get started."
+    "message": "Create a rule to add extra protection to sensitive collections."
   },
-  "pamAccessRuleAdd": {
-    "message": "Add access rule"
+  "pamAccessRuleCreateCustom": {
+    "message": "Create custom rule"
   },
-  "pamEmptyStateStartTemplate": {
+  "pamAccessRulesStartFromTemplate": {
     "message": "Start from a template"
   },
-  "pamEmptyStateOrScratch": {
-    "message": "or start from scratch"
+  "pamAccessRuleUseTemplate": {
+    "message": "Use template"
   },
-  "pamTemplateTimeLimitedTitle": {
+  "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
-  "pamTemplateTimeLimitedDescription": {
-    "message": "Provision access on demand with strong audit logging. Every lease is recorded — who accessed what, and when — with automatic expiry."
+  "pamTemplateJustInTimeSummary": {
+    "message": "Auto-approved • Expires after 1h • Audit logged"
   },
-  "pamTemplateTimeLimitedName": {
+  "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
   },
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
-  "pamTemplateApprovalRequiredDescription": {
-    "message": "Require a collection manager to approve each access request before the lease is granted."
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Human approval • 1 approver required • Audit logged"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
@@ -14815,20 +14815,20 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
   },
-  "pamTemplateIpRestrictedDescription": {
-    "message": "Allow access only from specific IP addresses or CIDR ranges, such as your office network or VPN."
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Auto-approved • IP Allowlist • Audit logged"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
   },
-  "pamTemplateTagNoConditions": {
-    "message": "Full audit log"
+  "pamAccessRulesAuditFootnoteStart": {
+    "message": "Every rule change and access event is recorded in"
   },
-  "pamTemplateTagHumanApproval": {
-    "message": "Approval"
+  "pamEventLogs": {
+    "message": "Event Logs"
   },
-  "pamTemplateTagIpAllowlist": {
-    "message": "IP restriction"
+  "pamAccessRulesAuditFootnoteEnd": {
+    "message": "and exportable."
   },
   "pamAccessRuleCollectionsAdd": {
     "message": "Add collections"
