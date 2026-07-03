@@ -186,9 +186,10 @@ export class DefaultConfigService implements ConfigService {
   }
 
   earlyAccess$(userId: UserId): Observable<boolean> {
-    return this.stateProvider
-      .getUser(userId, USER_EARLY_ACCESS_ENABLED)
-      .state$.pipe(map((v) => v ?? false));
+    return combineLatest([
+      this.userCachedFeatureFlag$(FeatureFlag.EarlyAccess, userId),
+      this.stateProvider.getUser(userId, USER_EARLY_ACCESS_ENABLED).state$,
+    ]).pipe(map(([flagEnabled, stored]) => flagEnabled === true && (stored ?? false)));
   }
 
   async setEarlyAccess(userId: UserId, enabled: boolean): Promise<void> {

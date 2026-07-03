@@ -36,6 +36,7 @@ import {
   RETRIEVAL_INTERVAL,
   GLOBAL_FEATURE_FLAG_OVERRIDES,
   GLOBAL_SERVER_CONFIGURATIONS,
+  USER_EARLY_ACCESS_ENABLED,
   USER_SERVER_CONFIG,
   SLOW_EMISSION_GUARD,
 } from "./default-config.service";
@@ -519,6 +520,27 @@ describe("ConfigService", () => {
     });
 
     it("defaults to disabled when the app has never been opted in", async () => {
+      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
+    });
+
+    it("returns false when the EarlyAccess feature flag is disabled, even if state has been opted in", async () => {
+      // Seed a cached config that explicitly disables the EarlyAccess flag server-side.
+      const config = new ServerConfig(
+        new ServerConfigData(
+          new ServerConfigResponse({
+            version: "myConfigVersion",
+            gitHash: "flag-off",
+            server: new ThirdPartyServerConfigResponse({ name: "n", url: "u" }),
+            environment: new EnvironmentServerConfigResponse({ vault: "vault.example.com" }),
+            featureStates: { [FeatureFlag.EarlyAccess]: false },
+          }),
+        ),
+      );
+      userState.nextState(config);
+
+      // User previously opted in — but the server-side flag is now off.
+      await stateProvider.setUserState(USER_EARLY_ACCESS_ENABLED, true, userId);
+
       expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
     });
 
