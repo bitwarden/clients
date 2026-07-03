@@ -245,8 +245,8 @@ describe("buildMyRequestRows", () => {
     Status: "approved",
     ExtensionOfLeaseId: "lease-1",
     // Window spans the +2h bump it added (prior end → new end).
-    RequestedNotBefore: "2026-06-20T13:00:00Z",
-    RequestedNotAfter: "2026-06-20T15:00:00Z",
+    LeaseNotBefore: "2026-06-20T13:00:00Z",
+    LeaseNotAfter: "2026-06-20T15:00:00Z",
   });
 
   it("never renders an extension as its own row", () => {
@@ -269,16 +269,16 @@ describe("buildMyRequestRows", () => {
           Status: "approved", // server contract
           ExtensionOfLeaseId: "lease-1",
           // +1h bump: 12:00 → 13:00.
-          RequestedNotBefore: "2026-06-20T12:00:00Z",
-          RequestedNotAfter: "2026-06-20T13:00:00Z",
+          LeaseNotBefore: "2026-06-20T12:00:00Z",
+          LeaseNotAfter: "2026-06-20T13:00:00Z",
         }),
         request({
           Id: "ext-2",
           Status: "activated", // mock/spec contract — also counts
           ExtensionOfLeaseId: "lease-1",
           // +2h bump: 13:00 → 15:00.
-          RequestedNotBefore: "2026-06-20T13:00:00Z",
-          RequestedNotAfter: "2026-06-20T15:00:00Z",
+          LeaseNotBefore: "2026-06-20T13:00:00Z",
+          LeaseNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],
       noNames,
@@ -297,8 +297,8 @@ describe("buildMyRequestRows", () => {
           Id: "ext-pending",
           Status: "pending",
           ExtensionOfLeaseId: "lease-1",
-          RequestedNotBefore: "2026-06-20T13:00:00Z",
-          RequestedNotAfter: "2026-06-20T15:00:00Z",
+          LeaseNotBefore: "2026-06-20T13:00:00Z",
+          LeaseNotAfter: "2026-06-20T15:00:00Z",
         }),
       ],
       noNames,

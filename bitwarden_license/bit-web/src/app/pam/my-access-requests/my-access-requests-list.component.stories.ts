@@ -60,8 +60,8 @@ type Fixture = {
   approverName?: string | null;
   approverEmail?: string | null;
   approverComment?: string | null;
-  requestedNotBefore?: string | null;
-  requestedNotAfter?: string | null;
+  leaseNotBefore?: string | null;
+  leaseNotAfter?: string | null;
   producedLeaseId?: string | null;
   extensionOfLeaseId?: string | null;
 };
@@ -77,8 +77,8 @@ function makeResponse(f: Fixture): AccessRequestDetailsResponse {
     CollectionId: "col-1",
     RequesterId: "me",
     Status: f.status,
-    RequestedNotBefore: f.requestedNotBefore ?? null,
-    RequestedNotAfter: f.requestedNotAfter ?? null,
+    LeaseNotBefore: f.leaseNotBefore ?? null,
+    LeaseNotAfter: f.leaseNotAfter ?? null,
     Reason: null,
     SubmittedAt: f.submittedAt,
     ResolvedAt: f.resolvedAt ?? null,
@@ -241,14 +241,14 @@ export const OnlyPending: Story = {
       id: "p1",
       status: "pending",
       submittedAt: new Date(now - 2 * oneHour).toISOString(),
-      requestedNotAfter: new Date(now + 4 * oneHour).toISOString(),
+      leaseNotAfter: new Date(now + 4 * oneHour).toISOString(),
     }),
     makeResponse({
       id: "p2",
       status: "pending",
       submittedAt: new Date(now - 30 * 60 * 1000).toISOString(),
-      requestedNotBefore: new Date(now + 60 * 60 * 1000).toISOString(),
-      requestedNotAfter: new Date(now + 3 * oneHour).toISOString(),
+      leaseNotBefore: new Date(now + 60 * 60 * 1000).toISOString(),
+      leaseNotAfter: new Date(now + 3 * oneHour).toISOString(),
     }),
   ]),
 };
@@ -291,7 +291,7 @@ export const Mixed: Story = {
       id: "p1",
       status: "pending",
       submittedAt: new Date(now - 2 * oneHour).toISOString(),
-      requestedNotAfter: new Date(now + 4 * oneHour).toISOString(),
+      leaseNotAfter: new Date(now + 4 * oneHour).toISOString(),
     }),
     makeResponse({
       id: "r1",
@@ -333,7 +333,7 @@ export const WithActiveLeases: Story = {
         id: "p1",
         status: "pending",
         submittedAt: new Date(now - oneHour).toISOString(),
-        requestedNotAfter: new Date(now + 4 * oneHour).toISOString(),
+        leaseNotAfter: new Date(now + 4 * oneHour).toISOString(),
       }),
     ],
     [makeLease("lease-1", "cipher-r1"), makeLease("lease-2", "cipher-p2")],
@@ -364,8 +364,8 @@ export const WithExtension: Story = {
         resolvedAt: new Date(now - 12 * oneHour).toISOString(),
         extensionOfLeaseId: "lease-r1",
         // Window spans the +2h bump it added.
-        requestedNotBefore: new Date(now).toISOString(),
-        requestedNotAfter: new Date(now + 2 * oneHour).toISOString(),
+        leaseNotBefore: new Date(now).toISOString(),
+        leaseNotAfter: new Date(now + 2 * oneHour).toISOString(),
       }),
       makeResponse({
         id: "r2",

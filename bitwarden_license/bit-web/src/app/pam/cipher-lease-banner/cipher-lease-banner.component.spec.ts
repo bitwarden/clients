@@ -46,10 +46,10 @@ function automaticEnvelope() {
       CollectionId: "col-1",
       OrganizationId: "org-1",
       Status: "approved",
-      NotBefore: "2026-06-04T12:00:00Z",
-      NotAfter: "2026-06-04T13:00:00Z",
+      LeaseNotBefore: "2026-06-04T12:00:00Z",
+      LeaseNotAfter: "2026-06-04T13:00:00Z",
       Reason: null,
-      CreationDate: "2026-06-04T12:00:00Z",
+      SubmittedAt: "2026-06-04T12:00:00Z",
     },
   });
 }
@@ -65,10 +65,10 @@ function humanEnvelope() {
       CollectionId: "col-1",
       OrganizationId: "org-1",
       Status: "pending",
-      NotBefore: "2026-06-05T09:00:00Z",
-      NotAfter: "2026-06-05T17:00:00Z",
+      LeaseNotBefore: "2026-06-05T09:00:00Z",
+      LeaseNotAfter: "2026-06-05T17:00:00Z",
       Reason: "incident",
-      CreationDate: "2026-06-04T12:00:00Z",
+      SubmittedAt: "2026-06-04T12:00:00Z",
     },
   });
 }

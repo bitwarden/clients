@@ -30,10 +30,10 @@ export class AccessRequestResponse extends BaseResponse {
   collectionId: string;
   organizationId: string;
   status: AccessRequestStatus;
-  notBefore: string;
-  notAfter: string;
+  leaseNotBefore: string;
+  leaseNotAfter: string;
   reason: string | null;
-  creationDate: string;
+  submittedAt: string;
 
   constructor(response: unknown) {
     super(response);
@@ -42,9 +42,9 @@ export class AccessRequestResponse extends BaseResponse {
     this.collectionId = this.getResponseProperty("CollectionId");
     this.organizationId = this.getResponseProperty("OrganizationId");
     this.status = this.getResponseProperty("Status");
-    this.notBefore = this.getResponseProperty("NotBefore");
-    this.notAfter = this.getResponseProperty("NotAfter");
+    this.leaseNotBefore = this.getResponseProperty("LeaseNotBefore");
+    this.leaseNotAfter = this.getResponseProperty("LeaseNotAfter");
     this.reason = this.getResponseProperty("Reason") ?? null;
-    this.creationDate = this.getResponseProperty("CreationDate");
+    this.submittedAt = this.getResponseProperty("SubmittedAt");
   }
 }

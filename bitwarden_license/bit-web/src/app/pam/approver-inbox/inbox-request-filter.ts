@@ -7,7 +7,7 @@ import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
  * A request drops out of the actionable list when it has timed out:
  *  - the server explicitly marked it lapsed (`expiredAt` set: the decision
  *    deadline passed while it was pending), or
- *  - its requested window has fully elapsed (`requestedNotAfter` in the past),
+ *  - its requested window has fully elapsed (`leaseNotAfter` in the past),
  *    so approving it would grant nothing.
  *
  * Such a request belongs in the inbox history, not the "needs approval" list.
@@ -19,13 +19,13 @@ import { AccessRequestDetailsResponse } from "@bitwarden/bit-pam";
  * would drop every row if the server ever serialised the value differently.
  */
 export function isActionableInboxRequest(
-  request: Pick<AccessRequestDetailsResponse, "requestedNotAfter" | "expiredAt">,
+  request: Pick<AccessRequestDetailsResponse, "leaseNotAfter" | "expiredAt">,
   now: Date,
 ): boolean {
   if (request.expiredAt != null) {
     return false;
   }
-  if (request.requestedNotAfter != null && Date.parse(request.requestedNotAfter) <= now.getTime()) {
+  if (request.leaseNotAfter != null && Date.parse(request.leaseNotAfter) <= now.getTime()) {
     return false;
   }
   return true;

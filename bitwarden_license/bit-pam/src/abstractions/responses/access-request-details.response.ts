@@ -62,8 +62,8 @@ export class AccessRequestDetailsResponse extends BaseResponse {
   organizationId: string | null;
   requesterId: string;
   status: AccessRequestStatus;
-  requestedNotBefore: string | null;
-  requestedNotAfter: string | null;
+  leaseNotBefore: string | null;
+  leaseNotAfter: string | null;
   reason: string | null;
   submittedAt: string;
   resolvedAt: string | null;
@@ -89,11 +89,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
   producedLeaseStatus: AccessLeaseStatus | null;
   /** If this request is an extension of an existing lease, the parent lease id. */
   extensionOfLeaseId: string | null;
-  /**
-   * Deadline by which an approved on-demand request must be activated. Null
-   * until resolved and only meaningful for an approved on-demand request.
-   */
-  activationDeadline: string | null;
   requesterName: string | null;
   requesterEmail: string | null;
 
@@ -106,8 +101,8 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.organizationId = this.getResponseProperty("OrganizationId") ?? null;
     this.requesterId = this.getResponseProperty("RequesterId");
     this.status = this.getResponseProperty("Status");
-    this.requestedNotBefore = this.getResponseProperty("RequestedNotBefore") ?? null;
-    this.requestedNotAfter = this.getResponseProperty("RequestedNotAfter") ?? null;
+    this.leaseNotBefore = this.getResponseProperty("LeaseNotBefore") ?? null;
+    this.leaseNotAfter = this.getResponseProperty("LeaseNotAfter") ?? null;
     this.reason = this.getResponseProperty("Reason") ?? null;
     this.submittedAt = this.getResponseProperty("SubmittedAt");
     this.resolvedAt = this.getResponseProperty("ResolvedAt") ?? null;
@@ -118,7 +113,6 @@ export class AccessRequestDetailsResponse extends BaseResponse {
     this.producedLeaseId = this.getResponseProperty("ProducedLeaseId") ?? null;
     this.producedLeaseStatus = this.getResponseProperty("ProducedLeaseStatus") ?? null;
     this.extensionOfLeaseId = this.getResponseProperty("ExtensionOfLeaseId") ?? null;
-    this.activationDeadline = this.getResponseProperty("ActivationDeadline") ?? null;
     this.requesterName = this.getResponseProperty("RequesterName") ?? null;
     this.requesterEmail = this.getResponseProperty("RequesterEmail") ?? null;
   }

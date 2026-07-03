@@ -179,10 +179,10 @@ describe("ApproverInboxRequestsService", () => {
 
     it("counts only actionable requests, excluding timed-out and lapsed ones", async () => {
       listInboxRequests.mockResolvedValue([
-        { id: "live", requestedNotAfter: null, expiredAt: null },
-        { id: "future-window", requestedNotAfter: "2999-01-01T00:00:00Z", expiredAt: null },
-        { id: "timed-out", requestedNotAfter: "2000-01-01T00:00:00Z", expiredAt: null },
-        { id: "lapsed", requestedNotAfter: null, expiredAt: "2000-01-01T00:00:00Z" },
+        { id: "live", leaseNotAfter: null, expiredAt: null },
+        { id: "future-window", leaseNotAfter: "2999-01-01T00:00:00Z", expiredAt: null },
+        { id: "timed-out", leaseNotAfter: "2000-01-01T00:00:00Z", expiredAt: null },
+        { id: "lapsed", leaseNotAfter: null, expiredAt: "2000-01-01T00:00:00Z" },
       ] as AccessRequestDetailsResponse[]);
       pamFlag$.next(true);
       await flushMicrotasks();

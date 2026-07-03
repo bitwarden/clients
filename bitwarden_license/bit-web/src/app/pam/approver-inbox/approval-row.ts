@@ -66,7 +66,7 @@ export function durationLabel(request: AccessRequestDetailsResponse): LabelValue
 
 /** A relative phrase for when the window opens ("now", "today", "tomorrow", "in N days"). */
 export function relativeStart(request: AccessRequestDetailsResponse, now: Date): LabelValue {
-  const nb = request.requestedNotBefore;
+  const nb = request.leaseNotBefore;
   if (!nb) {
     return { key: "pamInboxStartAsap", value: null };
   }
@@ -91,10 +91,10 @@ const WINDOW_FORMAT = new Intl.DateTimeFormat(undefined, {
 
 /** A fully-formatted "from – to" window for the tooltip, or "" when the window is open-ended. */
 export function exactWindow(request: AccessRequestDetailsResponse): string {
-  if (!request.requestedNotBefore || !request.requestedNotAfter) {
+  if (!request.leaseNotBefore || !request.leaseNotAfter) {
     return "";
   }
-  return `${WINDOW_FORMAT.format(new Date(request.requestedNotBefore))} – ${WINDOW_FORMAT.format(new Date(request.requestedNotAfter))}`;
+  return `${WINDOW_FORMAT.format(new Date(request.leaseNotBefore))} – ${WINDOW_FORMAT.format(new Date(request.leaseNotAfter))}`;
 }
 
 /**

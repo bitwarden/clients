@@ -201,7 +201,7 @@ export class MyAccessRequestsListComponent implements OnInit {
     }
     return (
       row.status === AccessRequestStatus.Approved &&
-      (row.requestedNotAfter == null || row.requestedNotAfter.getTime() > this.nowMs())
+      (row.leaseNotAfter == null || row.leaseNotAfter.getTime() > this.nowMs())
     );
   }
 
@@ -242,16 +242,16 @@ export class MyAccessRequestsListComponent implements OnInit {
   protected canStart(row: MyRequestRow): boolean {
     return (
       row.status === AccessRequestStatus.Approved &&
-      (row.requestedNotAfter == null || row.requestedNotAfter.getTime() > this.nowMs())
+      (row.leaseNotAfter == null || row.leaseNotAfter.getTime() > this.nowMs())
     );
   }
 
   /** A live "activate within X" label for an approved on-demand request. */
   protected redemptionRemainingLabel(row: MyRequestRow): string | null {
-    if (row.status !== AccessRequestStatus.Approved || row.activationDeadline == null) {
+    if (row.status !== AccessRequestStatus.Approved || row.actionableUntil == null) {
       return null;
     }
-    return formatRemaining(row.activationDeadline.getTime() - this.nowMs());
+    return formatRemaining(row.actionableUntil.getTime() - this.nowMs());
   }
 
   /** A live "ends in X" label for an active lease. */
