@@ -4,11 +4,13 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AppearanceComponent } from "./appearance.component";
@@ -22,6 +24,9 @@ describe("AppearanceComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
+  let mockAccountService: MockProxy<AccountService>;
+
+  const mockUserId = "test-user" as UserId;
 
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
@@ -43,6 +48,8 @@ describe("AppearanceComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
+    mockAccountService = mock<AccountService>();
+    mockAccountService.activeAccount$ = of({ id: mockUserId } as any);
 
     mockI18nService.supportedTranslationLocales = mockSupportedLocales;
     mockI18nService.localeNames = mockLocaleNames;
@@ -54,7 +61,7 @@ describe("AppearanceComponent", () => {
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
-    mockConfigService.earlyAccess$ = mockEarlyAccess$;
+    mockConfigService.earlyAccess$.mockReturnValue(mockEarlyAccess$);
     mockConfigService.setEarlyAccess.mockResolvedValue(undefined);
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
@@ -68,6 +75,7 @@ describe("AppearanceComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
+        { provide: AccountService, useValue: mockAccountService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: ToastService, useValue: mockToastService },

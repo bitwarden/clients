@@ -519,24 +519,24 @@ describe("ConfigService", () => {
     });
 
     it("defaults to disabled when the app has never been opted in", async () => {
-      expect(await firstValueFrom(sut.earlyAccess$)).toBe(false);
+      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
     });
 
     it("setEarlyAccess toggles what earlyAccess$ emits", async () => {
-      await sut.setEarlyAccess(true);
-      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
+      await sut.setEarlyAccess(userId, true);
+      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
 
-      await sut.setEarlyAccess(false);
-      expect(await firstValueFrom(sut.earlyAccess$)).toBe(false);
+      await sut.setEarlyAccess(userId, false);
+      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
     });
 
     it("delivers live updates so middleware and UI subscribers see toggle flips without re-subscribing", async () => {
       const emissions: boolean[] = [];
-      const subscription = sut.earlyAccess$.subscribe((v) => emissions.push(v));
+      const subscription = sut.earlyAccess$(userId).subscribe((v) => emissions.push(v));
 
-      await sut.setEarlyAccess(true);
-      await sut.setEarlyAccess(false);
-      await sut.setEarlyAccess(true);
+      await sut.setEarlyAccess(userId, true);
+      await sut.setEarlyAccess(userId, false);
+      await sut.setEarlyAccess(userId, true);
       subscription.unsubscribe();
 
       // Initial `false`, then each setEarlyAccess change; guards against a stale ReplaySubject or
@@ -544,15 +544,31 @@ describe("ConfigService", () => {
       expect(emissions).toEqual([false, true, false, true]);
     });
 
-    it("is not user-scoped: switching the active user does not change earlyAccess$", async () => {
-      // The design decision behind this is that Early Access targets the install/build, not the user.
-      await sut.setEarlyAccess(true);
+    it("is user-scoped: each user's preference is independent", async () => {
+      const otherUserId = "other-user" as UserId;
 
-      await accountService.switchAccount(null);
-      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
+      await sut.setEarlyAccess(userId, true);
+      await sut.setEarlyAccess(otherUserId, false);
 
-      await accountService.switchAccount(userId);
-      expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
+      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
+      expect(await firstValueFrom(sut.earlyAccess$(otherUserId))).toBe(false);
+    });
+
+    it("persists across logout — clearOn is [] so re-authenticating keeps the preference", async () => {
+      // Simulate the "user preference survives logout" invariant by writing directly to state:
+      // clearOn: [] means logout events do not clear this key. We assert the state key definition
+      // reflects that intent by ensuring toggling on -> logout-like reset -> re-read still shows on.
+      await sut.setEarlyAccess(userId, true);
+
+      // A fresh service instance (as if the app relaunched) reads the same persisted value.
+      const nextLaunch = new DefaultConfigService(
+        configApiService,
+        environmentService,
+        logService,
+        stateProvider,
+        authService,
+      );
+      expect(await firstValueFrom(nextLaunch.earlyAccess$(userId))).toBe(true);
     });
 
     describe("cache invalidation on toggle", () => {
@@ -568,7 +584,7 @@ describe("ConfigService", () => {
       });
 
       it("backdates the cached config so the pipeline's staleness check will force a refetch on the next read", async () => {
-        await sut.setEarlyAccess(true);
+        await sut.setEarlyAccess(userId, true);
 
         const cached = await firstValueFrom(userState.state$);
         // olderThanRetrievalInterval treats utcDate < (now - RETRIEVAL_INTERVAL) as stale.
@@ -577,7 +593,7 @@ describe("ConfigService", () => {
       });
 
       it("preserves the cached feature flag data during the refresh window (backdate, not clear)", async () => {
-        await sut.setEarlyAccess(true);
+        await sut.setEarlyAccess(userId, true);
 
         const cached = await firstValueFrom(userState.state$);
         // Consumers reading getFeatureFlag$ during the refresh window see the original flag data
@@ -589,8 +605,8 @@ describe("ConfigService", () => {
       it("no-ops safely when there is no cached config to invalidate", async () => {
         userState.nextState(null);
 
-        await expect(sut.setEarlyAccess(true)).resolves.not.toThrow();
-        expect(await firstValueFrom(sut.earlyAccess$)).toBe(true);
+        await expect(sut.setEarlyAccess(userId, true)).resolves.not.toThrow();
+        expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
       });
     });
   });

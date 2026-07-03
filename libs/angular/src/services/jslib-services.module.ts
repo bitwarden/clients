@@ -2025,11 +2025,15 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (apiService: ApiServiceAbstraction, configService: ConfigService) => {
-      apiService.addMiddleware(prereleaseHeaderMiddleware(configService));
+    useFactory: (
+      apiService: ApiServiceAbstraction,
+      configService: ConfigService,
+      accountService: AccountServiceAbstraction,
+    ) => {
+      apiService.addMiddleware(prereleaseHeaderMiddleware(configService, accountService));
       return () => Promise.resolve();
     },
-    deps: [ApiServiceAbstraction, ConfigService],
+    deps: [ApiServiceAbstraction, ConfigService, AccountServiceAbstraction],
     multi: true,
   }),
   safeProvider({

@@ -303,7 +303,7 @@ export class SettingsDialogComponent implements OnInit {
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
-      earlyAccess: await firstValueFrom(this.configService.earlyAccess$),
+      earlyAccess: await firstValueFrom(this.configService.earlyAccess$(this.currentUserId())),
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -557,7 +557,7 @@ export class SettingsDialogComponent implements OnInit {
         return;
       }
 
-      await this.configService.setEarlyAccess(true);
+      await this.configService.setEarlyAccess(this.currentUserId(), true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
@@ -565,7 +565,7 @@ export class SettingsDialogComponent implements OnInit {
       return;
     }
 
-    await this.configService.setEarlyAccess(false);
+    await this.configService.setEarlyAccess(this.currentUserId(), false);
   }
 
   protected async saveRunInBackground() {

@@ -208,7 +208,7 @@ describe("SettingsDialogComponent", () => {
     desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
-    configService.earlyAccess$ = of(false);
+    configService.earlyAccess$.mockReturnValue(of(false));
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;

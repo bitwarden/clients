@@ -51,11 +51,13 @@ export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig>(CONFIG_DIS
   clearOn: ["logout"],
 });
 
-export const GLOBAL_EARLY_ACCESS_ENABLED = new KeyDefinition<boolean>(
+export const USER_EARLY_ACCESS_ENABLED = new UserKeyDefinition<boolean>(
   CONFIG_DISK,
   "earlyAccessEnabled",
   {
     deserializer: (v) => v ?? false,
+    // Persist across logout so a user who re-authenticates keeps their preference.
+    clearOn: [],
   },
 );
 
@@ -89,8 +91,6 @@ export class DefaultConfigService implements ConfigService {
   serverSettings$: Observable<ServerSettings>;
 
   cloudRegion$: Observable<Region>;
-
-  earlyAccess$: Observable<boolean>;
 
   private featureFlagOverrides$: Observable<Partial<
     Record<FeatureFlag, AllowedFeatureFlagTypes>
@@ -183,28 +183,26 @@ export class DefaultConfigService implements ConfigService {
     );
 
     this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
+  }
 
-    this.earlyAccess$ = this.stateProvider
-      .getGlobal(GLOBAL_EARLY_ACCESS_ENABLED)
+  earlyAccess$(userId: UserId): Observable<boolean> {
+    return this.stateProvider
+      .getUser(userId, USER_EARLY_ACCESS_ENABLED)
       .state$.pipe(map((v) => v ?? false));
   }
 
-  async setEarlyAccess(enabled: boolean): Promise<void> {
-    await this.stateProvider.getGlobal(GLOBAL_EARLY_ACCESS_ENABLED).update(() => enabled);
-    await this.invalidateConfig();
+  async setEarlyAccess(userId: UserId, enabled: boolean): Promise<void> {
+    await this.stateProvider.setUserState(USER_EARLY_ACCESS_ENABLED, enabled, userId);
+    await this.invalidateConfig(userId);
   }
 
   /**
-   * Invalidates the cached server config so the next `serverConfig$` read is forced to refetch —
-   * instead of waiting up to `RETRIEVAL_INTERVAL` (1 hour) for the natural refresh cycle.
-   * Backdates the cached config's `utcDate` rather than clearing to null so consumers keep
-   * seeing the current flag values while the refresh is in flight.
+   * Invalidates the cached server config for the given user so the next `serverConfig$` read is
+   * forced to refetch — instead of waiting up to `RETRIEVAL_INTERVAL` (1 hour) for the natural
+   * refresh cycle. Backdates the cached config's `utcDate` rather than clearing to null so
+   * consumers keep seeing the current flag values while the refresh is in flight.
    */
-  private async invalidateConfig(): Promise<void> {
-    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-    if (userId == null) {
-      return;
-    }
+  private async invalidateConfig(userId: UserId): Promise<void> {
     const existing = await firstValueFrom(this.userConfigFor$(userId));
     if (existing == null) {
       return;

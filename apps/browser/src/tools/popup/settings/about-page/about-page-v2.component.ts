@@ -6,6 +6,8 @@ import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -64,6 +66,7 @@ const RateUrls = {
   ],
 })
 export class AboutPageV2Component implements OnInit {
+  private accountService = inject(AccountService);
   private configService = inject(ConfigService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
@@ -84,7 +87,8 @@ export class AboutPageV2Component implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const current = await firstValueFrom(this.configService.earlyAccess$);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const current = await firstValueFrom(this.configService.earlyAccess$(userId));
     this.earlyAccessForm.controls.earlyAccess.setValue(current, { emitEvent: false });
 
     this.earlyAccessForm.controls.earlyAccess.valueChanges
@@ -95,6 +99,8 @@ export class AboutPageV2Component implements OnInit {
   }
 
   private async onEarlyAccessChange(enabled: boolean): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (enabled) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "enableEarlyAccessConfirmTitle" },
@@ -107,7 +113,7 @@ export class AboutPageV2Component implements OnInit {
         return;
       }
 
-      await this.configService.setEarlyAccess(true);
+      await this.configService.setEarlyAccess(userId, true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
@@ -115,7 +121,7 @@ export class AboutPageV2Component implements OnInit {
       return;
     }
 
-    await this.configService.setEarlyAccess(false);
+    await this.configService.setEarlyAccess(userId, false);
   }
 
   about() {

@@ -3,6 +3,8 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { filter, firstValueFrom, switchMap } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -53,6 +55,7 @@ export class AppearanceComponent implements OnInit {
     private readonly i18nService: I18nService,
     private readonly themeStateService: ThemeStateService,
     private readonly domainSettingsService: DomainSettingsService,
+    private readonly accountService: AccountService,
     private readonly configService: ConfigService,
     private readonly dialogService: DialogService,
     private readonly toastService: ToastService,
@@ -77,12 +80,13 @@ export class AppearanceComponent implements OnInit {
   }
 
   async ngOnInit() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     this.form.setValue(
       {
         enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
         theme: await firstValueFrom(this.themeStateService.selectedTheme$),
         locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
-        earlyAccess: await firstValueFrom(this.configService.earlyAccess$),
+        earlyAccess: await firstValueFrom(this.configService.earlyAccess$(userId)),
       },
       { emitEvent: false },
     );
@@ -125,6 +129,8 @@ export class AppearanceComponent implements OnInit {
   }
 
   private async onEarlyAccessChange(enabled: boolean): Promise<void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     if (enabled) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "enableEarlyAccessConfirmTitle" },
@@ -137,7 +143,7 @@ export class AppearanceComponent implements OnInit {
         return;
       }
 
-      await this.configService.setEarlyAccess(true);
+      await this.configService.setEarlyAccess(userId, true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
@@ -145,6 +151,6 @@ export class AppearanceComponent implements OnInit {
       return;
     }
 
-    await this.configService.setEarlyAccess(false);
+    await this.configService.setEarlyAccess(userId, false);
   }
 }

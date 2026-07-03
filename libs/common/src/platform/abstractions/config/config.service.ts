@@ -64,15 +64,16 @@ export abstract class ConfigService {
   abstract ensureConfigFetched(): Promise<void>;
 
   /**
-   * Device-level Early Access state. When enabled, the client sends the `Is-Prerelease` header
-   * on API requests so that feature flags evaluate with prerelease context. Applies to the
-   * entire installation regardless of which user is signed in.
+   * Per-user Early Access preference. When enabled, the client sends the `Is-Prerelease` header
+   * on API requests for this user so that feature flags evaluate with prerelease context.
+   * Persists across logout for the account.
    */
-  abstract earlyAccess$: Observable<boolean>;
+  abstract earlyAccess$(userId: UserId): Observable<boolean>;
 
   /**
-   * Sets the device-level Early Access state. Takes effect on subsequent API requests; feature
-   * flags re-evaluate on the next scheduled config fetch.
+   * Sets the Early Access preference for the given user. Takes effect on subsequent API
+   * requests; the user's cached config is invalidated immediately so feature flags re-evaluate
+   * on the next read rather than waiting for the natural refresh interval.
    */
-  abstract setEarlyAccess(enabled: boolean): Promise<void>;
+  abstract setEarlyAccess(userId: UserId, enabled: boolean): Promise<void>;
 }
