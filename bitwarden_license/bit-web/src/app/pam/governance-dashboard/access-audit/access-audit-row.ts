@@ -25,6 +25,8 @@ export type AuditRow = {
   detail: string | null;
   /** True for a system / automatic event (expiry, an automatic decision). */
   automated: boolean;
+  /** True when the action's outcome never landed (only the write-ahead attempt) — shown as an in-doubt row. */
+  inDoubt: boolean;
   /** The originating request, when the event has one — the row links here. */
   requestId: string | null;
   /** Lowercased haystack for the free-text filter: actor, requester, item, and detail. */
@@ -107,6 +109,7 @@ export function toAuditRow(
     ruleName: event.ruleName,
     detail: event.detail,
     automated: event.automated,
+    inDoubt: event.incomplete,
     requestId: event.requestId,
     searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
       .filter((value): value is string => value != null)
