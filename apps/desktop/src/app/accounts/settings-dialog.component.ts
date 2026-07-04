@@ -51,7 +51,6 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TabsModule,
-  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
@@ -129,7 +128,6 @@ export class SettingsDialogComponent implements OnInit {
   private readonly earlyAccessService = inject(EarlyAccessService);
   private readonly validationService = inject(ValidationService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
-  private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly localeOptions: Option<string>[];
@@ -567,10 +565,6 @@ export class SettingsDialogComponent implements OnInit {
       }
 
       await this.earlyAccessService.setEarlyAccess(userId, true);
-      this.toastService.showToast({
-        variant: "info",
-        message: this.i18nService.t("earlyAccessEnabledToast"),
-      });
     } catch (error) {
       this.logService.error("Error updating Early Access preference: ", error);
       this.form.controls.earlyAccess.setValue(!enabled, { emitEvent: false });

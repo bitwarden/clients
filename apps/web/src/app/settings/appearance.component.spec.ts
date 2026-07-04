@@ -14,7 +14,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -27,7 +27,6 @@ describe("AppearanceComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockEarlyAccessService: MockProxy<EarlyAccessService>;
   let mockDialogService: MockProxy<DialogService>;
-  let mockToastService: MockProxy<ToastService>;
   let mockLogService: MockProxy<LogService>;
   let mockValidationService: MockProxy<ValidationService>;
   let mockAccountService: MockProxy<AccountService>;
@@ -54,7 +53,6 @@ describe("AppearanceComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockEarlyAccessService = mock<EarlyAccessService>();
     mockDialogService = mock<DialogService>();
-    mockToastService = mock<ToastService>();
     mockLogService = mock<LogService>();
     mockValidationService = mock<ValidationService>();
     mockAccountService = mock<AccountService>();
@@ -88,7 +86,6 @@ describe("AppearanceComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: EarlyAccessService, useValue: mockEarlyAccessService },
         { provide: DialogService, useValue: mockDialogService },
-        { provide: ToastService, useValue: mockToastService },
         { provide: LogService, useValue: mockLogService },
         { provide: ValidationService, useValue: mockValidationService },
       ],
@@ -232,7 +229,7 @@ describe("AppearanceComponent", () => {
       expect(mockEarlyAccessService.setEarlyAccess).toHaveBeenCalledWith(mockUserId, false);
     }));
 
-    it("confirms then persists and toasts when enabling", fakeAsync(() => {
+    it("confirms then persists when enabling", fakeAsync(() => {
       mockDialogService.openSimpleDialog.mockResolvedValue(true);
 
       component.form.controls.earlyAccess.setValue(true);
@@ -242,7 +239,6 @@ describe("AppearanceComponent", () => {
         expect.objectContaining({ type: "warning" }),
       );
       expect(mockEarlyAccessService.setEarlyAccess).toHaveBeenCalledWith(mockUserId, true);
-      expect(mockToastService.showToast).toHaveBeenCalled();
     }));
 
     it("reverts the form control when the confirm dialog is cancelled", fakeAsync(() => {

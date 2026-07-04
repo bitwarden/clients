@@ -5616,8 +5616,5 @@
   },
   "enableEarlyAccessConfirmContent": {
     "message": "Early access features are still in testing and may be unstable or change without notice."
-  },
-  "earlyAccessEnabledToast": {
-    "message": "Early access enabled."
   }
 }

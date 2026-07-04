@@ -15,7 +15,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -62,7 +62,6 @@ export class AppearanceComponent implements OnInit {
     private readonly configService: ConfigService,
     private readonly earlyAccessService: EarlyAccessService,
     private readonly dialogService: DialogService,
-    private readonly toastService: ToastService,
     private readonly logService: LogService,
     private readonly validationService: ValidationService,
     private readonly destroyRef: DestroyRef,
@@ -155,10 +154,6 @@ export class AppearanceComponent implements OnInit {
       }
 
       await this.earlyAccessService.setEarlyAccess(userId, true);
-      this.toastService.showToast({
-        variant: "info",
-        message: this.i18nService.t("earlyAccessEnabledToast"),
-      });
     } catch (error) {
       this.logService.error("Error updating Early Access preference: ", error);
       this.form.controls.earlyAccess.setValue(!enabled, { emitEvent: false });

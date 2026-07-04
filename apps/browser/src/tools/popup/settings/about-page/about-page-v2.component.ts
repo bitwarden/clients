@@ -12,7 +12,6 @@ import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -24,7 +23,6 @@ import {
   DialogService,
   FormFieldModule,
   ItemModule,
-  ToastService,
 } from "@bitwarden/components";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -72,8 +70,6 @@ export class AboutPageV2Component implements OnInit {
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
   private earlyAccessService = inject(EarlyAccessService);
-  private toastService = inject(ToastService);
-  private i18nService = inject(I18nService);
   private logService = inject(LogService);
   private validationService = inject(ValidationService);
   private formBuilder = inject(FormBuilder);
@@ -125,10 +121,6 @@ export class AboutPageV2Component implements OnInit {
       }
 
       await this.earlyAccessService.setEarlyAccess(userId, true);
-      this.toastService.showToast({
-        variant: "info",
-        message: this.i18nService.t("earlyAccessEnabledToast"),
-      });
     } catch (error) {
       this.logService.error("Error updating Early Access preference: ", error);
       this.earlyAccessForm.controls.earlyAccess.setValue(!enabled, { emitEvent: false });
