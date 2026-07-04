@@ -12,7 +12,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -22,19 +24,25 @@ import {
   FormFieldModule,
   IconButtonModule,
   LinkModule,
+  MenuModule,
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
 
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
 
-import { UriOptionComponent } from "./uri-option.component";
+import { UriOptionComponent, UriType } from "./uri-option.component";
 
 interface UriField {
   uri: string;
   matchDetection: UriMatchStrategySetting;
+  type: UriType;
 }
+
+const URI_TYPE_APP: UriType = "app";
+const URI_TYPE_WEBSITE: UriType = "website";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,6 +61,7 @@ interface UriField {
     IconButtonModule,
     UriOptionComponent,
     LinkModule,
+    MenuModule,
     AsyncPipe,
   ],
 })
@@ -86,6 +95,10 @@ export class AutofillOptionsComponent implements OnInit {
 
   protected autofillOnPageLoadEnabled$ = this.autofillSettingsService.autofillOnPageLoad$;
 
+  protected windowsDesktopAutotypeGA$ = this.configService.getFeatureFlag$(
+    FeatureFlag.WindowsDesktopAutotypeGA,
+  );
+
   protected autofillOptions: { label: string; value: boolean | null }[] = [
     { label: this.i18nService.t("default"), value: null },
     { label: this.i18nService.t("yes"), value: true },
@@ -105,6 +118,7 @@ export class AutofillOptionsComponent implements OnInit {
     private domainSettingsService: DomainSettingsService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
   ) {
     this.cipherFormContainer.registerChildForm("autoFillOptions", this.autofillOptionsForm);
 
@@ -168,6 +182,7 @@ export class AutofillOptionsComponent implements OnInit {
         {
           uri: uri.uri,
           matchDetection: uri.match,
+          type: uri.uri?.startsWith(DESKTOP_APP_URI_PREFIX) ? URI_TYPE_APP : URI_TYPE_WEBSITE,
         },
         false,
         false,
@@ -191,6 +206,7 @@ export class AutofillOptionsComponent implements OnInit {
         this.addUri({
           uri: this.cipherFormContainer.config.initialValues.loginUri,
           matchDetection: null,
+          type: URI_TYPE_WEBSITE,
         });
       }
     }
@@ -200,6 +216,7 @@ export class AutofillOptionsComponent implements OnInit {
     this.addUri({
       uri: this.cipherFormContainer.config.initialValues?.loginUri ?? null,
       matchDetection: null,
+      type: URI_TYPE_WEBSITE,
     });
     this.autofillOptionsForm.patchValue({
       autofillOnPageLoad: null,
@@ -232,7 +249,7 @@ export class AutofillOptionsComponent implements OnInit {
    * @param emitEvent When false, prevents the `valueChanges` & `statusChanges` observables from firing.
    */
   addUri(
-    uriFieldValue: UriField = { uri: null, matchDetection: null },
+    uriFieldValue: UriField = { uri: null, matchDetection: null, type: URI_TYPE_WEBSITE },
     focusNewInput = false,
     emitEvent = true,
   ) {
@@ -284,6 +301,8 @@ export class AutofillOptionsComponent implements OnInit {
   async reorderUriItems(event: KeyboardEvent, previousIndex: number, direction: "Up" | "Down") {
     const currentIndex = previousIndex + (direction === "Up" ? -1 : 1);
     event.preventDefault();
+
+    // TODO: PM-37983 - Update label to be type-aware (app vs. website) once screen reader approach is decided
     await this.liveAnnouncer.announce(
       this.i18nService.t(
         `reorderField${direction}`,

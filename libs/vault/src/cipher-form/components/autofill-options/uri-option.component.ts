@@ -20,10 +20,12 @@ import {
 import { concatMap, pairwise } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
@@ -34,6 +36,10 @@ import {
 } from "@bitwarden/components";
 
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
+
+export type UriType = "website" | "app";
+const UriTypeWebsite = "website";
+const UriTypeApp = "app";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -67,9 +73,12 @@ export class UriOptionComponent implements ControlValueAccessor {
   @ViewChild("matchDetectionSelect")
   private matchDetectionSelect: SelectComponent<UriMatchStrategySetting>;
 
+  private windowsDesktopAutotypeGA = false;
+
   protected uriForm = this.formBuilder.group({
     uri: [null as string],
     matchDetection: [null as UriMatchStrategySetting],
+    type: [null as UriType | null],
   });
 
   protected uriMatchOptions: {
@@ -156,6 +165,11 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
+    if (this.windowsDesktopAutotypeGA && this.uriForm.controls.type.value === UriTypeApp) {
+      return this.index === 0
+        ? this.i18nService.t("appUri")
+        : this.i18nService.t("appUriCount", this.index + 1);
+    }
     return this.index === 0
       ? this.i18nService.t("websiteUri")
       : this.i18nService.t("websiteUriCount", this.index + 1);
@@ -181,7 +195,15 @@ export class UriOptionComponent implements ControlValueAccessor {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
+    private configService: ConfigService,
   ) {
+    this.configService
+      .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotypeGA)
+      .pipe(takeUntilDestroyed())
+      .subscribe((enabled) => {
+        this.windowsDesktopAutotypeGA = enabled;
+      });
+
     this.uriForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.onChange(value);
     });
@@ -232,12 +254,17 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   // NG_VALUE_ACCESSOR implementation
-  writeValue(value: { uri: string; matchDetection: UriMatchStrategySetting | null }): void {
+  writeValue(value: {
+    uri: string;
+    matchDetection: UriMatchStrategySetting | null;
+    type?: UriType | null;
+  }): void {
     if (value) {
       this.uriForm.setValue(
         {
           uri: value.uri ?? "",
           matchDetection: value.matchDetection ?? null,
+          type: value.type ?? UriTypeWebsite,
         },
         { emitEvent: false },
       );
