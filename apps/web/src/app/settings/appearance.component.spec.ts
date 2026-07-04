@@ -8,7 +8,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -22,8 +25,11 @@ describe("AppearanceComponent", () => {
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
   let mockConfigService: MockProxy<ConfigService>;
+  let mockEarlyAccessService: MockProxy<EarlyAccessService>;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
+  let mockLogService: MockProxy<LogService>;
+  let mockValidationService: MockProxy<ValidationService>;
   let mockAccountService: MockProxy<AccountService>;
 
   const mockUserId = "test-user" as UserId;
@@ -46,8 +52,11 @@ describe("AppearanceComponent", () => {
     mockThemeStateService = mock<ThemeStateService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
     mockConfigService = mock<ConfigService>();
+    mockEarlyAccessService = mock<EarlyAccessService>();
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
+    mockLogService = mock<LogService>();
+    mockValidationService = mock<ValidationService>();
     mockAccountService = mock<AccountService>();
     mockAccountService.activeAccount$ = of({ id: mockUserId } as any);
 
@@ -61,8 +70,8 @@ describe("AppearanceComponent", () => {
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
-    mockConfigService.earlyAccess$.mockReturnValue(mockEarlyAccess$);
-    mockConfigService.setEarlyAccess.mockResolvedValue(undefined);
+    mockEarlyAccessService.earlyAccess$.mockReturnValue(mockEarlyAccess$);
+    mockEarlyAccessService.setEarlyAccess.mockResolvedValue(undefined);
     mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     mockDomainSettingsService.setShowFavicons.mockResolvedValue(undefined);
@@ -77,8 +86,11 @@ describe("AppearanceComponent", () => {
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: EarlyAccessService, useValue: mockEarlyAccessService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: LogService, useValue: mockLogService },
+        { provide: ValidationService, useValue: mockValidationService },
       ],
     })
       .overrideComponent(AppearanceComponent, {
@@ -202,6 +214,57 @@ describe("AppearanceComponent", () => {
       flush();
 
       expect(mockThemeStateService.setSelectedTheme).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("earlyAccess value changes", () => {
+    beforeEach(fakeAsync(() => {
+      fixture.detectChanges();
+      flush();
+      jest.clearAllMocks();
+    }));
+
+    it("persists straight through when disabling (no confirmation)", fakeAsync(() => {
+      component.form.controls.earlyAccess.setValue(false);
+      flush();
+
+      expect(mockDialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(mockEarlyAccessService.setEarlyAccess).toHaveBeenCalledWith(mockUserId, false);
+    }));
+
+    it("confirms then persists and toasts when enabling", fakeAsync(() => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(true);
+
+      component.form.controls.earlyAccess.setValue(true);
+      flush();
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "warning" }),
+      );
+      expect(mockEarlyAccessService.setEarlyAccess).toHaveBeenCalledWith(mockUserId, true);
+      expect(mockToastService.showToast).toHaveBeenCalled();
+    }));
+
+    it("reverts the form control when the confirm dialog is cancelled", fakeAsync(() => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(false);
+
+      component.form.controls.earlyAccess.setValue(true);
+      flush();
+
+      expect(mockEarlyAccessService.setEarlyAccess).not.toHaveBeenCalled();
+      expect(component.form.value.earlyAccess).toBe(false);
+    }));
+
+    it("reverts and surfaces the error when setEarlyAccess rejects", fakeAsync(() => {
+      mockDialogService.openSimpleDialog.mockResolvedValue(true);
+      const error = new Error("write failed");
+      mockEarlyAccessService.setEarlyAccess.mockRejectedValueOnce(error);
+
+      component.form.controls.earlyAccess.setValue(true);
+      flush();
+
+      expect(component.form.value.earlyAccess).toBe(false);
+      expect(mockValidationService.showError).toHaveBeenCalledWith(error);
     }));
   });
 

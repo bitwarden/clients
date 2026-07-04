@@ -32,6 +32,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -125,6 +126,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly logService = inject(LogService);
   private readonly nativeMessagingManifestService = inject(NativeMessagingManifestService);
   private readonly configService = inject(ConfigService);
+  private readonly earlyAccessService = inject(EarlyAccessService);
   private readonly validationService = inject(ValidationService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly toastService = inject(ToastService);
@@ -303,7 +305,7 @@ export class SettingsDialogComponent implements OnInit {
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
-      earlyAccess: await firstValueFrom(this.configService.earlyAccess$(this.currentUserId())),
+      earlyAccess: await firstValueFrom(this.earlyAccessService.earlyAccess$(this.currentUserId())),
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -543,29 +545,37 @@ export class SettingsDialogComponent implements OnInit {
   }
 
   protected async saveEarlyAccess() {
+    // Capture userId once — an account switch mid-dialog must not redirect the write to a
+    // different user than the one whose UI initiated the change.
+    const userId = this.currentUserId();
     const enabled = this.form.value.earlyAccess ?? false;
 
-    if (enabled) {
+    try {
+      if (!enabled) {
+        await this.earlyAccessService.setEarlyAccess(userId, false);
+        return;
+      }
+
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "enableEarlyAccessConfirmTitle" },
         content: { key: "enableEarlyAccessConfirmContent" },
         type: "warning",
       });
-
       if (!confirmed) {
         this.form.controls.earlyAccess.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.configService.setEarlyAccess(this.currentUserId(), true);
+      await this.earlyAccessService.setEarlyAccess(userId, true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
       });
-      return;
+    } catch (error) {
+      this.logService.error("Error updating Early Access preference: ", error);
+      this.form.controls.earlyAccess.setValue(!enabled, { emitEvent: false });
+      this.validationService.showError(error);
     }
-
-    await this.configService.setEarlyAccess(this.currentUserId(), false);
   }
 
   protected async saveRunInBackground() {

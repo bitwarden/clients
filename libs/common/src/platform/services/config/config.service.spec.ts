@@ -36,7 +36,6 @@ import {
   RETRIEVAL_INTERVAL,
   GLOBAL_FEATURE_FLAG_OVERRIDES,
   GLOBAL_SERVER_CONFIGURATIONS,
-  USER_EARLY_ACCESS_ENABLED,
   USER_SERVER_CONFIG,
   SLOW_EMISSION_GUARD,
 } from "./default-config.service";
@@ -502,134 +501,62 @@ describe("ConfigService", () => {
     });
   });
 
-  describe("early access", () => {
+  describe("invalidateUserConfig", () => {
+    // A caller (typically EarlyAccessService.setEarlyAccess) expects flag values to update on the
+    // very next read — not to wait up to RETRIEVAL_INTERVAL (1 hour) for the natural refresh
+    // cycle. `invalidateUserConfig` backdates the cached config's utcDate so the next
+    // serverConfig$ subscription treats it as stale and refetches. Backdating (rather than
+    // clearing to null) keeps the current flag values available to consumers during the refresh
+    // window instead of briefly falling through to defaults.
     let sut: DefaultConfigService;
-
-    const buildService = () =>
-      new DefaultConfigService(
-        configApiService,
-        environmentService,
-        logService,
-        stateProvider,
-        authService,
-      );
 
     beforeEach(async () => {
       await accountService.switchAccount(userId);
-      sut = buildService();
-    });
-
-    it("defaults to disabled when the app has never been opted in", async () => {
-      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
-    });
-
-    it("returns false when the EarlyAccess feature flag is disabled, even if state has been opted in", async () => {
-      // Seed a cached config that explicitly disables the EarlyAccess flag server-side.
-      const config = new ServerConfig(
-        new ServerConfigData(
-          new ServerConfigResponse({
-            version: "myConfigVersion",
-            gitHash: "flag-off",
-            server: new ThirdPartyServerConfigResponse({ name: "n", url: "u" }),
-            environment: new EnvironmentServerConfigResponse({ vault: "vault.example.com" }),
-            featureStates: { [FeatureFlag.EarlyAccess]: false },
-          }),
-        ),
-      );
-      userState.nextState(config);
-
-      // User previously opted in — but the server-side flag is now off.
-      await stateProvider.setUserState(USER_EARLY_ACCESS_ENABLED, true, userId);
-
-      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
-    });
-
-    it("setEarlyAccess toggles what earlyAccess$ emits", async () => {
-      await sut.setEarlyAccess(userId, true);
-      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
-
-      await sut.setEarlyAccess(userId, false);
-      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(false);
-    });
-
-    it("delivers live updates so middleware and UI subscribers see toggle flips without re-subscribing", async () => {
-      const emissions: boolean[] = [];
-      const subscription = sut.earlyAccess$(userId).subscribe((v) => emissions.push(v));
-
-      await sut.setEarlyAccess(userId, true);
-      await sut.setEarlyAccess(userId, false);
-      await sut.setEarlyAccess(userId, true);
-      subscription.unsubscribe();
-
-      // Initial `false`, then each setEarlyAccess change; guards against a stale ReplaySubject or
-      // detached observable pipeline in a future refactor.
-      expect(emissions).toEqual([false, true, false, true]);
-    });
-
-    it("is user-scoped: each user's preference is independent", async () => {
-      const otherUserId = "other-user" as UserId;
-
-      await sut.setEarlyAccess(userId, true);
-      await sut.setEarlyAccess(otherUserId, false);
-
-      expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
-      expect(await firstValueFrom(sut.earlyAccess$(otherUserId))).toBe(false);
-    });
-
-    it("persists across logout — clearOn is [] so re-authenticating keeps the preference", async () => {
-      // Simulate the "user preference survives logout" invariant by writing directly to state:
-      // clearOn: [] means logout events do not clear this key. We assert the state key definition
-      // reflects that intent by ensuring toggling on -> logout-like reset -> re-read still shows on.
-      await sut.setEarlyAccess(userId, true);
-
-      // A fresh service instance (as if the app relaunched) reads the same persisted value.
-      const nextLaunch = new DefaultConfigService(
+      sut = new DefaultConfigService(
         configApiService,
         environmentService,
         logService,
         stateProvider,
         authService,
       );
-      expect(await firstValueFrom(nextLaunch.earlyAccess$(userId))).toBe(true);
+      // Seed a fresh cached config so we can observe the invalidation.
+      userState.nextState(serverConfigFactory("cached-hash"));
     });
 
-    describe("cache invalidation on toggle", () => {
-      // A user who toggles early access expects flag values to update on the very next read — not
-      // to wait up to RETRIEVAL_INTERVAL (1 hour) for the natural refresh cycle. setEarlyAccess
-      // invalidates the cached config by backdating its utcDate so that the next serverConfig$
-      // subscription treats it as stale and refetches. Backdating (rather than clearing to null)
-      // keeps the current flag values available to consumers during the refresh window instead of
-      // briefly falling through to defaults.
-      beforeEach(() => {
-        // Seed a fresh cached config so we can observe the invalidation.
-        userState.nextState(serverConfigFactory("cached-hash"));
-      });
+    it("backdates the cached config so the pipeline's staleness check will force a refetch on the next read", async () => {
+      await sut.invalidateUserConfig(userId);
 
-      it("backdates the cached config so the pipeline's staleness check will force a refetch on the next read", async () => {
-        await sut.setEarlyAccess(userId, true);
+      const cached = await firstValueFrom(userState.state$);
+      // olderThanRetrievalInterval treats utcDate < (now - RETRIEVAL_INTERVAL) as stale.
+      // new Date(0) (epoch) is definitively past that boundary.
+      expect(cached.utcDate.getTime()).toBe(0);
+    });
 
-        const cached = await firstValueFrom(userState.state$);
-        // olderThanRetrievalInterval treats utcDate < (now - RETRIEVAL_INTERVAL) as stale.
-        // new Date(0) (epoch) is definitively past that boundary.
-        expect(cached.utcDate.getTime()).toBe(0);
-      });
+    it("preserves the cached feature flag data during the refresh window (backdate, not clear)", async () => {
+      await sut.invalidateUserConfig(userId);
 
-      it("preserves the cached feature flag data during the refresh window (backdate, not clear)", async () => {
-        await sut.setEarlyAccess(userId, true);
+      const cached = await firstValueFrom(userState.state$);
+      // Consumers reading getFeatureFlag$ during the refresh window see the original flag data
+      // — not defaults — because the data wasn't cleared, just marked stale.
+      expect(cached).not.toBeNull();
+      expect(cached.gitHash).toBe("cached-hash");
+    });
 
-        const cached = await firstValueFrom(userState.state$);
-        // Consumers reading getFeatureFlag$ during the refresh window see the original flag data
-        // — not defaults — because the data wasn't cleared, just marked stale.
-        expect(cached).not.toBeNull();
-        expect(cached.gitHash).toBe("cached-hash");
-      });
+    it("no-ops safely when there is no cached config to invalidate", async () => {
+      userState.nextState(null);
 
-      it("no-ops safely when there is no cached config to invalidate", async () => {
-        userState.nextState(null);
+      await expect(sut.invalidateUserConfig(userId)).resolves.not.toThrow();
+    });
 
-        await expect(sut.setEarlyAccess(userId, true)).resolves.not.toThrow();
-        expect(await firstValueFrom(sut.earlyAccess$(userId))).toBe(true);
-      });
+    it("returns a fresh instance instead of mutating the cached ServerConfig in place", async () => {
+      const before = await firstValueFrom(userState.state$);
+      const originalUtcDate = before.utcDate;
+
+      await sut.invalidateUserConfig(userId);
+
+      // The pre-invalidation reference must not have been mutated — otherwise concurrent
+      // subscribers holding that reference would see the backdated utcDate before the write.
+      expect(before.utcDate).toBe(originalUtcDate);
     });
   });
 });

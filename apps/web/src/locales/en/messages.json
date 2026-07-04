@@ -14998,6 +14998,6 @@
     "message": "Early access features are still in testing and may be unstable or change without notice."
   },
   "earlyAccessEnabledToast": {
-    "message": "Early access enabled. Reopen the app to make sure all features refresh."
+    "message": "Early access enabled."
   }
 }

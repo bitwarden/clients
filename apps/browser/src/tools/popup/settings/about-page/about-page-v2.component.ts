@@ -3,7 +3,7 @@ import { Component, DestroyRef, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -13,7 +13,10 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import {
   CardComponent,
   CenterPositionStrategy,
@@ -68,8 +71,11 @@ const RateUrls = {
 export class AboutPageV2Component implements OnInit {
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
+  private earlyAccessService = inject(EarlyAccessService);
   private toastService = inject(ToastService);
   private i18nService = inject(I18nService);
+  private logService = inject(LogService);
+  private validationService = inject(ValidationService);
   private formBuilder = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
 
@@ -88,40 +94,46 @@ export class AboutPageV2Component implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const current = await firstValueFrom(this.configService.earlyAccess$(userId));
+    const current = await firstValueFrom(this.earlyAccessService.earlyAccess$(userId));
     this.earlyAccessForm.controls.earlyAccess.setValue(current, { emitEvent: false });
 
     this.earlyAccessForm.controls.earlyAccess.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((enabled) => {
-        void this.onEarlyAccessChange(enabled ?? false);
-      });
+      .pipe(
+        concatMap(async (enabled) => this.onEarlyAccessChange(enabled ?? false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private async onEarlyAccessChange(enabled: boolean): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    if (enabled) {
+    try {
+      if (!enabled) {
+        await this.earlyAccessService.setEarlyAccess(userId, false);
+        return;
+      }
+
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "enableEarlyAccessConfirmTitle" },
         content: { key: "enableEarlyAccessConfirmContent" },
         type: "warning",
       });
-
       if (!confirmed) {
         this.earlyAccessForm.controls.earlyAccess.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.configService.setEarlyAccess(userId, true);
+      await this.earlyAccessService.setEarlyAccess(userId, true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
       });
-      return;
+    } catch (error) {
+      this.logService.error("Error updating Early Access preference: ", error);
+      this.earlyAccessForm.controls.earlyAccess.setValue(!enabled, { emitEvent: false });
+      this.validationService.showError(error);
     }
-
-    await this.configService.setEarlyAccess(userId, false);
   }
 
   about() {

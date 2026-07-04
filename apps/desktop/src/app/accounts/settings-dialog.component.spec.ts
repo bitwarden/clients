@@ -46,6 +46,7 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -101,6 +102,7 @@ describe("SettingsDialogComponent", () => {
   const desktopAutotypeService = mock<DesktopAutotypeService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
+  const earlyAccessService = mock<EarlyAccessService>();
   const userVerificationService = mock<UserVerificationService>();
 
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -136,6 +138,7 @@ describe("SettingsDialogComponent", () => {
         { provide: AccountService, useValue: accountService },
         { provide: BiometricStateService, useValue: biometricStateService },
         { provide: ConfigService, useValue: configService },
+        { provide: EarlyAccessService, useValue: earlyAccessService },
         {
           provide: DesktopAutofillSettingsService,
           useValue: desktopAutofillSettingsService,
@@ -208,7 +211,8 @@ describe("SettingsDialogComponent", () => {
     desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
-    configService.earlyAccess$.mockReturnValue(of(false));
+    earlyAccessService.earlyAccess$.mockReturnValue(of(false));
+    earlyAccessService.setEarlyAccess.mockResolvedValue(undefined);
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;

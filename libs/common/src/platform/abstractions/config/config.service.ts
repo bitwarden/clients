@@ -64,16 +64,10 @@ export abstract class ConfigService {
   abstract ensureConfigFetched(): Promise<void>;
 
   /**
-   * Per-user Early Access preference. When enabled, the client sends the `Is-Prerelease` header
-   * on API requests for this user so that feature flags evaluate with prerelease context.
-   * Persists across logout for the account.
+   * Invalidates the cached server config for the given user so the next `serverConfig$` read is
+   * forced to refetch — instead of waiting up to `RETRIEVAL_INTERVAL` (1 hour) for the natural
+   * refresh cycle. Backdates the cached config's `utcDate` rather than clearing to null so
+   * consumers keep seeing the current flag values while the refresh is in flight.
    */
-  abstract earlyAccess$(userId: UserId): Observable<boolean>;
-
-  /**
-   * Sets the Early Access preference for the given user. Takes effect on subsequent API
-   * requests; the user's cached config is invalidated immediately so feature flags re-evaluate
-   * on the next read rather than waiting for the natural refresh interval.
-   */
-  abstract setEarlyAccess(userId: UserId, enabled: boolean): Promise<void>;
+  abstract invalidateUserConfig(userId: UserId): Promise<void>;
 }

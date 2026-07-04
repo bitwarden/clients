@@ -279,6 +279,8 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { DefaultServerSettingsService } from "@bitwarden/common/platform/services/default-server-settings.service";
+import { DefaultEarlyAccessService } from "@bitwarden/common/platform/services/early-access/default-early-access.service";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -2024,16 +2026,21 @@ const safeProviders: SafeProvider[] = [
     multi: true,
   }),
   safeProvider({
+    provide: EarlyAccessService,
+    useClass: DefaultEarlyAccessService,
+    deps: [StateProvider, ConfigService],
+  }),
+  safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
     useFactory: (
       apiService: ApiServiceAbstraction,
-      configService: ConfigService,
+      earlyAccessService: EarlyAccessService,
       accountService: AccountServiceAbstraction,
     ) => {
-      apiService.addMiddleware(prereleaseHeaderMiddleware(configService, accountService));
+      apiService.addMiddleware(prereleaseHeaderMiddleware(earlyAccessService, accountService));
       return () => Promise.resolve();
     },
-    deps: [ApiServiceAbstraction, ConfigService, AccountServiceAbstraction],
+    deps: [ApiServiceAbstraction, EarlyAccessService, AccountServiceAbstraction],
     multi: true,
   }),
   safeProvider({

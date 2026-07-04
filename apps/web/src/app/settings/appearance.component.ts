@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { filter, firstValueFrom, switchMap } from "rxjs";
+import { concatMap, filter, firstValueFrom, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -9,8 +9,11 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
@@ -57,8 +60,11 @@ export class AppearanceComponent implements OnInit {
     private readonly domainSettingsService: DomainSettingsService,
     private readonly accountService: AccountService,
     private readonly configService: ConfigService,
+    private readonly earlyAccessService: EarlyAccessService,
     private readonly dialogService: DialogService,
     private readonly toastService: ToastService,
+    private readonly logService: LogService,
+    private readonly validationService: ValidationService,
     private readonly destroyRef: DestroyRef,
   ) {
     const localeOptions: LocaleOption[] = [];
@@ -86,16 +92,17 @@ export class AppearanceComponent implements OnInit {
         enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
         theme: await firstValueFrom(this.themeStateService.selectedTheme$),
         locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
-        earlyAccess: await firstValueFrom(this.configService.earlyAccess$(userId)),
+        earlyAccess: await firstValueFrom(this.earlyAccessService.earlyAccess$(userId)),
       },
       { emitEvent: false },
     );
 
     this.form.controls.earlyAccess.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((enabled) => {
-        void this.onEarlyAccessChange(enabled ?? false);
-      });
+      .pipe(
+        concatMap(async (enabled) => this.onEarlyAccessChange(enabled ?? false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
     this.form.controls.enableFavicons.valueChanges
       .pipe(
@@ -131,26 +138,31 @@ export class AppearanceComponent implements OnInit {
   private async onEarlyAccessChange(enabled: boolean): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    if (enabled) {
+    try {
+      if (!enabled) {
+        await this.earlyAccessService.setEarlyAccess(userId, false);
+        return;
+      }
+
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "enableEarlyAccessConfirmTitle" },
         content: { key: "enableEarlyAccessConfirmContent" },
         type: "warning",
       });
-
       if (!confirmed) {
         this.form.controls.earlyAccess.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.configService.setEarlyAccess(userId, true);
+      await this.earlyAccessService.setEarlyAccess(userId, true);
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("earlyAccessEnabledToast"),
       });
-      return;
+    } catch (error) {
+      this.logService.error("Error updating Early Access preference: ", error);
+      this.form.controls.earlyAccess.setValue(!enabled, { emitEvent: false });
+      this.validationService.showError(error);
     }
-
-    await this.configService.setEarlyAccess(userId, false);
   }
 }

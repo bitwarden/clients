@@ -51,16 +51,6 @@ export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig>(CONFIG_DIS
   clearOn: ["logout"],
 });
 
-export const USER_EARLY_ACCESS_ENABLED = new UserKeyDefinition<boolean>(
-  CONFIG_DISK,
-  "earlyAccessEnabled",
-  {
-    deserializer: (v) => v ?? false,
-    // Persist across logout so a user who re-authenticates keeps their preference.
-    clearOn: [],
-  },
-);
-
 export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, ApiUrl>(
   CONFIG_DISK,
   "byServer",
@@ -185,31 +175,21 @@ export class DefaultConfigService implements ConfigService {
     this.featureFlagOverrides$ = this.stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$;
   }
 
-  earlyAccess$(userId: UserId): Observable<boolean> {
-    return combineLatest([
-      this.userCachedFeatureFlag$(FeatureFlag.EarlyAccess, userId),
-      this.stateProvider.getUser(userId, USER_EARLY_ACCESS_ENABLED).state$,
-    ]).pipe(map(([flagEnabled, stored]) => flagEnabled === true && (stored ?? false)));
-  }
-
-  async setEarlyAccess(userId: UserId, enabled: boolean): Promise<void> {
-    await this.stateProvider.setUserState(USER_EARLY_ACCESS_ENABLED, enabled, userId);
-    await this.invalidateConfig(userId);
-  }
-
-  /**
-   * Invalidates the cached server config for the given user so the next `serverConfig$` read is
-   * forced to refetch — instead of waiting up to `RETRIEVAL_INTERVAL` (1 hour) for the natural
-   * refresh cycle. Backdates the cached config's `utcDate` rather than clearing to null so
-   * consumers keep seeing the current flag values while the refresh is in flight.
-   */
-  private async invalidateConfig(userId: UserId): Promise<void> {
-    const existing = await firstValueFrom(this.userConfigFor$(userId));
-    if (existing == null) {
-      return;
-    }
-    existing.utcDate = new Date(0);
-    await this.stateProvider.setUserState(USER_SERVER_CONFIG, existing, userId);
+  async invalidateUserConfig(userId: UserId): Promise<void> {
+    // Atomic, non-mutating update: cloning through the update callback avoids read-modify-write
+    // races with `renewConfig`, and the fresh instance keeps any live subscribers from observing
+    // a mid-mutation `utcDate`.
+    await this.stateProvider.getUser(userId, USER_SERVER_CONFIG).update((existing) => {
+      if (existing == null) {
+        return existing;
+      }
+      const invalidated: ServerConfig = Object.assign(
+        Object.create(ServerConfig.prototype),
+        existing,
+      );
+      invalidated.utcDate = new Date(0);
+      return invalidated;
+    });
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {

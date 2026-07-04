@@ -1,11 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { ConfigService } from "../../abstractions/config/config.service";
 import { FetchFn, FetchMiddleware } from "../../misc/fetch-middleware";
+import { EarlyAccessService } from "../early-access/early-access.service";
 
 export function prereleaseHeaderMiddleware(
-  configService: ConfigService,
+  earlyAccessService: EarlyAccessService,
   accountService: AccountService,
 ): FetchMiddleware {
   return async (request: Request, next: FetchFn): Promise<Response> => {
@@ -13,7 +13,7 @@ export function prereleaseHeaderMiddleware(
     if (activeAccount == null) {
       return next(request);
     }
-    const enabled = await firstValueFrom(configService.earlyAccess$(activeAccount.id));
+    const enabled = await firstValueFrom(earlyAccessService.earlyAccess$(activeAccount.id));
     if (enabled) {
       request.headers.set("Is-Prerelease", "1");
     }

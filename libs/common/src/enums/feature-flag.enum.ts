@@ -230,7 +230,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
-  [FeatureFlag.EarlyAccess]: true as boolean,
+  [FeatureFlag.EarlyAccess]: FALSE,
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
