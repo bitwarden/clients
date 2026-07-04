@@ -164,6 +164,49 @@ human (non-automatic) decision for display.
   carry resolver fields; per-cipher single-active-lease (honored by union); at
   most one leasing freeze per org.
 
+## Audit log — implementation status (server-side POC in progress)
+
+The PAM **access-audit trail** is being turned from a synthesized read model into a **written record**. The
+rationale is in `pam-audit.html` beside this file. The implementation is **server-side** (bitwarden/server, branch
+`patrik/pam-audit-log`); this note lives here because that discussion doc and the governance `access-audit` UI do.
+
+**Design (decided).** State-changing PAM actions emit audit events through `IAccessAuditEventEmitter` to a
+dedicated append-only MSSQL table (`[dbo].[AccessAuditEvent]`); the governance trail is read straight from that
+store. Each action emits a **before/after** pair — an `Attempt` before its point of no return and an `Outcome`
+after (a `Phase` field) — non-transactionally, so a crash leaves an in-doubt Attempt rather than a lost event. Each
+event is **self-contained**: the actor/requester/cipher/collection/rule display names are snapshotted into the row
+at write time (resolved once in `AccessAuditEvent_Create`), so the read needs no joins and a later delete or rename
+of a referenced entity cannot erase or rewrite what an event said. MSSQL + Dapper only.
+
+**Done.**
+
+- Emit seam made real: `AccessAuditEventEmitter` persists via `IAccessAuditEventRepository.CreateAsync`.
+- New `[dbo].[AccessAuditEvent]` table + `_Create` proc + dated migrations; the read proc reads the store only.
+- Self-contained rows: display names snapshotted at write (resolved in `AccessAuditEvent_Create`); read has no
+  joins, so deletes/renames can't rewrite history.
+- `Phase { Attempt, Outcome }` on the event model.
+- All nine state-changing commands emit before/after (submit incl. auto-approval, decide, activate incl.
+  rejection, cancel, extend, revoke, rule create/update/delete).
+- Unit + integration tests.
+
+**Outstanding / deferred.**
+
+- **Time-derived events have no writer yet** — `RequestExpiredUnanswered`, `RequestExpiredUnactivated`,
+  `LeaseExpired`. They need a background sweep; until then they do not appear in the trail.
+- **Credential access** (`CredentialAccessed` / `CredentialAccessDenied`) — deferred.
+- **Kill-switch / freeze** events — deferred.
+- **Org event-log fan-out** (also write PAM events to the normal Bitwarden event log) — deferred fast-follow.
+- **EF / self-host** (Postgres/MySQL/SQLite), **MSSQL Ledger** (tamper-evidence), **retention / export** — deferred.
+- **Encrypted-name key-rotation caveat** — snapshotted cipher/collection names are EncString; a later org
+  key-rotation may leave a historical snapshot undecryptable (the event + ids still stand).
+- **Future cipher single-blob (must-not-forget)** — when cipher data moves to one opaque encrypted blob (no
+  server-queryable `$.Name`), the `JSON_VALUE([Cipher].[Data], '$.Name')` snapshot in `AccessAuditEvent_Create` will
+  stop resolving a cipher name; revisit then (e.g. store `CipherId` only and resolve client-side, or have the client
+  supply the encrypted name at emit time).
+- **UI: `Phase` handling** — the read returns both phases; the `access-audit` view still needs to decide whether to
+  show Outcomes only, surfacing an unmatched Attempt as an in-doubt entry.
+- **No backfill** — the stored trail begins at deployment; pre-existing history is not migrated.
+
 ## Tests
 
 `npm test -- bit-pam` (or `npx jest bitwarden_license/bit-pam`). Built as part of

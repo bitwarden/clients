@@ -51,9 +51,9 @@ external entity Collection {
     -- The access rule that gates PAM leasing for this collection, or null when leasing
     -- is disabled for it. The rule↔collection link lives HERE, on the collection, as a
     -- single reference — which is what structurally limits a collection to at most one
-    -- governing rule (there is no set to hold a second). A soft-deleted rule's link is
-    -- preserved (so rule_deleted stays scopable) until the collection is reassigned to a
-    -- new rule.
+    -- governing rule (there is no set to hold a second). Deleting a rule clears this
+    -- link (a hard delete), leaving the collection ungoverned until it is reassigned to
+    -- a new rule.
     access_rule: AccessRule?
 }
 
@@ -171,13 +171,6 @@ entity AccessRule {
     revision_date: Timestamp
     last_edited_by: User?
 
-    -- Soft-delete stamp. A deleted rule keeps its collection links (so the audit
-    -- trail can still scope rule_deleted through them) but no longer governs
-    -- access once deleted_at is set — every gating / admin read excludes it.
-    -- deleted = deleted_at set; deleted_by is the deleting admin.
-    deleted_at: Timestamp?
-    deleted_by: User?
-
     -- Projections
     has_human_approval: conditions.any(c => c.kind = HumanApproval)
     has_ip_allowlist: conditions.any(c => c.kind = IpAllowlist)
@@ -247,9 +240,6 @@ entity AccessRequest {
     -- approved request was never activated in time. Distinct from resolved_at,
     -- which (for an expired-while-approved request) keeps the approval time.
     expired_at: Timestamp? when status = expired
-    -- Refused-activation timestamp, last-only; the request stays approved and
-    -- re-activatable.
-    rejected_at: Timestamp?
     -- The approver, or null for a system / access-rule auto-decision. Persists
     -- once set — through activation and unactivated expiry — for the audit trail.
     approver: User? when status != pending
@@ -376,7 +366,7 @@ rule CipherOpenWithActiveLease {
     let member_memberships = CollectionMembership where member = caller
                                                     and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and deleted_at = null
+        (AccessRule where enabled
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
@@ -398,15 +388,15 @@ rule CipherOpenRequiresAccessRequest {
     let member_memberships = CollectionMembership where member = caller
                                                     and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and deleted_at = null
+        (AccessRule where enabled
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
     -- The rule governing the member's access: the oldest (earliest creation_date)
-    -- enabled, non-deleted rule among the member's gated paths to the cipher. A
+    -- enabled rule among the member's gated paths to the cipher. A
     -- deterministic choice, pinned on the AccessRequest at submit. See oldest_rule.
     let member_collections = member_memberships -> collection
-    let governing_candidates = AccessRule where enabled and deleted_at = null
+    let governing_candidates = AccessRule where enabled
                                             and collections.any(c => c in member_collections)
     -- oldest_rule breaks creation_date ties stably on rule id; the ordering itself
     -- is asserted structurally below so creation_date drives resolution.
@@ -444,7 +434,7 @@ rule CipherOpenWithApprovedRequest {
     let member_memberships = CollectionMembership where member = caller
                                                     and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and deleted_at = null
+        (AccessRule where enabled
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count > 0
     requires: not has_ungated_path
@@ -491,7 +481,7 @@ rule CipherOpenPassthrough {
     let member_memberships = CollectionMembership where member = caller
                                                     and collection in target_cipher.collections
     let has_ungated_path = member_memberships.any(mm =>
-        (AccessRule where enabled and deleted_at = null
+        (AccessRule where enabled
                        and mm.collection in collections).count = 0)
     requires: member_memberships.count = 0 or has_ungated_path
     ensures: CipherOpened(caller, target_cipher, null)
@@ -521,12 +511,12 @@ rule MemberSubmitsAccessRequest {
     requires: memberships.count > 0
     -- Governing-rule resolution, computed once here and PINNED on the created
     -- AccessRequest.rule below (its RuleId stored at creation). The candidate set is
-    -- the enabled, non-deleted rules on the collections through which the member
+    -- the enabled rules on the collections through which the member
     -- reaches the cipher; the oldest (earliest creation_date) governs. The requires
     -- clause asserts no candidate is older, so creation_date drives the choice
     -- structurally; oldest_rule additionally breaks ties stably on rule id.
     let member_collections = memberships -> collection
-    let governing_candidates = AccessRule where enabled and deleted_at = null
+    let governing_candidates = AccessRule where enabled
                                             and collections.any(c => c in member_collections)
     let gating_rule = oldest_rule(governing_candidates)
     requires: gating_rule != null
@@ -849,10 +839,9 @@ rule LeaseActivationRejected {
         or now > request.actionable_until
         or now < request.lease_not_before
     requires: cannot_start
-    -- Stamp the refusal so the audit log can synthesize lease_activation_rejected.
-    -- Last-write-wins: only the most recent refusal is retained. The request stays
-    -- approved and re-activatable; this does not transition status.
-    ensures: request.rejected_at = now
+    -- The audit log emits a lease_activation_rejected event at this moment (via the
+    -- outcome below); each refusal is written as its own audit event. The request
+    -- stays approved and re-activatable; this does not transition status.
     ensures: LeaseActivationAudited(request: request, outcome: rejected)
 }
 
@@ -971,11 +960,10 @@ rule OrgAdminCreatesAccessRule {
                             single_active_lease, enabled)
     requires: name.length > 0 and name.length <= 256
     requires: collections.all(c => c.organization = organization)
-    -- Each target collection must be free to govern: unlinked, or linked only to a
-    -- soft-deleted rule (a preserved audit link, reassignable). A collection already
-    -- governed by a live rule is rejected rather than silently stolen from it.
-    requires: collections.all(c => c.access_rule = null
-                                    or c.access_rule.deleted_at != null)
+    -- Each target collection must be free to govern: unlinked (a hard delete clears
+    -- the links of the rule it removes). A collection already governed by a live rule
+    -- is rejected rather than silently stolen from it.
+    requires: collections.all(c => c.access_rule = null)
     ensures:
         let created = AccessRule.created(
             organization: organization,
@@ -1003,8 +991,7 @@ rule OrgAdminUpdatesAccessRule {
     -- Same free-to-govern check as create, but a collection already linked to THIS rule
     -- is fine (it is being kept, not stolen).
     requires: collections.all(c => c.access_rule = null
-                                    or c.access_rule = rule
-                                    or c.access_rule.deleted_at != null)
+                                    or c.access_rule = rule)
     -- Collections this rule governs today that are no longer wanted; their link is cleared.
     let removed = rule.collections - collections
     ensures: rule.name = name
@@ -1027,21 +1014,18 @@ rule OrgAdminUpdatesAccessRule {
 
 rule OrgAdminDeletesAccessRule {
     when: DeleteAccessRule(admin, rule)
-    -- Soft delete: stamp deleted_at / deleted_by rather than removing the row, so
-    -- the audit trail can still synthesize rule_deleted (the collection links are
-    -- preserved). A deleted rule no longer governs — every gating / admin read
-    -- excludes deleted_at != null (see CipherOpen* gating, oldest_rule, and the
-    -- AccessRulesAdminPage list). Idempotent: deleting an already-deleted rule is a
-    -- no-op (the guard keeps the first deleter and time). revision_date is left
-    -- untouched so the delete does not read as an edit.
+    -- Hard delete: clear the rule's collection links first (each governed
+    -- collection survives, now ungoverned), then remove the rule. A deleted rule is
+    -- simply gone — no gating / admin read can find it, so none needs to filter it
+    -- out. The name lookup for the rule_deleted audit event is supplied by the
+    -- delete command (captured before the delete), so the row need not survive.
     --
     -- Deletion does not affect leases already granted under this rule; they live
     -- out their windows. New opens against this rule's collections fall through to
-    -- the gating check, which now skips the deleted rule and either passes through
+    -- the gating check, which no longer finds this rule and either passes through
     -- (if no other rule attaches) or hits a different rule.
-    requires: rule.deleted_at = null
-    ensures: rule.deleted_at = now
-    ensures: rule.deleted_by = admin
+    ensures: rule.collections = {}
+    ensures: not exists rule
 }
 
 -- ----------------------------------------------------------------------------
@@ -1079,7 +1063,7 @@ deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 -- `oldest_rule(candidates)`: selection primitive for governing-rule resolution.
 -- Picks the AccessRule with the earliest creation_date from a candidate set,
 -- breaking ties on rule id (lowest id wins) so the choice is total and stable.
--- Returns null for an empty set. The candidate set (enabled, non-deleted rules on
+-- Returns null for an empty set. The candidate set (enabled rules on
 -- the collections through which the member reaches the cipher) and the oldest-wins
 -- property are computed STRUCTURALLY at the call sites — CipherOpenRequiresAccessRequest
 -- and MemberSubmitsAccessRequest — where a requires clause asserts no candidate is
@@ -1228,7 +1212,7 @@ surface RequestAccessModal {
     -- submit could change the pinned rule.
     let member_collections = (CollectionMembership where member = requester
                                                      and collection in target_cipher.collections) -> collection
-    let governing_candidates = AccessRule where enabled and deleted_at = null
+    let governing_candidates = AccessRule where enabled
                                             and collections.any(c => c in member_collections)
     let gating_rule = oldest_rule(governing_candidates)
 
@@ -1394,10 +1378,7 @@ surface AccessRulesAdminPage {
     context org: Organization
 
     exposes:
-        -- Deleted rules (deleted_at != null) are excluded — a soft-deleted rule no
-        -- longer appears in the admin list (it survives only for the audit trail).
-        for rule in AccessRule where organization = org
-                                  and deleted_at = null:
+        for rule in AccessRule where organization = org:
             rule.name
             rule.description
             rule.conditions
@@ -1433,10 +1414,8 @@ surface GovernanceDashboard {
     context org: Organization
 
     exposes:
-        -- Strip totals. Deleted rules (deleted_at != null) are excluded — a
-        -- soft-deleted rule no longer governs and drops from the dashboard.
+        -- Strip totals.
         AccessRule where organization = org
-                     and deleted_at = null
                      and collections.count > 0
         AccessRequest where rule.organization = org and status = pending
         -- All active leases in scope, surfaced by GET /leases/active.
@@ -1451,7 +1430,7 @@ surface GovernanceDashboard {
         -- Per-collection rows.
         for col in Collection where organization = org:
             col.name
-            AccessRule where deleted_at = null and collections.contains(col)
+            AccessRule where collections.contains(col)
             CollectionMembership where collection = col
             AccessRequest where collection = col and status = pending
             AccessLease where collection = col and status = active
@@ -1573,8 +1552,8 @@ invariant OrgUniqueRuleNames {
     -- (create and update reject a duplicate, compared case-insensitively — the spec
     -- has no case-fold primitive, so this expresses the distinctness only). Names are
     -- otherwise bounded to 1..256 characters (see OrgAdminCreatesAccessRule).
-    for a in AccessRule where deleted_at = null:
-        for b in AccessRule where deleted_at = null:
+    for a in AccessRule:
+        for b in AccessRule:
             a != b and a.organization = b.organization implies a.name != b.name
 }
 
@@ -1582,7 +1561,9 @@ invariant OrgUniqueRuleNames {
 -- Open questions
 -- ----------------------------------------------------------------------------
 
-open question "When an AccessRule is soft-deleted (deleted_at set) while an associated AccessLease is still active, what happens to in-flight extension requests? The AccessLease keeps a reference to the now-deleted rule (the row is retained, so the reference still resolves), and the lease lives out its window — but an extension routes back through a rule that no longer governs. Does an extension against a deleted rule deny, or honour the original grant?"
+open question "When an AccessRule is hard-deleted while an associated AccessLease is still active, what happens to in-flight extension requests? The lease lives out its window, but its rule reference now points to a removed rule — and an extension routes back through that rule (MemberRequestsLeaseExtension copies lease.rule onto the new request). Does an extension against a deleted rule deny, or honour the original grant? And what resolves lease.rule once the row is gone?"
+
+open question "AccessRequest.rule is pinned as an FK to AccessRule (RuleId), yet a rule is hard-deleted and the delete clears only the collection links, not the request pins — so deleting a rule that still has pinned requests fails on the AccessRequest→AccessRule foreign key (ON DELETE NO ACTION). Known issue, deferred: should the delete null the pins first (requests survive ungoverned, and the audit already snapshots the rule name), or should deleting a rule that has request history be blocked?"
 
 open question "ApproverScope.specific names individual users. What happens if one of those users leaves the organization while a pending request is awaiting their approval — does the request fall back to collection_managers, or remain stuck?"
 

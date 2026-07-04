@@ -15587,6 +15587,12 @@
   "pamAuditSystem": {
     "message": "System"
   },
+  "pamAuditIncomplete": {
+    "message": "Incomplete"
+  },
+  "pamAuditIncompleteTooltip": {
+    "message": "This action was recorded but its outcome was never confirmed — it may have failed or been interrupted."
+  },
   "pamAuditKindRequestSubmitted": {
     "message": "Access requested"
   },

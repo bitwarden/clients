@@ -114,9 +114,10 @@ export abstract class PamApiService {
    */
   abstract listManagedLeaseHistory(): Promise<AccessLeaseResponse[]>;
   /**
-   * Governance read: the synthesized, org-wide access-audit trail for an organization, within the shared history
-   * window, newest first. Authorized by the AccessEventLogs permission (not collection management). Projected from
-   * existing PAM state — there is no audit record, so the trail reaches only as far back as the source rows live.
+   * Governance read: the org-wide access-audit trail for an organization, within the shared history window, newest
+   * first. Authorized by the AccessEventLogs permission (not collection management). Read from the dedicated
+   * append-only audit store, where each event was written self-contained at the moment it happened; the stored trail
+   * begins at deployment (history from before the store existed is not backfilled).
    */
   abstract listAccessAuditTrail(organizationId: string): Promise<AccessAuditEventResponse[]>;
 
