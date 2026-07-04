@@ -14,6 +14,8 @@ import {
   ipcRegisterDiscoverHandler,
   IpcClient,
   ipcRequestDiscover,
+  Endpoint,
+  Reachability,
 } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
@@ -27,6 +29,10 @@ export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private nativeMessagingPort?: browser.runtime.Port | chrome.runtime.Port;
   private reconnectTimer?: ReturnType<typeof setTimeout>;
+  // Whether the desktop app has answered the discover handshake. The native-messaging port being
+  // open is not enough: it connects to the desktop_proxy helper even when the app itself is not
+  // running, so reachability for the desktop is keyed on a confirmed handshake instead.
+  private desktopConnected = false;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -96,6 +102,16 @@ export class IpcBackgroundService extends IpcService {
           }
 
           throw new Error("Destination not supported.");
+        },
+        reachability: async (endpoint: Endpoint): Promise<Reachability> => {
+          // The desktop is the extension's only native-messaging leader; report it reachable only
+          // once the discover handshake has confirmed the app is actually running.
+          if (endpoint === "DesktopMain" || endpoint === "DesktopRenderer") {
+            return this.desktopConnected ? "Reachable" : "Unreachable";
+          }
+          // Web tabs are reached via a content script that may or may not be present; the extension
+          // cannot tell synchronously, so report reachability unsupported (falls back to ping/pong).
+          return "Unsupported";
         },
       });
 
@@ -176,8 +192,10 @@ export class IpcBackgroundService extends IpcService {
       // Register the disconnect handler before awaiting the discover handshake so that a
       // disconnect during the handshake window (e.g. the desktop app closing) is still handled.
       port.onDisconnect.addListener(() => {
-        this.logService.warning("[IPC] Disconnected from Bitwarden Desktop App");
+        this.logService.info("[IPC] Disconnected from Bitwarden Desktop App");
         this.nativeMessagingPort = undefined;
+        // Mark the desktop unreachable immediately so reachability gating reflects the loss.
+        this.desktopConnected = false;
         this.scheduleReconnect();
       });
 
@@ -187,11 +205,16 @@ export class IpcBackgroundService extends IpcService {
         "DesktopRenderer",
         AbortSignal.timeout(DISCOVER_MESSAGE_TIMEOUT_MS),
       );
+      // A confirmed handshake is what makes the desktop reachable for gating purposes.
+      this.desktopConnected = true;
       this.logService.info(
         `[IPC] Connected to Bitwarden Desktop App with version ${version.version}`,
       );
     } catch (e) {
-      this.logService.error("[IPC] Failed to connect to Bitwarden Desktop App", e);
+      // A failed connection attempt is expected while the desktop app is not running, so it is
+      // logged at info rather than error to avoid spamming the console every reconnect interval.
+      this.logService.info("[IPC] Could not connect to Bitwarden Desktop App", e);
+      this.desktopConnected = false;
       // Explicitly disconnect the port to avoid leaking the native port and its spawned
       // desktop_proxy process when the handshake fails (e.g. the desktop app is unreachable).
       port?.disconnect();
