@@ -181,7 +181,14 @@ export class AutoFillConstants {
     "logon",
   ] as const;
 
-  static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
+  static readonly FieldIgnoreList: string[] = [
+    "captcha",
+    "findanything",
+    "forgot",
+    // Used by ASPEED H5Viewer KVM/BMC consoles to capture keyboard input; autofill
+    // binding to it breaks remote console input. The element id is "kvm_textbox".
+    "kvmtextbox",
+  ];
 
   static readonly PasswordFieldExcludeList: string[] = [
     "hint",

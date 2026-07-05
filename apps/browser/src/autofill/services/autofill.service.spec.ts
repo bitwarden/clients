@@ -4704,6 +4704,16 @@ describe("AutofillService", () => {
 
         expect(result).toStrictEqual([]);
       });
+
+      it("returns an empty array for an ASPEED H5Viewer KVM console text capture field", () => {
+        passwordField.htmlID = "kvm_textbox";
+        passwordField.htmlName = "password";
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
     });
 
     describe("given a field that is not viewable", () => {
