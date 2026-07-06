@@ -17,6 +17,7 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
+import { version } from "os";
 
 // The interval at which the browser extension in the background tries to reconnect to the desktop app.
 const RECONNECTION_INTERVAL_MS = 10_000;
@@ -181,15 +182,19 @@ export class IpcBackgroundService extends IpcService {
         this.scheduleReconnect();
       });
 
-      // Ensure the desktop app is properly connected
-      const version = await ipcRequestDiscover(
-        this.client,
-        "DesktopRenderer",
-        AbortSignal.timeout(DISCOVER_MESSAGE_TIMEOUT_MS),
-      );
-      this.logService.info(
-        `[IPC] Connected to Bitwarden Desktop App with version ${version.version}`,
-      );
+      try {
+        // Ensure the desktop app is properly connected
+        const version = await ipcRequestDiscover(
+          this.client,
+          "DesktopRenderer",
+          AbortSignal.timeout(DISCOVER_MESSAGE_TIMEOUT_MS),
+        );
+        this.logService.info(
+          `[IPC] Connected to Bitwarden Desktop App with version ${version.version}`,
+        );
+      } catch (e) {
+        this.logService.error("[IPC] Failed to handshake with Bitwarden Desktop App", e);
+      }
     } catch (e) {
       this.logService.error("[IPC] Failed to connect to Bitwarden Desktop App", e);
       // Explicitly disconnect the port to avoid leaking the native port and its spawned
