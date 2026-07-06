@@ -66,9 +66,14 @@ export class WebAuthnPermissionsPolicyBackground {
   private async getAllFrames(
     tabId: number,
   ): Promise<chrome.webNavigation.GetAllFrameResultDetails[] | null> {
+    // Use the callback form so this works cross-browser. On Firefox, `chrome.*`
+    // WebExtension APIs are callback-only — `await`ing the no-callback form
+    // resolves to `undefined`. Chrome supports both. This mirrors
+    // `BrowserApi.getAllFrameDetails`.
     try {
-      const result = await this.webNavigation.getAllFrames({ tabId });
-      return result ?? null;
+      return await new Promise<chrome.webNavigation.GetAllFrameResultDetails[] | null>((resolve) =>
+        this.webNavigation.getAllFrames({ tabId }, (details) => resolve(details ?? null)),
+      );
     } catch {
       return null;
     }

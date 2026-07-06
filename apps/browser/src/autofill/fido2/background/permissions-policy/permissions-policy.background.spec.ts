@@ -16,7 +16,12 @@ function createChromes() {
   const webRequestOnHeadersReceived = createMockEvent();
   const tabsOnRemoved = createMockEvent();
   const runtimeOnMessage = createMockEvent();
-  const webNavigationGetAllFrames = jest.fn(async () => null as unknown);
+  // Matches the callback-style signature that our getAllFrames wrapper calls.
+  // Default: invoke the callback with `null`, which our wrapper coerces to a
+  // fail-open "no frame tree available" result.
+  const webNavigationGetAllFrames = jest.fn(
+    (_details: unknown, callback: (result: unknown) => void) => callback(null),
+  );
 
   const chromeWebRequest = {
     onHeadersReceived: webRequestOnHeadersReceived,
@@ -205,10 +210,13 @@ describe("PermissionsPolicyBackground", () => {
       const send = chromes.events.runtimeOnMessage.addListener.mock.calls[0][0] as MessageListener;
 
       // No iframes reported → cross-origin iframe denied via container default.
-      chromes.webNavigationGetAllFrames.mockResolvedValueOnce([
-        { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
-        { frameId: 5, parentFrameId: 0, url: "https://child.example/", errorOccurred: false },
-      ] as unknown[]);
+      chromes.webNavigationGetAllFrames.mockImplementationOnce(
+        (_details: unknown, callback: (result: unknown) => void) =>
+          callback([
+            { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
+            { frameId: 5, parentFrameId: 0, url: "https://child.example/", errorOccurred: false },
+          ]),
+      );
       await expect(
         orchestrator.isFeatureAllowedForFrame(1, 5, "publickey-credentials-get"),
       ).resolves.toBe(false);
@@ -228,10 +236,13 @@ describe("PermissionsPolicyBackground", () => {
         senderWith(1, 0),
       );
 
-      chromes.webNavigationGetAllFrames.mockResolvedValueOnce([
-        { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
-        { frameId: 5, parentFrameId: 0, url: "https://child.example/", errorOccurred: false },
-      ] as unknown[]);
+      chromes.webNavigationGetAllFrames.mockImplementationOnce(
+        (_details: unknown, callback: (result: unknown) => void) =>
+          callback([
+            { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
+            { frameId: 5, parentFrameId: 0, url: "https://child.example/", errorOccurred: false },
+          ]),
+      );
       await expect(
         orchestrator.isFeatureAllowedForFrame(1, 5, "publickey-credentials-get"),
       ).resolves.toBe(true);
@@ -241,9 +252,12 @@ describe("PermissionsPolicyBackground", () => {
   describe("isFeatureAllowedForFrame", () => {
     it("returns true for top-level frames when no header is cached (no-op parser)", async () => {
       const chromes = createChromes();
-      chromes.webNavigationGetAllFrames.mockResolvedValueOnce([
-        { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
-      ] as unknown[]);
+      chromes.webNavigationGetAllFrames.mockImplementationOnce(
+        (_details: unknown, callback: (result: unknown) => void) =>
+          callback([
+            { frameId: 0, parentFrameId: -1, url: "https://parent.example/", errorOccurred: false },
+          ]),
+      );
       const orchestrator = new PermissionsPolicyBackground(
         chromes.chromeWebRequest,
         chromes.chromeTabs,

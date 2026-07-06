@@ -57,12 +57,17 @@ function makeIframeAllowCache(initial: Record<string, string> = {}) {
 
 function makeWebNavigation(frames: FrameDetail[] | null | Error) {
   return {
-    getAllFrames: jest.fn(async () => {
-      if (frames instanceof Error) {
-        throw frames;
-      }
-      return frames;
-    }),
+    getAllFrames: jest.fn(
+      (
+        _details: chrome.webNavigation.GetFrameDetails,
+        callback: (result?: FrameDetail[]) => void,
+      ) => {
+        if (frames instanceof Error) {
+          throw frames;
+        }
+        callback(frames ?? undefined);
+      },
+    ),
   } as unknown as typeof chrome.webNavigation;
 }
 
