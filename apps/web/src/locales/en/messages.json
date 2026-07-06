@@ -1797,6 +1797,9 @@
   "deletedItems": {
     "message": "Items sent to trash"
   },
+  "movedItem": {
+    "message": "Item moved"
+  },
   "movedItems": {
     "message": "Items moved"
   },
@@ -11272,8 +11275,14 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "editedCollections": {
     "message": "Edited collections"
+  },
+  "collectionEdited": {
+    "message": "Collection edited"
   },
   "editedCollection": {
     "message": "Edited collection"
@@ -11662,6 +11671,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -13489,6 +13510,10 @@
         "example": "5"
       }
     }
+  },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsSingular": {
     "message": "Archive $NUM$ item",

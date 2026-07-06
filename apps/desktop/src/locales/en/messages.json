@@ -2592,6 +2592,9 @@
   "collectionsDeleted": {
     "message": "Collections deleted"
   },
+  "movedItem": {
+    "message": "Item moved"
+  },
   "movedItems": {
     "message": "Items moved"
   },
@@ -4860,6 +4863,18 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
+  },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
   },
@@ -5019,15 +5034,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archive $NUM$ item",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "Once archived, these items will be excluded from search results and autofill suggestions."

@@ -149,7 +149,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       ? this.i18nService.t(
           this.params.collections.length === 1 ? "collectionEdited" : "collectionsEdited",
         )
-      : this.i18nService.t("editedCollections");
+      : this.i18nService.t("collectionsEdited");
 
     this.toastService.showToast({
       variant: "success",
