@@ -201,7 +201,7 @@ jobs:
 
 
   build:
-    name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }}
+    name: Build ${{ matrix.browser.name }} - ${{ matrix.license_type.readable }}${{ matrix.release_type.readable }}
     runs-on: ubuntu-22.04
     needs:
       - setup
@@ -218,7 +218,7 @@ jobs:
             source_archive_name_prefix: ""
             archive_name_prefix: ""
             npm_command_prefix: "dist:"
-            npm_package_dev_prefix: "package:dev:"
+            npm_package_dev_prefix_stub: "package:"
             readable: "open source license"
             type: "oss"
           - build_prefix: "bit-"
@@ -226,32 +226,43 @@ jobs:
             source_archive_name_prefix: "bit-"
             archive_name_prefix: "bit-"
             npm_command_prefix: "dist:bit:"
-            npm_package_dev_prefix: "package:bit:dev:"
+            npm_package_dev_prefix_stub: "package:bit:"
             readable: "commercial license"
             type: "commercial"
+        release_type:
+          - dist_infix: ""
+            dev_infix: ""
+            suffix: ""
+            readable: ""
+            type: "prod"
+          - dist_infix: "qa:"
+            dev_infix: "qa:"
+            suffix: "-QA"
+            readable: " - QA"
+            type: "qa"
         browser:
           - name: "chrome"
             npm_command_suffix: "chrome"
-            archive_name: "dist-chrome.zip"
-            artifact_name: "dist-chrome-MV3"
-            artifact_name_dev: "dev-chrome-MV3"
-            archive_name_dev: "dev-chrome.zip"
+            archive_stub: "dist-chrome"
+            artifact_stub: "dist-chrome-MV3"
+            artifact_stub_dev: "dev-chrome-MV3"
+            archive_stub_dev: "dev-chrome"
           - name: "edge"
             npm_command_suffix: "edge"
-            archive_name: "dist-edge.zip"
-            artifact_name: "dist-edge-MV3"
+            archive_stub: "dist-edge"
+            artifact_stub: "dist-edge-MV3"
           - name: "firefox"
             npm_command_suffix: "firefox"
-            archive_name: "dist-firefox.zip"
-            artifact_name: "dist-firefox"
+            archive_stub: "dist-firefox"
+            artifact_stub: "dist-firefox"
           - name: "firefox-mv3"
             npm_command_suffix: "firefox:mv3"
-            archive_name: "dist-firefox.zip"
-            artifact_name: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
+            archive_stub: "dist-firefox"
+            artifact_stub: "DO-NOT-USE-FOR-PROD-dist-firefox-MV3"
           - name: "opera-mv3"
             npm_command_suffix: "opera:mv3"
-            archive_name: "dist-opera.zip"
-            artifact_name: "dist-opera-MV3"
+            archive_stub: "dist-opera"
+            artifact_stub: "dist-opera-MV3"
     steps:
       - name: Check out repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -350,87 +361,28 @@ jobs:
           fi
 
       - name: Build extension
-        run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
+        run: npm run ${{ matrix.license_type.npm_command_prefix }}${{ matrix.release_type.dist_infix }}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_stub }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_stub }}${{ matrix.release_type.suffix }}.zip
           if-no-files-found: error
 
       - name: Package dev extension
-        if: ${{ matrix.browser.archive_name_dev != '' }}
-        run: npm run ${{ matrix.license_type.npm_package_dev_prefix }}${{ matrix.browser.npm_command_suffix }}
+        if: ${{ matrix.browser.archive_stub_dev != '' }}
+        run: npm run ${{ matrix.license_type.npm_package_dev_prefix_stub }}${{ matrix.release_type.dev_infix }}dev:${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload dev extension artifact
-        if: ${{ matrix.browser.archive_name_dev != '' }}
+        if: ${{ matrix.browser.archive_stub_dev != '' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
+          name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_stub_dev }}${{ matrix.release_type.suffix }}-${{ env._BUILD_NUMBER }}.zip
+          path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_stub_dev }}${{ matrix.release_type.suffix }}.zip
           if-no-files-found: error
-
-
-  # Standalone job (not part of the build matrix): builds the dev-signed, QA-region Chrome
-  # extension for QA side-loading. Consumes the commercial build-source relay (the same sanitized
-  # source snapshot the production commercial build uses) for consistency with the other build jobs.
-  build-qa:
-    name: Build QA dev extension - chrome - commercial license
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-      - locales-test
-      - build-source
-    env:
-      _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-
-      - name: Download browser source
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: bit-browser-source-${{ env._BUILD_NUMBER }}.zip
-
-      - name: Unzip browser source artifact
-        run: |
-          unzip browser-source.zip
-          rm browser-source.zip
-
-      - name: NPM setup
-        run: npm ci
-        working-directory: browser-source/
-
-      - name: Build and package QA dev extension
-        run: npm run package:bit:qa:dev:chrome
-        working-directory: browser-source/apps/browser
-
-      - name: Upload QA dev extension artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: bit-dev-chrome-MV3-QA-${{ env._BUILD_NUMBER }}.zip
-          path: browser-source/apps/browser/dist/bit-dev-chrome-QA.zip
-          if-no-files-found: error
-
 
   build-safari:
     name: Build Safari - ${{ matrix.license_type.readable }}
