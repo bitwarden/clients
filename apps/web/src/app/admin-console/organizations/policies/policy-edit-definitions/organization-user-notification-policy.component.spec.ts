@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -11,6 +12,7 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -46,7 +48,7 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
   let component: OrganizationUserNotificationPolicyComponent;
   let fixture: ComponentFixture<OrganizationUserNotificationPolicyComponent>;
   let mockPolicyService: MockProxy<PolicyService>;
-  let mockAccountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
 
   function createComponent() {
     fixture = TestBed.createComponent(OrganizationUserNotificationPolicyComponent);
@@ -55,17 +57,19 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
 
   beforeEach(async () => {
     mockPolicyService = mock<PolicyService>();
-    mockAccountService = mock<AccountService>();
+    accountService = mockAccountServiceWith(USER_ID);
 
-    mockAccountService.activeAccount$ = of({ id: USER_ID } as any);
+    const mockOrganizationService = mock<OrganizationService>();
     mockPolicyService.policies$.mockReturnValue(of([]));
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
         { provide: I18nService, useValue: { t: jest.fn().mockReturnValue("") } },
+        { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: PolicyService, useValue: mockPolicyService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],

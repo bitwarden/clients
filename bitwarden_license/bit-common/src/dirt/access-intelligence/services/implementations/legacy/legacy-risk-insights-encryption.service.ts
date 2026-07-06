@@ -215,7 +215,12 @@ export class LegacyRiskInsightsEncryptionService {
         this.logService.warning(
           "[LegacyRiskInsightsEncryptionService] V2 report detected in V1 path, running downgrade transform",
         );
-        const payload = validateAccessReportPayload(parsedData.data);
+        const { data: payload, errors } = validateAccessReportPayload(parsedData.data);
+        if (errors.length > 0) {
+          this.logService.warning(
+            `[LegacyRiskInsightsEncryptionService] Dropped ${errors.length} invalid report payload ${errors.length === 1 ? "entry" : "entries"}:\n${errors.join("\n")}`,
+          );
+        }
         return this._convertV2ReportToV1(payload.reports, payload.memberRegistry);
       }
 

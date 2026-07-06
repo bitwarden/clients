@@ -1,4 +1,3 @@
-import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -12,9 +11,10 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, firstValueFrom, switchMap, filter, combineLatest, of, startWith } from "rxjs";
+import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -63,6 +63,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
   private readonly discardGuardEnabled = signal(false);
+  /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
+  private readonly guardArmed = signal(false);
+  private readonly useDrawer = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.PolicyDrawers),
+    { initialValue: false },
+  );
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -87,7 +93,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     protected readonly toastService: ToastService,
     protected readonly keyService: KeyService,
     protected readonly dialogService: DialogService,
-    protected readonly cdkDialogRef: CdkDialogRef,
     protected readonly configService: ConfigService,
     private readonly authService: AuthService,
   ) {}
@@ -114,72 +119,62 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   };
 
   /**
-   * Sets up the discard-edits guard based on whether the dialog is a modal or a drawer.
-   *
-   * For modals: disables the default ESC/backdrop close and subscribes to backdrop clicks manually
-   * so they go through the `cancel()` dirty check.
-   *
-   * For drawers: installs a `closePredicate` on the dialog ref so that any close path — including
-   * the X button, policy switching, and the `canDeactivate` navigation guard — shows the
-   * confirmation dialog before proceeding.
-   *
+   * Installs the discard-edits guard.
+   * - `beforeunload` fires for both modals and drawers (browser refresh / tab close).
+   * - `closePredicate` fires for drawers only (clicking the drawer's close button).
    * Call this once the child policy component has been initialised.
    */
-  protected async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled.set(
-      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
-    );
-    if (!this.discardGuardEnabled()) {
+  protected setupDiscardGuard(): void {
+    this.guardArmed.set(true);
+
+    // Guard against browser refresh / tab close while edits are pending.
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (this.guardArmed() && this.isFormDirty()) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    this.destroyRef.onDestroy(() => window.removeEventListener("beforeunload", onBeforeUnload));
+
+    // When the vault is locked or the user is logged out, disarm both guards so neither
+    // closePredicate nor beforeunload prompts during the subsequent router teardown.
+    // If the active account becomes null (switchAccount(null) during logout), treat that
+    // as a non-Unlocked state and disarm as well.
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap((account) => {
+          if (account?.id == null) {
+            return of(null); // no active account — disarm immediately
+          }
+          return this.authService
+            .authStatusFor$(account.id)
+            .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.guardArmed.set(false);
+        this.discardGuardEnabled.set(false);
+        this.dialogRef.closePredicate = undefined;
+      });
+
+    // For modals, only the beforeunload guard is needed — closePredicate is drawer-only.
+    if (!this.useDrawer() || !this.dialogRef.isDrawer) {
       return;
     }
 
-    if (!this.dialogRef.isDrawer) {
-      this.dialogRef.disableClose = true;
-      this.cdkDialogRef.backdropClick
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => void this.cancel());
-      this.cdkDialogRef.keydownEvents
-        .pipe(
-          filter((e: KeyboardEvent) => e.key === "Escape"),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe(() => void this.cancel());
-    } else {
-      this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
-        // A truthy result means an intentional close (e.g. after a successful save) — always allow.
-        if (result || !this.isFormDirty()) {
-          return true;
-        }
-        const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
-        if (confirmed) {
-          // Disarm the guard so closePredicate won't prompt again when close() is called
-          // after this predicate resolves true.
-          this.discardGuardEnabled.set(false);
-        }
-        return confirmed;
-      };
-
-      // When the vault is locked or the user is logged out, disarm the guard so the
-      // closePredicate won't show the discard dialog during the subsequent router teardown.
-      // If the active account becomes null (switchAccount(null) during logout), treat that
-      // as a non-Unlocked state and disarm as well.
-      this.accountService.activeAccount$
-        .pipe(
-          switchMap((account) => {
-            if (account?.id == null) {
-              return of(null); // no active account — disarm immediately
-            }
-            return this.authService
-              .authStatusFor$(account.id)
-              .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
-          }),
-          takeUntilDestroyed(this.destroyRef),
-        )
-        .subscribe(() => {
-          this.discardGuardEnabled.set(false);
-          this.dialogRef.closePredicate = undefined;
-        });
-    }
+    this.discardGuardEnabled.set(true);
+    this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
+      // A truthy result means an intentional close (e.g. after a successful save) — always allow.
+      if (result || !this.isFormDirty()) {
+        return true;
+      }
+      const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      if (confirmed) {
+        this.discardGuardEnabled.set(false);
+      }
+      return confirmed;
+    };
   }
 
   protected readonly cancel = async () => {
@@ -195,6 +190,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
+  /**
+   * Returns the policy form component to load into the dialog.
+   * Subclasses can override this to load a different component (e.g. the drawer variant).
+   */
+  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
+    return this.data.policy.component;
+  }
+
   async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.policyEnabled.set(policyResponse.enabled);
@@ -205,11 +208,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
     const component = componentRef.instance;
     this.policyComponent.set(component);
+    this.policyEnabled.set(policyResponse.enabled);
 
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
@@ -235,7 +239,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       .subscribe((disabled) => this._saveDisabled.set(disabled));
 
     this.cdr.detectChanges();
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {

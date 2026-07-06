@@ -46,7 +46,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     dialogRef = mock<DialogRef<PolicyEditDialogResult>>();
     policyComponent = mock<BasePolicyEditComponent>();
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
