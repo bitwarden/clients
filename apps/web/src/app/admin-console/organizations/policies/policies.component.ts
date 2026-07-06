@@ -199,7 +199,15 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
-        await lastValueFrom(ref.closed);
+        try {
+          await lastValueFrom(ref.closed);
+        } finally {
+          // Once closed, this ref is permanently spent (DrawerRef.close() short-circuits to
+          // `{ closed: false }` on a ref that's already closed). Clear it so canDeactivate()
+          // doesn't try to re-close a stale ref and incorrectly block navigation away from
+          // this page after a save/cancel.
+          this.drawerRef.set(undefined);
+        }
         if (triggerEl?.isConnected) {
           triggerEl.focus();
         }
