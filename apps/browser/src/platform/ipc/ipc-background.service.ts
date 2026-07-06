@@ -17,7 +17,6 @@ import {
 } from "@bitwarden/sdk-internal";
 
 import { BrowserApi } from "../browser/browser-api";
-import { version } from "os";
 
 // The interval at which the browser extension in the background tries to reconnect to the desktop app.
 const RECONNECTION_INTERVAL_MS = 10_000;
