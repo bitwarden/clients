@@ -20,6 +20,7 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -51,6 +52,9 @@ import { UserId } from "@bitwarden/user-core";
 })
 export class AdminSettingsComponent implements OnInit {
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly organizations$: Observable<Organization[]> = this.userId$.pipe(
+    switchMap((userId) => this.organizationService.organizations$(userId)),
+  );
 
   protected readonly formLoading: WritableSignal<boolean> = signal(true);
   protected readonly adminForm = this.formBuilder.group({
@@ -78,10 +82,11 @@ export class AdminSettingsComponent implements OnInit {
     const autoConfirmEnabled = (
       await firstValueFrom(this.autoConfirmService.configuration$(userId))
     ).enabled;
-    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled });
+    this.adminForm.setValue({ autoConfirm: autoConfirmEnabled }, { emitEvent: false });
 
     this.formLoading.set(false);
 
+    // Update State
     this.adminForm.controls.autoConfirm.valueChanges
       .pipe(
         switchMap((newValue) => {
@@ -90,26 +95,45 @@ export class AdminSettingsComponent implements OnInit {
           }
           return of(false);
         }),
-        withLatestFrom(
-          this.autoConfirmService.configuration$(userId),
-          this.organizationService.organizations$(userId),
-        ),
-        switchMap(async ([newValue, existingState, organizations]) => {
-          await this.autoConfirmService.upsert(userId, {
+        withLatestFrom(this.autoConfirmService.configuration$(userId)),
+        switchMap(([newValue, existingState]) =>
+          this.autoConfirmService.upsert(userId, {
             ...existingState,
             enabled: newValue,
             showBrowserNotification: false,
-          });
+          }),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
 
-          // Auto-confirm users can only belong to one organization
-          const organization = organizations[0];
-          if (organization?.id) {
-            const eventType = newValue
-              ? EventType.Organization_AutoConfirmEnabled_Admin
-              : EventType.Organization_AutoConfirmDisabled_Admin;
-            await this.eventCollectionService.collect(eventType, undefined, true, organization.id);
+    // Event Logging
+    this.autoConfirmService
+      .configuration$(userId)
+      .pipe(
+        map((state) =>
+          state.enabled
+            ? EventType.Organization_AutoConfirmEnabled_Admin
+            : EventType.Organization_AutoConfirmDisabled_Admin,
+        ),
+        withLatestFrom(this.organizations$.pipe(map((organizations) => organizations[0]))),
+        switchMap(([event, organization]) => {
+          if (!organization) {
+            return of(undefined);
           }
+          return this.eventCollectionService.collect(event, undefined, true, organization.id);
         }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    // Fire confirm on initial event
+    this.autoConfirmService
+      .configuration$(userId)
+      .pipe(
+        switchMap((state) =>
+          state.enabled ? this.autoConfirmService.bulkAutoConfirmPendingUsers(userId) : of(),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

@@ -253,6 +253,7 @@ describe("VaultComponent", () => {
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
     upsert: jest.fn().mockResolvedValue(undefined),
     autoConfirmUser: jest.fn().mockResolvedValue(undefined),
+    bulkAutoConfirmPendingUsers: jest.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(async () => {
@@ -821,6 +822,46 @@ describe("VaultComponent", () => {
       tick();
 
       expect(autoConfirmDialogSpy).not.toHaveBeenCalled();
+    }));
+
+    it("calls bulkAutoConfirmPendingUsers when user enables auto-confirm via setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(true) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).toHaveBeenCalledWith(expect.any(String));
+    }));
+
+    it("does not call bulkAutoConfirmPendingUsers when user dismisses setup dialog", fakeAsync(() => {
+      autoConfirmSvc.canManageAutoConfirm$.mockReturnValue(of(true));
+      autoConfirmSvc.configuration$.mockReturnValue(
+        of({
+          enabled: false,
+          showSetupDialog: true,
+          showBrowserNotification: undefined,
+        }),
+      );
+      autoConfirmDialogSpy.mockImplementation((_: DialogService) => ({ closed: of(false) }) as any);
+
+      const fixture = TestBed.createComponent(VaultComponent);
+      const component = fixture.componentInstance;
+
+      void component.ngOnInit();
+      tick();
+
+      expect(autoConfirmSvc.bulkAutoConfirmPendingUsers).not.toHaveBeenCalled();
     }));
   });
 });
