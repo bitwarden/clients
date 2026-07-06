@@ -5,6 +5,8 @@ import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
@@ -41,6 +43,12 @@ export class NewSendDropdownComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideIcon: boolean = false;
 
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
+
   /** SendType provided for the markup to pass back the selected type of Send */
   protected sendType = SendType;
 
@@ -69,6 +77,23 @@ export class NewSendDropdownComponent {
   protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
     initialValue: [SendType.Text, SendType.File],
   });
+
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.hideIcon) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "createSendV2";
+      } else {
+        return "createSend";
+      }
+    } else {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "create";
+      } else {
+        return "new";
+      }
+    }
+  }
 
   /**
    * Opens the SendAddEditComponent for a new Send with the provided type.

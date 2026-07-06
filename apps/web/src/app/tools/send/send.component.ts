@@ -214,7 +214,6 @@ export class SendComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.dialogService.closeAll();
-    void this.dialogService.closeDrawer();
   }
 
   async addSend() {

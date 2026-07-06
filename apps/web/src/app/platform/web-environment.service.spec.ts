@@ -56,7 +56,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdUSUrls.scim + "/v2";
-      const expectedSendUrl = PROD_US_REGION.urls.send + "/#/";
+      const expectedSendUrl = PROD_US_REGION.urls.send + "/#";
 
       const prodUSEnv = new WebCloudEnvironment(PROD_US_REGION, {
         ...expectedProdUSUrls,
@@ -143,12 +143,12 @@ describe("WebEnvironmentService", () => {
       });
 
       it("envUrls.send takes precedence over config.urls.send when both are set", async () => {
-        const customSendUrl = "https://custom-send.example.com";
+        const customSendUrl = "https://vault.bitwarden.com/#/send/";
         const env = new WebCloudEnvironment(PROD_US_REGION, {
           ...expectedProdUSUrls,
           send: customSendUrl,
         });
-        expect(env.getSendUrl()).toEqual(customSendUrl + "/#/");
+        expect(env.getSendUrl()).toEqual(customSendUrl);
       });
     });
 
@@ -176,7 +176,7 @@ describe("WebEnvironmentService", () => {
       };
 
       const expectedModifiedScimUrl = expectedProdEUUrls.scim + "/v2";
-      const expectedSendUrl = prodEURegionConfig.urls.send + "/#/";
+      const expectedSendUrl = prodEURegionConfig.urls.send + "/#";
 
       const prodEUEnv = new WebCloudEnvironment(prodEURegionConfig, {
         ...expectedProdEUUrls,
@@ -221,7 +221,7 @@ describe("WebEnvironmentService", () => {
         expect(env.getEventsUrl()).toEqual(expectedProdEUUrls.events);
 
         expect(env.getScimUrl()).toEqual(expectedModifiedScimUrl);
-        expect(env.getSendUrl()).toEqual(expectedSendUrl);
+        expect(env.getSendUrl()).toEqual(expectedSendUrl + "/send/");
 
         expect(env.getHostname()).toEqual(prodEURegionConfig.domain);
       });

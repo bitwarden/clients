@@ -1,16 +1,22 @@
 @if (allowedSendTypes().length === 1) {
-  <button bitButton buttonType="primary" type="button" (click)="onRestrictedClick()">
-    @if (!hideIcon) {
-      <bit-icon name="bwi-plus" class="tw-me-2" slot="start"></bit-icon>
-    }
-    {{ (hideIcon ? "createSend" : "new") | i18n }}
+  <button
+    bitButton
+    [buttonType]="hideIcon && btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+    type="button"
+    [startIcon]="!hideIcon ? 'bwi-plus' : null"
+    (click)="onRestrictedClick()"
+  >
+    {{ title | i18n }}
   </button>
 } @else {
-  <button bitButton [bitMenuTriggerFor]="itemOptions" buttonType="primary" type="button">
-    @if (!hideIcon) {
-      <bit-icon name="bwi-plus" class="tw-me-2" slot="start"></bit-icon>
-    }
-    {{ (hideIcon ? "createSend" : "new") | i18n }}
+  <button
+    bitButton
+    [bitMenuTriggerFor]="itemOptions"
+    [buttonType]="hideIcon && btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
+    type="button"
+    [startIcon]="!hideIcon ? 'bwi-plus' : null"
+  >
+    {{ title | i18n }}
   </button>
   <bit-menu #itemOptions>
     <button type="button" bitMenuItem (click)="createSend(sendType.Text)">

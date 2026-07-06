@@ -51,12 +51,12 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   AutofillService as AutofillServiceInterface,
@@ -76,7 +76,6 @@ export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce?: ReturnType<typeof setTimeout>;
   private currentlyOpeningPasswordRepromptPopout = false;
-  private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   enableInlineMenuAnimation$: Observable<boolean>;
   enableNotificationAnimation$: Observable<boolean>;
@@ -96,6 +95,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
+    private autofillLifecycleService: AutofillLifecycleService,
   ) {
     this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
     this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
@@ -186,7 +186,6 @@ export default class AutofillService implements AutofillServiceInterface {
    * if the extension context has been disconnected.
    */
   async loadAutofillScriptsOnInstall() {
-    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     void this.injectAutofillScriptsInAllTabs();
 
     this.autofillSettingsService.inlineMenuVisibility$
@@ -215,11 +214,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * instances, and then re-injecting the autofill scripts into all tabs.
    */
   async reloadAutofillScripts() {
-    this.autofillScriptPortsSet.forEach((port) => {
-      port.disconnect();
-      this.autofillScriptPortsSet.delete(port);
-    });
-
+    this.autofillLifecycleService.retireAllFrames();
     void this.injectAutofillScriptsInAllTabs();
   }
 
@@ -277,6 +272,10 @@ export default class AutofillService implements AutofillServiceInterface {
         },
       });
     }
+
+    // Now that this frame's scripts are injected, hand off to the lifecycle
+    // service to begin monitoring it (when an account is logged in).
+    await this.autofillLifecycleService.startMonitoringFrame(tab, frameId);
   }
 
   /**
@@ -3085,35 +3084,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     return false;
   }
-
-  /**
-   * Handles incoming long-lived connections from injected autofill scripts.
-   * Stores the port in a set to facilitate disconnecting ports if the extension
-   * needs to re-inject the autofill scripts.
-   *
-   * @param port - The port that was connected
-   */
-  private handleInjectedScriptPortConnection = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.add(port);
-    port.onDisconnect.addListener(this.handleInjectScriptPortOnDisconnect);
-  };
-
-  /**
-   * Handles disconnecting ports that relate to injected autofill scripts.
-
-   * @param port - The port that was disconnected
-   */
-  private handleInjectScriptPortOnDisconnect = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.delete(port);
-  };
 
   /**
    * Queries all open tabs in the user's browsing session

@@ -442,6 +442,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_Staged:
+        msg = this.i18nService.t("stagedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "stagedUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       case EventType.OrganizationUser_ApprovedAuthRequest:
         msg = this.i18nService.t("approvedAuthRequest", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
@@ -494,6 +501,16 @@ export class EventService {
         );
         humanReadableMsg = this.i18nService.t(
           "revokedUserIdSingleOrganizationNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_NotificationBannerActionClicked:
+        msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
+        break;
+      case EventType.OrganizationUser_InviteLinkAccepted:
+        msg = this.i18nService.t("inviteLinkEventAccepted", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventAccepted",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -615,6 +632,21 @@ export class EventService {
         break;
       case EventType.Organization_AutoConfirmDisabled_Portal:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByPortal");
+        break;
+      case EventType.Organization_InviteLinkCreated:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCreated");
+        break;
+      case EventType.Organization_InviteLinkDomainsEdited:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDomainsEdited");
+        break;
+      case EventType.Organization_InviteLinkDeleted:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDeleted");
+        break;
+      case EventType.Organization_InviteLinkClientCopied:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCopied");
+        break;
+      case EventType.Organization_InviteLinkRefreshed:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
         break;
 
       // Policies

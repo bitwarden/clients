@@ -89,11 +89,11 @@ export class Organization {
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
-   * Indicates if this organization manages the user.
-   * A user is considered managed by an organization if their email domain
+   * Indicates if this organization claims the user.
+   * A user is considered claimed by an organization if their email domain
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
-  userIsManagedByOrganization: boolean;
+  userIsClaimedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
   useDisableSMAdsForUsers: boolean;
@@ -162,7 +162,7 @@ export class Organization {
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
     this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
-    this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
+    this.userIsClaimedByOrganization = obj.userIsClaimedByOrganization;
     this.useAccessIntelligence = obj.useAccessIntelligence;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
     this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers ?? false;
