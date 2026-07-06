@@ -11967,6 +11967,48 @@
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$12.00"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost with monthly billing: $AMOUNT$/year",
+    "description": "Body copy on the inline annual-upgrade callout shown in the cancellation survey. AMOUNT = formatted current annual cost",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$60.00"
+      }
+    }
+  },
+  "annualBillingCost": {
+    "message": "Cost with annual billing: $AMOUNT$/year",
+    "description": "Body copy on the inline annual-upgrade callout shown in the cancellation survey. AMOUNT = formatted new annual cost",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$48.00"
+      }
+    }
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. Switching to annual billing takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Switched to annual billing",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "freeForOneYear": {
     "message": "Free for 1 year"
   },

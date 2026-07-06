@@ -10,6 +10,7 @@ import { PlanType } from "@bitwarden/common/billing/enums";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -17,6 +18,8 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+
+import { AnnualUpgradeOfferResponseModel, OrganizationBillingClient } from "../clients";
 
 type UserOffboardingParams = {
   type: "User";
@@ -105,6 +108,10 @@ export class OffboardingSurveyComponent {
 
   protected readonly isBusiness: boolean;
 
+  protected annualUpgradeOffer: AnnualUpgradeOfferResponseModel | null = null;
+  protected annualUpgradeRedeemLoading = false;
+  protected annualUpgradeRedeemError: string | null = null;
+
   protected formGroup = this.formBuilder.group({
     reason: [null, [Validators.required]],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
@@ -115,6 +122,7 @@ export class OffboardingSurveyComponent {
     private dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
     private formBuilder: FormBuilder,
     private billingApiService: BillingApiService,
+    private organizationBillingClient: OrganizationBillingClient,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
@@ -148,7 +156,44 @@ export class OffboardingSurveyComponent {
         text: this.i18nService.t("other"),
       },
     ];
+
+    if (this.dialogParams.type === "Organization") {
+      void this.loadAnnualUpgradeOffer(this.dialogParams.id);
+    }
   }
+
+  private async loadAnnualUpgradeOffer(organizationId: string): Promise<void> {
+    this.annualUpgradeOffer = await this.organizationBillingClient.getAnnualUpgradeOffer(
+      organizationId as OrganizationId,
+    );
+  }
+
+  switchToAnnualBilling = async () => {
+    if (this.dialogParams.type !== "Organization") {
+      return;
+    }
+
+    this.annualUpgradeRedeemLoading = true;
+    this.annualUpgradeRedeemError = null;
+
+    try {
+      await this.organizationBillingClient.redeemAnnualUpgradeOffer(
+        this.dialogParams.id as OrganizationId,
+      );
+
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("switchedToAnnualBilling"),
+      });
+
+      await this.dialogRef.close(this.ResultType.Submitted);
+    } catch {
+      this.annualUpgradeRedeemError = this.i18nService.t("unexpectedError");
+    } finally {
+      this.annualUpgradeRedeemLoading = false;
+    }
+  };
 
   submit = async () => {
     this.formGroup.markAllAsTouched();

@@ -18,6 +18,37 @@
           </bit-radio-button>
         }
       </bit-radio-group>
+      @if (isBusiness && annualUpgradeOffer && formGroup.value.reason === "too_expensive") {
+        <div data-testid="annual-upgrade-offer" class="tw-mt-3">
+          <bit-callout
+            type="info"
+            [title]="'switchToAnnualAndSave' | i18n: (annualUpgradeOffer.savings | currency: 'USD')"
+          >
+            <p>
+              {{
+                "currentCostMonthlyBilling"
+                  | i18n: (annualUpgradeOffer.currentAnnualCost | currency: "USD")
+              }}
+            </p>
+            <p>
+              {{ "annualBillingCost" | i18n: (annualUpgradeOffer.newAnnualCost | currency: "USD") }}
+            </p>
+            <p class="tw-text-muted">{{ "annualSwitchDisclaimer" | i18n }}</p>
+            @if (annualUpgradeRedeemError) {
+              <p class="tw-text-danger">{{ annualUpgradeRedeemError }}</p>
+            }
+            <button
+              type="button"
+              bitButton
+              buttonType="primary"
+              [bitAction]="switchToAnnualBilling"
+              [loading]="annualUpgradeRedeemLoading"
+            >
+              {{ "switchToAnnualBilling" | i18n }}
+            </button>
+          </bit-callout>
+        </div>
+      }
     } @else {
       <bit-form-field>
         <bit-label>
