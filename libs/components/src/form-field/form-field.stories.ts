@@ -559,6 +559,23 @@ export const NumberInput: Story = {
   args: {},
 };
 
+export const DateInput: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Date</bit-label>
+        <input bitInput type="date" formControlName="test" />
+        <bit-hint>Select a date</bit-hint>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};
+
 export const Textarea: Story = {
   render: (args) => ({
     props: args,
