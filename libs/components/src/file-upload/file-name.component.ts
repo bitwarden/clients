@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { A11yTitleDirective } from "../a11y";
-
 const splitFilename = (
   name: string,
 ): { firstFourth: string; middleHalf: string; lastFourth: string } => {
@@ -25,7 +23,6 @@ const splitFilename = (
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: "tw-flex tw-overflow-hidden tw-min-w-0" },
-  imports: [A11yTitleDirective],
 })
 export class FileNameComponent {
   readonly name = input.required<string>();
