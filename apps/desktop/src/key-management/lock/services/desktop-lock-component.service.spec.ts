@@ -5,6 +5,7 @@ import { firstValueFrom, of } from "rxjs";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -36,6 +37,7 @@ describe("DesktopLockComponentService", () => {
   let pinService: MockProxy<PinServiceAbstraction>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let keyService: MockProxy<KeyService>;
+  let sharedUnlockLeaderService: MockProxy<SharedUnlockLeaderService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -44,6 +46,7 @@ describe("DesktopLockComponentService", () => {
     pinService = mock<PinServiceAbstraction>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     keyService = mock<KeyService>();
+    sharedUnlockLeaderService = mock<SharedUnlockLeaderService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -71,6 +74,10 @@ describe("DesktopLockComponentService", () => {
         {
           provide: KeyService,
           useValue: keyService,
+        },
+        {
+          provide: SharedUnlockLeaderService,
+          useValue: sharedUnlockLeaderService,
         },
       ],
     });
