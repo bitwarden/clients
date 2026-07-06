@@ -1,0 +1,120 @@
+name: "macOS Desktop Signing Setup"
+description: >-
+  Logs into Azure, fetches the requested Key Vault certificates and provisioning profiles,
+  and configures a local keychain for macOS desktop code signing. Used by both
+  macos-package-github (GitHub-release build, full cert/profile set) and macos-qa
+  (QA cloud-region build, devid-only subset) so the ~80 lines of shared setup live in
+  one place instead of two near-duplicate copies.
+inputs:
+  cert-names:
+    description: 'Comma-separated bitwarden-ci Key Vault certificate names to fetch and import, e.g. "devid-app-cert,devid-installer-cert"'
+    required: true
+  profile-names:
+    description: >-
+      Comma-separated provisioning-profile blob names (without extension) to download from the
+      profiles container and install into the system keychain. "bitwarden_desktop_developer_id"
+      is always additionally copied into apps/desktop/ (both current callers include it) because
+      electron-builder's developer-ID signing config references it there by a fixed relative path.
+    required: true
+  azure-subscription-id:
+    description: "Value of secrets.AZURE_SUBSCRIPTION_ID from the calling workflow"
+    required: true
+  azure-tenant-id:
+    description: "Value of secrets.AZURE_TENANT_ID from the calling workflow"
+    required: true
+  azure-client-id:
+    description: "Value of secrets.AZURE_CLIENT_ID from the calling workflow"
+    required: true
+outputs:
+  app-store-connect-auth-key:
+    description: "App Store Connect API auth key, needed for notarization regardless of distribution channel"
+    value: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+  app-store-connect-auth-id:
+    description: "App Store Connect API auth key ID"
+    value: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+  app-store-connect-team-issuer:
+    description: "App Store Connect API team issuer"
+    value: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+runs:
+  using: "composite"
+  steps:
+    - name: Log in to Azure
+      uses: bitwarden/gh-actions/azure-login@main
+      with:
+        subscription_id: ${{ inputs.azure-subscription-id }}
+        tenant_id: ${{ inputs.azure-tenant-id }}
+        client_id: ${{ inputs.azure-client-id }}
+
+    - name: Get Azure Key Vault secrets
+      id: get-kv-secrets
+      uses: bitwarden/gh-actions/get-keyvault-secrets@main
+      with:
+        keyvault: gh-clients
+        secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
+
+    - name: Download Provisioning Profiles secrets
+      shell: bash
+      env:
+        ACCOUNT_NAME: bitwardenci
+        CONTAINER_NAME: profiles
+        PROFILE_NAMES: ${{ inputs.profile-names }}
+      run: |
+        mkdir -p "$HOME/secrets"
+        IFS=',' read -ra PROFILES <<< "$PROFILE_NAMES"
+        for PROFILE in "${PROFILES[@]}"; do
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name "${PROFILE}.provisionprofile" \
+            --file "$HOME/secrets/${PROFILE}.provisionprofile" \
+            --output none
+        done
+
+    - name: Get certificates
+      shell: bash
+      env:
+        CERT_NAMES: ${{ inputs.cert-names }}
+      run: |
+        mkdir -p "$HOME/certificates"
+        IFS=',' read -ra CERTS <<< "$CERT_NAMES"
+        for CERT in "${CERTS[@]}"; do
+          az keyvault secret show --id "https://bitwarden-ci.vault.azure.net/certificates/${CERT}" |
+            jq -r .value | base64 -d > "$HOME/certificates/${CERT}.p12"
+        done
+
+    - name: Log out from Azure
+      uses: bitwarden/gh-actions/azure-logout@main
+
+    - name: Set up keychain
+      shell: bash
+      env:
+        CERT_NAMES: ${{ inputs.cert-names }}
+      run: |
+        KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+        echo "::add-mask::$KEYCHAIN_PASSWORD"
+        security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+        security set-keychain-settings -lut 1200 build.keychain
+
+        IFS=',' read -ra CERTS <<< "$CERT_NAMES"
+        for CERT in "${CERTS[@]}"; do
+          security import "$HOME/certificates/${CERT}.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+        done
+
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+    - name: Set up provisioning profiles
+      shell: bash
+      env:
+        PROFILE_NAMES: ${{ inputs.profile-names }}
+      run: |
+        mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+        IFS=',' read -ra PROFILES <<< "$PROFILE_NAMES"
+        for PROFILE in "${PROFILES[@]}"; do
+          UUID=$(grep UUID -A1 -a "$HOME/secrets/${PROFILE}.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          cp "$HOME/secrets/${PROFILE}.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.provisionprofile"
+        done
+
+        cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+          "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
