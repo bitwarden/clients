@@ -116,7 +116,6 @@ export class SearchService implements SearchServiceAbstraction {
       }
 
       const login = CipherViewLikeUtils.getLogin(c);
-
       if (
         login &&
         login.uris?.length &&
@@ -124,6 +123,11 @@ export class SearchService implements SearchServiceAbstraction {
           (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().indexOf(query) > -1,
         )
       ) {
+        return true;
+      }
+
+      const notes = CipherViewLikeUtils.getNotes(c);
+      if (notes && notes.toLowerCase().indexOf(query) > -1) {
         return true;
       }
       return false;
