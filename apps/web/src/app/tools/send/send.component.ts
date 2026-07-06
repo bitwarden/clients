@@ -156,8 +156,8 @@ export class SendComponent implements OnDestroy {
 
   private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
 
-  protected readonly restrictedSendType = toSignal(this.sendPolicyService.allowedSendTypes$, {
-    initialValue: null,
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
   });
 
   constructor(

@@ -22,8 +22,8 @@
     (deleteSend)="deleteSend($event)"
     (removePassword)="onRemovePassword($event)"
   >
-    <!-- Hide the filters if under a policy that restricts Send type -->
-    @if (restrictedSendType() == null) {
+    <!-- Hide the filters if a single type of Send is allowed -->
+    @if (allowedSendTypes().length !== 1) {
       <div class="tw-mt-4" slot="filters">
         <bit-toggle-group
           [selected]="selectedToggleValue"
