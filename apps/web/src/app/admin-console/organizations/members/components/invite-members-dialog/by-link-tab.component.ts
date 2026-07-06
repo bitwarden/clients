@@ -16,6 +16,7 @@ import {
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -65,6 +66,7 @@ export class ByLinkTabComponent {
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
   private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly eventCollectionService = inject(EventCollectionService);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -173,6 +175,13 @@ export class ByLinkTabComponent {
       variant: "success",
       message: this.i18nService.t("inviteLinkCopied"),
     });
+
+    await this.eventCollectionService.collect(
+      EventType.Organization_InviteLinkClientCopied,
+      undefined,
+      false,
+      this.organizationId(),
+    );
   };
 
   readonly refreshLink = async () => {
