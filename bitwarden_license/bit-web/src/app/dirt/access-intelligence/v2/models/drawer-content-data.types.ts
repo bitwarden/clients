@@ -7,10 +7,6 @@ import { DrawerType } from "@bitwarden/bit-common/dirt/access-intelligence/servi
 export interface DrawerMemberData {
   /** Member's email address */
   email: string;
-  /** Member's display name */
-  userName: string;
-  /** Organization user ID (userGuid) */
-  userGuid: string;
   /** Number of at-risk applications this member is in */
   atRiskApplicationCount: number;
 }

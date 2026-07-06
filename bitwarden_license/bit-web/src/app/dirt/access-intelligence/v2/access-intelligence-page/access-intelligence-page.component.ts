@@ -492,8 +492,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       type: DrawerType.CriticalAtRiskMembers,
       members: members.map((member) => ({
         email: member.email,
-        userName: member.userName ?? "",
-        userGuid: member.id,
         atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id, {
           criticalOnly: true,
         }),
@@ -523,8 +521,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
-      userName: member.userName ?? "",
-      userGuid: member.id,
       atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id),
     }));
   }

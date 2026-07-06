@@ -23,32 +23,22 @@ import { AccessIntelligenceDrawerV2Component } from "./access-intelligence-drawe
 const sampleMembers: DrawerMemberData[] = [
   {
     email: "alice@example.com",
-    userName: "Alice Smith",
-    userGuid: "user-1",
     atRiskApplicationCount: 15,
   },
   {
     email: "bob@example.com",
-    userName: "Bob Johnson",
-    userGuid: "user-2",
     atRiskApplicationCount: 8,
   },
   {
     email: "charlie@example.com",
-    userName: "Charlie Davis",
-    userGuid: "user-3",
     atRiskApplicationCount: 12,
   },
   {
     email: "diana@example.com",
-    userName: "Diana Wilson",
-    userGuid: "user-4",
     atRiskApplicationCount: 5,
   },
   {
     email: "eve@example.com",
-    userName: "Eve Martinez",
-    userGuid: "user-5",
     atRiskApplicationCount: 20,
   },
 ];
@@ -277,8 +267,6 @@ export const LargeDataset: Story = {
             type: DrawerType.OrgAtRiskMembers,
             members: Array.from({ length: 50 }, (_, i) => ({
               email: `user${i}@example.com`,
-              userName: `User ${i}`,
-              userGuid: `user-${i}`,
               atRiskApplicationCount: (i % 25) + 1,
             })),
           } as OrgAtRiskMembersData,
