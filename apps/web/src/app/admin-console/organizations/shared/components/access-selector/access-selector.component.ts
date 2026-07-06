@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -254,6 +255,9 @@ export class AccessSelectorComponent implements ControlValueAccessor {
       const selected = (pending ?? this.selectionList.formArray.getRawValue() ?? []).concat(
         val.filter((m) => m.readonly),
       );
+      if (pending != null) {
+        untracked(() => this.pendingValue.set(null));
+      }
       this.selectionList.populateItems(
         val.map((m) => {
           m.icon = m.icon ?? this.itemIcon(m); // Ensure an icon is set
@@ -262,11 +266,6 @@ export class AccessSelectorComponent implements ControlValueAccessor {
         selected,
       );
       this.selectedItems.set([...this.selectionList.selectedItems]);
-      // Clear after applying so subsequent items reloads use live form state,
-      // not the original writeValue — otherwise user permission changes get overwritten.
-      if (pending !== null) {
-        this.pendingValue.set(null);
-      }
     });
 
     effect(() => {
