@@ -1,7 +1,7 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { EncString as SdkEncString, SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
 import { mockContainerService, mockEnc } from "../../../../spec";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { SshKeyApi } from "../api/ssh-key.api";
 import { SshKeyData } from "../data/ssh-key.data";
 

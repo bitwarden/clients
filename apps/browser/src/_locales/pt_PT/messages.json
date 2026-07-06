@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A sua organização exige o início de sessão único."
   },
-  "welcomeBack": {
-    "message": "Bem-vindo de volta"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Iniciar sessão"
   },
   "setAStrongPassword": {
     "message": "Defina uma palavra-passe forte"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Introduza o endereço de e-mail da sua conta e ser-lhe-á enviada a sua dica da palavra-passe"
   },
-  "getMasterPasswordHint": {
-    "message": "Obter a dica da palavra-passe mestra"
+  "hint": {
+    "message": "Dica"
   },
   "continue": {
     "message": "Continuar"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Iniciar sessão"
   },
-  "logInToBitwarden": {
-    "message": "Iniciar sessão no Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Iniciar sessão"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Introduza o código enviado para o seu e-mail"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Utilizar assistência de preenchimento"
   },
+  "turnOnFillAssist": {
+    "message": "Ativar assistência de preenchimento"
+  },
+  "enableFillAssistDescription": {
+    "message": "A assistência de preenchimento melhora a precisão do preenchimento automático em sites suportados através da utilização de regras específicas para cada site. Não são recolhidos nem guardados quaisquer dados quando utiliza esta funcionalidade."
+  },
+  "aboutFillAssist": {
+    "message": "Sobre a assistência de preenchimento"
+  },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
   },
@@ -1705,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Falha na autenticação da chave de acesso"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Utilizar um método de início de sessão diferente"
   },
   "awaitingSecurityKeyInteraction": {
@@ -2328,6 +2337,10 @@
     "message": "Nova nota",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Nova nota segura",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
@@ -2368,6 +2381,10 @@
     "message": "Editar nota",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Editar nota segura",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
@@ -2407,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Ver nota",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Ver nota segura",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
@@ -2484,6 +2505,10 @@
   },
   "selected": {
     "message": "Selecionado(s)"
+  },
+  "selectedLowercase": {
+    "message": "selecionado(s)",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Ações em massa"
@@ -2882,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "A sua nova palavra-passe mestra não cumpre os requisitos da política."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Receba conselhos, anúncios e oportunidades de investigação do Bitwarden na sua caixa de entrada."
+  "receiveMarketingEmails": {
+    "message": "Receba atualizações do Bitwarden na sua caixa de entrada."
   },
   "unsubscribe": {
     "message": "Anular subscrição"
@@ -3942,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Iniciar sessão com a palavra-passe mestra"
-  },
   "newAroundHere": {
     "message": "É novo por cá?"
   },
@@ -4390,6 +4412,9 @@
   },
   "multipleInputEmails": {
     "message": "1 ou mais e-mails são inválidos"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "A lista de destinatários de e-mail não pode exceder 2.500 caracteres. Remova um ou mais destinatários para continuar."
   },
   "inputTrimValidator": {
     "message": "O campo não deve conter apenas espaços em branco.",
@@ -4967,7 +4992,7 @@
     "description": "Body content for dialog which asks if the user wants to proceed to the browser's keyboard shortcut settings page"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "Tornar o Bitwarden o seu gestor de palavras-passe predefinido?",
+    "message": "Definir o Bitwarden como o seu gestor de palavras-passe predefinido?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
@@ -4975,8 +5000,22 @@
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
-    "message": "Tornar o Bitwarden o seu gestor de palavras-passe predefinido",
+    "message": "Definir o Bitwarden como o seu gestor de palavras-passe predefinido",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Melhore a sua experiência de preenchimento automático",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Ser-lhe-á pedido que conceda uma permissão do $BROWSER$ para definir o Bitwarden como o seu gestor de palavras-passe predefinido.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
   },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Não é possível definir o Bitwarden como o gestor de palavras-passe predefinido",
@@ -4989,6 +5028,22 @@
   "makeDefault": {
     "message": "Tornar predefinido",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Defina o Bitwarden como o gestor de palavras-passe predefinido do seu navegador"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "do pedido do navegador para conceder permissão ao Bitwarden para alterar as suas definições."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Desativaremos o gestor de palavras-passe integrado do seu navegador para que possa usufruir de uma experiência de início de sessão segura."
+  },
+  "allow": {
+    "message": "Permitir",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Saltar"
   },
   "saveCipherAttemptSuccess": {
     "message": "Credenciais guardadas com sucesso!",
@@ -5663,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item atribuído a coleções"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Itens atribuídos a coleções"
   },
   "nothingSelected": {
     "message": "Não selecionou nada."
@@ -6667,14 +6728,36 @@
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Falha ao guardar as alterações do Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "A sua organização requer a visibilidade do e-mail. Desmarque “Ocultar o seu e-mail dos utilizadores” para guardar."
   },
+  "domainNotAllowed": {
+    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Não está em conformidade com a política do Send da sua organização",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Para editar este Send, crie uma cópia. Se este Send puder expirar na data de eliminação definida, não é necessária qualquer ação",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Este Send expirará automaticamente na data de eliminação definida",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Fazer uma cópia"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "Não é possível importar itens para Os meus itens que façam parte de várias coleções"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Não foi possível guardar o item. Tem de estar confirmado na organização para poder guardar itens."
   }
 }

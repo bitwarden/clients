@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "short_name": "Bitwarden",
-  "version": "2026.5.1",
+  "version": "2026.6.0",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
   "author": "Bitwarden Inc.",
@@ -77,7 +77,7 @@
     "webRequestBlocking"
   ],
   "optional_permissions": ["privacy"],
-  "__firefox__optional_permissions": [],
+  "__firefox__optional_permissions": ["privacy"],
   "__safari__optional_permissions": null,
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
   "sandbox": {

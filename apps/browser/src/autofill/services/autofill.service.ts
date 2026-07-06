@@ -32,7 +32,6 @@ import {
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -52,12 +51,12 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   AutofillService as AutofillServiceInterface,
@@ -77,7 +76,6 @@ export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce?: ReturnType<typeof setTimeout>;
   private currentlyOpeningPasswordRepromptPopout = false;
-  private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   enableInlineMenuAnimation$: Observable<boolean>;
   enableNotificationAnimation$: Observable<boolean>;
@@ -94,10 +92,10 @@ export default class AutofillService implements AutofillServiceInterface {
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
     private authService: AuthService,
-    private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
     private animationControlService: AnimationControlService,
+    private autofillLifecycleService: AutofillLifecycleService,
   ) {
     this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
     this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
@@ -188,7 +186,6 @@ export default class AutofillService implements AutofillServiceInterface {
    * if the extension context has been disconnected.
    */
   async loadAutofillScriptsOnInstall() {
-    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     void this.injectAutofillScriptsInAllTabs();
 
     this.autofillSettingsService.inlineMenuVisibility$
@@ -217,11 +214,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * instances, and then re-injecting the autofill scripts into all tabs.
    */
   async reloadAutofillScripts() {
-    this.autofillScriptPortsSet.forEach((port) => {
-      port.disconnect();
-      this.autofillScriptPortsSet.delete(port);
-    });
-
+    this.autofillLifecycleService.retireAllFrames();
     void this.injectAutofillScriptsInAllTabs();
   }
 
@@ -279,6 +272,10 @@ export default class AutofillService implements AutofillServiceInterface {
         },
       });
     }
+
+    // Now that this frame's scripts are injected, hand off to the lifecycle
+    // service to begin monitoring it (when an account is logged in).
+    await this.autofillLifecycleService.startMonitoringFrame(tab, frameId);
   }
 
   /**
@@ -775,8 +772,20 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Check if page details contain targeted fields from targeting rules
     // This operation is mutually-exclusive from heuristic data-gathering
-    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
-    if (hasTargetedFields) {
+    const pageHasTargetedFields = pageDetails.fields.some(({ targeted }) => targeted === true);
+
+    if (pageHasTargetedFields) {
+      const fillAssistEnabled = await firstValueFrom(
+        this.domainSettingsService.resolvedEnableFillAssist$,
+      );
+
+      // We could alternatively retrigger gathering page details with the
+      // heuristic strategy, but this code path is mostly defensive and not
+      // expected to be hit often, since the entrypoints for this workflow
+      // are also expected to be gated.
+      if (!fillAssistEnabled) {
+        return null;
+      }
       return this.generateTargetedFillScript(pageDetails, options);
     }
 
@@ -874,6 +883,8 @@ export default class AutofillService implements AutofillServiceInterface {
   ): Promise<AutofillScript | null> {
     const fillScript = new AutofillScript();
     const cipher = options.cipher;
+    const isPasswordGeneration =
+      options.inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration;
 
     fillScript.savedUrls =
       cipher.login?.uris
@@ -888,7 +899,14 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      // Password-generation flow synthesizes a Login cipher whose `password`
+      // carries the generated value. The standard newPassword → null policy
+      // would suppress that fill, so override it here.
+      const value =
+        isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword
+          ? (cipher.login?.password ?? null)
+          : this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+
       if (!value) {
         continue;
       }
@@ -911,11 +929,11 @@ export default class AutofillService implements AutofillServiceInterface {
     if (fieldType === AutofillTargetingRuleTypes.username) {
       return cipher.login?.username ?? null;
     }
-    if (
-      fieldType === AutofillTargetingRuleTypes.password ||
-      fieldType === AutofillTargetingRuleTypes.newPassword
-    ) {
+    if (fieldType === AutofillTargetingRuleTypes.password) {
       return cipher.login?.password ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.newPassword) {
+      return null;
     }
 
     // Card fields
@@ -3066,35 +3084,6 @@ export default class AutofillService implements AutofillServiceInterface {
 
     return false;
   }
-
-  /**
-   * Handles incoming long-lived connections from injected autofill scripts.
-   * Stores the port in a set to facilitate disconnecting ports if the extension
-   * needs to re-inject the autofill scripts.
-   *
-   * @param port - The port that was connected
-   */
-  private handleInjectedScriptPortConnection = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.add(port);
-    port.onDisconnect.addListener(this.handleInjectScriptPortOnDisconnect);
-  };
-
-  /**
-   * Handles disconnecting ports that relate to injected autofill scripts.
-
-   * @param port - The port that was disconnected
-   */
-  private handleInjectScriptPortOnDisconnect = (port: chrome.runtime.Port) => {
-    if (port.name !== AutofillPort.InjectedScript) {
-      return;
-    }
-
-    this.autofillScriptPortsSet.delete(port);
-  };
 
   /**
    * Queries all open tabs in the user's browsing session

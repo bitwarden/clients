@@ -202,7 +202,7 @@ jobs:
           sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic
+        run: sudo snap install snapcraft --classic --channel=8.x/stable
 
       - name: Print environment
         run: |
@@ -359,7 +359,7 @@ jobs:
           sudo gem install --no-document fpm
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic
+        run: sudo snap install snapcraft --classic --channel=8.x/stable
 
       - name: Install snaps required by snapcraft in destructive mode
         run: |

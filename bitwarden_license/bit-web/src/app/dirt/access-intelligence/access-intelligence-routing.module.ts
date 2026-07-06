@@ -208,6 +208,16 @@ const v2Providers = [
     useClass: DefaultAccessSecurityTasksService,
     deps: [AdminTaskService, SecurityTasksApiService, AccessIntelligenceDataService],
   }),
+  safeProvider({
+    provide: RiskOverTimeService,
+    useClass: DefaultRiskOverTimeService,
+    deps: [
+      RiskInsightsApiService,
+      AccessReportEncryptionService,
+      AccountServiceAbstraction,
+      LogService,
+    ],
+  }),
 ];
 
 const sharedRouteOptions = {

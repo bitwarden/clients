@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Tvoja organizacija zahtijeva jedinstvenu prijavu."
   },
-  "welcomeBack": {
-    "message": "Dobro došli natrag"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Postavi jaku lozinku"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Unesi svoju adresu e-pošte računa i poslat ćemo ti tvoj podsjetnik"
   },
-  "getMasterPasswordHint": {
-    "message": "Slanje podsjetnika glavne lozinke"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Nastavi"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Prijavi se"
   },
-  "logInToBitwarden": {
-    "message": "Prijavi se u Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Unesi kôd poslan e-poštom"
@@ -1349,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Koristi pomoć pri popunjavanju"
   },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Prikaži opcije kotekstualnog izbornika"
   },
@@ -1705,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Autentifikacija pristupnog ključa nije uspjela"
   },
-  "useADifferentLogInMethod": {
-    "message": "Koristi drugi način prijave"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Čekanje na interakciju sa sigurnosnim ključem..."
@@ -2328,6 +2337,10 @@
     "message": "Nova bilješka",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Novi SSH ključ",
     "description": "Header for new SSH key item type"
@@ -2368,6 +2381,10 @@
     "message": "Uređivanje bilješke",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Uredi SSH ključ",
     "description": "Header for edit SSH key item type"
@@ -2407,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Prikaži bilješku",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Prikaži SSH ključ",
@@ -2484,6 +2505,10 @@
   },
   "selected": {
     "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Bulk actions"
@@ -2882,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Tvoja nova glavna lozinka ne ispunjava zahtjeve."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Primaj e-poštom od Bitwardena savjete, najave i mogućnosti istraživanja."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Poništi pretplatu"
@@ -3942,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Prijava glavnom lozinkom"
-  },
   "newAroundHere": {
     "message": "Novi korisnik?"
   },
@@ -4390,6 +4412,9 @@
   },
   "multipleInputEmails": {
     "message": "Jedna ili više adresa e-pošte nije valjana"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
   },
   "inputTrimValidator": {
     "message": "Unos ne smije biti prazan.",
@@ -4978,6 +5003,20 @@
     "message": "Postavi Bitwarden kao zadani upravitelj lozinki",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Nije moguće postaviti Bitwarden kao zadani upravitelj lozinki",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4989,6 +5028,22 @@
   "makeDefault": {
     "message": "Postavi kao zadano",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Vjerodajnice uspješno spremljene!",
@@ -5663,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Zbirke uspješno dodijeljene"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "Ništa nije odabrano."
@@ -6667,14 +6728,36 @@
     "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Spremanje promjena Send-a nije uspjelo",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Tvoja organizacija zahtijeva vidljivost e-pošte. Odznači „Sakrij moju adresu e-pošte od primatelja”."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

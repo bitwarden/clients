@@ -1,75 +1,34 @@
 import { importProvidersFrom } from "@angular/core";
-import {
-  applicationConfig,
-  componentWrapperDecorator,
-  Meta,
-  moduleMetadata,
-  StoryObj,
-} from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 import { userEvent, within } from "storybook/test";
 
-import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
-import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { IconButtonModule, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
-import { WebFileDownloadService } from "@bitwarden/web-vault/app/core/web-file-download.service";
 
-import { ChartExportService } from "../../../shared/chart-export.service";
+import {
+  buildChartThemeProviders,
+  MockToastService,
+  themeToolbarDecorator,
+} from "../../v2/testing";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
 import { TrendWidgetComponent } from "./trend-widget.component";
 
-// Create shared theme observables that will be updated by the decorator
-const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
-const systemTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
+// Shared theme subject updated by the toolbar decorator and consumed by the chart providers.
+const theme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
 
 export default {
   title: "DIRT/Access Intelligence/Trend Widget",
   component: TrendWidgetComponent,
   decorators: [
-    componentWrapperDecorator(
-      (story) => story,
-      ({ globals }) => {
-        const theme = globals["theme"] === "dark" ? ThemeType.Dark : ThemeType.Light;
-        selectedTheme$.next(theme);
-        systemTheme$.next(theme);
-        return {};
-      },
-    ),
+    themeToolbarDecorator(theme$),
     moduleMetadata({
       imports: [IconButtonModule],
       providers: [
-        {
-          provide: ThemeStateService,
-          useValue: {
-            selectedTheme$,
-          },
-        },
-        {
-          provide: SYSTEM_THEME_OBSERVABLE,
-          useValue: systemTheme$,
-        },
-        {
-          provide: PlatformUtilsService,
-          useValue: {
-            supportsFileDownloads: () => true,
-          },
-        },
-        {
-          provide: FileDownloadService,
-          useClass: WebFileDownloadService,
-        },
-        ChartExportService,
-        {
-          provide: ToastService,
-          useValue: {
-            showToast: () => {},
-          },
-        },
+        ...buildChartThemeProviders(theme$),
+        { provide: ToastService, useClass: MockToastService },
       ],
     }),
     applicationConfig({
