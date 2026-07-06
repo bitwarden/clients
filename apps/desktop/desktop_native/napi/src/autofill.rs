@@ -1,5 +1,9 @@
 #[napi]
 pub mod autofill {
+    use autofill_provider::{
+        BitwardenError, NativeStatus, PasskeyAssertionRequest,
+        PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
+    };
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::{
         bindgen_prelude::FnArgs,
@@ -13,106 +17,11 @@ pub mod autofill {
         Ok(desktop_core::autofill::run_command(value).await?)
     }
 
-    #[derive(Debug, serde::Serialize, serde:: Deserialize)]
-    pub enum BitwardenError {
-        Internal(String),
-    }
-
-    #[napi(string_enum)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub enum UserVerification {
-        #[napi(value = "preferred")]
-        Preferred,
-        #[napi(value = "required")]
-        Required,
-        #[napi(value = "discouraged")]
-        Discouraged,
-    }
-
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
         pub sequence_number: u32,
         pub value: Result<T, BitwardenError>,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct Position {
-        pub x: i32,
-        pub y: i32,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyRegistrationRequest {
-        pub rp_id: String,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub supported_algorithms: Vec<i32>,
-        pub window_xy: Position,
-        pub excluded_credentials: Vec<Vec<u8>>,
-    }
-
-    #[napi(object)]
-    #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyRegistrationResponse {
-        pub rp_id: String,
-        pub client_data_hash: Vec<u8>,
-        pub credential_id: Vec<u8>,
-        pub attestation_object: Vec<u8>,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionRequest {
-        pub rp_id: String,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub allowed_credentials: Vec<Vec<u8>>,
-        pub window_xy: Position,
-        //extension_input: Vec<u8>, TODO: Implement support for extensions
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
-        pub rp_id: String,
-        pub credential_id: Vec<u8>,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
-        pub record_identifier: Option<String>,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub window_xy: Position,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct NativeStatus {
-        pub key: String,
-        pub value: String,
-    }
-
-    #[napi(object)]
-    #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionResponse {
-        pub rp_id: String,
-        pub user_handle: Vec<u8>,
-        pub signature: Vec<u8>,
-        pub client_data_hash: Vec<u8>,
-        pub authenticator_data: Vec<u8>,
-        pub credential_id: Vec<u8>,
     }
 
     #[napi]
@@ -284,7 +193,7 @@ pub mod autofill {
             &self,
             client_id: u32,
             sequence_number: u32,
-            response: PasskeyRegistrationResponse,
+            response: autofill_provider::PasskeyRegistrationResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,
@@ -298,7 +207,7 @@ pub mod autofill {
             &self,
             client_id: u32,
             sequence_number: u32,
-            response: PasskeyAssertionResponse,
+            response: autofill_provider::PasskeyAssertionResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

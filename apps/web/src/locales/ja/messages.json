@@ -979,6 +979,9 @@
   "close": {
     "message": "閉じる"
   },
+  "done": {
+    "message": "Done"
+  },
   "delete": {
     "message": "削除"
   },
@@ -1203,6 +1206,10 @@
     "message": "新規メモ",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "メモを編集",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "メモを表示",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "アイテムの削除"
+  },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
   },
   "deleteFolder": {
     "message": "フォルダーの削除"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "本当に続行しますか？"
   },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
   "moveSelectedItemsDesc": {
     "message": "$COUNT$個のアイテムを追加したいフォルダーを選択してください。",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "Do not allow members to create card item types. Existing cards will be automatically removed."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
   "restrictCardTypeImport": {
     "message": "Cannot import card item types"
@@ -4866,6 +4941,12 @@
   "deletedCollections": {
     "message": "コレクションを削除"
   },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
   "deletedCollectionId": {
     "message": "コレクション「$ID$」の削除",
     "placeholders": {
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "と"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "You cannot log in with SSO until you have accepted an invitation to join $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "以下に同意しチェックします:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "選択済み"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "おすすめ"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "２段階認証の設定を要求する。"
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "２段階認証を有効にしないメンバーは組織から除外され、メールで通知されます。"
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "２段階認証を必要とする組織に入っています。２段階認証をすべて無効にすると、それらの組織からは自動的に除外されます。"
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "組織のシングルサインオン認証でログインする必要があります。"
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "前提条件"
   },
   "requireSsoPolicyReq": {
     "message": "このポリシーを有効にするには、単一組織のエンタープライズポリシーを有効にする必要があります。"
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "単一組織ポリシーが有効になっていません。"
@@ -6887,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. Learn more about "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Give all users a dedicated “My Items” space for managing their own logins."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Prompt users to move their vault items to the organization"
+  },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
   "organizationDataOwnership": {
     "message": "Enforce organization data ownership"
   },
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Desktop Autotype Default Setting"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Desktop autotype default setting"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
   "disableSend": {
     "message": "Send を無効化"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "メンバーが個人の保管庫からデータをエクスポートすることを許可しません。"
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "保管庫のエクスポートが無効化されました"
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "編集されたコレクション"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
   "baseUrl": {
     "message": "サーバー URL"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "コレクションの割り当てに成功しました"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ アイテムを選択しました。編集権限がないため、$READONLY_COUNT$ アイテムを更新できません。",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "Bitwarden ファミリープランの無償利用へのスポンサーを解除"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Remove sponsored Families plan"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "メンバーがこの組織を通じてファミリープランを引き換えられないようにします。"
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "PINによるアカウントのロック解除をメンバーに許可しません。"
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "Event logs are not stored for your organization. Upgrade to a Teams or Enterprise plan to get full access to organization event logs."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Before turning on this policy, you must claim a domain."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
@@ -14347,7 +14507,17 @@
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$"
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Clicked vault banner button"
+  },
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "paymentSuccessful": {
+    "message": "Payment successful"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plan purchased"
+  },
+  "renewalDate": {
+    "message": "Renewal date"
+  },
+  "upgradeStatus": {
+    "message": "Upgrade status"
+  },
+  "processing": {
+    "message": "Processing"
+  },
+  "managePlanInWebApp": {
+    "message": "Manage plan in web app"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
