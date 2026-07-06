@@ -4,7 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -29,6 +29,11 @@ import { CipherFormGenerationService } from "../../abstractions/cipher-form-gene
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
+
+import {
+  DeletePasskeyDialogComponent,
+  DeletePasskeyDialogResult,
+} from "./delete-passkey-dialog/delete-passkey-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -233,13 +238,10 @@ export class LoginDetailsSectionComponent implements OnInit {
   };
 
   removePasskey = async () => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePasskey" },
-      content: { key: "removePasskeyConfirmation" },
-      type: "warning",
-    });
+    const dialogRef = DeletePasskeyDialogComponent.open(this.dialogService);
+    const result = await firstValueFrom(dialogRef.closed);
 
-    if (!confirmed) {
+    if (result !== DeletePasskeyDialogResult.Delete) {
       return;
     }
 

@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
@@ -15,6 +15,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
   BitPasswordInputToggleDirective,
+  DialogRef,
   DialogService,
   ToastService,
 } from "@bitwarden/components";
@@ -24,6 +25,10 @@ import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
 
+import {
+  DeletePasskeyDialogComponent,
+  DeletePasskeyDialogResult,
+} from "./delete-passkey-dialog/delete-passkey-dialog.component";
 import { LoginDetailsSectionComponent } from "./login-details-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -595,16 +600,16 @@ describe("LoginDetailsSectionComponent", () => {
     });
 
     it("should remove the passkey when the user confirms the dialog", fakeAsync(() => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
+      dialogService.open.mockReturnValue({
+        closed: of(DeletePasskeyDialogResult.Delete),
+      } as DialogRef<DeletePasskeyDialogResult>);
       fixture.detectChanges();
 
       getRemovePasskeyBtn().click();
 
       tick();
 
-      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
-        expect.objectContaining({ title: { key: "removePasskey" }, type: "warning" }),
-      );
+      expect(dialogService.open).toHaveBeenCalledWith(DeletePasskeyDialogComponent);
       expect(cipherFormContainer.patchCipher).toHaveBeenCalled();
       const patchFn = cipherFormContainer.patchCipher.mock.lastCall[0];
 
@@ -615,7 +620,9 @@ describe("LoginDetailsSectionComponent", () => {
     }));
 
     it("should not remove the passkey when the user cancels the dialog", fakeAsync(() => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
+      dialogService.open.mockReturnValue({
+        closed: of(DeletePasskeyDialogResult.Cancel),
+      } as DialogRef<DeletePasskeyDialogResult>);
       fixture.detectChanges();
       cipherFormContainer.patchCipher.mockClear();
 

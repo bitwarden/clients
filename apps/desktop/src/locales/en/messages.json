@@ -4397,8 +4397,11 @@
   "removePasskey": {
     "message": "Remove passkey"
   },
-  "removePasskeyConfirmation": {
-    "message": "Are you sure you want to remove the passkey from this item?"
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
   },
   "passkeyRemoved": {
     "message": "Passkey removed"
