@@ -1,3 +1,5 @@
+import { Observable, Subject } from "rxjs";
+
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
@@ -21,6 +23,8 @@ import { pollForUnlockEvents } from "./unlock-state-poll";
 
 export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerService {
   private follower: SharedUnlockFollower | null = null;
+  private _externalUnlock$ = new Subject<UserId>();
+  readonly externalUnlock$: Observable<UserId> = this._externalUnlock$.asObservable();
 
   constructor(
     private ipcService: IpcService,
@@ -44,6 +48,7 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.sharedUnlockSettingsService,
+      (userId) => this._externalUnlock$.next(userId),
     );
 
     this.follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
