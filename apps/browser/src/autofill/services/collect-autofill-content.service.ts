@@ -1,5 +1,9 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
+import {
+  AutofillTargetingRuleType,
+  FormContent,
+  FormPurposeCategory,
+} from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -40,6 +44,7 @@ import { AutoFillConstants } from "./autofill-constants";
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
   fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
 };
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
@@ -320,7 +325,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
       (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
         .filter(([, alternatives]) => alternatives?.length)
-        .map(([fieldType, selectorAlternatives]) => ({ fieldType, selectorAlternatives })),
+        .map(([fieldType, selectorAlternatives]) => ({
+          fieldType,
+          selectorAlternatives,
+          formCategory: form.category,
+        })),
     );
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -432,7 +441,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     >();
 
     for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
-      const { selectorAlternatives, fieldType } = targets[targetIndex];
+      const { selectorAlternatives, fieldType, formCategory } = targets[targetIndex];
       if (!selectorAlternatives?.length) {
         continue;
       }
@@ -472,6 +481,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             formFieldElement,
             fieldType,
             localFields.length,
+            formCategory,
           );
           localFields.push(autofillField);
           this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
@@ -522,6 +532,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     fieldType: AutofillTargetingRuleType,
     index: number,
+    formCategory?: FormPurposeCategory,
   ): AutofillField {
     const field = new AutofillField();
     field.opid = element.opid;
@@ -537,8 +548,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     field.title = element.getAttribute("title");
     field.tagName = element.tagName?.toLowerCase();
     field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
-    field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
+    field.fieldQualifier = fieldType;
     field.targeted = true;
+    field.formCategory = formCategory;
     return field;
   }
 

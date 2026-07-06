@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { FormPurposeCategories } from "@bitwarden/common/autofill/constants";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
@@ -504,6 +506,33 @@ describe("CollectAutofillContentService", () => {
 
       expect(pageDetails.fields).toHaveLength(1);
       expect(pageDetails.fields[0].opid).toBe("targeted_field_0_username");
+    });
+  });
+
+  describe("getTargetedPageDetails category threading", () => {
+    it("carries the source form category onto locally-resolved targeted fields", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  category: FormPurposeCategories.AccountLogin,
+                  fields: { email: ["#username"] },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields).toHaveLength(1);
+      expect(pageDetails.fields[0].fieldQualifier).toBe("email");
+      expect(pageDetails.fields[0].formCategory).toBe(FormPurposeCategories.AccountLogin);
     });
   });
 
