@@ -40,6 +40,7 @@ import {
   elementIsSelectElement,
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
+  isSubFramePositioningMessageData,
   nodeIsAnchorElement,
   nodeIsButtonElement,
   nodeIsTypeSubmitElement,
@@ -52,7 +53,7 @@ import { getSubFrameUrlVariations } from "../utils/url-variations";
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+  SubFrameOffsetWindowMessageData,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
@@ -1580,17 +1581,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param message - The message object from the extension.
    */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
+    // `postMessage` accepts `any` message, which disables typechecking, so typecheck it early
+    const subFrameData: SubFrameOffsetWindowMessageData = {
+      frameId: message.subFrameId,
+      left: 0,
+      top: 0,
+      parentFrameIds: [0],
+      subFrameDepth: 0,
+    };
+
     globalThis.parent.postMessage(
       {
         command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-          parentFrameIds: [0],
-          subFrameDepth: 0,
-        } as SubFrameDataFromWindowMessage,
+        subFrameData,
       },
       "*",
     );
@@ -1635,8 +1638,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The message event.
    */
-  private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+  private calculateSubFramePositioning = async (event: MessageEvent<unknown>) => {
+    if (!isSubFramePositioningMessageData(event.data)) {
+      return;
+    }
+    const { subFrameData } = event.data;
 
     subFrameData.subFrameDepth++;
     if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
@@ -1651,7 +1657,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         const iframeElement = iframes[i];
         subFrameOffsets = this.calculateSubFrameOffsets(
           iframeElement,
-          subFrameData.url,
+          undefined,
           subFrameData.frameId,
         );
 
