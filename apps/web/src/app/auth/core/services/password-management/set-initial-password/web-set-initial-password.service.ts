@@ -71,10 +71,10 @@ export class WebSetInitialPasswordService
      * ---
      * When a user has been invited to an org, they can be accepted into the org in two different ways:
      *
-     *  1) By clicking the email invite link, which triggers the normal AcceptOrganizationComponent flow
+     *  1) By clicking the email invite link, which triggers the normal AcceptOrgDirectInviteComponent flow
      *     a. This flow sets an org invite in state
      *     b. However, if the user does not already have an account AND the org has SSO enabled AND the require
-     *        SSO policy enabled, the AcceptOrganizationComponent will send the user to /sso to accelerate
+     *        SSO policy enabled, the AcceptOrgDirectInviteComponent will send the user to /sso to accelerate
      *        the user through the SSO JIT provisioning process (see #2 below)
      *
      *  2) By logging in via SSO, which triggers the JIT provisioning process
@@ -85,7 +85,7 @@ export class WebSetInitialPasswordService
      * If a user clicks the email link but gets accelerated through the SSO JIT process (see 1b),
      * the SSO JIT process will accept the user into the org upon setting their initial password (see 2b),
      * at which point we must remember to clear the deep linked URL used for accepting the org invite, as well
-     * as clear the org invite itself that was originally set in state by the AcceptOrganizationComponent.
+     * as clear the org invite itself that was originally set in state by the AcceptOrgDirectInviteComponent.
      */
     await this.routerService.getAndClearLoginRedirectUrl();
     await this.organizationInviteService.clearOrganizationInvite();

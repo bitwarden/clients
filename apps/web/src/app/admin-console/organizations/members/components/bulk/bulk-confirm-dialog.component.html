@@ -1,97 +1,118 @@
-<bit-dialog dialogSize="large" [title]="'confirmUsers' | i18n" [loading]="loading">
+<bit-dialog dialogSize="large" [title]="'confirmUsers' | i18n" [loading]="loading()">
   <ng-container bitDialogContent>
-    <bit-callout type="danger" *ngIf="filteredUsers.length <= 0">
-      {{ "noSelectedUsersApplicable" | i18n }}
-    </bit-callout>
-    <bit-callout type="danger" [title]="'error' | i18n" *ngIf="error">
-      {{ error }}
-    </bit-callout>
-    <ng-container *ngIf="!loading && !done">
-      <p bitTypography="body1">
-        {{ "fingerprintEnsureIntegrityVerify" | i18n }}
-        <a
-          bitLink
-          href="https://bitwarden.com/help/fingerprint-phrase/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {{ "learnMore" | i18n }}</a
-        >
-      </p>
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell colspan="2">{{ "user" | i18n }}</th>
-            <th bitCell>{{ "fingerprint" | i18n }}</th>
-          </tr>
-        </ng-container>
-        <ng-template body>
-          <tr bitRow *ngFor="let user of filteredUsers" alignContent="middle">
-            <td bitCell class="tw-w-5">
-              <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
-            </td>
-            <td bitCell>
-              {{ user.email }}
-              <p class="tw-text-muted tw-text-sm" *ngIf="user.name">{{ user.name }}</p>
-            </td>
-            <td bitCell>
-              {{ fingerprints.get(user.id) }}
-            </td>
-          </tr>
-          <tr *ngFor="let user of excludedUsers" alignContent="middle">
-            <td bitCell class="tw-w-5">
-              <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
-            </td>
-            <td bitCell>
-              {{ user.email }}
-              <p class="tw-text-muted tw-text-sm" *ngIf="user.name">{{ user.name }}</p>
-            </td>
-            <td bitCell>
-              {{ "bulkFilteredMessage" | i18n }}
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
-    </ng-container>
-    <ng-container *ngIf="!loading && done">
-      <bit-table>
-        <ng-container header>
-          <tr>
-            <th bitCell colspan="2">{{ "user" | i18n }}</th>
-            <th bitCell>{{ "status" | i18n }}</th>
-          </tr>
-        </ng-container>
-        <ng-template body>
-          <tr bitRow *ngFor="let user of filteredUsers" alignContent="middle">
-            <td bitCell class="tw-w-5">
-              <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
-            </td>
-            <td bitCell>
-              {{ user.email }}
-              <p class="tw-text-muted tw-text-sm" *ngIf="user.name">{{ user.name }}</p>
-            </td>
-            <td bitCell *ngIf="statuses.has(user.id)">
-              {{ statuses.get(user.id) }}
-            </td>
-            <td bitCell *ngIf="!statuses.has(user.id)">
-              {{ "bulkFilteredMessage" | i18n }}
-            </td>
-          </tr>
-        </ng-template>
-      </bit-table>
-    </ng-container>
+    @if (filteredUsers().length <= 0) {
+      <bit-callout type="danger">
+        {{ "noSelectedUsersApplicable" | i18n }}
+      </bit-callout>
+    }
+    @if (error()) {
+      <bit-callout type="danger" [title]="'error' | i18n">
+        {{ error() }}
+      </bit-callout>
+    }
+    @if (!loading() && !done()) {
+      <ng-container>
+        <p bitTypography="body1">
+          {{ "fingerprintEnsureIntegrityVerify" | i18n }}
+          <a
+            bitLink
+            href="https://bitwarden.com/help/fingerprint-phrase/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {{ "learnMore" | i18n }}</a
+          >
+        </p>
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell colspan="2">{{ "user" | i18n }}</th>
+              <th bitCell>{{ "fingerprint" | i18n }}</th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (user of filteredUsers(); track user.id) {
+              <tr bitRow alignContent="middle">
+                <td bitCell class="tw-w-5">
+                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                </td>
+                <td bitCell>
+                  {{ user.email }}
+                  @if (user.name) {
+                    <p class="tw-text-muted tw-text-sm">{{ user.name }}</p>
+                  }
+                </td>
+                <td bitCell>
+                  {{ fingerprints().get(user.id) }}
+                </td>
+              </tr>
+            }
+            @for (user of excludedUsers(); track user.id) {
+              <tr alignContent="middle">
+                <td bitCell class="tw-w-5">
+                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                </td>
+                <td bitCell>
+                  {{ user.email }}
+                  @if (user.name) {
+                    <p class="tw-text-muted tw-text-sm">{{ user.name }}</p>
+                  }
+                </td>
+                <td bitCell>
+                  {{ "bulkFilteredMessage" | i18n }}
+                </td>
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      </ng-container>
+    }
+    @if (!loading() && done()) {
+      <ng-container>
+        <bit-table>
+          <ng-container header>
+            <tr>
+              <th bitCell colspan="2">{{ "user" | i18n }}</th>
+              <th bitCell>{{ "status" | i18n }}</th>
+            </tr>
+          </ng-container>
+          <ng-template body>
+            @for (user of filteredUsers(); track user.id) {
+              <tr bitRow alignContent="middle">
+                <td bitCell class="tw-w-5">
+                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                </td>
+                <td bitCell>
+                  {{ user.email }}
+                  @if (user.name) {
+                    <p class="tw-text-muted tw-text-sm">{{ user.name }}</p>
+                  }
+                </td>
+                @if (statuses().has(user.id)) {
+                  <td bitCell>{{ statuses().get(user.id) }}</td>
+                }
+                @if (!statuses().has(user.id)) {
+                  <td bitCell>{{ "bulkFilteredMessage" | i18n }}</td>
+                }
+              </tr>
+            }
+          </ng-template>
+        </bit-table>
+      </ng-container>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
-    <button
-      *ngIf="!done"
-      bitButton
-      type="submit"
-      buttonType="primary"
-      (click)="submit()"
-      [disabled]="loading"
-    >
-      {{ "confirm" | i18n }}
-    </button>
+    @if (!done()) {
+      <button
+        bitButton
+        type="submit"
+        buttonType="primary"
+        [bitAction]="submit"
+        [disabled]="loading()"
+      >
+        {{ "confirm" | i18n }}
+      </button>
+    }
     <button bitButton type="button" buttonType="secondary" bitDialogClose>
       {{ "close" | i18n }}
     </button>

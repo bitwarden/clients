@@ -84,6 +84,7 @@ const fb = new UntypedFormBuilder();
 const formObj = fb.group({
   test: [""],
   required: ["", [Validators.required]],
+  amount: [null],
 });
 
 const defaultFormObj = fb.group({
@@ -306,6 +307,11 @@ export const Readonly: Story = {
       <bit-form-field>
         <bit-label>Textarea</bit-label>
         <textarea bitInput rows="4" readonly>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</textarea>
+      </bit-form-field>
+
+       <bit-form-field>
+        <bit-label>Textarea short</bit-label>
+        <textarea bitInput rows="1" readonly>Lorem ipsum dolor sit ametroident</textarea>
       </bit-form-field>
 
       <div class="tw-p-4 tw-mt-10 tw-border-2 tw-border-solid tw-border-black tw-bg-background-alt">
@@ -533,6 +539,24 @@ export const FileInput: Story = {
       </form>
     `,
   }),
+};
+
+export const NumberInput: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Amount</bit-label>
+        <input bitInput type="number" formControlName="amount" placeholder="0" />
+        <span bitSuffix>USD</span>
+        <bit-hint>Enter a numeric value.</bit-hint>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
 };
 
 export const Textarea: Story = {
