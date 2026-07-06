@@ -371,20 +371,22 @@ describe("DefaultCollectionService", () => {
       expect(result).toContainPartialObjects([{ id: collection1.id }]);
     });
 
-    it("falls back to an empty list and logs when decryptMany rejects (batch failure)", async () => {
+    it("propagates the error when decryptMany rejects (batch failure)", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
 
       await setEncryptedState([collection1]);
+      // collectionEncryptionService.decryptMany already logs batch failures itself (see
+      // default-collection-encryption.service.spec.ts), so this service does not log again and
+      // simply lets the error propagate rather than swallowing it into an empty list.
       collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
 
-      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
-
-      expect(result).toEqual([]);
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
+      await expect(firstValueFrom(collectionService.decryptedCollections$(userId))).rejects.toThrow(
+        "SDK not available",
+      );
     });
 
-    it("retries a failed batch on a fresh subscription so a transient failure recovers", async () => {
+    it("retries on a fresh subscription so a transient failure recovers", async () => {
       const org1 = Utils.newGuid() as OrganizationId;
       const collection1 = collectionDataFactory(org1);
       const decryptedView = collectionViewDataFactory(org1);
@@ -396,12 +398,13 @@ describe("DefaultCollectionService", () => {
         .mockRejectedValueOnce(new Error("SDK not available"))
         .mockResolvedValue([decryptedView]);
 
-      // First subscription hits the transient failure. The empty fallback is not cached.
-      const firstResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
-      expect(firstResult).toEqual([]);
+      // First subscription hits the transient failure and rejects; nothing is cached.
+      await expect(firstValueFrom(collectionService.decryptedCollections$(userId))).rejects.toThrow(
+        "SDK not available",
+      );
 
-      // A subsequent subscription re-attempts decryption (rather than serving a cached empty
-      // list) and recovers once the SDK is available.
+      // A subsequent subscription re-attempts decryption (rather than serving a cached failure)
+      // and recovers once the SDK is available.
       const secondResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
       expect(secondResult).toContainPartialObjects([{ id: collection1.id }]);
       expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(2);
