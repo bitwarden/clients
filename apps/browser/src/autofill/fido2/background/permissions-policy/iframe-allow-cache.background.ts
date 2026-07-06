@@ -18,13 +18,23 @@ import { IframeAllowAttribute } from "../../content/iframe-allow-scraper";
  * Lifecycle matches `PermissionsPolicyHeaderCacheBackground`: in-memory only,
  * cleared on tab close, repopulated by the next scrape report on navigation.
  *
+ * URL matching: the browser may follow redirects when loading an iframe, so
+ * the `iframe.src` attribute in the parent's DOM and the frame's `url` in the
+ * frame tree can differ. Lookup first tries exact string equality, then falls
+ * back to an origin-level match — Permissions Policy container delegation is
+ * defined at origin granularity, so an origin match preserves correct
+ * semantics for the common case (redirect within the same origin, or path
+ * normalization inserting a trailing slash).
+ *
  * Limitations (deferred):
  * - Iframe navigations after first scrape (e.g. `iframe.src = '...'` in JS)
  *   leave the cache stale until the next scrape report. Lookup falls back to
  *   "no entry" → resolver uses the container default.
  * - `srcdoc` iframes have no URL to match on; the scraper marks them, but
  *   `getAllowForChildFrame` returns undefined for them — same handling.
- * - Multiple iframes with the same `src` resolve to the first matching entry.
+ * - Multiple iframes with the same origin but different `allow` attributes
+ *   resolve to the first matching entry when only origins match. Rare in
+ *   practice (a page delegating differently to same-origin iframes).
  */
 export class IframeAllowCacheBackground {
   private readonly cache = new Map<string, readonly IframeAllowAttribute[]>();
@@ -88,7 +98,15 @@ export class IframeAllowCacheBackground {
     if (report == null) {
       return undefined;
     }
-    const match = report.find((iframe) => iframe.src === childUrl && iframe.src.length > 0);
+    let match = report.find((iframe) => iframe.src === childUrl && iframe.src.length > 0);
+    if (match == null) {
+      const childOrigin = safeOrigin(childUrl);
+      if (childOrigin != null) {
+        match = report.find(
+          (iframe) => iframe.src.length > 0 && safeOrigin(iframe.src) === childOrigin,
+        );
+      }
+    }
     if (match == null || match.allow.length === 0) {
       return undefined;
     }
@@ -121,5 +139,13 @@ export class IframeAllowCacheBackground {
 
   private key(tabId: number, parentFrameId: number): string {
     return `${tabId}:${parentFrameId}`;
+  }
+}
+
+function safeOrigin(url: string): string | null {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return null;
   }
 }

@@ -135,6 +135,55 @@ describe("IframeAllowCacheBackground", () => {
 
       expect(cache.getAllowForChildFrame(1, 0, "https://a.example/")).toBe("first");
     });
+
+    describe("origin-level fallback (handles redirects / URL normalization)", () => {
+      it("matches by origin when the frame URL differs from iframe.src by a trailing slash after 301", () => {
+        cache.recordReport(1, 0, [
+          entry("http://x.example:8081/foo?q=1", "publickey-credentials-get"),
+        ]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "http://x.example:8081/foo/?q=1")).toBe(
+          "publickey-credentials-get",
+        );
+      });
+
+      it("matches by origin when the frame URL has a different path than iframe.src", () => {
+        cache.recordReport(1, 0, [
+          entry("https://a.example/entry", "publickey-credentials-create"),
+        ]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "https://a.example/after-redirect")).toBe(
+          "publickey-credentials-create",
+        );
+      });
+
+      it("does not match when only the scheme differs (origins are distinct)", () => {
+        cache.recordReport(1, 0, [entry("http://a.example/", "a")]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "https://a.example/")).toBeUndefined();
+      });
+
+      it("does not match when only the port differs (origins are distinct)", () => {
+        cache.recordReport(1, 0, [entry("http://a.example:8080/", "a")]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "http://a.example:8081/")).toBeUndefined();
+      });
+
+      it("prefers the exact-URL match over the origin fallback", () => {
+        cache.recordReport(1, 0, [
+          entry("https://a.example/first", "first"),
+          entry("https://a.example/exact", "exact"),
+        ]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "https://a.example/exact")).toBe("exact");
+      });
+
+      it("returns undefined when childUrl is unparseable (e.g. about:srcdoc)", () => {
+        cache.recordReport(1, 0, [entry("https://a.example/", "a")]);
+
+        expect(cache.getAllowForChildFrame(1, 0, "about:srcdoc")).toBeUndefined();
+      });
+    });
   });
 
   describe("tab removal", () => {
