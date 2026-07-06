@@ -464,13 +464,25 @@ jobs:
           if-no-files-found: error
 
   windows:
-    name: Windows Build
+    name: Windows Build - ${{ matrix.release_type.readable }}
     runs-on: windows-2022
+    if: ${{ matrix.release_type.type == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
     needs:
       - setup
     permissions:
       contents: read
       id-token: write
+    strategy:
+      matrix:
+        release_type:
+          - type: "prod"
+            readable: "Production"
+            build_command: "build"
+            installer_artifact_suffix: ""
+          - type: "qa"
+            readable: "QA Cloud-Region"
+            build_command: "build:qa"
+            installer_artifact_suffix: "-QA"
     defaults:
       run:
         shell: pwsh
@@ -578,7 +590,7 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
-        run: npm run build
+        run: npm run ${{ matrix.release_type.build_command }}
 
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
@@ -602,7 +614,7 @@ jobs:
         run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
       - name: Rename appx files for store
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         run: |
           Copy-Item "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32.appx" `
             -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-ia32-store.appx"
@@ -612,7 +624,7 @@ jobs:
             -Destination "./dist/Bitwarden-$env:_PACKAGE_VERSION-arm64-store.appx"
 
       - name: Package for Chocolatey
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         run: |
           Copy-Item -Path ./stores/chocolatey -Destination ./dist/chocolatey -Recurse
           Copy-Item -Path ./dist/nsis-web/Bitwarden-Installer-$env:_PACKAGE_VERSION.exe `
@@ -624,7 +636,7 @@ jobs:
           choco pack ./dist/chocolatey/bitwarden.nuspec --version "$env:_PACKAGE_VERSION" --out ./dist/chocolatey
 
       - name: Fix NSIS artifact names for auto-updater
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         run: |
           Rename-Item -Path .\dist\nsis-web\Bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z `
             -NewName bitwarden-$env:_PACKAGE_VERSION-ia32.nsis.7z
@@ -634,6 +646,7 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
+        if: ${{ matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -644,12 +657,12 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
+          name: Bitwarden-Installer${{ matrix.release_type.installer_artifact_suffix }}-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -657,7 +670,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -665,7 +678,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS ia32 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -673,7 +686,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -681,7 +694,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -689,7 +702,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS x64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -697,7 +710,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload appx ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -705,7 +718,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload store appx ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -713,7 +726,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload NSIS ARM64 artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -721,7 +734,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload nupkg artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
@@ -729,126 +742,11 @@ jobs:
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.release_type.type == 'prod' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
-          if-no-files-found: error
-
-  windows-qa:
-    name: Windows QA Cloud-Region Build
-    runs-on: windows-2022
-    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-    needs:
-      - setup
-    permissions:
-      contents: read
-      id-token: write
-    defaults:
-      run:
-        shell: pwsh
-        working-directory: apps/desktop
-    env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      NODE_OPTIONS: --max_old_space_size=4096
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-
-      - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
-        with:
-          workspaces: |
-            apps/desktop/desktop_native -> target
-          cache-targets: "true"
-
-      - name: Install AST
-        run: dotnet tool install --global AzureSignTool --version 4.0.1
-
-      - name: Set up environment
-        run: choco install checksum --no-progress
-
-      - name: Print environment
-        run: |
-          node --version
-          npm --version
-          choco --version
-          rustup show
-
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "code-signing-vault-url,
-            code-signing-client-id,
-            code-signing-tenant-id,
-            code-signing-client-secret,
-            code-signing-cert-name"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Install Node dependencies
-        run: npm ci
-        working-directory: ./
-
-      - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
-        id: cache
-        with:
-          path: |
-            apps/desktop/desktop_native/napi/*.node
-            apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
-
-      - name: Build Native Module
-        if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: apps/desktop/desktop_native
-        env:
-          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
-        run: node build.js cross-platform "$env:MODE"
-
-      - name: Build (QA cloud regions)
-        run: npm run build:qa
-
-      - name: Pack & Sign
-        env:
-          ELECTRON_BUILDER_SIGN: 1
-          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
-          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
-          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
-          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
-          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
-        run: npm run pack:win
-
-      - name: Verify helper exe thumbprint matches hardcoded value
-        run: ./scripts/validate-chromium-importer-thumbprint.ps1
-
-      - name: Upload QA installer exe artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: Bitwarden-Installer-QA-${{ env._PACKAGE_VERSION }}.exe
-          path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
   windows-beta:
