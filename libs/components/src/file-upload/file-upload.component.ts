@@ -76,6 +76,7 @@ export class FileUploadComponent implements ControlValueAccessor {
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
   protected readonly statusId = `${this.inputId}-status`;
+  protected readonly fileInputId = `${this.inputId}-input`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
   protected readonly fileName = computed(() => this._files()[0]?.name);

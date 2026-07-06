@@ -42,6 +42,8 @@
   <input
     #fileInput
     type="file"
+    [id]="fileInputId"
+    [attr.aria-labelledby]="inputId"
     class="tw-sr-only"
     tabindex="-1"
     aria-hidden="true"
