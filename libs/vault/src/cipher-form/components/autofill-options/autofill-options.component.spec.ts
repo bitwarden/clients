@@ -6,13 +6,16 @@ import { BehaviorSubject } from "rxjs";
 
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { AutofillOptionsComponent } from "./autofill-options.component";
@@ -34,6 +37,8 @@ describe("AutofillOptionsComponent", () => {
   let domainSettingsService: MockProxy<DomainSettingsService>;
   let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let configService: MockProxy<ConfigService>;
+  let featureFlagSubject: BehaviorSubject<boolean>;
   const getInitialCipherView = jest.fn((): any => null);
   const formStatusChange$ = new BehaviorSubject<"enabled" | "disabled">("enabled");
 
@@ -43,6 +48,8 @@ describe("AutofillOptionsComponent", () => {
     cipherFormContainer.formStatusChange$ = formStatusChange$.asObservable();
     liveAnnouncer = mock<LiveAnnouncer>();
     platformUtilsService = mock<PlatformUtilsService>();
+    featureFlagSubject = new BehaviorSubject<boolean>(false);
+    configService = mock<ConfigService>();
     domainSettingsService = mock<DomainSettingsService>();
     domainSettingsService.resolvedDefaultUriMatchStrategy$ = new BehaviorSubject(null);
 
@@ -62,6 +69,7 @@ describe("AutofillOptionsComponent", () => {
         { provide: DomainSettingsService, useValue: domainSettingsService },
         { provide: AutofillSettingsServiceAbstraction, useValue: autofillSettingsService },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 
@@ -282,6 +290,116 @@ describe("AutofillOptionsComponent", () => {
     fixture.detectChanges();
 
     expect(enable).toHaveBeenCalledWith({ emitEvent: false });
+  });
+
+  // Autotype App Tests
+  describe("showAddAppDropdown", () => {
+    it("is false when device type is not Windows Desktop", () => {
+      fixture.detectChanges();
+
+      expect(component["showAddAppDropdown"]()).toBe(false);
+    });
+
+    it("is false when device type is Windows Desktop but windows-desktop-autotype-ga feature flag is off", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(false);
+    });
+
+    it("is true when device is Windows Desktop and windows-desktop-autotype-ga feature flag is on", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+
+      featureFlagSubject.next(true);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      expect(localFixture.componentInstance["showAddAppDropdown"]()).toBe(true);
+    });
+  });
+
+  // Autotype App Tests
+  describe("Add URI button", () => {
+    it("renders a plain 'Add website' button when showAddAppDropdown is false", () => {
+      fixture.detectChanges();
+
+      const buttons = Array.from(
+        fixture.nativeElement.querySelectorAll("button"),
+      ) as HTMLButtonElement[];
+      const addWebsiteBtn = buttons.find((btn) => btn.textContent?.trim() === "addWebsite");
+      const menu = fixture.nativeElement.querySelector("bit-menu");
+
+      expect(addWebsiteBtn).toBeTruthy();
+      expect(menu).toBeFalsy();
+    });
+
+    it("renders an 'Add website or app' dropdown button with 'Website' and 'App' options when showAddAppDropdown is true", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+
+      featureFlagSubject.next(true);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      localFixture.detectChanges();
+
+      // Verify the trigger button is present
+      const triggerBtn = Array.from(localFixture.nativeElement.querySelectorAll("button")).find(
+        (btn: HTMLButtonElement) => btn.textContent?.trim() === "addWebsiteOrApp",
+      ) as HTMLButtonElement;
+      expect(triggerBtn).toBeTruthy();
+
+      // Open the menu
+      triggerBtn.click();
+      localFixture.detectChanges();
+
+      // Verify both options are present in the dropdown
+      const menuButtons = Array.from(
+        document.querySelectorAll(".cdk-overlay-container button"),
+      ) as HTMLButtonElement[];
+      const websiteBtn = menuButtons.find((btn) => btn.textContent?.trim() === "website");
+      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "app");
+
+      expect(websiteBtn).toBeTruthy();
+      expect(appBtn).toBeTruthy();
+    });
+
+    it("clicking 'App' menu item calls addUri with the desktopapp:// prefix", () => {
+      platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+      configService.getFeatureFlag$.mockReturnValue(featureFlagSubject);
+      featureFlagSubject.next(true);
+
+      const localFixture = TestBed.createComponent(AutofillOptionsComponent);
+      const localComponent = localFixture.componentInstance;
+      localFixture.detectChanges();
+
+      jest.spyOn(localComponent, "addUri");
+
+      // Open the menu by clicking the trigger button
+      const triggerBtn = Array.from(localFixture.nativeElement.querySelectorAll("button")).find(
+        (btn: HTMLButtonElement) => btn.textContent?.trim() === "addWebsiteOrApp",
+      ) as HTMLButtonElement;
+      expect(triggerBtn).toBeTruthy();
+      triggerBtn.click();
+      localFixture.detectChanges();
+
+      // Menu content is rendered in the CDK overlay portal, not in the component's DOM
+      const menuButtons = Array.from(
+        document.querySelectorAll(".cdk-overlay-container button"),
+      ) as HTMLButtonElement[];
+      const appBtn = menuButtons.find((btn) => btn.textContent?.trim() === "app");
+      expect(appBtn).toBeTruthy();
+      appBtn.click();
+
+      expect(localComponent.addUri).toHaveBeenCalledWith(
+        { uri: DESKTOP_APP_URI_PREFIX, matchDetection: null },
+        true,
+      );
+    });
   });
 
   describe("Drag & Drop Functionality", () => {
