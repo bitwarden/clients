@@ -84,6 +84,7 @@ const fb = new UntypedFormBuilder();
 const formObj = fb.group({
   test: [""],
   required: ["", [Validators.required]],
+  amount: [null],
 });
 
 const defaultFormObj = fb.group({
@@ -538,6 +539,24 @@ export const FileInput: Story = {
       </form>
     `,
   }),
+};
+
+export const NumberInput: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <bit-form-field [formGroup]="formObj">
+        <bit-label>Amount</bit-label>
+        <input bitInput type="number" formControlName="amount" placeholder="0" />
+        <span bitSuffix>USD</span>
+        <bit-hint>Enter a numeric value.</bit-hint>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
 };
 
 export const Textarea: Story = {
