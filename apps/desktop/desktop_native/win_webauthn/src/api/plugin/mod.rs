@@ -83,6 +83,10 @@ pub trait PluginAuthenticator {
     fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn Error>>;
 
     /// Cancel an ongoing operation.
+    ///
+    /// `request_hash` refers the hash of the original credential operation
+    /// request that is being cancelled, not the hash of the cancel operation
+    /// request.
     fn cancel_operation(&self, request: PluginCancelOperationRequest)
         -> Result<(), Box<dyn Error>>;
 
