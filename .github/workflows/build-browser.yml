@@ -211,6 +211,7 @@ jobs:
       _BUILD_NUMBER: ${{ needs.setup.outputs.adj_build_number }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     strategy:
+      fail-fast: false
       matrix:
         license_type:
           - build_prefix: ""
