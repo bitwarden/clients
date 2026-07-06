@@ -89,14 +89,6 @@ export class NativeMessagingBackground {
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
   ) {
-    if (chrome?.permissions?.onAdded) {
-      // Reload extension to activate nativeMessaging
-      chrome.permissions.onAdded.addListener((permissions) => {
-        if (permissions.permissions?.includes("nativeMessaging")) {
-          BrowserApi.reloadExtension();
-        }
-      });
-    }
   }
 
   async connect() {

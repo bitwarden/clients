@@ -433,6 +433,9 @@ export default class RuntimeBackground {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
       }
+      case "reloadExtension":
+        await BrowserApi.reloadExtension();
+        break;
     }
   }
 

@@ -176,6 +176,9 @@ export class DefaultConfigService implements ConfigService {
   }
 
   getFeatureFlag$<Flag extends FeatureFlag>(key: Flag) {
+    if ([FeatureFlag.BiometricsSDKIPC, FeatureFlag.SharedUnlockPart1, FeatureFlag.SharedUnlockPart2].includes(key)) {
+      return of(false as FeatureFlagValueType<Flag>);
+    }
     return combineLatest([this.serverConfig$, this.featureFlagOverrides$]).pipe(
       map(([serverConfig, overrides]) => this.resolveFlag(serverConfig, overrides, key)),
     );

@@ -1452,7 +1452,7 @@ export default class MainBackground {
       // and popups will close themselves upon receiving it. Poll to verify popup is actually closed.
       await BrowserPopupUtils.waitForAllPopupsClose();
 
-      BrowserApi.reloadExtension();
+      await BrowserApi.reloadExtension();
     };
 
     this.systemService = new SystemService(

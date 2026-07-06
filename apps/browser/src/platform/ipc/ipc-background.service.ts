@@ -150,9 +150,13 @@ export class IpcBackgroundService extends IpcService {
 
   /**
    * Starts a connection to the desktop app. This function attempts to establish a connection with the desktop application
-   * using native messaging. It will automaticall retry and reconnect if the connection fails or is lost.
+   * using native messaging. It will automatically retry and reconnect if the connection fails or is lost.
    */
   private async connectToDesktop() {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      return;
+    }
+
     let port: browser.runtime.Port | chrome.runtime.Port | undefined;
     try {
       port = BrowserApi.connectNative("com.8bit.bitwarden");

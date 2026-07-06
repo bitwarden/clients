@@ -779,15 +779,29 @@ export class BrowserApi {
   }
 
   /**
+   * Closes all open extension windows (popouts, sidepanel, etc.).
+   */
+  static async closeAllExtensionWindows(): Promise<void> {
+    const extensionUrl = chrome.runtime.getURL("popup/index.html");
+    const tabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+    await Promise.all(tabs.map((tab) => BrowserApi.removeWindow(tab.windowId)));
+  }
+
+  /**
    * Handles reloading the extension using the underlying functionality exposed by the browser API.
    */
-  static reloadExtension() {
+  static async reloadExtension() {
     // If we do `chrome.runtime.reload` on safari they will send an onInstalled reason of install
     // and that prompts us to show a new tab, this apparently doesn't happen on sideloaded
     // extensions and only shows itself production scenarios. See: https://bitwarden.atlassian.net/browse/PM-12298
     if (this.isSafariApi) {
       return self.location.reload();
     }
+
+    // Reloading the extension while popouts and popups are open will close all popups and popouts on firefox.
+    // On chrome, only the popups will be closed, but popouts remain and navigate to an empty page. This is
+    // undesired behavior. To prevent this, an extension reload will first close all popups and popouts.
+    await BrowserApi.closeAllExtensionWindows();
     return chrome.runtime.reload();
   }
 
