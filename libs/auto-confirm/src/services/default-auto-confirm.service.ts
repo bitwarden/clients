@@ -65,8 +65,9 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
             catchError(() => EMPTY),
           ),
         ),
-        switchMap((userId) => this.bulkAutoConfirmPendingUsers(userId)),
-        catchError(() => EMPTY),
+        mergeMap((userId) =>
+          from(this.bulkAutoConfirmPendingUsers(userId)).pipe(catchError(() => EMPTY)),
+        ),
       )
       .subscribe();
   }
