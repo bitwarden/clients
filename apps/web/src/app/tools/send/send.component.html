@@ -22,13 +22,19 @@
     (deleteSend)="deleteSend($event)"
     (removePassword)="onRemovePassword($event)"
   >
-    <div class="tw-mt-4" slot="filters">
-      <bit-toggle-group [selected]="selectedToggleValue" (selectedChange)="onToggleChange($event)">
-        <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
-        <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>
-        <bit-toggle [value]="'file'">{{ "sendTypeFile" | i18n }}</bit-toggle>
-      </bit-toggle-group>
-    </div>
+    <!-- Hide the filters if a single type of Send is allowed -->
+    @if (allowedSendTypes().length !== 1) {
+      <div class="tw-mt-4" slot="filters">
+        <bit-toggle-group
+          [selected]="selectedToggleValue"
+          (selectedChange)="onToggleChange($event)"
+        >
+          <bit-toggle [value]="'all'">{{ "allSends" | i18n }}</bit-toggle>
+          <bit-toggle [value]="'text'">{{ "sendTypeText" | i18n }}</bit-toggle>
+          <bit-toggle [value]="'file'">{{ "sendTypeFile" | i18n }}</bit-toggle>
+        </bit-toggle-group>
+      </div>
+    }
     @if (!disableSend()) {
       <tools-new-send-dropdown [hideIcon]="true" slot="empty-button"></tools-new-send-dropdown>
     }

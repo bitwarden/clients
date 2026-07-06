@@ -218,7 +218,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
       component.data?.valueChanges.pipe(startWith(policyResponse.data)) ?? of({}),
-      component.data?.statusChanges.pipe(startWith(policyResponse.data)) ?? of("VALID"),
+      component.data?.statusChanges.pipe(startWith("VALID")) ?? of("VALID"),
     ])
       .pipe(
         map(([enabledFormValue, _dataFormValue, dataFormStatus]) => {
@@ -247,7 +247,16 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     const newPolicy = newPolicyData ?? {};
     return (
       Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
+      Object.keys(newPolicy).some((newKey) => {
+        const oldValue = oldPolicy[newKey];
+        const newValue = newPolicy[newKey];
+        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+          return (
+            JSON.stringify((oldValue || []).sort()) !== JSON.stringify((newValue || []).sort())
+          );
+        }
+        return oldValue !== newValue;
+      })
     );
   }
 
