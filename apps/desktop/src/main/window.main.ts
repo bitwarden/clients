@@ -135,6 +135,14 @@ export class WindowMain {
       }
     });
 
+    ipcMain.handle("get-native-window-details", (_event) => {
+      return {
+        isVisible: this.win.isVisible(),
+        isFocused: this.win.isFocused(),
+        handle: this.win.getNativeWindowHandle().toString("base64"),
+      };
+    });
+
     this.desktopSettingsService.modalMode$
       .pipe(
         pairwise(),
@@ -641,3 +649,15 @@ export class WindowMain {
     );
   }
 }
+
+export type NativeWindowDetails = {
+  isVisible: boolean;
+  isFocused: boolean;
+  /**
+   * Native handle.
+   * - Windows: HWND
+   * - macOS: NSView*
+   * - Linux: unsigned long
+   */
+  handle: Buffer;
+};
