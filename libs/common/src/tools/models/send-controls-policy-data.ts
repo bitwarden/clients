@@ -1,3 +1,5 @@
+import { SendType } from "../send/types/send-type";
+
 import { WhoCanAccessType } from "./send-who-can-access-type";
 
 export class SendControlsPolicyData {
@@ -12,4 +14,6 @@ export class SendControlsPolicyData {
   disableHideEmail: boolean = false;
   /** Specify the deletion interval that new Sends must have when created */
   deletionHours: number | null = null;
+  /** Specify which types of Sends can be created */
+  allowedSendTypes: SendType[] = [SendType.Text, SendType.File];
 }

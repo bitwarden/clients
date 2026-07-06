@@ -15,6 +15,14 @@
   </bit-radio-group>
   <div [hidden]="!sendFeatureAllowed()">
     <bit-form-field>
+      <bit-label>{{ "sendTypes" | i18n }}</bit-label>
+      <bit-multi-select
+        [formControl]="allowedSendTypesMultiSelectControl"
+        [baseItems]="allSendTypeOptions()"
+        [disabled]="!enabled.value"
+      ></bit-multi-select>
+    </bit-form-field>
+    <bit-form-field>
       <bit-label>{{ "sendControlAccessOptions" | i18n }}</bit-label>
       <bit-select formControlName="whoCanAccess">
         @for (accessOption of sendAccessOptions; track accessOption.value) {
