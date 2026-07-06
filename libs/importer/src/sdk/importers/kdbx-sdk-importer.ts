@@ -12,7 +12,6 @@ import { SdkImportContext, SdkVaultImporter } from "../sdk-vault-importer";
 export class KdbxSdkImporter implements SdkVaultImporter {
   readonly credentialKind = CredentialKind.passwordWithKeyFile;
   readonly fileTypeHint = ".kdbx";
-  readonly deleteFileReminderKey = "kdbxDeleteFileReminder";
 
   async import(
     client: PasswordManagerClient,

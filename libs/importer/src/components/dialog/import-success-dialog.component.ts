@@ -7,7 +7,6 @@ import {
   DialogRef,
   DIALOG_DATA,
   ButtonModule,
-  CalloutModule,
   DialogModule,
   TableDataSource,
   TableModule,
@@ -21,8 +20,6 @@ export interface ImportSuccessDialogData {
   importResult?: ImportResult;
   /** Counts from an SDK-backed importer that submitted directly. Mutually exclusive with importResult. */
   sdkSummary?: SdkImportSummary;
-  /** Localization key for a "delete your source file" reminder; the callout is shown when set. */
-  deleteFileReminderKey?: string;
   returnUrl?: string;
   returnLabel?: string;
 }
@@ -37,17 +34,13 @@ export interface ResultList {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./import-success-dialog.component.html",
-  imports: [CommonModule, I18nPipe, DialogModule, TableModule, ButtonModule, CalloutModule],
+  imports: [CommonModule, I18nPipe, DialogModule, TableModule, ButtonModule],
 })
 export class ImportSuccessDialogComponent implements OnInit {
   protected dataSource = new TableDataSource<ResultList>();
 
   protected get hasReturnDestination(): boolean {
     return !!this.data.returnUrl && !!this.data.returnLabel;
-  }
-
-  protected get deleteFileReminderKey(): string | undefined {
-    return this.data.deleteFileReminderKey;
   }
 
   protected get totalImported(): number {

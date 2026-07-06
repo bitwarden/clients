@@ -4850,9 +4850,6 @@
   "kdbxFileTooLarge": {
     "message": "This KeePass database is too large to import."
   },
-  "kdbxDeleteFileReminder": {
-    "message": "For your security, delete the local .kdbx file now that your data has been imported."
-  },
   "exportSuccess": {
     "message": "Vault data exported"
   },

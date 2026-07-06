@@ -609,7 +609,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
         data: {
           sdkSummary: summary,
-          deleteFileReminderKey: this.importService.sdkDeleteFileReminderKey(this.format),
           ...returnDestination,
         },
       });

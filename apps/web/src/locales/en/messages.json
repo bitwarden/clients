@@ -2522,9 +2522,6 @@
   "kdbxFileTooLarge": {
     "message": "This KeePass database is too large to import."
   },
-  "kdbxDeleteFileReminder": {
-    "message": "For your security, delete the local .kdbx file now that your data has been imported."
-  },
   "accountRestrictedOptionDescription": {
     "message": "Use your account encryption key, derived from your account's username and Master Password, to encrypt the export and restrict import to only the current Bitwarden account."
   },
