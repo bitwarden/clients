@@ -197,36 +197,6 @@ export declare namespace autotype {
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }
 
-export declare namespace biometrics {
-  export function available(): Promise<boolean>
-  /**
-   * Derives key material from biometric data. Returns a string encoded with a
-   * base64 encoded key and the base64 encoded challenge used to create it
-   * separated by a `|` character.
-   *
-   * If the iv is provided, it will be used as the challenge. Otherwise a random challenge will
-   * be generated.
-   *
-   * `format!("<key_base64>|<iv_base64>")`
-   */
-  export function deriveKeyMaterial(iv?: string | undefined | null): Promise<OsDerivedKey>
-  /**
-   * Retrieves the biometric secret for the given service and account.
-   * Throws Error with message [`passwords::PASSWORD_NOT_FOUND`] if the secret does not exist.
-   */
-  export function getBiometricSecret(service: string, account: string, keyMaterial?: KeyMaterial | undefined | null): Promise<string>
-  export interface KeyMaterial {
-    osKeyPartB64: string
-    clientKeyPartB64?: string
-  }
-  export interface OsDerivedKey {
-    keyB64: string
-    ivB64: string
-  }
-  export function prompt(hwnd: Buffer, message: string): Promise<boolean>
-  export function setBiometricSecret(service: string, account: string, secret: string, keyMaterial: KeyMaterial | undefined | null, ivB64: string): Promise<string>
-}
-
 export declare namespace biometrics_v2 {
   export class BiometricLockSystem {
 

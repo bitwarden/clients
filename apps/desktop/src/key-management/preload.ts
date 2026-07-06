@@ -61,14 +61,6 @@ const biometric = {
       action: BiometricAction.HasPersistentKey,
       userId: userId,
     } satisfies BiometricMessage),
-  enableLinuxV2Biometrics: (): Promise<void> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.EnableLinuxV2,
-    } satisfies BiometricMessage),
-  isLinuxV2BiometricsEnabled: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.IsLinuxV2Enabled,
-    } satisfies BiometricMessage),
 };
 
 export default {

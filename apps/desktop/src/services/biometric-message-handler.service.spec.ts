@@ -12,7 +12,6 @@ import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec"
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
-import { ConfigService } from "@bitwarden/services/config.service";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
@@ -37,7 +36,6 @@ describe("BiometricMessageHandlerService", () => {
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
-  let configService: MockProxy<ConfigService>;
   let desktopSettingsService: DesktopSettingsService;
   let biometricsService: MockProxy<BiometricsService>;
   let accountService: AccountService;
@@ -48,7 +46,6 @@ describe("BiometricMessageHandlerService", () => {
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
     desktopSettingsService = mock<DesktopSettingsService>();
-    configService = mock<ConfigService>();
     biometricsService = mock<BiometricsService>();
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
@@ -73,7 +70,6 @@ describe("BiometricMessageHandlerService", () => {
     cryptoFunctionService.rsaEncrypt.mockResolvedValue(
       Utils.fromUtf8ToArray("encrypted") as CsprngArray,
     );
-    configService.getFeatureFlag.mockResolvedValue(false);
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
       encryptService,
@@ -82,7 +78,6 @@ describe("BiometricMessageHandlerService", () => {
       biometricsService,
       accountService,
       authService,
-      configService,
     );
   });
 
@@ -132,7 +127,6 @@ describe("BiometricMessageHandlerService", () => {
         biometricsService,
         accountService,
         authService,
-        configService,
       );
     });
 

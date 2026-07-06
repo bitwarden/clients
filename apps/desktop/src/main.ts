@@ -12,7 +12,6 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
@@ -223,11 +222,6 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-    const encryptService = new EncryptServiceImplementation(
-      this.mainCryptoFunctionService,
-      this.logService,
-      true,
-    );
 
     this.shell = new SafeShell(this.logService);
 
@@ -248,8 +242,6 @@ export class Main {
       this.logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      this.mainCryptoFunctionService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
