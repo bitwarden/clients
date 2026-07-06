@@ -32,13 +32,13 @@
     "message": "使用通行密钥解锁"
   },
   "useSingleSignOn": {
-    "message": "使用单点登录"
+    "message": "使用单点登录 (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的组织要求单点登录。"
+    "message": "您的组织要求单点登录 (SSO)。"
   },
-  "welcomeBack": {
-    "message": "欢迎回来"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "登录"
   },
   "setAStrongPassword": {
     "message": "设置强密码"
@@ -47,7 +47,7 @@
     "message": "设置密码以完成账户的创建"
   },
   "enterpriseSingleSignOn": {
-    "message": "企业单点登录"
+    "message": "企业单点登录 (SSO)"
   },
   "cancel": {
     "message": "取消"
@@ -214,8 +214,13 @@
     "message": "填充",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "自动填充"
+  "autofillNoun": {
+    "message": "自动填充",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "自动填充",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "自动填充登录"
@@ -284,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
   },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
+  "hint": {
+    "message": "提示"
   },
   "continue": {
     "message": "继续"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "保存"
+  },
+  "saveAndFill": {
+    "message": "保存并填充"
   },
   "move": {
     "message": "移动"
@@ -616,7 +624,7 @@
     "message": "查看"
   },
   "viewAll": {
-    "message": "查看全部"
+    "message": "显示全部"
   },
   "showAll": {
     "message": "显示全部"
@@ -970,8 +978,8 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
-    "message": "登录到 Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "登录"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "输入发送到您的电子邮箱的代码"
@@ -1339,7 +1347,16 @@
     "message": "附加选项"
   },
   "enableFillAssist": {
-    "message": "使用填充助手"
+    "message": "使用填充辅助"
+  },
+  "turnOnFillAssist": {
+    "message": "启用填充辅助"
+  },
+  "enableFillAssistDescription": {
+    "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
+  },
+  "aboutFillAssist": {
+    "message": "关于填充辅助"
   },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
@@ -1697,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "通行密钥验证失败"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "使用其他登录方式"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1794,6 +1811,9 @@
   "iconsUrl": {
     "message": "图标服务器 URL"
   },
+  "sendUrl": {
+    "message": "Send 服务器 URL"
+  },
   "environmentSaved": {
     "message": "环境 URL 已保存"
   },
@@ -1826,7 +1846,19 @@
     "message": "确认自动填充"
   },
   "confirmAutofillDesc": {
-    "message": "此站点与您保存的登录信息不匹配。在填充您的登录凭据之前，请确保它是一个可信的站点。"
+    "message": "此站点与您保存的登录信息不匹配。填充您的登录凭据之前，请确保它是一个可信的站点。"
+  },
+  "loginNeverMatchTitle": {
+    "message": "登录不匹配"
+  },
+  "loginNeverMatchDesc": {
+    "message": "此站点与您保存的登录信息不匹配。自动填充之前，请确认您访问的是可信的站点。"
+  },
+  "uriMatchRule": {
+    "message": "URI 匹配规则"
+  },
+  "neverMatch": {
+    "message": "永不匹配"
   },
   "loginHasNoSiteSaved": {
     "message": "登录未保存任何站点"
@@ -1880,7 +1912,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "停用您浏览器内置的密码管理器设置以避免冲突。"
+    "message": "停用您浏览器的内置密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -2229,6 +2261,9 @@
   "bankAccount": {
     "message": "银行账户"
   },
+  "bankAccountDetails": {
+    "message": "银行账户详细信息"
+  },
   "typeNote": {
     "message": "笔记"
   },
@@ -2284,7 +2319,7 @@
     "message": "签发州 / 省"
   },
   "licenseClass": {
-    "message": "许可证等级"
+    "message": "驾驶证类别"
   },
   "newItemHeaderLogin": {
     "message": "新增登录",
@@ -2301,6 +2336,10 @@
   "newItemHeaderNote": {
     "message": "新增笔记",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "新建安全笔记",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
@@ -2342,6 +2381,10 @@
     "message": "编辑笔记",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
     "description": "Header for edit SSH key item type"
@@ -2381,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "查看笔记",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
@@ -2459,6 +2506,10 @@
   "selected": {
     "message": "已选择"
   },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
     "message": "批量操作"
   },
@@ -2482,7 +2533,7 @@
     "message": "其他操作"
   },
   "checkPassword": {
-    "message": "检查密码是否已经被公开。"
+    "message": "检查密码是否已暴露。"
   },
   "passwordExposed": {
     "message": "此密码在数据泄露中已被暴露 $VALUE$ 次。请立即修改。",
@@ -2856,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "您的新主密码不符合策略要求。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "unsubscribe": {
     "message": "取消订阅"
@@ -3193,13 +3244,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
-    "message": "文本"
+    "message": "文本 Send"
   },
   "sendTypeTextToShare": {
     "message": "要分享的文本"
   },
   "sendTypeFile": {
-    "message": "文件"
+    "message": "文件 Send"
   },
   "allSends": {
     "message": "所有 Send",
@@ -3409,13 +3460,13 @@
     "message": "对查看者隐藏您的电子邮箱地址。"
   },
   "passwordPrompt": {
-    "message": "主密码重新提示"
+    "message": "主密码二次验证"
   },
   "passwordConfirmation": {
     "message": "确认主密码"
   },
   "passwordConfirmationDesc": {
-    "message": "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。"
+    "message": "此操作受到保护。要继续，请重新输入主密码以验证您的身份。"
   },
   "emailVerificationRequired": {
     "message": "需要验证电子邮箱"
@@ -3442,7 +3493,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。请设置一个主密码以访问您的密码库。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -3916,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
-  },
   "newAroundHere": {
     "message": "初来乍到吗？"
   },
@@ -4014,10 +4062,10 @@
     "message": "已暴露的主密码"
   },
   "exposedMasterPasswordDesc": {
-    "message": "密码在数据泄露中被发现。请使用一个唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
+    "message": "在数据泄露中发现密码。请使用唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "主密码弱且曾经暴露"
+    "message": "弱且已暴露的主密码"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
@@ -4365,6 +4413,9 @@
   "multipleInputEmails": {
     "message": "一个或多个电子邮箱无效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "电子邮件收件人列表不能超过 2,500 个字符。请移除一个或多个收件人后继续。"
+  },
   "inputTrimValidator": {
     "message": "输入不能只包含空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4421,7 +4472,7 @@
     "message": "子菜单"
   },
   "toggleCollapse": {
-    "message": "切换折叠",
+    "message": "展开/折叠",
     "description": "Toggling an expand/collapse state."
   },
   "aliasDomain": {
@@ -4431,17 +4482,11 @@
     "message": "页面加载时自动填充设置为使用默认设置。",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
-  "cannotAutofill": {
-    "message": "无法自动填充"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "默认匹配被设置为「精确匹配」。当前网站与此项目保存的登录信息不完全匹配。"
-  },
   "okay": {
     "message": "确定"
   },
   "toggleSideNavigation": {
-    "message": "切换侧边导航"
+    "message": "切换侧边导航栏"
   },
   "skipToContent": {
     "message": "跳转到内容"
@@ -4769,7 +4814,7 @@
     "message": "功能尚不被支持"
   },
   "yourPasskeyIsLocked": {
-    "message": "使用通行密钥需要身份验证。请验证身份以继续。"
+    "message": "需要身份验证才能使用通行密钥。验证您的身份以继续。"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"
@@ -4958,6 +5003,20 @@
     "message": "将 Bitwarden 设置为默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "使您的自动填充体验更好",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "系统会请求您授予 $BROWSER$ 浏览器权限，将 Bitwarden 设置为您的默认密码管理器。",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "无法将 Bitwarden 设置为默认密码管理器",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4969,6 +5028,22 @@
   "makeDefault": {
     "message": "设为默认",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
+  },
+  "allow": {
+    "message": "允许",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "跳过"
   },
   "saveCipherAttemptSuccess": {
     "message": "凭据保存成功！",
@@ -5266,7 +5341,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "ownerYou": {
     "message": "所有者：您"
@@ -5643,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
   },
   "nothingSelected": {
     "message": "您没有选择任何内容。"
@@ -6213,7 +6294,7 @@
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   },
   "wasmNotSupported": {
-    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。需要 WebAssembly 才能使用 Bitwarden App。",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {
@@ -6226,7 +6307,7 @@
     "message": "下一步"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "面包屑导航",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -6492,6 +6573,18 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "sharedUnlock": {
+    "message": "共享解锁"
+  },
+  "sharedUnlockDescription": {
+    "message": "保持您的 Bitwarden App 同步。启用后，此机器上的所有 App 将共享解锁状态。要在不同浏览器之间同步，需要使用桌面 App。"
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Safari 中的 Bitwarden 网页密码库共享。"
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
+  },
   "enterMonth": {
     "message": "输入月份。"
   },
@@ -6622,7 +6715,7 @@
     "message": "必须输入整数"
   },
   "sideNavigation": {
-    "message": "侧边导航"
+    "message": "侧边导航栏"
   },
   "skipLink": {
     "message": "跳过链接"
@@ -6635,14 +6728,36 @@
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "保存 Send 的编辑内容失败",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   }
 }

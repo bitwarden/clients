@@ -27,8 +27,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonComponent, ToastService } from "@bitwarden/components";
-import { DownloadAttachmentComponent } from "@bitwarden/vault";
 
+import { DownloadAttachmentComponent } from "../../..";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../../common/spec";
 
 import { CipherAttachmentsComponent } from "./cipher-attachments.component";

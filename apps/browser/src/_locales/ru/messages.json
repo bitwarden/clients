@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Ваша организация требует единого входа."
   },
-  "welcomeBack": {
-    "message": "С возвращением"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Войти"
   },
   "setAStrongPassword": {
     "message": "Задайте надежный пароль"
@@ -214,8 +214,13 @@
     "message": "Заполнить",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Автозаполнение"
+  "autofillNoun": {
+    "message": "Автозаполнение",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Автозаполнение",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Автозаполнение логина"
@@ -284,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Введите email вашего аккаунта, и вам будет отправлена подсказка для пароля"
   },
-  "getMasterPasswordHint": {
-    "message": "Получить подсказку к мастер-паролю"
+  "hint": {
+    "message": "Подсказка"
   },
   "continue": {
     "message": "Продолжить"
@@ -387,6 +392,9 @@
   },
   "save": {
     "message": "Сохранить"
+  },
+  "saveAndFill": {
+    "message": "Сохранить и заполнить"
   },
   "move": {
     "message": "Переместить"
@@ -970,8 +978,8 @@
   "logIn": {
     "message": "Войти"
   },
-  "logInToBitwarden": {
-    "message": "Войти в Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Войти"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Введите код, отправленный на ваш email"
@@ -1341,6 +1349,15 @@
   "enableFillAssist": {
     "message": "Использовать помощник по заполнению"
   },
+  "turnOnFillAssist": {
+    "message": "Включить помощник по заполнению"
+  },
+  "enableFillAssistDescription": {
+    "message": "Функция помощник по заполнению повышает точность автозаполнения на поддерживаемых сайтах за счет использования правил, специфичных для конкретного сайта. При использовании этой функции данные не собираются и не сохраняются."
+  },
+  "aboutFillAssist": {
+    "message": "О помощнике по заполнению"
+  },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
   },
@@ -1697,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "Не удалось выполнить аутентификацию с помощью passkey"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Использовать другой способ авторизации"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1794,6 +1811,9 @@
   "iconsUrl": {
     "message": "URL сервера значков"
   },
+  "sendUrl": {
+    "message": "Отправить URL сервера"
+  },
   "environmentSaved": {
     "message": "URL окружения сохранены"
   },
@@ -1827,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Этот сайт не соответствует вашим сохраненным логинам. Прежде чем заполнять логин, убедитесь, что это надежный сайт."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Логин не совпадает"
+  },
+  "loginNeverMatchDesc": {
+    "message": "Этот сайт не соответствует вашим сохраненным логинам. Перед автозаполнением убедитесь, что вы находитесь на надежном сайте."
+  },
+  "uriMatchRule": {
+    "message": "Правило сопоставления URI"
+  },
+  "neverMatch": {
+    "message": "Никогда не сопоставлять"
   },
   "loginHasNoSiteSaved": {
     "message": "Для логина не сохранен сайт"
@@ -2229,6 +2261,9 @@
   "bankAccount": {
     "message": "Банковский счет"
   },
+  "bankAccountDetails": {
+    "message": "Банковские реквизиты"
+  },
   "typeNote": {
     "message": "Заметка"
   },
@@ -2302,6 +2337,10 @@
     "message": "Новая заметка",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Новая защищенная заметка",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Новый ключ SSH",
     "description": "Header for new SSH key item type"
@@ -2342,6 +2381,10 @@
     "message": "Редактировать заметку",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Изменить защищенную заметку",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Редактировать ключ SSH",
     "description": "Header for edit SSH key item type"
@@ -2381,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Просмотр заметки",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Просмотреть защищенную заметку",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Просмотр ключа SSH",
@@ -2458,6 +2505,10 @@
   },
   "selected": {
     "message": "Выбрано"
+  },
+  "selectedLowercase": {
+    "message": "выбрано",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Массовые действия"
@@ -2856,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
+  "receiveMarketingEmails": {
+    "message": "Получать новости от Bitwarden в свой почтовый ящик."
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -3916,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Войти с мастер-паролем"
-  },
   "newAroundHere": {
     "message": "Вы здесь впервые?"
   },
@@ -4365,6 +4413,9 @@
   "multipleInputEmails": {
     "message": "Один или несколько адресов email недействительны"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Длина списка адресатов не должна превышать 2 500 символов. Удалите одного или нескольких адресатов, чтобы продолжить."
+  },
   "inputTrimValidator": {
     "message": "Введенные данные не должны содержать только пробелы.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4430,12 +4481,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Не удалось заполнить"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "По умолчанию установлено значение 'Точное соответствие'. Текущий сайт не полностью соответствует сохраненным для этого элемента логинам."
   },
   "okay": {
     "message": "OK"
@@ -4958,6 +5003,20 @@
     "message": "Сделать Bitwarden менеджером паролей по умолчанию",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Сделайте ваш опыт автозаполнения лучше",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Вам будет предложено предоставить браузеру $BROWSER$ разрешение на установку Bitwarden в качестве менеджера паролей по умолчанию.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Невозможно установить Bitwarden в качестве менеджера паролей по умолчанию",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4969,6 +5028,22 @@
   "makeDefault": {
     "message": "Установить по умолчанию",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Сделайте Bitwarden менеджером паролей вашего браузера по умолчанию"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "из запроса браузера, чтобы дать Bitwarden разрешение на изменение ваших настроек."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "Мы отключим встроенный менеджер паролей вашего браузера, чтобы вы могли насладиться безопасной авторизацией."
+  },
+  "allow": {
+    "message": "Разрешить",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Пропустить"
   },
   "saveCipherAttemptSuccess": {
     "message": "Учетные данные успешно сохранены!",
@@ -5643,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Коллекции успешно назначены"
+  },
+  "itemAssignedToCollections": {
+    "message": "Элемент присвоен коллекциям"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Элементы присвоены коллекциям"
   },
   "nothingSelected": {
     "message": "Вы ничего не выбрали."
@@ -6492,6 +6573,18 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "sharedUnlock": {
+    "message": "Совместная разблокировка"
+  },
+  "sharedUnlockDescription": {
+    "message": "Обеспечьте синхронизацию ваших приложений Bitwarden. Если эта функция включена, состояние разблокировки будет совместно использоваться всеми приложениями на этом компьютере. Для синхронизации между различными браузерами требуется приложение для компьютера."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано в Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Синхронизируйте ваши приложения Bitwarden. Если включено, состояние разблокировки будет передано приложению Bitwarden."
+  },
   "enterMonth": {
     "message": "Введите месяц."
   },
@@ -6635,14 +6728,36 @@
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Сохранить изменения Send не удалось",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
   },
+  "domainNotAllowed": {
+    "message": "Включить только следующие домены: $DOMAINS$. Пожалуйста, проверьте и повторите попытку",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Не соответствует политике Send вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Для редактирования этой Send, сделайте копию. Если эта Send может истечь к дате удаления, никаких действий не требуется",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Эта Send автоматически истечет после установки даты удаления",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Сделать копию"
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "В Мои элементы нельзя импортировать элементы, которые входят в несколько коллекций"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   }
 }

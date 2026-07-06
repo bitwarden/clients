@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -12,6 +11,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
+import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
 import { ChangeKdfService } from "../../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";

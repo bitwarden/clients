@@ -31,7 +31,6 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -108,7 +107,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
-    private readonly destoryRef: DestroyRef,
+    private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private popupSizeService: PopupSizeService,
     private logService: LogService,
@@ -119,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   async ngOnInit() {
@@ -156,7 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(
         tap(async (msg: any) => {
           if (msg.command === "doneLoggingOut") {
-            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completeted logout?
+            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completed logout?
             this.authService.logOut(async () => {
               if (msg.logoutReason) {
                 await this.displayLogoutReason(msg.logoutReason);
@@ -248,12 +247,9 @@ export class AppComponent implements OnInit, OnDestroy {
                 window.location.reload();
               }, 2000);
             } else {
-              // Close browser action popup before extension reload to prevent zombie popup with invalidated context.
-              // This issue occurs in Chromium-based browsers (Chrome, Vivaldi, etc.) where chrome.runtime.reload()
-              // invalidates extension contexts before popup can close naturally
-              if (BrowserPopupUtils.inPopup(window)) {
-                BrowserApi.closePopup(window);
-              }
+              // On Chromium-based browsers (Chrome, Vivaldi, etc.), `chrome.runtime.reload()` invalidates extension contexts before the view can close naturally.
+              // Popouts also need closing because they survive the runtime reload and strand the user on broken states.
+              await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
             }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

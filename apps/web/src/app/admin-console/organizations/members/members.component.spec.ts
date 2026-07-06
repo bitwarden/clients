@@ -34,7 +34,7 @@ import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/or
 
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult } from "./components/member-dialog";
 import { MembersComponent } from "./members.component";
 import {
@@ -102,7 +102,7 @@ describe("MembersComponent", () => {
     name: "Test User",
     resetPasswordEnrolled: false,
     accessSecretsManager: false,
-    managedByOrganization: false,
+    claimedByOrganization: false,
     twoFactorEnabled: false,
     usesKeyConnector: false,
     hasMasterPassword: true,
@@ -323,12 +323,11 @@ describe("MembersComponent", () => {
     it("should confirm user with auto-confirm enabled", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
       mockMemberActionsService.confirmUser.mockResolvedValue({ success: true });
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       // Mock getPublicKeyForConfirm to return a public key
       const mockPublicKey = new Uint8Array([1, 2, 3, 4]);
       mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(mockPublicKey);
-
-      const replaceSpy = jest.spyOn(component["dataSource"](), "replaceUser");
 
       await component.confirm(mockUser, mockOrg);
 
@@ -338,7 +337,7 @@ describe("MembersComponent", () => {
         mockPublicKey,
         mockOrg,
       );
-      expect(replaceSpy).toHaveBeenCalled();
+      expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
       expect(mockToastService.showToast).toHaveBeenCalled();
     });
 

@@ -6,8 +6,11 @@ import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
   BiometricsService,
@@ -35,6 +38,9 @@ describe("ExtensionLockComponentService", () => {
   let routerService: MockProxy<BrowserRouterService>;
   let biometricStateService: MockProxy<BiometricStateService>;
   let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
+  let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
+  let configService: MockProxy<ConfigService>;
+  let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
@@ -45,6 +51,9 @@ describe("ExtensionLockComponentService", () => {
     routerService = mock<BrowserRouterService>();
     biometricStateService = mock<BiometricStateService>();
     webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+    sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
+    configService = mock<ConfigService>();
+    messageListener = mock<MessageListener>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -58,6 +67,9 @@ describe("ExtensionLockComponentService", () => {
               biometricStateService,
               routerService,
               webAuthnPrfUnlockService,
+              sharedUnlockSettingsService,
+              configService,
+              messageListener,
             ),
         },
       ],
@@ -409,6 +421,10 @@ describe("ExtensionLockComponentService", () => {
 
       // PRF
       webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
+
+      // Shared unlock
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+      sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(false));
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 

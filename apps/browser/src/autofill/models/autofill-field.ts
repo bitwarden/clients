@@ -68,6 +68,8 @@ export default class AutofillField {
 
   "label-data"?: string | null;
 
+  "aria-describedby"?: string | null;
+
   "aria-hidden"?: boolean;
 
   "aria-disabled"?: boolean;

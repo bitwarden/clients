@@ -9,7 +9,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { SendPolicyService } from "@bitwarden/send-ui";
+
+import { SendPolicyService } from "..";
 
 const userId = "test-user-id" as UserId;
 

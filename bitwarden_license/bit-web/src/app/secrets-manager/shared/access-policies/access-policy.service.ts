@@ -12,6 +12,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -69,6 +70,7 @@ export class AccessPolicyService {
     protected apiService: ApiService,
     protected encryptService: EncryptService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   private getOrganizationKey$(organizationId: string) {
@@ -412,14 +414,13 @@ export class AccessPolicyService {
   ): Promise<ServiceAccountAccessPolicyView[]> {
     return await Promise.all(
       responses.map(async (response) => {
-        let serviceAccountName = null;
+        let serviceAccountName: string | null = null;
         if (response.serviceAccountName) {
           try {
-            serviceAccountName = await this.encryptService.decryptString(
-              new EncString(response.serviceAccountName),
-              orgKey,
-            );
-          } catch {
+            const encString = new EncString(response.serviceAccountName);
+            serviceAccountName = await this.encryptService.decryptString(encString, orgKey);
+          } catch (error) {
+            this.logService.error("Error decrypting service account name in access policy", error);
             serviceAccountName = DECRYPT_ERROR;
           }
         }

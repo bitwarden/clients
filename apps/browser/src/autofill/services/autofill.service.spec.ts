@@ -5,7 +5,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
-import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
@@ -50,7 +53,6 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -65,6 +67,7 @@ import {
 import { flushPromises, triggerTestFailure } from "../spec/testing-utils";
 import * as qualification from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   CollectPageDetailsResponseMessage,
@@ -111,10 +114,13 @@ describe("AutofillService", () => {
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
+  const autofillLifecycleService = mock<AutofillLifecycleService>();
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$.mockReturnValue(fillAssistFeatureFlagMock$);
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
@@ -178,10 +184,10 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
-      configService,
       userNotificationsSettings,
       messageListener,
       animationControlService,
+      autofillLifecycleService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -348,13 +354,6 @@ describe("AutofillService", () => {
       expect(autofillService.injectAutofillScripts).not.toHaveBeenCalledWith(tab3);
     });
 
-    it("sets up an extension runtime onConnect listener", async () => {
-      await autofillService.loadAutofillScriptsOnInstall();
-
-      // eslint-disable-next-line no-restricted-syntax
-      expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
-    });
-
     describe("handle inline menu visibility change", () => {
       beforeEach(async () => {
         await autofillService.loadAutofillScriptsOnInstall();
@@ -399,18 +398,12 @@ describe("AutofillService", () => {
   });
 
   describe("reloadAutofillScripts", () => {
-    it("re-injects the autofill scripts in all tabs and disconnects all connected ports", () => {
-      const port1 = mock<chrome.runtime.Port>();
-      const port2 = mock<chrome.runtime.Port>();
-      autofillService["autofillScriptPortsSet"] = new Set([port1, port2]);
+    it("retires all frames through the lifecycle service and re-injects the autofill scripts", () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
       void autofillService.reloadAutofillScripts();
 
-      expect(port1.disconnect).toHaveBeenCalled();
-      expect(port2.disconnect).toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
+      expect(autofillLifecycleService.retireAllFrames).toHaveBeenCalled();
       expect(autofillService["injectAutofillScriptsInAllTabs"]).toHaveBeenCalled();
     });
   });
@@ -530,6 +523,15 @@ describe("AutofillService", () => {
         frameId: 0,
         ...defaultExecuteScriptOptions,
       });
+    });
+
+    it("hands the injected frame to the lifecycle service to begin monitoring", async () => {
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+      expect(autofillLifecycleService.startMonitoringFrame).toHaveBeenCalledWith(
+        sender.tab,
+        sender.frameId,
+      );
     });
   });
 
@@ -1799,6 +1801,158 @@ describe("AutofillService", () => {
       );
 
       expect(value).toBeNull();
+    });
+
+    describe("when the page details contain targeted fields from targeting rules", () => {
+      let targetedPageDetail: AutofillPageDetails;
+      let generateTargetedFillScriptSpy: jest.SpyInstance;
+      let generateLoginFillScriptSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        const targetedField = createAutofillFieldMock({
+          opid: "targeted_field_0_username",
+          htmlID: "username",
+          fieldQualifier: "username",
+          targeted: true,
+        });
+        targetedPageDetail = createAutofillPageDetailsMock({ fields: [targetedField] });
+        generateTargetedFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateTargetedFillScript")
+          .mockReturnValue(new AutofillScript());
+        generateLoginFillScriptSpy = jest
+          .spyOn(autofillService as any, "generateLoginFillScript")
+          .mockReturnValue(new AutofillScript());
+      });
+
+      it("routes to the targeted fill path when the feature flag and user setting are both enabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        await autofillService["generateFillScript"](targetedPageDetail, generateFillScriptOptions);
+
+        expect(generateTargetedFillScriptSpy).toHaveBeenCalledWith(
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the feature flag is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(false);
+        await domainSettingsService.setEnableFillAssist(true);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+
+      it("abandons the fill (returns null) when the user setting is disabled", async () => {
+        fillAssistFeatureFlagMock$.next(true);
+        await domainSettingsService.setEnableFillAssist(false);
+
+        const result = await autofillService["generateFillScript"](
+          targetedPageDetail,
+          generateFillScriptOptions,
+        );
+
+        expect(result).toBeNull();
+        expect(generateTargetedFillScriptSpy).not.toHaveBeenCalled();
+        expect(generateLoginFillScriptSpy).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("generateTargetedFillScript", () => {
+    const buildTargetedPageDetails = (fields: AutofillField[]) =>
+      createAutofillPageDetailsMock({ fields });
+
+    const buildTargetedField = (overrides: Partial<AutofillField>) =>
+      createAutofillFieldMock({
+        targeted: true,
+        ...overrides,
+      });
+
+    it("skips newPassword fields for a normal Login cipher fill (avoids leaking current password)", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = CipherType.Login;
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField]),
+        options,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("fills newPassword fields with the cipher password when inlineMenuFillType is PasswordGeneration", async () => {
+      const newPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const confirmNewPasswordField = buildTargetedField({
+        opid: "targeted_field_0_newPassword_1",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "generated-pass", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([newPasswordField, confirmNewPasswordField]),
+        options,
+      );
+
+      expect(result).not.toBeNull();
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        newPasswordField,
+        "generated-pass",
+      );
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        confirmNewPasswordField,
+        "generated-pass",
+      );
+    });
+
+    it("fills the current-password field via the standard mapping even on a PasswordGeneration fill", async () => {
+      const passwordField = buildTargetedField({
+        opid: "targeted_field_0_password_0",
+        type: "password",
+        fieldQualifier: AutofillTargetingRuleTypes.password,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ password: "stored-password", uris: [] });
+      options.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([passwordField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        passwordField,
+        "stored-password",
+      );
     });
   });
 
@@ -5481,60 +5635,6 @@ describe("AutofillService", () => {
 
       expect(result).toBe(false);
       expect(autofillService["currentlyOpeningPasswordRepromptPopout"]).toBe(false);
-    });
-  });
-
-  describe("handleInjectedScriptPortConnection", () => {
-    it("ignores port connections that do not have the correct port name", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: "some-invalid-port-name",
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).not.toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
-    });
-
-    it("adds the connect port to the set of injected script ports and sets up an onDisconnect listener", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-      jest.spyOn(autofillService as any, "handleInjectScriptPortOnDisconnect");
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).toHaveBeenCalledWith(
-        autofillService["handleInjectScriptPortOnDisconnect"],
-      );
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-  });
-
-  describe("handleInjectScriptPortOnDisconnect", () => {
-    it("ignores port disconnections that do not have the correct port name", () => {
-      autofillService["autofillScriptPortsSet"].add(mock<chrome.runtime.Port>());
-
-      autofillService["handleInjectScriptPortOnDisconnect"](
-        mock<chrome.runtime.Port>({
-          name: "some-invalid-port-name",
-        }),
-      );
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-
-    it("removes the port from the set of injected script ports", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-      }) as any;
-      autofillService["autofillScriptPortsSet"].add(port);
-
-      autofillService["handleInjectScriptPortOnDisconnect"](port);
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
     });
   });
 });

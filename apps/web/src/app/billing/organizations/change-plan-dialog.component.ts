@@ -741,7 +741,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
+    const usedServiceAccounts =
+      (this.sub?.smServiceAccounts || 0) - (this.sub?.smServiceAccountsGrace || 0);
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
 

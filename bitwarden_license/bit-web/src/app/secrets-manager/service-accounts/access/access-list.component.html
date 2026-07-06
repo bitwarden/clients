@@ -21,15 +21,13 @@
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0">
-        <label class="tw-m-0 tw-flex tw-w-fit tw-gap-2 !tw-font-medium !tw-text-muted">
-          <input
-            type="checkbox"
-            (change)="$event ? toggleAll() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          />
-          {{ "all" | i18n }}
-        </label>
+        <input
+          type="checkbox"
+          (change)="$event ? toggleAll() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
+          [attr.aria-label]="'selectAll' | i18n"
+        />
       </th>
       <th bitCell>{{ "name" | i18n }}</th>
       <th bitCell>{{ "expires" | i18n }}</th>
@@ -70,11 +68,14 @@
       </td>
 
       <bit-menu #tokenMenu>
-        <button type="button" bitMenuItem (click)="revokeAccessTokensEvent.emit([token])">
-          <span class="tw-text-danger">
-            <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-            {{ "revokeAccessToken" | i18n }}
-          </span>
+        <button
+          type="button"
+          bitMenuItem
+          variant="danger"
+          (click)="revokeAccessTokensEvent.emit([token])"
+        >
+          <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
+          {{ "revokeAccessToken" | i18n }}
         </button>
       </bit-menu>
     </tr>
@@ -82,10 +83,8 @@
 </bit-table>
 
 <bit-menu #tableMenu>
-  <button type="button" bitMenuItem (click)="revokeSelected()">
-    <span class="tw-text-danger">
-      <i class="bwi bwi-fw bwi-minus-circle" aria-hidden="true"></i>
-      {{ "revokeAccessTokens" | i18n }}
-    </span>
+  <button type="button" bitMenuItem variant="danger" (click)="revokeSelected()">
+    <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
+    {{ "revokeAccessTokens" | i18n }}
   </button>
 </bit-menu>

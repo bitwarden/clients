@@ -50,17 +50,17 @@ import {
     IconModule,
     BerryComponent,
     TooltipDirective,
-  ],
-  declarations: [
     BulkConfirmDialogComponent,
+    BulkDeleteDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
+  ],
+  declarations: [
     BulkProgressDialogComponent,
     BulkReinviteFailureDialogComponent,
     MembersComponent,
-    BulkDeleteDialogComponent,
     UserStatusPipe,
   ],
   providers: [
