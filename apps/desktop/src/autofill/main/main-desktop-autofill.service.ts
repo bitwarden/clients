@@ -19,10 +19,23 @@ export type RunCommandParams<C extends AutofillCommandDefinition> = {
 
 export type RunCommandResult<C extends AutofillCommandDefinition> = C["output"];
 
+type Listener<Request> = (
+  error: Error | null,
+  clientId: number,
+  sequenceNumber: number,
+  request: Request,
+) => void;
+type CompletionCallback<Response> = (
+  clientId: number,
+  sequenceNumber: number,
+  response: Response,
+) => void;
+
 export class DesktopAutofillMain {
   private ipcServer?: autofill.AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
+  private completionCallbacks: Map<string, CompletionCallback<any>> = new Map();
 
   constructor(
     private logService: LogService,
@@ -69,60 +82,45 @@ export class DesktopAutofillMain {
       },
     );
 
+    // Register IPC listeners and response callbacks
+    const registrationListener = this.makeListener<
+      autofill.PasskeyRegistrationRequest,
+      autofill.PasskeyRegistrationResponse
+    >(
+      "autofill.AutofillIpcServer.registration",
+      "autofill.passkeyRegistration",
+      "autofill.completePasskeyRegistration",
+      autofill.AutofillIpcServer.prototype.completeRegistration,
+    );
+    const assertionListener = this.makeListener<
+      autofill.PasskeyAssertionRequest,
+      autofill.PasskeyAssertionResponse
+    >(
+      "autofill.AutofillIpcServer.assertion",
+      "autofill.passkeyAssertion",
+      "autofill.completePasskeyAssertion",
+      autofill.AutofillIpcServer.prototype.completeAssertion,
+    );
+    const assertionWithoutUserInterfaceListener = this.makeListener<
+      autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+      autofill.PasskeyAssertionResponse
+    >(
+      "autofill.AutofillIpcServer.assertionWithoutUserInterface",
+      "autofill.passkeyAssertionWithoutUserInterface",
+      "autofill.completePasskeyAssertion",
+      autofill.AutofillIpcServer.prototype.completeAssertion,
+    );
+    const nativeStatusListener = this.makeListener<autofill.NativeStatus, void>(
+      "autofill.AutofillIpcServer.nativeStatus",
+      "autofill.nativeStatus",
+    );
+
     this.ipcServer = await autofill.AutofillIpcServer.listen(
       "af",
-      // RegistrationCallback
-      (error, clientId, sequenceNumber, request) => {
-        if (error) {
-          this.logService.error("autofill.IpcServer.registration", error);
-          this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
-          return;
-        }
-        this.safeSend("autofill.passkeyRegistration", {
-          clientId,
-          sequenceNumber,
-          request,
-        });
-      },
-      // AssertionCallback
-      (error, clientId, sequenceNumber, request) => {
-        if (error) {
-          this.logService.error("autofill.IpcServer.assertion", error);
-          this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
-          return;
-        }
-        this.safeSend("autofill.passkeyAssertion", {
-          clientId,
-          sequenceNumber,
-          request,
-        });
-      },
-      // AssertionWithoutUserInterfaceCallback
-      (error, clientId, sequenceNumber, request) => {
-        if (error) {
-          this.logService.error("autofill.IpcServer.assertion", error);
-          this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
-          return;
-        }
-        this.safeSend("autofill.passkeyAssertionWithoutUserInterface", {
-          clientId,
-          sequenceNumber,
-          request,
-        });
-      },
-      // NativeStatusCallback
-      (error, clientId, sequenceNumber, status) => {
-        if (error) {
-          this.logService.error("autofill.IpcServer.nativeStatus", error);
-          this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
-          return;
-        }
-        this.safeSend("autofill.nativeStatus", {
-          clientId,
-          sequenceNumber,
-          status,
-        });
-      },
+      registrationListener,
+      assertionListener,
+      assertionWithoutUserInterfaceListener,
+      nativeStatusListener,
     );
 
     ipcMain.on("autofill.listenerReady", () => {
@@ -133,23 +131,89 @@ export class DesktopAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on("autofill.completePasskeyRegistration", (event, data) => {
-      this.logService.debug("autofill.completePasskeyRegistration", data);
-      const { clientId, sequenceNumber, response } = data;
-      this.ipcServer?.completeRegistration(clientId, sequenceNumber, response);
-    });
-
-    ipcMain.on("autofill.completePasskeyAssertion", (event, data) => {
-      this.logService.debug("autofill.completePasskeyAssertion", data);
-      const { clientId, sequenceNumber, response } = data;
-      this.ipcServer?.completeAssertion(clientId, sequenceNumber, response);
-    });
-
     ipcMain.on("autofill.completeError", (event, data) => {
       this.logService.debug("autofill.completeError", data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
     });
+  }
+
+  /**
+   * Creates a listener function for an autofill IPC request, and selects a Electron
+   * renderer IPC channel to forward the request to. If a response callback is
+   * given, also registers a Electron channel listener for the response from the
+   * renderer process, which is forwarded back to the autofill IPC server using
+   * the given completion callback.
+   *
+   * @param {string} listenerName - The name for the listener, used for logging.
+   * @param {string} toRendererChannel - Channel to send requests to the renderer process.
+   * @param {[string]} fromRendererChannel - Channel to listen for responses from the renderer process. Excluded if the IPC request does not expect a response.
+   * @param {[string]} completeCallback - Callback to execute on a response from the renderer process. This should be a reference to a prototype method on {@link autofill.AutofillIpcServer}. Excluded if the IPC request does not expect a response.
+   *
+   * @returns A callback that can be used to register with {@link autofill.AutofillIpcServer.listen}.
+   */
+  private makeListener<Request, Response>(
+    listenerName: string,
+    toRendererChannel: string,
+    fromRendererChannel?: string,
+    completeCallback?: CompletionCallback<Response>,
+  ): Listener<Request> {
+    const callback = (
+      error: Error | null,
+      clientId: number,
+      sequenceNumber: number,
+      request: Request,
+    ) => {
+      if (error) {
+        this.logService.error(listenerName, error);
+        this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
+        return;
+      }
+
+      this.safeSend(toRendererChannel, {
+        clientId,
+        sequenceNumber,
+        request,
+      });
+    };
+
+    // Only register if we have a callback, and only once
+    if (completeCallback && fromRendererChannel) {
+      if (ipcMain.listenerCount(fromRendererChannel) > 0) {
+        if (completeCallback === this.completionCallbacks.get(fromRendererChannel)) {
+          // if we're registering the same handler for the channel, then just silently continue.
+          return callback;
+        } else {
+          throw new Error(
+            `Tried to register multiple listeners for ${fromRendererChannel}, which is not allowed.`,
+          );
+        }
+      }
+
+      ipcMain.on(fromRendererChannel, (_event, data) => {
+        // This will only happen if we forget to assign `this.ipcServer`, since
+        // we won't receive any requests unless AutofillIpcServer.listen() is
+        // called, and therefore, we won't receive any response callbacks
+        // without ipcServer being set.
+        if (!this.ipcServer) {
+          this.logService.error(
+            "[NativeAutofillMain]",
+            `${fromRendererChannel}: Cannot find IPC server instance to return response to autofill provider.`,
+          );
+          throw new Error(
+            "Received data to send to Autofill IPC, but the IPC client instance is not initialized.",
+          );
+        }
+
+        this.logService.debug(fromRendererChannel, data);
+        const { clientId, sequenceNumber, response } = data;
+        completeCallback.call(this.ipcServer, clientId, sequenceNumber, response);
+      });
+
+      this.completionCallbacks.set(fromRendererChannel, completeCallback);
+    }
+
+    return callback;
   }
 
   private async runCommand<C extends AutofillCommandDefinition>(

@@ -10,6 +10,13 @@ type CompletionCallback<T> = {
   (error: Error, response: null): void;
 };
 
+type IpcListener<Request, Response> = (
+  clientId: number,
+  sequenceNumber: number,
+  request: Request,
+  completeCallback: CompletionCallback<Response>,
+) => void;
+
 export const DesktopAutofillPreload = {
   runCommand: <C extends AutofillCommand>(
     params: RunCommandParams<C>,
@@ -18,12 +25,7 @@ export const DesktopAutofillPreload = {
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: (
-    fn: (
-      clientId: number,
-      sequenceNumber: number,
-      request: autofill.PasskeyRegistrationRequest,
-      completeCallback: CompletionCallback<autofill.PasskeyRegistrationResponse>,
-    ) => void,
+    fn: IpcListener<autofill.PasskeyRegistrationRequest, autofill.PasskeyRegistrationResponse>,
   ) => {
     ipcRenderer.on(
       "autofill.passkeyRegistration",
@@ -57,12 +59,7 @@ export const DesktopAutofillPreload = {
   },
 
   listenPasskeyAssertion: (
-    fn: (
-      clientId: number,
-      sequenceNumber: number,
-      request: autofill.PasskeyAssertionRequest,
-      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
-    ) => void,
+    fn: IpcListener<autofill.PasskeyAssertionRequest, autofill.PasskeyAssertionResponse>,
   ) => {
     ipcRenderer.on(
       "autofill.passkeyAssertion",
@@ -95,12 +92,10 @@ export const DesktopAutofillPreload = {
     );
   },
   listenPasskeyAssertionWithoutUserInterface: (
-    fn: (
-      clientId: number,
-      sequenceNumber: number,
-      request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
-    ) => void,
+    fn: IpcListener<
+      autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+      autofill.PasskeyAssertionResponse
+    >,
   ) => {
     ipcRenderer.on(
       "autofill.passkeyAssertionWithoutUserInterface",
@@ -133,7 +128,7 @@ export const DesktopAutofillPreload = {
     );
   },
   listenNativeStatus: (
-    fn: (clientId: number, sequenceNumber: number, status: { key: string; value: string }) => void,
+    fn: (clientId: number, sequenceNumber: number, request: autofill.NativeStatus) => void,
   ) => {
     ipcRenderer.on(
       "autofill.nativeStatus",
@@ -142,11 +137,11 @@ export const DesktopAutofillPreload = {
         data: {
           clientId: number;
           sequenceNumber: number;
-          status: { key: string; value: string };
+          request: autofill.NativeStatus;
         },
       ) => {
-        const { clientId, sequenceNumber, status } = data;
-        fn(clientId, sequenceNumber, status);
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request);
       },
     );
   },
