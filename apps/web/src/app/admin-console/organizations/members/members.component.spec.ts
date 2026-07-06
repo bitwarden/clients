@@ -323,12 +323,11 @@ describe("MembersComponent", () => {
     it("should confirm user with auto-confirm enabled", async () => {
       mockOrganizationManagementPreferencesService.autoConfirmFingerPrints.state$ = of(true);
       mockMemberActionsService.confirmUser.mockResolvedValue({ success: true });
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       // Mock getPublicKeyForConfirm to return a public key
       const mockPublicKey = new Uint8Array([1, 2, 3, 4]);
       mockMemberActionsService.getPublicKeyForConfirm.mockResolvedValue(mockPublicKey);
-
-      const replaceSpy = jest.spyOn(component["dataSource"](), "replaceUser");
 
       await component.confirm(mockUser, mockOrg);
 
@@ -338,7 +337,7 @@ describe("MembersComponent", () => {
         mockPublicKey,
         mockOrg,
       );
-      expect(replaceSpy).toHaveBeenCalled();
+      expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
       expect(mockToastService.showToast).toHaveBeenCalled();
     });
 
