@@ -22,7 +22,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -46,7 +45,6 @@ export class DefaultCollectionService implements CollectionService {
     protected stateProvider: StateProvider,
     private configService: ConfigService,
     private collectionEncryptionService: CollectionEncryptionService,
-    private logService: LogService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();

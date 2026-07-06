@@ -11,7 +11,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -38,7 +37,6 @@ describe("DefaultCollectionService", () => {
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
   let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
-  let logService: MockProxy<LogService>;
 
   let userId: UserId;
 
@@ -55,7 +53,6 @@ describe("DefaultCollectionService", () => {
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     configService = mock();
     collectionEncryptionService = mock();
-    logService = mock();
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
@@ -87,7 +84,6 @@ describe("DefaultCollectionService", () => {
       stateProvider,
       configService,
       collectionEncryptionService,
-      logService,
     );
   });
 
