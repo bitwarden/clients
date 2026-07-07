@@ -13,7 +13,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { SendAddEditDialogComponent, SendFormService } from "@bitwarden/send-ui";
+import { SendAddEditDialogComponent, SendFormService, SendPolicyService } from "@bitwarden/send-ui";
 
 import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
@@ -58,6 +58,13 @@ describe("NewSendDropdownComponent", () => {
         { provide: SendFormService, useValue: mock<SendFormService>() },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: DialogService, useValue: mock<DialogService>() },
+        {
+          provide: SendPolicyService,
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+          },
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(NewSendDropdownComponent);
