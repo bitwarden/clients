@@ -169,7 +169,7 @@ export class UserVerificationDialogComponent {
    *
    *      // ... Do something with the custom request type
    *
-   *       await someServicer.sendMyRequestThatVerfiesUserIdentity(
+   *       await someServicer.sendMyRequestThatVerifiesUserIdentity(
    *         // ... Some other data
    *         request,
    *       );

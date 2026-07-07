@@ -27,7 +27,7 @@ import {
 } from "./pin/pin.state";
 import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
 
-// Helper functions to work around unrealiable state. KM state values correctness over speed
+// Helper functions to work around unreliable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.
 
 async function readAtomic<T>(

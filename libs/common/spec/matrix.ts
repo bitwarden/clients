@@ -72,7 +72,7 @@ export class Matrix<TKeys extends unknown[], TValue> {
   /**
    * Gives the ability to get or create an entry in the matrix via the given args.
    *
-   * @note The args are evaulated using Javascript equality so primivites work best.
+   * @note The args are evaluated using Javascript equality so primivites work best.
    *
    * @param args The arguments to use to evaluate if an entry in the matrix exists already,
    *   or a value should be created and stored with those arguments.

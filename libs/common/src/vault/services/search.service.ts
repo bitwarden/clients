@@ -68,7 +68,7 @@ export class SearchService implements SearchServiceAbstraction {
     query: string,
     ciphers: C[],
   ): Promise<C[]> {
-    // Callers may still pass in null even thogh they are not supposed to per the parameter type
+    // Callers may still pass in null even though they are not supposed to per the parameter type
     if (query == null || query.trim() === "") {
       return ciphers;
     }

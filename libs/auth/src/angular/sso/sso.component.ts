@@ -377,7 +377,7 @@ export class SsoComponent implements OnInit {
     state += `_identifier=${this.identifier}`;
 
     // Save the pre-SSO state.
-    // We need to do this here as even if it was generated on the intiating client (e.g. browser, desktop),
+    // We need to do this here as even if it was generated on the initiating client (e.g. browser, desktop),
     // we need it on the web client to verify after the user authenticates with the identity provider and is redirected back.
     await this.ssoLoginService.setSsoState(state);
 

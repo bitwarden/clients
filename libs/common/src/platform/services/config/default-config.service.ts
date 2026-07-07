@@ -243,7 +243,7 @@ export class DefaultConfigService implements ConfigService {
       clearTimeout(handle);
       const newConfig = new ServerConfig(new ServerConfigData(response));
 
-      this.parseBoostrapConfig(response);
+      this.parseBootstrapConfig(response);
 
       // Update the environment region
       if (
@@ -281,7 +281,7 @@ export class DefaultConfigService implements ConfigService {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 
-  private parseBoostrapConfig(response: ServerConfigResponse) {
+  private parseBootstrapConfig(response: ServerConfigResponse) {
     const bootstrap = response.communication?.bootstrap ?? null;
     const vaultUrl = response.environment?.vault;
 

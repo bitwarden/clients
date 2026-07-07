@@ -82,7 +82,7 @@ export class SignalRConnectionService {
       throw new InsecureUrlNotAllowedError();
     }
 
-    return new Observable<SignalRNotification>((subsciber) => {
+    return new Observable<SignalRNotification>((subscriber) => {
       const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
           accessTokenFactory: () => this.apiService.getActiveBearerToken(userId),
@@ -94,11 +94,11 @@ export class SignalRConnectionService {
         .build();
 
       connection.on("ReceiveMessage", (data: any) => {
-        subsciber.next({ type: "ReceiveMessage", message: new NotificationResponse(data) });
+        subscriber.next({ type: "ReceiveMessage", message: new NotificationResponse(data) });
       });
 
       connection.on("Heartbeat", () => {
-        subsciber.next({ type: "Heartbeat" });
+        subscriber.next({ type: "Heartbeat" });
       });
 
       let reconnectSubscription: Subscription | null = null;
@@ -117,7 +117,7 @@ export class SignalRConnectionService {
 
         // If we've somehow gotten here while the subscriber is closed,
         // we do not want to reconnect. So leave.
-        if (subsciber.closed) {
+        if (subscriber.closed) {
           return;
         }
 

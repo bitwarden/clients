@@ -33,7 +33,7 @@ export abstract class AvatarService {
    *          avatar for each account. If you only need the active user's
    *          avatar color, use the avatarColor$ observable above instead.
    *
-   * @param userId the userId of the user whose avatar color should be retreived
+   * @param userId the userId of the user whose avatar color should be retrieved
    * @return an Observable that emits a string of the avatar color of the specified user
    */
   abstract getUserAvatarColor$(userId: UserId): Observable<string | null>;

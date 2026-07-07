@@ -189,7 +189,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     });
   }
 
-  /** Logs the givin event when in edit mode */
+  /** Logs the giving event when in edit mode */
   logVisibleEvent = async (passwordVisible: boolean, event: EventType) => {
     const { mode, originalCipher } = this.cipherFormContainer.config;
 
