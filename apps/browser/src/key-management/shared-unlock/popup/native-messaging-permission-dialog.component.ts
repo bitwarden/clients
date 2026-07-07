@@ -64,7 +64,8 @@ export class NativeMessagingPermissionDialogComponent {
   });
   protected readonly descriptionKey =
     DESCRIPTION_KEY_BY_TYPE[
-      (this.params?.type as NativeMessagingPermissionDialogType | undefined) ?? NativeMessagingPermissionDialogType.Biometrics
+      (this.params?.type as NativeMessagingPermissionDialogType | undefined) ??
+        NativeMessagingPermissionDialogType.Biometrics
     ];
 
   async continue() {
