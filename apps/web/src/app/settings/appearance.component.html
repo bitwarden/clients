@@ -44,16 +44,11 @@
       </div>
     </div>
     @if (showEarlyAccessToggle()) {
-      <bit-form-control>
-        <input
-          type="checkbox"
-          bitCheckbox
-          id="appearance_input_early-access"
-          formControlName="earlyAccess"
-        />
+      <bit-form-control-card>
+        <bit-switch id="appearance_input_early-access" formControlName="earlyAccess"></bit-switch>
         <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
         <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
-      </bit-form-control>
+      </bit-form-control-card>
     }
   </form>
 </bit-container>

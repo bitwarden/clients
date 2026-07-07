@@ -41,6 +41,7 @@ import {
   CheckboxModule,
   DialogModule,
   DialogService,
+  FormControlModule,
   FormFieldModule,
   IconButtonModule,
   IconModule,
@@ -50,6 +51,7 @@ import {
   SectionComponent,
   SectionHeaderComponent,
   SelectModule,
+  SwitchComponent,
   TabsModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -82,6 +84,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     ButtonModule,
     CheckboxModule,
     DialogModule,
+    FormControlModule,
     FormFieldModule,
     FormsModule,
     ReactiveFormsModule,
@@ -94,6 +97,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
+    SwitchComponent,
     TabsModule,
     TypographyModule,
     SessionTimeoutSettingsComponent,
@@ -372,6 +376,13 @@ export class SettingsDialogComponent implements OnInit {
     this.form.controls.locale.valueChanges
       .pipe(
         concatMap(async (value: string) => this.saveLocale(value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.earlyAccess.valueChanges
+      .pipe(
+        concatMap(async () => this.saveEarlyAccess()),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

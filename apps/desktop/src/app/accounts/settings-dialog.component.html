@@ -99,17 +99,14 @@
         </bit-form-control>
 
         @if (showEarlyAccessToggle()) {
-          <bit-form-control>
-            <input
-              type="checkbox"
-              bitCheckbox
+          <bit-form-control-card>
+            <bit-switch
               id="settings-dialog_input_early-access"
               formControlName="earlyAccess"
-              (change)="saveEarlyAccess()"
-            />
+            ></bit-switch>
             <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
             <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
-          </bit-form-control>
+          </bit-form-control-card>
         }
       </bit-tab>
 

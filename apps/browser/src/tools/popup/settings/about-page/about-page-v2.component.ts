@@ -17,12 +17,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import {
-  CardComponent,
   CenterPositionStrategy,
-  CheckboxModule,
   DialogService,
-  FormFieldModule,
+  FormControlModule,
   ItemModule,
+  SwitchComponent,
 } from "@bitwarden/components";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -60,9 +59,8 @@ const RateUrls = {
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
-    CardComponent,
-    CheckboxModule,
-    FormFieldModule,
+    FormControlModule,
+    SwitchComponent,
     I18nPipe,
   ],
 })

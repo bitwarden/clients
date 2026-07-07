@@ -15,7 +15,7 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EarlyAccessService } from "@bitwarden/common/platform/services/early-access/early-access.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, SwitchComponent } from "@bitwarden/components";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
 import { HeaderModule } from "../layouts/header/header.module";
@@ -34,7 +34,7 @@ type ThemeOption = {
 @Component({
   selector: "app-appearance",
   templateUrl: "appearance.component.html",
-  imports: [SharedModule, HeaderModule, PermitCipherDetailsPopoverComponent],
+  imports: [SharedModule, HeaderModule, PermitCipherDetailsPopoverComponent, SwitchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppearanceComponent implements OnInit {

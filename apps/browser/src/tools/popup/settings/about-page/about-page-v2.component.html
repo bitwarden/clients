@@ -37,20 +37,12 @@
   </bit-item-group>
 
   @if (showEarlyAccessToggle()) {
-    <h2 bitTypography="h6" class="tw-font-medium tw-mt-4">{{ "earlyAccess" | i18n }}</h2>
-    <bit-card>
-      <form [formGroup]="earlyAccessForm">
-        <bit-form-control disableMargin>
-          <input
-            bitCheckbox
-            id="about-page_input_early-access"
-            formControlName="earlyAccess"
-            type="checkbox"
-          />
-          <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
-          <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
-        </bit-form-control>
-      </form>
-    </bit-card>
+    <form [formGroup]="earlyAccessForm" class="tw-mt-4">
+      <bit-form-control-card>
+        <bit-switch id="about-page_input_early-access" formControlName="earlyAccess"></bit-switch>
+        <bit-label>{{ "earlyAccess" | i18n }}</bit-label>
+        <bit-hint>{{ "earlyAccessDesc" | i18n }}</bit-hint>
+      </bit-form-control-card>
+    </form>
   }
 </popup-page>
