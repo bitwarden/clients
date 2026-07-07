@@ -59,7 +59,17 @@
                   }}</span>
                 }
               </td>
-              <td bitCell>{{ row.kindLabelKey | i18n }}</td>
+              <td bitCell>
+                {{ row.kindLabelKey | i18n }}
+                @if (row.inDoubt) {
+                  <span
+                    bitBadge
+                    variant="warning"
+                    [bitTooltip]="'pamAuditIncompleteTooltip' | i18n"
+                    >{{ "pamAuditIncomplete" | i18n }}</span
+                  >
+                }
+              </td>
               <td bitCell>
                 @if (row.automated) {
                   <span class="tw-text-muted">{{ "pamAuditSystem" | i18n }}</span>

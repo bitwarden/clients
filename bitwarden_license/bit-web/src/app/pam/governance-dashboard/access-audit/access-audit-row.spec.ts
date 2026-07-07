@@ -14,6 +14,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     ruleName: null,
     detail: null,
     automated: false,
+    inDoubt: false,
     requestId: null,
     searchText: "alice alice prod db production",
     ...overrides,
@@ -73,5 +74,21 @@ describe("toAuditRow", () => {
     expect(result.cipherName).toBeNull();
     // The rule name is part of the free-text search haystack.
     expect(result.searchText).toContain("prod-rule");
+    // A completed event (no Incomplete flag) is not in-doubt.
+    expect(result.inDoubt).toBe(false);
+  });
+
+  it("marks a row in-doubt when the event is incomplete", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseActivated,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      Incomplete: true,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.inDoubt).toBe(true);
   });
 });

@@ -28,10 +28,10 @@ export const AccessAuditEventKind = Object.freeze({
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
 /**
- * One row of the synthesized PAM access-audit trail, as the governance client renders it. Projected server-side from
- * existing PAM entity state — there is no audit record. `kind` carries the outcome; `actorId` is who performed the
- * event (null for a system / automatic event, reflected by `automated`). Subject ids/names are populated according to
- * the kind.
+ * One row of the PAM access-audit trail, as the governance client renders it. Read from the dedicated audit store,
+ * where each event was written self-contained (display names snapshotted at write time). `kind` carries the outcome;
+ * `actorId` is who performed the event (null for a system / automatic event, reflected by `automated`). Subject
+ * ids/names are populated according to the kind.
  */
 export class AccessAuditEventResponse extends BaseResponse {
   kind: AccessAuditEventKind;
@@ -62,6 +62,8 @@ export class AccessAuditEventResponse extends BaseResponse {
   ruleName: string | null;
   /** True when there is no human actor — a system / automatic event. */
   automated: boolean;
+  /** True when the action's outcome never landed (only the write-ahead attempt was recorded) — an in-doubt entry. */
+  incomplete: boolean;
 
   constructor(response: unknown) {
     super(response);
@@ -86,5 +88,6 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.collectionName = this.getResponseProperty("CollectionName") ?? null;
     this.ruleName = this.getResponseProperty("RuleName") ?? null;
     this.automated = this.getResponseProperty("Automated");
+    this.incomplete = this.getResponseProperty("Incomplete") ?? false;
   }
 }

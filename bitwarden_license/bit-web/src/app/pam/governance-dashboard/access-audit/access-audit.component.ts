@@ -16,6 +16,7 @@ import { AccessAuditEventKind, PamApiService } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
+  BadgeModule,
   CalloutModule,
   ChipFilterComponent,
   ChipFilterOption,
@@ -33,12 +34,13 @@ import { AuditRow, auditKindLabelKey, auditRowMatchesFilter, toAuditRow } from "
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
 /**
- * The access-audit tab on the governance dashboard: the synthesized PAM audit trail for one organization.
+ * The access-audit tab on the governance dashboard: the PAM audit trail for one organization, read from the dedicated
+ * append-only audit store.
  *
  * The `/organizations/{orgId}/audit` endpoint is org-scoped and authorized by the AccessEventLogs permission, so it
  * returns the whole organization's trail. Actor and requester display names come from the server's denormalized
  * fields; cipher and collection names are resolved from local vault state (see
- * {@link AccessRequestNameResolver}). Read-only — a projection, no actions; each row links to the request's detail page.
+ * {@link AccessRequestNameResolver}). Read-only, no actions; each row links to the request's detail page.
  * The toolbar filters (free-text + event kind) run client-side over the already-fetched window.
  */
 @Component({
@@ -49,6 +51,7 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    BadgeModule,
     CalloutModule,
     ChipFilterComponent,
     LinkModule,
