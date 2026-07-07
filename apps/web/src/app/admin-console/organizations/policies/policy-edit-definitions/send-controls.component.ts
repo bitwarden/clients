@@ -25,12 +25,15 @@ import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   FormFieldModule,
   Option,
@@ -56,6 +59,19 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
+  }
+
+  override enabled(policy: PolicyResponse): boolean {
+    // This policy is always enabled, and is driven entirely through its `policy.data` configuration.
+    // The 'enabled' UI reflects whether the Send feature is enabled, rather than whether the policy is enabled.
+
+    // It is enabled by default:
+    if (policy == null || policy.data == null) {
+      return true;
+    }
+
+    // Or enabled if the Send feature is enabled:
+    return !policy.data.disableSend;
   }
 }
 
@@ -235,5 +251,16 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       }
       return null;
     };
+  }
+
+  override buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
+    return Promise.resolve({
+      policy: {
+        enabled: true, // note: you could technically set this to false if all `data` properties are set to their defaults (because that would be a no-op anyway)
+        // but that seems cumbersome to maintain - easier to just always set it to on and pivot from the data configuration
+        data: this.data.value, // assuming this maps 1:1 to the request/data model
+      },
+      metadata: null,
+    });
   }
 }
