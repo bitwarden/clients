@@ -83,7 +83,7 @@ export class NativeMessagingPermissionDialogComponent {
       }
       granted = false;
     }
-    void this.dialogRef.close(granted);
+    await this.dialogRef.close(granted);
   }
 
   /**
