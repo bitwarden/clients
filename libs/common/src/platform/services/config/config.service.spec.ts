@@ -75,7 +75,7 @@ describe("ConfigService", () => {
     });
 
     beforeEach(() => {
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      Matrix.autoMockMethod(environmentService.userEnvironment$, () => environmentSubject);
       environmentService.globalEnvironment$ = environmentSubject;
       sut = new DefaultConfigService(
         configApiService,
@@ -231,7 +231,7 @@ describe("ConfigService", () => {
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
           userState.nextState(userStored);
-          Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+          Matrix.autoMockMethod(environmentService.userEnvironment$, () => environmentSubject);
         });
         it("does not fetch from server", async () => {
           await firstValueFrom(sut.serverConfig$);
@@ -283,7 +283,7 @@ describe("ConfigService", () => {
     beforeEach(() => {
       environmentSubject = new Subject<Environment>();
       environmentService.globalEnvironment$ = environmentSubject;
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      Matrix.autoMockMethod(environmentService.userEnvironment$, () => environmentSubject);
       sut = new DefaultConfigService(
         configApiService,
         environmentService,
@@ -377,7 +377,7 @@ describe("ConfigService", () => {
     });
 
     beforeEach(() => {
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      Matrix.autoMockMethod(environmentService.userEnvironment$, () => environmentSubject);
       environmentService.globalEnvironment$ = environmentSubject;
 
       // Provide a fresh server config so serverConfig$ resolves without fetching
@@ -462,7 +462,7 @@ describe("ConfigService", () => {
     beforeEach(async () => {
       const config = serverConfigFactory("existing-data", tooOld);
       environmentService.globalEnvironment$ = environmentSubject;
-      Matrix.autoMockMethod(environmentService.getEnvironment$, () => environmentSubject);
+      Matrix.autoMockMethod(environmentService.userEnvironment$, () => environmentSubject);
 
       globalState.stateSubject.next({ [apiUrl(0)]: config });
       userState.stateSubject.next({

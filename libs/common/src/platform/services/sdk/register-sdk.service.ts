@@ -125,7 +125,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
     );
 
     const client$ = combineLatest([
-      this.environmentService.getEnvironment$(userId),
+      this.environmentService.userEnvironment$(userId),
       account$,
       SdkLoadService.Ready, // Makes sure we wait (once) for the SDK to be loaded
     ]).pipe(

@@ -92,7 +92,7 @@ describe("DefaultSdkService", () => {
     describe("given the user is logged in", () => {
       const userId = "0da62ebd-98bb-4f42-a846-64e8555087d7" as UserId;
       beforeEach(() => {
-        environmentService.getEnvironment$
+        environmentService.userEnvironment$
           .calledWith(userId)
           .mockReturnValue(new BehaviorSubject(mock<Environment>()));
         accountService.accounts$ = of({
@@ -210,7 +210,7 @@ describe("DefaultSdkService", () => {
 
         it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {
           const env$ = new BehaviorSubject<Environment | undefined>(mock<Environment>());
-          environmentService.getEnvironment$
+          environmentService.userEnvironment$
             .calledWith(userId)
             .mockReturnValue(env$ as BehaviorSubject<Environment>);
 

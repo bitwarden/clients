@@ -83,7 +83,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
 
   async get_vault_url(user_id: UserId): Promise<string> {
     const environment = await firstValueFrom(
-      this.environmentService.getEnvironment$(fromSdkUserId(user_id)),
+      this.environmentService.userEnvironment$(fromSdkUserId(user_id)),
     );
     return environment.getWebVaultUrl();
   }

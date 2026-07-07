@@ -192,7 +192,7 @@ export class DefaultSdkService implements SdkService {
       .pipe(distinctUntilChanged());
 
     const client$ = combineLatest([
-      this.environmentService.getEnvironment$(userId),
+      this.environmentService.userEnvironment$(userId),
       account$,
       kdfParams$,
       accountCryptographicState$,

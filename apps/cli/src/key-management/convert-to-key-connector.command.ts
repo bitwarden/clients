@@ -74,7 +74,7 @@ export class ConvertToKeyConnectorCommand {
       const env = await firstValueFrom(this.environmentService.environment$);
       const urls = env.getUrls();
       urls.keyConnector = organization.keyConnectorUrl;
-      await this.environmentService.setEnvironment(Region.SelfHosted, urls);
+      await this.environmentService.setGlobalEnvironment(Region.SelfHosted, urls);
 
       return Response.success();
     } else if (answer.convert === "leave") {

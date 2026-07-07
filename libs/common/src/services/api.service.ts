@@ -628,7 +628,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<any> {
     if (typeof XMLHttpRequest !== "undefined" && options?.onProgress) {
       const userId = await this.getActiveUser();
-      const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+      const environment = await firstValueFrom(this.environmentService.userEnvironment$(userId));
       const apiUrl = environment.getApiUrl();
       const headers = await this.buildRequestHeaders();
       const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
@@ -1200,7 +1200,7 @@ export class ApiService implements ApiServiceAbstraction {
     const env = await firstValueFrom(
       userId == null
         ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userId),
+        : this.environmentService.userEnvironment$(userId),
     );
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getEventsUrl() + "/collect", {
@@ -1537,7 +1537,7 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const env = await firstValueFrom(this.environmentService.userEnvironment$(userId));
     const decodedToken = await this.tokenService.decodeAccessToken(userId);
     const response = await this.fetch(
       this.httpOperations.createRequest(env.getIdentityUrl() + "/connect/token", {
@@ -1639,7 +1639,7 @@ export class ApiService implements ApiServiceAbstraction {
     const environment = await firstValueFrom(
       userIdMakingRequest == null
         ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userIdMakingRequest),
+        : this.environmentService.userEnvironment$(userIdMakingRequest),
     );
     apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
 

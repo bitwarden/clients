@@ -86,7 +86,7 @@ describe("ApiService", () => {
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
 
-      environmentService.getEnvironment$.mockReturnValue(
+      environmentService.userEnvironment$.mockReturnValue(
         of({
           getApiUrl: () => "https://authed.example.com",
         } satisfies Partial<Environment> as Environment),
@@ -146,7 +146,7 @@ describe("ApiService", () => {
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
 
-      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValueOnce(
+      environmentService.userEnvironment$.calledWith(testInactiveUser).mockReturnValueOnce(
         of({
           getApiUrl: () => "https://inactive.example.com",
         } satisfies Partial<Environment> as Environment),
@@ -235,7 +235,7 @@ describe("ApiService", () => {
     ];
 
     it.each(cases)("$name does", async ({ authedOrUserId, expectedEffectiveUser }) => {
-      environmentService.getEnvironment$.calledWith(expectedEffectiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(expectedEffectiveUser).mockReturnValue(
         of({
           getApiUrl: () => `https://${expectedEffectiveUser}.example.com`,
           getIdentityUrl: () => `https://${expectedEffectiveUser}.identity.example.com`,
@@ -381,7 +381,7 @@ describe("ApiService", () => {
   it.each(errorData)(
     "throws error-like response when not ok response with $name",
     async ({ input, error }) => {
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
         } satisfies Partial<Environment> as Environment),
@@ -418,7 +418,7 @@ describe("ApiService", () => {
   );
 
   it("throws error when trying to fetch an insecure URL", async () => {
-    environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+    environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
       of({
         getApiUrl: () => "http://example.com",
       } satisfies Partial<Environment> as Environment),
@@ -461,7 +461,7 @@ describe("ApiService", () => {
       // 4. refreshToken makes an HTTP call to /connect/token to get new tokens
       // 5. setTokens is called to store the new tokens, returning the refreshed access token
       // 6. Request is retried with the refreshed token and succeeds
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
@@ -612,7 +612,7 @@ describe("ApiService", () => {
     });
 
     it("does not retry when request returns non-401 error", async () => {
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
@@ -701,7 +701,7 @@ describe("ApiService", () => {
         getApiUrl: () => "https://example.com",
       } satisfies Partial<Environment> as Environment);
 
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
@@ -762,14 +762,14 @@ describe("ApiService", () => {
         }),
       } satisfies ObservedValueOf<AccountService["activeAccount$"]>);
 
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
         } satisfies Partial<Environment> as Environment),
       );
 
-      environmentService.getEnvironment$.calledWith(testInactiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testInactiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://inactive.example.com",
           getIdentityUrl: () => "https://identity.inactive.example.com",
@@ -909,7 +909,7 @@ describe("ApiService", () => {
     });
 
     it("throws error when retry also returns 401", async () => {
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
@@ -1030,7 +1030,7 @@ describe("ApiService", () => {
       // 5. Request B should wait for A's refresh to complete (via refreshTokenPromise cache)
       // 6. Both requests retry with the new token
 
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
           getIdentityUrl: () => "https://identity.example.com",
@@ -1170,7 +1170,7 @@ describe("ApiService", () => {
 
   describe("When 403 Forbidden response is received from API request", () => {
     it("logs out the authenticated user", async () => {
-      environmentService.getEnvironment$.calledWith(testActiveUser).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(testActiveUser).mockReturnValue(
         of({
           getApiUrl: () => "https://example.com",
         } satisfies Partial<Environment> as Environment),
@@ -1342,7 +1342,7 @@ describe("ApiService", () => {
     const refreshedAccessToken = "refreshed_access_token";
 
     beforeEach(() => {
-      environmentService.getEnvironment$.calledWith(userId).mockReturnValue(
+      environmentService.userEnvironment$.calledWith(userId).mockReturnValue(
         of({
           getIdentityUrl: () => "https://identity.example.com",
         } satisfies Partial<Environment> as Environment),

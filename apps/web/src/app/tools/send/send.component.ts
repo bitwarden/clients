@@ -361,7 +361,7 @@ export class SendComponent implements OnDestroy {
 
   protected async onCopySend(send: SendView): Promise<void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
-    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const env = await firstValueFrom(this.environmentService.userEnvironment$(userId));
     const link = env.getSendUrl() + send.accessId + "/" + send.urlB64Key;
     this.platformUtilsService.copyToClipboard(link);
     this.toastService.showToast({

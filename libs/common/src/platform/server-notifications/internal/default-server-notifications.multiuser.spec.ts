@@ -78,7 +78,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     } as Environment);
     environmentConfigurationService.environment$ = environmentConfiguration$ as any;
     // Ensure user-scoped environment lookups return the same test environment stream
-    environmentConfigurationService.getEnvironment$.mockImplementation(
+    environmentConfigurationService.userEnvironment$.mockImplementation(
       (_userId: UserId) => environmentConfiguration$.asObservable() as any,
     );
 
