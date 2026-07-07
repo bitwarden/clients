@@ -298,6 +298,61 @@ export class SshAgentService implements OnDestroy {
         .subscribe();
     }
 
+    // V2: handle list-keys requests when the vault is locked (BFU case).
+    // The Rust agent fires a list callback when its keystore is empty. The renderer then prompts
+    // for unlock, pushes keys once unlocked, and signals the agent to return them.
+    if (useV2) {
+      this.messageListener
+        .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_REQUEST))
+        .pipe(
+          withLatestFrom(this.authService.activeAccountStatus$, this.accountService.activeAccount$),
+          switchMap(([message, status, account]) => {
+            const requestId = message.requestId as number;
+            if (status !== AuthenticationStatus.Unlocked || account == null) {
+              ipc.platform.focusWindow();
+              this.toastService.showToast({
+                variant: "info",
+                title: null,
+                message: this.i18nService.t("sshAgentUnlockRequired"),
+              });
+              return this.authService.activeAccountStatus$.pipe(
+                filter((s) => s === AuthenticationStatus.Unlocked),
+                timeout({ first: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT }),
+                catchError((error: unknown) => {
+                  if (error instanceof TimeoutError) {
+                    return from(ipc.autofill.sshAgent.listRequestResponse(requestId, false)).pipe(
+                      switchMap(() => EMPTY),
+                    );
+                  }
+                  throw error;
+                }),
+                concatMap(async () => {
+                  const updatedAccount = await firstValueFrom(this.accountService.activeAccount$);
+                  return [message, updatedAccount.id] as const;
+                }),
+              );
+            }
+            return of([message, account.id] as const);
+          }),
+          switchMap(([message, userId]: [Record<string, unknown>, UserId]) =>
+            from(this.cipherService.getAllDecrypted(userId)).pipe(
+              map((ciphers) => [message, ciphers] as const),
+            ),
+          ),
+          concatMap(async ([message, ciphers]) => {
+            const requestId = message.requestId as number;
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers ?? []));
+            await ipc.autofill.sshAgent.listRequestResponse(requestId, true);
+          }),
+          catchError((error: unknown, source) => {
+            this.logService.error("Unexpected error during SSH agent list keys request", error);
+            return source;
+          }),
+          takeUntil(this.destroy$),
+        )
+        .subscribe();
+    }
+
     // V2: push SSH keys to the agent reactively whenever cipher data changes while unlocked.
     // Keys are kept in the agent's keystore on vault lock so ssh-add -L still works locked.
     // Keys are cleared only when the feature is disabled or the active account changes.
@@ -321,11 +376,15 @@ export class SshAgentService implements OnDestroy {
                 if (!enabled) {
                   return from(this.stopAgent());
                 }
-                // Vault locked or logged out: leave existing keys in place, wait for unlock.
-                if (status !== AuthenticationStatus.Unlocked) {
+                // Logged out: no vault present, nothing to serve.
+                if (status === AuthenticationStatus.LoggedOut) {
                   return EMPTY;
                 }
-                // Vault unlocked: start the server on first unlock; no-op if already running.
+                // Start the agent socket server if not already running.
+                // Covers the locked-at-startup case: socket must be up so SSH clients
+                // can connect and the app can prompt for vault unlock when needed.
+                // When locked, cipherViews$ emits null (caught by the filter below),
+                // so replace() is not called and existing keys are left in the native store.
                 return from(ipc.autofill.sshAgent.isLoaded()).pipe(
                   concatMap(async (loaded) => {
                     if (!loaded) {

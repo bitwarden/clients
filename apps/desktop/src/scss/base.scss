@@ -66,8 +66,8 @@ a:not([bitlink], [bitbutton]) {
   }
 }
 
-input:not(bit-form-field input, input[bitcheckbox]),
-select,
+input:not(bit-form-field input, input[bitcheckbox], bit-search input),
+select:not(select[bitinput]),
 textarea:not(bit-form-field textarea) {
   @include themify($themes) {
     color: themed("textColor");
