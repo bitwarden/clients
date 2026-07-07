@@ -19,6 +19,7 @@ export abstract class OrganizationInviteLinkService {
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
+    supportsConfirmation: boolean,
   ): Observable<void>;
 
   /**
@@ -28,6 +29,7 @@ export abstract class OrganizationInviteLinkService {
     userId: UserId,
     orgId: OrganizationId,
     allowedDomain: string[],
+    supportsConfirmation: boolean,
   ): Promise<void>;
 
   /**

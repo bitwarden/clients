@@ -1,14 +1,14 @@
-import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
+import { Invite } from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkRefreshRequest {
-  encryptedInviteKey: InviteKeyEnvelope;
-  encryptedOrgKey: string | undefined;
+  invite: Invite;
+  supportsConfirmation: boolean;
 
-  constructor(c: { encryptedInviteKey: InviteKeyEnvelope; encryptedOrgKey?: string | undefined }) {
-    if (!c.encryptedInviteKey) {
-      throw new Error("EncryptedInviteKey is required.");
+  constructor(c: { invite: Invite; supportsConfirmation: boolean }) {
+    if (!c.invite) {
+      throw new Error("Invite is required.");
     }
-    this.encryptedInviteKey = c.encryptedInviteKey;
-    this.encryptedOrgKey = c.encryptedOrgKey ?? undefined;
+    this.invite = c.invite;
+    this.supportsConfirmation = c.supportsConfirmation;
   }
 }

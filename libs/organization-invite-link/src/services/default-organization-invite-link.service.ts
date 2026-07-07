@@ -4,8 +4,10 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { InviteKeyEnvelope, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
+import { Invite, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
+
+type InviteBundle = { invite: Invite };
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
@@ -40,12 +42,14 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
+    supportsConfirmation: boolean,
   ): Observable<void> {
     return this.generateEncryptedKey(userId, orgId).pipe(
-      switchMap((encryptedInviteKey) => {
+      switchMap(({ invite }) => {
         const request = new OrganizationInviteLinkCreateRequest({
           allowedDomains,
-          encryptedInviteKey,
+          invite,
+          supportsConfirmation,
         });
         return this.apiService.create(orgId, request);
       }),
@@ -57,18 +61,23 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
+    supportsConfirmation: boolean,
   ): Promise<void> {
-    const request = new OrganizationInviteLinkUpdateRequest({ allowedDomains });
+    const request = new OrganizationInviteLinkUpdateRequest({
+      allowedDomains,
+      supportsConfirmation,
+    });
     const response = await this.apiService.update(orgId, request);
-    const inviteLink = new OrganizationInviteLink(response);
-
-    await this.upsert(userId, inviteLink);
+    await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
   refreshInviteLink(userId: UserId, orgId: OrganizationId): Observable<void> {
     return this.generateEncryptedKey(userId, orgId).pipe(
-      switchMap((encryptedInviteKey) => {
-        const request = new OrganizationInviteLinkRefreshRequest({ encryptedInviteKey });
+      switchMap(({ invite }) => {
+        const request = new OrganizationInviteLinkRefreshRequest({
+          invite,
+          supportsConfirmation: true,
+        });
         return this.apiService.refresh(orgId, request);
       }),
       switchMap((response) => this.upsert(userId, new OrganizationInviteLink(response))),
@@ -85,7 +94,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
         using ref = sdk.take();
         return ref.value
           .invite_link()
-          .unseal_invite_key(asUuid<SdkOrganizationId>(orgId), inviteLink.encryptedInviteKey);
+          .get_invite_key(asUuid<SdkOrganizationId>(orgId), inviteLink.invite);
       }),
       switchMap((inviteKey) => this.buildInviteUrl(inviteLink.code, inviteKey)),
     );
@@ -130,17 +139,12 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     return inviteLink;
   }
 
-  private generateEncryptedKey(
-    userId: UserId,
-    orgId: OrganizationId,
-  ): Observable<InviteKeyEnvelope> {
+  private generateEncryptedKey(userId: UserId, orgId: OrganizationId): Observable<InviteBundle> {
     return this.sdkService.userClient$(userId).pipe(
       map((sdk) => {
         using ref = sdk.take();
-        const bundle = ref.value
-          .invite_link()
-          .generate_invite_crypto_bundle(asUuid<SdkOrganizationId>(orgId));
-        return bundle.sealedInviteKeyEnvelope;
+        const bundle = ref.value.invite_link().make_invite(asUuid<SdkOrganizationId>(orgId));
+        return { invite: bundle.invite };
       }),
     );
   }

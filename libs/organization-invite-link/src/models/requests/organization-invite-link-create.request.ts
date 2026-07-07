@@ -1,24 +1,20 @@
-import { InviteKeyEnvelope } from "@bitwarden/sdk-internal";
+import { Invite } from "@bitwarden/sdk-internal";
 
 export class OrganizationInviteLinkCreateRequest {
   allowedDomains: string[];
-  encryptedInviteKey: InviteKeyEnvelope;
-  encryptedOrgKey: string | undefined;
+  invite: Invite;
+  supportsConfirmation: boolean;
 
-  constructor(c: {
-    allowedDomains: string[];
-    encryptedInviteKey: InviteKeyEnvelope;
-    encryptedOrgKey?: string | undefined;
-  }) {
+  constructor(c: { allowedDomains: string[]; invite: Invite; supportsConfirmation: boolean }) {
     if (!c.allowedDomains || c.allowedDomains.length === 0) {
       throw new Error("At least one allowed domain is required.");
     }
-    if (!c.encryptedInviteKey) {
-      throw new Error("EncryptedInviteKey is required.");
+    if (!c.invite) {
+      throw new Error("Invite is required.");
     }
 
     this.allowedDomains = c.allowedDomains;
-    this.encryptedInviteKey = c.encryptedInviteKey;
-    this.encryptedOrgKey = c.encryptedOrgKey ?? undefined;
+    this.invite = c.invite;
+    this.supportsConfirmation = c.supportsConfirmation;
   }
 }
