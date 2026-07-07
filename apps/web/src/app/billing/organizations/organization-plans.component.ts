@@ -162,7 +162,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return (
       hasPremiumPersonally &&
       isCreatingOrganization &&
-      premiumToOrganizationUpgradeFeatureFlagEnabled
+      premiumToOrganizationUpgradeFeatureFlagEnabled &&
+      !this.acceptingSponsorship()
     );
   });
 
