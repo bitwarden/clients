@@ -76,10 +76,14 @@ pub mod sshagent_v2 {
                     alg: r.public_key.alg,
                     blob: r.public_key.blob,
                 },
-                process_name: r.process_name,
-                is_forwarding: r.is_forwarding,
+                process_name: r.connection.process_name,
+                is_forwarding: r
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
                 namespace: r.namespace.map(Into::into),
-                host_fingerprint: r.host_fingerprint,
+                host_fingerprint: r.connection.session_bind.map(|s| s.host_fingerprint),
             }
         }
     }

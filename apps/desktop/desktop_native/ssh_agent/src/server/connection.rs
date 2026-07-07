@@ -7,7 +7,7 @@ use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info, trace, warn};
 
 use super::{
-    auth_policy::{AuthPolicy, AuthRequest, SignRequest},
+    auth_policy::{AuthPolicy, AuthRequest, ConnectionContext, SessionBindContext, SignRequest},
     peer_info::PeerInfo,
     protocol::{
         build_identities_answer, build_sign_response, detect_namespace, failure, frame,
@@ -253,14 +253,17 @@ async fn handle_sign_request<K: KeyStore, A: AuthPolicy>(
 
     let sign_request = SignRequest {
         public_key: public_key.clone(),
-        process_name: peer_info.map(|p| p.process_name().to_string()),
-        is_forwarding: session_bind_state.is_forwarding,
         namespace: detect_namespace(&data),
-        flags,
-        host_fingerprint: if session_bind_state.host_fingerprint.is_empty() {
-            None
-        } else {
-            Some(session_bind_state.host_fingerprint.clone())
+        connection: ConnectionContext {
+            process_name: peer_info.map(|p| p.process_name().to_string()),
+            session_bind: if session_bind_state.host_fingerprint.is_empty() {
+                None
+            } else {
+                Some(SessionBindContext {
+                    is_forwarding: session_bind_state.is_forwarding,
+                    host_fingerprint: session_bind_state.host_fingerprint.clone(),
+                })
+            },
         },
     };
 
@@ -762,7 +765,11 @@ mod tests {
         let captured = capturing_policy.captured.lock().unwrap();
         if let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() {
             assert!(
-                sign_req.is_forwarding,
+                sign_req
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
                 "is_forwarding must propagate to auth"
             );
         } else {
@@ -802,7 +809,11 @@ mod tests {
         let captured = capturing_policy.captured.lock().unwrap();
         if let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() {
             assert_eq!(
-                sign_req.host_fingerprint.as_deref(),
+                sign_req
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .map(|s| s.host_fingerprint.as_str()),
                 Some(expected_fingerprint.as_str()),
                 "host_fingerprint must propagate to auth request"
             );
@@ -838,8 +849,8 @@ mod tests {
         let captured = capturing_policy.captured.lock().unwrap();
         if let Some(AuthRequest::Sign(sign_req)) = captured.as_ref() {
             assert!(
-                sign_req.host_fingerprint.is_none(),
-                "host_fingerprint must be None when no session-bind was received"
+                sign_req.connection.session_bind.is_none(),
+                "session_bind must be None when no session-bind was received"
             );
         } else {
             panic!("expected Sign auth request to be captured");
