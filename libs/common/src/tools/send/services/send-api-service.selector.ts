@@ -11,7 +11,6 @@ import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
-import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
@@ -51,18 +50,13 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Routes saves to SDK when the flag is on, except for two cases that fall back to
-   * legacy regardless: new file sends (the SDK generates its own send key, which
-   * wouldn't match the caller's pre-encrypted file buffer) and password-protected
-   * sends (the SDK re-applies PBKDF2 to `auth.password`, double-hashing the keyB64
-   * the client already derived).
+   * Routes saves to SDK when the flag is on, except for new file sends which fall back
+   * to legacy regardless (the SDK generates its own send key, which wouldn't match the
+   * caller's pre-encrypted file buffer).
    */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      return this.sendApiService.save(sendData);
-    }
-    if (send.authType === AuthType.Password) {
       return this.sendApiService.save(sendData);
     }
     return (await this.getService()).save(sendData);

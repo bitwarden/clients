@@ -77,7 +77,7 @@ describe("SendApiServiceSelector", () => {
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
-    it("routes to legacy for password-protected creates, even with the flag on", async () => {
+    it("routes to SDK for password-protected creates when the flag is on", async () => {
       const selector = buildSelector(true);
       const send = new Send();
       send.id = null;
@@ -87,11 +87,11 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
-      expect(sdk.save).not.toHaveBeenCalled();
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(legacy.save).not.toHaveBeenCalled();
     });
 
-    it("routes to legacy for password-protected edits, even with the flag on", async () => {
+    it("routes to SDK for password-protected edits when the flag is on", async () => {
       const selector = buildSelector(true);
       const send = new Send();
       send.id = "existing-id";
@@ -101,8 +101,8 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
-      expect(sdk.save).not.toHaveBeenCalled();
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(legacy.save).not.toHaveBeenCalled();
     });
 
     it("routes to legacy when the flag is off", async () => {

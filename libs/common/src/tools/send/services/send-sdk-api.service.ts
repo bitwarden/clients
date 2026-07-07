@@ -54,25 +54,20 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * Two cases the SDK cannot currently handle are routed to legacy by
-   * `SendApiServiceSelector` and rejected here as a guard for direct callers:
+   * New file sends cannot be handled by the SDK and are routed to legacy by
+   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers:
+   * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
+   * while the SDK's `create_file_send` generates its own key.
    *
-   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted buffer under a
-   *   client-derived key; the SDK's `create_file_send` generates its own key.
-   * - **Password-protected sends.** `Send.password` is already the PBKDF2-derived
-   *   `keyB64`, but the SDK's `SendAuthType::auth_data`
-   *   (`bitwarden-send/src/send.rs:160-163`) re-applies PBKDF2 to whatever string sits in
-   *   `auth.password`, double-hashing the value. No skip-hash variant exists on the
-   *   public request types.
+   * Password-protected sends route through the SDK. `Send.password` is the client-derived
+   * `keyB64` (a proof-of-knowledge, not the plaintext password); `buildSendAuth` forwards
+   * it verbatim via the SDK's `hashedPassword` auth variant, which skips PBKDF2.
    */
   async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
-    }
-    if (send.authType === AuthType.Password) {
-      throw new Error("SendSdkApiService.save: password-protected sends require SendApiService.");
     }
     const sendView = await send.decrypt(userId);
     const sdkView = await this.mutateSend(sendView, userId);
@@ -325,10 +320,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     };
   }
 
-  // `AuthType.Password` is unreachable here: SendApiServiceSelector and the guard in
-  // `save()` both route password-protected sends to the legacy service because the SDK
-  // re-applies PBKDF2 to `auth.password`. When the SDK gains a skip-hash/preserve
-  // variant, the routing changes and a `case AuthType.Password` branch comes back.
   private buildSendAuth(sendView: SendView): SendAuthType {
     switch (sendView.authType) {
       case AuthType.Email:
@@ -336,6 +327,14 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           throw new Error("Email-protected send is missing recipient emails.");
         }
         return { type: "emails", emails: sendView.emails };
+      case AuthType.Password:
+        // `sendView.password` is the client-derived keyB64 (proof-of-knowledge, not the
+        // plaintext password). The SDK's `hashedPassword` variant forwards it verbatim,
+        // skipping PBKDF2, so the already-derived key is not double-hashed.
+        if (sendView.password == null) {
+          throw new Error("Password-protected send is missing its derived key.");
+        }
+        return { type: "hashedPassword", keyB64: sendView.password };
       case AuthType.None:
       default:
         return { type: "none" };
