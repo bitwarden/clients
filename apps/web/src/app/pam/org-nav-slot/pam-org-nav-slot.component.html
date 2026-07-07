@@ -9,5 +9,8 @@
       }
     </bit-nav-item>
     <bit-nav-item [text]="'pamGovernanceTitle' | i18n" route="pam/governance"></bit-nav-item>
+    @if (rotationEnabled$ | async) {
+      <bit-nav-item [text]="'pamRotationNav' | i18n" route="pam/rotation"></bit-nav-item>
+    }
   </bit-nav-group>
 }

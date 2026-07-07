@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { AccessDecisionRequest } from "../services/requests/access-decision.request";
@@ -8,6 +9,14 @@ import { AccessLeaseExtensionRequest } from "../services/requests/access-lease-e
 import { AccessLeaseRevokeRequest } from "../services/requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "../services/requests/access-request-create.request";
 import { AccessRuleRequest } from "../services/requests/access-rule.request";
+import { DaemonAssignmentRequest } from "../services/requests/daemon-assignment.request";
+import { DaemonRegisterRequest } from "../services/requests/daemon-register.request";
+import { RotationConfigAccountRequest } from "../services/requests/rotation-config-account.request";
+import { RotationConfigCreateRequest } from "../services/requests/rotation-config-create.request";
+import { RotationConfigSettingsRequest } from "../services/requests/rotation-config-settings.request";
+import { TargetSystemCreateRequest } from "../services/requests/target-system-create.request";
+import { TargetSystemNameRequest } from "../services/requests/target-system-name.request";
+import { TargetSystemPolicyRequest } from "../services/requests/target-system-policy.request";
 
 import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
 import { AccessLeaseResponse } from "./responses/access-lease.response";
@@ -15,6 +24,11 @@ import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
 import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
 import { AccessRequestResultResponse } from "./responses/access-request-result.response";
 import { AccessRuleResponse } from "./responses/access-rule.response";
+import { DaemonRegistrationResponse } from "./responses/daemon-registration.response";
+import { RotationConfigDetailsResponse } from "./responses/rotation-config-details.response";
+import { RotationConfigResponse } from "./responses/rotation-config.response";
+import { RotationDaemonResponse } from "./responses/rotation-daemon.response";
+import { TargetSystemResponse } from "./responses/target-system.response";
 
 /**
  * Snapshot of a cipher's access state from the perspective of the current
@@ -133,4 +147,117 @@ export abstract class PamApiService {
     request: AccessRuleRequest,
   ): Promise<AccessRuleResponse>;
   abstract deleteAccessRule(organizationId: string, id: string): Promise<void>;
+
+  // Rotation (Admin Console) ———————————————————————————————————————————————
+
+  /** GET /organizations/{orgId}/rotation/daemons */
+  abstract listRotationDaemons(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<RotationDaemonResponse>>;
+
+  /** POST /organizations/{orgId}/rotation/daemons */
+  abstract registerRotationDaemon(
+    organizationId: OrganizationId,
+    request: DaemonRegisterRequest,
+  ): Promise<DaemonRegistrationResponse>;
+
+  /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/revoke */
+  abstract revokeRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/assignments */
+  abstract assignRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+    request: DaemonAssignmentRequest,
+  ): Promise<void>;
+
+  /** DELETE /organizations/{orgId}/rotation/daemons/{daemonId}/assignments/{targetSystemId} */
+  abstract unassignRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+    targetSystemId: string,
+  ): Promise<void>;
+
+  /** GET /organizations/{orgId}/rotation/target-systems */
+  abstract listTargetSystems(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<TargetSystemResponse>>;
+
+  /** POST /organizations/{orgId}/rotation/target-systems */
+  abstract createTargetSystem(
+    organizationId: OrganizationId,
+    request: TargetSystemCreateRequest,
+  ): Promise<TargetSystemResponse>;
+
+  /** POST /organizations/{orgId}/rotation/target-systems/{targetSystemId}/enable */
+  abstract enableTargetSystem(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+  ): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/target-systems/{targetSystemId}/disable */
+  abstract disableTargetSystem(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+  ): Promise<void>;
+
+  /** PUT /organizations/{orgId}/rotation/target-systems/{targetSystemId}/name */
+  abstract renameTargetSystem(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+    request: TargetSystemNameRequest,
+  ): Promise<TargetSystemResponse>;
+
+  /** PUT /organizations/{orgId}/rotation/target-systems/{targetSystemId}/policy */
+  abstract updateTargetSystemPolicy(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+    request: TargetSystemPolicyRequest,
+  ): Promise<TargetSystemResponse>;
+
+  /** GET /organizations/{orgId}/rotation/configs */
+  abstract listRotationConfigs(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<RotationConfigResponse>>;
+
+  /** POST /organizations/{orgId}/rotation/configs */
+  abstract createRotationConfig(
+    organizationId: OrganizationId,
+    request: RotationConfigCreateRequest,
+  ): Promise<RotationConfigResponse>;
+
+  /** GET /organizations/{orgId}/rotation/configs/{configId} */
+  abstract getRotationConfig(
+    organizationId: OrganizationId,
+    configId: string,
+  ): Promise<RotationConfigDetailsResponse>;
+
+  /** PUT /organizations/{orgId}/rotation/configs/{configId}/settings */
+  abstract updateRotationConfigSettings(
+    organizationId: OrganizationId,
+    configId: string,
+    request: RotationConfigSettingsRequest,
+  ): Promise<RotationConfigResponse>;
+
+  /** PUT /organizations/{orgId}/rotation/configs/{configId}/account */
+  abstract updateRotationConfigAccount(
+    organizationId: OrganizationId,
+    configId: string,
+    request: RotationConfigAccountRequest,
+  ): Promise<RotationConfigResponse>;
+
+  /** POST /organizations/{orgId}/rotation/configs/{configId}/pause */
+  abstract pauseRotationConfig(organizationId: OrganizationId, configId: string): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/configs/{configId}/resume */
+  abstract resumeRotationConfig(organizationId: OrganizationId, configId: string): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/configs/{configId}/rotate */
+  abstract rotateNow(organizationId: OrganizationId, configId: string): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/configs/{configId}/record-manual */
+  abstract recordManualRotation(organizationId: OrganizationId, configId: string): Promise<void>;
+
+  /** DELETE /organizations/{orgId}/rotation/configs/{configId} */
+  abstract deleteRotationConfig(organizationId: OrganizationId, configId: string): Promise<void>;
 }

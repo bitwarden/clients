@@ -1,0 +1,343 @@
+<bit-header [title]="titleText()" icon="bwi-server">
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [route]="['..']">{{ "pamRotationTabTargetSystems" | i18n }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+</bit-header>
+
+@if (loading()) {
+  <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
+} @else {
+  @if (!editing) {
+    <!-- ================================================================
+         CREATE MODE — single form for name + method + (automatic fields)
+         ================================================================ -->
+    <form [formGroup]="createForm" [bitSubmit]="submitCreate">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-form-field>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input
+              bitInput
+              type="text"
+              id="target-system-edit_input_name"
+              formControlName="name"
+              [placeholder]="'pamTargetSystemNamePlaceholder' | i18n"
+            />
+          </bit-form-field>
+
+          <fieldset class="tw-mb-4">
+            <legend bitTypography="body1" class="tw-mb-2 tw-font-semibold">
+              {{ "pamTargetSystemMethodLabel" | i18n }}
+            </legend>
+            <bit-radio-group formControlName="method" class="tw-flex tw-gap-4">
+              <bit-radio-button
+                id="target-system-edit_radio_automatic"
+                [value]="TargetSystemMethod.Automatic"
+              >
+                <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
+              </bit-radio-button>
+              <bit-radio-button
+                id="target-system-edit_radio_manual"
+                [value]="TargetSystemMethod.Manual"
+              >
+                <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
+              </bit-radio-button>
+            </bit-radio-group>
+          </fieldset>
+        </bit-card>
+      </bit-section>
+
+      @if (showPolicyCard()) {
+        <bit-section [formGroup]="policyForm">
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamTargetSystemKindHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <bit-form-field>
+              <bit-label>{{ "pamTargetSystemKindLabel" | i18n }}</bit-label>
+              <select
+                bitInput
+                id="target-system-edit_select_kind"
+                [formControl]="createForm.controls.kind"
+              >
+                @for (opt of kindOptions; track opt.value) {
+                  <option [ngValue]="opt.value">{{ opt.label | i18n }}</option>
+                }
+              </select>
+            </bit-form-field>
+          </bit-card>
+        </bit-section>
+
+        <bit-section [formGroup]="policyForm">
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+              <bit-form-field>
+                <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="number"
+                  id="target-system-edit_input_min-length"
+                  formControlName="minLength"
+                  min="1"
+                />
+              </bit-form-field>
+              <bit-form-field>
+                <bit-label>{{ "pamTargetSystemPolicyMaxLength" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="number"
+                  id="target-system-edit_input_max-length"
+                  formControlName="maxLength"
+                  min="1"
+                />
+              </bit-form-field>
+            </div>
+            @if (policyForm.errors?.["minExceedsMax"] && policyForm.touched) {
+              <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
+            }
+
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeUppercase"
+                id="target-system-edit_checkbox_uppercase"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeLowercase"
+                id="target-system-edit_checkbox_lowercase"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeDigits"
+                id="target-system-edit_checkbox_digits"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeSymbols"
+                id="target-system-edit_checkbox_symbols"
+              />
+              <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
+            </bit-form-control>
+
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="supportsSessionTermination"
+                id="target-system-edit_checkbox_session-termination"
+              />
+              <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
+              <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+            </bit-form-control>
+          </bit-card>
+        </bit-section>
+      }
+
+      <div class="tw-flex tw-gap-2">
+        <button
+          type="submit"
+          bitButton
+          buttonType="primary"
+          bitFormButton
+          id="target-system-edit_button_save"
+        >
+          {{ "save" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          bitFormButton
+          (click)="cancel()"
+          id="target-system-edit_button_cancel"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <!-- ================================================================
+         EDIT MODE — two independent save forms: name + (automatic) policy
+         ================================================================ -->
+
+    <!-- Name card -->
+    <form [formGroup]="nameForm" [bitSubmit]="submitName">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          @if (existing()?.method === TargetSystemMethod.Automatic) {
+            <p bitTypography="body2" class="tw-text-muted">
+              {{ "pamTargetSystemMethodAutomatic" | i18n }}
+              @if (existing()?.kind != null) {
+                ·
+                {{
+                  existing()!.kind === TargetSystemKind.Entra
+                    ? ("pamTargetSystemKindEntra" | i18n)
+                    : existing()!.kind === TargetSystemKind.Mssql
+                      ? ("pamTargetSystemKindMssql" | i18n)
+                      : ("pamTargetSystemKindCustomScript" | i18n)
+                }}
+              }
+            </p>
+          } @else {
+            <p bitTypography="body2" class="tw-text-muted">
+              {{ "pamTargetSystemMethodManual" | i18n }}
+            </p>
+          }
+
+          <bit-form-field disableMargin>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input bitInput type="text" id="target-system-edit_input_name" formControlName="name" />
+          </bit-form-field>
+        </bit-card>
+      </bit-section>
+
+      <div class="tw-flex tw-gap-2 tw-mb-6">
+        <button
+          type="submit"
+          bitButton
+          buttonType="primary"
+          bitFormButton
+          id="target-system-edit_button_save-name"
+        >
+          {{ "save" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          (click)="cancel()"
+          id="target-system-edit_button_cancel"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Policy card (Automatic only) -->
+    @if (showPolicyCard()) {
+      <form [formGroup]="policyForm" [bitSubmit]="submitPolicy">
+        <bit-section>
+          <bit-section-header>
+            <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+          </bit-section-header>
+          <bit-card>
+            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+              <bit-form-field>
+                <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="number"
+                  id="target-system-edit_input_min-length"
+                  formControlName="minLength"
+                  min="1"
+                />
+              </bit-form-field>
+              <bit-form-field>
+                <bit-label>{{ "pamTargetSystemPolicyMaxLength" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="number"
+                  id="target-system-edit_input_max-length"
+                  formControlName="maxLength"
+                  min="1"
+                />
+              </bit-form-field>
+            </div>
+            @if (policyForm.errors?.["minExceedsMax"] && policyForm.touched) {
+              <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
+            }
+
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeUppercase"
+                id="target-system-edit_checkbox_uppercase"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeLowercase"
+                id="target-system-edit_checkbox_lowercase"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeDigits"
+                id="target-system-edit_checkbox_digits"
+              />
+              <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="includeSymbols"
+                id="target-system-edit_checkbox_symbols"
+              />
+              <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
+            </bit-form-control>
+
+            <bit-form-control disableMargin>
+              <input
+                type="checkbox"
+                bitCheckbox
+                formControlName="supportsSessionTermination"
+                id="target-system-edit_checkbox_session-termination"
+              />
+              <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
+              <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+            </bit-form-control>
+
+            @if (showTerminationWarning()) {
+              <bit-callout type="warning" class="tw-mt-4">
+                {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
+              </bit-callout>
+            }
+          </bit-card>
+        </bit-section>
+
+        <div class="tw-flex tw-gap-2">
+          <button
+            type="submit"
+            bitButton
+            buttonType="primary"
+            bitFormButton
+            id="target-system-edit_button_save-policy"
+          >
+            {{ "save" | i18n }}
+          </button>
+        </div>
+      </form>
+    }
+  }
+}

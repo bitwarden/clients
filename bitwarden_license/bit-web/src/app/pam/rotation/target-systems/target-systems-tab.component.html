@@ -1,0 +1,113 @@
+<app-header [title]="'pamRotationTabTargetSystems' | i18n">
+  @if (!loading()) {
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="openCreate"
+      id="target-systems-tab_button_new"
+    >
+      {{ "pamTargetSystemNew" | i18n }}
+    </button>
+  }
+</app-header>
+
+@if (!loading()) {
+  @if (dataSource.data.length > 0 || searchControl.value) {
+    <div class="tw-mb-4">
+      <bit-search
+        class="tw-max-w-md"
+        [placeholder]="'pamTargetSystemSearch' | i18n"
+        [formControl]="searchControl"
+      ></bit-search>
+    </div>
+
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+          <th bitCell>{{ "pamTargetSystemMethodColumn" | i18n }}</th>
+          <th bitCell>{{ "pamTargetSystemKindColumn" | i18n }}</th>
+          <th bitCell>{{ "status" | i18n }}</th>
+          <th bitCell>{{ "pamTargetSystemSessionTerminationColumn" | i18n }}</th>
+          <th bitCell class="tw-w-0"></th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let r of rows$ | async">
+          <td bitCell>
+            <button
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-font-bold"
+              (click)="openEdit(r.system)"
+            >
+              {{ r.name }}
+            </button>
+          </td>
+          <td bitCell>
+            <span bitBadge variant="subtle">{{ r.methodLabel }}</span>
+          </td>
+          <td bitCell>
+            @if (r.kindLabel) {
+              {{ r.kindLabel }}
+            } @else {
+              <span class="tw-text-muted">—</span>
+            }
+          </td>
+          <td bitCell>
+            @if (r.active) {
+              <span bitBadge variant="success">{{ r.statusLabel }}</span>
+            } @else {
+              <span bitBadge variant="subtle">{{ r.statusLabel }}</span>
+            }
+          </td>
+          <td bitCell>
+            @if (r.system.supportsSessionTermination) {
+              <span bitBadge variant="primary">{{
+                "pamTargetSystemSessionTerminationYes" | i18n
+              }}</span>
+            }
+          </td>
+          <td bitCell>
+            <button
+              type="button"
+              bitIconButton="bwi-ellipsis-h"
+              [bitMenuTriggerFor]="rowMenu"
+              label="{{ 'options' | i18n }}"
+            ></button>
+            <bit-menu #rowMenu>
+              <button type="button" bitMenuItem (click)="openEdit(r.system)">
+                <bit-icon name="bwi-pencil-square" class="tw-text-muted"></bit-icon>
+                {{ "edit" | i18n }}
+              </button>
+              @if (r.active) {
+                <button type="button" bitMenuItem (click)="disable(r.system)">
+                  <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamTargetSystemDisable" | i18n }}
+                </button>
+              } @else {
+                <button type="button" bitMenuItem (click)="enable(r.system)">
+                  <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamTargetSystemEnable" | i18n }}
+                </button>
+              }
+            </bit-menu>
+          </td>
+        </tr>
+        @if (dataSource.filteredData.length === 0) {
+          <tr bitRow>
+            <td bitCell colspan="6" class="tw-py-6 tw-text-center tw-text-muted">
+              {{ "pamTargetSystemNoResults" | i18n }}
+            </td>
+          </tr>
+        }
+      </ng-template>
+    </bit-table>
+  } @else {
+    <p class="tw-text-muted">{{ "pamTargetSystemEmptyState" | i18n }}</p>
+  }
+} @else {
+  <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
+}

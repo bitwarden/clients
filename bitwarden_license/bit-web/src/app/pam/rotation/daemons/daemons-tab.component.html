@@ -1,0 +1,125 @@
+<div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
+  <bit-search
+    class="tw-grow tw-max-w-md"
+    [placeholder]="'pamDaemonSearch' | i18n"
+    [formControl]="searchControl"
+  ></bit-search>
+
+  <button
+    type="button"
+    bitButton
+    buttonType="primary"
+    [bitAction]="openRegisterDialog"
+    id="daemons-tab_button_register"
+  >
+    {{ "pamDaemonRegister" | i18n }}
+  </button>
+</div>
+
+@if (loading()) {
+  <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
+} @else if (totalRows() === 0) {
+  <div class="tw-py-12 tw-text-center tw-text-muted">
+    <bit-icon name="bwi-terminal" class="tw-mb-2 tw-block tw-text-4xl"></bit-icon>
+    <p class="tw-m-0">{{ "pamDaemonEmptyState" | i18n }}</p>
+  </div>
+} @else {
+  <bit-table [dataSource]="dataSource">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="name">{{ "name" | i18n }}</th>
+        <th bitCell>{{ "status" | i18n }}</th>
+        <th bitCell>{{ "pamDaemonConnection" | i18n }}</th>
+        <th bitCell>{{ "pamDaemonAssignments" | i18n }}</th>
+        <th bitCell class="tw-w-0"></th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr bitRow *ngFor="let r of rows$ | async">
+        <!-- Name -->
+        <td bitCell>
+          <span class="tw-font-semibold">{{ r.name }}</span>
+        </td>
+
+        <!-- Status badge -->
+        <td bitCell>
+          @if (r.daemon.status === DaemonStatus.Enrolled) {
+            <span bitBadge variant="primary">{{ r.statusLabelKey | i18n }}</span>
+          } @else {
+            <span bitBadge variant="danger">{{ r.statusLabelKey | i18n }}</span>
+          }
+        </td>
+
+        <!-- Connection liveness -->
+        <td bitCell>
+          @if (r.isConnected) {
+            <span bitBadge variant="success">{{ "pamDaemonConnected" | i18n }}</span>
+          } @else {
+            <span bitBadge variant="secondary">{{ "pamDaemonOffline" | i18n }}</span>
+          }
+        </td>
+
+        <!-- Assignment badges -->
+        <td bitCell>
+          @if (r.assignmentNames.length === 0) {
+            <span class="tw-text-muted">—</span>
+          } @else {
+            <div class="tw-flex tw-flex-wrap tw-gap-1">
+              @for (name of r.assignmentNames.slice(0, 3); track $index) {
+                <span bitBadge variant="subtle">{{ name }}</span>
+              }
+              @if (r.assignmentNames.length > 3) {
+                <span bitBadge variant="subtle">+{{ r.assignmentNames.length - 3 }}</span>
+              }
+            </div>
+          }
+        </td>
+
+        <!-- Row menu -->
+        <td bitCell>
+          <button
+            type="button"
+            bitIconButton="bwi-ellipsis-h"
+            [bitMenuTriggerFor]="rowMenu"
+            label="{{ 'options' | i18n }}"
+            id="daemons-tab_button_menu-{{ r.id }}"
+          ></button>
+          <bit-menu #rowMenu>
+            @if (r.canAssign) {
+              <button type="button" bitMenuItem (click)="openAssignDialog(r)">
+                <bit-icon name="bwi-plus-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamDaemonAssignTarget" | i18n }}
+              </button>
+            }
+            @if (r.daemon.assignments.length > 0) {
+              @for (assignmentId of r.daemon.assignments; track assignmentId; let i = $index) {
+                <button
+                  type="button"
+                  bitMenuItem
+                  (click)="unassign(r.daemon, assignmentId, r.assignmentNames[i])"
+                >
+                  <bit-icon name="bwi-minus-circle" class="tw-text-muted"></bit-icon>
+                  {{ "pamDaemonUnassign" | i18n: r.assignmentNames[i] }}
+                </button>
+              }
+            }
+            @if (r.canRevoke) {
+              <button type="button" bitMenuItem (click)="revoke(r)">
+                <bit-icon name="bwi-close" class="tw-text-danger"></bit-icon>
+                <span class="tw-text-danger">{{ "pamDaemonRevoke" | i18n }}</span>
+              </button>
+            }
+          </bit-menu>
+        </td>
+      </tr>
+
+      @if (dataSource.filteredData.length === 0) {
+        <tr bitRow>
+          <td bitCell colspan="5" class="tw-py-6 tw-text-center tw-text-muted">
+            {{ "pamDaemonNoResults" | i18n }}
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </bit-table>
+}

@@ -57,6 +57,15 @@ const routes: Routes = [
         canActivate: [organizationPermissionsGuard(canAccessOrgAdmin)],
         data: { titleId: "pamGovernanceTitle" },
       },
+      {
+        path: "rotation",
+        canActivate: [
+          canAccessFeature(FeatureFlag.PamRotation),
+          organizationPermissionsGuard((org) => org.canManageAccessRules),
+        ],
+        data: { titleId: "pamRotationTitle" },
+        loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
+      },
     ],
   },
 ];

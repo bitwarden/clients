@@ -15812,6 +15812,621 @@
   "pamDecideCommentHint": {
     "message": "Optional · saved to the audit log"
   },
+  "pamRotationNav": {
+    "message": "Rotation"
+  },
+  "pamRotationTitle": {
+    "message": "Rotation"
+  },
+  "pamRotationTabManagedCredentials": {
+    "message": "Managed credentials"
+  },
+  "pamRotationTabTargetSystems": {
+    "message": "Target systems"
+  },
+  "pamRotationTabDaemons": {
+    "message": "Daemons"
+  },
+  "pamRotationConfigCreateTitle": {
+    "message": "Add managed credential"
+  },
+  "pamRotationConfigEditTitle": {
+    "message": "Edit managed credential"
+  },
+  "pamTargetSystemCreateTitle": {
+    "message": "Add target system"
+  },
+  "pamTargetSystemEditTitle": {
+    "message": "Edit target system"
+  },
+  "pamRotationScheduleLabel": {
+    "message": "Rotation schedule"
+  },
+  "pamRotationScheduleNone": {
+    "message": "None"
+  },
+  "pamRotationScheduleHourly": {
+    "message": "Hourly"
+  },
+  "pamRotationScheduleEvery6Hours": {
+    "message": "Every 6 hours"
+  },
+  "pamRotationScheduleDaily": {
+    "message": "Daily"
+  },
+  "pamRotationScheduleWeekly": {
+    "message": "Weekly"
+  },
+  "pamRotationScheduleMonthly": {
+    "message": "Monthly"
+  },
+  "pamRotationScheduleCustom": {
+    "message": "Custom"
+  },
+  "pamRotationScheduleCustomLabel": {
+    "message": "Custom cron expression"
+  },
+  "pamRotationScheduleCustomHint": {
+    "message": "Enter a Quartz 6-field cron expression (e.g. 0 0 */4 * * ?). The server enforces a minimum 15-minute interval."
+  },
+  "pamRotationScheduleInvalidCron": {
+    "message": "Please enter a valid Quartz cron expression (6 or 7 space-separated fields)."
+  },
+  "pamTargetSystemNew": {
+    "message": "New target system"
+  },
+  "pamTargetSystemSearch": {
+    "message": "Search target systems"
+  },
+  "pamTargetSystemMethodColumn": {
+    "message": "Method"
+  },
+  "pamTargetSystemKindColumn": {
+    "message": "Kind"
+  },
+  "pamTargetSystemSessionTerminationColumn": {
+    "message": "Session termination"
+  },
+  "pamTargetSystemSessionTerminationYes": {
+    "message": "Supported"
+  },
+  "pamTargetSystemEmptyState": {
+    "message": "No target systems have been configured yet."
+  },
+  "pamTargetSystemNoResults": {
+    "message": "No target systems match your search."
+  },
+  "pamTargetSystemDisable": {
+    "message": "Disable"
+  },
+  "pamTargetSystemEnable": {
+    "message": "Enable"
+  },
+  "pamTargetSystemDisableTitle": {
+    "message": "Disable target system?"
+  },
+  "pamTargetSystemDisableContent": {
+    "message": "Disabling this target system will stop new rotations from being offered. Pending jobs will be held unclaimable. Rotations already in progress will continue to completion."
+  },
+  "pamTargetSystemDisableConfirm": {
+    "message": "Disable"
+  },
+  "pamTargetSystemDisableSuccess": {
+    "message": "Target system disabled."
+  },
+  "pamTargetSystemEnableSuccess": {
+    "message": "Target system enabled."
+  },
+  "pamTargetSystemMethodAutomatic": {
+    "message": "Automatic"
+  },
+  "pamTargetSystemMethodManual": {
+    "message": "Manual"
+  },
+  "pamTargetSystemKindEntra": {
+    "message": "Entra"
+  },
+  "pamTargetSystemKindMssql": {
+    "message": "MSSQL"
+  },
+  "pamTargetSystemKindCustomScript": {
+    "message": "Custom script"
+  },
+  "pamTargetSystemStatusActive": {
+    "message": "Active"
+  },
+  "pamTargetSystemStatusDisabled": {
+    "message": "Disabled"
+  },
+  "pamTargetSystemGeneralInfoHeading": {
+    "message": "General information"
+  },
+  "pamTargetSystemNamePlaceholder": {
+    "message": "Enter a name"
+  },
+  "pamTargetSystemMethodLabel": {
+    "message": "Rotation method"
+  },
+  "pamTargetSystemKindHeading": {
+    "message": "Integration"
+  },
+  "pamTargetSystemKindLabel": {
+    "message": "Integration type"
+  },
+  "pamTargetSystemPolicyHeading": {
+    "message": "Password policy"
+  },
+  "pamTargetSystemPolicyMinLength": {
+    "message": "Minimum length"
+  },
+  "pamTargetSystemPolicyMaxLength": {
+    "message": "Maximum length"
+  },
+  "pamTargetSystemPolicyMinExceedsMax": {
+    "message": "Minimum length must be less than or equal to maximum length."
+  },
+  "pamTargetSystemPolicyUppercase": {
+    "message": "Include uppercase letters"
+  },
+  "pamTargetSystemPolicyLowercase": {
+    "message": "Include lowercase letters"
+  },
+  "pamTargetSystemPolicyDigits": {
+    "message": "Include digits"
+  },
+  "pamTargetSystemPolicySymbols": {
+    "message": "Include symbols"
+  },
+  "pamTargetSystemSupportsSessionTermination": {
+    "message": "Supports session termination"
+  },
+  "pamTargetSystemSupportsSessionTerminationHint": {
+    "message": "When enabled, the daemon will terminate active sessions after a credential is rotated."
+  },
+  "pamTargetSystemTerminationWithdrawalWarning": {
+    "message": "Warning: the server will reject removing session termination support while any rotation config on this target still relies on it. Update those configs first."
+  },
+  "pamTargetSystemCreated": {
+    "message": "Target system created."
+  },
+  "pamTargetSystemNameSaved": {
+    "message": "Name saved."
+  },
+  "pamTargetSystemPolicySaved": {
+    "message": "Password policy saved."
+  },
+  "pamTargetSystemNotFound": {
+    "message": "Target system not found."
+  },
+  "pamDaemonSearch": {
+    "message": "Search daemons"
+  },
+  "pamDaemonRegister": {
+    "message": "Register daemon"
+  },
+  "pamDaemonEmptyState": {
+    "message": "No daemons registered. Register a daemon to start rotating credentials."
+  },
+  "pamDaemonConnection": {
+    "message": "Connection"
+  },
+  "pamDaemonAssignments": {
+    "message": "Assigned targets"
+  },
+  "pamDaemonConnected": {
+    "message": "Connected"
+  },
+  "pamDaemonOffline": {
+    "message": "Offline"
+  },
+  "pamDaemonAssignTarget": {
+    "message": "Assign to target"
+  },
+  "pamDaemonAssignTargetTitle": {
+    "message": "Assign target system"
+  },
+  "pamDaemonAssignTargetLabel": {
+    "message": "Target system"
+  },
+  "pamDaemonAssignNoOptions": {
+    "message": "All active automatic target systems are already assigned to this daemon."
+  },
+  "pamDaemonAssignConfirm": {
+    "message": "Assign"
+  },
+  "pamDaemonAssigned": {
+    "message": "Target system assigned."
+  },
+  "pamDaemonUnassign": {
+    "message": "Remove {0}"
+  },
+  "pamDaemonUnassignConfirmTitle": {
+    "message": "Remove assignment?"
+  },
+  "pamDaemonUnassignConfirmContent": {
+    "message": "Remove {0} from this daemon? Active rotation jobs claimed by this daemon will continue to completion."
+  },
+  "pamDaemonUnassigned": {
+    "message": "Target system removed."
+  },
+  "pamDaemonRevoke": {
+    "message": "Revoke daemon"
+  },
+  "pamDaemonRevokeConfirmTitle": {
+    "message": "Revoke daemon?"
+  },
+  "pamDaemonRevokeConfirmContent": {
+    "message": "Revoking {0} is permanent and cannot be undone. This daemon held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs will be released automatically."
+  },
+  "pamDaemonRevokeConfirmAccept": {
+    "message": "Revoke"
+  },
+  "pamDaemonRevoked": {
+    "message": "Daemon revoked."
+  },
+  "pamDaemonRegisterTitle": {
+    "message": "Register daemon"
+  },
+  "pamDaemonNamePlaceholder": {
+    "message": "e.g. On-prem production server"
+  },
+  "pamDaemonNameHint": {
+    "message": "A descriptive name to identify this daemon. Max 200 characters."
+  },
+  "pamDaemonRegistered": {
+    "message": "Daemon registered."
+  },
+  "pamDaemonNoResults": {
+    "message": "No daemons match your search."
+  },
+  "pamDaemonStatusEnrolled": {
+    "message": "Enrolled"
+  },
+  "pamDaemonStatusRevoked": {
+    "message": "Revoked"
+  },
+  "pamDaemonTokenTitle": {
+    "message": "Daemon token"
+  },
+  "pamDaemonTokenWarningTitle": {
+    "message": "Save this token now"
+  },
+  "pamDaemonTokenWarningBody": {
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, revoke this daemon and register a new one."
+  },
+  "pamDaemonTokenLabel": {
+    "message": "Daemon token"
+  },
+  "pamDaemonTokenHint": {
+    "message": "This token will not be shown again."
+  },
+  "pamDaemonTokenCopy": {
+    "message": "Copy token"
+  },
+  "pamDaemonTokenCopied": {
+    "message": "Daemon token copied."
+  },
+  "pamRotationConfigNew": {
+    "message": "New managed credential"
+  },
+  "pamRotationConfigSearch": {
+    "message": "Search managed credentials"
+  },
+  "pamRotationConfigEmptyState": {
+    "message": "No managed credentials configured."
+  },
+  "pamRotationConfigNoResults": {
+    "message": "No results match your search."
+  },
+  "pamRotationConfigColumnCredential": {
+    "message": "Credential"
+  },
+  "pamRotationConfigColumnTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigColumnSchedule": {
+    "message": "Schedule"
+  },
+  "pamRotationConfigColumnRotateOnAccessEnd": {
+    "message": "Rotate on access end"
+  },
+  "pamRotationConfigColumnLastRotation": {
+    "message": "Last rotation"
+  },
+  "pamRotationConfigColumnNextRotation": {
+    "message": "Next rotation"
+  },
+  "pamRotationConfigStatusActive": {
+    "message": "Active"
+  },
+  "pamRotationConfigStatusPaused": {
+    "message": "Paused"
+  },
+  "pamRotationConfigInProgress": {
+    "message": "Rotation in progress"
+  },
+  "pamRotationConfigManualDue": {
+    "message": "Manual rotation due"
+  },
+  "pamRotationConfigRotateNow": {
+    "message": "Rotate now"
+  },
+  "pamRotationConfigRotateNowDisabledTitle": {
+    "message": "Cannot rotate now — the rotation is disabled, paused, or already in progress."
+  },
+  "pamRotationConfigRotateNowSuccess": {
+    "message": "Rotation dispatched."
+  },
+  "pamRotationConfigRecordManual": {
+    "message": "Record manual rotation"
+  },
+  "pamRotationConfigRecordManualTitle": {
+    "message": "Record manual rotation"
+  },
+  "pamRotationConfigRecordManualContent": {
+    "message": "This records that the credential was rotated outside Bitwarden and resets the schedule. The audit log will reflect the manual rotation."
+  },
+  "pamRotationConfigRecordManualConfirm": {
+    "message": "Record rotation"
+  },
+  "pamRotationConfigRecordManualSuccess": {
+    "message": "Manual rotation recorded."
+  },
+  "pamRotationConfigPause": {
+    "message": "Pause"
+  },
+  "pamRotationConfigPauseSuccess": {
+    "message": "Rotation paused."
+  },
+  "pamRotationConfigResume": {
+    "message": "Resume"
+  },
+  "pamRotationConfigResumeSuccess": {
+    "message": "Rotation resumed."
+  },
+  "pamRotationConfigDeleteConfirmTitle": {
+    "message": "Remove managed credential"
+  },
+  "pamRotationConfigDeleteConfirmContent": {
+    "message": "This removes rotation management for this credential. The cipher stays in your vault and the rotation history remains in the audit log."
+  },
+  "pamRotationConfigDeleteLockedTitle": {
+    "message": "Cannot delete while a rotation is in progress. Wait for it to complete or pause the rotation first."
+  },
+  "pamRotationConfigDeleteSuccess": {
+    "message": "Managed credential removed."
+  },
+  "pamRotationConfigCreateHeading": {
+    "message": "Credential details"
+  },
+  "pamRotationConfigDetailsHeading": {
+    "message": "Details"
+  },
+  "pamRotationConfigSettingsHeading": {
+    "message": "Rotation settings"
+  },
+  "pamRotationConfigAccountHeading": {
+    "message": "Account"
+  },
+  "pamRotationConfigHistoryHeading": {
+    "message": "Rotation history"
+  },
+  "pamRotationConfigCipher": {
+    "message": "Credential"
+  },
+  "pamRotationConfigCipherPlaceholder": {
+    "message": "Select a credential"
+  },
+  "pamRotationConfigCipherHint": {
+    "message": "Select the vault item whose password will be rotated."
+  },
+  "pamRotationConfigTargetSystem": {
+    "message": "Target system"
+  },
+  "pamRotationConfigTargetSystemPlaceholder": {
+    "message": "Select a target system"
+  },
+  "pamRotationConfigAccountIdentity": {
+    "message": "Account identity"
+  },
+  "pamRotationConfigAccountIdentityHint": {
+    "message": "The account to rotate in the target system, e.g. a UPN, SQL login, or script argument. Passed to the daemon as-is."
+  },
+  "pamRotationConfigTerminateSessions": {
+    "message": "Terminate active sessions after rotation"
+  },
+  "pamRotationConfigTerminateSessionsHint": {
+    "message": "Requires the target system to support session termination."
+  },
+  "pamRotationConfigSchedule": {
+    "message": "Rotation schedule"
+  },
+  "pamRotationConfigRotateOnAccessEnd": {
+    "message": "Rotate when access ends"
+  },
+  "pamRotationConfigRotateOnAccessEndHint": {
+    "message": "Automatically rotate this credential when a PAM access session ends."
+  },
+  "pamRotationConfigNotFound": {
+    "message": "Managed credential not found."
+  },
+  "pamRotationConfigCreated": {
+    "message": "Managed credential created."
+  },
+  "pamRotationConfigSettingsUpdated": {
+    "message": "Rotation settings saved."
+  },
+  "pamRotationConfigAccountUpdated": {
+    "message": "Account settings saved."
+  },
+  "pamRotationConfigAccountLockedTitle": {
+    "message": "Settings unavailable"
+  },
+  "pamRotationConfigAccountLockedContent": {
+    "message": "Account settings cannot be changed while a rotation job is in progress."
+  },
+  "pamRotationHistoryEmpty": {
+    "message": "No rotation jobs recorded yet."
+  },
+  "pamRotationHistoryColumnSource": {
+    "message": "Source"
+  },
+  "pamRotationHistoryColumnCreated": {
+    "message": "Created"
+  },
+  "pamRotationHistoryColumnAttempts": {
+    "message": "Attempts"
+  },
+  "pamRotationSourceScheduled": {
+    "message": "Scheduled"
+  },
+  "pamRotationSourceOnDemand": {
+    "message": "On demand"
+  },
+  "pamRotationSourceAccessEnd": {
+    "message": "Access ended"
+  },
+  "pamRotationSourceUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationJobStatusPending": {
+    "message": "Pending"
+  },
+  "pamRotationJobStatusClaimed": {
+    "message": "Claimed"
+  },
+  "pamRotationJobStatusSucceeded": {
+    "message": "Succeeded"
+  },
+  "pamRotationJobStatusFailed": {
+    "message": "Failed"
+  },
+  "pamRotationJobStatusTimedOut": {
+    "message": "Timed out"
+  },
+  "pamRotationJobStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAttemptStatusExecuting": {
+    "message": "Executing"
+  },
+  "pamRotationAttemptStatusRotated": {
+    "message": "Rotated"
+  },
+  "pamRotationAttemptStatusErrored": {
+    "message": "Errored"
+  },
+  "pamRotationAttemptStatusAbandoned": {
+    "message": "Abandoned"
+  },
+  "pamRotationAttemptStatusUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationAttemptInProgress": {
+    "message": "In progress"
+  },
+  "pamRotationSyncStateTargetUnchanged": {
+    "message": "Target unchanged"
+  },
+  "pamRotationSyncStateTargetUpdated": {
+    "message": "Target updated"
+  },
+  "pamRotationSyncStateIndeterminate": {
+    "message": "Indeterminate"
+  },
+  "pamRotationSyncStateUnknown": {
+    "message": "Unknown"
+  },
+  "pamRotationSessionTerminationNotRequested": {
+    "message": "Session termination not requested"
+  },
+  "pamRotationSessionTerminationTerminated": {
+    "message": "Sessions terminated"
+  },
+  "pamRotationSessionTerminationTermFailed": {
+    "message": "Session termination failed"
+  },
+  "pamRotationSessionTerminationUnknown": {
+    "message": "Unknown"
+  },
+  "pamAuditKindRotationConfigCreated": {
+    "message": "Rotation config created"
+  },
+  "pamAuditKindRotationSettingsUpdated": {
+    "message": "Rotation settings updated"
+  },
+  "pamAuditKindRotationAccountUpdated": {
+    "message": "Rotation account updated"
+  },
+  "pamAuditKindRotationPaused": {
+    "message": "Rotation paused"
+  },
+  "pamAuditKindRotationResumed": {
+    "message": "Rotation resumed"
+  },
+  "pamAuditKindRotationConfigDeleted": {
+    "message": "Rotation config deleted"
+  },
+  "pamAuditKindRotationOffered": {
+    "message": "Rotation offered to daemon"
+  },
+  "pamAuditKindRotationDispatched": {
+    "message": "Rotation dispatched"
+  },
+  "pamAuditKindRotationSucceeded": {
+    "message": "Credential rotated"
+  },
+  "pamAuditKindRotationAttemptFailed": {
+    "message": "Rotation attempt failed"
+  },
+  "pamAuditKindRotationFailed": {
+    "message": "Rotation failed"
+  },
+  "pamAuditKindRotationReleased": {
+    "message": "Rotation released"
+  },
+  "pamAuditKindRotationTimedOut": {
+    "message": "Rotation timed out"
+  },
+  "pamAuditKindRotationWriteRejected": {
+    "message": "Vault write rejected"
+  },
+  "pamAuditKindRotationReportRejected": {
+    "message": "Rotation report rejected"
+  },
+  "pamAuditKindManualRotationDue": {
+    "message": "Manual rotation due"
+  },
+  "pamAuditKindManualRotationRecorded": {
+    "message": "Manual rotation recorded"
+  },
+  "pamAuditKindDaemonRegistered": {
+    "message": "Daemon registered"
+  },
+  "pamAuditKindDaemonRevoked": {
+    "message": "Daemon revoked"
+  },
+  "pamAuditKindDaemonAssigned": {
+    "message": "Daemon assigned to target"
+  },
+  "pamAuditKindDaemonUnassigned": {
+    "message": "Daemon unassigned from target"
+  },
+  "pamAuditKindTargetRegistered": {
+    "message": "Target system registered"
+  },
+  "pamAuditKindTargetDisabled": {
+    "message": "Target system disabled"
+  },
+  "pamAuditKindTargetEnabled": {
+    "message": "Target system enabled"
+  },
+  "pamAuditKindTargetRenamed": {
+    "message": "Target system renamed"
+  },
+  "pamAuditKindTargetPolicyUpdated": {
+    "message": "Target password policy updated"
+  },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
   }

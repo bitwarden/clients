@@ -20,13 +20,20 @@ function org(canManageAccessRules: boolean): Organization {
 describe("PamOrgNavSlotComponent", () => {
   let fixture: ComponentFixture<PamOrgNavSlotComponent>;
   let pamEnabled$: BehaviorSubject<boolean>;
+  let rotationEnabled$: BehaviorSubject<boolean>;
   let count$: BehaviorSubject<number>;
   let getFeatureFlag$: jest.Mock;
 
   beforeEach(async () => {
     pamEnabled$ = new BehaviorSubject<boolean>(true);
+    rotationEnabled$ = new BehaviorSubject<boolean>(true);
     count$ = new BehaviorSubject<number>(0);
-    getFeatureFlag$ = jest.fn().mockReturnValue(pamEnabled$);
+    getFeatureFlag$ = jest.fn().mockImplementation((flag: FeatureFlag) => {
+      if (flag === FeatureFlag.PamRotation) {
+        return rotationEnabled$;
+      }
+      return pamEnabled$;
+    });
 
     await TestBed.configureTestingModule({
       imports: [PamOrgNavSlotComponent],
@@ -40,6 +47,7 @@ describe("PamOrgNavSlotComponent", () => {
             pamAccessRules: "Access rules",
             pamInboxNav: "Access requests",
             pamGovernanceTitle: "Governance",
+            pamRotationNav: "Rotation",
           }),
         },
       ],
@@ -58,6 +66,10 @@ describe("PamOrgNavSlotComponent", () => {
 
   const navGroup = () => fixture.debugElement.query(By.css("bit-nav-group"));
   const badge = () => fixture.debugElement.query(By.css("[bitBadge]"));
+  const rotationNavItem = () =>
+    fixture.debugElement
+      .queryAll(By.css("bit-nav-item"))
+      .find((el) => el.attributes["route"] === "pam/rotation");
 
   it("gates on the PAM feature flag", () => {
     fixture.detectChanges();
@@ -92,5 +104,16 @@ describe("PamOrgNavSlotComponent", () => {
   it("hides the inbox badge when the count is zero", () => {
     fixture.detectChanges();
     expect(badge()).toBeNull();
+  });
+
+  it("renders the rotation nav item when both PAM and PamRotation flags are on", () => {
+    fixture.detectChanges();
+    expect(rotationNavItem()).not.toBeUndefined();
+  });
+
+  it("hides the rotation nav item when the PamRotation flag is off", () => {
+    rotationEnabled$.next(false);
+    fixture.detectChanges();
+    expect(rotationNavItem()).toBeUndefined();
   });
 });

@@ -1,0 +1,11 @@
+<app-header [title]="'pamRotationTitle' | i18n">
+  <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTitle' | i18n">
+    <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
+    <bit-tab-link route="daemons">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<router-outlet></router-outlet>

@@ -15,11 +15,25 @@ import {
   AccessRuleResponse,
   CipherAccessState,
   CipherAccessStateResponse,
+  DaemonAssignmentRequest,
+  DaemonRegisterRequest,
+  DaemonRegistrationResponse,
   PamApiService,
+  RotationConfigAccountRequest,
+  RotationConfigCreateRequest,
+  RotationConfigDetailsResponse,
+  RotationConfigResponse,
+  RotationConfigSettingsRequest,
+  RotationDaemonResponse,
+  TargetSystemCreateRequest,
+  TargetSystemNameRequest,
+  TargetSystemPolicyRequest,
+  TargetSystemResponse,
 } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -233,6 +247,251 @@ export class DefaultPamApiService implements PamApiService {
 
   async deleteAccessRule(organizationId: string, id: string): Promise<void> {
     await this.send("DELETE", `/organizations/${organizationId}/access-rules/${id}`, null, false);
+  }
+
+  // Rotation (Admin Console) ———————————————————————————————————————————————
+  // NOTE: Rotation mutations do NOT pump localRefresh$ — that stream is for
+  // lease/cipher state only. Page services (RotationConfigsService, DaemonsService,
+  // TargetSystemsService) own their own refresh cycles.
+
+  async listRotationDaemons(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<RotationDaemonResponse>> {
+    const r = await this.send(
+      "GET",
+      `/organizations/${organizationId}/rotation/daemons`,
+      null,
+      true,
+    );
+    return new ListResponse(r, RotationDaemonResponse);
+  }
+
+  async registerRotationDaemon(
+    organizationId: OrganizationId,
+    request: DaemonRegisterRequest,
+  ): Promise<DaemonRegistrationResponse> {
+    return new DaemonRegistrationResponse(
+      await this.send("POST", `/organizations/${organizationId}/rotation/daemons`, request, true),
+    );
+  }
+
+  async revokeRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}/revoke`,
+      null,
+      false,
+    );
+  }
+
+  async assignRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+    request: DaemonAssignmentRequest,
+  ): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}/assignments`,
+      request,
+      false,
+    );
+  }
+
+  async unassignRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+    targetSystemId: string,
+  ): Promise<void> {
+    await this.send(
+      "DELETE",
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}/assignments/${targetSystemId}`,
+      null,
+      false,
+    );
+  }
+
+  async listTargetSystems(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<TargetSystemResponse>> {
+    const r = await this.send(
+      "GET",
+      `/organizations/${organizationId}/rotation/target-systems`,
+      null,
+      true,
+    );
+    return new ListResponse(r, TargetSystemResponse);
+  }
+
+  async createTargetSystem(
+    organizationId: OrganizationId,
+    request: TargetSystemCreateRequest,
+  ): Promise<TargetSystemResponse> {
+    return new TargetSystemResponse(
+      await this.send(
+        "POST",
+        `/organizations/${organizationId}/rotation/target-systems`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async enableTargetSystem(organizationId: OrganizationId, targetSystemId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/target-systems/${targetSystemId}/enable`,
+      null,
+      false,
+    );
+  }
+
+  async disableTargetSystem(organizationId: OrganizationId, targetSystemId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/target-systems/${targetSystemId}/disable`,
+      null,
+      false,
+    );
+  }
+
+  async renameTargetSystem(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+    request: TargetSystemNameRequest,
+  ): Promise<TargetSystemResponse> {
+    return new TargetSystemResponse(
+      await this.send(
+        "PUT",
+        `/organizations/${organizationId}/rotation/target-systems/${targetSystemId}/name`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async updateTargetSystemPolicy(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+    request: TargetSystemPolicyRequest,
+  ): Promise<TargetSystemResponse> {
+    return new TargetSystemResponse(
+      await this.send(
+        "PUT",
+        `/organizations/${organizationId}/rotation/target-systems/${targetSystemId}/policy`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async listRotationConfigs(
+    organizationId: OrganizationId,
+  ): Promise<ListResponse<RotationConfigResponse>> {
+    const r = await this.send(
+      "GET",
+      `/organizations/${organizationId}/rotation/configs`,
+      null,
+      true,
+    );
+    return new ListResponse(r, RotationConfigResponse);
+  }
+
+  async createRotationConfig(
+    organizationId: OrganizationId,
+    request: RotationConfigCreateRequest,
+  ): Promise<RotationConfigResponse> {
+    return new RotationConfigResponse(
+      await this.send("POST", `/organizations/${organizationId}/rotation/configs`, request, true),
+    );
+  }
+
+  async getRotationConfig(
+    organizationId: OrganizationId,
+    configId: string,
+  ): Promise<RotationConfigDetailsResponse> {
+    return new RotationConfigDetailsResponse(
+      await this.send(
+        "GET",
+        `/organizations/${organizationId}/rotation/configs/${configId}`,
+        null,
+        true,
+      ),
+    );
+  }
+
+  async updateRotationConfigSettings(
+    organizationId: OrganizationId,
+    configId: string,
+    request: RotationConfigSettingsRequest,
+  ): Promise<RotationConfigResponse> {
+    return new RotationConfigResponse(
+      await this.send(
+        "PUT",
+        `/organizations/${organizationId}/rotation/configs/${configId}/settings`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async updateRotationConfigAccount(
+    organizationId: OrganizationId,
+    configId: string,
+    request: RotationConfigAccountRequest,
+  ): Promise<RotationConfigResponse> {
+    return new RotationConfigResponse(
+      await this.send(
+        "PUT",
+        `/organizations/${organizationId}/rotation/configs/${configId}/account`,
+        request,
+        true,
+      ),
+    );
+  }
+
+  async pauseRotationConfig(organizationId: OrganizationId, configId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/configs/${configId}/pause`,
+      null,
+      false,
+    );
+  }
+
+  async resumeRotationConfig(organizationId: OrganizationId, configId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/configs/${configId}/resume`,
+      null,
+      false,
+    );
+  }
+
+  async rotateNow(organizationId: OrganizationId, configId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/configs/${configId}/rotate`,
+      null,
+      false,
+    );
+  }
+
+  async recordManualRotation(organizationId: OrganizationId, configId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/configs/${configId}/record-manual`,
+      null,
+      false,
+    );
+  }
+
+  async deleteRotationConfig(organizationId: OrganizationId, configId: string): Promise<void> {
+    await this.send(
+      "DELETE",
+      `/organizations/${organizationId}/rotation/configs/${configId}`,
+      null,
+      false,
+    );
   }
 
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {
