@@ -45,7 +45,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
       expect(sdk.save).not.toHaveBeenCalled();
     });
 
@@ -59,7 +59,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -73,7 +73,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -87,7 +87,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -101,7 +101,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(sdk.save).toHaveBeenCalledWith([send, buffer]);
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], undefined);
       expect(legacy.save).not.toHaveBeenCalled();
     });
 
@@ -114,7 +114,35 @@ describe("SendApiServiceSelector", () => {
 
       await selector.save([send, buffer]);
 
-      expect(legacy.save).toHaveBeenCalledWith([send, buffer]);
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], undefined);
+      expect(sdk.save).not.toHaveBeenCalled();
+    });
+
+    it("forwards the plaintext password to the SDK service when the flag is on", async () => {
+      const selector = buildSelector(true);
+      const send = new Send();
+      send.id = null;
+      send.type = SendType.Text;
+      send.authType = AuthType.Password;
+      const buffer = mock<EncArrayBuffer>();
+
+      await selector.save([send, buffer], "hunter2");
+
+      expect(sdk.save).toHaveBeenCalledWith([send, buffer], "hunter2");
+      expect(legacy.save).not.toHaveBeenCalled();
+    });
+
+    it("forwards the plaintext password to legacy for a new file send, even with the flag on", async () => {
+      const selector = buildSelector(true);
+      const send = new Send();
+      send.id = null;
+      send.type = SendType.File;
+      send.authType = AuthType.Password;
+      const buffer = mock<EncArrayBuffer>();
+
+      await selector.save([send, buffer], "hunter2");
+
+      expect(legacy.save).toHaveBeenCalledWith([send, buffer], "hunter2");
       expect(sdk.save).not.toHaveBeenCalled();
     });
   });

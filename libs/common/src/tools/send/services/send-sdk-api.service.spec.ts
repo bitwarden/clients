@@ -89,47 +89,62 @@ describe("SendSdkApiService", () => {
   }
 
   describe("buildSendAuth via save", () => {
-    it("forwards the pre-derived keyB64 verbatim for a password-protected create", async () => {
-      const view = textView({
-        authType: AuthType.Password,
-        password: "derived-keyB64",
-      });
+    it("emits the plaintext `password` variant for a password-protected create", async () => {
+      const view = textView({ authType: AuthType.Password });
       const send = sendResolvingTo(view, null);
 
-      await service.save([send, mock<EncArrayBuffer>()]);
+      await service.save([send, mock<EncArrayBuffer>()], "hunter2");
 
       const request = sendsClient.create.mock.calls[0][0] as SendAddRequest;
       const auth: SendAuthType = request.auth;
-      expect(auth).toEqual({ type: "hashedPassword", keyB64: "derived-keyB64" });
+      // Plaintext lets the SDK derive the proof over the key it generates, keeping password
+      // and key consistent.
+      expect(auth).toEqual({ type: "password", password: "hunter2" });
     });
 
-    it("forwards the pre-derived keyB64 verbatim for a password-protected edit", async () => {
+    it("emits the plaintext `password` variant for a password-changing edit", async () => {
       const existingId = Utils.newGuid();
-      const view = textView({
-        id: existingId,
-        authType: AuthType.Password,
-        password: "derived-keyB64",
-      });
+      const view = textView({ id: existingId, authType: AuthType.Password });
       const send = sendResolvingTo(view, existingId);
 
-      await service.save([send, mock<EncArrayBuffer>()]);
+      await service.save([send, mock<EncArrayBuffer>()], "new-password");
 
       const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
       const auth: SendAuthType = request.auth;
-      expect(auth).toEqual({ type: "hashedPassword", keyB64: "derived-keyB64" });
+      expect(auth).toEqual({ type: "password", password: "new-password" });
     });
 
-    it("throws when a password-protected send is missing its derived key", async () => {
-      const view = textView({
-        authType: AuthType.Password,
-        password: null,
-      });
-      const send = sendResolvingTo(view, null);
+    it("forwards the existing keyB64 via `hashedPassword` for a password-preserving edit", async () => {
+      const existingId = Utils.newGuid();
+      const view = textView({ id: existingId, authType: AuthType.Password });
+      const send = sendResolvingTo(view, existingId);
+      // On preserve the caller passes no plaintext; the existing proof lives on the stored send.
+      const storedSend = new Send();
+      storedSend.id = existingId;
+      storedSend.password = "existing-keyB64";
+      sendService.getFromState.mockResolvedValue(storedSend);
+
+      await service.save([send, mock<EncArrayBuffer>()]);
+
+      expect(sendService.getFromState).toHaveBeenCalledWith(existingId);
+      const request = sendsClient.edit.mock.calls[0][1] as SendEditRequest;
+      const auth: SendAuthType = request.auth;
+      expect(auth).toEqual({ type: "hashedPassword", keyB64: "existing-keyB64" });
+    });
+
+    it("throws when a password-protected send has neither a plaintext nor an existing password", async () => {
+      const existingId = Utils.newGuid();
+      const view = textView({ id: existingId, authType: AuthType.Password });
+      const send = sendResolvingTo(view, existingId);
+      const storedSend = new Send();
+      storedSend.id = existingId;
+      storedSend.password = null;
+      sendService.getFromState.mockResolvedValue(storedSend);
 
       await expect(service.save([send, mock<EncArrayBuffer>()])).rejects.toThrow(
-        "Password-protected send is missing its derived key.",
+        "Password-protected send is missing its password.",
       );
-      expect(sendsClient.create).not.toHaveBeenCalled();
+      expect(sendsClient.edit).not.toHaveBeenCalled();
     });
 
     it("emits a `none` auth variant for an unprotected send", async () => {

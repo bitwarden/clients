@@ -53,13 +53,17 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * Routes saves to SDK when the flag is on, except for new file sends which fall back
    * to legacy regardless (the SDK generates its own send key, which wouldn't match the
    * caller's pre-encrypted file buffer).
+   *
+   * `plaintextPassword` is forwarded unchanged to whichever service handles the save. The
+   * legacy service ignores it; the SDK service uses it to derive the send password over the
+   * key it generates. It is Protected Data — never logged here or downstream.
    */
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
-      return this.sendApiService.save(sendData);
+      return this.sendApiService.save(sendData, plaintextPassword);
     }
-    return (await this.getService()).save(sendData);
+    return (await this.getService()).save(sendData, plaintextPassword);
   }
 
   async delete(id: string): Promise<any> {
