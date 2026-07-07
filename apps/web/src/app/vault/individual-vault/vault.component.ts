@@ -1692,9 +1692,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const _cipher = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
-    const cipherView = await this.cipherService.decrypt(_cipher, activeUserId);
-    return cipherView.login.password;
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, uuidAsString(cipher.id) as CipherId),
+    );
+    return cipherView?.login.password;
   }
 }
 

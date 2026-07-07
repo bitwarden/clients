@@ -1,9 +1,11 @@
 import {
+  catchError,
   combineLatest,
   delayWhen,
   filter,
   firstValueFrom,
   from,
+  ignoreElements,
   map,
   NEVER,
   Observable,
@@ -82,12 +84,15 @@ export class DefaultCollectionService implements CollectionService {
 
     const result$ = this.decryptedState(userId).state$.pipe(
       switchMap((decryptedState) => {
-        // If decrypted state is already populated, return that
+        // If decrypted state is already populated, return that. A persisted empty array is only
+        // ever written by a successful decryption (failed decryptions are not cached - see
+        // initializeDecryptedState), so an empty cached value is a valid empty vault and is served
+        // as-is rather than re-decrypted.
         if (decryptedState !== null) {
           return of(decryptedState ?? []);
         }
 
-        return this.initializeDecryptedState(userId).pipe(switchMap(() => NEVER));
+        return this.initializeDecryptedState(userId);
       }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
@@ -111,11 +116,25 @@ export class DefaultCollectionService implements CollectionService {
     return this.configService.getFeatureFlag$(FeatureFlag.PM35153CollectionSdkDecryption).pipe(
       switchMap((sdkEnabled) => {
         if (sdkEnabled) {
-          return this.encryptedCollections$(userId).pipe(
-            switchMap((collections) =>
+          return combineLatest([
+            this.encryptedCollections$(userId),
+            this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+          ]).pipe(
+            switchMap(([collections]) =>
               from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
                 map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
-                delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
+                // Cache successful decryptions (delayWhen only runs on emitted values, so a failure
+                // is never cached), then drop this emission - the value is delivered to subscribers
+                // when the cache re-emits, which avoids emitting the same value twice.
+                delayWhen((decrypted: CollectionView[]) =>
+                  this.setDecryptedCollections(decrypted, userId),
+                ),
+                ignoreElements(),
+                // A failed batch emits an empty list without caching it, so decryption is retried
+                // on the next input emission rather than serving a stale empty list.
+                catchError(() => {
+                  return of([]);
+                }),
               ),
             ),
           );
@@ -130,6 +149,7 @@ export class DefaultCollectionService implements CollectionService {
               delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
             ),
           ),
+          switchMap(() => NEVER),
         );
       }),
     );
