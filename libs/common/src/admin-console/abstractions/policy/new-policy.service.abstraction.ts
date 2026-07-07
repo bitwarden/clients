@@ -1,7 +1,6 @@
 import { Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
-import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { Policy } from "../../models/domain/policy";
 
@@ -12,13 +11,8 @@ import { Policy } from "../../models/domain/policy";
  * This is internal to AC Team for now and should NOT BE USED by outside consumers.
  */
 export abstract class InternalNewPolicyService {
-  /**
-   * @returns all {@link Policy} objects of a given type that apply to the specified user.
-   * A policy "applies" if it is enabled and the user is not exempt (e.g. because they are an Owner).
-   * @param policyType the {@link PolicyType} to search for
-   * @param userId the {@link UserId} to search against
-   */
-  abstract policiesByType$: (policyType: PolicyType, userId: UserId) => Observable<Policy[]>;
+  /** @returns all {@link Policy} objects held in the `policiesNew` local state for the specified user. */
+  abstract policies$: (userId: UserId) => Observable<Policy[]>;
   /** Upsert a single policy into the `policiesNew` local state. */
   abstract upsert: (policy: PolicyData, userId: UserId) => Promise<void>;
   /** Replace all `policiesNew` local state for a user. */
