@@ -27,7 +27,6 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   priority = 10;
   component = MasterPasswordPolicyComponent;
   showDescription = false;
-  showEnabledBadge = true;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
   v2 = {
     component: MasterPasswordPolicyV2Component,

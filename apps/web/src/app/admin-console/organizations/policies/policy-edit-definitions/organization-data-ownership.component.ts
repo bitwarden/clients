@@ -34,7 +34,6 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
   showDescription = false;
-  showEnabledBadge = true;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
   v2 = {
     component: OrganizationDataOwnershipPolicyV2Component,

@@ -58,17 +58,25 @@ export class MultiStepPolicyEditDialogComponent
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  /**
+   * True when this dialog is showing the v2/drawer experience for this policy (badge header,
+   * v2 component, no "Edit policy" label). This is only the case when the policy defines a `v2`
+   * component AND the dialog was actually opened as a drawer - i.e. the `PolicyDrawers` flag is
+   * on. `dialogRef.isDrawer` is only true when {@link PoliciesComponent.edit} called
+   * `openDrawer()`, which only happens when that flag is enabled, so this keeps the v2 look from
+   * leaking into the plain modal dialog used when the flag is off.
+   */
+  protected readonly isV2 = computed(() => !!this.dialogRef.isDrawer && !!this.policy.v2);
+
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.policy.showEnabledBadge
-      ? this.i18nService.t(this.policy.name)
-      : this.i18nService.t("editPolicy");
+    return this.isV2() ? this.i18nService.t(this.policy.name) : this.i18nService.t("editPolicy");
   });
 
   protected readonly dialogSubtitle = computed(() => {
-    if (this.currentStepConfig()?.titleContent?.() || this.policy.showEnabledBadge) {
+    if (this.currentStepConfig()?.titleContent?.() || this.isV2()) {
       return undefined;
     }
     return this.i18nService.t(this.policy.name);
@@ -133,12 +141,11 @@ export class MultiStepPolicyEditDialogComponent
       throw new Error("Template not initialized.");
     }
 
-    // Create the policy component instance. Prefer the v2 component when the policy defines
-    // one - unlike the standard dialog/drawer flow, this dialog isn't gated by the
-    // `PolicyDrawers` flag, so once a policy opts in via `v2`, its enhanced component is always
-    // used here.
+    // Load the v2 component only when this dialog is actually rendering the v2/drawer
+    // experience (see isV2 above) - otherwise fall back to the standard component so the flag-off
+    // modal keeps looking like the original dialog.
     const componentRef = policyFormRef.createComponent(
-      this.data.policy.v2?.component ?? this.data.policy.component,
+      this.isV2() ? this.data.policy.v2!.component : this.data.policy.component,
     );
     componentRef.setInput("policyResponse", policyResponse);
     componentRef.setInput("policy", this.data.policy);

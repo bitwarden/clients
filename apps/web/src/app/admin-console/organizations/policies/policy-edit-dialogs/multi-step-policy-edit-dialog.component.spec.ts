@@ -1,11 +1,21 @@
+// bit-dialog uses IntersectionObserver, which isn't available in jsdom.
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+})) as any;
+
 import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
-import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
 import { MockProxy, mock } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -193,6 +203,116 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       TestBed.flushEffects();
 
       expect((component as any).saveDisabled()).toBe(true);
+    });
+  });
+
+  describe("isV2 (drawer/flag gating)", () => {
+    @Component({
+      selector: "test-v1-policy",
+      template: "v1",
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class TestV1PolicyComponent extends BasePolicyEditComponent {}
+
+    @Component({
+      selector: "test-v2-policy",
+      template: "v2",
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    class TestV2PolicyComponent extends BasePolicyEditComponent {}
+
+    async function setup(options: { isDrawer?: boolean; withV2: boolean }) {
+      const policy: BasePolicyEditDefinition = {
+        name: "testPolicy",
+        description: "testDesc",
+        type: 0,
+        category: "data-controls",
+        priority: 0,
+        component: TestV1PolicyComponent,
+        showDescription: false,
+        showEnabledBadge: false,
+        display$: () => of(true),
+        ...(options.withV2 ? { v2: { component: TestV2PolicyComponent } } : {}),
+      } as BasePolicyEditDefinition;
+
+      const data: PolicyEditDialogData = {
+        policy,
+        organization: { id: "org-1" } as Organization,
+      };
+
+      const i18n = mock<I18nService>();
+      i18n.t.mockImplementation((key: any) => key);
+      const policyApiService = mock<PolicyApiServiceAbstraction>();
+      policyApiService.getPolicy.mockResolvedValue(new PolicyResponse({ Enabled: false }));
+      const accountService = mock<AccountService>();
+      accountService.activeAccount$ = of(null);
+      const organizationService = mock<OrganizationService>();
+      organizationService.organizations$.mockReturnValue(of([]));
+      const dRef = mock<DialogRef<PolicyEditDialogResult>>();
+      (dRef as any).isDrawer = options.isDrawer ?? false;
+      const configService = mock<ConfigService>();
+      configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ReactiveFormsModule],
+        providers: [
+          { provide: DIALOG_DATA, useValue: data },
+          { provide: AccountService, useValue: accountService },
+          { provide: OrganizationService, useValue: organizationService },
+          { provide: AuthService, useValue: mock<AuthService>() },
+          { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
+          { provide: I18nService, useValue: i18n },
+          { provide: DialogRef, useValue: dRef },
+          { provide: ToastService, useValue: mock<ToastService>() },
+          { provide: KeyService, useValue: mock<KeyService>() },
+          { provide: DialogService, useValue: mock<DialogService>() },
+          { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+          { provide: ConfigService, useValue: configService },
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents();
+
+      const fx = TestBed.createComponent(MultiStepPolicyEditDialogComponent);
+      return { fixture: fx, component: fx.componentInstance as any };
+    }
+
+    it("is false when opened as a modal, even if the policy defines a v2 component", async () => {
+      const { component } = await setup({ isDrawer: false, withV2: true });
+
+      expect(component.isV2()).toBe(false);
+    });
+
+    it("is false when opened as a drawer but the policy has no v2 component", async () => {
+      const { component } = await setup({ isDrawer: true, withV2: false });
+
+      expect(component.isV2()).toBe(false);
+    });
+
+    it("is true only when opened as a drawer AND the policy defines a v2 component", async () => {
+      const { component } = await setup({ isDrawer: true, withV2: true });
+
+      expect(component.isV2()).toBe(true);
+    });
+
+    it("keeps the 'Edit policy' title and loads the standard component when isV2 is false, even with a v2 component defined", async () => {
+      const { fixture, component } = await setup({ isDrawer: false, withV2: true });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.dialogTitle()).toBe("editPolicy");
+      expect(component.policyComponent()).toBeInstanceOf(TestV1PolicyComponent);
+    });
+
+    it("uses the policy name as the title and loads the v2 component when isV2 is true", async () => {
+      const { fixture, component } = await setup({ isDrawer: true, withV2: true });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(component.dialogTitle()).toBe("testPolicy");
+      expect(component.policyComponent()).toBeInstanceOf(TestV2PolicyComponent);
     });
   });
 });
