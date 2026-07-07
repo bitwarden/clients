@@ -1,4 +1,4 @@
-import { EMPTY, catchError, concatMap, firstValueFrom, map } from "rxjs";
+import { EMPTY, catchError, concatMap, firstValueFrom, map, throwError } from "rxjs";
 
 import { CipherListView, DecryptCipherListResult } from "@bitwarden/sdk-internal";
 
@@ -65,7 +65,9 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt ciphers in batch: ${error}`);
-          return EMPTY;
+          // Propagate the underlying failure. Returning EMPTY here would make firstValueFrom
+          // reject with an opaque "no elements in sequence" EmptyError.
+          return throwError(() => (error instanceof Error ? error : new Error(String(error))));
         }),
       ),
     );

@@ -14,7 +14,10 @@ import { KdfType, KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
-import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
+import {
+  emptyUnencryptedExport,
+  unencryptedExportWithCipherKey,
+} from "../spec-data/bitwarden-json/unencrypted.json";
 
 import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
@@ -88,6 +91,14 @@ describe("BitwardenPasswordProtectedImporter", () => {
     it("Should call BitwardenJsonImporter", async () => {
       expect((await importer.parse(emptyUnencryptedExport)).success).toEqual(true);
       expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyUnencryptedExport);
+    });
+
+    it("drops the per-cipher key so key-bearing exports import successfully", async () => {
+      const result = await importer.parse(unencryptedExportWithCipherKey);
+
+      expect(result.success).toEqual(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(result.ciphers[0].key).toBeNull();
     });
   });
 
