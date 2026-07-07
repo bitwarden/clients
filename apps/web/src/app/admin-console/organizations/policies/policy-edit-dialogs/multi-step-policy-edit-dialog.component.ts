@@ -133,8 +133,13 @@ export class MultiStepPolicyEditDialogComponent
       throw new Error("Template not initialized.");
     }
 
-    // Create the policy component instance
-    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    // Create the policy component instance. Prefer the v2 component when the policy defines
+    // one - unlike the standard dialog/drawer flow, this dialog isn't gated by the
+    // `PolicyDrawers` flag, so once a policy opts in via `v2`, its enhanced component is always
+    // used here.
+    const componentRef = policyFormRef.createComponent(
+      this.data.policy.v2?.component ?? this.data.policy.component,
+    );
     componentRef.setInput("policyResponse", policyResponse);
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("currentStep", this.currentStep);

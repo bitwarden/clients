@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -9,14 +10,29 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { KeyService } from "@bitwarden/key-management";
 
-import { MasterPasswordPolicyComponent } from "./master-password.component";
+import { MasterPasswordPolicyV2Component } from "./master-password-v2.component";
+import { MasterPasswordPolicy, MasterPasswordPolicyComponent } from "./master-password.component";
 
-describe("MasterPasswordPolicyComponent", () => {
-  let component: MasterPasswordPolicyComponent;
-  let fixture: ComponentFixture<MasterPasswordPolicyComponent>;
+describe("MasterPasswordPolicy", () => {
+  const policy = new MasterPasswordPolicy();
+
+  it("should have correct attributes", () => {
+    expect(policy.name).toEqual("masterPassPolicyTitle");
+    expect(policy.description).toEqual("masterPassPolicyDesc");
+    expect(policy.component).toEqual(MasterPasswordPolicyComponent);
+    expect(policy.v2?.component).toEqual(MasterPasswordPolicyV2Component);
+  });
+});
+
+// MasterPasswordPolicyV2Component is the component actually rendered - the v2 override always
+// takes precedence, so MasterPasswordPolicyComponent (above) is currently unused dead code.
+describe("MasterPasswordPolicyV2Component", () => {
+  let component: MasterPasswordPolicyV2Component;
+  let fixture: ComponentFixture<MasterPasswordPolicyV2Component>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [ReactiveFormsModule],
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
@@ -27,7 +43,7 @@ describe("MasterPasswordPolicyComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MasterPasswordPolicyComponent);
+    fixture = TestBed.createComponent(MasterPasswordPolicyV2Component);
     component = fixture.componentInstance;
   });
 

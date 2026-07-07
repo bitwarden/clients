@@ -16,12 +16,14 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { OrganizationDataOwnershipPolicyV2Component } from "./organization-data-ownership-v2.component";
 import {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
 } from "./organization-data-ownership.component";
 
 const ORG_ID = "org1" as OrganizationId;
+const USER_ID = "user1" as UserId;
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -40,12 +42,16 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.description).toEqual("centralizeDataOwnershipDesc");
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
+    expect(policy.v2?.component).toEqual(OrganizationDataOwnershipPolicyV2Component);
   });
 });
 
-describe("OrganizationDataOwnershipPolicyComponent", () => {
-  let component: OrganizationDataOwnershipPolicyComponent;
-  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
+// OrganizationDataOwnershipPolicyV2Component is the component actually rendered - the v2
+// override always takes precedence, so OrganizationDataOwnershipPolicyComponent (above) is
+// currently unused dead code.
+describe("OrganizationDataOwnershipPolicyV2Component", () => {
+  let component: OrganizationDataOwnershipPolicyV2Component;
+  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyV2Component>;
   let mockOrganizationService: MockProxy<OrganizationService>;
   let accountService: FakeAccountService;
 
@@ -57,7 +63,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    accountService = mockAccountServiceWith("user1" as UserId);
+    accountService = mockAccountServiceWith(USER_ID);
 
     mockOrganizationService.organizations$.mockReturnValue(of([]));
 
@@ -74,7 +80,7 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyComponent);
+    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyV2Component);
     component = fixture.componentInstance;
   });
 
