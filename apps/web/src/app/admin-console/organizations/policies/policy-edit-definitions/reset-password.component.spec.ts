@@ -12,6 +12,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -43,15 +44,14 @@ describe("ResetPasswordPolicyComponent", () => {
   let component: ResetPasswordPolicyComponent;
   let fixture: ComponentFixture<ResetPasswordPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
-  let mockAccountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
   let mockConfigService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    mockAccountService = mock<AccountService>();
+    accountService = mockAccountServiceWith(USER_ID);
     mockConfigService = mock<ConfigService>();
 
-    mockAccountService.activeAccount$ = of({ id: USER_ID } as any);
     mockOrganizationService.organizations$.mockReturnValue(
       of([{ id: ORG_ID, keyConnectorEnabled: false } as Organization]),
     );
@@ -62,7 +62,7 @@ describe("ResetPasswordPolicyComponent", () => {
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: accountService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },

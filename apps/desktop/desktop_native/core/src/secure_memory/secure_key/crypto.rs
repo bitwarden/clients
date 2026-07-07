@@ -1,12 +1,12 @@
 use std::ptr::NonNull;
 
-use chacha20poly1305::{aead::Aead, Key, KeyInit};
+use aes_gcm::{aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
 use rand::{rng, Rng};
 
 pub(super) const KEY_SIZE: usize = 32;
-pub(super) const NONCE_SIZE: usize = 24;
+pub(super) const NONCE_SIZE: usize = 12;
 
-/// The encryption performed here is xchacha-poly1305. Any tampering with the key or the ciphertexts
+/// The encryption performed here is AES-256-GCM. Any tampering with the key or the ciphertexts
 /// will result in a decryption failure and panic. The key's memory contents are protected from
 /// being swapped to disk via mlock.
 pub(super) struct MemoryEncryptionKey(NonNull<[u8]>);
@@ -27,11 +27,11 @@ impl MemoryEncryptionKey {
     /// Encrypts the given plaintext using the key.
     #[allow(unused)]
     pub(super) fn encrypt(&self, plaintext: &[u8]) -> EncryptedMemory {
-        let cipher = chacha20poly1305::XChaCha20Poly1305::new(Key::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
         let mut nonce = [0u8; NONCE_SIZE];
         rng().fill(&mut nonce);
         let ciphertext = cipher
-            .encrypt(chacha20poly1305::XNonce::from_slice(&nonce), plaintext)
+            .encrypt(Nonce::from_slice(&nonce), plaintext)
             .expect("encryption should not fail");
         EncryptedMemory { nonce, ciphertext }
     }
@@ -41,10 +41,10 @@ impl MemoryEncryptionKey {
     /// indicates that the process memory was tampered with.
     #[allow(unused)]
     pub(super) fn decrypt(&self, encrypted: &EncryptedMemory) -> Result<Vec<u8>, DecryptionError> {
-        let cipher = chacha20poly1305::XChaCha20Poly1305::new(Key::from_slice(self.as_ref()));
+        let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(self.as_ref()));
         cipher
             .decrypt(
-                chacha20poly1305::XNonce::from_slice(&encrypted.nonce),
+                Nonce::from_slice(&encrypted.nonce),
                 encrypted.ciphertext.as_ref(),
             )
             .map_err(|_| DecryptionError::CouldNotDecrypt)
@@ -102,5 +102,14 @@ mod tests {
         let encrypted = key.encrypt(data);
         let decrypted = key.decrypt(&encrypted).unwrap();
         assert_eq!(data.as_ref(), decrypted.as_slice());
+    }
+
+    #[test]
+    fn test_tampered_ciphertext_fails_to_decrypt() {
+        let key = MemoryEncryptionKey::new();
+        let mut encrypted = key.encrypt(b"Hello, world!");
+        encrypted.ciphertext[0] ^= 0xff;
+        let result = key.decrypt(&encrypted);
+        assert!(matches!(result, Err(DecryptionError::CouldNotDecrypt)));
     }
 }

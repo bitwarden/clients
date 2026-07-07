@@ -65,16 +65,18 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
   }
 
   async ngOnInit() {
+    this.logService.info("[WeakPasswordsReport] load start");
     try {
       await super.load();
+      this.logService.info("[WeakPasswordsReport] load success");
     } catch (e) {
-      this.logService.error("[WeakPasswordsReport] Failed to load report", e);
+      this.logService.error("[WeakPasswordsReport] load failure", e);
       throw e;
     }
   }
 
   async setCiphers() {
-    this.logService.info(`[WeakPasswordsReport] Loading ciphers for report`);
+    this.logService.info("[WeakPasswordsReport] analysis start");
     try {
       const allCiphers = await this.getAllCiphers();
       this.logService.info(`[WeakPasswordsReport] Loaded ${allCiphers.length} ciphers for report`);

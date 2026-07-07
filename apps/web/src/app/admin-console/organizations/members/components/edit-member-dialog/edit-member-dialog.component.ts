@@ -126,8 +126,10 @@ export class EditMemberDialogComponent {
 
   protected readonly formGroup = this.formBuilder.group({
     type: this.formBuilder.nonNullable.control(OrganizationUserType.User),
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
-    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
+    // set to readonly in the template
+    externalId: this.formBuilder.control({ value: "", disabled: false }),
+    // set to readonly in the template
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -238,6 +240,8 @@ export class EditMemberDialogComponent {
       ),
     );
 
+    let formInitialized = false;
+
     combineLatest({
       organization: this.organization$,
       collections: collections$,
@@ -275,8 +279,13 @@ export class EditMemberDialogComponent {
           return;
         }
 
-        this.loadOrganizationUser(userDetails, groups, collections, organization);
-        this.loading.set(false);
+        // Only patch the form on first load — subsequent emissions update the item list
+        // (collectionAccessItems) but must not overwrite user-made permission changes.
+        if (!formInitialized) {
+          formInitialized = true;
+          this.loadOrganizationUser(userDetails, groups, collections, organization);
+          this.loading.set(false);
+        }
       });
   }
 
