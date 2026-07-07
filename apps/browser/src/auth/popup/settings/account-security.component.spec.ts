@@ -168,8 +168,10 @@ describe("AccountSecurityComponent", () => {
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
-    sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(true));
-    sharedUnlockSettingsService.setAllowSharingUnlockState.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 
@@ -197,38 +199,6 @@ describe("AccountSecurityComponent", () => {
     await component.ngOnInit();
 
     await expect(firstValueFrom(component.pinEnabled$)).resolves.toBe(true);
-  });
-
-  describe("shared unlock description", () => {
-    it("uses the Safari-specific description key on Safari", () => {
-      platformUtilsService.isSafari.mockReturnValue(true);
-      platformUtilsService.isFirefox.mockReturnValue(false);
-
-      const safariFixture = TestBed.createComponent(AccountSecurityComponent);
-      const safariComponent = safariFixture.componentInstance;
-
-      expect(safariComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescriptionSafari");
-    });
-
-    it("uses the Firefox-specific description key on Firefox", () => {
-      platformUtilsService.isSafari.mockReturnValue(false);
-      platformUtilsService.isFirefox.mockReturnValue(true);
-
-      const firefoxFixture = TestBed.createComponent(AccountSecurityComponent);
-      const firefoxComponent = firefoxFixture.componentInstance;
-
-      expect(firefoxComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescriptionFirefox");
-    });
-
-    it("uses the generic description key on non-Safari and non-Firefox browsers", () => {
-      platformUtilsService.isSafari.mockReturnValue(false);
-      platformUtilsService.isFirefox.mockReturnValue(false);
-
-      const defaultFixture = TestBed.createComponent(AccountSecurityComponent);
-      const defaultComponent = defaultFixture.componentInstance;
-
-      expect(defaultComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescription");
-    });
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
@@ -549,6 +519,101 @@ describe("AccountSecurityComponent", () => {
     });
   });
 
+  describe("updateAllowSharingUnlockStateWithDesktop", () => {
+    let requestPermissionSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      // Simulate the popout context so the permission is requested directly rather than
+      // re-opening the page in a popout.
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+      jest.spyOn(BrowserApi, "permissionsGranted").mockResolvedValue(false);
+      requestPermissionSpy = jest.spyOn(BrowserApi, "requestPermission");
+      // The informational dialog is shown every time; default to the user continuing.
+      dialogService.open.mockReturnValue({ closed: of(true) } as any);
+    });
+
+    it("shows the informational dialog before requesting the permission", async () => {
+      requestPermissionSpy.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(dialogService.open).toHaveBeenCalled();
+    });
+
+    it("pops out without showing the dialog or requesting the permission when in the popup", async () => {
+      jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(true);
+      const openPopoutSpy = jest
+        .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
+        .mockResolvedValue(undefined as any);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(openPopoutSpy).toHaveBeenCalled();
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(requestPermissionSpy).not.toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("reverts the toggle and does not request the permission when the user closes the dialog", async () => {
+      dialogService.open.mockReturnValue({ closed: of(undefined) } as any);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(requestPermissionSpy).not.toHaveBeenCalled();
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.value).toBe(false);
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("does not show an error dialog and reverts the toggle when the permission is denied", async () => {
+      requestPermissionSpy.mockResolvedValue(false);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.value).toBe(false);
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("persists the setting when the permission is granted", async () => {
+      requestPermissionSpy.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
+    });
+
+    it("saves state then reloads when permission is just granted", async () => {
+      requestPermissionSpy.mockResolvedValue(true);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      const saveOrder =
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mock
+          .invocationCallOrder[0];
+      const sendOrder = messagingService.send.mock.invocationCallOrder[0];
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
+      expect(messagingService.send).toHaveBeenCalledWith("reloadExtension");
+      expect(saveOrder).toBeLessThan(sendOrder);
+    });
+  });
+
   describe("biometrics polling timer", () => {
     let browserApiSpy: jest.SpyInstance;
 
@@ -661,6 +726,59 @@ describe("AccountSecurityComponent", () => {
       expect(component.biometricUnavailabilityReason).toBe("");
       component.ngOnDestroy();
     }));
+  });
+
+  describe("desktop sharing permission request on popout", () => {
+    let inPopoutSpy: jest.SpyInstance;
+    let permissionsGrantedSpy: jest.SpyInstance;
+    let updateDesktopSharingSpy: jest.SpyInstance;
+    let queryParamGet: jest.Mock;
+
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+      inPopoutSpy = jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      permissionsGrantedSpy = jest.spyOn(BrowserApi, "permissionsGranted").mockResolvedValue(false);
+      queryParamGet = jest
+        .fn()
+        .mockImplementation((key: string) => (key === "autoRequestDesktopSharing" ? "true" : null));
+      const route = TestBed.inject(ActivatedRoute);
+      (route as any).snapshot = { queryParamMap: { get: queryParamGet } };
+      updateDesktopSharingSpy = jest
+        .spyOn(component, "updateAllowSharingUnlockStateWithDesktop")
+        .mockResolvedValue(undefined);
+    });
+
+    it("enables the setting to trigger the permission flow", async () => {
+      await component.ngOnInit();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.value).toBe(true);
+      expect(updateDesktopSharingSpy).toHaveBeenCalledWith(true);
+    });
+
+    it("does not trigger the flow when the autoRequestDesktopSharing query param is absent", async () => {
+      queryParamGet.mockReturnValue(null);
+
+      await component.ngOnInit();
+
+      expect(updateDesktopSharingSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not trigger the flow when not in a popout", async () => {
+      inPopoutSpy.mockReturnValue(false);
+
+      await component.ngOnInit();
+
+      expect(updateDesktopSharingSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not trigger the flow when the nativeMessaging permission is already granted", async () => {
+      permissionsGrantedSpy.mockResolvedValue(true);
+
+      await component.ngOnInit();
+
+      expect(updateDesktopSharingSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("biometric permission request on popout", () => {

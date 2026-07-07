@@ -116,7 +116,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
-    allowSharingUnlockState: true,
+    allowSharingUnlockStateWithDesktop: false,
+    allowSharingUnlockStateWithWeb: false,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -130,6 +131,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
   protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
+
+  // Native messaging with the desktop app is unavailable on Safari.
+  protected readonly showSharedUnlockWithDesktop: boolean;
+  // Firefox does not support sharing unlock state with the web vault.
+  protected readonly showSharedUnlockWithWeb: boolean;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -169,18 +175,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
       FeatureFlag.SharedUnlockPart2,
     );
-  }
 
-  get sharedUnlockDescriptionKey(): string {
-    if (this.platformUtilsService.isSafari()) {
-      return "sharedUnlockDescriptionSafari";
-    }
-
-    if (this.platformUtilsService.isFirefox()) {
-      return "sharedUnlockDescriptionFirefox";
-    }
-
-    return "sharedUnlockDescription";
+    this.showSharedUnlockWithDesktop = !this.platformUtilsService.isSafari();
+    this.showSharedUnlockWithWeb = !this.platformUtilsService.isFirefox();
   }
 
   async ngOnInit() {
@@ -209,8 +206,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.biometricStateService.promptAutomatically$(activeAccount.id),
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
-      allowSharingUnlockState: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
+      allowSharingUnlockStateWithDesktop: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(activeAccount.id),
+      ),
+      allowSharingUnlockStateWithWeb: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(activeAccount.id),
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
@@ -324,17 +324,46 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.form.controls.allowSharingUnlockState.valueChanges
+    this.form.controls.allowSharingUnlockStateWithDesktop.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.updateAllowSharingUnlockState(enabled);
+          await this.updateAllowSharingUnlockStateWithDesktop(enabled);
         }),
         takeUntil(this.destroy$),
       )
       .subscribe();
 
+    this.form.controls.allowSharingUnlockStateWithWeb.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockStateWithWeb(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    await this.promptForDesktopSharingPermissionIfNeeded();
     // Note: This will be removed after shared unlock is rolled out
     await this.promptForBiometricPermissionIfNeeded();
+  }
+
+  /**
+   * When the Account Security page was popped out specifically to enable desktop unlock sharing
+   * (signalled by the `autoRequestDesktopSharing` query param), continue the flow that was started
+   * in the popup. Enabling the form control triggers `updateAllowSharingUnlockStateWithDesktop`,
+   * which — now running in the popout — presents the permission dialog and requests the
+   * `nativeMessaging` permission.
+   */
+  private async promptForDesktopSharingPermissionIfNeeded() {
+    if (
+      !BrowserPopupUtils.inPopout(window) ||
+      this.route.snapshot.queryParamMap.get("autoRequestDesktopSharing") !== "true" ||
+      (await BrowserApi.permissionsGranted(["nativeMessaging"]))
+    ) {
+      return;
+    }
+
+    this.form.controls.allowSharingUnlockStateWithDesktop.setValue(true);
   }
 
   /**
@@ -472,10 +501,54 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     }
   }
 
-  async updateAllowSharingUnlockState(enabled: boolean) {
+  async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
+    const hadPermission = await BrowserApi.permissionsGranted(["nativeMessaging"]);
+    if (enabled && !hadPermission) {
+      if (BrowserPopupUtils.inPopup(window)) {
+        // Requesting the permission in the popup would close the window (granting reloads the
+        // extension), so pop out to a stable window. The popped-out window presents the dialog and
+        // requests the permission. With hash routing, Angular reads query params from after the
+        // hash route.
+        const url = new URL(window.location.href);
+        url.hash += (url.hash.includes("?") ? "&" : "?") + "autoRequestDesktopSharing=true";
+        await BrowserPopupUtils.openCurrentPagePopout(window, url.href);
+        return;
+      }
+
+      // In the popout, always explain what enabling desktop sharing entails before requesting the
+      // permission.
+      const proceed = await firstValueFrom(
+        NativeMessagingPermissionDialogComponent.open(this.dialogService).closed,
+      );
+      if (!proceed) {
+        this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
+        return;
+      }
+
+      const granted = await this.requestNativeMessagingPermission();
+      if (!granted) {
+        this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
-    if (!enabled) {
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
+
+    if (enabled && !hadPermission) {
+      // The nativeMessaging permission was just granted. The extension must reload to register
+      // the native messaging host. State is saved above so it survives the reload.
+      this.messagingService.send("reloadExtension");
+    }
+  }
+
+  async updateAllowSharingUnlockStateWithWeb(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithDesktop.value) {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }

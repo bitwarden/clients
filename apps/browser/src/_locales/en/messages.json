@@ -6742,6 +6742,18 @@
   "sharedUnlockDescriptionFirefox": {
     "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
   },
+  "sharedUnlockWithDesktop": {
+    "message": "Share unlock with Desktop"
+  },
+  "sharedUnlockWithDesktopDescription": {
+    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
+  },
+  "sharedUnlockWithWeb": {
+    "message": "Share unlock with web vault"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+  },
   "newPermissionNeeded": {
     "message": "New permission needed"
   },
