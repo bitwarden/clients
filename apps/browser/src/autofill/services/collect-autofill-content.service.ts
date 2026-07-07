@@ -201,6 +201,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return this.getTargetedPageDetails(targetingRules);
     }
 
+    return this.collectHeuristicPageDetails();
+  }
+
+  /**
+   * Collects page details using heuristic field detection. This is the default collection
+   * strategy when no targeting rules apply to the page, and the fallback used by
+   * {@link getTargetedPageDetails} when a targeting rule resolves no fields for this frame.
+   */
+  private async collectHeuristicPageDetails(): Promise<AutofillPageDetails> {
     if (!this.domRecentlyMutated && this.noFieldsFound) {
       return this.getFormattedPageDetails({}, []);
     }
@@ -315,8 +324,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * detection. Iterates through form definitions, resolving each field type's
    * selector array by trying each `DeepSelector` in order and stopping at the
    * first DOM match.
+   *
+   * If the rule resolves no field for this frame — no selector matched locally and
+   * nothing was routed to an iframe — the frame degrades gracefully to heuristic
+   * collection. A single local match, any iframe-routed target, or a blocklisted rule
+   * (handled upstream in {@link getPageDetails}) all keep the frame on the targeted path.
    */
-  private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
+  private async getTargetedPageDetails(forms: FormContent[]): Promise<AutofillPageDetails> {
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
       (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
         .filter(([, alternatives]) => alternatives?.length)
@@ -341,6 +355,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       );
       this.setupOverlayListeners(cachedPageDetails);
       return cachedPageDetails;
+    }
+
+    // The rule matched no field in this frame and routed nothing to an iframe, so targeting
+    // produced nothing actionable here. Fall back to heuristic collection rather than returning
+    // empty page details (e.g. a stale rule whose selectors no longer match the site's markup).
+    if (!localFields.length && iframeTargets.size === 0) {
+      return this.collectHeuristicPageDetails();
     }
 
     this.domRecentlyMutated = false;

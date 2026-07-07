@@ -476,14 +476,6 @@ describe("CollectAutofillContentService", () => {
         });
     });
 
-    it("returns empty page details when no local fields match and autofillFieldElements is empty", async () => {
-      document.body.innerHTML = `<input type="text" id="username" />`;
-
-      const pageDetails = await collectAutofillContentService.getPageDetails();
-
-      expect(pageDetails.fields).toHaveLength(0);
-    });
-
     it("returns cached page details from applyExternalTargetedFields when no local fields match", async () => {
       document.body.innerHTML = `<input type="text" id="username" />`;
 
@@ -504,6 +496,65 @@ describe("CollectAutofillContentService", () => {
 
       expect(pageDetails.fields).toHaveLength(1);
       expect(pageDetails.fields[0].opid).toBe("targeted_field_0_username");
+    });
+  });
+
+  describe("getTargetedPageDetails heuristic fallback", () => {
+    const mockTargetingRules = (fields: Record<string, string[]>) =>
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: [{ fields }] });
+          }
+          return Promise.resolve(undefined);
+        });
+
+    it("falls back to heuristic collection when no selector matches and nothing is routed to an iframe", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      mockTargetingRules({ username: ["#nonexistent"] });
+      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      // Heuristic collection ran (the targeted path resolved nothing for this frame)...
+      expect(collectAutofillContentService["buildAutofillFieldsData"]).toHaveBeenCalled();
+      // ...and produced non-targeted fields for the heuristically-matched input.
+      expect(pageDetails.fields.length).toBeGreaterThan(0);
+      expect(pageDetails.fields.every((field) => !field.targeted)).toBe(true);
+    });
+
+    it("does not fall back to heuristics when at least one selector matches", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      mockTargetingRules({ username: ["#username"] });
+      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(collectAutofillContentService["buildAutofillFieldsData"]).not.toHaveBeenCalled();
+      expect(pageDetails.fields).toHaveLength(1);
+      expect(pageDetails.fields[0].targeted).toBe(true);
+    });
+
+    it("does not fall back to heuristics when all targets are routed to an iframe", async () => {
+      document.body.innerHTML = `<iframe id="child-frame"></iframe>`;
+      const iframe = document.getElementById("child-frame") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://child.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+      const sendMessageSpy = mockTargetingRules({ username: ["iframe#child-frame >>> #username"] });
+      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(collectAutofillContentService["buildAutofillFieldsData"]).not.toHaveBeenCalled();
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({ iframeSrc: "https://child.example.com/login" }),
+      );
+      expect(pageDetails.fields).toHaveLength(0);
     });
   });
 
