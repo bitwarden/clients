@@ -77,9 +77,10 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     // On a password-preserving edit the caller passes no plaintext, and the freshly-encrypted
     // `send` carries no `keyB64` (SendService.encrypt only derives one when given a plaintext).
     // The existing proof-of-knowledge lives on the stored send, so recover it from state to
-    // forward verbatim. Absent on create (no existing send) and unused when plaintext is given.
+    // forward verbatim. Only needed for a password-protected edit: absent on create (no existing
+    // send) and unused for non-password sends or when a plaintext is given.
     const existingPassword =
-      send.id != null && plaintextPassword == null
+      send.id != null && send.authType === AuthType.Password && plaintextPassword == null
         ? (await this.sendService.getFromState(send.id))?.password
         : undefined;
     const sdkView = await this.mutateSend(sendView, userId, plaintextPassword, existingPassword);
