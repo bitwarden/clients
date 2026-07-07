@@ -554,12 +554,12 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
         );
       } else {
-        const updatedCipher = await this.cipherService.get(
-          this.formConfig.originalCipher?.id,
-          activeUserId,
+        updatedCipherView = await firstValueFrom(
+          this.cipherService.cipherView$(
+            activeUserId,
+            this.formConfig.originalCipher?.id as CipherId,
+          ),
         );
-
-        updatedCipherView = await this.cipherService.decrypt(updatedCipher, activeUserId);
       }
 
       this.cipherFormComponent().patchCipher((currentCipher) => {
@@ -589,9 +589,11 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     // Refresh from local state so attachments modified during edit aren't stale in view mode.
     const activeUserId = await firstValueFrom(this.userId$);
-    const latestCipher = await this.cipherService.get(this.cipher.id, activeUserId);
+    const latestCipher = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, this.cipher.id as CipherId),
+    );
     if (latestCipher != null) {
-      this.cipher = await this.cipherService.decrypt(latestCipher, activeUserId);
+      this.cipher = latestCipher;
     }
 
     // We're in Form mode, and we have a cipher, switch back to View mode.
