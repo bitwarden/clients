@@ -63,7 +63,9 @@ export class NativeMessagingPermissionDialogComponent {
     optional: true,
   });
   protected readonly descriptionKey =
-    DESCRIPTION_KEY_BY_TYPE[this.params?.type ?? NativeMessagingPermissionDialogType.Biometrics];
+    DESCRIPTION_KEY_BY_TYPE[
+      (this.params?.type as NativeMessagingPermissionDialogType | undefined) ?? NativeMessagingPermissionDialogType.Biometrics
+    ];
 
   async continue() {
     let granted = false;
@@ -81,7 +83,6 @@ export class NativeMessagingPermissionDialogComponent {
           type: "info",
         });
       }
-      granted = false;
     }
     await this.dialogRef.close(granted);
   }
