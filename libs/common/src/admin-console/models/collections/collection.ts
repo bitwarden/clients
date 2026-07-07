@@ -1,13 +1,15 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
 import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
 
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import Domain from "../../../platform/models/domain/domain-base";
+import { CollectionId, OrganizationId } from "../../../types/guid";
+import { OrgKey } from "../../../types/key";
+
 import { CollectionData } from "./collection.data";
+
+import { CollectionView } from ".";
 
 export const CollectionTypes = {
   SharedCollection: 0,

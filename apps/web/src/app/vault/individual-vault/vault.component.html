@@ -1,3 +1,4 @@
+<vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations$ | async"></app-vault-banners>
 
 <app-vault-header
@@ -89,13 +90,13 @@
           @if (showAddCipherBtn) {
             <button
               type="button"
-              buttonType="primary"
+              [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
               bitButton
               (click)="addCipher()"
               slot="button"
-              startIcon="bwi-plus"
+              [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
             >
-              {{ "newItem" | i18n }}
+              {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
             </button>
           }
         </bit-no-items>

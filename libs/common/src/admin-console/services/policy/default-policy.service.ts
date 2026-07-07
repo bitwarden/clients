@@ -1,8 +1,7 @@
 import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { getUserId } from "../../../auth/services/account.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { StateProvider } from "../../../platform/state";
@@ -312,6 +311,9 @@ export class DefaultPolicyService implements PolicyService {
         // Remove Unlock with PIN policy
         return false;
       case PolicyType.AutomaticUserConfirmation:
+        return false;
+      case PolicyType.OrganizationUserNotification:
+        // organization user notification banner applies to everyone, including admins and owners
         return false;
       case PolicyType.MasterPassword:
         // MasterPassword policy applies to everyone, including admins and owners

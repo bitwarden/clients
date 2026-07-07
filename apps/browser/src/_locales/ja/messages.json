@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "あなたの組織ではシングルサインオン (SSO) を使用する必要があります。"
   },
-  "welcomeBack": {
-    "message": "ようこそ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "ログイン"
   },
   "setAStrongPassword": {
     "message": "強力なパスワードを設定する"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "アカウントのメールアドレスを入力すると、パスワードのヒントが送信されます"
   },
-  "getMasterPasswordHint": {
-    "message": "マスターパスワードのヒントを取得する"
+  "hint": {
+    "message": "ヒント"
   },
   "continue": {
     "message": "続ける"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "ログイン"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden にログイン"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "ログイン"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "メールアドレスに送信されたコードを入力してください"
@@ -1714,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "パスキー認証に失敗しました"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "別のログイン方法を使用する"
   },
   "awaitingSecurityKeyInteraction": {
@@ -2337,6 +2337,10 @@
     "message": "新規メモ",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "新しいセキュアメモ",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "メモを編集",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "セキュアメモを編集",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "メモを表示",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "セキュアメモを表示",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "選択中"
+  },
+  "selectedLowercase": {
+    "message": "選択済み",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "一括操作"
@@ -2891,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新しいマスターパスワードは最低要件を満たしていません。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Bitwarden からメールでアドバイスやお知らせ、リサーチの機会を受け取りましょう。"
+  "receiveMarketingEmails": {
+    "message": "メールで Bitwarden から最新情報を受け取りましょう。"
   },
   "unsubscribe": {
     "message": "配信停止"
@@ -3951,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "マスターパスワードでログイン"
-  },
   "newAroundHere": {
     "message": "初めてですか?"
   },
@@ -4990,6 +5003,20 @@
     "message": "Bitwarden をデフォルトのパスワードマネージャーにする",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "自動入力体験を改善する",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Bitwarden を既定のパスワードマネージャーにするために、 $BROWSER$ ブラウザの権限を許可するよう求められます。",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Bitwarden をデフォルトのパスワードマネージャーとして設定できません",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5001,6 +5028,22 @@
   "makeDefault": {
     "message": "デフォルトにする",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Bitwarden をブラウザのデフォルトパスワードマネージャーにする"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "ブラウザプロンプトから、Bitwarden に設定を変更する許可を与えてください。"
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "ブラウザの内蔵パスワードマネージャーをオフにして、安全なログイン体験ができるようにします。"
+  },
+  "allow": {
+    "message": "許可",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "スキップ"
   },
   "saveCipherAttemptSuccess": {
     "message": "認証情報を保存しました！",
@@ -5675,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "コレクションの割り当てに成功しました"
+  },
+  "itemAssignedToCollections": {
+    "message": "コレクションに割り当てられたアイテム"
+  },
+  "itemsAssignedToCollections": {
+    "message": "コレクションに割り当てられたアイテム"
   },
   "nothingSelected": {
     "message": "何も選択されていません。"
@@ -6681,6 +6730,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
+  },
+  "domainNotAllowed": {
+    "message": "$DOMAINS$ のドメインのみを含めてください 。確認してもう一度お試しください",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "組織の Send ポリシーに準拠していません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "この Send を編集するには、コピーを作成してください。この Send が設定された削除日時に期限切れになる可能性がある場合は、アクションは必要ありません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "この Send は、設定された削除日時に自動的に期限切れになります",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "コピーを作成"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"

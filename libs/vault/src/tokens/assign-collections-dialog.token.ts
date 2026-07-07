@@ -1,8 +1,7 @@
-import { InjectionToken } from "@angular/core";
-
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export interface AssignCollectionsParams {
   ciphers: CipherView[];
@@ -24,6 +23,6 @@ export interface AssignCollectionsDialogRef {
   open(params: AssignCollectionsParams): Promise<AssignCollectionsResult>;
 }
 
-export const ASSIGN_COLLECTIONS_DIALOG = new InjectionToken<AssignCollectionsDialogRef>(
+export const ASSIGN_COLLECTIONS_DIALOG = new SafeInjectionToken<AssignCollectionsDialogRef>(
   "ASSIGN_COLLECTIONS_DIALOG",
 );

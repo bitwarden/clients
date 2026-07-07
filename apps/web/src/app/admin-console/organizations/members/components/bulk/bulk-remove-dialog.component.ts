@@ -1,15 +1,24 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
 } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogConfig, DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  AvatarModule,
+  ButtonModule,
+  CalloutModule,
+  DIALOG_DATA,
+  DialogConfig,
+  DialogModule,
+  DialogService,
+  TableModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BaseBulkRemoveComponent } from "./base-bulk-remove.component";
 import { BulkUserDetails } from "./bulk-status.component";
@@ -19,34 +28,42 @@ type BulkRemoveDialogParams = {
   users: BulkUserDetails[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "bulk-remove-dialog.component.html",
   selector: "member-bulk-remove-dialog",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncActionsModule,
+    AvatarModule,
+    ButtonModule,
+    CalloutModule,
+    DialogModule,
+    I18nPipe,
+    TableModule,
+    UserNamePipe,
+  ],
 })
 export class BulkRemoveDialogComponent extends BaseBulkRemoveComponent {
-  organizationId: string;
-  users: BulkUserDetails[];
+  private readonly dialogParams = inject<BulkRemoveDialogParams>(DIALOG_DATA);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
 
-  constructor(
-    @Inject(DIALOG_DATA) protected dialogParams: BulkRemoveDialogParams,
-    protected i18nService: I18nService,
-    private organizationUserApiService: OrganizationUserApiService,
-  ) {
-    super(i18nService);
-    this.organizationId = dialogParams.organizationId;
-    this.users = dialogParams.users;
-    this.showNoMasterPasswordWarning = this.users.some(
-      (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+  protected readonly organizationId = signal(this.dialogParams.organizationId);
+  protected readonly users = signal(this.dialogParams.users);
+
+  constructor() {
+    super();
+    this.showNoMasterPasswordWarning.set(
+      this.users().some(
+        (u) => u.status > OrganizationUserStatusType.Invited && u.hasMasterPassword === false,
+      ),
     );
   }
 
-  protected deleteUsers = (): Promise<ListResponse<OrganizationUserBulkResponse>> =>
+  protected readonly deleteUsers = (): Promise<ListResponse<OrganizationUserBulkResponse>> =>
     this.organizationUserApiService.removeManyOrganizationUsers(
-      this.organizationId,
-      this.users.map((user) => user.id),
+      this.organizationId(),
+      this.users().map((user) => user.id),
     );
 
   protected get removeUsersWarning() {
