@@ -709,3 +709,16 @@
     display: none;
   }
 }
+
+/**
+* The CDK drag preview is rendered as a native popover attached to <body>, outside the
+* app content that normally provides the themed text color and background. Without these
+* overrides it picks up the popover UA styles (Canvas/CanvasText and overflow: auto),
+* which render as a white box with black text and scrollbars in dark mode.
+* Kept outside @layer components so Tailwind does not tree-shake the selector.
+*/
+.cdk-drag-preview {
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-text-main));
+  overflow: hidden;
+}
