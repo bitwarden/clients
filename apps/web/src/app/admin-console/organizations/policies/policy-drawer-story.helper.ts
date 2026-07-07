@@ -1,4 +1,4 @@
-import { importProvidersFrom } from "@angular/core";
+import { importProvidersFrom, Type } from "@angular/core";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -13,6 +13,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -20,25 +21,40 @@ import { KeyService } from "@bitwarden/key-management";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
 
 import { BasePolicyEditDefinition } from "./base-policy-edit.component";
-import { PolicyEditDialogData } from "./policy-edit-dialog.component";
+import { PolicyEditDialogComponent, PolicyEditDialogData } from "./policy-edit-dialog.component";
 import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 
 const ORG_ID = "test-org-id";
 
-export type PolicyDrawerStoryArgs = { enabled: boolean };
+export type PolicyDialogStoryArgs = { enabled: boolean };
+
+/** @deprecated Use {@link PolicyDialogStoryArgs}. Kept as an alias for existing story files. */
+export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
 
 /**
- * Generates shared Storybook metadata for a policy drawer story.
- * Renders {@link PolicyEditDrawerComponent} with all required service mocks.
- * Per-story args drive the initial enabled state via the {@link PolicyApiServiceAbstraction} mock.
+ * Shared builder behind {@link policyDrawerMeta} and {@link policyModalMeta}. Renders whichever
+ * dialog component the policy actually uses for the given mode:
+ * - Most policies use the framework defaults ({@link PolicyEditDrawerComponent} for the drawer,
+ *   {@link PolicyEditDialogComponent} for the modal) - two entirely separate component classes,
+ *   so a v2-only design change structurally cannot leak into the modal story.
+ * - A few policies (e.g. `MasterPasswordPolicy`) set a custom `editDialogComponent` (like
+ *   `MultiStepPolicyEditDialogComponent`) that serves *both* the modal and drawer experiences
+ *   from a single component, gated internally on `DialogRef.isDrawer`. Rendering that same
+ *   component with `isDrawer: false` here is exactly what catches a regression like a badge or
+ *   v2 component leaking into the modal when the `PolicyDrawers` flag is off.
  */
-export function policyDrawerMeta(
+function buildPolicyDialogMeta(
   title: string,
   policy: BasePolicyEditDefinition,
-): Meta<PolicyDrawerStoryArgs> {
+  isDrawer: boolean,
+): Meta<PolicyDialogStoryArgs> {
+  const dialogComponent: Type<unknown> =
+    (policy.editDialogComponent as unknown as Type<unknown>) ??
+    (isDrawer ? PolicyEditDrawerComponent : PolicyEditDialogComponent);
+
   return {
     title,
-    component: PolicyEditDrawerComponent,
+    component: dialogComponent,
     args: { enabled: false },
     argTypes: {
       enabled: { control: "boolean" },
@@ -47,16 +63,19 @@ export function policyDrawerMeta(
       layout: "fullscreen",
     },
     decorators: [
-      componentWrapperDecorator(
-        (story) =>
-          `<div class="tw-h-screen tw-flex tw-flex-row tw-bg-background">` +
-          `<div class="tw-flex-1 tw-p-8 tw-bg-background-alt tw-text-muted">` +
-          `<p>Policy management view</p>` +
-          `</div>` +
-          `<div class="tw-w-[32rem] tw-h-full tw-flex tw-flex-col tw-border-0 tw-border-l tw-border-solid tw-border-secondary-300">` +
-          `${story}` +
-          `</div>` +
-          `</div>`,
+      componentWrapperDecorator((story) =>
+        isDrawer
+          ? `<div class="tw-h-screen tw-flex tw-flex-row tw-bg-background">` +
+            `<div class="tw-flex-1 tw-p-8 tw-bg-background-alt tw-text-muted">` +
+            `<p>Policy management view</p>` +
+            `</div>` +
+            `<div class="tw-w-[32rem] tw-h-full tw-flex tw-flex-col tw-border-0 tw-border-l tw-border-solid tw-border-secondary-300">` +
+            `${story}` +
+            `</div>` +
+            `</div>`
+          : `<div class="tw-h-screen tw-flex tw-items-center tw-justify-center tw-bg-background-alt">` +
+            `${story}` +
+            `</div>`,
       ),
       moduleMetadata({
         providers: [
@@ -66,7 +85,7 @@ export function policyDrawerMeta(
           },
           {
             provide: DialogRef,
-            useValue: { isDrawer: true, close: () => Promise.resolve(), closePredicate: undefined },
+            useValue: { isDrawer, close: () => Promise.resolve(), closePredicate: undefined },
           },
           {
             provide: AccountService,
@@ -99,6 +118,12 @@ export function policyDrawerMeta(
             provide: OrganizationService,
             useValue: { organizations$: () => of([]) },
           },
+          {
+            // Only PolicyEditDialogComponent/MultiStepPolicyEditDialogComponent inject this
+            // directly, but providing it unconditionally is harmless for the drawer component.
+            provide: ConfigService,
+            useValue: { getFeatureFlag$: () => of(isDrawer) },
+          },
         ],
       }),
       applicationConfig({
@@ -128,4 +153,28 @@ export function policyDrawerMeta(
       },
     }),
   };
+}
+
+/**
+ * Generates shared Storybook metadata for a policy's drawer story (`PolicyDrawers` flag on).
+ * Per-story args drive the initial enabled state via the {@link PolicyApiServiceAbstraction} mock.
+ */
+export function policyDrawerMeta(
+  title: string,
+  policy: BasePolicyEditDefinition,
+): Meta<PolicyDialogStoryArgs> {
+  return buildPolicyDialogMeta(title, policy, true);
+}
+
+/**
+ * Generates shared Storybook metadata for a policy's modal story (`PolicyDrawers` flag off - the
+ * default, pre-existing experience). Pair this with {@link policyDrawerMeta} for every policy that
+ * has a `v2` component, so a visual diff (e.g. via Chromatic) catches any v2-only design change
+ * (badge, component, description, etc.) leaking into the modal when the flag is off.
+ */
+export function policyModalMeta(
+  title: string,
+  policy: BasePolicyEditDefinition,
+): Meta<PolicyDialogStoryArgs> {
+  return buildPolicyDialogMeta(title, policy, false);
 }

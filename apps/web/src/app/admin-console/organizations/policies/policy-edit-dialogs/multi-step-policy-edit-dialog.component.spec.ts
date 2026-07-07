@@ -18,12 +18,24 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
+import { MasterPasswordPolicyV2Component } from "../policy-edit-definitions/master-password-v2.component";
+import {
+  MasterPasswordPolicy,
+  MasterPasswordPolicyComponent,
+} from "../policy-edit-definitions/master-password.component";
+import { OrganizationDataOwnershipPolicyV2Component } from "../policy-edit-definitions/organization-data-ownership-v2.component";
+import {
+  OrganizationDataOwnershipPolicy,
+  OrganizationDataOwnershipPolicyComponent,
+} from "../policy-edit-definitions/organization-data-ownership.component";
 import { PolicyEditDialogData, PolicyEditDialogResult } from "../policy-edit-dialog.component";
 
 import { PolicyStep } from "./models";
@@ -372,6 +384,128 @@ describe("MultiStepPolicyEditDialogComponent", () => {
 
         expect(component.showDescription()).toBe(true);
         expect(component.descriptionKey()).toBe("testDesc");
+      });
+    });
+  });
+
+  /**
+   * End-to-end regression tests for the two production policies that actually use this dialog
+   * for both modal and drawer rendering (MasterPasswordPolicy and OrganizationDataOwnershipPolicy).
+   * These render the REAL v1/v2 components (not test doubles) through the REAL dialog, so they
+   * catch the exact class of bug reported in PR review: v2-only design (badge, v2 component,
+   * description) leaking into the modal when the `PolicyDrawers` flag is off.
+   */
+  describe("Real MasterPasswordPolicy / OrganizationDataOwnershipPolicy rendering (no v2 leak)", () => {
+    async function setupRealPolicy(policy: BasePolicyEditDefinition, isDrawer: boolean) {
+      const data: PolicyEditDialogData = {
+        policy,
+        organization: {
+          id: "org-1",
+          keyConnectorEnabled: false,
+          useMyItems: false,
+        } as Organization,
+      };
+
+      const i18n = mock<I18nService>();
+      i18n.t.mockImplementation((key: any) => key);
+      const policyApiService = mock<PolicyApiServiceAbstraction>();
+      policyApiService.getPolicy.mockResolvedValue(new PolicyResponse({ Enabled: false }));
+      const accountService = mock<AccountService>();
+      accountService.activeAccount$ = of({ id: "user-1", email: "user@example.com" } as any);
+      const organizationService = mock<OrganizationService>();
+      organizationService.organizations$.mockReturnValue(
+        of([{ id: "org-1", keyConnectorEnabled: false, useMyItems: false } as any]),
+      );
+      const dRef = mock<DialogRef<PolicyEditDialogResult>>();
+      (dRef as any).isDrawer = isDrawer;
+      const configService = mock<ConfigService>();
+      configService.getFeatureFlag$.mockReturnValue(of(isDrawer));
+      const authService = mock<AuthService>();
+      authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [ReactiveFormsModule],
+        providers: [
+          { provide: DIALOG_DATA, useValue: data },
+          { provide: AccountService, useValue: accountService },
+          { provide: OrganizationService, useValue: organizationService },
+          { provide: AuthService, useValue: authService },
+          { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
+          { provide: I18nService, useValue: i18n },
+          { provide: DialogRef, useValue: dRef },
+          { provide: ToastService, useValue: mock<ToastService>() },
+          { provide: KeyService, useValue: mock<KeyService>() },
+          { provide: DialogService, useValue: mock<DialogService>() },
+          { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+          { provide: ConfigService, useValue: configService },
+          { provide: EncryptService, useValue: mock<EncryptService>() },
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents();
+
+      const fx = TestBed.createComponent(MultiStepPolicyEditDialogComponent);
+      fx.detectChanges();
+      await fx.whenStable();
+      // The async ngAfterViewInit chain (load() -> createComponent()) resolves signal writes
+      // (loading, policyComponent, etc.) after the initial detectChanges() call - a second pass
+      // is needed to render those updates into the DOM.
+      fx.detectChanges();
+      return { fixture: fx, component: fx.componentInstance as any };
+    }
+
+    describe("MasterPasswordPolicy", () => {
+      it("renders the v1 component, no badge, and the generic 'Edit policy' title when the flag is off (modal)", async () => {
+        const { fixture, component } = await setupRealPolicy(new MasterPasswordPolicy(), false);
+
+        expect(component.policyComponent()).toBeInstanceOf(MasterPasswordPolicyComponent);
+        expect(component.policyComponent()).not.toBeInstanceOf(MasterPasswordPolicyV2Component);
+        expect(component.dialogTitle()).toBe("editPolicy");
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).toBeNull();
+        // v1 has no inline description, so the dialog's own showDescription must stay on.
+        expect(component.showDescription()).toBe(true);
+        expect(component.descriptionKey()).toBe("masterPassPolicyDesc");
+      });
+
+      it("renders the v2 component, a badge, and the policy name as the title when the flag is on (drawer)", async () => {
+        const { fixture, component } = await setupRealPolicy(new MasterPasswordPolicy(), true);
+
+        expect(component.policyComponent()).toBeInstanceOf(MasterPasswordPolicyV2Component);
+        expect(component.dialogTitle()).toBe("masterPassPolicyTitle");
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+        // v2 renders its own description inline, so the dialog's own description must be hidden.
+        expect(component.showDescription()).toBe(false);
+      });
+    });
+
+    describe("OrganizationDataOwnershipPolicy", () => {
+      it("renders the v1 component, no badge, and the generic 'Edit policy' title when the flag is off (modal)", async () => {
+        const { fixture, component } = await setupRealPolicy(
+          new OrganizationDataOwnershipPolicy(),
+          false,
+        );
+
+        expect(component.policyComponent()).toBeInstanceOf(
+          OrganizationDataOwnershipPolicyComponent,
+        );
+        expect(component.policyComponent()).not.toBeInstanceOf(
+          OrganizationDataOwnershipPolicyV2Component,
+        );
+        expect(component.dialogTitle()).toBe("editPolicy");
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).toBeNull();
+      });
+
+      it("renders the v2 component, a badge, and the policy name as the title when the flag is on (drawer)", async () => {
+        const { fixture, component } = await setupRealPolicy(
+          new OrganizationDataOwnershipPolicy(),
+          true,
+        );
+
+        expect(component.policyComponent()).toBeInstanceOf(
+          OrganizationDataOwnershipPolicyV2Component,
+        );
+        expect(component.dialogTitle()).toBe("centralizeDataOwnership");
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
       });
     });
   });
