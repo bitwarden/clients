@@ -153,14 +153,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.hasPersistentKey(userId);
   }
 
-  async enableLinuxV2Biometrics(): Promise<void> {
-    return await ipc.keyManagement.biometric.enableLinuxV2Biometrics();
-  }
-
-  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
-    return await ipc.keyManagement.biometric.isLinuxV2BiometricsEnabled();
-  }
-
   async setUnlockService(service: UnlockService): Promise<void> {
     await super.setUnlockService(service);
     const driver = new BiometricsUnlockDriver(this, service);
