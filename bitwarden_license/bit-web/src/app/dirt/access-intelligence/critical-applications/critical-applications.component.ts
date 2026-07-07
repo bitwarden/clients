@@ -1,6 +1,13 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+  computed,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -24,12 +31,15 @@ import {
   TableDataSource,
   ToastService,
   TypographyModule,
+  PopoverModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { RiskInsightsTabType } from "../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../onboarding/access-intelligence-coachmark.service";
 import {
   ApplicationTableDataSource,
   AppTableRowScrollableComponent,
@@ -49,6 +59,8 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
     SharedModule,
     AppTableRowScrollableComponent,
     TypographyModule,
+    PopoverModule,
+    AccessIntelligenceCoachmarkComponent,
   ],
 })
 export class CriticalApplicationsComponent implements OnInit {
@@ -63,6 +75,10 @@ export class CriticalApplicationsComponent implements OnInit {
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
 
+  protected readonly helpMembersOpen = computed(
+    () => this.coachmarkService.activeStepId() === "helpMembers",
+  );
+
   constructor(
     protected activatedRoute: ActivatedRoute,
     protected dataService: RiskInsightsDataService,
@@ -72,6 +88,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected router: Router,
     private securityTasksService: AccessIntelligenceSecurityTasksService,
     protected toastService: ToastService,
+    protected coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())

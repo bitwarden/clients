@@ -11,12 +11,9 @@
 pub mod autofill;
 #[allow(missing_docs)]
 pub mod autostart;
-#[allow(missing_docs)] // staged to be removed
-pub mod biometric;
 pub mod biometric_v2;
 #[allow(missing_docs)]
 pub mod clipboard;
-pub(crate) mod crypto;
 pub mod error;
 pub mod ipc;
 pub mod password;

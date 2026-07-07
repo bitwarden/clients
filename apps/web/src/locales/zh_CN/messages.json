@@ -979,6 +979,9 @@
   "close": {
     "message": "关闭"
   },
+  "done": {
+    "message": "完成"
+  },
   "delete": {
     "message": "删除"
   },
@@ -1203,6 +1206,10 @@
     "message": "新增笔记",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "新建安全笔记",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "编辑笔记",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "查看笔记",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
@@ -1619,6 +1634,45 @@
   "deleteItem": {
     "message": "删除项目"
   },
+  "deleteItemsCount": {
+    "message": "删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "此项目将被移至回收站。30 天后将被永久删除。"
+  },
+  "deleteItemsDesc": {
+    "message": "这些项目将被移至回收站。30 天后将被永久删除。"
+  },
+  "deleteItemPermanently": {
+    "message": "永久删除项目"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "永久删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "您将无法恢复此项目。"
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "您将无法恢复这些项目。"
+  },
+  "deleteSelection": {
+    "message": "删除所选项"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "所选项目和集合将被永久删除。"
+  },
   "deleteFolder": {
     "message": "删除文件夹"
   },
@@ -1739,9 +1793,6 @@
   "needAnotherOptionV1": {
     "message": "需要其他选项吗？"
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
-  },
   "readingPasskeyLoading": {
     "message": "正在读取通行密钥..."
   },
@@ -1751,7 +1802,7 @@
   "passkeyAuthenticationFailed": {
     "message": "通行密钥验证失败。请重试。"
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "使用其他登录方式"
   },
   "logInWithPasskey": {
@@ -1763,7 +1814,7 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "您的组织要求单点登录 (SSO)。"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "欢迎回来"
   },
   "invalidPasskeyPleaseTryAgain": {
@@ -1865,7 +1916,7 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "登录到 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1967,9 +2018,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
-  },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -2285,6 +2333,24 @@
   },
   "deleteSelectedConfirmation": {
     "message": "确定要继续吗？"
+  },
+  "deleteCollection": {
+    "message": "删除集合"
+  },
+  "deleteCollectionsCount": {
+    "message": "删除 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "此集合将被永久删除。"
+  },
+  "deleteCollectionsDesc": {
+    "message": "这些集合将被永久删除。"
   },
   "moveSelectedItemsDesc": {
     "message": "选择一个您想要将这 $COUNT$ 个所选项目添加到的文件夹。",
@@ -2886,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "不允许成员创建支付卡项目类型。现有支付卡将自动被移除。"
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
   "restrictCardTypeImport": {
     "message": "无法导入支付卡项目类型"
@@ -3660,13 +3729,13 @@
     "message": "订阅已取消"
   },
   "churnOfferTitle": {
-    "message": "离开前的专属优惠"
+    "message": "离开前的专享优惠"
   },
   "churnOfferPreamble": {
     "message": "如果您现在取消，您的访问权限将持续至"
   },
   "churnOfferPreambleSuffix": {
-    "message": "。作为长期客户，我们愿先为您提供一些优惠。"
+    "message": "。但作为长期客户，我们愿先为您提供一些优惠。"
   },
   "churnOfferDiscountHeading": {
     "message": "订阅立享 $DISCOUNT$ 减免",
@@ -3679,7 +3748,7 @@
     }
   },
   "churnOfferDiscountBody": {
-    "message": "作为对 Bitwarden 长期客户的感谢，我们愿为您的下一次 $DURATION$ 服务提供 $DISCOUNT$ 的折扣。",
+    "message": "作为对 Bitwarden 长期客户的感谢，我们愿为您的下一次 $DURATION$ 服务提供 $DISCOUNT$ 折扣。",
     "description": "Body copy on the churn-mitigation offer card. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3709,7 +3778,7 @@
     "message": "一切就绪！"
   },
   "churnOfferSuccessBody": {
-    "message": "您的 $DISCOUNT$ 折扣已应用到您的下一次 $DURATION$ 服务。",
+    "message": "$DISCOUNT$ 折扣已应用到您的下一次 $DURATION$ 服务。",
     "description": "Body copy on the churn-mitigation offer success screen. DISCOUNT = discount amount; DURATION = service duration (e.g. 'year' or '6 months')",
     "placeholders": {
       "discount": {
@@ -3729,6 +3798,60 @@
       "discount": {
         "content": "$1",
         "example": "10%"
+      },
+      "length": {
+        "content": "$2",
+        "example": "1"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountBodyRecurringAmount": {
+    "message": "作为对 Bitwarden 长期客户的感谢，我们愿为您的下一次 $DURATION$ 订阅每 $INTERVAL$ 提供 $AMOUNT$ 减免。",
+    "description": "Body copy on the churn-mitigation offer card for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferSuccessBodyRecurringAmount": {
+    "message": "每 $INTERVAL$ $AMOUNT$ 减免已应用到您的下一次 $DURATION$ 订阅。",
+    "description": "Body copy on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. AMOUNT = discount amount (e.g. '$15.00'); INTERVAL = billing interval unit (e.g. 'month'); DURATION = discount duration (e.g. 'year' or '6 months')",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
+      },
+      "interval": {
+        "content": "$2",
+        "example": "month"
+      },
+      "duration": {
+        "content": "$3",
+        "example": "year"
+      }
+    }
+  },
+  "churnOfferDiscountSummaryRecurringAmount": {
+    "message": "$LENGTH$ $DURATION$ 享 $DISCOUNT$ 减免",
+    "description": "Value of the 'Discount applied' row on the churn-mitigation offer success screen for a fixed-amount discount that repeats each billing period. DISCOUNT = per-interval discount amount (e.g. '$15.00/month'); LENGTH = duration quantity; DURATION = duration unit (e.g. 'year' or 'months')",
+    "placeholders": {
+      "discount": {
+        "content": "$1",
+        "example": "$15.00/month"
       },
       "length": {
         "content": "$2",
@@ -3766,6 +3889,27 @@
   },
   "discountApplied": {
     "message": "折扣已生效"
+  },
+  "discountForOneYear": {
+    "message": "为期 1 年"
+  },
+  "discountForMonths": {
+    "message": "为期 $COUNT$ 个月",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "discountThroughDate": {
+    "message": "截止 $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "June 1, 2027"
+      }
+    }
   },
   "discountExpiredOnPurchase": {
     "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
@@ -4359,6 +4503,9 @@
   "adminDesc": {
     "message": "管理组织的访问权限、所有集合、成员、报告，以及安全设置"
   },
+  "adminRoleDesc": {
+    "message": "管理所有集合、成员、报告，以及安全设置"
+  },
   "user": {
     "message": "用户"
   },
@@ -4794,6 +4941,12 @@
   "deletedCollections": {
     "message": "删除了集合"
   },
+  "collectionDeleted": {
+    "message": "集合已删除"
+  },
+  "collectionsDeleted": {
+    "message": "集合已删除"
+  },
   "deletedCollectionId": {
     "message": "删除了集合 $ID$。",
     "placeholders": {
@@ -4808,6 +4961,9 @@
   },
   "discardEditsConfirmation": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
   },
   "keepEditing": {
     "message": "继续编辑"
@@ -5820,8 +5976,8 @@
   "nothingSelected": {
     "message": "您没有选择任何内容。"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "subscribe": {
     "message": "订阅"
@@ -5871,16 +6027,16 @@
     "message": "重新生成邀请链接"
   },
   "invalidateInviteLink": {
-    "message": "使邀请链接失效"
+    "message": "作废邀请链接"
   },
   "invalidateInviteLinkDesc": {
     "message": "如果您移除所有域名，此邀请链接将不再对任何人有效。"
   },
   "invalidateLink": {
-    "message": "使链接失效"
+    "message": "作废链接"
   },
   "inviteLinkInvalidated": {
-    "message": "邀请链接已失效"
+    "message": "邀请链接已作废"
   },
   "mustEnterAtLeastOneDomain": {
     "message": "必须至少输入 1 个域名"
@@ -5896,6 +6052,18 @@
   },
   "and": {
     "message": "和"
+  },
+  "acceptInviteWithMasterPassword": {
+    "message": "要完成接受此邀请，请使用您的主密码登录。"
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "在接受加入 $ORGANIZATION_NAME$ 的邀请之前，您无法使用 SSO 登录。",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "acceptPolicies": {
     "message": "选中此框表示您同意："
@@ -5986,6 +6154,10 @@
   },
   "selected": {
     "message": "已选择"
+  },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "推荐"
@@ -6138,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "要求成员设置两步登录。"
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "非所有者或管理员并且其账户未启用两步登录的组织成员将从组织中移除，并将收到一封关于此更改的电子邮件通知。"
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "您是组织的成员，该组织要求在您的用户账户上设置两步登录。如果您停用所有两步登录提供程序，您将被自动从这些组织中移除。"
@@ -6407,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "要求成员使用企业单点登录 (SSO) 方式登录。"
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "先决条件"
   },
   "requireSsoPolicyReq": {
     "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "单一组织策略未启用。"
@@ -6611,7 +6798,7 @@
     "message": "下载"
   },
   "sendAccessPasswordTitle": {
-    "message": "输入密码后查看此 Send",
+    "message": "输入密码以查看此 Send",
     "description": "Title of the Send password authentication screen."
   },
   "sendAccessContentTitle": {
@@ -6812,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "成员将被提示选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "所有成员项目都将由组织拥有和管理。所有者和管理员不受此策略的约束。进一步了解 "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录。"
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "提示用户将他们的密码库项目移动到组织"
+  },
+  "enablePolicy": {
+    "message": "启用策略"
+  },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
   },
@@ -6935,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "桌面端自动输入默认设置"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Desktop autotype default setting"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "默认为成员启用桌面端自动输入。成员可以在桌面客户端手动停用自动输入。",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
   "disableSend": {
     "message": "禁用 Send"
@@ -6957,6 +7162,21 @@
     "message": "由于某个企业策略，您只能删除现有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
+  },
   "sendControls": {
     "message": "Send 控制"
   },
@@ -6964,8 +7184,9 @@
     "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsExemption": {
-    "message": "可以管理组织策略的组织成员不受此策略的约束。"
+  "sendControlsPolicyDescV2": {
+    "message": "配置成员可以使用 Send 执行的操作。管理员和所有者不受此策略的约束。",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
     "message": "Send 选项",
@@ -7278,6 +7499,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "您的新密码不能与当前密码相同。"
   },
+  "hint": {
+    "message": "提示"
+  },
   "hintEqualsPassword": {
     "message": "密码提示不能与密码相同。"
   },
@@ -7359,15 +7583,6 @@
   "resetPassword": {
     "message": "重置密码"
   },
-  "resetPasswordLoggedOutWarning": {
-    "message": "继续操作将使 $NAME$ 注销当前会话，并要求他们重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "John Smith"
-      }
-    }
-  },
   "emergencyAccessLoggedOutWarning": {
     "message": "继续操作将使 $NAME$ 注销当前会话，并要求他们重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。",
     "placeholders": {
@@ -7395,20 +7610,11 @@
   "accountRecoveryPolicy": {
     "message": "账户恢复管理"
   },
-  "accountRecoveryPolicyDesc": {
-    "message": "基于加密方式，当主密码或受信任设备被遗忘或丢失时恢复账户。"
-  },
-  "accountRecoveryPolicyWarning": {
-    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。对于新的成员，自动注册后将启用账户恢复功能。"
-  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
-  },
-  "resetPasswordPolicyAutoEnrollCheckbox": {
-    "message": "为新成员启用自动注册"
   },
   "resetPasswordAutoEnrollInviteWarning": {
     "message": "此组织有一个企业策略，将自动为您注册密码重置。注册后将允许组织管理员更改您的主密码。"
@@ -7893,6 +8099,9 @@
   "disablePersonalVaultExportDescription": {
     "message": "不允许成员从个人密码库导出数据。"
   },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
+  },
   "vaultExportDisabled": {
     "message": "密码库导出已禁用"
   },
@@ -8251,7 +8460,7 @@
     "message": "Key Connector"
   },
   "memberDecryptionKeyConnectorDescStart": {
-    "message": "连接 SSO 登录到您的自托管解密密钥服务器。使用此选项后，成员将不再需要使用主密码解密密码库数据。需要",
+    "message": "将 SSO 登录连接到您的自托管解密密钥服务器。使用此选项后，成员将不再需要使用其主密码解密密码库数据。需要",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescLink": {
@@ -8259,7 +8468,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "memberDecryptionKeyConnectorDescEnd": {
-    "message": "以用于设置 Key Connector 解密。请联系 Bitwarden 支持寻求帮助。",
+    "message": "才能设置 Key Connector 解密。联系 Bitwarden 支持寻求设置帮助。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Connect login with SSO to your self-hosted decryption key server. Using this option, members won’t need to use their master passwords to decrypt vault data. The require SSO authentication and single organization policies are required to set up Key Connector decryption. Contact Bitwarden Support for set up assistance.'"
   },
   "keyConnectorPolicyRestriction": {
@@ -8979,6 +9188,10 @@
   "scimSettingsSaved": {
     "message": "SCIM 设置已保存",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimProvisioningBannerInfo": {
+    "message": "配置此设置后，将自动向您的身份提供程序 (IdP) 中所有已分配的用户和群组发送邀请。",
+    "description": "Informational banner on the SCIM settings page when SCIM is not yet enabled. 'IdP' is an abbreviation for 'identity provider' and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
     "message": "仅允许一个此类型 ($TYPE$) 的集成。存在冲突的集成是：$NAME$",
@@ -10864,6 +11077,9 @@
   "editedCollections": {
     "message": "编辑了集合"
   },
+  "editedCollection": {
+    "message": "编辑集合"
+  },
   "baseUrl": {
     "message": "服务器 URL"
   },
@@ -11242,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
@@ -11885,6 +12107,15 @@
       "amount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "providerDiscountAmountOff": {
+    "message": "$AMOUNT$ 折扣",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "$15.00"
       }
     }
   },
@@ -12533,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "禁用免费的 Bitwarden 家庭版赞助"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Remove sponsored Families plan"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "不允许成员通过此组织兑换家庭版方案。"
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
@@ -12962,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "不允许成员使用 PIN 码解锁他们的账户。"
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "不会为您的组织存储事件日志。升级到团队版或企业版方案以获取组织事件日志的完整访问权限。"
@@ -13616,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "禁止用户使用已声明域名的电子邮箱地址在组织外部创建账户。"
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Before turning on this policy, you must claim a domain."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时超出了您组织设置的限制。"
@@ -14227,6 +14476,36 @@
   "coachmarkMonitorSecurityDescription": {
     "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
   },
+  "aiCoachmarkMonitorActivityTitle": {
+    "message": "检测安全活动"
+  },
+  "aiCoachmarkMonitorActivityDescription": {
+    "message": "审查应用程序并分配成员任务后，您的组织在安全性改进方面的进度将显示在此处。"
+  },
+  "aiCoachmarkPrioritizeRisksTitle": {
+    "message": "优先处理风险"
+  },
+  "aiCoachmarkPrioritizeRisksDescription": {
+    "message": "审查组织密码库中的所有应用程序，并为对安全具有最高优先级的应用程序加上星标。"
+  },
+  "aiCoachmarkCriticalApplicationsTitle": {
+    "message": "解决最重要的风险"
+  },
+  "aiCoachmarkCriticalApplicationsDescription": {
+    "message": "您将在此处跟踪优先应用程序的风险，并将任务分配给成员，以加强他们的密码的安全。"
+  },
+  "aiCoachmarkHelpMembersTitle": {
+    "message": "帮助成员提升安全性"
+  },
+  "aiCoachmarkHelpMembersDescription": {
+    "message": "选择关键应用程序后，提醒成员更改存在风险的密码。他们将在 Bitwarden 浏览器扩展中收到通知。"
+  },
+  "aiCoachmarkRunReportTitle": {
+    "message": "及时发现新的风险"
+  },
+  "aiCoachmarkRunReportDescription": {
+    "message": "定期刷新报告和洞察，以及时发现新的风险，并查看组织发展过程中的最新指标。"
+  },
   "coachmarkStepsIndicator": {
     "message": "$CURRENT$ / $TOTAL$",
     "placeholders": {
@@ -14240,14 +14519,45 @@
       }
     }
   },
+  "coachmarkStepIndicator": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "multipleInputDomainsInvalid": {
+    "message": "一个或多个域名无效"
+  },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendControlsEnableDescription": {
+    "message": "控制成员是否可以使用 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "任意"
+  },
+  "allowedDomainsAutopopulateAlert": {
+    "message": "此内容使用已声明的域名填充。"
+  },
   "more": {
     "message": "更多"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
-  },
-  "discardEdits": {
-    "message": "放弃编辑"
   },
   "discardEditsMessage": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
@@ -14327,6 +14637,25 @@
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControlsPolicySwitchLabel": {
+    "message": "启用 Send 控制",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "allow": {
+    "message": "允许"
+  },
+  "block": {
+    "message": "阻止"
+  },
+  "sendControlAccessOptions": {
+    "message": "访问选项"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "始终向接收者显示成员的电子邮箱地址"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "由成员设置的密码"
+  },
   "hideMyEmail": {
     "message": "对接收者隐藏我的电子邮箱地址。"
   },
@@ -14377,9 +14706,18 @@
     "message": "提示框",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "点击密码库通知横幅按钮"
+  },
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "电子邮箱验证"
+  },
+  "separateDomainsWithComma": {
+    "message": "使用逗号分隔域名"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
@@ -14431,6 +14769,27 @@
   },
   "copy": {
     "message": "复制"
+  },
+  "paymentSuccessful": {
+    "message": "付款成功"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "您的升级正在处理中。可能需要几分钟才能在 Bitwarden 中看到高级版功能。"
+  },
+  "planPurchased": {
+    "message": "方案已购买"
+  },
+  "renewalDate": {
+    "message": "续费日期"
+  },
+  "upgradeStatus": {
+    "message": "升级状态"
+  },
+  "processing": {
+    "message": "处理中"
+  },
+  "managePlanInWebApp": {
+    "message": "在网页 App 中管理方案"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"

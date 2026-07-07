@@ -56,6 +56,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     isLocked: boolean,
     isLockable: boolean,
     private restrictedCipherTypes: CipherType[],
+    private pm32009NewItemTypes: boolean = false,
   ) {
     super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
@@ -118,7 +119,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeNote"),
+        label: this.localize(this.pm32009NewItemTypes ? "typeSecureNote" : "typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },

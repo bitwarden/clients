@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { lastValueFrom } from "rxjs";
@@ -13,9 +13,11 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, PopoverModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
+import { AccessIntelligenceCoachmarkComponent } from "../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../onboarding/access-intelligence-coachmark.service";
 import { RiskOverTimeService } from "../services/risk-over-time.service";
 import { ReportLoadingComponent } from "../shared/report-loading.component";
 
@@ -34,6 +36,8 @@ import { TrendWidgetComponent, TrendWidgetViewType } from "./trend-widget/trend-
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricComponent,
+    PopoverModule,
+    AccessIntelligenceCoachmarkComponent,
     TrendWidgetComponent,
   ],
   templateUrl: "./all-activity.component.html",
@@ -71,6 +75,7 @@ export class AllActivityComponent implements OnInit {
     private dialogService: DialogService,
     protected organizationService: OrganizationService,
     protected riskOverTimeService: RiskOverTimeService,
+    protected coachmarkService: AccessIntelligenceCoachmarkService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -207,4 +212,8 @@ export class AllActivityComponent implements OnInit {
   async onViewAtRiskApplications() {
     await this.dataService.setDrawerForCriticalAtRiskApps("activityTabAtRiskApplications");
   }
+
+  protected readonly prioritizeRisksOpen = computed(
+    () => this.coachmarkService.activeStepId() === "prioritizeRisks",
+  );
 }

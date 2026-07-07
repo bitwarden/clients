@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A szervezet egyszeri bejelentkezést igényel."
   },
-  "welcomeBack": {
-    "message": "Üdvözlet újra"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Bejelentkezés"
   },
   "setAStrongPassword": {
     "message": "Erős jelszó beállítása"
@@ -289,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "getMasterPasswordHint": {
-    "message": "Kérj mesterjelszó emlékeztetőt"
+  "hint": {
+    "message": "Tipp"
   },
   "continue": {
     "message": "Folytatás"
@@ -978,8 +978,8 @@
   "logIn": {
     "message": "Bejelentkezés"
   },
-  "logInToBitwarden": {
-    "message": "Bejelentkezés a Bitwardenbe"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Bejelentkezés"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Adjuk meg az email címre elküldött kódot."
@@ -1714,7 +1714,7 @@
   "passkeyAuthenticationFailed": {
     "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Más bejelentkezési mód használata"
   },
   "awaitingSecurityKeyInteraction": {
@@ -2337,6 +2337,10 @@
     "message": "Új jegyzet",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Új biztonságos jegyzet",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Új SSH kulcs",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "Jegyzet szerkesztése",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet szerkesztése",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH kulcs szerkesztése",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Jegyzet megtekintése",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet megtekintése",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "Kiválasztva"
+  },
+  "selectedLowercase": {
+    "message": "kiválasztva",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Tömeges műveletek"
@@ -2891,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Tanácsokat, bejelentéseket, kutatási lehetőségeket kaphat a Bitwarden-től a postaládájába."
+  "receiveMarketingEmails": {
+    "message": "Frissítések fogadása a Bitwardentől a postaládában."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -3951,9 +3967,6 @@
       }
     }
   },
-  "loginWithMasterPassword": {
-    "message": "Bejelentkezés mesterjelszóval"
-  },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
   },
@@ -4990,6 +5003,20 @@
     "message": "Legyen a Bitwarden az alapértelmezett jelszókezelő",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Tegyük jobbá az automatikus kitöltés élményét.",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Felkérést kapunk, hogy adjunk $BROWSER$ böngésző jogosultságote a Bitwarden alapértelmezett jelszókezelőjévé alakításához.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "A Bitwarden nem állítható be alapértelmezett jelszókezelőként.",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5001,6 +5028,22 @@
   "makeDefault": {
     "message": "Legyen alapértelmezett",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Legyen a Bitwarden az alapértelmezett böngésző jelszókezelő."
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "a böngésző felszólításából, hogy adjunk engedélyt a Bitwardennek a beállítások módosítására."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "A böngésző beépített jelszókezelője kikapcsolásra kerül, hogy biztonságos bejelentkezési élményt kapjunk."
+  },
+  "allow": {
+    "message": "Engedélyezés",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Kihagyás"
   },
   "saveCipherAttemptSuccess": {
     "message": "A hitelesítések sikeresen mentésre kerültek.",
@@ -5675,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Sikerült a gyűjteményhez való hozzárendelés"
+  },
+  "itemAssignedToCollections": {
+    "message": "Az elem hozzárendelésre került a gyűjteményekhez."
+  },
+  "itemsAssignedToCollections": {
+    "message": "Az elemek hozzárendelésre kerültek a gyűjteményekhez."
   },
   "nothingSelected": {
     "message": "Nem választott ki semmit."
@@ -6681,6 +6730,29 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
+  },
+  "domainNotAllowed": {
+    "message": "Csak a következő tartományokat tartalmazza: $DOMAINS$. Tekintsük át és próbáljuk újra.",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nem felel meg a szervezet Send szabályzatának.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "A Send elem szerkesztéséhez készítsünk másolatot. Ha ez a Send elem a beállított törlési dátumon lejárhat, nincs szükség műveletre.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Ez a Send elem automatikusan lejár a beállított törlési dátumnál.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Másolat létrehozása"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."

@@ -14,6 +14,7 @@ import {
   merge,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -35,8 +36,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,7 +54,7 @@ import {
 } from "../../common/people-table-data-source";
 import { OrganizationUserView } from "../core/views/organization-user.view";
 
-import { AccountRecoveryDialogResultType } from "./components/account-recovery/account-recovery-dialog.component";
+import { AccountRecoveryDialogResultType } from "./components/account-recovery";
 import { MemberDialogResult, MemberDialogTab } from "./components/member-dialog";
 import {
   MemberDialogManagerService,
@@ -102,7 +101,6 @@ export class MembersComponent {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
-  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -150,14 +148,16 @@ export class MembersComponent {
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
 
   protected resetPasswordPolicyEnabled$: Observable<boolean>;
-  protected adminResetTwoFactorEnabled$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
   protected rowHeightClass = `tw-h-[66px]`;
 
   constructor() {
-    combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
+    combineLatest([
+      this.searchControl.valueChanges.pipe(startWith(this.searchControl.value), debounceTime(200)),
+      this.statusToggle,
+    ])
       .pipe(takeUntilDestroyed())
       .subscribe(
         ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
@@ -196,16 +196,12 @@ export class MembersComponent {
       ),
     );
 
-    this.adminResetTwoFactorEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.AdminResetTwoFactor,
-    );
-
     combineLatest([this.route.queryParams, organization$])
       .pipe(
         concatMap(async ([qParams, organization]) => {
-          await this.load(organization!);
+          this.searchControl.setValue(qParams.search, { emitEvent: false });
 
-          this.searchControl.setValue(qParams.search);
+          await this.load(organization!);
 
           if (qParams.viewEvents != null) {
             const user = this.dataSource().data.filter((u) => u.id === qParams.viewEvents);
@@ -245,6 +241,10 @@ export class MembersComponent {
   async load(organization: Organization) {
     const response = await this.memberService.loadUsers(organization);
     this.dataSource().data = response;
+    // Apply the current filter synchronously alongside the data so the table never renders
+    // an unfiltered frame (e.g. showing a just-revoked member) while waiting for the debounced
+    // searchControl/statusToggle subscription to catch up.
+    this.dataSource().filter = peopleFilter(this.searchControl.value, this.statusToggle.value);
     this.firstLoaded.set(true);
   }
 
@@ -266,11 +266,7 @@ export class MembersComponent {
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
-    const confirmUserSideEffect = () => {
-      user.status = this.userStatusType.Confirmed;
-      this.dataSource().replaceUser(user);
-    };
-
+    const sideEffect = async () => await this.load(organization);
     const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
     if (publicKeyResult == null) {
@@ -279,7 +275,7 @@ export class MembersComponent {
     }
 
     const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
-    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
+    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, sideEffect);
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
@@ -304,13 +300,11 @@ export class MembersComponent {
     orgUser: OrganizationUserView,
     organization: Organization,
     orgResetPasswordPolicyEnabled: boolean,
-    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     return this.memberActionsService.allowResetPassword(
       orgUser,
       organization,
       orgResetPasswordPolicyEnabled,
-      adminResetTwoFactorEnabled,
     );
   }
 
@@ -529,13 +523,13 @@ export class MembersComponent {
     ];
 
     const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.managedByOrganization),
+      showBulkConfirmUsers: members.every((m) => m.canConfirm),
+      showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkRestoreUsers: members.every((m) => m.canRestore),
+      showBulkRevokeUsers: members.every((m) => m.canRevoke),
+      showBulkRemoveUsers: members.every((m) => m.canRemove),
       showBulkDeleteUsers: members.every(
-        (m) => m.managedByOrganization && validStatuses.includes(m.status),
+        (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),
     };
 

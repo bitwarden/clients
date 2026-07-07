@@ -1,11 +1,10 @@
 import { mock } from "jest-mock-extended";
 
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ErrorResponse } from "../../../models/response/error.response";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { FileUploadService } from "../../../platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";

@@ -10,6 +10,7 @@ type ChurnMitigationOfferDuration = "once" | "repeating";
 export class ChurnMitigationOfferResponseModel extends BaseResponse {
   couponId: string;
   percentOff: number | null;
+  amountOff: number | null;
   duration: ChurnMitigationOfferDuration;
   durationInMonths: number | null;
   name: string;
@@ -18,6 +19,7 @@ export class ChurnMitigationOfferResponseModel extends BaseResponse {
     super(response);
     this.couponId = this.getResponseProperty("CouponId");
     this.percentOff = this.getResponseProperty("PercentOff");
+    this.amountOff = this.getResponseProperty("AmountOff");
     this.duration = this.getResponseProperty("Duration");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.name = this.getResponseProperty("Name");
