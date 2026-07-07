@@ -12,15 +12,15 @@ export abstract class OrganizationInviteLinkService {
   ): Observable<OrganizationInviteLink | undefined>;
 
   /**
-   * Create a new invite link for the organization. Returns an Observable that completes
-   * once the SDK key generation, API call, and local state update have all succeeded.
+   * Create a new invite link for the organization. Resolves once the SDK key generation,
+   * API call, and local state update have all succeeded.
    */
   abstract createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
     supportsConfirmation: boolean,
-  ): Observable<void>;
+  ): Promise<void>;
 
   /**
    * Update the allowed domains on an existing invite link.

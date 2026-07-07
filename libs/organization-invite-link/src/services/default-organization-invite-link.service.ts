@@ -1,4 +1,4 @@
-import { map, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -38,23 +38,20 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  createInviteLink(
+  async createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
     supportsConfirmation: boolean,
-  ): Observable<void> {
-    return this.generateEncryptedKey(userId, orgId).pipe(
-      switchMap(({ invite }) => {
-        const request = new OrganizationInviteLinkCreateRequest({
-          allowedDomains,
-          invite,
-          supportsConfirmation,
-        });
-        return this.apiService.create(orgId, request);
-      }),
-      switchMap((response) => this.upsert(userId, new OrganizationInviteLink(response))),
-    );
+  ): Promise<void> {
+    const { invite } = await firstValueFrom(this.generateEncryptedKey(userId, orgId));
+    const request = new OrganizationInviteLinkCreateRequest({
+      allowedDomains,
+      invite,
+      supportsConfirmation,
+    });
+    const response = await this.apiService.create(orgId, request);
+    await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
   async updateInviteLink(

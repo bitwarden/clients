@@ -153,9 +153,7 @@ export class ByLinkTabComponent {
       // TODO: determine supportsConfirmation future toggle switch disable admin approval (Milestone 3)
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains, false);
     } else {
-      await firstValueFrom(
-        this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains, false),
-      );
+      await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains, false);
     }
 
     this.form.markAsPristine();

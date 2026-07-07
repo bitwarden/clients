@@ -158,7 +158,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const response = makeResponseModel({ code: "code1", allowedDomains: ["bitwarden.com"] });
       apiService.create.mockResolvedValue(response);
 
-      await firstValueFrom(sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"], true));
+      await sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"], true);
 
       expect(inviteLinkClient.make_invite).toHaveBeenCalledWith(mockOrgId);
       expect(apiService.create).toHaveBeenCalledWith(
@@ -177,9 +177,9 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
 
     it("throws when no domains are provided", async () => {
-      await expect(
-        firstValueFrom(sut.createInviteLink(mockUserId, mockOrgId, [], false)),
-      ).rejects.toThrow("At least one allowed domain is required.");
+      await expect(sut.createInviteLink(mockUserId, mockOrgId, [], false)).rejects.toThrow(
+        "At least one allowed domain is required.",
+      );
     });
 
     it("surfaces SDK errors from bundle generation", async () => {
@@ -188,7 +188,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       });
 
       await expect(
-        firstValueFrom(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"], true)),
+        sut.createInviteLink(mockUserId, mockOrgId, ["example.com"], true),
       ).rejects.toThrow("sdk crypto failure");
     });
   });
