@@ -170,6 +170,29 @@ export class VaultPopupAutofillService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  /**
+   * Emits `true` when fill assist targeting rules are actively in effect for the current tab,
+   * i.e. the collected page details contain at least one targeted field. Mutually exclusive with
+   * {@link showCurrentTabIsBlockedBanner$}: a blocklisted tab yields no page details (and thus no
+   * targeted fields), and the blocklist gate below short-circuits it explicitly.
+   */
+  showFillAssistActiveBanner$: Observable<boolean> = combineLatest([
+    this._currentPageDetails$,
+    this.domainSettingsService.resolvedEnableFillAssist$,
+    this.currentTabIsOnBlocklist$,
+  ]).pipe(
+    map(([pageDetails, fillAssistEnabled, tabIsBlocked]) => {
+      if (!fillAssistEnabled || tabIsBlocked) {
+        return false;
+      }
+
+      return pageDetails.some((pageDetail) =>
+        pageDetail.details.fields.some((field) => field.targeted === true),
+      );
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
   nonLoginCipherTypesOnPage$: Observable<{
     [CipherType.Card]: boolean;
     [CipherType.Identity]: boolean;

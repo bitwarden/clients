@@ -1366,6 +1366,9 @@
   "enableFillAssist": {
     "message": "Use fill assist"
   },
+  "fillAssistActiveNotice": {
+    "message": "Fill assist is active on this page."
+  },
   "turnOnFillAssist": {
     "message": "Turn on fill assist"
   },

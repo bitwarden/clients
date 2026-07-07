@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -56,6 +56,13 @@ describe("VaultPopupAutofillService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
+  // Controllable upstream subjects. `showFillAssistActiveBanner$` (and the other banner streams)
+  // capture these references at construction via shareReplay({ refCount: false }), so they must be
+  // wired before `testBed.inject` and driven via `.next()` rather than reassigned afterwards.
+  let pageDetailsSubject: BehaviorSubject<PageDetail[]>;
+  let blockedInteractionsUrisSubject: BehaviorSubject<any>;
+  let resolvedEnableFillAssistSubject: BehaviorSubject<boolean>;
+
   beforeEach(() => {
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
@@ -66,8 +73,13 @@ describe("VaultPopupAutofillService", () => {
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForIdentityForm")
       .mockReturnValue(true);
 
-    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
-    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
+    pageDetailsSubject = new BehaviorSubject<PageDetail[]>([]);
+    blockedInteractionsUrisSubject = new BehaviorSubject({});
+    resolvedEnableFillAssistSubject = new BehaviorSubject(true);
+
+    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(pageDetailsSubject);
+    mockDomainSettingsService.blockedInteractionsUris$ = blockedInteractionsUrisSubject;
+    mockDomainSettingsService.resolvedEnableFillAssist$ = resolvedEnableFillAssistSubject;
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -104,6 +116,47 @@ describe("VaultPopupAutofillService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
+  });
+
+  describe("showFillAssistActiveBanner$", () => {
+    const pageDetailWithFields = (fields: { targeted?: boolean }[]): PageDetail[] => [
+      { tab: mockCurrentTab, details: { fields } as any, frameId: 1 },
+    ];
+
+    // `firstValueFrom` unsubscribes after the first emission, so these tests leave no live
+    // subscription behind. The stream's first value settles once `_currentPageDetails$` emits
+    // (after its internal debounce), reflecting the subject values set below.
+    it("emits true when the page has a targeted field, fill assist is enabled, and the tab is not blocked", async () => {
+      resolvedEnableFillAssistSubject.next(true);
+      blockedInteractionsUrisSubject.next({});
+      pageDetailsSubject.next(pageDetailWithFields([{ targeted: true }]));
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
+    });
+
+    it("emits false when the page has no targeted fields (heuristic fallback)", async () => {
+      resolvedEnableFillAssistSubject.next(true);
+      blockedInteractionsUrisSubject.next({});
+      pageDetailsSubject.next(pageDetailWithFields([{ targeted: false }, {}]));
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits false when fill assist is disabled, even with targeted fields", async () => {
+      resolvedEnableFillAssistSubject.next(false);
+      blockedInteractionsUrisSubject.next({});
+      pageDetailsSubject.next(pageDetailWithFields([{ targeted: true }]));
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits false when the current tab is blocklisted (mutually exclusive with the blocked banner)", async () => {
+      resolvedEnableFillAssistSubject.next(true);
+      blockedInteractionsUrisSubject.next({ "example.com": { bannerIsDismissed: false } });
+      pageDetailsSubject.next(pageDetailWithFields([{ targeted: true }]));
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
   });
 
   describe("currentAutofillTab$", () => {
