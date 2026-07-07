@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, map, timeout } from "rxjs";
 
-import { PureCrypto } from "@bitwarden/sdk-internal";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
@@ -488,11 +488,11 @@ async function createKeyView(
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
 
-  await SdkLoadService.Ready; // Required for PureCrypto.new_guid()
+  await SdkLoadService.Ready; // Required for SdkRandomNumberClient
 
   const pkcs8Key = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyValue));
   const fido2Credential = new Fido2CredentialView();
-  fido2Credential.credentialId = PureCrypto.new_guid();
+  fido2Credential.credentialId = new SdkRandomNumberClient().gen_uuid();
   fido2Credential.keyType = "public-key";
   fido2Credential.keyAlgorithm = "ECDSA";
   fido2Credential.keyCurve = "P-256";
