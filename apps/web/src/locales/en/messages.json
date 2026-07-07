@@ -646,11 +646,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -1777,6 +1796,9 @@
   },
   "deletedItems": {
     "message": "Items sent to trash"
+  },
+  "movedItem": {
+    "message": "Item moved"
   },
   "movedItems": {
     "message": "Items moved"
@@ -7246,6 +7268,30 @@
   "autoConfirmDisabledByPortal": {
     "message": "Removed Automatic user confirmation policy"
   },
+  "inviteLinkEventCreated": {
+    "message": "Created invite link"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Edited allowed domains for invite link"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Deleted invite link"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Copied invite link"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Regenerated invite link"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "System"
   },
@@ -7296,12 +7342,20 @@
     "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -11229,11 +11283,23 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "editedCollections": {
     "message": "Edited collections"
   },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
   "editedCollection": {
     "message": "Edited collection"
+  },
+  "collectionEdited": {
+    "message": "Collection edited"
+  },
+  "collectionsEdited": {
+    "message": "Collections edited"
   },
   "baseUrl": {
     "message": "Server URL"
@@ -11614,6 +11680,18 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
+  },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
   },
@@ -11867,6 +11945,15 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "graceMachineAccounts": {
+    "message": "You have $COUNT$ machine accounts from your previous plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
       }
     }
   },
@@ -13432,6 +13519,10 @@
       }
     }
   },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
   "archiveItemsSingular": {
     "message": "Archive $NUM$ item",
     "description": "Title of the archive items dialog when a single item is selected",
@@ -14729,6 +14820,10 @@
     "message": "Control whether members can use Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendTypes": {
+    "message": "Send types",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "any": {
     "message": "Any"
   },
@@ -14975,5 +15070,15 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
