@@ -1375,7 +1375,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       KeyService,
       EncryptService,
-      KeyGenerationService,
       OrganizationInviteLinkApiService,
       StateProvider,
       EnvironmentService,

@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -9,10 +8,12 @@ import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 import { FakeActiveUserAccessor, FakeStateProvider } from "@bitwarden/state-test-utils";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
@@ -56,7 +57,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
   let sut: DefaultOrganizationInviteLinkService;
   let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
-  let keyGenerationService: MockProxy<KeyGenerationService>;
   let apiService: MockProxy<OrganizationInviteLinkApiService>;
   let stateProvider: FakeStateProvider;
   let environmentService: MockProxy<EnvironmentService>;
@@ -64,7 +64,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
   beforeEach(() => {
     keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
-    keyGenerationService = mock<KeyGenerationService>();
     apiService = mock<OrganizationInviteLinkApiService>();
     environmentService = mock<EnvironmentService>();
     const mockEnvironment = mock<Environment>();
@@ -81,11 +80,17 @@ describe("DefaultOrganizationInviteLinkService", () => {
     sut = new DefaultOrganizationInviteLinkService(
       keyService,
       encryptService,
-      keyGenerationService,
       apiService,
       stateProvider,
       environmentService,
     );
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+    jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(makeKey());
   });
 
   describe("inviteLink$", () => {
@@ -161,11 +166,12 @@ describe("DefaultOrganizationInviteLinkService", () => {
   describe("createInviteLink", () => {
     it("generates key, wraps with orgKey, calls API, and caches result", async () => {
       const orgKey = makeKey("orgkeyB64==");
+      const rawKey = makeKey();
       const encryptedKey = mock<EncString>();
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
       const response = makeResponseModel({ code: "code1", allowedDomains: ["bitwarden.com"] });
 
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(rawKey);
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
       apiService.create.mockResolvedValue(response);
@@ -188,7 +194,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const encryptedKey = mock<EncString>();
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
 
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
 
@@ -196,7 +201,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
 
     it("throws when orgKey is missing", async () => {
-      keyGenerationService.createKey.mockResolvedValue(makeKey());
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
       await expect(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])).rejects.toThrow();
@@ -237,14 +241,14 @@ describe("DefaultOrganizationInviteLinkService", () => {
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
       const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
 
-      keyGenerationService.createKey.mockResolvedValue(rawKey);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(rawKey);
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
       apiService.refresh.mockResolvedValue(response);
 
       await sut.refreshInviteLink(mockUserId, mockOrgId);
 
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(256);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(rawKey, orgKey);
       expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
@@ -258,8 +262,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
 
     it("errors when orgKey is null", async () => {
-      const rawKey = makeKey();
-      keyGenerationService.createKey.mockResolvedValue(rawKey);
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
       await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
