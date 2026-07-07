@@ -6,6 +6,7 @@ import { canAccessOrgAdmin } from "@bitwarden/common/admin-console/abstractions/
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 
+import { AccessRuleEditComponent } from "./access-rules/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { GovernanceDashboardComponent } from "./governance-dashboard/governance-dashboard.component";
 
@@ -21,9 +22,25 @@ const routes: Routes = [
       },
       {
         path: "access-rules",
-        component: AccessRulesComponent,
         canActivate: [organizationPermissionsGuard((org) => org.canManageAccessRules)],
-        data: { titleId: "pamAccessRules" },
+        children: [
+          {
+            path: "",
+            component: AccessRulesComponent,
+            data: { titleId: "pamAccessRules" },
+          },
+          // List "new" before ":accessRuleId" so the literal path wins.
+          {
+            path: "new",
+            component: AccessRuleEditComponent,
+            data: { titleId: "pamAccessRuleCreateTitle" },
+          },
+          {
+            path: ":accessRuleId",
+            component: AccessRuleEditComponent,
+            data: { titleId: "pamAccessRuleEditTitle" },
+          },
+        ],
       },
       {
         path: "approver-inbox",

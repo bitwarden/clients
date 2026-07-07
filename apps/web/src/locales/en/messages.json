@@ -16848,8 +16848,14 @@
   "pamAccessRuleGeneralInfoHeading": {
     "message": "General info"
   },
+  "pamAccessRuleGeneralInfoSubheading": {
+    "message": "Describe the rule and choose which collections it'll apply to."
+  },
   "pamAccessRuleAccessDurationHeading": {
     "message": "Access duration"
+  },
+  "pamAccessRuleAccessDurationSubheading": {
+    "message": "Set limits on how long requesters can access selected collections."
   },
   "pamAccessRuleOptionalConditionsHeading": {
     "message": "Optional conditions"

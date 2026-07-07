@@ -44,7 +44,9 @@ instance and stay mounted across tab switches.
   `audit-log` (managed history + own requests, with revoke / cancel-approval),
   `inbox-request-filter.ts` (drops timed-out rows), `approval-row.ts` /
   `history-row.ts` (presentation models + factories).
-- **Admin**: `access-rules/` (CRUD; `access-rule-dialog`, `access-rules.service`)
+- **Admin**: `access-rules/` (CRUD; list is `access-rules.component` + `access-rules.service`,
+  create/edit is the routed `access-rule-edit.component` at `access-rules/new` and
+  `access-rules/:accessRuleId`)
   with `access-rule-editor/ip-allowlist/` (CIDR `ControlValueAccessor` +
   validators in `cidr.validator.ts`), `governance-dashboard/` (+ `kill-switch/`),
   `collection-access-rule-callout/` (shown in the collection-edit dialog via the

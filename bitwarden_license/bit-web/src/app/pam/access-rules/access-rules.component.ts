@@ -7,10 +7,10 @@ import {
   inject,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { filter, lastValueFrom, map, switchMap, take } from "rxjs";
+import { map } from "rxjs";
 
 import {
   AccessRuleResponse,
@@ -29,7 +29,6 @@ import {
   CheckboxModule,
   ChipFilterComponent,
   ChipFilterOption,
-  DialogRef,
   DialogService,
   IconButtonModule,
   IconModule,
@@ -43,11 +42,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import {
-  AccessRuleDialogData,
-  AccessRuleDialogComponent,
-  AccessRuleDialogResult,
-} from "./access-rule-dialog.component";
 import {
   AccessRuleTemplateKey,
   AccessRulesEmptyStateComponent,
@@ -149,25 +143,9 @@ export class AccessRulesComponent {
     { requireSync: true },
   );
 
-  /**
-   * The rule named by the `accessRuleId` query param — the single source of truth for
-   * which rule's dialog is open. Opening a rule writes it (so the URL is shareable and
-   * navigable); closing clears it. {@link activeDialog} tracks the dialog actually on
-   * screen so the two can be reconciled when the URL changes (e.g. browser back).
-   */
-  private readonly accessRuleId$ = this.route.queryParams.pipe(
-    map((p) => (p.accessRuleId as string | undefined) ?? null),
-  );
-  private readonly deepLinkRuleId = toSignal(this.accessRuleId$, {
-    initialValue: null as string | null,
-  });
-  private readonly activeDialog = signal<{
-    ruleId: string;
-    ref: DialogRef<AccessRuleDialogResult>;
-  } | null>(null);
-
   constructor() {
-    // Reload whenever the active organization changes.
+    // Reload whenever the active organization changes. This also refreshes the list
+    // when returning from the create/edit page, since the component remounts.
     effect(() => {
       void this.accessRules.load(this.organizationId());
     });
@@ -185,77 +163,19 @@ export class AccessRulesComponent {
       this.dataSource.filter = (row) =>
         accessRuleMatchesFilter(row.rule, row.collectionNames, { text, status, collectionId });
     });
-
-    // Keep the open dialog in step with the `accessRuleId` query param. Wait for the
-    // first load so the rule list is available, then react to the param: opening a
-    // rule, or closing the dialog when the param is removed (e.g. browser back).
-    // Driven off the router's queryParams (not a signal) so dialog open/close runs
-    // outside change detection.
-    this.accessRules.loading$
-      .pipe(
-        filter((loading) => !loading),
-        take(1),
-        switchMap(() => this.accessRuleId$),
-        takeUntilDestroyed(),
-      )
-      .subscribe((ruleId) => this.reconcileDialog(ruleId));
   }
 
-  protected readonly openCreate = (): Promise<void> => this.openDialog({});
+  /** Navigate to the create page. */
+  protected readonly openCreate = (): Promise<boolean> =>
+    this.router.navigate(["new"], { relativeTo: this.route });
 
-  /** Prefill applied to the create dialog when a starter template is chosen on the empty state. */
-  private readonly templatePrefills: Record<
-    AccessRuleTemplateKey,
-    {
-      nameKey: string;
-      defaultLeaseDurationSeconds: number;
-      humanApprovalEnabled: boolean;
-      ipAllowlistEnabled: boolean;
-    }
-  > = {
-    "just-in-time": {
-      nameKey: "pamTemplateJustInTimeName",
-      defaultLeaseDurationSeconds: 60 * 60,
-      humanApprovalEnabled: false,
-      ipAllowlistEnabled: false,
-    },
-    "approval-required": {
-      nameKey: "pamTemplateApprovalRequiredName",
-      defaultLeaseDurationSeconds: 60 * 60,
-      humanApprovalEnabled: true,
-      ipAllowlistEnabled: false,
-    },
-    "ip-restricted": {
-      nameKey: "pamTemplateIpRestrictedName",
-      defaultLeaseDurationSeconds: 60 * 60,
-      humanApprovalEnabled: false,
-      ipAllowlistEnabled: true,
-    },
-  };
+  /** Navigate to the create page, seeding it from a starter template. */
+  protected readonly openFromTemplate = (key: AccessRuleTemplateKey): Promise<boolean> =>
+    this.router.navigate(["new"], { relativeTo: this.route, queryParams: { template: key } });
 
-  protected readonly openFromTemplate = (key: AccessRuleTemplateKey): void => {
-    const prefill = this.templatePrefills[key];
-    void this.openDialog({
-      template: {
-        name: this.i18nService.t(prefill.nameKey),
-        defaultLeaseDurationSeconds: prefill.defaultLeaseDurationSeconds,
-        humanApprovalEnabled: prefill.humanApprovalEnabled,
-        ipAllowlistEnabled: prefill.ipAllowlistEnabled,
-      },
-    });
-  };
-
-  /**
-   * Open a rule by routing to it: the `accessRuleId` query param is the source of
-   * truth, so the URL becomes shareable and the dialog opens via {@link reconcileDialog}.
-   * Pushing a history entry lets browser-back close the dialog.
-   */
+  /** Navigate to the edit page for a rule (a shareable, deep-linkable URL). */
   protected readonly openEdit = (rule: AccessRuleResponse): Promise<boolean> =>
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { accessRuleId: rule.id },
-      queryParamsHandling: "merge",
-    });
+    this.router.navigate([rule.id], { relativeTo: this.route });
 
   protected readonly toggleEnabled = async (rule: AccessRuleResponse): Promise<void> => {
     const nextEnabled = !rule.enabled;
@@ -395,81 +315,5 @@ export class AccessRulesComponent {
         ? (e.message ?? this.i18nService.t("unexpectedError"))
         : this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
-  }
-
-  /**
-   * Bring the dialog into agreement with the `accessRuleId` query param: open the
-   * named rule, or close the current dialog when the param is removed (browser back).
-   * A no-op when the param already matches what's on screen.
-   */
-  private reconcileDialog(ruleId: string | null): void {
-    const active = this.activeDialog();
-    if (ruleId === (active?.ruleId ?? null)) {
-      return;
-    }
-    if (active != null) {
-      // The URL moved off the open rule — close it. Detach first so the close
-      // handler in openRule sees the dialog as already gone and skips clearing.
-      this.activeDialog.set(null);
-      void active.ref.close();
-      return;
-    }
-    if (ruleId != null) {
-      void this.openRule(ruleId);
-    }
-  }
-
-  /**
-   * Show the edit dialog for the routed rule. A stale id (deleted rule, or one the
-   * user can't see) self-heals: clear the param and toast. When the dialog closes by
-   * its own UI the param still points here, so we clear it to keep the URL in step.
-   */
-  private async openRule(ruleId: string): Promise<void> {
-    const rule = this.accessRules.getRule(ruleId);
-    if (rule == null) {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamAccessRuleNotFound"),
-      });
-      await this.clearRuleParam();
-      return;
-    }
-
-    const ref = AccessRuleDialogComponent.open(this.dialogService, {
-      data: { organizationId: this.organizationId(), existing: rule },
-    });
-    this.activeDialog.set({ ruleId, ref });
-    const result = await lastValueFrom(ref.closed);
-    this.activeDialog.set(null);
-
-    // If the URL still names this rule, it was closed via the dialog UI (not a
-    // back-navigation that already cleared it), so bring the URL back in line. Left
-    // un-awaited: the reconcile subscription owns URL→dialog state and the reload
-    // below is independent, so there's no reason to serialize them.
-    if (this.deepLinkRuleId() === ruleId) {
-      void this.clearRuleParam();
-    }
-    if (result === "saved") {
-      await this.accessRules.load(this.organizationId());
-    }
-  }
-
-  /** Drop the `accessRuleId` param without adding a history entry. */
-  private clearRuleParam(): Promise<boolean> {
-    return this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { accessRuleId: null },
-      queryParamsHandling: "merge",
-      replaceUrl: true,
-    });
-  }
-
-  private async openDialog(data: Omit<AccessRuleDialogData, "organizationId">): Promise<void> {
-    const ref = AccessRuleDialogComponent.open(this.dialogService, {
-      data: { organizationId: this.organizationId(), ...data },
-    });
-    if ((await lastValueFrom(ref.closed)) === "saved") {
-      await this.accessRules.load(this.organizationId());
-    }
   }
 }
