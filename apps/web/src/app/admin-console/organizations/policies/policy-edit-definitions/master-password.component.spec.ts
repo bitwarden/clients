@@ -22,10 +22,20 @@ describe("MasterPasswordPolicy", () => {
     expect(policy.component).toEqual(MasterPasswordPolicyComponent);
     expect(policy.v2?.component).toEqual(MasterPasswordPolicyV2Component);
   });
+
+  it("shows the top-level description for v1 (MasterPasswordPolicyComponent doesn't render its own)", () => {
+    expect(policy.showDescription).toBe(true);
+  });
+
+  it("hides the dialog's description for v2 (MasterPasswordPolicyV2Component renders its own)", () => {
+    expect(policy.v2?.showDescription).toBe(false);
+  });
 });
 
-// MasterPasswordPolicyV2Component is the component actually rendered - the v2 override always
-// takes precedence, so MasterPasswordPolicyComponent (above) is currently unused dead code.
+// MultiStepPolicyEditDialogComponent renders MasterPasswordPolicyV2Component only when the
+// dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
+// MasterPasswordPolicyComponent (below). See multi-step-policy-edit-dialog.component.spec.ts for
+// coverage of that gating.
 describe("MasterPasswordPolicyV2Component", () => {
   let component: MasterPasswordPolicyV2Component;
   let fixture: ComponentFixture<MasterPasswordPolicyV2Component>;

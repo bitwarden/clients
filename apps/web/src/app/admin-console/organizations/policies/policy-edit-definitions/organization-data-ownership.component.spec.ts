@@ -44,11 +44,17 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
     expect(policy.v2?.component).toEqual(OrganizationDataOwnershipPolicyV2Component);
   });
+
+  it("hides the dialog's description in both v1 and v2 (both components render their own)", () => {
+    expect(policy.showDescription).toBe(false);
+    expect(policy.v2?.showDescription).toBe(false);
+  });
 });
 
-// OrganizationDataOwnershipPolicyV2Component is the component actually rendered - the v2
-// override always takes precedence, so OrganizationDataOwnershipPolicyComponent (above) is
-// currently unused dead code.
+// MultiStepPolicyEditDialogComponent renders OrganizationDataOwnershipPolicyV2Component only
+// when the dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
+// OrganizationDataOwnershipPolicyComponent (above). See
+// multi-step-policy-edit-dialog.component.spec.ts for coverage of that gating.
 describe("OrganizationDataOwnershipPolicyV2Component", () => {
   let component: OrganizationDataOwnershipPolicyV2Component;
   let fixture: ComponentFixture<OrganizationDataOwnershipPolicyV2Component>;

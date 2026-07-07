@@ -33,10 +33,13 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.DataControl;
   priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
+  // Both OrganizationDataOwnershipPolicyComponent (v1) and OrganizationDataOwnershipPolicyV2Component
+  // render their own description inline, so the dialog's description is hidden in both modes.
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
   v2 = {
     component: OrganizationDataOwnershipPolicyV2Component,
+    showDescription: false,
   };
 }
 

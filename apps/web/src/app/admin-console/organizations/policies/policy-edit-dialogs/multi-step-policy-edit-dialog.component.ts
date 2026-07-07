@@ -82,6 +82,24 @@ export class MultiStepPolicyEditDialogComponent
     return this.i18nService.t(this.policy.name);
   });
 
+  /**
+   * Whether to render `policy.description` in the dialog body. Only consults `policy.v2`'s
+   * override when {@link isV2} is true - v1 always uses the plain top-level fields so a
+   * `v2`-only override (e.g. because the v2 component renders its own description) can't hide
+   * the description from the v1 modal.
+   */
+  protected readonly showDescription = computed(() =>
+    this.isV2()
+      ? (this.policy.v2?.showDescription ?? this.policy.showDescription)
+      : this.policy.showDescription,
+  );
+
+  protected readonly descriptionKey = computed(() =>
+    this.isV2()
+      ? (this.policy.v2?.description ?? this.policy.description)
+      : this.policy.description,
+  );
+
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
       switchMap((stepConfig) => {

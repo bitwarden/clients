@@ -26,10 +26,12 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = MasterPasswordPolicyComponent;
-  showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
   v2 = {
     component: MasterPasswordPolicyV2Component,
+    // MasterPasswordPolicyV2Component renders its own description inline; MasterPasswordPolicyComponent
+    // (v1) does not, so the dialog's own showDescription (defaults to true) must stay on for v1.
+    showDescription: false,
   };
 }
 

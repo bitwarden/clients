@@ -221,7 +221,13 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     })
     class TestV2PolicyComponent extends BasePolicyEditComponent {}
 
-    async function setup(options: { isDrawer?: boolean; withV2: boolean }) {
+    async function setup(options: {
+      isDrawer?: boolean;
+      withV2: boolean;
+      showDescription?: boolean;
+      v2ShowDescription?: boolean;
+      v2Description?: string;
+    }) {
       const policy: BasePolicyEditDefinition = {
         name: "testPolicy",
         description: "testDesc",
@@ -229,10 +235,22 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         category: "data-controls",
         priority: 0,
         component: TestV1PolicyComponent,
-        showDescription: false,
+        showDescription: options.showDescription ?? false,
         showEnabledBadge: false,
         display$: () => of(true),
-        ...(options.withV2 ? { v2: { component: TestV2PolicyComponent } } : {}),
+        ...(options.withV2
+          ? {
+              v2: {
+                component: TestV2PolicyComponent,
+                ...(options.v2ShowDescription !== undefined
+                  ? { showDescription: options.v2ShowDescription }
+                  : {}),
+                ...(options.v2Description !== undefined
+                  ? { description: options.v2Description }
+                  : {}),
+              },
+            }
+          : {}),
       } as BasePolicyEditDefinition;
 
       const data: PolicyEditDialogData = {
@@ -313,6 +331,48 @@ describe("MultiStepPolicyEditDialogComponent", () => {
 
       expect(component.dialogTitle()).toBe("testPolicy");
       expect(component.policyComponent()).toBeInstanceOf(TestV2PolicyComponent);
+    });
+
+    describe("showDescription/descriptionKey (v2-only overrides shouldn't hide the v1 description)", () => {
+      // Regression test: a v2 component that renders its own description used to be able to hide
+      // the description from the v1 modal too, because the dialog read the plain `showDescription`
+      // field which was being set to `false` unconditionally by policies like MasterPasswordPolicy.
+      it("uses the top-level showDescription/description when isV2 is false, ignoring v2's override", async () => {
+        const { component } = await setup({
+          isDrawer: false,
+          withV2: true,
+          showDescription: true,
+          v2ShowDescription: false,
+          v2Description: "v2Desc",
+        });
+
+        expect(component.showDescription()).toBe(true);
+        expect(component.descriptionKey()).toBe("testDesc");
+      });
+
+      it("uses v2's showDescription/description override when isV2 is true", async () => {
+        const { component } = await setup({
+          isDrawer: true,
+          withV2: true,
+          showDescription: true,
+          v2ShowDescription: false,
+          v2Description: "v2Desc",
+        });
+
+        expect(component.showDescription()).toBe(false);
+        expect(component.descriptionKey()).toBe("v2Desc");
+      });
+
+      it("falls back to the top-level showDescription/description when isV2 is true but v2 doesn't override them", async () => {
+        const { component } = await setup({
+          isDrawer: true,
+          withV2: true,
+          showDescription: true,
+        });
+
+        expect(component.showDescription()).toBe(true);
+        expect(component.descriptionKey()).toBe("testDesc");
+      });
     });
   });
 });
