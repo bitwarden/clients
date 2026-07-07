@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef, SelectItemView, ToastService } from "@bitwarden/components";
+import { SelectItemView, ToastService } from "@bitwarden/components";
 
-import { AccessRuleDialogComponent, AccessRuleDialogData } from "./access-rule-dialog.component";
+import { AccessRuleEditComponent } from "./access-rule-edit.component";
 
 /** Echoes the key as its translation so the form-field components don't crash on missing keys. */
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -22,32 +23,43 @@ const ONE_HOUR = 60 * 60;
 const SEVEN_DAYS = 7 * 24 * 60 * 60;
 const NO_CAP = 0;
 
-describe("AccessRuleDialogComponent — default/max duration coupling", () => {
-  let fixture: ComponentFixture<AccessRuleDialogComponent>;
-  let component: AccessRuleDialogComponent;
+type RouteState = { params?: Record<string, string>; queryParams?: Record<string, string> };
 
-  const setup = (data: AccessRuleDialogData) => {
+function routeStub(state: RouteState): Partial<ActivatedRoute> {
+  return {
+    snapshot: {
+      params: { organizationId: "org-1", ...state.params },
+      queryParams: state.queryParams ?? {},
+    },
+  } as unknown as ActivatedRoute;
+}
+
+describe("AccessRuleEditComponent — default/max duration coupling", () => {
+  let fixture: ComponentFixture<AccessRuleEditComponent>;
+  let component: AccessRuleEditComponent;
+
+  const setup = () => {
+    // These tests exercise the form/coupling logic, not the header/section rendering.
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
-      imports: [AccessRuleDialogComponent, ReactiveFormsModule],
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
-        { provide: DIALOG_DATA, useValue: data },
-        { provide: DialogRef, useValue: { close: jest.fn() } },
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub({}) },
         { provide: PamApiService, useValue: {} },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of(null) } },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
       ],
     });
 
-    fixture = TestBed.createComponent(AccessRuleDialogComponent);
+    fixture = TestBed.createComponent(AccessRuleEditComponent);
     component = fixture.componentInstance;
-    // Intentionally no detectChanges(): the coupling is wired in the constructor, and
-    // skipping ngOnInit avoids the unrelated async collection load.
+    // The coupling is wired synchronously in the constructor; no need to await init.
   };
 
-  // Defaults for a brand-new rule: default = 1h, max = "no maximum".
-  beforeEach(() => setup({ organizationId: "org-1" }));
+  beforeEach(() => setup());
 
   const controls = () => component["formGroup"].controls;
 
@@ -87,9 +99,14 @@ describe("AccessRuleDialogComponent — default/max duration coupling", () => {
   });
 });
 
-describe("AccessRuleDialogComponent — collection selection", () => {
-  let component: AccessRuleDialogComponent;
-  let pamApi: { createAccessRule: jest.Mock; updateAccessRule: jest.Mock };
+describe("AccessRuleEditComponent — load, collections, and submit", () => {
+  let component: AccessRuleEditComponent;
+  let navigate: jest.SpyInstance;
+  let pamApi: {
+    getAccessRule: jest.Mock;
+    createAccessRule: jest.Mock;
+    updateAccessRule: jest.Mock;
+  };
 
   // The org's collections, as returned by the admin-console service.
   const ORG_COLLECTIONS = [
@@ -98,17 +115,19 @@ describe("AccessRuleDialogComponent — collection selection", () => {
     { id: "col-3", name: "Finance" },
   ];
 
-  const setup = (data: AccessRuleDialogData) => {
+  const setup = async (state: RouteState, existing?: AccessRuleResponse) => {
     pamApi = {
+      getAccessRule: jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
     };
 
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
-      imports: [AccessRuleDialogComponent, ReactiveFormsModule],
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
-        { provide: DIALOG_DATA, useValue: data },
-        { provide: DialogRef, useValue: { close: jest.fn() } },
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: PamApiService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
@@ -120,22 +139,21 @@ describe("AccessRuleDialogComponent — collection selection", () => {
       ],
     });
 
-    component = TestBed.createComponent(AccessRuleDialogComponent).componentInstance;
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    component = fixture.componentInstance;
+    // Let the constructor-driven initialize() (rule fetch + collection load) settle.
+    await fixture.whenStable();
   };
 
   const controls = () => component["formGroup"].controls;
 
   it("seeds the collections control by mapping an existing rule's IDs onto loaded options", async () => {
-    setup({
-      organizationId: "org-1",
-      existing: {
-        id: "rule-1",
-        collections: ["col-1", "col-3"],
-        conditions: [],
-      } as unknown as AccessRuleResponse,
-    });
-
-    await component.ngOnInit();
+    await setup({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      collections: ["col-1", "col-3"],
+      conditions: [],
+    } as unknown as AccessRuleResponse);
 
     expect(controls().collections.value.map((i) => i.id)).toEqual(["col-1", "col-3"]);
     // Chips show real names, not raw UUIDs.
@@ -146,8 +164,7 @@ describe("AccessRuleDialogComponent — collection selection", () => {
   });
 
   it("submits the IDs of the collections held in the form control", async () => {
-    setup({ organizationId: "org-1" });
-    await component.ngOnInit();
+    await setup({});
 
     controls().name.setValue("Production access");
     controls().collections.setValue([
@@ -160,13 +177,16 @@ describe("AccessRuleDialogComponent — collection selection", () => {
     const [orgId, request] = pamApi.createAccessRule.mock.calls[0];
     expect(orgId).toBe("org-1");
     expect(request.collections).toEqual(["col-2"]);
+    expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
   });
 
   it("serialises the ipAllowlistCidrs control into an ip_allowlist condition, dropping empties", async () => {
-    setup({ organizationId: "org-1" });
-    await component.ngOnInit();
+    await setup({});
 
     controls().name.setValue("IP restricted");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
     controls().ipAllowlistEnabled.setValue(true);
     controls().ipAllowlistCidrs.setValue(["10.0.0.0/8", "", "192.168.0.0/16"]);
 
@@ -174,9 +194,56 @@ describe("AccessRuleDialogComponent — collection selection", () => {
 
     expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
     const [, request] = pamApi.createAccessRule.mock.calls[0];
-    // The condition is sent as a flat array of conditions.
     expect(request.conditions).toEqual([
       { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
     ]);
+  });
+
+  it("does not submit when required fields are missing", async () => {
+    await setup({});
+
+    // No name, no collections.
+    await component["submit"]();
+
+    expect(pamApi.createAccessRule).not.toHaveBeenCalled();
+  });
+
+  it("applies a starter template from the query param", async () => {
+    await setup({ queryParams: { template: "approval-required" } });
+
+    expect(controls().name.value).toBe("pamTemplateApprovalRequiredName");
+    expect(controls().humanApprovalEnabled.value).toBe(true);
+  });
+
+  it("toasts and navigates back when the edited rule can't be fetched", async () => {
+    pamApi = {
+      getAccessRule: jest.fn().mockRejectedValue(new Error("404")),
+      createAccessRule: jest.fn(),
+      updateAccessRule: jest.fn(),
+    };
+    const showToast = jest.fn();
+
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub({ params: { accessRuleId: "missing" } }) },
+        { provide: PamApiService, useValue: pamApi },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+      ],
+    });
+
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    await fixture.whenStable();
+
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+    );
+    expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
   });
 });

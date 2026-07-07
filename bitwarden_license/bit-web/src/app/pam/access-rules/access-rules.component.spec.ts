@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, Params, provideRouter, Router } from "@angular/router";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { ActivatedRoute, provideRouter, Router } from "@angular/router";
+import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
@@ -8,7 +8,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { AccessRuleDialogComponent, AccessRuleDialogResult } from "./access-rule-dialog.component";
 import { AccessRulesComponent } from "./access-rules.component";
 
 const i18nFake: Pick<I18nService, "t" | "translate"> = {
@@ -30,144 +29,77 @@ function rule(id: string, name = "Rule"): AccessRuleResponse {
   });
 }
 
-describe("AccessRulesComponent — URL-driven rule dialog", () => {
+describe("AccessRulesComponent — create/edit navigation", () => {
   let listAccessRules: jest.Mock;
-  let openDialog: jest.SpyInstance;
-  let closeDialog: jest.Mock;
   let navigate: jest.SpyInstance;
-  let showToast: jest.Mock;
-  let queryParams$: BehaviorSubject<Params>;
-  let closed$: Subject<AccessRuleDialogResult | undefined>;
+  let route: ActivatedRoute;
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   const setup = async (
-    accessRuleId: string | undefined,
     rules: AccessRuleResponse[],
   ): Promise<ComponentFixture<AccessRulesComponent>> => {
     listAccessRules = jest.fn().mockResolvedValue({ data: rules });
-    showToast = jest.fn();
-    queryParams$ = new BehaviorSubject<Params>(accessRuleId == null ? {} : { accessRuleId });
-
-    // A controllable dialog ref: close() completes `closed$`, mirroring how the real
-    // dialog resolves when dismissed; tests can also complete it to mimic a UI close.
-    closed$ = new Subject<AccessRuleDialogResult | undefined>();
-    closeDialog = jest.fn(() => {
-      closed$.next(undefined);
-      closed$.complete();
-    });
-    openDialog = jest.spyOn(AccessRuleDialogComponent, "open").mockReturnValue({
-      closed: closed$.asObservable(),
-      close: closeDialog,
-    } as unknown as ReturnType<typeof AccessRuleDialogComponent.open>);
 
     // The component's own template pulls in the full table/toolbar stack; replace it
-    // so these tests exercise the dialog/URL logic, not the rendering of child widgets.
+    // so these tests exercise the navigation logic, not the rendering of child widgets.
     TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
 
     TestBed.configureTestingModule({
       imports: [AccessRulesComponent],
       providers: [
-        // A real router (so `router.events` exists for the injector chain); only
-        // `navigate` is spied. ActivatedRoute is overridden below to feed our params.
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: "org-1" }), queryParams: queryParams$ },
+          useValue: { params: of({ organizationId: "org-1" }) },
         },
         { provide: PamApiService, useValue: { listAccessRules } },
         { provide: DialogService, useValue: {} },
-        { provide: ToastService, useValue: { showToast } },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
       ],
     });
 
+    route = TestBed.inject(ActivatedRoute);
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
 
     const fixture = TestBed.createComponent(AccessRulesComponent);
-    // Cycle change detection + microtasks so the org-driven reload resolves and the
-    // queryParams-driven dialog reconciliation runs to completion.
-    await flush(fixture);
-    return fixture;
-  };
-
-  const flush = async (fixture: ComponentFixture<AccessRulesComponent>): Promise<void> => {
+    // Cycle change detection + microtasks so the org-driven reload resolves.
     for (let i = 0; i < 3; i++) {
       fixture.detectChanges();
       await fixture.whenStable();
     }
+    return fixture;
   };
 
-  it("opens the edit dialog for the rule named by the accessRuleId param", async () => {
-    await setup("rule-2", [rule("rule-1"), rule("rule-2", "Target")]);
+  it("navigates to the create page", async () => {
+    const fixture = await setup([]);
 
-    expect(openDialog).toHaveBeenCalledTimes(1);
-    expect(openDialog.mock.calls[0][1].data.existing.id).toBe("rule-2");
+    await fixture.componentInstance["openCreate"]();
+
+    expect(navigate).toHaveBeenCalledWith(["new"], { relativeTo: route });
   });
 
-  it("clears the param when the dialog is closed from its UI", async () => {
-    const fixture = await setup("rule-2", [rule("rule-2", "Target")]);
+  it("navigates to the create page with the chosen template", async () => {
+    const fixture = await setup([]);
 
-    // Simulate the dialog being dismissed by the user.
-    closed$.next(undefined);
-    closed$.complete();
-    await flush(fixture);
+    await fixture.componentInstance["openFromTemplate"]("approval-required");
 
-    expect(navigate).toHaveBeenCalledWith(
-      [],
-      expect.objectContaining({ queryParams: { accessRuleId: null }, replaceUrl: true }),
-    );
+    expect(navigate).toHaveBeenCalledWith(["new"], {
+      relativeTo: route,
+      queryParams: { template: "approval-required" },
+    });
   });
 
-  it("routes to the rule (pushing history) when a rule is clicked", async () => {
-    const fixture = await setup(undefined, [rule("rule-1", "VPN")]);
+  it("navigates to the edit page for a rule", async () => {
+    const fixture = await setup([rule("rule-1", "VPN")]);
 
     await fixture.componentInstance["openEdit"](rule("rule-1", "VPN"));
 
-    expect(navigate).toHaveBeenCalledWith(
-      [],
-      expect.objectContaining({
-        queryParams: { accessRuleId: "rule-1" },
-        queryParamsHandling: "merge",
-      }),
-    );
-    // No replaceUrl — clicking adds a history entry so browser-back closes the dialog.
-    expect(navigate.mock.calls[0][1].replaceUrl).toBeUndefined();
-  });
-
-  it("closes the dialog when the param is removed (browser back)", async () => {
-    const fixture = await setup("rule-1", [rule("rule-1", "VPN")]);
-    expect(openDialog).toHaveBeenCalledTimes(1);
-
-    // Back-navigation drops the param; the dialog should close without re-clearing it.
-    queryParams$.next({});
-    await flush(fixture);
-
-    expect(closeDialog).toHaveBeenCalledTimes(1);
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
-  it("shows a not-found toast and clears the param for a stale rule id", async () => {
-    await setup("missing", [rule("rule-1")]);
-
-    expect(openDialog).not.toHaveBeenCalled();
-    expect(showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
-    );
-    expect(navigate).toHaveBeenCalledWith(
-      [],
-      expect.objectContaining({ queryParams: { accessRuleId: null } }),
-    );
-  });
-
-  it("does nothing when no accessRuleId is present", async () => {
-    await setup(undefined, [rule("rule-1")]);
-
-    expect(openDialog).not.toHaveBeenCalled();
-    expect(navigate).not.toHaveBeenCalled();
+    expect(navigate).toHaveBeenCalledWith(["rule-1"], { relativeTo: route });
   });
 });

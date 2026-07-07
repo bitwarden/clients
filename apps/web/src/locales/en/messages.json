@@ -14656,6 +14656,30 @@
   "pamAccessRuleNamePlaceholder": {
     "message": "e.g. VPN + business hours"
   },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "General info"
+  },
+  "pamAccessRuleGeneralInfoSubheading": {
+    "message": "Describe the rule and choose which collections it'll apply to."
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Access duration"
+  },
+  "pamAccessRuleAccessDurationSubheading": {
+    "message": "Set limits on how long requesters can access selected collections."
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optional conditions"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Select collections"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "This access rule will apply to all selected collections."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "This duration will be pre-filled in access requests."
+  },
   "pamAccessRuleDescription": {
     "message": "Description"
   },
