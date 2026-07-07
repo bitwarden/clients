@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { combineLatest, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import { combineLatest, filter, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
 
 import {
   CollectionView,
@@ -224,6 +224,9 @@ describe("DefaultCollectionService", () => {
       // Expect decryptMany$ to be called only once
       expect(decryptManySpy).toHaveBeenCalledTimes(1);
     });
+
+    // Note: the legacy (non-SDK) path intentionally has no batch-decryption error handling - see
+    // the comment in initializeDecryptedState. A decryptMany$ error here propagates as-is.
   });
 
   describe("encryptedCollections$", () => {
@@ -265,6 +268,9 @@ describe("DefaultCollectionService", () => {
       configService.getFeatureFlag$
         .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
         .mockReturnValue(of(true));
+
+      // Emit non-null org keys so the gate passes by default
+      cryptoKeys.next({});
     });
 
     it("uses collectionEncryptionService.decryptMany when flag is enabled", async () => {
@@ -315,6 +321,114 @@ describe("DefaultCollectionService", () => {
 
       expect(result[0].name).toBe("Alpha");
       expect(result[1].name).toBe("Zebra");
+    });
+
+    it("does not call decryptMany when org keys are null (locked)", (done) => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      void setEncryptedState([collection1]).then(() => {
+        // Emit null to simulate locked state (org keys unavailable)
+        cryptoKeys.next(null);
+
+        // decryptMany must not have been called yet
+        expect(collectionEncryptionService.decryptMany).not.toHaveBeenCalled();
+
+        // Then emit keys again to unblock decryption
+        cryptoKeys.next({});
+      });
+
+      collectionService
+        .decryptedCollections$(userId)
+        .pipe(takeWhile((views) => views.length === 0))
+        .subscribe({ complete: () => done() });
+    });
+
+    it("starts decrypting after org keys become available (locked → unlocked)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      // Emit null first (locked), then real keys (unlocked)
+      cryptoKeys.next(null);
+      cryptoKeys.next({});
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(1);
+      expect(result).toContainPartialObjects([{ id: collection1.id }]);
+    });
+
+    it("falls back to an empty list and logs when decryptMany rejects (batch failure)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(result).toEqual([]);
+    });
+
+    it("retries a failed batch on a fresh subscription so a transient failure recovers", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      // Fail the first attempt (e.g. the SDK is not ready yet), then succeed.
+      collectionEncryptionService.decryptMany
+        .mockRejectedValueOnce(new Error("SDK not available"))
+        .mockResolvedValue([decryptedView]);
+
+      // First subscription hits the transient failure. The empty fallback is not cached.
+      const firstResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(firstResult).toEqual([]);
+
+      // A subsequent subscription re-attempts decryption (rather than serving a cached empty
+      // list) and recovers once the SDK is available.
+      const secondResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(secondResult).toContainPartialObjects([{ id: collection1.id }]);
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledTimes(2);
+    });
+
+    it("emits the decrypted collections exactly once on success (no duplicate emission)", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      const emissions: CollectionView[][] = [];
+      const sub = collectionService
+        .decryptedCollections$(userId)
+        .subscribe((v) => emissions.push(v));
+
+      // Deterministically wait until the decrypted result has been cached - that write is the
+      // mechanism that delivers the value to subscribers - then stop observing.
+      await firstValueFrom(
+        stateProvider
+          .getUser(userId, DECRYPTED_COLLECTION_DATA_KEY)
+          .state$.pipe(filter((state) => state != null)),
+      );
+      sub.unsubscribe();
+
+      // The decrypted result is delivered once via the cache re-emitting; the direct emission is
+      // dropped (ignoreElements) so subscribers never receive the same value twice.
+      expect(emissions).toHaveLength(1);
+      expect(emissions[0]).toContainPartialObjects([{ id: collection1.id }]);
     });
   });
 
