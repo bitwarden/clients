@@ -612,6 +612,46 @@ describe("CollectAutofillContentService", () => {
         }),
       );
     });
+
+    it("includes the source form category in the routed iframe payload", async () => {
+      document.body.innerHTML = `<iframe id="login-form-container"></iframe>`;
+      const iframe = document.getElementById("login-form-container") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://other.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  category: FormPurposeCategories.AccountLogin,
+                  fields: { username: ["iframe#login-form-container >>> #username"] },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({
+              fieldType: "username",
+              formCategory: FormPurposeCategories.AccountLogin,
+            }),
+          ]),
+        }),
+      );
+    });
   });
 
   describe("applyExternalTargetedFields recursion", () => {
@@ -644,6 +684,26 @@ describe("CollectAutofillContentService", () => {
           ]),
         }),
       );
+    });
+
+    it("retains the routed form category on a locally-resolved field", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+
+      await collectAutofillContentService.applyExternalTargetedFields([
+        {
+          selector: "#username",
+          fieldType: "username",
+          formCategory: FormPurposeCategories.AccountLogin,
+        },
+      ]);
+
+      const fields = Array.from(
+        (
+          collectAutofillContentService as any
+        ).autofillFieldElements.values() as Iterable<AutofillField>,
+      );
+      expect(fields).toHaveLength(1);
+      expect(fields[0].formCategory).toBe(FormPurposeCategories.AccountLogin);
     });
 
     it("does not send collectPageDetailsResponse when all selectors route onward and no fields are cached", async () => {

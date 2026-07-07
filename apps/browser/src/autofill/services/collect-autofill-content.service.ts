@@ -47,6 +47,16 @@ type ResolveFieldTarget = {
   formCategory?: FormPurposeCategory;
 };
 
+/**
+ * A single targeting-rule field whose selector crosses an iframe boundary and
+ * is routed to the sub-frame for local resolution. (mirrors {@link ResolveFieldTarget}).
+ */
+type IframeTargetedField = {
+  selector: string;
+  fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
+};
+
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly getAttributeBoolean = getAttributeBoolean;
@@ -375,11 +385,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @param targetedFields - Selector/fieldType pairs resolved to this frame
    */
   async applyExternalTargetedFields(
-    targetedFields: { selector: string; fieldType: string }[],
+    targetedFields: { selector: string; fieldType: string; formCategory?: string }[],
   ): Promise<void> {
     const targets: ResolveFieldTarget[] = targetedFields.map((t) => ({
       selectorAlternatives: [t.selector],
       fieldType: t.fieldType as AutofillTargetingRuleType,
+      formCategory: t.formCategory as FormPurposeCategory,
     }));
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -428,17 +439,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private resolveTargetedFields(targets: ResolveFieldTarget[]): {
     localFields: AutofillField[];
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>;
+    iframeTargets: Map<string, IframeTargetedField[]>;
   } {
     const localFields: AutofillField[] = [];
     // Accumulates targets that live inside iframes, keyed by the iframe's URL.
     // These are routed to the iframe's own content script instead of being
     // collected here, so the existing sub-frame offset infrastructure handles
     // their positioning correctly.
-    const iframeTargets = new Map<
-      string,
-      { selector: string; fieldType: AutofillTargetingRuleType }[]
-    >();
+    const iframeTargets = new Map<string, IframeTargetedField[]>();
 
     for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
       const { selectorAlternatives, fieldType, formCategory } = targets[targetIndex];
@@ -465,6 +473,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             iframeTargets.get(iframeSrc)!.push({
               selector: innerSelector,
               fieldType,
+              formCategory,
             });
           }
           break;
@@ -507,9 +516,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * The receiving frame's `applyExternalTargetedFields` will resolve locally
    * or re-route onward, enabling multi-hop chains.
    */
-  private routeIframeTargets(
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
-  ): void {
+  private routeIframeTargets(iframeTargets: Map<string, IframeTargetedField[]>): void {
     for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
       void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
         iframeSrc,

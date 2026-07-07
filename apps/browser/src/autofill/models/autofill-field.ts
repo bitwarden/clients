@@ -136,7 +136,7 @@ export default class AutofillField {
   /**
    * The `category` of the targeting-rule form this field was resolved from
    * (e.g. `account-login`). Only set for targeted fields; undefined for
-   * heuristic fields and for targeted fields routed across an iframe boundary.
+   * heuristically-gathered fields.
    */
   formCategory?: FormPurposeCategory;
 
