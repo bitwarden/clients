@@ -150,7 +150,8 @@ export class ByLinkTabComponent {
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
     if (inviteLink) {
-      // TODO: determine supportsConfirmation future toggle switch disable admin approval (Milestone 3)
+      // TODO: Milestone 3: determine supportsConfirmation from the state of the
+      // "require admin confirmation" toggle switch TBD
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains, false);
     } else {
       await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains, false);
@@ -187,7 +188,9 @@ export class ByLinkTabComponent {
 
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
-    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId());
+    // TODO: Milestone 3: determine supportsConfirmation from the state of the
+    // "require admin confirmation" toggle switch TBD
+    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId(), false);
 
     this.toastService.showToast({
       variant: "success",

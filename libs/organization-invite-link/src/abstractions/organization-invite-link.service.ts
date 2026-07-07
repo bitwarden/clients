@@ -36,7 +36,11 @@ export abstract class OrganizationInviteLinkService {
    * Refresh the invite link via the server endpoint. Resolves once the SDK key generation,
    * API call, and local state update have all succeeded.
    */
-  abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
+  abstract refreshInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void>;
 
   /**
    * Reconstruct and returns an Observable containing the shareable URL for the provided

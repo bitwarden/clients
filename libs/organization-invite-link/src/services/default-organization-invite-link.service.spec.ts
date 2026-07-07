@@ -225,14 +225,14 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
       apiService.refresh.mockResolvedValue(response);
 
-      await sut.refreshInviteLink(mockUserId, mockOrgId);
+      await sut.refreshInviteLink(mockUserId, mockOrgId, false);
 
       expect(inviteLinkClient.make_invite).toHaveBeenCalledWith(mockOrgId);
       expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({
           invite: "sealed-envelope-base64",
-          supportsConfirmation: true,
+          supportsConfirmation: false,
         }),
       );
 
@@ -242,12 +242,24 @@ describe("DefaultOrganizationInviteLinkService", () => {
       expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
+    it("passes supportsConfirmation when provided", async () => {
+      const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
+      apiService.refresh.mockResolvedValue(response);
+
+      await sut.refreshInviteLink(mockUserId, mockOrgId, true);
+
+      expect(apiService.refresh).toHaveBeenCalledWith(
+        mockOrgId,
+        expect.objectContaining({ supportsConfirmation: true }),
+      );
+    });
+
     it("surfaces SDK errors from bundle generation", async () => {
       inviteLinkClient.make_invite.mockImplementation(() => {
         throw new Error("sdk crypto failure");
       });
 
-      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
+      await expect(sut.refreshInviteLink(mockUserId, mockOrgId, false)).rejects.toThrow(
         "sdk crypto failure",
       );
     });

@@ -68,11 +68,15 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
-  async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
+  async refreshInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean = false,
+  ): Promise<void> {
     const { invite } = await firstValueFrom(this.generateEncryptedKey(userId, orgId));
     const request = new OrganizationInviteLinkRefreshRequest({
       invite,
-      supportsConfirmation: true,
+      supportsConfirmation,
     });
     const response = await this.apiService.refresh(orgId, request);
     await this.upsert(userId, new OrganizationInviteLink(response));
