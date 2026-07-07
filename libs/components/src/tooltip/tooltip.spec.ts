@@ -6,16 +6,15 @@ import {
 } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
 import { Component } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Observable, Subject } from "rxjs";
 
-import { TooltipDirective } from "./tooltip.directive";
+import { TooltipDirective, TOOLTIP_DELAY_MS } from "./tooltip.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  standalone: true,
   imports: [TooltipDirective],
   template: ` <button [bitTooltip]="tooltipText" type="button">Hover or focus me</button> `,
 })
@@ -41,6 +40,7 @@ interface OverlayLike {
 interface OverlayRefStub {
   attach: (portal: ComponentPortal<unknown>) => unknown;
   updatePosition: () => void;
+  dispose: () => void;
 }
 
 describe("TooltipDirective (visibility only)", () => {
@@ -59,8 +59,16 @@ describe("TooltipDirective (visibility only)", () => {
     };
 
     const overlayRefStub: OverlayRefStub = {
-      attach: jest.fn(() => ({})),
+      attach: jest.fn(() => ({
+        changeDetectorRef: { detectChanges: jest.fn() },
+        location: {
+          nativeElement: {
+            querySelector: jest.fn().mockReturnValue({ id: "tip-123" }),
+          },
+        },
+      })),
       updatePosition: jest.fn(),
+      dispose: jest.fn(),
     };
 
     const overlayMock: OverlayLike = {
@@ -83,23 +91,61 @@ describe("TooltipDirective (visibility only)", () => {
     return hostDE.injector.get(TooltipDirective);
   }
 
-  it("sets isVisible to true on mouseenter", () => {
+  it("sets isVisible to true on mouseenter", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
     button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
-  });
+  }));
 
-  it("sets isVisible to true on focus", () => {
+  it("sets isVisible to true on focus-visible", fakeAsync(() => {
     const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
     const directive = getDirective();
 
     const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
 
-    button.dispatchEvent(new Event("focus"));
+    // Mock matches to return true for :focus-visible (simulates keyboard navigation)
+    const originalMatches = button.matches.bind(button);
+    button.matches = jest.fn((selector: string) => {
+      if (selector === ":focus-visible") {
+        return true;
+      }
+      return originalMatches(selector);
+    });
+
+    button.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    tick(TOOLTIP_DELAY_MS);
     expect(isVisible()).toBe(true);
-  });
+  }));
+
+  it("tears down a visible tooltip when suppressed flips to true", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(true);
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+    expect(isVisible()).toBe(false);
+  }));
+
+  it("is a no-op on mouseenter while suppressed", fakeAsync(() => {
+    const button: HTMLButtonElement = fixture.debugElement.query(By.css("button")).nativeElement;
+    const directive = getDirective();
+    const isVisible = (directive as unknown as { isVisible: () => boolean }).isVisible;
+
+    directive.suppressed.set(true);
+    fixture.detectChanges();
+
+    button.dispatchEvent(new Event("mouseenter"));
+    tick(TOOLTIP_DELAY_MS);
+    expect(isVisible()).toBe(false);
+  }));
 });

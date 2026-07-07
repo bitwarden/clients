@@ -1,11 +1,17 @@
 import { mock } from "jest-mock-extended";
 
 import { ApiService } from "../../../abstractions/api.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ErrorResponse } from "../../../models/response/error.response";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { FileUploadService } from "../../../platform/abstractions/file-upload/file-upload.service";
+import { FileUploadType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { CipherId, UserId } from "../../../types/guid";
+import { CipherSdkService } from "../../abstractions/cipher-sdk.service";
 import { CipherType } from "../../enums/cipher-type";
 import { Cipher } from "../../models/domain/cipher";
 import { AttachmentUploadDataResponse } from "../../models/response/attachment-upload-data.response";
@@ -16,13 +22,21 @@ import { CipherFileUploadService } from "./cipher-file-upload.service";
 describe("CipherFileUploadService", () => {
   const apiService = mock<ApiService>();
   const fileUploadService = mock<FileUploadService>();
+  const configService = mock<ConfigService>();
+  const cipherSdkService = mock<CipherSdkService>();
+  const userId = "test-user-id" as UserId;
 
   let service: CipherFileUploadService;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    service = new CipherFileUploadService(apiService, fileUploadService);
+    service = new CipherFileUploadService(
+      apiService,
+      fileUploadService,
+      configService,
+      cipherSdkService,
+    );
   });
 
   describe("upload", () => {
@@ -60,7 +74,7 @@ describe("CipherFileUploadService", () => {
       apiService.postCipherAttachment.mockResolvedValue(mockUploadDataResponse);
       fileUploadService.upload.mockResolvedValue(undefined);
 
-      await service.upload(mockCipher, mockEncFileName, mockEncData, false, mockDataEncKey);
+      await service.upload(mockCipher, mockEncFileName, mockEncData, false, mockDataEncKey, userId);
 
       const callArgs = apiService.postCipherAttachment.mock.calls[0][1];
 
@@ -77,6 +91,308 @@ describe("CipherFileUploadService", () => {
       // Verify lastKnownRevisionDate is set (it's converted to a Date object)
       expect(callArgs.lastKnownRevisionDate).toBeDefined();
       expect(callArgs.lastKnownRevisionDate).toEqual(new Date("2024-01-15T10:30:00.000Z"));
+    });
+  });
+
+  describe("rollback callback", () => {
+    const cipherIdStr = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22";
+    const attachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+
+    const setupRollback = async (
+      isAdmin: boolean,
+      flagOn: boolean,
+    ): Promise<() => Promise<void>> => {
+      const mockCipher = new Cipher({
+        id: cipherIdStr,
+        type: CipherType.Login,
+        name: "Test Cipher",
+        revisionDate: "2024-01-15T10:30:00.000Z",
+      } as any);
+
+      const mockEncFileName = new EncString("encrypted-filename");
+      const mockEncData = { buffer: new ArrayBuffer(100) } as unknown as EncArrayBuffer;
+      const mockDataEncKey: [SymmetricCryptoKey, EncString] = [
+        new SymmetricCryptoKey(new Uint8Array(32)),
+        new EncString("encrypted-key"),
+      ];
+
+      const responseFor = (id: string) =>
+        ({
+          id,
+          type: CipherType.Login,
+          revisionDate: "2024-01-15T10:30:00.000Z",
+        }) as CipherResponse;
+
+      const uploadDataResponse = {
+        attachmentId,
+        url: "https://upload.example.com",
+        fileUploadType: 0,
+        cipherResponse: isAdmin ? null : responseFor(cipherIdStr),
+        cipherMiniResponse: isAdmin ? responseFor(cipherIdStr) : null,
+      } as AttachmentUploadDataResponse;
+
+      apiService.postCipherAttachment.mockResolvedValue(uploadDataResponse);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM28192_CipherAttachmentOpsToSdk)
+        .mockResolvedValue(flagOn);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
+        .mockResolvedValue(false);
+
+      let capturedRollback: () => Promise<void>;
+      fileUploadService.upload.mockImplementation(async (_data, _name, _enc, methods) => {
+        capturedRollback = methods.rollback;
+      });
+
+      await service.upload(
+        mockCipher,
+        mockEncFileName,
+        mockEncData,
+        isAdmin,
+        mockDataEncKey,
+        userId,
+      );
+
+      return capturedRollback!;
+    };
+
+    it("calls apiService.deleteCipherAttachment when flag is off and isAdmin is false", async () => {
+      const rollback = await setupRollback(false, false);
+      await rollback();
+
+      expect(apiService.deleteCipherAttachment).toHaveBeenCalledWith(cipherIdStr, attachmentId);
+      expect(apiService.deleteCipherAttachmentAdmin).not.toHaveBeenCalled();
+      expect(cipherSdkService.deleteAttachmentWithServer).not.toHaveBeenCalled();
+    });
+
+    it("calls apiService.deleteCipherAttachmentAdmin when flag is off and isAdmin is true", async () => {
+      const rollback = await setupRollback(true, false);
+      await rollback();
+
+      expect(apiService.deleteCipherAttachmentAdmin).toHaveBeenCalledWith(
+        cipherIdStr,
+        attachmentId,
+      );
+      expect(apiService.deleteCipherAttachment).not.toHaveBeenCalled();
+      expect(cipherSdkService.deleteAttachmentWithServer).not.toHaveBeenCalled();
+    });
+
+    it("calls cipherSdkService.deleteAttachmentWithServer with asAdmin=false when flag is on and isAdmin is false", async () => {
+      const rollback = await setupRollback(false, true);
+      await rollback();
+
+      expect(cipherSdkService.deleteAttachmentWithServer).toHaveBeenCalledWith(
+        cipherIdStr as CipherId,
+        attachmentId,
+        userId,
+        false,
+      );
+      expect(apiService.deleteCipherAttachment).not.toHaveBeenCalled();
+      expect(apiService.deleteCipherAttachmentAdmin).not.toHaveBeenCalled();
+    });
+
+    it("calls cipherSdkService.deleteAttachmentWithServer with asAdmin=true when flag is on and isAdmin is true", async () => {
+      const rollback = await setupRollback(true, true);
+      await rollback();
+
+      expect(cipherSdkService.deleteAttachmentWithServer).toHaveBeenCalledWith(
+        cipherIdStr as CipherId,
+        attachmentId,
+        userId,
+        true,
+      );
+      expect(apiService.deleteCipherAttachment).not.toHaveBeenCalled();
+      expect(apiService.deleteCipherAttachmentAdmin).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("renew callback (legacy upload path)", () => {
+    const cipherIdStr = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22";
+    const attachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+
+    const setupRenew = async (
+      isAdmin: boolean,
+      flagOn: boolean,
+    ): Promise<() => Promise<string | undefined>> => {
+      const mockCipher = new Cipher({
+        id: cipherIdStr,
+        type: CipherType.Login,
+        name: "Test Cipher",
+        revisionDate: "2024-01-15T10:30:00.000Z",
+      } as any);
+
+      const mockEncFileName = new EncString("encrypted-filename");
+      const mockEncData = { buffer: new ArrayBuffer(100) } as unknown as EncArrayBuffer;
+      const mockDataEncKey: [SymmetricCryptoKey, EncString] = [
+        new SymmetricCryptoKey(new Uint8Array(32)),
+        new EncString("encrypted-key"),
+      ];
+
+      const responseFor = (id: string) =>
+        ({
+          id,
+          type: CipherType.Login,
+          revisionDate: "2024-01-15T10:30:00.000Z",
+        }) as CipherResponse;
+
+      const uploadDataResponse = {
+        attachmentId,
+        url: "https://upload.example.com",
+        fileUploadType: 0,
+        cipherResponse: isAdmin ? null : responseFor(cipherIdStr),
+        cipherMiniResponse: isAdmin ? responseFor(cipherIdStr) : null,
+      } as AttachmentUploadDataResponse;
+
+      apiService.postCipherAttachment.mockResolvedValue(uploadDataResponse);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM28192_CipherAttachmentOpsToSdk)
+        .mockResolvedValue(flagOn);
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
+        .mockResolvedValue(false);
+
+      let capturedRenew: () => Promise<string | undefined>;
+      fileUploadService.upload.mockImplementation(async (_data, _name, _enc, methods) => {
+        capturedRenew = methods.renewFileUploadUrl;
+      });
+
+      await service.upload(
+        mockCipher,
+        mockEncFileName,
+        mockEncData,
+        isAdmin,
+        mockDataEncKey,
+        userId,
+      );
+
+      return capturedRenew!;
+    };
+
+    it("always routes through apiService.renewAttachmentUploadUrl (legacy path is purely legacy)", async () => {
+      apiService.renewAttachmentUploadUrl.mockResolvedValue({
+        url: "https://renewed.example.com",
+      } as AttachmentUploadDataResponse);
+
+      const renew = await setupRenew(false, false);
+      const url = await renew();
+
+      expect(apiService.renewAttachmentUploadUrl).toHaveBeenCalledWith(cipherIdStr, attachmentId);
+      expect(cipherSdkService.renewAttachmentUploadUrl).not.toHaveBeenCalled();
+      expect(url).toBe("https://renewed.example.com");
+    });
+  });
+
+  describe("uploadPrepared", () => {
+    const cipherIdStr = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22";
+    const attachmentId = "newatt0000000000000000000000000";
+    const uploadUrl = "https://upload.example.com/slot";
+    const encFileName = new EncString("encrypted-filename");
+    const encData = { buffer: new ArrayBuffer(50) } as unknown as EncArrayBuffer;
+
+    beforeEach(() => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM34410AttachmentUploadProgress)
+        .mockResolvedValue(false);
+    });
+
+    it("delegates to fileUploadService.upload with the supplied url and file upload type", async () => {
+      fileUploadService.upload.mockResolvedValue(undefined);
+
+      await service.uploadPrepared(
+        cipherIdStr,
+        attachmentId,
+        uploadUrl,
+        FileUploadType.Azure,
+        encFileName,
+        encData,
+        userId,
+        false,
+      );
+
+      expect(fileUploadService.upload).toHaveBeenCalledWith(
+        { url: uploadUrl, fileUploadType: FileUploadType.Azure },
+        encFileName,
+        encData,
+        expect.objectContaining({
+          postDirect: expect.any(Function),
+          renewFileUploadUrl: expect.any(Function),
+          rollback: expect.any(Function),
+        }),
+        undefined,
+      );
+    });
+
+    it("rewraps ErrorResponse from fileUploadService.upload", async () => {
+      const errorResponse = new ErrorResponse({ message: "upload failed" }, 500);
+      fileUploadService.upload.mockRejectedValue(errorResponse);
+
+      await expect(
+        service.uploadPrepared(
+          cipherIdStr,
+          attachmentId,
+          uploadUrl,
+          FileUploadType.Direct,
+          encFileName,
+          encData,
+          userId,
+          false,
+        ),
+      ).rejects.toThrow();
+    });
+
+    const captureCallbacks = async (
+      isAdmin: boolean,
+    ): Promise<{
+      renew: () => Promise<string | undefined>;
+      rollback: () => Promise<void>;
+    }> => {
+      let capturedRenew: () => Promise<string | undefined>;
+      let capturedRollback: () => Promise<void>;
+
+      fileUploadService.upload.mockImplementation(async (_data, _name, _enc, methods) => {
+        capturedRenew = methods.renewFileUploadUrl;
+        capturedRollback = methods.rollback;
+      });
+
+      await service.uploadPrepared(
+        cipherIdStr,
+        attachmentId,
+        uploadUrl,
+        FileUploadType.Direct,
+        encFileName,
+        encData,
+        userId,
+        isAdmin,
+      );
+
+      return { renew: capturedRenew!, rollback: capturedRollback! };
+    };
+
+    it("renew callback always routes through cipherSdkService.renewAttachmentUploadUrl", async () => {
+      cipherSdkService.renewAttachmentUploadUrl.mockResolvedValue("https://renewed.example.com");
+
+      const { renew } = await captureCallbacks(false);
+      const url = await renew();
+
+      expect(cipherSdkService.renewAttachmentUploadUrl).toHaveBeenCalledWith(
+        cipherIdStr as CipherId,
+        attachmentId,
+        userId,
+      );
+      expect(apiService.renewAttachmentUploadUrl).not.toHaveBeenCalled();
+      expect(url).toBe("https://renewed.example.com");
+    });
+
+    it("rollback callback delegates to cipherSdkService.deleteAttachmentWithServer with the supplied isAdmin", async () => {
+      const { rollback } = await captureCallbacks(true);
+      await rollback();
+
+      expect(cipherSdkService.deleteAttachmentWithServer).toHaveBeenCalledWith(
+        cipherIdStr as CipherId,
+        attachmentId,
+        userId,
+        true,
+      );
     });
   });
 });

@@ -84,8 +84,8 @@
               rel="noreferrer"
               slot="end"
               bitLink
+              startIcon="bwi-question-circle"
             >
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
               <span class="tw-sr-only">{{ "billingSyncHelp" | i18n }}</span>
             </a>
           </bit-label>
@@ -130,7 +130,7 @@
           <bit-label class="tw-mb-6 tw-block" *ngIf="!showAutomaticSyncAndManualUpload">
             {{ "licenseAndBillingManagementDesc" | i18n }}
           </bit-label>
-          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-semibold tw-mt-6">
+          <h3 *ngIf="showAutomaticSyncAndManualUpload" class="tw-font-medium tw-mt-6">
             {{ "uploadLicense" | i18n }}
           </h3>
           <app-update-license

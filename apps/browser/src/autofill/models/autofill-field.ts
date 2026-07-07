@@ -1,6 +1,4 @@
 import { FieldRect } from "../background/abstractions/overlay.background";
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
   InlineMenuAccountCreationFieldTypes,
@@ -13,34 +11,36 @@ import {
 export default class AutofillField {
   [key: string]: any;
   /**
-   * The unique identifier assigned to this field during collection of the page details
+   * Non-null asserted. The unique identifier assigned to this field during collection of the page details
    */
-  opid: string;
+  opid!: string;
   /**
-   * Sequential number assigned to each element collected, based on its position in the DOM.
+   * Non-null asserted. Sequential number assigned to each element collected, based on its position in the DOM.
    * Used to do perform proximal checks for username and password fields on the DOM.
    */
-  elementNumber: number;
+  elementNumber!: number;
   /**
-   * Designates whether the field is viewable on the current part of the DOM that the user can see
+   * Non-null asserted. Designates whether the field is viewable on the current part of the DOM that the user can see
    */
-  viewable: boolean;
+  viewable!: boolean;
   /**
-   * The HTML `id` attribute of the field
+   * Non-null asserted. The HTML `id` attribute of the field
    */
-  htmlID: string | null;
+  htmlID!: string | null;
   /**
-   * The HTML `name` attribute of the field
+   * Non-null asserted. The HTML `name` attribute of the field
    */
-  htmlName: string | null;
+  htmlName!: string | null;
   /**
-   * The HTML `class` attribute of the field
+   * Non-null asserted. The HTML `class` attribute of the field
    */
-  htmlClass: string | null;
+  htmlClass!: string | null;
 
-  tabindex: string | null;
+  /** Non-null asserted. */
+  tabindex!: string | null;
 
-  title: string | null;
+  /** Non-null asserted. */
+  title!: string | null;
   /**
    * The `tagName` for the field
    */
@@ -67,6 +67,8 @@ export default class AutofillField {
   "label-aria"?: string | null;
 
   "label-data"?: string | null;
+
+  "aria-describedby"?: string | null;
 
   "aria-hidden"?: boolean;
 
@@ -96,9 +98,9 @@ export default class AutofillField {
    */
   readonly?: boolean;
   /**
-   * The `opid` attribute value of the form that contains the field
+   * The `opid` attribute value of the form that contains the field, null if no form or opid is absent
    */
-  form?: string;
+  form?: string | null;
   /**
    * The `x-autocompletetype`, `autocompletetype`, or `autocomplete` attribute for the field
    */
@@ -124,6 +126,11 @@ export default class AutofillField {
 
   fieldQualifier?: AutofillFieldQualifierType;
 
+  /**
+   * Indicates this field was qualified by targeting rules rather than heuristics
+   */
+  targeted?: boolean;
+
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 
   /**
@@ -131,3 +138,6 @@ export default class AutofillField {
    */
   fieldRect?: FieldRect;
 }
+
+/** `readonly` / `disabled` from collected field data; a full {@link AutofillField} is assignable. */
+export type AutofillFieldReadonlyDisabledState = Pick<AutofillField, "readonly" | "disabled">;

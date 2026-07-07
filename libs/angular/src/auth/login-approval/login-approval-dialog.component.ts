@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
@@ -20,11 +19,12 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
-import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
+import { JslibModule } from "../../jslib.module";
 
 const RequestTimeOut = 60000 * 15; // 15 Minutes
 const RequestTimeUpdate = 60000 * 5; // 5 Minutes
@@ -37,7 +37,7 @@ export interface LoginApprovalDialogParams {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "login-approval-dialog.component.html",
-  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, JslibModule],
+  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, IconModule, JslibModule],
 })
 export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   authRequestId: string;
@@ -57,7 +57,6 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
     private devicesService: DevicesServiceAbstraction,
     private dialogRef: DialogRef,
     private i18nService: I18nService,
-    private loginApprovalDialogComponentService: LoginApprovalDialogComponentServiceAbstraction,
     private logService: LogService,
     private toastService: ToastService,
     private validationService: ValidationService,
@@ -113,10 +112,6 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       this.updateTimeText();
     }, RequestTimeUpdate);
 
-    await this.loginApprovalDialogComponentService.showLoginRequestedAlertIfWindowNotVisible(
-      this.email,
-    );
-
     this.loading = false;
   }
 
@@ -152,7 +147,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       this.showResultToast(loginResponse);
     }
 
-    this.dialogRef.close(approve);
+    await this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {
@@ -212,7 +207,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       );
     } else {
       clearInterval(this.interval);
-      this.dialogRef.close();
+      void this.dialogRef.close();
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("loginRequestHasAlreadyExpired"),

@@ -1,8 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { BaseResponse } from "../../../models/response/base.response";
 
@@ -54,6 +55,7 @@ export class SendResponse implements BaseResponse {
     view.emails = send.emails ?? [];
     view.disabled = send.disabled;
     view.hideEmail = send.hideEmail;
+    view.authType = send.authType;
     return view;
   }
 
@@ -92,20 +94,16 @@ export class SendResponse implements BaseResponse {
   emails?: Array<string>;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
-  constructor(o?: SendView, webVaultUrl?: string) {
+  constructor(o?: SendView, sendUrl?: string) {
     if (o == null) {
       return;
     }
     this.id = o.id;
     this.accessId = o.accessId;
-    let sendLinkBaseUrl = webVaultUrl;
-    if (sendLinkBaseUrl == null) {
-      sendLinkBaseUrl = "https://send.bitwarden.com/#";
-    } else {
-      sendLinkBaseUrl += "/#/send/";
-    }
-    this.accessUrl = sendLinkBaseUrl + this.accessId + "/" + o.urlB64Key;
+    this.accessUrl =
+      (sendUrl ?? "https://send.bitwarden.com/#") + this.accessId + "/" + o.urlB64Key;
     this.name = o.name;
     this.notes = o.notes;
     this.key = Utils.fromBufferToB64(o.key);
@@ -116,8 +114,10 @@ export class SendResponse implements BaseResponse {
     this.deletionDate = o.deletionDate;
     this.expirationDate = o.expirationDate;
     this.passwordSet = o.password != null;
+    this.emails = o.emails ?? [];
     this.disabled = o.disabled;
     this.hideEmail = o.hideEmail;
+    this.authType = o.authType;
 
     if (o.type === SendType.Text && o.text != null) {
       this.text = new SendTextResponse(o.text);

@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { LogoutService } from "@bitwarden/auth/common";
+import { LockService, LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
@@ -23,6 +23,7 @@ export default class IdleBackground {
     private serverNotificationsService: ServerNotificationsService,
     private accountService: AccountService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private lockService: LockService,
     private logoutService: LogoutService,
   ) {
     this.idle = chrome.idle || (browser != null ? browser.idle : null);
@@ -54,6 +55,13 @@ export default class IdleBackground {
             // Need to check if any of the current users have their timeout set to `onLocked`
             const allUsers = await firstValueFrom(this.accountService.accounts$);
             for (const userId in allUsers) {
+              // Skip if vault timeout is suppressed by shared unlock
+              if (
+                await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)
+              ) {
+                continue;
+              }
+
               // If the screen is locked or the screensaver activates
               const timeout = await firstValueFrom(
                 this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
@@ -66,7 +74,7 @@ export default class IdleBackground {
                 if (action === VaultTimeoutAction.LogOut) {
                   await this.logoutService.logout(userId as UserId, "vaultTimeout");
                 } else {
-                  await this.vaultTimeoutService.lock(userId);
+                  await this.lockService.lock(userId as UserId);
                 }
               }
             }

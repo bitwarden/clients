@@ -1,15 +1,42 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { TypographyModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SvgModule, TypographyModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PricingCardComponent } from "./pricing-card.component";
 
 export default {
   title: "Billing/Pricing Card",
   component: PricingCardComponent,
-  moduleMetadata: {
-    imports: [TypographyModule],
-  },
+  decorators: [
+    moduleMetadata({
+      imports: [PricingCardComponent, SvgModule, TypographyModule, I18nPipe],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              switch (key) {
+                case "month":
+                  return "month";
+                case "monthly":
+                  return "monthly";
+                case "year":
+                  return "year";
+                case "annually":
+                  return "annually";
+                case "perUser":
+                  return "per user";
+                default:
+                  return key;
+              }
+            },
+          },
+        },
+      ],
+    }),
+  ],
   args: {
     tagline: "Everything you need for secure password management across all your devices",
   },
@@ -83,7 +110,7 @@ export const WithoutFeatures: Story = {
   }),
   args: {
     tagline: "Advanced security and management for your organization",
-    price: { amount: 3, cadence: "monthly" },
+    price: { amount: 3, cadence: "month" },
     button: { text: "Contact Sales", type: "primary" },
   },
 };
@@ -150,7 +177,7 @@ export const LongTagline: Story = {
   args: {
     tagline:
       "Comprehensive password management solution for teams and organizations that need advanced security features, detailed reporting, and enterprise-grade administration tools that scale with your business",
-    price: { amount: 5, cadence: "monthly", showPerUser: true },
+    price: { amount: 5, cadence: "month", showPerUser: true },
     button: { text: "Start Business Trial", type: "primary" },
     features: [
       "Everything in Premium",
@@ -205,7 +232,7 @@ export const AllButtonTypes: Story = {
 
 export const ConfigurableHeadings: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-flex tw-flex-wrap tw-gap-6 tw-p-4 tw-justify-center">
         <billing-pricing-card
           tagline="Example with h2 heading for accessibility"
@@ -215,13 +242,16 @@ export const ConfigurableHeadings: Story = {
           <h2 slot="title" class="tw-m-0" bitTypography="h3">H2 Heading</h2>
         </billing-pricing-card>
         
-        <billing-pricing-card
-          tagline="Example with h4 heading for nested content"
-          [price]="{ amount: 15, cadence: 'monthly' }"
-          [button]="{ text: 'Choose Plan', type: 'secondary' }"
-          [features]="['Feature 1', 'Feature 2']">
-          <h4 slot="title" class="tw-m-0" bitTypography="h3">H4 Heading</h4>
-        </billing-pricing-card>
+        <div class="tw-flex tw-flex-col">
+          <h3 bitTypography="h3">Example Parent H3</h3>
+          <billing-pricing-card
+            tagline="Example with h4 heading for nested content"
+            [price]="{ amount: 15, cadence: 'monthly' }"
+            [button]="{ text: 'Choose Plan', type: 'secondary' }"
+            [features]="['Feature 1', 'Feature 2']">
+            <h4 slot="title" class="tw-m-0" bitTypography="h3">H4 Heading</h4>
+          </billing-pricing-card>
+        </div>
       </div>
     `,
     props: {},
@@ -274,7 +304,7 @@ export const WithoutButton: Story = {
   }),
   args: {
     tagline: "This plan will be available soon with exciting new features",
-    price: { amount: 15, cadence: "monthly" },
+    price: { amount: 15, cadence: "month" },
     features: ["Advanced security features", "Enhanced collaboration tools", "Premium support"],
   },
 };

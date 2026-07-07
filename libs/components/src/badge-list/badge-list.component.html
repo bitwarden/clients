@@ -1,15 +1,15 @@
 <div class="tw-inline-flex tw-flex-wrap tw-gap-2">
-  @for (item of filteredItems; track item; let last = $last) {
+  @for (item of filteredItems(); track item; let last = $last) {
     <span bitBadge [variant]="variant()" [truncate]="truncate()">
       {{ item }}
     </span>
-    @if (!last || isFiltered) {
+    @if (!last || isFiltered()) {
       <span class="tw-sr-only">, </span>
     }
   }
-  @if (isFiltered) {
+  @if (isFiltered()) {
     <span bitBadge [variant]="variant()">
-      {{ "plusNMore" | i18n: (items().length - filteredItems.length).toString() }}
+      {{ "plusNMore" | i18n: (items().length - filteredItems().length).toString() }}
     </span>
   }
 </div>

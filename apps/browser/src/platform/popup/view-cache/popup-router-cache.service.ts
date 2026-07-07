@@ -120,8 +120,8 @@ export class PopupRouterCacheService {
   /**
    * Navigate back in history
    */
-  async back() {
-    if (!BrowserPopupUtils.inPopup(window)) {
+  async back(updateCache = false) {
+    if (!updateCache && !BrowserPopupUtils.inPopup(window)) {
       this.location.back();
       return;
     }

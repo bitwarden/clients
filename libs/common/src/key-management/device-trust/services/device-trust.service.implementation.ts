@@ -1,14 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, Observable, Subject } from "rxjs";
+import { firstValueFrom, map, Observable, Subject, switchMap } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { RotateableKeySet, UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices-api.service.abstraction";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
@@ -33,6 +34,7 @@ import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
+import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 
 /** Uses disk storage so that the device key can persist after log out and tab removal. */
@@ -86,10 +88,18 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private logService: LogService,
     private configService: ConfigService,
+    private accountService: AccountService,
   ) {
-    this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
-      map((options) => {
-        return options?.trustedDeviceOption != null;
+    this.supportsDeviceTrust$ = this.accountService.activeAccount$.pipe(
+      switchMap((account) => {
+        if (account == null) {
+          return [false];
+        }
+        return this.userDecryptionOptionsService.userDecryptionOptionsById$(account.id).pipe(
+          map((options) => {
+            return options?.trustedDeviceOption != null;
+          }),
+        );
       }),
     );
   }
@@ -145,7 +155,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
 
     // Attempt to get user key
-    const userKey: UserKey = await this.keyService.getUserKey(userId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     // If user key is not found, throw error
     if (!userKey) {
@@ -240,7 +250,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
           const request = new OtherDeviceKeysUpdateRequest();
           request.encryptedPublicKey = newRotateableKeySet.encryptedPublicKey.encryptedString;
-          request.encryptedUserKey = newRotateableKeySet.encryptedUserKey.encryptedString;
+          request.encryptedUserKey = newRotateableKeySet.encapsulatedDownstreamKey.encryptedString;
           request.deviceId = device.id;
           return request;
         })
@@ -346,7 +356,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     }
   }
 
-  private async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
+  async setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void> {
     if (!userId) {
       throw new Error("UserId is required. Cannot set device key.");
     }

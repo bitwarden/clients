@@ -1,33 +1,41 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { UntypedFormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = PasswordGeneratorPolicyComponent;
+
+  display$(_organization: Organization, configService: ConfigService) {
+    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v: boolean) => !v));
+  }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "password-generator-policy-edit",
   templateUrl: "password-generator.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
-  // these properties forward the application default settings to the UI
-  // for HTML attribute bindings
   protected readonly minLengthMin =
     BuiltIn.password.profiles[Profile.account].constraints.default.length.min;
   protected readonly minLengthMax =
@@ -45,7 +53,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   protected readonly minNumberWordsMax =
     BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
 
-  data = this.formBuilder.group({
+  readonly data = this.formBuilder.group({
     overridePasswordType: [null],
     minLength: [null, [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)]],
     useUpper: [null],
@@ -62,12 +70,10 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
     includeNumber: [null],
   });
 
-  overridePasswordTypeOptions: { name: string; value: string }[];
+  readonly overridePasswordTypeOptions: { name: string; value: string }[];
 
-  // These subjects cache visibility of the sub-options for passwords
-  // and passphrases; without them policy controls don't show up at all.
-  private showPasswordPolicies = new BehaviorSubject<boolean>(true);
-  private showPassphrasePolicies = new BehaviorSubject<boolean>(true);
+  private readonly showPasswordPolicies = new BehaviorSubject<boolean>(true);
+  private readonly showPassphrasePolicies = new BehaviorSubject<boolean>(true);
 
   /** Emits `true` when the password policy options should be displayed */
   get showPasswordPolicies$() {
@@ -80,7 +86,7 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   }
 
   constructor(
-    private formBuilder: UntypedFormBuilder,
+    private readonly formBuilder: FormBuilder,
     i18nService: I18nService,
   ) {
     super();

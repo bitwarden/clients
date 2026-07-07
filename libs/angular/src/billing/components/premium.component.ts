@@ -5,6 +5,7 @@ import { firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,6 +17,8 @@ import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/com
 export class PremiumComponent implements OnInit {
   isPremium$: Observable<boolean>;
   price = 10;
+  storageProvidedGb = 0;
+  refreshing = false;
   refreshPromise: Promise<any>;
   cloudWebVaultUrl: string;
 
@@ -29,6 +32,7 @@ export class PremiumComponent implements OnInit {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     accountService: AccountService,
+    private billingApiService: BillingApiServiceAbstraction,
   ) {
     this.isPremium$ = accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -39,11 +43,15 @@ export class PremiumComponent implements OnInit {
 
   async ngOnInit() {
     this.cloudWebVaultUrl = await firstValueFrom(this.environmentService.cloudWebVaultUrl$);
+    const premiumResponse = await this.billingApiService.getPremiumPlan();
+    this.storageProvidedGb = premiumResponse.storage.provided;
+    this.price = premiumResponse.seat.price;
   }
 
   async refresh() {
+    this.refreshing = true;
+    this.refreshPromise = this.apiService.refreshIdentityToken();
     try {
-      this.refreshPromise = this.apiService.refreshIdentityToken();
       await this.refreshPromise;
       this.toastService.showToast({
         variant: "success",
@@ -52,6 +60,8 @@ export class PremiumComponent implements OnInit {
       });
     } catch (e) {
       this.logService.error(e);
+    } finally {
+      this.refreshing = false;
     }
   }
 

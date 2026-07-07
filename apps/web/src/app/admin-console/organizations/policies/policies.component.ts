@@ -1,32 +1,35 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
-  firstValueFrom,
+  lastValueFrom,
   Observable,
   of,
   switchMap,
   first,
   map,
-  withLatestFrom,
-  tap,
+  shareReplay,
 } from "rxjs";
 
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DialogService } from "@bitwarden/components";
+import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import {
+  DialogRef,
+  DialogService,
+  ItemModule,
+  SectionHeaderComponent,
+} from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -34,92 +37,135 @@ import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
-import { PolicyListService } from "./policy-list.service";
+import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
   providers: [
     safeProvider({
       provide: PolicyListService,
       deps: [POLICY_EDIT_REGISTER],
     }),
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PoliciesComponent implements OnInit {
-  loading = true;
-  organizationId: string;
-  policies$: Observable<BasePolicyEditDefinition[]>;
+export class PoliciesComponent {
+  private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
 
-  private orgPolicies: PolicyResponse[];
-  protected policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyListService: PolicyListService,
-    private dialogService: DialogService,
-    private policyService: PolicyService,
-    protected configService: ConfigService,
-  ) {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policies$(userId)),
-        tap(async () => await this.load()),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
+  protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
+    map((params) => params.organizationId),
+  );
+
+  protected readonly organization$: Observable<Organization> = combineLatest([
+    this.userId$,
+    this.organizationId$,
+  ]).pipe(
+    switchMap(([userId, orgId]) =>
+      this.organizationService.organizations$(userId).pipe(
+        getById(orgId),
+        map((org) => {
+          if (org == null) {
+            throw new Error("No organization found for provided userId");
+          }
+          return org;
+        }),
+      ),
+    ),
+  );
+
+  protected readonly policies$: Observable<readonly BasePolicyEditDefinition[]> = of(
+    this.policyListService.getPolicies(),
+  );
+
+  private readonly orgPolicies$: Observable<PolicyResponse[]> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      switchMap(() => this.organizationId$),
+      switchMap((organizationId) => this.policyApiService.getPolicies(organizationId)),
+      map((response) => (response.data != null && response.data.length > 0 ? response.data : [])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+  protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
+    this.orgPolicies$.pipe(
+      map((orgPolicies) => {
+        const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
+        orgPolicies.forEach((op) => {
+          policiesEnabledMap.set(op.type, op.enabled);
+        });
+        return policiesEnabledMap;
+      }),
+    );
+
+  protected readonly useDrawer = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
+    { initialValue: false },
+  );
+
+  protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
+    switchMap((organization) =>
+      combineLatest(
+        this.policyListService.sections.map((section) =>
+          this.visiblePoliciesInSection$(section, organization),
+        ),
+      ),
+    ),
+    map((sections) => sections.filter((s) => s.policies.length > 0)),
+  );
+
+  private visiblePoliciesInSection$(
+    section: PolicySection,
+    organization: Organization,
+  ): Observable<PolicySection> {
+    if (section.policies.length === 0) {
+      return of({ ...section, policies: [] });
+    }
+
+    return combineLatest(
+      section.policies.map((p) =>
+        p.display$(organization, this.configService).pipe(map((visible) => (visible ? p : null))),
+      ),
+    ).pipe(
+      map((results) => ({
+        ...section,
+        policies: results.filter((p): p is BasePolicyEditDefinition => p !== null),
+      })),
+    );
   }
 
-  async ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      this.organizationId = params.organizationId;
-      const userId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly organizationService: OrganizationService,
+    private readonly accountService: AccountService,
+    private readonly policyApiService: PolicyApiServiceAbstraction,
+    private readonly policyListService: PolicyListService,
+    private readonly dialogService: DialogService,
+    private readonly policyService: PolicyService,
+    protected readonly configService: ConfigService,
+    private readonly destroyRef: DestroyRef,
+  ) {
+    this.handleLaunchEvent();
+    this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
+  }
 
-      const organization$ = this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.organizationId));
-
-      this.policies$ = organization$.pipe(
-        withLatestFrom(of(this.policyListService.getPolicies())),
-        switchMap(([organization, policies]) => {
-          return combineLatest(
-            policies.map((policy) =>
-              policy
-                .display$(organization, this.configService)
-                .pipe(map((shouldDisplay) => ({ policy, shouldDisplay }))),
-            ),
-          );
-        }),
-        map((results) =>
-          results.filter((result) => result.shouldDisplay).map((result) => result.policy),
-        ),
-      );
-
-      await this.load();
-
-      // Handle policies component launch from Event message
-      combineLatest([this.route.queryParams.pipe(first()), this.policies$])
-        /* eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe, rxjs/no-nested-subscribe */
-        .subscribe(async ([qParams, policies]) => {
+  // Handle policies component launch from Event message
+  private handleLaunchEvent() {
+    combineLatest([this.route.queryParams.pipe(first()), this.orgPolicies$, this.organization$])
+      .pipe(
+        map(([qParams, orgPolicies, organization]) => {
           if (qParams.policyId != null) {
             const policyIdFromEvents: string = qParams.policyId;
-            for (const orgPolicy of this.orgPolicies) {
+            const policies = this.policyListService.getPolicies();
+            for (const orgPolicy of orgPolicies) {
               if (orgPolicy.id === policyIdFromEvents) {
-                for (let i = 0; i < policies.length; i++) {
-                  if (policies[i].type === orgPolicy.type) {
-                    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    this.edit(policies[i]);
+                for (const policy of policies) {
+                  if (policy.type === orgPolicy.type) {
+                    void this.edit(policy, organization);
                     break;
                   }
                 }
@@ -127,28 +173,64 @@ export class PoliciesComponent implements OnInit {
               }
             }
           }
-        });
-    });
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
-  async load() {
-    const response = await this.policyApiService.getPolicies(this.organizationId);
-    this.orgPolicies = response.data != null && response.data.length > 0 ? response.data : [];
-    this.orgPolicies.forEach((op) => {
-      this.policiesEnabledMap.set(op.type, op.enabled);
-    });
-
-    this.loading = false;
-  }
-
-  async edit(policy: BasePolicyEditDefinition) {
+  async edit(policy: BasePolicyEditDefinition, organization: Organization) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    dialogComponent.open(this.dialogService, {
-      data: {
-        policy: policy,
-        organizationId: this.organizationId,
-      },
-    });
+
+    const drawerOpener = this.useDrawer() ? dialogComponent.openDrawer : undefined;
+
+    if (drawerOpener) {
+      const triggerEl =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+      // openDrawer is async and returns undefined if a currently-open drawer's
+      // closePredicate prevented it from closing — only update the ref when it opened.
+      const ref = await drawerOpener(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+      if (ref !== undefined) {
+        this.drawerRef.set(ref);
+        try {
+          await lastValueFrom(ref.closed);
+        } finally {
+          // Once closed, this ref is permanently spent (DrawerRef.close() short-circuits to
+          // `{ closed: false }` on a ref that's already closed). Clear it so canDeactivate()
+          // doesn't try to re-close a stale ref and incorrectly block navigation away from
+          // this page after a save/cancel.
+          this.drawerRef.set(undefined);
+        }
+        if (triggerEl?.isConnected) {
+          triggerEl.focus();
+        }
+      }
+    } else {
+      dialogComponent.open(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+    }
+  }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef()) {
+      return true;
+    }
+    const result = await this.drawerRef()!.close();
+    return result.closed;
   }
 }

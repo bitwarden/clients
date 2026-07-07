@@ -1,7 +1,6 @@
 import { Injectable } from "@angular/core";
 import { defaultIfEmpty, find, map, mergeMap, Observable, switchMap } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -12,6 +11,11 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import {
+  PersonalSubscriptionPricingTier,
+  PersonalSubscriptionPricingTierId,
+  PersonalSubscriptionPricingTierIds,
+} from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
@@ -20,7 +24,7 @@ import {
   OrganizationSubscriptionPurchase,
   SubscriberBillingClient,
   TaxAmounts,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "../../../../clients";
 import {
   BillingAddress,
@@ -30,11 +34,6 @@ import {
   TokenizedPaymentMethod,
 } from "../../../../payment/types";
 import { mapAccountToSubscriber } from "../../../../types";
-import {
-  PersonalSubscriptionPricingTier,
-  PersonalSubscriptionPricingTierId,
-  PersonalSubscriptionPricingTierIds,
-} from "../../../../types/subscription-pricing-tier";
 
 export type PlanDetails = {
   tier: PersonalSubscriptionPricingTierId;
@@ -52,14 +51,13 @@ export type PaymentFormValues = {
 /**
  * Service for handling payment submission and sales tax calculation for upgrade payment component
  */
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private accountBillingClient: AccountBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private logService: LogService,
-    private apiService: ApiService,
     private syncService: SyncService,
     private organizationService: OrganizationService,
     private accountService: AccountService,
@@ -96,42 +94,45 @@ export class UpgradePaymentService {
   async calculateEstimatedTax(
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<number> {
-    try {
-      const isOrganizationPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
-      const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
+    const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
+    const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
 
-      let taxClientCall: Promise<TaxAmounts> | null = null;
+    let previewInvoiceClientCall: Promise<TaxAmounts> | null = null;
 
-      if (isOrganizationPlan) {
-        const seats = this.getPasswordManagerSeats(planDetails);
-        if (seats === 0) {
-          throw new Error("Seats must be greater than 0 for organization plan");
-        }
-        // Currently, only Families plan is supported for organization plans
-        const request: OrganizationSubscriptionPurchase = {
-          tier: "families",
-          cadence: "annually",
-          passwordManager: { seats, additionalStorage: 0, sponsored: false },
-        };
+    if (isFamiliesPlan) {
+      // Currently, only Families plan is supported for organization plans
+      const request: OrganizationSubscriptionPurchase = {
+        tier: "families",
+        cadence: "annually",
+        passwordManager: { seats: 1, additionalStorage: 0, sponsored: false },
+      };
 
-        taxClientCall = this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+      previewInvoiceClientCall =
+        this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           request,
           billingAddress,
+          coupons,
         );
-      }
+    }
 
-      if (isPremiumPlan) {
-        taxClientCall = this.taxClient.previewTaxForPremiumSubscriptionPurchase(0, billingAddress);
-      }
+    if (isPremiumPlan) {
+      previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
+        0,
+        billingAddress,
+        coupons,
+      );
+    }
 
-      if (taxClientCall === null) {
-        throw new Error("Tax client call is not defined");
-      }
+    if (previewInvoiceClientCall === null) {
+      throw new Error("Preview client call is not defined");
+    }
 
-      const preview = await taxClientCall;
+    try {
+      const preview = await previewInvoiceClientCall;
       return preview.tax;
-    } catch (error: unknown) {
+    } catch (error) {
       this.logService.error("Tax calculation failed:", error);
       throw error;
     }
@@ -143,10 +144,17 @@ export class UpgradePaymentService {
   async upgradeToPremium(
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    coupons?: string[],
+    fromMarketing?: string | null,
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchasePremiumSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(
+      paymentMethod,
+      billingAddress,
+      coupons,
+      fromMarketing,
+    );
 
     await this.refreshAndSync();
   }
@@ -159,6 +167,7 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     paymentMethod: TokenizedPaymentMethod,
     formValues: PaymentFormValues,
+    coupons?: string[],
   ): Promise<OrganizationResponse> {
     const billingAddress = formValues.billingAddress;
 
@@ -169,6 +178,7 @@ export class UpgradePaymentService {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
     const passwordManagerSeats = this.getPasswordManagerSeats(planDetails);
+    const familyPlan = PlanType.FamiliesAnnually;
 
     const subscriptionInformation: SubscriptionInformation = {
       organization: {
@@ -176,7 +186,7 @@ export class UpgradePaymentService {
         billingEmail: account.email, // Use account email as billing email
       },
       plan: {
-        type: PlanType.FamiliesAnnually,
+        type: familyPlan,
         passwordManagerSeats: passwordManagerSeats,
       },
       payment: {
@@ -186,6 +196,7 @@ export class UpgradePaymentService {
           postalCode: billingAddress.postalCode,
         },
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const result = await this.organizationBillingService.purchaseSubscription(
@@ -197,7 +208,8 @@ export class UpgradePaymentService {
   }
 
   private getPasswordManagerSeats(planDetails: PlanDetails): number {
-    return "users" in planDetails.details.passwordManager
+    return "users" in planDetails.details.passwordManager &&
+      planDetails.details.passwordManager.users
       ? planDetails.details.passwordManager.users
       : 0;
   }
@@ -224,7 +236,6 @@ export class UpgradePaymentService {
   }
 
   private async refreshAndSync(): Promise<void> {
-    await this.apiService.refreshIdentityToken();
     await this.syncService.fullSync(true);
   }
 

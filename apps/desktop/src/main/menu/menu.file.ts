@@ -56,6 +56,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
     isLocked: boolean,
     isLockable: boolean,
     private restrictedCipherTypes: CipherType[],
+    private pm32009NewItemTypes: boolean = false,
   ) {
     super(i18nService, messagingService, updater, window, accounts, isLocked, isLockable);
   }
@@ -118,7 +119,7 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
       },
       {
         id: "typeSecureNote",
-        label: this.localize("typeNote"),
+        label: this.localize(this.pm32009NewItemTypes ? "typeSecureNote" : "typeNote"),
         click: () => this.sendMessage("newSecureNote"),
         accelerator: "CmdOrCtrl+Shift+S",
       },
@@ -146,8 +147,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get syncVault(): MenuItemConstructorOptions {
     return {
-      id: "syncVault",
-      label: this.localize("syncVault"),
+      id: "syncNow",
+      label: this.localize("syncNow"),
       click: () => this.sendMessage("syncVault"),
       enabled: this.hasAuthenticatedAccounts,
     };
@@ -155,8 +156,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get importVault(): MenuItemConstructorOptions {
     return {
-      id: "importVault",
-      label: this.localize("importData"),
+      id: "import",
+      label: this.localize("importNoun"),
       click: () => this.sendMessage("importVault"),
       enabled: !this._isLocked,
     };
@@ -164,8 +165,8 @@ export class FileMenu extends FirstMenu implements IMenubarMenu {
 
   private get exportVault(): MenuItemConstructorOptions {
     return {
-      id: "exportVault",
-      label: this.localize("exportVault"),
+      id: "export",
+      label: this.localize("exportNoun"),
       click: () => this.sendMessage("exportVault"),
       enabled: !this._isLocked,
     };

@@ -4,6 +4,26 @@
 // eslint-disable-next-line no-restricted-imports
 import { OrganizationUserResetPasswordRequest } from "@bitwarden/admin-console/common";
 
+import {
+  MasterPasswordAuthenticationData,
+  MasterPasswordUnlockData,
+} from "../../../key-management/master-password/types/master-password.types";
+
 export class UpdateTempPasswordRequest extends OrganizationUserResetPasswordRequest {
   masterPasswordHint: string;
+
+  // This will eventually be changed to be an actual constructor, once all callers are updated.
+  // The body of this request will be changed to carry the authentication data and unlock data.
+  // https://bitwarden.atlassian.net/browse/PM-23234
+  static newConstructorWithHint(
+    authenticationData: MasterPasswordAuthenticationData,
+    unlockData: MasterPasswordUnlockData,
+    masterPasswordHint: string,
+  ): UpdateTempPasswordRequest {
+    const request = new UpdateTempPasswordRequest();
+    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
+    request.key = unlockData.masterKeyWrappedUserKey;
+    request.masterPasswordHint = masterPasswordHint;
+    return request;
+  }
 }

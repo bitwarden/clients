@@ -1,87 +1,230 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { animate, style, transition, trigger } from "@angular/animations";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  afterNextRender,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+  isDevMode,
+  Injector,
+  effect,
+  computed,
+  untracked,
+} from "@angular/core";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { EMPTY } from "rxjs";
-import { map, tap } from "rxjs/operators";
+import { combineLatest, concat, EMPTY, firstValueFrom, of } from "rxjs";
+import {
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  filter,
+  map,
+  skip,
+  switchMap,
+  take,
+  tap,
+} from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
+  ApplicationHealthReportDetail,
   DrawerType,
+  ReportProgress,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
-  DrawerBodyComponent,
-  DrawerComponent,
-  DrawerHeaderComponent,
+  DialogRef,
+  DialogService,
+  IconModule,
+  PopoverAnchorForDirective,
+  PopoverModule,
   TabsModule,
+  ToastService,
 } from "@bitwarden/components";
+import { ExportHelper } from "@bitwarden/vault-export-core";
+import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AllActivityComponent } from "./activity/all-activity.component";
+import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { AllApplicationsComponent } from "./all-applications/all-applications.component";
+import { ApplicationsComponent } from "./all-applications/applications.component";
 import { CriticalApplicationsComponent } from "./critical-applications/critical-applications.component";
+import { EmptyStateCardComponent } from "./empty-state-card.component";
 import { RiskInsightsTabType } from "./models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "./onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "./onboarding/access-intelligence-coachmark.service";
+import { NewAdminWelcomeDialogComponent } from "./onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "./onboarding/post-import-modal-dialog.component";
+import { DevMenuComponent } from "./shared/dev-menu.component";
+import { PageLoadingComponent } from "./shared/page-loading.component";
+import { ReportLoadingComponent } from "./shared/report-loading.component";
+import { RiskInsightsDrawerDialogComponent } from "./shared/risk-insights-drawer-dialog.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+// Type alias for progress step (used in concatMap emissions)
+type ProgressStep = ReportProgress | null;
+
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./risk-insights.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     AllApplicationsComponent,
+    ApplicationsComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    DevMenuComponent,
+    IconModule,
     CriticalApplicationsComponent,
+    EmptyStateCardComponent,
     JslibModule,
     HeaderModule,
     TabsModule,
-    DrawerComponent,
-    DrawerBodyComponent,
-    DrawerHeaderComponent,
     AllActivityComponent,
+    ReportLoadingComponent,
+    PageLoadingComponent,
+    PopoverModule,
+    PopoverAnchorForDirective,
+  ],
+  animations: [
+    trigger("fadeIn", [
+      transition(":enter", [
+        style({ opacity: 0 }),
+        animate("300ms 100ms ease-in", style({ opacity: 1 })),
+      ]),
+    ]),
   ],
 })
 export class RiskInsightsComponent implements OnInit, OnDestroy {
   private destroyRef = inject(DestroyRef);
-  private _isDrawerOpen: boolean = false;
+  private readonly mustBeginPostImportTour = signal(false);
+  protected ReportStatusEnum = ReportStatus;
+  protected milestone11Enabled: boolean = false;
+  protected adoptionUxImprovementsEnabled: boolean = false;
+  protected isDevMode = isDevMode();
+  protected newApplicationsCount = 0;
+  protected newApplications: ApplicationHealthReportDetail[] = [];
+  protected totalCriticalAppsCount = 0;
+  private hasReportData = false;
 
-  tabIndex: RiskInsightsTabType = RiskInsightsTabType.AllApps;
-  isRiskInsightsActivityTabFeatureEnabled: boolean = false;
+  protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
   appsCount: number = 0;
-  // Leaving this commented because it's not used but seems important
-  // notifiedMembersCount: number = 0;
 
-  private organizationId: OrganizationId = "" as OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
 
   dataLastUpdated: Date | null = null;
+
+  // Empty state computed properties
+  protected emptyStateBenefits: [string, string][] = [
+    [this.i18nService.t("feature1Title"), this.i18nService.t("feature1Description")],
+    [this.i18nService.t("feature2Title"), this.i18nService.t("feature2Description")],
+    [this.i18nService.t("feature3Title"), this.i18nService.t("feature3Description")],
+  ];
+  protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
+
+  protected IMPORT_ICON = "bwi bwi-download";
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | undefined;
+
+  // Current progress step for loading component (null = not loading)
+  // Uses concatMap with delay to ensure each step is displayed for a minimum time
+  protected readonly currentProgressStep = signal<ProgressStep>(null);
+
+  // Minimum time to display each progress step (in milliseconds)
+  private readonly STEP_DISPLAY_DELAY_MS = 250;
+
+  private readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
+
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
+
+  // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private configService: ConfigService,
     protected dataService: RiskInsightsDataService,
+    protected i18nService: I18nService,
+    protected dialogService: DialogService,
+    private fileDownloadService: FileDownloadService,
+    private logService: LogService,
+    private configService: ConfigService,
+    private toastService: ToastService,
+    private coachmarkService: AccessIntelligenceCoachmarkService,
+    private injector: Injector,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed()).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllApps;
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ tabIndex, source, status }) => {
+        this.tabIndex.set(
+          !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
+        );
+        this.invokedFrom.set({ source, status });
+      });
+
+    effect(() => {
+      const requiredTabIndex = this.coachmarkService.requiredTabIndex();
+      if (requiredTabIndex !== null && requiredTabIndex !== this.tabIndex()) {
+        this.tabIndex.set(requiredTabIndex);
+
+        // Reset drawer state and close drawer when tabs are changed
+        // we need to ensure that the popover is closed before the tab is changed,
+        // otherwise the popover will be hidden behind the new tab content
+        const activeStepId = untracked(() => this.coachmarkService.activeStepId());
+        this.coachmarkService.activeStepId.set(null); // close all popovers now
+
+        // afterNextRender defers re-activation to after Angular's CD + rendering completes,
+        // so the tab button is un-hidden before the popover measures its position.
+        afterNextRender(() => this.coachmarkService.activeStepId.set(activeStepId), {
+          injector: this.injector,
+        });
+      }
     });
 
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM22887_RiskInsightsActivityTab)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((isEnabled) => {
-        this.isRiskInsightsActivityTabFeatureEnabled = isEnabled;
-        this.tabIndex = 0; // default to first tab
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.hasReportData) {
+        return;
+      }
+      NewApplicationsDialogComponent.open(this.dialogService, {
+        newApplications: this.newApplications,
+        organizationId: this.organizationId,
+        hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
       });
+    });
   }
 
   async ngOnInit() {
+    // Set up paramMap subscription first (synchronously) so that organizationId
+    // is assigned before any subsequent await yields control back to Angular's
+    // change-detection loop. Delaying this until after the feature-flag await
+    // creates a window where the template can render with organizationId = ""
+    // if the data service still has a non-Initializing state, causing child
+    // components (e.g. PasswordChangeMetricComponent) to fire API calls with
+    // an empty organizationId.
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -89,7 +232,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         tap((orgId) => {
           if (orgId) {
             // Initialize Data Service
-            this.dataService.initializeForOrganization(orgId as OrganizationId);
+            void this.dataService.initializeForOrganization(orgId as OrganizationId);
             this.organizationId = orgId as OrganizationId;
           } else {
             return EMPTY;
@@ -98,24 +241,157 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // Subscribe to report result details
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
+
+    this.adoptionUxImprovementsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccessIntelligenceAdoptionUxImprovements,
+    );
+
+    // Subscribe to report data updates
+    // This declarative pattern ensures proper cleanup and prevents memory leaks
     this.dataService.enrichedReportData$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((report) => {
+        // Update report state
+        this.hasReportData = report != null;
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
+        this.totalCriticalAppsCount = report?.summaryData?.totalCriticalApplicationCount ?? 0;
+      });
+
+    this.dataService.newApplications$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((newApps) => {
+        this.newApplications = newApps;
+        this.newApplicationsCount = newApps.length;
+      });
+
+    // Show error toast or begin post-import tour based on report status and loading state.
+    // combineLatest naturally waits for both conditions: status must be Error/Complete,
+    // and the progress loader must be done (currentProgressStep === null) before the tour opens.
+    // distinctUntilChanged on status prevents duplicate firings if currentProgressStep keeps
+    // changing while status stays the same (e.g. Error).
+    combineLatest([
+      this.dataService.reportStatus$,
+      toObservable(this.currentProgressStep, { injector: this.injector }),
+    ])
+      .pipe(
+        filter(
+          ([reportStatus, step]) =>
+            reportStatus === ReportStatus.Error ||
+            reportStatus === ReportStatus.LoadError ||
+            (reportStatus === ReportStatus.Complete && step === null),
+        ),
+        distinctUntilChanged(
+          ([prevReportStatus], [currentReportStatus]) => prevReportStatus === currentReportStatus,
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([status]) => {
+        if (status === ReportStatus.Error || status === ReportStatus.LoadError) {
+          this.toastService.showToast({
+            message: this.i18nService.t(
+              status === ReportStatus.LoadError ? "reportLoadFailed" : "reportGenerationFailed",
+            ),
+            variant: "error",
+          });
+        } else if (this.mustBeginPostImportTour()) {
+          this.mustBeginPostImportTour.set(false);
+
+          // open the dialog only after the rendering of the report is complete
+          afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+        }
       });
 
     // Subscribe to drawer state changes
     this.dataService.drawerDetails$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((details) => {
-        this._isDrawerOpen = details.open;
+      .pipe(
+        distinctUntilChanged(
+          (prev, curr) =>
+            prev.activeDrawerType === curr.activeDrawerType && prev.invokerId === curr.invokerId,
+        ),
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(async (details) => {
+          if (details.activeDrawerType !== DrawerType.None) {
+            this.currentDialogRef = await this.dialogService.openDrawer(
+              RiskInsightsDrawerDialogComponent,
+              {
+                data: details,
+              },
+            );
+          } else {
+            await this.currentDialogRef?.close();
+          }
+        }),
+      )
+      .subscribe();
+
+    // if any dialogs are open close it
+    // this happens when navigating between orgs
+    // or just navigating away from the page and back
+    await this.currentDialogRef?.close();
+
+    // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time
+    // - skip(1): Skip initial BehaviorSubject emission (may contain stale Complete from previous run)
+    // - concatMap: Queue steps and process them sequentially
+    // - First visible step (FetchingMembers) shows immediately so loading appears instantly
+    // - Subsequent steps are delayed to prevent jarring quick transitions
+    // - After Complete step is shown, emit null to hide loading
+    this.dataService.reportProgress$
+      .pipe(
+        // Skip the initial emission from _reportProgressSubject (BehaviorSubject in orchestrator).
+        // Without this, navigating to the page would flash the loading component briefly
+        // because BehaviorSubject emits its current value (e.g., Complete from last run) to new subscribers.
+        skip(1),
+        concatMap((step) => {
+          // Show null and FetchingMembers immediately (first visible step)
+          // This ensures loading component appears instantly when user clicks "Run Report"
+          if (step === null || step === ReportProgress.FetchingMembers) {
+            return of(step);
+          }
+          // Delay subsequent steps to prevent jarring quick transitions
+          if (step === ReportProgress.Complete) {
+            // Show Complete step, wait, then emit null to hide loading
+            // Why concat is needed:
+            // - The orchestrator emits Complete but never emits null afterward
+            // - Without this concat, the loading would stay on "Compiling insights..." forever
+            // - The concat automatically emits null to hide the loader
+            return concat(
+              of(step as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+              of(null as ProgressStep).pipe(delay(this.STEP_DISPLAY_DELAY_MS)),
+            );
+          }
+          return of(step).pipe(delay(this.STEP_DISPLAY_DELAY_MS));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((step) => {
+        this.currentProgressStep.set(step);
       });
+
+    combineLatest([this.dataService.hasReportData$, this.dataService.hasCiphers$])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([hasReportData, hasCiphers]) => hasReportData !== null && hasCiphers !== null),
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
+
+    if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+    }
   }
 
   ngOnDestroy(): void {
     this.dataService.destroy();
+    void this.currentDialogRef?.close();
   }
 
   /**
@@ -135,35 +411,131 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       queryParamsHandling: "merge",
     });
 
-    // close drawer when tabs are changed
+    // Reset drawer state and close drawer when tabs are changed
+    // This ensures card selection state is cleared (PM-29263)
     this.dataService.closeDrawer();
+    await this.currentDialogRef?.close();
   }
 
-  // Get a list of drawer types
-  get drawerTypes(): typeof DrawerType {
-    return DrawerType;
-  }
+  // Empty state methods
+
+  // TODO: import data button (we have this) OR button for adding new login items
+  // we want to add this new button as a second option on the empty state card
+
+  goToImportPage = () => {
+    void this.router.navigate(
+      ["/organizations", this.organizationId, "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
+  };
 
   /**
-   * Special case getter for syncing drawer state from service to component.
-   * This allows the template to use two-way binding while staying reactive.
+   * downloads at risk members as CSV
    */
-  get isDrawerOpen() {
-    return this._isDrawerOpen;
-  }
+  downloadAtRiskMembers = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
 
-  /**
-   * Special case setter for syncing drawer state from component to service.
-   * When the drawer component closes the drawer, this syncs the state back to the service.
-   */
-  set isDrawerOpen(value: boolean) {
-    if (this._isDrawerOpen !== value) {
-      this._isDrawerOpen = value;
-
-      // Close the drawer in the service if the drawer component closed the drawer
-      if (!value) {
-        this.dataService.closeDrawer();
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskMembers ||
+        !drawerDetails.atRiskMemberDetails ||
+        drawerDetails.atRiskMemberDetails.length === 0
+      ) {
+        return;
       }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-members"),
+        blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
+          email: this.i18nService.t("email"),
+          atRiskPasswordCount: this.i18nService.t("atRiskApplications"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk members", error);
+    }
+  };
+
+  /**
+   * downloads at risk applications as CSV
+   */
+  downloadAtRiskApplications = async () => {
+    try {
+      const drawerDetails = await firstValueFrom(this.dataService.drawerDetails$);
+
+      // Validate drawer is open and showing the correct drawer type
+      if (
+        !drawerDetails.open ||
+        drawerDetails.activeDrawerType !== DrawerType.OrgAtRiskApps ||
+        !drawerDetails.atRiskAppDetails ||
+        drawerDetails.atRiskAppDetails.length === 0
+      ) {
+        return;
+      }
+
+      this.fileDownloadService.download({
+        fileName: ExportHelper.getFileName("at-risk-applications"),
+        blobData: exportToCSV(drawerDetails.atRiskAppDetails, {
+          applicationName: this.i18nService.t("application"),
+          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+        }),
+        blobOptions: { type: "text/plain" },
+      });
+    } catch (error) {
+      // Log error for debugging
+      this.logService.error("Failed to download at-risk applications", error);
+    }
+  };
+
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
+    if (source === "import" && status === "success") {
+      this.generateReport();
+      this.mustBeginPostImportTour.set(true);
+    }
+
+    this.clearQueryParams(this.router, this.route, ["source", "status"]);
+  }
+
+  private clearQueryParams(router: Router, route: ActivatedRoute, params: string[]) {
+    // we don't want these params to persist in the URL after handling them, so we remove them
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null, status: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  protected async beginPostImportTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId,
+      );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled) {
+      await this.coachmarkService.startTour(this.organizationId);
     }
   }
 }

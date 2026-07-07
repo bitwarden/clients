@@ -48,13 +48,18 @@ export class TrayMain {
 
     const menuItemOptions: MenuItemConstructorOptions[] = [
       {
-        label: this.i18nService.t("showHide"),
-        click: () => this.toggleWindow(),
+        label: this.i18nService.t("show"),
+        click: () => this.restoreFromTray(),
       },
       {
         visible: isDev(),
-        label: "Fake Popup",
+        label: "Fake Popup Select",
         click: () => this.fakePopup(),
+      },
+      {
+        visible: isDev(),
+        label: "Fake Popup Create",
+        click: () => this.fakePopupCreate(),
       },
       { type: "separator" },
       {
@@ -68,39 +73,36 @@ export class TrayMain {
     }
 
     this.contextMenu = Menu.buildFromTemplate(menuItemOptions);
-    if (await firstValueFrom(this.desktopSettingsService.trayEnabled$)) {
-      this.showTray();
-    }
+
+    // The tray icon is shown only while "keep running in the background" is enabled.
+    // React to the setting so toggling it shows/removes the tray without a restart.
+    this.desktopSettingsService.runInBackground$.subscribe((runInBackground) => {
+      if (runInBackground) {
+        this.showTray();
+      } else {
+        this.removeTray(false);
+      }
+    });
   }
 
   setupWindowListeners(win: BrowserWindow) {
-    win.on("minimize", async () => {
-      if (await firstValueFrom(this.desktopSettingsService.minimizeToTray$)) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.hideToTray();
-      }
-    });
-
     win.on("restore", async () => {
       await this.biometricService.setShouldAutopromptNow(true);
     });
 
     win.on("close", async (e: Event) => {
-      if (await firstValueFrom(this.desktopSettingsService.closeToTray$)) {
-        if (!this.windowMain.isQuitting) {
-          e.preventDefault();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.hideToTray();
-        }
+      if (this.windowMain.isQuitting) {
+        return;
       }
-    });
 
-    win.on("show", async () => {
-      const enableTray = await firstValueFrom(this.desktopSettingsService.trayEnabled$);
-      if (!enableTray) {
-        setTimeout(() => this.removeTray(false), 100);
+      if (await firstValueFrom(this.desktopSettingsService.runInBackground$)) {
+        // Keep running in the background: closing the window hides it to the tray.
+        e.preventDefault();
+        this.hideToTray();
+      } else {
+        // Not running in the background: closing the window quits the application.
+        // Setting isQuitting ensures macOS also quits via the window-all-closed handler.
+        this.windowMain.isQuitting = true;
       }
     });
   }
@@ -118,21 +120,36 @@ export class TrayMain {
     }
   }
 
-  async hideToTray() {
+  hideToTray() {
     this.showTray();
     if (this.windowMain.win != null) {
       this.windowMain.win.hide();
     }
-    if (this.isDarwin() && !(await firstValueFrom(this.desktopSettingsService.alwaysShowDock$))) {
+    if (this.isDarwin()) {
       this.hideDock();
     }
   }
 
-  restoreFromTray() {
-    if (this.windowMain.win == null || !this.windowMain.win.isVisible()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.toggleWindow();
+  /**
+   * Brings the application to the foreground. Recreates the window if it was destroyed
+   * (macOS), unminimizes it if minimized, then shows and focuses it. This never hides
+   * the window - foregrounding is not a toggle.
+   */
+  async restoreFromTray() {
+    if (this.windowMain.win == null) {
+      // On macOS, closing the window via the red button destroys the BrowserWindow instance.
+      await this.windowMain.createWindow();
+      this.windowMain.win.show();
+    } else {
+      if (this.windowMain.win.isMinimized()) {
+        this.windowMain.win.restore();
+      }
+      this.windowMain.show();
+      this.windowMain.win.focus();
+    }
+
+    if (this.isDarwin()) {
+      this.showDock();
     }
   }
 
@@ -143,7 +160,7 @@ export class TrayMain {
 
     this.tray = new Tray(this.icon);
     this.tray.setToolTip(this.appName);
-    this.tray.on("click", () => this.toggleWindow());
+    this.tray.on("click", () => this.restoreFromTray());
     this.tray.on("right-click", () => this.tray.popUpContextMenu(this.contextMenu));
 
     if (this.pressedIcon != null) {
@@ -178,32 +195,6 @@ export class TrayMain {
     return process.platform === "linux";
   }
 
-  private async toggleWindow() {
-    if (this.windowMain.win == null) {
-      if (this.isDarwin()) {
-        // On MacOS, closing the window via the red button destroys the BrowserWindow instance.
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.windowMain.createWindow().then(() => {
-          this.windowMain.win.show();
-          this.showDock();
-        });
-      }
-      return;
-    }
-    if (this.windowMain.win.isVisible()) {
-      this.windowMain.win.hide();
-      if (this.isDarwin() && !(await firstValueFrom(this.desktopSettingsService.alwaysShowDock$))) {
-        this.hideDock();
-      }
-    } else {
-      this.windowMain.show();
-      if (this.isDarwin()) {
-        this.showDock();
-      }
-    }
-  }
-
   private closeWindow() {
     this.windowMain.isQuitting = true;
     if (this.windowMain.win != null) {
@@ -217,5 +208,9 @@ export class TrayMain {
    */
   private async fakePopup() {
     await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
+  }
+
+  private async fakePopupCreate() {
+    await this.messagingService.send("loadurl", { url: "/create-passkey", modal: true });
   }
 }

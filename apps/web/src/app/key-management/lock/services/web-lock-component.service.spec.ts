@@ -3,8 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
+import { WebAuthnPrfUnlockService } from "@bitwarden/key-management-ui";
 
 import { WebLockComponentService } from "./web-lock-component.service";
 
@@ -12,9 +14,13 @@ describe("WebLockComponentService", () => {
   let service: WebLockComponentService;
 
   let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
+  let webAuthnPrfUnlockService: MockProxy<WebAuthnPrfUnlockService>;
+  let sharedUnlockFollowerService: MockProxy<SharedUnlockFollowerService>;
 
   beforeEach(() => {
     userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
+    webAuthnPrfUnlockService = mock<WebAuthnPrfUnlockService>();
+    sharedUnlockFollowerService = mock<SharedUnlockFollowerService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -22,6 +28,14 @@ describe("WebLockComponentService", () => {
         {
           provide: UserDecryptionOptionsServiceAbstraction,
           useValue: userDecryptionOptionsService,
+        },
+        {
+          provide: WebAuthnPrfUnlockService,
+          useValue: webAuthnPrfUnlockService,
+        },
+        {
+          provide: SharedUnlockFollowerService,
+          useValue: sharedUnlockFollowerService,
         },
       ],
     });
@@ -91,6 +105,7 @@ describe("WebLockComponentService", () => {
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValueOnce(
         of(userDecryptionOptions),
       );
+      webAuthnPrfUnlockService.isPrfUnlockAvailable.mockResolvedValue(false);
 
       const unlockOptions = await firstValueFrom(service.getAvailableUnlockOptions$(userId));
 
@@ -104,6 +119,9 @@ describe("WebLockComponentService", () => {
         biometrics: {
           enabled: false,
           biometricsStatus: BiometricsStatus.PlatformUnsupported,
+        },
+        prf: {
+          enabled: false,
         },
       });
     });

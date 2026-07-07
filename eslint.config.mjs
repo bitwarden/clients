@@ -10,6 +10,7 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import jest from "eslint-plugin-jest";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
@@ -61,26 +62,28 @@ export default tseslint.config(
       "rxjs/no-exposed-subjects": ["error", { allowProtected: true }],
 
       // TODO: Enable these.
-      "@angular-eslint/component-class-suffix": 0,
-      "@angular-eslint/contextual-lifecycle": 0,
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/component-class-suffix": "error",
+      "@angular-eslint/contextual-lifecycle": "error",
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
-      "@angular-eslint/no-host-metadata-property": 0,
       "@angular-eslint/no-input-rename": 0,
-      "@angular-eslint/no-inputs-metadata-property": 0,
+      "@angular-eslint/no-inputs-metadata-property": "error",
       "@angular-eslint/no-output-native": 0,
       "@angular-eslint/no-output-on-prefix": 0,
-      "@angular-eslint/no-output-rename": 0,
-      "@angular-eslint/no-outputs-metadata-property": 0,
-      "@angular-eslint/prefer-on-push-component-change-detection": "warn",
-      "@angular-eslint/prefer-output-emitter-ref": "warn",
-      "@angular-eslint/prefer-signals": "warn",
+      "@angular-eslint/no-output-rename": "error",
+      "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
+      "@angular-eslint/prefer-on-push-component-change-detection": "error",
+      "@angular-eslint/prefer-output-emitter-ref": "error",
+      "@angular-eslint/prefer-signals": "error",
       "@angular-eslint/prefer-standalone": 0,
       "@angular-eslint/use-lifecycle-interface": "error",
       "@angular-eslint/use-pipe-transform-interface": 0,
 
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
+      "@bitwarden/platform/no-page-script-url-leakage": "error",
+      "@bitwarden/platform/no-unawaited-using-return": "error",
       "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
@@ -127,6 +130,11 @@ export default tseslint.config(
               message: "Libs should not import app-specific code.",
             },
             {
+              target: ["libs/**/*"],
+              from: ["bitwarden_license/**/*"],
+              message: "Libs should not import licensed code from bitwarden_license/.",
+            },
+            {
               // avoid specific frameworks or large dependencies in common
               target: "./libs/common/**/*",
               from: [
@@ -160,10 +168,21 @@ export default tseslint.config(
               // allow module index import
               except: ["**/state/index.ts"],
             },
+            {
+              target: ["libs/**/*"],
+              from: ["apps/**/*"],
+              message: "Libs should not import app-specific code.",
+            },
           ],
         },
       ],
       "import/no-unresolved": "off", // TODO: Look into turning off once each package is an actual package.,
+    },
+  },
+  {
+    files: ["**/*.component.ts", "**/*.directive.ts", "**/*.service.ts"],
+    rules: {
+      "@bitwarden/components/enforce-readonly-angular-properties": ["error", { onlyOnPush: true }],
     },
   },
   {
@@ -186,12 +205,18 @@ export default tseslint.config(
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
+      "@angular-eslint/template/elements-content": [
+        "error",
+        {
+          allowList: ["bitIconButton", "bit-chip-action", "appA11yTitle", "aria-labelledby"],
+        },
+      ],
       "tailwindcss/no-custom-classname": [
         "error",
         {
           // uses negative lookahead to whitelist any class that doesn't start with "tw-"
           // in other words: classnames that start with tw- must be valid TailwindCSS classes
-          whitelist: ["(?!(tw)\\-).*"],
+          whitelist: ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"],
         },
       ],
       "tailwindcss/enforces-negative-arbitrary-values": "error",
@@ -201,6 +226,9 @@ export default tseslint.config(
         "error",
         { ignoreIfHas: ["bitPasswordInputToggle"] },
       ],
+      "@bitwarden/components/no-bwi-class-usage": "warn",
+      "@bitwarden/components/no-icon-children-in-bit-button": "warn",
+      "@bitwarden/components/no-bit-dialog-wrapper": "error",
     },
   },
 
@@ -236,6 +264,22 @@ export default tseslint.config(
     files: ["**/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(),
+    },
+  },
+
+  // Desktop app overrides
+  {
+    files: ["apps/desktop/src/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.name='shell'][callee.property.name='openExternal']",
+          message:
+            "Do not call shell.openExternal() directly. Use SafeShell.openExternal() instead.",
+        },
+      ],
     },
   },
 
@@ -341,8 +385,8 @@ export default tseslint.config(
             "logo",
             "logo-themed",
             "file-selector",
-            "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
           ],
         },
@@ -596,6 +640,16 @@ export default tseslint.config(
     },
   },
 
+  // Within a package, import sibling code via relative paths rather than the package's own
+  // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
+  // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
+  {
+    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    rules: {
+      "@bitwarden/platform/no-self-package-import": "error",
+    },
+  },
+
   /// Team overrides
   {
     files: [
@@ -642,6 +696,17 @@ export default tseslint.config(
     },
   },
 
+  // Jest test files configuration
+  {
+    files: ["**/*.spec.ts", "**/*.spec.js"],
+    plugins: {
+      jest,
+    },
+    rules: {
+      "jest/no-alias-methods": "error",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
@@ -657,11 +722,9 @@ export default tseslint.config(
       "**/jest.config.js",
 
       "apps/browser/config/config.js",
-      "apps/browser/src/auth/scripts/duo.js",
       "apps/browser/webpack/manifest.js",
 
       "apps/desktop/desktop_native",
-      "apps/desktop/src/auth/scripts/duo.js",
 
       "apps/web/config.js",
       "apps/web/scripts/*.js",
@@ -688,6 +751,12 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
   return [
     "error",
     {
+      paths: [
+        {
+          name: "@bitwarden/commercial-sdk-internal",
+          message: "Use @bitwarden/sdk-internal instead.",
+        },
+      ],
       patterns: [
         ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
         "**/src/**/*", // Prevent relative imports across libs.

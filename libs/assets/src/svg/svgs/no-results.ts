@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const NoResults = svgIcon`
+export const NoResults = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 4.5 91.63 88">
     <path class="tw-fill-illustration-bg-secondary" d="M62 12.5a2 2 0 0 1 2 2v76a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-76a2 2 0 0 1 2-2h56Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M62 90.5v-76H6v76h56Zm2-76a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v76a2 2 0 0 0 2 2h56a2 2 0 0 0 2-2v-76Z" clip-rule="evenodd"/>

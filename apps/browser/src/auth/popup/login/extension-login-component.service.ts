@@ -47,6 +47,7 @@ export class ExtensionLoginComponentService
     email: string,
     state: string,
     codeChallenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const webVaultUrl = env.getWebVaultUrl();
@@ -60,6 +61,7 @@ export class ExtensionLoginComponentService
       state,
       codeChallenge,
       email,
+      orgSsoIdentifier,
     );
 
     this.platformUtilsService.launchUri(webAppSsoUrl);

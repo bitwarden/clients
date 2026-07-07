@@ -1,13 +1,17 @@
 import { TestBed } from "@angular/core/testing";
+import { of } from "rxjs";
 
 import {
+  CollectionService,
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { KeyService } from "@bitwarden/key-management";
 
 import { GroupApiService } from "../../../core";
 
@@ -18,6 +22,9 @@ describe("OrganizationMembersService", () => {
   let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
   let groupService: jest.Mocked<GroupApiService>;
   let apiService: jest.Mocked<ApiService>;
+  let keyService: jest.Mocked<KeyService>;
+  let accountService: jest.Mocked<AccountService>;
+  let collectionService: jest.Mocked<CollectionService>;
 
   const mockOrganizationId = "org-123" as OrganizationId;
 
@@ -51,6 +58,7 @@ describe("OrganizationMembersService", () => {
   const createMockCollection = (id: string, name: string) => ({
     id,
     name,
+    organizationId: mockOrganizationId,
   });
 
   beforeEach(() => {
@@ -66,12 +74,27 @@ describe("OrganizationMembersService", () => {
       getCollections: jest.fn(),
     } as any;
 
+    keyService = {
+      orgKeys$: jest.fn(),
+    } as any;
+
+    accountService = {
+      activeAccount$: of({ id: "user-123" } as any),
+    } as any;
+
+    collectionService = {
+      decryptMany$: jest.fn(),
+    } as any;
+
     TestBed.configureTestingModule({
       providers: [
         OrganizationMembersService,
         { provide: OrganizationUserApiService, useValue: organizationUserApiService },
         { provide: GroupApiService, useValue: groupService },
         { provide: ApiService, useValue: apiService },
+        { provide: KeyService, useValue: keyService },
+        { provide: AccountService, useValue: accountService },
+        { provide: CollectionService, useValue: collectionService },
       ],
     });
 
@@ -88,11 +111,15 @@ describe("OrganizationMembersService", () => {
         data: [mockUser],
       } as any;
       const mockCollections = [createMockCollection("col-1", "Collection 1")];
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
+      const mockDecryptedCollections = [{ id: "col-1", name: "Collection 1" }];
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: mockCollections,
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of(mockDecryptedCollections as any));
 
       const result = await service.loadUsers(organization);
 
@@ -171,11 +198,19 @@ describe("OrganizationMembersService", () => {
         createMockCollection("col-2", "Alpha Collection"),
         createMockCollection("col-3", "Beta Collection"),
       ];
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
+      const mockDecryptedCollections = [
+        { id: "col-1", name: "Zebra Collection" },
+        { id: "col-2", name: "Alpha Collection" },
+        { id: "col-3", name: "Beta Collection" },
+      ];
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: mockCollections,
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of(mockDecryptedCollections as any));
 
       const result = await service.loadUsers(organization);
 
@@ -223,11 +258,19 @@ describe("OrganizationMembersService", () => {
         // col-2 is missing - should be filtered out
         createMockCollection("col-3", "Collection 3"),
       ];
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
+      const mockDecryptedCollections = [
+        { id: "col-1", name: "Collection 1" },
+        // col-2 is missing - should be filtered out
+        { id: "col-3", name: "Collection 3" },
+      ];
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: mockCollections,
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of(mockDecryptedCollections as any));
 
       const result = await service.loadUsers(organization);
 
@@ -269,11 +312,14 @@ describe("OrganizationMembersService", () => {
       const mockUsersResponse: ListResponse<OrganizationUserUserDetailsResponse> = {
         data: null as any,
       } as any;
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: [],
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of([]));
 
       const result = await service.loadUsers(organization);
 
@@ -285,11 +331,14 @@ describe("OrganizationMembersService", () => {
       const mockUsersResponse: ListResponse<OrganizationUserUserDetailsResponse> = {
         data: undefined as any,
       } as any;
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: [],
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of([]));
 
       const result = await service.loadUsers(organization);
 
@@ -322,11 +371,14 @@ describe("OrganizationMembersService", () => {
       const mockUsersResponse: ListResponse<OrganizationUserUserDetailsResponse> = {
         data: [mockUser],
       } as any;
+      const mockOrgKey = { [mockOrganizationId]: {} as any };
 
       organizationUserApiService.getAllUsers.mockResolvedValue(mockUsersResponse);
       apiService.getCollections.mockResolvedValue({
         data: [],
       } as any);
+      keyService.orgKeys$.mockReturnValue(of(mockOrgKey));
+      collectionService.decryptMany$.mockReturnValue(of([]));
 
       const result = await service.loadUsers(organization);
 

@@ -49,12 +49,15 @@ import { Component } from "@angular/core";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 // Policy Definition Class
 export class YourNewPolicy extends BasePolicyEditDefinition {
   name = "yourPolicyNameTitle"; // i18n key for title
   description = "yourPolicyNameDesc"; // i18n key for description
   type = PolicyType.YourNewPolicy; // Reference to enum
+  category = PolicyCategory.VaultManagement; // Category for grouping on the Policies page
+  priority = 10; // Sort order within the category (lower = higher on page)
   component = YourNewPolicyComponent; // Reference to component
 }
 
@@ -79,6 +82,8 @@ export class SimpleTogglePolicy extends BasePolicyEditDefinition {
   name = "simpleTogglePolicyTitle";
   description = "simpleTogglePolicyDesc";
   type = PolicyType.SimpleToggle;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = SimpleTogglePolicyComponent;
 }
 
@@ -166,6 +171,8 @@ export class NewPolicyBeta extends BasePolicyEditDefinition {
   name = "newPolicyTitle";
   description = "newPolicyDesc";
   type = PolicyType.NewPolicy;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = NewPolicyComponent;
 
   // Only show if feature flag is enabled
@@ -188,6 +195,8 @@ export class RequireSsoPolicy extends BasePolicyEditDefinition {
   name = "requireSsoTitle";
   description = "requireSsoDesc";
   type = PolicyType.RequireSso;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = RequireSsoPolicyComponent;
 
   // Only show if organization has SSO enabled
@@ -224,6 +233,59 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
 ```
 
 **Note**: Use `ossPolicyEditRegister` for open-source policies and `bitPolicyEditRegister` for Bitwarden Licensed policies.
+
+#### Policy with the Badge/Drawer UI Pattern
+
+Policies using the `PolicyDrawers` feature flag can opt into an enhanced dialog appearance:
+
+- The dialog title becomes the policy name (instead of "Edit policy")
+- An **On/Off** badge appears in the header reflecting the saved policy state
+- The **Cancel** button is hidden
+- The description is not repeated inside the dialog body
+
+Set these three properties on the definition class:
+
+```typescript
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
+
+export class YourNewPolicyV2 extends BasePolicyEditDefinition {
+  // ...
+  showDescription = false;
+  showEnabledBadge = true;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
+}
+```
+
+The `policySteps` property on `BasePolicyEditComponent` defaults to a single step that saves the policy, so no override is needed for simple policies.
+
+#### Multi-Step Policy Workflow
+
+For policies that need additional steps before saving — for example, to enable a prerequisite policy or show a confirmation screen — override `policySteps` with a custom array. Each entry can declare:
+
+- `sideEffect` — async function called on submit for that step
+- `titleContent`, `bodyContent`, `footerContent` — optional signal-returning functions that provide per-step template overrides
+
+The dialog advances to the next step on each submit and closes after the final step.
+
+```typescript
+import { PolicyStep } from "../policy-edit-dialogs/models";
+
+export class YourMultiStepPolicyComponent extends BasePolicyEditComponent {
+  override readonly policySteps: PolicyStep[] = [
+    {
+      titleContent: this.step0Title,
+      bodyContent: this.step0Body,
+      footerContent: this.step0Footer,
+      sideEffect: () => this.enablePrerequisitePolicy(),
+    },
+    {
+      sideEffect: () => this.savePolicy(),
+    },
+  ];
+}
+```
+
+See `auto-confirm-policy.component.ts` for a real-world multi-step example.
 
 ## Testing Your Policy
 

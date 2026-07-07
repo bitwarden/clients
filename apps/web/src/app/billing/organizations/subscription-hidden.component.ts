@@ -10,9 +10,9 @@ import { GearIcon } from "@bitwarden/assets/svg";
   selector: "app-org-subscription-hidden",
   template: `<div class="tw-flex tw-flex-col tw-items-center tw-text-info">
     <div class="tw-size-56 tw-content-center">
-      <bit-icon [icon]="gearIcon" aria-hidden="true"></bit-icon>
+      <bit-svg [content]="gearIcon" aria-hidden="true"></bit-svg>
     </div>
-    <p class="tw-font-bold">{{ "billingManagedByProvider" | i18n: providerName }}</p>
+    <p class="tw-font-medium">{{ "billingManagedByProvider" | i18n: providerName }}</p>
     <p>{{ "billingContactProviderForAssistance" | i18n }}</p>
   </div>`,
   standalone: false,

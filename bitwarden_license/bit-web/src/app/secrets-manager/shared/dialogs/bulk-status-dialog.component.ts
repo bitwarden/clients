@@ -18,6 +18,8 @@ export class BulkOperationStatus {
   errorMessage?: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./bulk-status-dialog.component.html",
   standalone: false,
@@ -37,7 +39,7 @@ export class BulkStatusDialogComponent implements OnInit {
       !this.data.message ||
       !(this.data.details?.length >= 1)
     ) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
       throw new Error(
         "The bulk status dialog was not called with the appropriate operation values.",
       );

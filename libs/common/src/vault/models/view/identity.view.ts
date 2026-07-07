@@ -94,16 +94,16 @@ export class IdentityView extends ItemView implements SdkIdentityView {
       this.lastName != null
     ) {
       let name = "";
-      if (this.title != null) {
+      if (!Utils.isNullOrWhitespace(this.title)) {
         name += this.title + " ";
       }
-      if (this.firstName != null) {
+      if (!Utils.isNullOrWhitespace(this.firstName)) {
         name += this.firstName + " ";
       }
-      if (this.middleName != null) {
+      if (!Utils.isNullOrWhitespace(this.middleName)) {
         name += this.middleName + " ";
       }
-      if (this.lastName != null) {
+      if (!Utils.isNullOrWhitespace(this.lastName)) {
         name += this.lastName;
       }
       return name.trim();
@@ -130,14 +130,20 @@ export class IdentityView extends ItemView implements SdkIdentityView {
   }
 
   get fullAddressPart2(): string | undefined {
-    if (this.city == null && this.state == null && this.postalCode == null) {
+    const hasCity = !Utils.isNullOrWhitespace(this.city);
+    const hasState = !Utils.isNullOrWhitespace(this.state);
+    const hasPostalCode = !Utils.isNullOrWhitespace(this.postalCode);
+
+    if (!hasCity && !hasState && !hasPostalCode) {
       return undefined;
     }
-    const city = this.city || "-";
+
+    const city = hasCity ? this.city : "-";
     const state = this.state;
-    const postalCode = this.postalCode || "-";
+    const postalCode = hasPostalCode ? this.postalCode : "-";
+
     let addressPart2 = city;
-    if (!Utils.isNullOrWhitespace(state)) {
+    if (hasState) {
       addressPart2 += ", " + state;
     }
     addressPart2 += ", " + postalCode;
@@ -189,9 +195,29 @@ export class IdentityView extends ItemView implements SdkIdentityView {
 
   /**
    * Converts the IdentityView to an SDK IdentityView.
-   * The view implements the SdkView so we can safely return `this`
+   * Empty strings are converted to undefined to prevent the SDK from encrypting
+   * them as non-null values, which would incorrectly populate copyableFields.
    */
   toSdkIdentityView(): SdkIdentityView {
-    return this;
+    return {
+      title: this.title || undefined,
+      firstName: this.firstName || undefined,
+      middleName: this.middleName || undefined,
+      lastName: this.lastName || undefined,
+      address1: this.address1 || undefined,
+      address2: this.address2 || undefined,
+      address3: this.address3 || undefined,
+      city: this.city || undefined,
+      state: this.state || undefined,
+      postalCode: this.postalCode || undefined,
+      country: this.country || undefined,
+      company: this.company || undefined,
+      email: this.email || undefined,
+      phone: this.phone || undefined,
+      ssn: this.ssn || undefined,
+      username: this.username || undefined,
+      passportNumber: this.passportNumber || undefined,
+      licenseNumber: this.licenseNumber || undefined,
+    };
   }
 }

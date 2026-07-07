@@ -3,11 +3,12 @@ import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, ItemModule } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ItemModule } from "@bitwarden/components";
+import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
@@ -35,12 +36,12 @@ const RateUrls = {
   templateUrl: "about-page-v2.component.html",
   imports: [
     CommonModule,
-    JslibModule,
     RouterModule,
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
+    I18nPipe,
   ],
 })
 export class AboutPageV2Component {
@@ -51,7 +52,13 @@ export class AboutPageV2Component {
   ) {}
 
   about() {
-    this.dialogService.open(AboutDialogComponent);
+    this.dialogService.open(AboutDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
+  }
+
+  troubleshoot() {
+    TroubleshootingDialogComponent.open(this.dialogService);
   }
 
   async launchHelp() {

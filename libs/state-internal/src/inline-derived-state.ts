@@ -17,9 +17,11 @@ export class InlineDerivedStateProvider implements DerivedStateProvider {
   }
 }
 
-export class InlineDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>
-  implements DerivedState<TTo>
-{
+export class InlineDerivedState<
+  TFrom,
+  TTo,
+  TDeps extends DerivedStateDependencies,
+> implements DerivedState<TTo> {
   constructor(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,

@@ -10,17 +10,16 @@ export interface PasswordInputResult {
   newPasswordHint?: string;
   rotateUserKey?: boolean;
 
-  /** @deprecated This low-level cryptographic state will be removed. It will be replaced by high level calls to masterpassword service, in the consumers of this interface. */
-  currentMasterKey?: MasterKey;
-  /** @deprecated */
-  currentServerMasterKeyHash?: string;
-  /** @deprecated */
-  currentLocalMasterKeyHash?: string;
-
-  /** @deprecated */
+  /**
+   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
+   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
+   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
+   */
   newMasterKey?: MasterKey;
-  /** @deprecated */
+  /**
+   * @deprecated Still required by the JIT_PROVISIONED_MP_ORG_USER flow in SetInitialPasswordComponent.
+   * Will be removed when that flow is updated to use MasterPasswordAuthenticationData and
+   * MasterPasswordUnlockData as part of https://bitwarden.atlassian.net/browse/PM-32526
+   */
   newServerMasterKeyHash?: string;
-  /** @deprecated */
-  newLocalMasterKeyHash?: string;
 }

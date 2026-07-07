@@ -24,7 +24,10 @@ export class WebIpcService extends IpcService {
 
       this.communicationBackend = new IpcCommunicationBackend({
         async send(message: OutgoingMessage): Promise<void> {
-          if (message.destination === "BrowserBackground") {
+          if (
+            typeof message.destination === "object" &&
+            "BrowserBackground" in message.destination
+          ) {
             window.postMessage(
               {
                 type: "bitwarden-ipc-message",
@@ -39,7 +42,7 @@ export class WebIpcService extends IpcService {
             return;
           }
 
-          throw new Error(`Destination not supported: ${message.destination}`);
+          throw new Error(`Destination not supported: ${JSON.stringify(message.destination)}`);
         },
       });
 
@@ -55,7 +58,7 @@ export class WebIpcService extends IpcService {
 
         if (
           typeof message.message.destination !== "object" ||
-          message.message.destination.Web == undefined
+          !("Web" in message.message.destination)
         ) {
           return;
         }
@@ -64,19 +67,17 @@ export class WebIpcService extends IpcService {
           new IncomingMessage(
             new Uint8Array(message.message.payload),
             message.message.destination,
-            "BrowserBackground",
+            { BrowserBackground: { id: "Own" } },
             message.message.topic,
           ),
         );
       });
 
-      await super.initWithClient(new IpcClient(this.communicationBackend));
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
-      if (this.platformUtilsService.isDev()) {
-        await ipcRegisterDiscoverHandler(this.client, {
-          version: await this.platformUtilsService.getApplicationVersion(),
-        });
-      }
+      await ipcRegisterDiscoverHandler(this.client, {
+        version: await this.platformUtilsService.getApplicationVersion(),
+      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

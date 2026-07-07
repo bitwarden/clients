@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyId } from "@bitwarden/common/types/guid";
@@ -24,6 +28,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         overridePasswordType: override,
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
@@ -44,6 +49,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         overridePasswordType: override,
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy, policy]);
@@ -64,6 +70,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         overridePasswordType: "password",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
     const passphrase = new Policy({
       id: "" as PolicyId,
@@ -73,6 +80,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         overridePasswordType: "passphrase",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([password, passphrase]);
@@ -93,6 +101,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         some: "policy",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
@@ -111,6 +120,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         some: "policy",
       },
       enabled: false,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);
@@ -129,6 +139,7 @@ describe("availableAlgorithms_vNextPolicy", () => {
         some: "policy",
       },
       enabled: true,
+      revisionDate: new Date().toISOString(),
     });
 
     const result = availableAlgorithms([policy]);

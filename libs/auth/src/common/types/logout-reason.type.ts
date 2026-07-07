@@ -1,10 +1,10 @@
 export type LogoutReason =
-  | "invalidGrantError"
-  | "vaultTimeout"
-  | "invalidSecurityStamp"
-  | "logoutNotification"
-  | "keyConnectorError"
-  | "sessionExpired"
   | "accessTokenUnableToBeDecrypted"
+  | "accountDeleted"
+  | "invalidAccessToken"
+  | "invalidSecurityStamp"
+  | "keyConnectorError"
+  | "logoutNotification"
   | "refreshTokenSecureStorageRetrievalFailure"
-  | "accountDeleted";
+  | "sessionExpired"
+  | "vaultTimeout";

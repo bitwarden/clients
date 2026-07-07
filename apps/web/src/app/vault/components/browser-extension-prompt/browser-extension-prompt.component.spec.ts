@@ -166,8 +166,8 @@ describe("BrowserExtensionPromptComponent", () => {
 
     it("shows manual open error message", () => {
       const manualText = fixture.debugElement.query(By.css("p")).nativeElement;
-      expect(manualText.textContent.trim()).toContain("openExtensionManuallyPart1");
-      expect(manualText.textContent.trim()).toContain("openExtensionManuallyPart2");
+      expect(manualText.textContent.trim()).toContain("openExtensionFromToolbarPart1");
+      expect(manualText.textContent.trim()).toContain("openExtensionFromToolbarPart2");
     });
   });
 });

@@ -3,7 +3,8 @@
 import { firstValueFrom } from "rxjs";
 
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -15,8 +16,9 @@ import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 export class Fido2UserVerificationService {
   constructor(
     private passwordRepromptService: PasswordRepromptService,
-    private userVerificationService: UserVerificationService,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private dialogService: DialogService,
+    private accountService: AccountService,
   ) {}
 
   /**
@@ -78,7 +80,15 @@ export class Fido2UserVerificationService {
   }
 
   private async handleMasterPasswordReprompt(): Promise<boolean> {
-    const hasMasterPassword = await this.userVerificationService.hasMasterPassword();
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+
+    if (!activeAccount?.id) {
+      return false;
+    }
+
+    const hasMasterPassword = await firstValueFrom(
+      this.userDecryptionOptionsService.hasMasterPasswordById$(activeAccount.id),
+    );
 
     // TDE users have no master password, so we need to use the UserVerification prompt
     return hasMasterPassword

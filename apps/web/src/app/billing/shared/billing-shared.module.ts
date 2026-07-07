@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 
 import { BannerModule } from "@bitwarden/components";
+import { DiscountBadgeComponent } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -28,6 +29,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     BannerModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
+    DiscountBadgeComponent,
   ],
   declarations: [
     BillingHistoryComponent,
@@ -51,6 +53,7 @@ import { UpdateLicenseComponent } from "./update-license.component";
     OffboardingSurveyComponent,
     IndividualSelfHostingLicenseUploaderComponent,
     OrganizationSelfHostingLicenseUploaderComponent,
+    DiscountBadgeComponent,
   ],
 })
 export class BillingSharedModule {}

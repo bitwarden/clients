@@ -4,20 +4,13 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
-import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
+import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { MasterKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
@@ -28,9 +21,6 @@ import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.comman
 export class UnlockCommand {
   constructor(
     private accountService: AccountService,
-    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private keyService: KeyService,
-    private userVerificationService: UserVerificationService,
     private cryptoFunctionService: CryptoFunctionService,
     private logService: ConsoleLogService,
     private keyConnectorService: KeyConnectorService,
@@ -38,8 +28,8 @@ export class UnlockCommand {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private logout: () => Promise<void>,
     private i18nService: I18nService,
-    private masterPasswordUnlockService: MasterPasswordUnlockService,
-    private configService: ConfigService,
+    private encryptedMigrator: EncryptedMigrator,
+    private unlockService: UnlockService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
@@ -59,46 +49,10 @@ export class UnlockCommand {
     }
     const userId = activeAccount.id;
 
-    if (
-      await firstValueFrom(
-        this.configService.getFeatureFlag$(FeatureFlag.UnlockWithMasterPasswordUnlockData),
-      )
-    ) {
-      try {
-        const userKey = await this.masterPasswordUnlockService.unlockWithMasterPassword(
-          password,
-          userId,
-        );
-
-        await this.keyService.setUserKey(userKey, userId);
-      } catch (e) {
-        return Response.error(e.message);
-      }
-    } else {
-      const email = activeAccount.email;
-      const verification = {
-        type: VerificationType.MasterPassword,
-        secret: password,
-      } as MasterPasswordVerification;
-
-      let masterKey: MasterKey;
-      try {
-        const response = await this.userVerificationService.verifyUserByMasterPassword(
-          verification,
-          userId,
-          email,
-        );
-        masterKey = response.masterKey;
-      } catch (e) {
-        // verification failure throws
-        return Response.error(e.message);
-      }
-
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
+    try {
+      await this.unlockService.unlockWithMasterPassword(userId, password);
+    } catch (e) {
+      return Response.error(e.message);
     }
 
     if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
@@ -115,6 +69,8 @@ export class UnlockCommand {
         return convertResponse;
       }
     }
+
+    await this.encryptedMigrator.runMigrations(userId, password);
 
     return this.successResponse();
   }

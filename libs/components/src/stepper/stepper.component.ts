@@ -19,7 +19,6 @@ import { StepComponent } from "./step.component";
   templateUrl: "stepper.component.html",
   providers: [{ provide: CdkStepper, useExisting: StepperComponent }],
   imports: [CommonModule, ResizeObserverDirective, TypographyModule],
-  standalone: true,
 })
 export class StepperComponent extends CdkStepper {
   // Need to reimplement the constructor to fix an invalidFactoryDep error in Storybook

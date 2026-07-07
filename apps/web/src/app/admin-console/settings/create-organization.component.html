@@ -4,7 +4,8 @@
   <p>{{ "newOrganizationDesc" | i18n }}</p>
   <app-organization-plans
     [enableSecretsManagerByDefault]="secretsManager"
-    [plan]="plan"
-    [productTier]="productTier"
+    [initialPlan]="plan"
+    [initialProductTier]="productTier"
+    [trialLength]="trialLength"
   ></app-organization-plans>
 </bit-container>

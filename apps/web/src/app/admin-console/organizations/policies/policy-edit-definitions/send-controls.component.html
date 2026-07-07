@@ -1,0 +1,46 @@
+<bit-form-control class="tw-mt-4">
+  <bit-switch [formControl]="enabled" id="enableSendControlsPolicySwitch"></bit-switch>
+  <bit-label class="tw-text-sm">{{ "sendControlsPolicySwitchLabel" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <bit-hint class="tw-mt-4 tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
+  <bit-radio-group formControlName="disableSend" [block]="true">
+    <bit-radio-button [value]="false">
+      <bit-label>{{ "allow" | i18n }}</bit-label>
+    </bit-radio-button>
+    <bit-radio-button [value]="true">
+      <bit-label>{{ "block" | i18n }}</bit-label>
+    </bit-radio-button>
+  </bit-radio-group>
+  <div [hidden]="!sendFeatureAllowed()">
+    <bit-form-field>
+      <bit-label>{{ "sendTypes" | i18n }}</bit-label>
+      <bit-multi-select
+        [formControl]="allowedSendTypesMultiSelectControl"
+        [baseItems]="allSendTypeOptions()"
+        [disabled]="!enabled.value"
+      ></bit-multi-select>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sendControlAccessOptions" | i18n }}</bit-label>
+      <bit-select formControlName="whoCanAccess">
+        @for (accessOption of sendAccessOptions; track accessOption.value) {
+          <bit-option [label]="accessOption.label" [value]="accessOption.value"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+    @if (showDomains()) {
+      <bit-form-field class="tw-mt-2">
+        <bit-label>{{ "allowedDomains" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="allowedDomains" />
+        <bit-hint>{{ allowedDomainsHint() }}</bit-hint>
+      </bit-form-field>
+    }
+    <bit-hint class="tw-mb-2">{{ "additionalOptions" | i18n }}</bit-hint>
+    <bit-form-control disableMargin>
+      <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
+      <bit-label>{{ "sendControlHideEmailDescription" | i18n }}</bit-label>
+    </bit-form-control>
+  </div>
+</div>

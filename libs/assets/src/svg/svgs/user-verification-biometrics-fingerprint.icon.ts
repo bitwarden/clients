@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const UserVerificationBiometricsIcon = svgIcon`
+export const UserVerificationBiometricsIcon = svg`
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4 4 88 88">
     <path class="tw-fill-illustration-bg-primary" d="M4 10a6 6 0 0 1 6-6h50a6 6 0 0 1 6 6v50a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6V10Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M60 6H10a4 4 0 0 0-4 4v50a4 4 0 0 0 4 4h50a4 4 0 0 0 4-4V10a4 4 0 0 0-4-4ZM10 4a6 6 0 0 0-6 6v50a6 6 0 0 0 6 6h50a6 6 0 0 0 6-6V10a6 6 0 0 0-6-6H10Z" clip-rule="evenodd"/>

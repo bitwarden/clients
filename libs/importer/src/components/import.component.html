@@ -1,6 +1,3 @@
-<bit-callout type="info" *ngIf="importBlockedByPolicy">
-  {{ "personalOwnershipPolicyInEffectImports" | i18n }}
-</bit-callout>
 <bit-callout
   [title]="'restrictCardTypeImport' | i18n"
   type="info"
@@ -11,7 +8,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="import_form_importForm">
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "destination" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "destination" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field [hidden]="isFromAC">
@@ -62,7 +59,7 @@
 
   <bit-section>
     <bit-section-header>
-      <h2 class="tw-font-bold" bitTypography="h6">{{ "data" | i18n }}</h2>
+      <h2 class="tw-font-medium" bitTypography="h6">{{ "data" | i18n }}</h2>
     </bit-section-header>
     <bit-card>
       <bit-form-field class="@2xl:tw-w-1/2">
@@ -70,7 +67,7 @@
         <bit-select formControlName="format">
           <bit-option value="" label="-- {{ 'select' | i18n }} --" />
           <bit-option
-            class="tw-font-bold tw-text-muted tw-text-xs"
+            class="tw-font-medium tw-text-muted tw-text-xs"
             value="-"
             label="{{ 'commonImportFormats' | i18n }}"
             disabled
@@ -159,16 +156,14 @@
         </ng-container>
         <ng-container *ngIf="format === 'keepercsv'">
           Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and find the "Export to .csv File"
-          option. Click "Export" to save the CSV file.
+          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
+          the "CSV" option. Click "Export" to save the CSV file.
         </ng-container>
-        <!--
-    <ng-container *ngIf="format === 'keeperjson'">
-      Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email" (top
-      right) and select "Settings". Go to "Export" and find the "Export to .json File" option. Click
-      "Export" to save the JSON file.
-    </ng-container>
-    -->
+        <ng-container *ngIf="format === 'keeperjson'">
+          Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
+          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
+          the "JSON" option. Click "Export" to save the JSON file.
+        </ng-container>
         <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
             The process is exactly the same as importing from Google Chrome.
@@ -466,6 +461,7 @@
           [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
           [format]="this.format"
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
+          (error)="this.handleChromeImportError($event)"
         ></import-chrome>
       } @else {
         <bit-form-field>

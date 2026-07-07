@@ -1,23 +1,10 @@
-import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
+import {
+  PasswordProtectedKeyEnvelope,
+  EncString,
+  EphemeralPinEnvelopeState,
+} from "@bitwarden/sdk-internal";
 
-import { EncryptedString } from "../crypto/models/enc-string";
-
-/**
- * The persistent (stored on disk) version of the UserKey, encrypted by the PinKey.
- *
- * @deprecated
- * @remarks Persists through a client reset. Used when `requireMasterPasswordOnClientRestart` is disabled.
- * @see SetPinComponent.setPinForm.requireMasterPasswordOnClientRestart
- */
-export const PIN_KEY_ENCRYPTED_USER_KEY_PERSISTENT = new UserKeyDefinition<EncryptedString>(
-  PIN_DISK,
-  "pinKeyEncryptedUserKeyPersistent",
-  {
-    deserializer: (jsonValue) => jsonValue,
-    clearOn: ["logout"],
-  },
-);
+import { PIN_DISK, PIN_MEMORY, UserKeyDefinition } from "../../platform/state";
 
 /**
  * The persistent (stored on disk) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
@@ -32,6 +19,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
     {
       deserializer: (jsonValue) => jsonValue,
       clearOn: ["logout"],
+      cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
     },
   );
 
@@ -39,23 +27,26 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
+  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {
       deserializer: (jsonValue) => jsonValue,
       clearOn: ["logout"],
+      // Prevents the state from caching and rxjs observable becoming hot observable.
+      cleanupDelayMs: 0,
     },
   );
 
 /**
  * The PIN, encrypted by the UserKey.
  */
-export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncryptedString>(
+export const USER_KEY_ENCRYPTED_PIN = new UserKeyDefinition<EncString>(
   PIN_DISK,
   "userKeyEncryptedPin",
   {
     deserializer: (jsonValue) => jsonValue,
     clearOn: ["logout"],
+    cleanupDelayMs: 0, // Prevents the state from caching and rxjs observable becoming hot observable.
   },
 );

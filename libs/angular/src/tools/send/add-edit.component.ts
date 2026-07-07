@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DatePipe } from "@angular/common";
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import {
   Subject,
@@ -11,10 +11,9 @@ import {
   BehaviorSubject,
   concatMap,
   switchMap,
+  tap,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -26,14 +25,16 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendTextView } from "@bitwarden/common/tools/send/models/view/send-text.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 // Value = hours
 // FIXME: update to use a const object instead of a typescript enum
@@ -106,6 +107,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected componentName = "";
   private sendLinkBaseUrl: string;
   private destroy$ = new Subject<void>();
+  private sendPolicyService = inject(SendPolicyService);
 
   protected formGroup = this.formBuilder.group({
     name: ["", Validators.required],
@@ -135,7 +137,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected datePipe: DatePipe,
     protected sendService: SendService,
     protected messagingService: MessagingService,
-    protected policyService: PolicyService,
     protected logService: LogService,
     protected stateService: StateService,
     protected sendApiService: SendApiService,
@@ -144,6 +145,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected accountService: AccountService,
     protected toastService: ToastService,
+    protected premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("sendTypeFile"), value: SendType.File, premium: true },
@@ -159,14 +161,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId),
-        ),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableSend$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         this.disableSend = policyAppliesToActiveUser;
         if (this.disableSend) {
@@ -174,13 +170,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.accountService.activeAccount$
-      .pipe(
-        getUserId,
-        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendOptions, userId)),
-        map((policies) => policies?.some((p) => p.data.disableHideEmail)),
-        takeUntil(this.destroy$),
-      )
+    this.sendPolicyService.disableHideEmail$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((policyAppliesToActiveUser) => {
         if (
           (this.disableHideEmail = policyAppliesToActiveUser) &&
@@ -192,10 +183,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.formGroup.controls.type.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((val) => {
-      this.type = val;
-      this.typeChanged();
-    });
+    this.formGroup.controls.type.valueChanges
+      .pipe(
+        tap((val) => {
+          this.type = val;
+        }),
+        switchMap(() => this.typeChanged()),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     this.formGroup.controls.selectedDeletionDatePreset.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -426,11 +422,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  typeChanged() {
+  async typeChanged() {
     if (this.type === SendType.File && !this.alertShown) {
       if (!this.canAccessPremium) {
         this.alertShown = true;
-        this.messagingService.send("premiumRequired");
+        await this.premiumUpgradePromptService.promptForPremium();
       } else if (!this.emailVerified) {
         this.alertShown = true;
         this.messagingService.send("emailVerificationRequired");

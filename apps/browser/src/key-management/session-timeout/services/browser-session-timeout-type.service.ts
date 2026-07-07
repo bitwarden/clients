@@ -1,0 +1,43 @@
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
+import {
+  isVaultTimeoutTypeNumeric,
+  VaultTimeout,
+  VaultTimeoutNumberType,
+  VaultTimeoutStringType,
+} from "@bitwarden/common/key-management/vault-timeout";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+
+export class BrowserSessionTimeoutTypeService implements SessionTimeoutTypeService {
+  constructor(private readonly platformUtilsService: PlatformUtilsService) {}
+
+  async isAvailable(type: VaultTimeout): Promise<boolean> {
+    switch (type) {
+      case VaultTimeoutNumberType.Immediately:
+      case VaultTimeoutStringType.OnRestart:
+      case VaultTimeoutStringType.Never:
+      case VaultTimeoutStringType.Custom:
+        return true;
+      case VaultTimeoutStringType.OnLocked:
+        return (
+          !this.platformUtilsService.isFirefox() &&
+          !this.platformUtilsService.isSafari() &&
+          !(this.platformUtilsService.isOpera() && navigator.platform === "MacIntel")
+        );
+      default:
+        if (isVaultTimeoutTypeNumeric(type)) {
+          return true;
+        }
+        break;
+    }
+
+    return false;
+  }
+
+  async getOrPromoteToAvailable(type: VaultTimeout): Promise<VaultTimeout> {
+    const available = await this.isAvailable(type);
+    if (!available) {
+      return VaultTimeoutStringType.OnRestart;
+    }
+    return type;
+  }
+}

@@ -6,6 +6,7 @@ import { BehaviorSubject } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
@@ -31,7 +32,7 @@ import { PeopleAccessPoliciesRequest } from "./models/requests/people-access-pol
 import { ProjectServiceAccountsAccessPoliciesRequest } from "./models/requests/project-service-accounts-access-policies.request";
 import { ServiceAccountGrantedPoliciesRequest } from "./models/requests/service-account-granted-policies.request";
 
-import { trackEmissions } from "@bitwarden/common/../spec";
+import { trackEmissions, mockAccountInfoWith } from "@bitwarden/common/../spec";
 
 const SomeCsprngArray = new Uint8Array(64) as CsprngArray;
 const SomeOrganization = "some organization" as OrganizationId;
@@ -49,12 +50,14 @@ describe("AccessPolicyService", () => {
   const keyService = mock<KeyService>();
   const apiService = mock<ApiService>();
   const encryptService = mock<EncryptService>();
+  const logService = mock<LogService>();
   let accountService: MockProxy<AccountService>;
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   });
 
   beforeEach(() => {
@@ -65,7 +68,13 @@ describe("AccessPolicyService", () => {
 
     accountService = mock<AccountService>();
     accountService.activeAccount$ = activeAccountSubject;
-    sut = new AccessPolicyService(keyService, apiService, encryptService, accountService);
+    sut = new AccessPolicyService(
+      keyService,
+      apiService,
+      encryptService,
+      accountService,
+      logService,
+    );
   });
 
   it("instantiates", () => {

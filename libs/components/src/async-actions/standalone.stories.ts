@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { delay, of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,7 +18,7 @@ const template = /*html*/ `
   <button type="button" bitButton buttonType="primary" [bitAction]="action" class="tw-me-2">
     Perform action {{ statusEmoji }}
   </button>
-  <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action"></button>`;
+  <button type="button" label="Delete" bitIconButton="bwi-trash" buttonType="dangerGhost" [bitAction]="action"></button>`;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

@@ -3,7 +3,12 @@ import { NgModule } from "@angular/core";
 
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
-import { ScrollLayoutDirective } from "@bitwarden/components";
+import {
+  BerryComponent,
+  IconModule,
+  ScrollLayoutDirective,
+  TooltipDirective,
+} from "@bitwarden/components";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 import { OrganizationFreeTrialWarningComponent } from "@bitwarden/web-vault/app/billing/organizations/warnings/components";
 
@@ -13,16 +18,21 @@ import { SharedOrganizationModule } from "../shared";
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
+import { BulkProgressDialogComponent } from "./components/bulk/bulk-progress-dialog.component";
+import { BulkReinviteFailureDialogComponent } from "./components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
+import { InviteMembersDialogComponent } from "./components/invite-members-dialog";
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
+import { UserStatusPipe } from "./pipes";
 import {
   OrganizationMembersService,
   MemberActionsService,
   MemberDialogManagerService,
+  MemberExportService,
 } from "./services";
 
 @NgModule({
@@ -30,27 +40,36 @@ import {
     SharedOrganizationModule,
     MembersRoutingModule,
     UserDialogModule,
+    InviteMembersDialogComponent,
     PasswordCalloutComponent,
     HeaderModule,
     ScrollingModule,
     PasswordStrengthV2Component,
     ScrollLayoutDirective,
     OrganizationFreeTrialWarningComponent,
-  ],
-  declarations: [
+    IconModule,
+    BerryComponent,
+    TooltipDirective,
     BulkConfirmDialogComponent,
+    BulkDeleteDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
+  ],
+  declarations: [
+    BulkProgressDialogComponent,
+    BulkReinviteFailureDialogComponent,
     MembersComponent,
-    BulkDeleteDialogComponent,
+    UserStatusPipe,
   ],
   providers: [
     OrganizationMembersService,
     MemberActionsService,
     BillingConstraintService,
     MemberDialogManagerService,
+    MemberExportService,
+    UserStatusPipe,
   ],
 })
 export class MembersModule {}

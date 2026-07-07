@@ -1,13 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit, Output, EventEmitter } from "@angular/core";
+import { Component, Input, OnInit, Output, EventEmitter, output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -57,6 +56,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenChange = new EventEmitter<{ token: string }>();
+  submitOnPaste = output<void>();
 
   twoFactorEmail: string | undefined = undefined;
   emailPromise: Promise<any> | undefined;
@@ -68,7 +68,6 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
-    protected twoFactorApiService: TwoFactorApiService,
     protected appIdService: AppIdService,
     private toastService: ToastService,
     private cacheService: TwoFactorAuthEmailComponentCacheService,
@@ -109,6 +108,16 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     this.tokenChange.emit({ token: tokenValue });
   }
 
+  onPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {
+      return;
+    }
+    event.preventDefault();
+    this.tokenFormControl?.setValue(pastedText);
+    this.submitOnPaste.emit();
+  }
+
   async sendEmail(doToast: boolean) {
     if (this.emailPromise !== undefined) {
       return;
@@ -137,7 +146,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
       request.deviceIdentifier = await this.appIdService.getAppId();
       request.authRequestAccessCode = (await this.loginStrategyService.getAccessCode()) ?? "";
       request.authRequestId = (await this.loginStrategyService.getAuthRequestId()) ?? "";
-      this.emailPromise = this.twoFactorApiService.postTwoFactorEmail(request);
+      this.emailPromise = this.twoFactorService.postTwoFactorEmail(request);
       await this.emailPromise;
 
       this.emailSent = true;

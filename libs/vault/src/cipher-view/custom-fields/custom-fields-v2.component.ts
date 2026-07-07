@@ -2,13 +2,13 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enums";
 import { LinkedMetadata } from "@bitwarden/common/vault/linked-field-option.decorator";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -82,6 +82,13 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
 
   get canViewPassword() {
     return this.cipher.viewPassword;
+  }
+
+  emptyFieldAriaLabel(field: FieldView): string | null {
+    if (field.value) {
+      return null;
+    }
+    return `${field.name}, ${this.i18nService.t("noValueEntered")}`;
   }
 
   toggleCharacterCount(index: number) {

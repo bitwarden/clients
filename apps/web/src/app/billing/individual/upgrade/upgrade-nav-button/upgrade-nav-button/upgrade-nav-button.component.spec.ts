@@ -7,6 +7,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -32,9 +33,10 @@ describe("UpgradeNavButtonComponent", () => {
 
   const mockAccount: Account = {
     id: "user-id" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+    }),
   };
 
   beforeEach(async () => {
@@ -119,14 +121,13 @@ describe("UpgradeNavButtonComponent", () => {
         );
       });
 
-      it("should refresh token and sync after upgrading to premium", async () => {
+      it("should full sync after upgrading to premium", async () => {
         const mockDialogRef = mock<DialogRef<UnifiedUpgradeDialogResult>>();
         mockDialogRef.closed = of({ status: UnifiedUpgradeDialogStatus.UpgradedToPremium });
         mockDialogService.open.mockReturnValue(mockDialogRef);
 
         await component.upgrade();
 
-        expect(mockApiService.refreshIdentityToken).toHaveBeenCalled();
         expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
       });
 

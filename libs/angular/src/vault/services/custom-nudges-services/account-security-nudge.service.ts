@@ -2,7 +2,6 @@ import { Injectable, inject } from "@angular/core";
 import { Observable, combineLatest, from, of } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
 
-import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -13,6 +12,7 @@ import { BiometricStateService } from "@bitwarden/key-management";
 
 import { DefaultSingleNudgeService } from "../default-single-nudge.service";
 import { NudgeStatus, NudgeType } from "../nudges.service";
+import { VaultProfileService } from "../vault-profile.service";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -39,7 +39,7 @@ export class AccountSecurityNudgeService extends DefaultSingleNudgeService {
       this.getNudgeStatus$(nudgeType, userId),
       of(Date.now() - THIRTY_DAYS_MS),
       from(this.pinService.isPinSet(userId)),
-      this.biometricStateService.biometricUnlockEnabled$,
+      this.biometricStateService.biometricUnlockEnabled$(userId),
       this.organizationService.organizations$(userId),
       this.policyService.policiesByType$(PolicyType.RemoveUnlockWithPin, userId),
     ]).pipe(

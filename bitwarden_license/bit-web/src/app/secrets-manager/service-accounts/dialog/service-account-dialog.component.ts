@@ -1,9 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogRef, DIALOG_DATA, BitValidators, ToastService } from "@bitwarden/components";
 
@@ -24,11 +27,17 @@ export interface ServiceAccountOperation {
   organizationEnabled: boolean;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./service-account-dialog.component.html",
   standalone: false,
 })
 export class ServiceAccountDialogComponent implements OnInit {
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
   protected formGroup = new FormGroup(
     {
       name: new FormControl("", {
@@ -47,6 +56,7 @@ export class ServiceAccountDialogComponent implements OnInit {
     private serviceAccountService: ServiceAccountService,
     private i18nService: I18nService,
     private toastService: ToastService,
+    private configService: ConfigService,
     private router: Router,
   ) {}
 
@@ -112,7 +122,7 @@ export class ServiceAccountDialogComponent implements OnInit {
       title: null,
       message: serviceAccountMessage,
     });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private getServiceAccountView() {
@@ -123,6 +133,14 @@ export class ServiceAccountDialogComponent implements OnInit {
   }
 
   get title() {
-    return this.data.operation === OperationType.Add ? "newMachineAccount" : "editMachineAccount";
+    if (this.data.operation === OperationType.Add) {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "addMachineAccount";
+      } else {
+        return "newMachineAccount";
+      }
+    } else {
+      return "editMachineAccount";
+    }
   }
 }

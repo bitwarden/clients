@@ -15,6 +15,7 @@ module.exports = (webpackConfig, context) => {
       },
       tsConfig: "apps/web/tsconfig.build.json",
       outputPath: path.resolve(context.context.root, context.options.outputPath),
+      env: context.options.env,
     });
   } else {
     return buildConfig({

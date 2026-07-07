@@ -10,6 +10,7 @@ import {
   ElementRef,
   EventEmitter,
   inject,
+  input,
   Input,
   NgZone,
   Output,
@@ -22,7 +23,6 @@ import { take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, IconButtonModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultCarouselButtonComponent } from "./carousel-button/carousel-button.component";
 import { VaultCarouselContentComponent } from "./carousel-content/carousel-content.component";
@@ -41,7 +41,6 @@ import { VaultCarouselSlideComponent } from "./carousel-slide/carousel-slide.com
     ButtonModule,
     VaultCarouselContentComponent,
     VaultCarouselButtonComponent,
-    I18nPipe,
   ],
 })
 export class VaultCarouselComponent implements AfterViewInit {
@@ -55,6 +54,12 @@ export class VaultCarouselComponent implements AfterViewInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) label = "";
+
+  /**
+   * When true, hides the previous/next arrow navigation buttons.
+   * Use with the `carouselActions` content slot to provide custom navigation controls.
+   */
+  protected readonly hideArrows = input<boolean>(false);
 
   /**
    * Emits the index of the newly selected slide.
@@ -120,13 +125,13 @@ export class VaultCarouselComponent implements AfterViewInit {
     this.slideChange.emit(index);
   }
 
-  protected nextSlide() {
+  nextSlide() {
     if (this.selectedIndex < this.slides.length - 1) {
       this.selectSlide(this.selectedIndex + 1);
     }
   }
 
-  protected prevSlide() {
+  prevSlide() {
     if (this.selectedIndex > 0) {
       this.selectSlide(this.selectedIndex - 1);
     }

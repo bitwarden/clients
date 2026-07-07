@@ -1,8 +1,11 @@
-use super::crypto::{MemoryEncryptionKey, KEY_SIZE};
-use super::SecureKeyContainer;
 use windows::Win32::Security::Cryptography::{
     CryptProtectMemory, CryptUnprotectMemory, CRYPTPROTECTMEMORY_BLOCK_SIZE,
     CRYPTPROTECTMEMORY_SAME_PROCESS,
+};
+
+use super::{
+    crypto::{MemoryEncryptionKey, KEY_SIZE},
+    SecureKeyContainer,
 };
 
 /// https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata

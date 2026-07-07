@@ -1,0 +1,238 @@
+import { mock } from "jest-mock-extended";
+
+// eslint-disable-next-line no-restricted-imports
+import {
+  BiometricStateService,
+  BiometricsService,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
+import { LogService } from "@bitwarden/logging";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
+
+import { ClientType } from "../../enums";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { SyncService } from "../../platform/sync";
+import { UserId } from "../../types/guid";
+import { CipherService } from "../../vault/abstractions/cipher.service";
+import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
+import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
+
+import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
+import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
+import { EncryptedMigration } from "./migrations/encrypted-migration";
+import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
+
+jest.mock("./migrations/minimum-kdf-migration");
+jest.mock("./migrations/biometric-persistent-encryption-migration");
+jest.mock("./migrations/v2-key-rotation-migration");
+
+describe("EncryptedMigrator", () => {
+  const mockKdfConfigService = mock<KdfConfigService>();
+  const mockChangeKdfService = mock<ChangeKdfService>();
+  const mockLogService = mock<LogService>();
+  const configService = mock<ConfigService>();
+  const masterPasswordService = mock<MasterPasswordServiceAbstraction>();
+  const syncService = mock<SyncService>();
+  const mockKeyService = mock<KeyService>();
+  const mockBiometricsService = mock<BiometricsService>();
+  const mockBiometricStateService = mock<BiometricStateService>();
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockUserKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
+  const mockCipherService = mock<CipherService>();
+
+  let sut: DefaultEncryptedMigrator;
+  const mockMigration = mock<MinimumKdfMigration>();
+  const mockBiometricMigration = mock<BiometricPersistentMigration>();
+  const mockV2KeyRotationMigration = mock<V2KeyRotationMigration>();
+  const mockSdkService = mock<SdkService>();
+
+  const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
+  const mockMasterPassword = "masterPassword123";
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Mock the MinimumKdfMigration constructor to return our mock
+    (MinimumKdfMigration as jest.MockedClass<typeof MinimumKdfMigration>).mockImplementation(
+      () => mockMigration,
+    );
+    (
+      BiometricPersistentMigration as jest.MockedClass<typeof BiometricPersistentMigration>
+    ).mockImplementation(() => mockBiometricMigration);
+    (V2KeyRotationMigration as jest.MockedClass<typeof V2KeyRotationMigration>).mockImplementation(
+      () => mockV2KeyRotationMigration,
+    );
+
+    // Default biometric migration to no-op so it doesn't interfere with KDF migration tests
+    mockBiometricMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+    // Default v2 key rotation migration to no-op so it doesn't interfere with other tests
+    mockV2KeyRotationMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+
+    // Biometric migration is only registered on desktop
+    mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
+    sut = new DefaultEncryptedMigrator(
+      mockKdfConfigService,
+      mockChangeKdfService,
+      mockLogService,
+      configService,
+      masterPasswordService,
+      syncService,
+      mockKeyService,
+      mockBiometricsService,
+      mockBiometricStateService,
+      mockPlatformUtilsService,
+      mockUserKeyRotationService,
+      mockCipherService,
+      mockSdkService,
+    );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("runMigrations", () => {
+    it("should throw error when userId is null", async () => {
+      await expect(sut.runMigrations(null as any, null)).rejects.toThrow("userId");
+    });
+
+    it("should throw error when userId is undefined", async () => {
+      await expect(sut.runMigrations(undefined as any, null)).rejects.toThrow("userId");
+    });
+
+    it("should not run migration when needsMigration returns 'noMigrationNeeded'", async () => {
+      mockMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+
+      await sut.runMigrations(mockUserId, null);
+
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockMigration.runMigrations).not.toHaveBeenCalled();
+    });
+
+    it("should run migration when needsMigration returns 'needsMigration'", async () => {
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockMigration.runMigrations).toHaveBeenCalledWith(mockUserId, mockMasterPassword);
+    });
+
+    it("should run migration when needsMigration returns 'needsMigrationWithMasterPassword'", async () => {
+      mockMigration.needsMigration.mockResolvedValue("needsMigrationWithMasterPassword");
+
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockMigration.runMigrations).toHaveBeenCalledWith(mockUserId, mockMasterPassword);
+    });
+
+    it("should throw error when migration needs master password but null is provided", async () => {
+      mockMigration.needsMigration.mockResolvedValue("needsMigrationWithMasterPassword");
+
+      await sut.runMigrations(mockUserId, null);
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockMigration.runMigrations).not.toHaveBeenCalled();
+    });
+
+    it("should run multiple migrations", async () => {
+      const mockSecondMigration = mock<EncryptedMigration>();
+      mockSecondMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      (sut as any).migrations.push({
+        name: "Test Second Migration",
+        migration: mockSecondMigration,
+      });
+
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      await sut.runMigrations(mockUserId, mockMasterPassword);
+
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockSecondMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockMigration.runMigrations).toHaveBeenCalledWith(mockUserId, mockMasterPassword);
+      expect(mockSecondMigration.runMigrations).toHaveBeenCalledWith(
+        mockUserId,
+        mockMasterPassword,
+      );
+    });
+  });
+
+  describe("needsMigrations", () => {
+    it("should return 'noMigrationNeeded' when no migrations are needed", async () => {
+      mockMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+
+      const result = await sut.needsMigrations(mockUserId);
+
+      expect(result).toBe("noMigrationNeeded");
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should return 'needsMigration' when at least one migration needs to run", async () => {
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      const result = await sut.needsMigrations(mockUserId);
+
+      expect(result).toBe("needsMigration");
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should return 'needsMigrationWithMasterPassword' when at least one migration needs master password", async () => {
+      mockMigration.needsMigration.mockResolvedValue("needsMigrationWithMasterPassword");
+
+      const result = await sut.needsMigrations(mockUserId);
+
+      expect(result).toBe("needsMigrationWithMasterPassword");
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should prioritize 'needsMigrationWithMasterPassword' over 'needsMigration'", async () => {
+      const mockSecondMigration = mock<EncryptedMigration>();
+      mockSecondMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      (sut as any).migrations.push({
+        name: "Test Second Migration",
+        migration: mockSecondMigration,
+      });
+
+      mockMigration.needsMigration.mockResolvedValue("needsMigrationWithMasterPassword");
+
+      const result = await sut.needsMigrations(mockUserId);
+
+      expect(result).toBe("needsMigrationWithMasterPassword");
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockSecondMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should return 'needsMigration' when some migrations need running but none need master password", async () => {
+      const mockSecondMigration = mock<EncryptedMigration>();
+      mockSecondMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
+
+      (sut as any).migrations.push({
+        name: "Test Second Migration",
+        migration: mockSecondMigration,
+      });
+
+      mockMigration.needsMigration.mockResolvedValue("needsMigration");
+
+      const result = await sut.needsMigrations(mockUserId);
+
+      expect(result).toBe("needsMigration");
+      expect(mockMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+      expect(mockSecondMigration.needsMigration).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should throw error when userId is null", async () => {
+      await expect(sut.needsMigrations(null as any)).rejects.toThrow("userId");
+    });
+
+    it("should throw error when userId is undefined", async () => {
+      await expect(sut.needsMigrations(undefined as any)).rejects.toThrow("userId");
+    });
+  });
+});

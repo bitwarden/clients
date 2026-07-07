@@ -15,6 +15,8 @@ export interface AccessTokenOperation {
   serviceAccountView: ServiceAccountView;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./access-token-create-dialog.component.html",
   standalone: false,
@@ -40,7 +42,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
 
   async ngOnInit() {
     if (!this.data.serviceAccountView) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       throw new Error(
         `The access token create dialog was not called with the appropriate operation values.`,
       );
@@ -66,7 +68,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
       accessToken,
       accessTokenView.expireAt,
     );
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private openAccessTokenDialog(

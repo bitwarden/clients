@@ -6,17 +6,19 @@ import { Component, computed, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
-  ButtonLinkDirective,
   CardComponent,
   FormFieldModule,
+  LinkComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -34,7 +36,7 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,
-    ButtonLinkDirective,
+    LinkComponent,
   ],
 })
 export class ItemDetailsV2Component {

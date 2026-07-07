@@ -15,6 +15,7 @@ import {
   SaveRiskInsightsReportRequest,
   SaveRiskInsightsReportResponse,
 } from "../../models/api-models.types";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
@@ -33,6 +34,20 @@ describe("RiskInsightsApiService", () => {
   const mockSummaryEnc = makeEncString(JSON.stringify(mockSummaryData));
   const mockApplicationsEnc = makeEncString(JSON.stringify(mockApplicationData));
 
+  const mockMetrics: RiskInsightsMetrics = new RiskInsightsMetrics();
+  mockMetrics.totalApplicationCount = 3;
+  mockMetrics.totalAtRiskApplicationCount = 1;
+  mockMetrics.totalAtRiskMemberCount = 2;
+  mockMetrics.totalAtRiskPasswordCount = 1;
+  mockMetrics.totalCriticalApplicationCount = 1;
+  mockMetrics.totalCriticalAtRiskApplicationCount = 1;
+  mockMetrics.totalCriticalMemberCount = 1;
+  mockMetrics.totalCriticalAtRiskMemberCount = 1;
+  mockMetrics.totalCriticalPasswordCount = 0;
+  mockMetrics.totalCriticalAtRiskPasswordCount = 0;
+  mockMetrics.totalMemberCount = 5;
+  mockMetrics.totalPasswordCount = 2;
+
   const mockSaveRiskInsightsReportRequest: SaveRiskInsightsReportRequest = {
     data: {
       organizationId: orgId,
@@ -41,6 +56,7 @@ describe("RiskInsightsApiService", () => {
       summaryData: mockReportEnc.decryptedValue ?? "",
       applicationData: mockReportEnc.decryptedValue ?? "",
       contentEncryptionKey: mockReportKey.decryptedValue ?? "",
+      metrics: mockMetrics.toRiskInsightsMetricsData(),
     },
   };
 
@@ -191,12 +207,24 @@ describe("RiskInsightsApiService", () => {
 
     mockApiService.send.mockResolvedValueOnce(undefined);
 
-    const result = await firstValueFrom(service.updateRiskInsightsSummary$(data, orgId, reportId));
+    const result = await firstValueFrom(
+      service.updateRiskInsightsSummary$(reportId, orgId, {
+        data: {
+          summaryData: data.encryptedSummaryData.encryptedString!,
+          metrics: mockMetrics.toRiskInsightsMetricsData(),
+        },
+      }),
+    );
 
     expect(mockApiService.send).toHaveBeenCalledWith(
       "PATCH",
       `/reports/organizations/${orgId.toString()}/data/summary/${reportId.toString()}`,
-      data,
+      {
+        summaryData: data.encryptedSummaryData.encryptedString!,
+        metrics: mockMetrics.toRiskInsightsMetricsData(),
+        reportId,
+        organizationId: orgId,
+      },
       true,
       true,
     );

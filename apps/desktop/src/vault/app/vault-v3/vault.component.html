@@ -1,0 +1,49 @@
+<div
+  class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
+  attr.aria-hidden="{{ showingModal }}"
+>
+  <div class="tw-pt-6 tw-px-6">
+    <vault-organization-user-notifications></vault-organization-user-notifications>
+    <app-header>
+      <vault-new-cipher-menu
+        [canCreateCipher]="true"
+        [canCreateFolder]="true"
+        [canCreateSshKey]="true"
+        (cipherAdded)="addCipher($event)"
+        (folderAdded)="addFolder()"
+        (onAddItemDialog)="openAddItemDialog()"
+      />
+    </app-header>
+  </div>
+  <bit-search
+    class="tw-mb-4 tw-px-6"
+    [ngModel]="currentSearchText$ | async"
+    (ngModelChange)="filterSearchText($event)"
+    [placeholder]="searchPlaceholderText"
+    appAutofocus
+  />
+  <app-vault-list
+    class="tw-h-full"
+    [ciphers]="ciphers"
+    [collections]="collectionsToDisplay"
+    [allCollections]="allCollections"
+    [allOrganizations]="allOrganizations"
+    [disabled]="refreshing"
+    [showOwner]="true"
+    [showPremiumFeatures]="userHasPremium()"
+    [userCanArchive]="userCanArchive$ | async"
+    [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+    [placeholderText]="searchPlaceholderText"
+    [isEmpty]="isEmpty && !performingInitialLoad"
+    [showAddCipherBtn]="showAddCipherBtn$ | async"
+    [emptyStateItem]="emptyState$ | async"
+    [showPremiumCallout]="showPremiumCallout$ | async"
+    (onEvent)="onVaultItemsEvent($event)"
+    (onAddCipher)="addCipher($event)"
+    (onAddFolder)="addFolder()"
+    (onAddItemDialog)="openAddItemDialog()"
+  />
+  @if (vaultBatchBarFeatureFlag()) {
+    <bit-vault-batch-action />
+  }
+</div>

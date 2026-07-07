@@ -29,7 +29,7 @@ export class I18nService extends TranslationService implements I18nServiceAbstra
     this.locale$ = this.userSetLocale$.pipe(map((locale) => locale ?? this.translationLocale));
   }
 
-  async setLocale(locale: string): Promise<void> {
+  async setLocale(locale: string | null): Promise<void> {
     await this.translationLocaleState.update(() => locale);
   }
 

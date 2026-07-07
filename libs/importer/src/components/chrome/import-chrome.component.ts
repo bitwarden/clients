@@ -1,16 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  effect,
-  EventEmitter,
-  input,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, input, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -37,6 +28,23 @@ import {
 import { ImportType } from "../../models";
 
 type ProfileOption = { id: string; name: string };
+
+type Login = {
+  url: string;
+  username: string;
+  password: string;
+  note: string;
+};
+type LoginImportFailure = {
+  url: string;
+  username: string;
+  error: string;
+};
+
+type LoginImportResult = {
+  login?: Login;
+  failure?: LoginImportFailure;
+};
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -82,27 +90,37 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+  onImportFromBrowser: (browser: string, profile: string) => Promise<LoginImportResult[]>;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() csvDataLoaded = new EventEmitter<string>();
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() error = new EventEmitter<string>();
 
   constructor(
     private formBuilder: FormBuilder,
     private controlContainer: ControlContainer,
     private logService: LogService,
     private i18nService: I18nService,
-  ) {
-    effect(async () => {
-      this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
-      // FIXME: Add error handling and display when profiles could not be loaded/retrieved
-    });
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this._parentFormGroup = this.controlContainer.control as FormGroup;
     this._parentFormGroup.addControl("chromeOptions", this.formGroup);
+
+    // Load profiles from browser on initialization
+    if (this.onLoadProfilesFromBrowser) {
+      try {
+        this.profileList = await this.onLoadProfilesFromBrowser(this.getBrowserName(this.format()));
+      } catch (error) {
+        this.logService.error("Error loading profiles from browser:", error);
+        const translatedMessage = this.translateValidationError(error);
+        this.error.emit(translatedMessage);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -121,6 +139,19 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
           this.getBrowserName(this.format()),
           this.formGroup.controls.profile.value,
         );
+
+        // If any of the login items has a failure return a generic error message
+        // Introduced because we ran into a new type of V3 encryption added on Chrome that we don't yet support
+        if (logins.some((l) => l.failure != null)) {
+          const error = logins.find((l) => l.failure != null);
+          this.logService.error("Chromium importer failure:", error.failure.error);
+          return {
+            errors: {
+              message: this.i18nService.t("errorOccurred"),
+            },
+          };
+        }
+
         if (logins.length === 0) {
           return {
             errors: {
@@ -139,21 +170,23 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
         return null;
       } catch (error) {
         this.logService.error(`Chromium importer error: ${error}`);
+        const translatedMessage = this.translateValidationError(error);
         return {
           errors: {
-            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+            message: translatedMessage,
           },
         };
       }
     };
   }
 
-  private getValidationErrorI18nKey(error: any): string {
+  private translateValidationError(error: any): string {
+    // Platform wiring (e.g., the desktop callback) is responsible for translating
+    // platform-specific errors before they reach this component. Unknown messages
+    // — including raw native error strings — fall back to a generic key rather
+    // than being surfaced verbatim in the UI.
     const message = typeof error === "string" ? error : error?.message;
-    switch (message) {
-      default:
-        return "errorOccurred";
-    }
+    return message ?? this.i18nService.t("errorOccurred");
   }
 
   private getBrowserName(format: ImportType): string {
@@ -165,6 +198,8 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
       return "Brave";
     } else if (format === "vivaldicsv") {
       return "Vivaldi";
+    } else if (format === "arccsv") {
+      return "Arc";
     }
     return "Chrome";
   }

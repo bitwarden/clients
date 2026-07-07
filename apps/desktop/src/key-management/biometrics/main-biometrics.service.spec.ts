@@ -1,7 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
@@ -17,20 +15,18 @@ import {
 import { WindowMain } from "../../main/window.main";
 
 import { MainBiometricsService } from "./main-biometrics.service";
-import { WindowsBiometricsSystem } from "./native-v2";
-import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
+import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
-import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
 import { OsBiometricService } from "./os-biometrics.service";
 
 jest.mock("@bitwarden/desktop-napi", () => {
   return {
-    biometrics: jest.fn(),
     passwords: jest.fn(),
   };
 });
 
 jest.mock("./native-v2", () => ({
+  LinuxBiometricsSystem: jest.fn(),
   WindowsBiometricsSystem: jest.fn(),
   biometrics_v2: {
     initBiometricSystem: jest.fn(),
@@ -44,8 +40,6 @@ describe("MainBiometricsService", function () {
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
   const biometricStateService = mock<BiometricStateService>();
-  const cryptoFunctionService = mock<CryptoFunctionService>();
-  const encryptService = mock<EncryptService>();
 
   describe("Should create a platform specific service", function () {
     it("Should create a biometrics service specific for Windows", () => {
@@ -55,13 +49,11 @@ describe("MainBiometricsService", function () {
         logService,
         "win32",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
+      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
 
     it("Should create a biometrics service specific for MacOs", () => {
@@ -71,8 +63,6 @@ describe("MainBiometricsService", function () {
         logService,
         "darwin",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
@@ -86,13 +76,11 @@ describe("MainBiometricsService", function () {
         logService,
         "linux",
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(OsBiometricsServiceLinux);
+      expect(internalService).toBeInstanceOf(LinuxBiometricsSystem);
     });
   });
 
@@ -107,8 +95,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       innerService = mock();
@@ -209,8 +195,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;
@@ -249,8 +233,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
     });
 
@@ -279,85 +261,11 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
 
       const shouldAutoPrompt = await sut.getShouldAutopromptNow();
 
       expect(shouldAutoPrompt).toBe(true);
-    });
-  });
-
-  describe("enableWindowsV2Biometrics", () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it("enables Windows V2 biometrics when platform is win32 and not already enabled", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "win32",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).toHaveBeenCalledWith(
-        "[BiometricsMain] Loading native biometrics module v2 for windows",
-      );
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(true);
-      const internalService = (sut as any).osBiometricsService;
-      expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
-    });
-
-    it("should not enable Windows V2 biometrics when platform is not win32", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "darwin",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).not.toHaveBeenCalled();
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(false);
-    });
-
-    it("should not enable Windows V2 biometrics when already enabled", async () => {
-      const sut = new MainBiometricsService(
-        i18nService,
-        windowMain,
-        logService,
-        "win32",
-        biometricStateService,
-        encryptService,
-        cryptoFunctionService,
-      );
-
-      // Enable it first
-      await sut.enableWindowsV2Biometrics();
-
-      // Enable it again
-      await sut.enableWindowsV2Biometrics();
-
-      expect(logService.info).toHaveBeenCalledWith(
-        "[BiometricsMain] Loading native biometrics module v2 for windows",
-      );
-      expect(logService.info).toHaveBeenCalledTimes(1);
-      expect(await sut.isWindowsV2BiometricsEnabled()).toBe(true);
-      const internalService = (sut as any).osBiometricsService;
-      expect(internalService).not.toBeNull();
-      expect(internalService).toBeInstanceOf(WindowsBiometricsSystem);
     });
   });
 
@@ -373,8 +281,6 @@ describe("MainBiometricsService", function () {
         logService,
         process.platform,
         biometricStateService,
-        encryptService,
-        cryptoFunctionService,
       );
       osBiometricsService = mock<OsBiometricService>();
       (sut as any).osBiometricsService = osBiometricsService;

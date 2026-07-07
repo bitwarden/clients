@@ -13,6 +13,8 @@ export interface SecretHardDeleteOperation {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./secret-hard-delete.component.html",
   standalone: false,
@@ -39,7 +41,7 @@ export class SecretHardDeleteDialogComponent {
     await this.secretService.deleteTrashed(this.data.organizationId, this.data.secretIds);
     const message =
       this.data.secretIds.length === 1 ? "hardDeleteSuccessToast" : "hardDeletesSuccessToast";
-    this.dialogRef.close(this.data.secretIds);
+    await this.dialogRef.close(this.data.secretIds);
     this.toastService.showToast({
       variant: "success",
       title: null,

@@ -1,6 +1,6 @@
 <ng-container *ngIf="loading">
   <div class="tw-flex tw-items-center tw-justify-center">
-    <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+    <bit-icon name="bwi-spinner" class="bwi-spin bwi-3x" [ariaLabel]="'loading' | i18n"></bit-icon>
   </div>
 </ng-container>
 
@@ -23,7 +23,7 @@
         {{ "notificationSentDeviceComplete" | i18n }}
       </p>
 
-      <div class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</div>
+      <div class="tw-font-medium">{{ "fingerprintPhraseHeader" | i18n }}</div>
       <code class="tw-text-code">{{ fingerprintPhrase }}</code>
 
       <button
@@ -50,7 +50,7 @@
     <ng-container *ngIf="flow === Flow.AdminAuthRequest">
       <p>{{ "youWillBeNotifiedOnceTheRequestIsApproved" | i18n }}</p>
 
-      <div class="tw-font-semibold">{{ "fingerprintPhraseHeader" | i18n }}</div>
+      <div class="tw-font-medium">{{ "fingerprintPhraseHeader" | i18n }}</div>
       <code class="tw-text-code">{{ fingerprintPhrase }}</code>
 
       <div class="tw-mt-4">

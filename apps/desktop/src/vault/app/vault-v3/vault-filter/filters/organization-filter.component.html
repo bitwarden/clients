@@ -1,0 +1,31 @@
+@if (show()) {
+  <bit-nav-group
+    icon="bwi-grid"
+    (click)="applyAllVaultsFilter()"
+    [text]="'allVaults' | i18n"
+    [attr.aria-pressed]="!activeFilter()?.selectedOrganizationNode"
+    [appA11yTitle]="'allVaults' | i18n"
+    [open]="true"
+    [forceActiveStyles]="!activeFilter()?.selectedOrganizationNode"
+    [disableToggleOnClick]="true"
+  >
+    @for (organization of organizations().children ?? []; track organization.node.id) {
+      <bit-nav-item
+        [icon]="organization.node.icon"
+        [forceActiveStyles]="organization.node.id === activeFilter()?.organizationId"
+        [text]="organization.node.name"
+        [appA11yTitle]="organization.node.name"
+        (click)="applyFilter($event, organization)"
+      >
+        @if (!organization.node.enabled) {
+          <bit-icon
+            slot="end"
+            name="bwi-exclamation-triangle"
+            [ariaLabel]="'organizationIsDisabled' | i18n"
+            [appA11yTitle]="'organizationIsDisabled' | i18n"
+          />
+        }
+      </bit-nav-item>
+    }
+  </bit-nav-group>
+}

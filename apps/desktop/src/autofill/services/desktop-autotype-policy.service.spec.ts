@@ -10,6 +10,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Account, UserId } from "@bitwarden/common/platform/models/domain/account";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 
 import { DesktopAutotypeDefaultSettingPolicy } from "./desktop-autotype-policy.service";
 
@@ -30,9 +31,10 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   beforeEach(() => {
     mockAccountSubject = new BehaviorSubject<Account | null>({
       id: mockUserId,
-      email: "test@example.com",
-      emailVerified: true,
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
     });
     mockFeatureFlagSubject = new BehaviorSubject<boolean>(true);
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(

@@ -21,8 +21,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
@@ -31,6 +29,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
@@ -68,6 +67,7 @@ import { ReplacePipe } from "./replace.pipe";
     SharedOrganizationModule,
     NoClientsComponent,
     ReplacePipe,
+    IconModule,
   ],
 })
 export class ManageClientsComponent implements OnInit, OnDestroy {
@@ -100,19 +100,11 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     ),
   );
 
-  protected providerPortalTakeover$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM21821_ProviderPortalTakeover,
-  );
-
   protected suspensionActive$ = combineLatest([
     this.isAdminOrServiceUser$,
-    this.providerPortalTakeover$,
     this.provider$.pipe(map((provider) => provider?.enabled ?? false)),
   ]).pipe(
-    map(
-      ([isAdminOrServiceUser, portalTakeoverEnabled, providerEnabled]) =>
-        isAdminOrServiceUser && portalTakeoverEnabled && !providerEnabled,
-    ),
+    map(([isAdminOrServiceUser, providerEnabled]) => isAdminOrServiceUser && !providerEnabled),
   );
 
   private destroy$ = new Subject<void>();
@@ -127,7 +119,6 @@ export class ManageClientsComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private webProviderService: WebProviderService,
     private billingNotificationService: BillingNotificationService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private providerApiService: ProviderApiServiceAbstraction,
   ) {}

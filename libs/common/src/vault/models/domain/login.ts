@@ -44,16 +44,14 @@ export class Login extends Domain {
   }
 
   async decrypt(
-    orgId: string | undefined,
     bypassValidation: boolean,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<LoginView> {
     const view = await this.decryptObj<Login, LoginView>(
       this,
       new LoginView(this),
       ["username", "password", "totp"],
-      orgId ?? null,
       encKey,
       `DomainType: Login; ${context}`,
     );
@@ -66,7 +64,7 @@ export class Login extends Domain {
           continue;
         }
 
-        const uri = await this.uris[i].decrypt(orgId, context, encKey);
+        const uri = await this.uris[i].decrypt(encKey, context);
         const uriString = uri.uri;
 
         if (uriString == null) {
@@ -79,7 +77,7 @@ export class Login extends Domain {
         // So we bypass the validation if there's no cipher.key or proceed with the validation and
         // Skip the value if it's been tampered with.
         const isValidUri =
-          bypassValidation || (await this.uris[i].validateChecksum(uriString, orgId, encKey));
+          bypassValidation || (await this.uris[i].validateChecksum(uriString, encKey));
 
         if (isValidUri) {
           view.uris.push(uri);
@@ -89,7 +87,7 @@ export class Login extends Domain {
 
     if (this.fido2Credentials != null) {
       view.fido2Credentials = await Promise.all(
-        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey)),
+        this.fido2Credentials.map((key) => key.decrypt(encKey)),
       );
     }
 
@@ -111,10 +109,7 @@ export class Login extends Domain {
     });
 
     if (this.uris != null && this.uris.length > 0) {
-      l.uris = [];
-      this.uris.forEach((u) => {
-        l.uris.push(u.toLoginUriData());
-      });
+      l.uris = this.uris.map((u) => u.toLoginUriData());
     }
 
     if (this.fido2Credentials != null && this.fido2Credentials.length > 0) {

@@ -1,0 +1,9 @@
+<h2 bitTypography="h2">{{ "rotateAccountEncryptionKey" | i18n }}</h2>
+<p bitTypography="body1">
+  {{ "rotateAccountEncryptionKeyDescription" | i18n }}
+</p>
+<div class="tw-flex tw-gap-2">
+  <button type="button" bitButton buttonType="primary" (click)="openKeyRotationDialog()">
+    {{ "rotateKey" | i18n }}
+  </button>
+</div>

@@ -58,10 +58,6 @@ export class MainBiometricsIPCListener {
               message.userId as UserId,
               SymmetricCryptoKey.fromString(message.key as string),
             );
-          case BiometricAction.EnableWindowsV2:
-            return await this.biometricService.enableWindowsV2Biometrics();
-          case BiometricAction.IsWindowsV2Enabled:
-            return await this.biometricService.isWindowsV2BiometricsEnabled();
           default:
             return;
         }

@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const UnlockedIcon = svgIcon`
+export const UnlockedIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0.99 80 73.35">
     <path class="tw-fill-illustration-bg-primary" d="M11.666 32.667c0-5.523 3.806-10 8.5-10h39.667c4.694 0 8.5 4.477 8.5 10v31.667c0 5.522-3.806 10-8.5 10H20.166c-4.694 0-8.5-4.478-8.5-10V32.667Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M59.833 24.334H20.166c-3.912 0-7.083 3.73-7.083 8.333v31.667c0 4.602 3.171 8.333 7.083 8.333h39.667c3.912 0 7.083-3.731 7.083-8.333V32.667c0-4.602-3.171-8.333-7.083-8.333Zm-39.667-1.667c-4.694 0-8.5 4.477-8.5 10v31.667c0 5.522 3.806 10 8.5 10h39.667c4.694 0 8.5-4.478 8.5-10V32.667c0-5.523-3.806-10-8.5-10H20.166Z" clip-rule="evenodd"/>

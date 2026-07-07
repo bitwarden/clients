@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
@@ -15,8 +15,9 @@ import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -35,23 +36,6 @@ import {
   imports: [SharedModule, OrganizationPlansComponent],
 })
 export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(OrganizationPlansComponent, { static: false })
-  set organizationPlansComponent(value: OrganizationPlansComponent) {
-    if (!value) {
-      return;
-    }
-
-    value.plan = PlanType.FamiliesAnnually;
-    value.productTier = ProductTierType.Families;
-    value.acceptingSponsorship = true;
-    value.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    value.onSuccess.subscribe(this.onOrganizationCreateSuccess.bind(this));
-  }
-
   loading = true;
   badToken = false;
 
@@ -63,13 +47,16 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
+  protected familyPlan: PlanType;
+  protected readonly familyProductTier = ProductTierType.Families;
+  protected readonly planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
+
   formGroup = this.formBuilder.group({
     selectedFamilyOrganizationId: ["", Validators.required],
   });
 
   constructor(
     private router: Router,
-    private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -80,6 +67,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -88,6 +76,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       const error = qParams.token == null;
       if (error) {
+        this.logService.warning("[Sponsorship] No token found in query params");
         this.toastService.showToast({
           variant: "error",
           title: null,
@@ -101,12 +90,20 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       }
 
       this.token = qParams.token;
+      this.logService.info(
+        `[Sponsorship] Token present (length=${this.token.length}), starting validation`,
+      );
 
       await this.syncService.fullSync(true);
 
       this.preValidateSponsorshipResponse = await this.apiService.postPreValidateSponsorshipToken(
         this.token,
       );
+
+      this.logService.info(
+        `[Sponsorship] Pre-validation result: isTokenValid=${this.preValidateSponsorshipResponse.isTokenValid}, isFreeFamilyPolicyEnabled=${this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled}`,
+      );
+
       if (this.preValidateSponsorshipResponse.isFreeFamilyPolicyEnabled) {
         this.toastService.showToast({
           variant: "error",
@@ -119,6 +116,8 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       } else {
         this.badToken = !this.preValidateSponsorshipResponse.isTokenValid;
       }
+
+      this.familyPlan = PlanType.FamiliesAnnually;
 
       this.loading = false;
     });
@@ -165,12 +164,18 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   }
 
   private async doSubmit(organizationId: string) {
+    this.logService.info(
+      `[Sponsorship] Redeem started: organizationId=${organizationId}, showNewOrganization=${this.showNewOrganization}, tokenLength=${this.token?.length}`,
+    );
+
     try {
       const request = new OrganizationSponsorshipRedeemRequest();
       request.planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
       request.sponsoredOrganizationId = organizationId;
 
       await this.apiService.postRedeemSponsorship(this.token, request);
+
+      this.logService.info("[Sponsorship] Redeem succeeded");
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -182,9 +187,19 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
       // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
+      if (e instanceof ErrorResponse) {
+        this.logService.error(
+          `[Sponsorship] Redeem failed: statusCode=${e.statusCode}, message="${e.message}", validationErrors=${JSON.stringify(e.validationErrors)}`,
+        );
+      } else {
+        this.logService.error(`[Sponsorship] Redeem failed with unexpected error: ${e}`);
+      }
+
       if (this.showNewOrganization) {
+        this.logService.warning(
+          `[Sponsorship] Opening delete dialog for newly created org: organizationId=${organizationId}`,
+        );
         const dialog = openDeleteOrganizationDialog(this.dialogService, {
           data: {
             organizationId: organizationId,
@@ -204,7 +219,10 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async onOrganizationCreateSuccess(value: any) {
+  protected async onOrganizationCreateSuccess(value: any) {
+    this.logService.info(
+      `[Sponsorship] Organization created successfully: organizationId=${value?.organizationId}`,
+    );
     // Use newly created organization id
     await this.doSubmit(value.organizationId);
   }

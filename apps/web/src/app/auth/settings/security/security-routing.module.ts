@@ -3,6 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { DeviceManagementComponent } from "@bitwarden/angular/auth/device-management/device-management.component";
 
+import { SessionTimeoutComponent } from "../../../key-management/session-timeout/session-timeout.component";
 import { TwoFactorSetupComponent } from "../two-factor/two-factor-setup.component";
 
 import { PasswordSettingsComponent } from "./password-settings/password-settings.component";
@@ -15,7 +16,12 @@ const routes: Routes = [
     component: SecurityComponent,
     data: { titleId: "security" },
     children: [
-      { path: "", pathMatch: "full", redirectTo: "password" },
+      { path: "", pathMatch: "full", redirectTo: "session-timeout" },
+      {
+        path: "session-timeout",
+        component: SessionTimeoutComponent,
+        data: { titleId: "sessionTimeoutHeader" },
+      },
       {
         path: "password",
         component: PasswordSettingsComponent,

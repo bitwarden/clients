@@ -1,3 +1,4 @@
+export * from "./discount-tier-type.enum";
 export * from "./payment-method-type.enum";
 export * from "./plan-sponsorship-type.enum";
 export * from "./plan-type.enum";

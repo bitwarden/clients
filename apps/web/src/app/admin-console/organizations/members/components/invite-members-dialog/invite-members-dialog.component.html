@@ -1,0 +1,230 @@
+@let organization = organization$ | async;
+<form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog dialogSize="large">
+  <span bitDialogTitle>{{ "inviteMembers" | i18n }}</span>
+  <div bitDialogContent>
+    @if (organization.useInviteLinks) {
+      <bit-tab-group
+        [selectedIndex]="selectedTabIndex()"
+        (selectedIndexChange)="selectedTabIndex.set($event)"
+      >
+        <bit-tab [label]="'byEmail' | i18n">
+          <ng-container
+            *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
+          ></ng-container>
+        </bit-tab>
+        <bit-tab [label]="'byLink' | i18n">
+          <app-by-link-tab [organizationId]="params.organizationId" />
+        </bit-tab>
+      </bit-tab-group>
+    } @else {
+      <ng-container
+        *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
+      ></ng-container>
+    }
+  </div>
+  <ng-container bitDialogFooter>
+    @if (selectedTabIndex() === 0) {
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="formGroup.controls.emails.invalid"
+      >
+        {{ "invite" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    } @else {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="copyLink"
+        [disabled]="byLinkTabDirty() || !(byLinkTabHasUrl$ | async)"
+      >
+        {{ "copyLink" | i18n }}
+      </button>
+      @if (byLinkTabHasUrl$ | async) {
+        <button
+          type="button"
+          bitButton
+          buttonType="dangerGhost"
+          startIcon="bwi-trash"
+          [bitAction]="deactivateLink"
+        >
+          {{ "deactivateLink" | i18n }}
+        </button>
+      }
+    }
+  </ng-container>
+
+  <ng-template #byEmailForm let-organization="organization">
+    <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+    @if (
+      {
+        remainingSeats: remainingSeats$ | async,
+        batchLimit: emailBatchLimit$ | async,
+        isDynamicSeatPlan: isDynamicSeatPlan$ | async,
+      };
+      as inviteInfo
+    ) {
+      <bit-form-field>
+        <bit-label>{{ "email" | i18n }}</bit-label>
+        <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
+        @if (inviteInfo.isDynamicSeatPlan) {
+          <bit-hint>{{ "inviteMultipleEmailsNoSeatLimit" | i18n: inviteInfo.batchLimit }}</bit-hint>
+        }
+        @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats > 1) {
+          <bit-hint>{{
+            "inviteMultipleEmailsWithSeatLimit"
+              | i18n: inviteInfo.batchLimit : inviteInfo.remainingSeats
+          }}</bit-hint>
+        }
+        @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats === 1) {
+          <bit-hint>{{ "inviteSingleEmailDesc" | i18n }}</bit-hint>
+        }
+        @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats <= 0) {
+          <bit-hint>{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
+        }
+      </bit-form-field>
+    }
+    <bit-form-field>
+      <bit-label>
+        {{ "memberRole" | i18n }}
+        <a
+          bitLink
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
+          href="https://bitwarden.com/help/user-types-access-control/"
+          slot="end"
+          startIcon="bwi-question-circle"
+        ></a>
+      </bit-label>
+      <bit-select formControlName="type" data-testid="role">
+        <bit-option
+          [value]="organizationUserType.User"
+          [description]="'userDesc' | i18n"
+          [label]="'user' | i18n"
+        ></bit-option>
+        <bit-option
+          [value]="organizationUserType.Admin"
+          [description]="'adminRoleDesc' | i18n"
+          [label]="'admin' | i18n"
+        ></bit-option>
+        <bit-option
+          [value]="organizationUserType.Owner"
+          [description]="'ownerDesc' | i18n"
+          [label]="'owner' | i18n"
+        ></bit-option>
+        <bit-option
+          [value]="organizationUserType.Custom"
+          [description]="'customDesc' | i18n"
+          [label]="'custom' | i18n"
+          [disabled]="!organization.useCustomPermissions"
+        ></bit-option>
+      </bit-select>
+    </bit-form-field>
+
+    @if (customUserTypeSelected()) {
+      <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
+        <div class="tw-col-span-4">
+          <bit-form-control>
+            <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
+            <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
+          </bit-form-control>
+          <bit-form-control>
+            <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
+            <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
+          </bit-form-control>
+          <bit-form-control>
+            <input type="checkbox" bitCheckbox formControlName="accessReports" />
+            <bit-label>{{ "accessReports" | i18n }}</bit-label>
+          </bit-form-control>
+        </div>
+        <div class="tw-col-span-4">
+          <div class="tw-mb-3">
+            <bit-form-control>
+              <input type="checkbox" bitCheckbox formControlName="manageGroups" />
+              <bit-label>{{ "manageGroups" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input type="checkbox" bitCheckbox formControlName="manageSso" />
+              <bit-label>{{ "manageSso" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input type="checkbox" bitCheckbox formControlName="managePolicies" />
+              <bit-label>{{ "managePolicies" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input id="manageUsers" type="checkbox" bitCheckbox formControlName="manageUsers" />
+              <bit-label>{{ "manageUsers" | i18n }}</bit-label>
+            </bit-form-control>
+            <bit-form-control>
+              <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
+              <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
+            </bit-form-control>
+          </div>
+        </div>
+      </div>
+    }
+    @if (organization.useSecretsManager) {
+      <bit-form-control>
+        <div class="tw-flex tw-flex-row tw-gap-2 tw-items-center">
+          <input
+            type="checkbox"
+            [disabled]="isOnSecretsManagerStandalone"
+            bitCheckbox
+            formControlName="accessSecretsManager"
+          />
+          <bit-label>
+            {{ "grantSecretsManager" | i18n }}
+          </bit-label>
+          <a
+            bitLink
+            target="_blank"
+            rel="noreferrer"
+            appA11yTitle="{{ 'learnMore' | i18n }}"
+            href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
+          >
+            <bit-icon name="bwi-question-circle" slot="end"> </bit-icon>
+          </a>
+        </div>
+      </bit-form-control>
+    }
+    <button
+      type="button"
+      bitButton
+      buttonType="primaryGhost"
+      class="tw-mb-4 tw-block"
+      [bitDisclosureTriggerFor]="moreSettingsRef"
+    >
+      {{ "moreSettings" | i18n }}
+      <bit-icon [name]="moreSettingsOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"> </bit-icon>
+    </button>
+    <bit-disclosure #moreSettingsRef [(open)]="moreSettingsOpen">
+      @if (organization.useGroups) {
+        <bit-access-selector
+          formControlName="groups"
+          [items]="(groupAccessItems$ | async) ?? []"
+          [columnHeader]="'groups' | i18n"
+          [selectorLabelText]="'groups' | i18n"
+          [hideTable]="true"
+          multiSelectTestId="groups"
+        ></bit-access-selector>
+      }
+      <bit-access-selector
+        [permissionMode]="PermissionMode.Edit"
+        formControlName="access"
+        [showGroupColumn]="organization.useGroups"
+        [items]="(collectionAccessItems$ | async) ?? []"
+        [columnHeader]="'collection' | i18n"
+        [selectorLabelText]="'collections' | i18n"
+        [emptySelectionText]="'noCollectionsAdded' | i18n"
+        multiSelectTestId="collections"
+      ></bit-access-selector>
+    </bit-disclosure>
+  </ng-template>
+</form>

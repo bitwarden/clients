@@ -4,6 +4,7 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 import { createNewSummaryData } from "../helpers";
 
+import { RiskInsightsMetricsData } from "./data/risk-insights-metrics.data";
 import { OrganizationReportSummary, PasswordHealthReportApplicationId } from "./report-models";
 
 // -------------------- Password Health Report Models --------------------
@@ -41,6 +42,7 @@ export interface SaveRiskInsightsReportRequest {
     reportData: string;
     summaryData: string;
     applicationData: string;
+    metrics: RiskInsightsMetricsData;
     contentEncryptionKey: string;
   };
 }
@@ -134,6 +136,12 @@ export class MemberCipherDetailsResponse extends BaseResponse {
 export interface UpdateRiskInsightsApplicationDataRequest {
   data: {
     applicationData: string;
+  };
+}
+export interface UpdateRiskInsightsSummaryDataRequest {
+  data: {
+    summaryData: string;
+    metrics: RiskInsightsMetricsData;
   };
 }
 export class UpdateRiskInsightsApplicationDataResponse extends BaseResponse {

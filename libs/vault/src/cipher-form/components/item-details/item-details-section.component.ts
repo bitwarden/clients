@@ -1,28 +1,30 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, Input, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, input, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { CollectionTypes, CollectionView } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/client-type";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { OrganizationUserType, PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  CollectionView,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   IconButtonModule,
   SectionHeaderComponent,
@@ -44,6 +46,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
   templateUrl: "./item-details-section.component.html",
   imports: [
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     FormFieldModule,
     ReactiveFormsModule,
@@ -61,6 +64,13 @@ export class ItemDetailsSectionComponent implements OnInit {
     folderId: [null],
     collectionIds: new FormControl([], [Validators.required]),
     favorite: [false],
+  });
+
+  protected readonly showArchiveBadge = computed(() => {
+    return (
+      this.originalCipherView()?.isArchived &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop
+    );
   });
 
   /**
@@ -91,10 +101,7 @@ export class ItemDetailsSectionComponent implements OnInit {
   @Input({ required: true })
   config: CipherFormConfig;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  originalCipherView: CipherView;
+  readonly originalCipherView = input<CipherView>();
 
   get readOnlyCollectionsNames(): string[] {
     return this.readOnlyCollections.map((c) => c.name);
@@ -141,8 +148,8 @@ export class ItemDetailsSectionComponent implements OnInit {
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
     private accountService: AccountService,
-    private configService: ConfigService,
     private policyService: PolicyService,
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.cipherFormContainer.registerChildForm("itemDetails", this.itemDetailsForm);
     this.itemDetailsForm.valueChanges
@@ -178,7 +185,7 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   get allowOwnershipChange() {
     // Do not allow ownership change in edit mode and the cipher is owned by an organization
-    if (this.config.mode === "edit" && this.originalCipherView?.organizationId != null) {
+    if (this.config.mode === "edit" && this.originalCipherView()?.organizationId != null) {
       return false;
     }
 
@@ -192,11 +199,6 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get showOwnership() {
-    // Don't show ownership field for archived ciphers
-    if (this.originalCipherView?.isArchived) {
-      return false;
-    }
-
     // Show ownership field when editing with available orgs
     const isEditingWithOrgs = this.organizations.length > 0 && this.config.mode === "edit";
 
@@ -207,7 +209,12 @@ export class ItemDetailsSectionComponent implements OnInit {
   }
 
   get defaultOwner() {
-    return this.allowPersonalOwnership ? null : this.organizations[0].id;
+    // Default to personal ownership if permitted or if there are no other alternatives
+    // (in which case the top level component will show an error toast on submit)
+    if (this.allowPersonalOwnership || this.organizations.length === 0) {
+      return null;
+    }
+    return this.organizations[0].id;
   }
 
   async ngOnInit() {
@@ -216,10 +223,6 @@ export class ItemDetailsSectionComponent implements OnInit {
     );
 
     this.userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-
-    if (!this.allowPersonalOwnership && this.organizations.length === 0) {
-      throw new Error("No organizations available for ownership.");
-    }
 
     const prefillCipher = this.cipherFormContainer.getInitialCipherView();
 
@@ -234,7 +237,7 @@ export class ItemDetailsSectionComponent implements OnInit {
         collectionIds: [],
         favorite: false,
       });
-      await this.updateCollectionOptions(this.initialValues?.collectionIds);
+      await this.updateCollectionOptions(this.initialValues?.collectionIds ?? []);
     }
 
     this.setFormState();
@@ -287,14 +290,6 @@ export class ItemDetailsSectionComponent implements OnInit {
    */
   private async getDefaultCollectionId(orgId?: OrganizationId) {
     if (!orgId || this.allowPersonalOwnership) {
-      return;
-    }
-
-    const isFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.CreateDefaultLocation,
-    );
-
-    if (!isFeatureEnabled) {
       return;
     }
 
@@ -365,7 +360,7 @@ export class ItemDetailsSectionComponent implements OnInit {
           (c) =>
             c.organizationId === orgId &&
             c.readOnly &&
-            this.originalCipherView.collectionIds.includes(c.id as CollectionId),
+            this.originalCipherView().collectionIds.includes(c.id as CollectionId),
         );
       }
     }
@@ -373,9 +368,14 @@ export class ItemDetailsSectionComponent implements OnInit {
 
   private setCollectionControlState() {
     const initialCipherView = this.cipherFormContainer.getInitialCipherView();
+    // These permission checks are only meaningful for existing, server-fetched ciphers whose
+    // edit/viewPassword flags reflect real server-side permissions. Skip for new ciphers (no id).
+    if (!initialCipherView?.id) {
+      return;
+    }
     const orgId = this.itemDetailsForm.controls.organizationId.value as OrganizationId;
     const organization = this.organizations.find((o) => o.id === orgId);
-    if (!organization || !initialCipherView) {
+    if (!organization) {
       return;
     }
     // Disable the collection control if either of the following apply:
@@ -422,8 +422,8 @@ export class ItemDetailsSectionComponent implements OnInit {
      * Note: `.every` will return true for an empty array
      */
     const cipherIsOnlyInOrgCollections =
-      (this.originalCipherView?.collectionIds ?? []).length > 0 &&
-      this.originalCipherView.collectionIds.every(
+      (this.originalCipherView()?.collectionIds ?? []).length > 0 &&
+      this.originalCipherView().collectionIds.every(
         (cId) =>
           this.collections.find((c) => c.id === cId)?.type === CollectionTypes.SharedCollection,
       );
@@ -476,7 +476,7 @@ export class ItemDetailsSectionComponent implements OnInit {
       return;
     }
 
-    if (startingSelection.filter(Boolean).length > 0) {
+    if (startingSelection?.filter(Boolean).length > 0) {
       collectionsControl.setValue(
         this.collectionOptions.filter((c) => startingSelection.includes(c.id as CollectionId)),
       );

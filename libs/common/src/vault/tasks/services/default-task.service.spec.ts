@@ -1,17 +1,16 @@
 import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { NotificationType } from "@bitwarden/common/enums";
-import { NotificationResponse } from "@bitwarden/common/models/response/notification.response";
-import { Message, MessageListener } from "@bitwarden/common/platform/messaging";
-import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { SecurityTaskId, UserId } from "@bitwarden/common/types/guid";
-
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { ApiService } from "../../../abstractions/api.service";
+import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "../../../admin-console/models/domain/organization";
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { NotificationType } from "../../../enums";
+import { NotificationResponse } from "../../../models/response/notification.response";
+import { Message, MessageListener } from "../../../platform/messaging";
+import { ServerNotificationsService } from "../../../platform/server-notifications";
+import { SecurityTaskId, UserId } from "../../../types/guid";
 import { SecurityTaskStatus } from "../enums";
 import { SecurityTaskData, SecurityTaskResponse } from "../models";
 import { SECURITY_TASKS } from "../state/security-task.state";
@@ -51,10 +50,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
@@ -70,10 +69,10 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -91,17 +90,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -111,7 +110,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(tasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should fetch tasks from the API when the state is null", async () => {
@@ -163,17 +161,17 @@ describe("Default task service", () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: true,
+            canUseAccessIntelligence: true,
           },
         ] as Organization[]),
       );
     });
 
-    it("should return an empty array if tasks are not enabled", async () => {
+    it("should return no tasks if not present and canUserAccessIntelligence is false", async () => {
       mockGetAllOrgs$.mockReturnValue(
         new BehaviorSubject([
           {
-            useRiskInsights: false,
+            canUseAccessIntelligence: false,
           },
         ] as Organization[]),
       );
@@ -183,7 +181,6 @@ describe("Default task service", () => {
       const result = await firstValueFrom(pendingTasks$("user-id" as UserId));
 
       expect(result.length).toBe(0);
-      expect(mockApiSend).not.toHaveBeenCalled();
     });
 
     it("should filter tasks to only pending tasks", async () => {

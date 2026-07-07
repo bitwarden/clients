@@ -31,9 +31,8 @@ describe("Messenger", () => {
 
   it("should deliver message to B when sending request from A", () => {
     const request = createRequest();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messengerA.request(request);
+
+    void messengerA.request(request);
 
     const received = handlerB.receive();
 
@@ -66,14 +65,92 @@ describe("Messenger", () => {
 
   it("should deliver abort signal to B when requesting abort", () => {
     const abortController = new AbortController();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messengerA.request(createRequest(), abortController.signal);
+
+    void messengerA.request(createRequest(), abortController.signal);
     abortController.abort();
 
     const received = handlerB.receive();
 
-    expect(received[0].abortController.signal.aborted).toBe(true);
+    expect(received[0].abortController?.signal.aborted).toBe(true);
+  });
+
+  describe("Messenger message validation", () => {
+    let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
+
+    const send = (
+      overrides: Partial<Omit<MessageEvent<MessageWithMetadata>, "data">> & { data?: any } = {},
+    ) => {
+      const { data: dataOverrides, ...eventOverrides } = overrides;
+      const port = new MessageChannel().port2;
+      listener({
+        isTrusted: true,
+        origin: "https://bitwarden.com",
+        data: {
+          ...createRequest(),
+          SENDER: "bitwarden-webauthn",
+          senderId: "other",
+          ...(dataOverrides ?? {}),
+        },
+        ports: [port],
+        ...eventOverrides,
+      } as unknown as MessageEvent<MessageWithMetadata>);
+    };
+
+    beforeEach(() => {
+      const channel: Channel = {
+        addEventListener: (l) => (listener = l),
+        removeEventListener: () => {},
+        postMessage: () => {},
+      };
+      messengerB = new Messenger(channel);
+      messengerB.handler = handlerB.handler;
+    });
+
+    it('should return early when window.origin is "null"', () => {
+      const prev = (window as any).origin;
+      try {
+        (window as any).origin = "null";
+        send();
+        expect(handlerB.receive()).toHaveLength(0);
+      } finally {
+        (window as any).origin = prev;
+      }
+    });
+
+    it("should reject cross-origin messages", () => {
+      send({ origin: "https://attacker.com" });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should reject self messages (senderId === messengerId)", () => {
+      send({ data: { senderId: (messengerB as any).messengerId } });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should reject messages with no transferred port", () => {
+      send({ ports: [] as any });
+      expect(handlerB.receive()).toHaveLength(0);
+    });
+
+    it("should ignore messages when event.isTrusted is false", () => {
+      let listener!: (e: MessageEvent<MessageWithMetadata>) => void;
+      const channel: Channel = {
+        addEventListener: (l) => (listener = l),
+        removeEventListener: () => {},
+        postMessage: () => {},
+      };
+      messengerB = new Messenger(channel);
+      messengerB.handler = handlerB.handler;
+
+      const event = new MessageEvent<MessageWithMetadata>("message", {
+        data: { ...createRequest(), SENDER: "bitwarden-webauthn", senderId: "other" },
+        origin: "https://bitwarden.com",
+        ports: [],
+      });
+      listener(event);
+
+      expect(handlerB.receive()).toHaveLength(0);
+    });
   });
 
   describe("destroy", () => {
@@ -103,29 +180,25 @@ describe("Messenger", () => {
 
     it("should dispatch the destroy event on messenger destruction", async () => {
       const request = createRequest();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.request(request);
+
+      void messengerA.request(request);
 
       const dispatchEventSpy = jest.spyOn((messengerA as any).onDestroy, "dispatchEvent");
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.destroy();
+
+      void messengerA.destroy();
 
       expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(Event));
     });
 
     it("should trigger onDestroyListener when the destroy event is dispatched", async () => {
       const request = createRequest();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.request(request);
+
+      void messengerA.request(request);
 
       const onDestroyListener = jest.fn();
       (messengerA as any).onDestroy.addEventListener("destroy", onDestroyListener);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      messengerA.destroy();
+
+      void messengerA.destroy();
 
       expect(onDestroyListener).toHaveBeenCalled();
       const eventArg = onDestroyListener.mock.calls[0][0];
@@ -209,17 +282,17 @@ class MockMessageChannel<T> {
 }
 
 class MockMessagePort<T> {
-  onmessage: ((ev: MessageEvent<T>) => any) | null;
-  remotePort: MockMessagePort<T>;
+  onmessage: ((ev: MessageEvent<T>) => any) | null = null;
+  remotePort!: MockMessagePort<T>;
 
   postMessage(message: T, port?: MessagePort) {
-    this.remotePort.onmessage(
-      new MessageEvent("message", {
-        data: message,
-        ports: port ? [port] : [],
-        origin: "https://bitwarden.com",
-      }),
-    );
+    const event = {
+      isTrusted: true,
+      origin: "https://bitwarden.com",
+      data: message,
+      ports: port ? [port] : [],
+    };
+    this.remotePort.onmessage?.(event as unknown as MessageEvent<T>);
   }
 
   close() {

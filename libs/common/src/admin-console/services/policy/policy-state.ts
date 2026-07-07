@@ -6,3 +6,12 @@ export const POLICIES = UserKeyDefinition.record<PolicyData, PolicyId>(POLICIES_
   deserializer: (policyData) => policyData,
   clearOn: ["logout"],
 });
+
+export const POLICIES_NEW = UserKeyDefinition.record<PolicyData, PolicyId>(
+  POLICIES_DISK,
+  "policiesNew",
+  {
+    deserializer: (policyData) => policyData,
+    clearOn: ["logout"],
+  },
+);

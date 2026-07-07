@@ -60,13 +60,15 @@ export function NotificationConfirmationContainer({
     remainingTasksCount = task.remainingTasksCount || 0;
     tasksAreComplete = remainingTasksCount === 0;
 
-    messageDetails =
-      remainingTasksCount > 0
-        ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
-            task.orgName,
-            `${remainingTasksCount}`,
-          ])
-        : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+    if (task.orgName !== null && task.orgName !== undefined) {
+      messageDetails =
+        remainingTasksCount > 0
+          ? chrome.i18n.getMessage("loginUpdateTaskSuccessAdditional", [
+              task.orgName,
+              `${remainingTasksCount}`,
+            ])
+          : chrome.i18n.getMessage("loginUpdateTaskSuccess", [task.orgName]);
+    }
   }
 
   return html`

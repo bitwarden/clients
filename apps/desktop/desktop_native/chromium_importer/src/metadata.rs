@@ -7,9 +7,9 @@ pub struct NativeImporterMetadata {
     /// Identifies the importer
     pub id: String,
     /// Describes the strategies used to obtain imported data
-    pub loaders: Vec<&'static str>,
+    pub loaders: Vec<String>,
     /// Identifies the instructions for the importer
-    pub instructions: &'static str,
+    pub instructions: String,
 }
 
 /// Returns a map of supported importers based on the current platform.
@@ -17,28 +17,30 @@ pub struct NativeImporterMetadata {
 /// Only browsers listed in PLATFORM_SUPPORTED_BROWSERS will have the "chromium" loader.
 /// All importers will have the "file" loader.
 pub fn get_supported_importers<T: InstalledBrowserRetriever>(
+    mas_build: bool,
 ) -> HashMap<String, NativeImporterMetadata> {
     let mut map = HashMap::new();
 
     // Check for installed browsers
-    let installed_browsers = T::get_installed_browsers().unwrap_or_default();
+    let installed_browsers = T::get_installed_browsers(mas_build);
 
     const IMPORTERS: &[(&str, &str)] = &[
+        ("arccsv", "Arc"),
+        ("bravecsv", "Brave"),
         ("chromecsv", "Chrome"),
         ("chromiumcsv", "Chromium"),
-        ("bravecsv", "Brave"),
+        ("edgecsv", "Microsoft Edge"),
         ("operacsv", "Opera"),
         ("vivaldicsv", "Vivaldi"),
-        ("edgecsv", "Microsoft Edge"),
     ];
 
     let supported: HashSet<&'static str> =
         PLATFORM_SUPPORTED_BROWSERS.iter().map(|b| b.name).collect();
 
     for (id, browser_name) in IMPORTERS {
-        let mut loaders: Vec<&'static str> = vec!["file"];
+        let mut loaders: Vec<String> = vec!["file".to_string()];
         if supported.contains(browser_name) {
-            loaders.push("chromium");
+            loaders.push("chromium".to_string());
         }
 
         if installed_browsers.contains(&browser_name.to_string()) {
@@ -47,7 +49,7 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
                 NativeImporterMetadata {
                     id: id.to_string(),
                     loaders,
-                    instructions: "chromium",
+                    instructions: "chromium".to_string(),
                 },
             );
         }
@@ -59,19 +61,19 @@ pub fn get_supported_importers<T: InstalledBrowserRetriever>(
 // Tests are cfg-gated based upon OS, and must be compiled/run on each OS for full coverage
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::collections::HashSet;
 
+    use super::*;
     use crate::chromium::{InstalledBrowserRetriever, SUPPORTED_BROWSER_MAP};
 
     pub struct MockInstalledBrowserRetriever {}
 
     impl InstalledBrowserRetriever for MockInstalledBrowserRetriever {
-        fn get_installed_browsers() -> Result<Vec<String>, anyhow::Error> {
-            Ok(SUPPORTED_BROWSER_MAP
+        fn get_installed_browsers(_mas_build: bool) -> Vec<String> {
+            SUPPORTED_BROWSER_MAP
                 .keys()
                 .map(|browser| browser.to_string())
-                .collect())
+                .collect()
         }
     }
 
@@ -79,21 +81,19 @@ mod tests {
         map.keys().cloned().collect()
     }
 
-    fn get_loaders(
-        map: &HashMap<String, NativeImporterMetadata>,
-        id: &str,
-    ) -> HashSet<&'static str> {
+    fn get_loaders(map: &HashMap<String, NativeImporterMetadata>, id: &str) -> HashSet<String> {
         map.get(id)
-            .map(|m| m.loaders.iter().copied().collect::<HashSet<_>>())
+            .map(|m| m.loaders.iter().cloned().collect::<HashSet<_>>())
             .unwrap_or_default()
     }
 
     #[cfg(target_os = "macos")]
     #[test]
     fn macos_returns_all_known_importers() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
 
         let expected: HashSet<String> = HashSet::from([
+            "arccsv".to_string(),
             "chromecsv".to_string(),
             "chromiumcsv".to_string(),
             "bravecsv".to_string(),
@@ -107,15 +107,16 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.iter().any(|l| *l == "file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 
     #[cfg(target_os = "macos")]
     #[test]
     fn macos_specific_loaders_match_const_array() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
         let ids = [
+            "arccsv",
             "chromecsv",
             "chromiumcsv",
             "bravecsv",
@@ -133,7 +134,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn returns_all_known_importers() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
 
         let expected: HashSet<String> = HashSet::from([
             "chromecsv".to_string(),
@@ -147,14 +148,14 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.iter().any(|l| *l == "file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn linux_specific_loaders_match_const_array() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
         let ids = ["chromecsv", "chromiumcsv", "bravecsv", "operacsv"];
 
         for id in ids {
@@ -167,7 +168,7 @@ mod tests {
     #[cfg(target_os = "windows")]
     #[test]
     fn returns_all_known_importers() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
 
         let expected: HashSet<String> = HashSet::from([
             "bravecsv".to_string(),
@@ -183,14 +184,14 @@ mod tests {
         for (key, meta) in map.iter() {
             assert_eq!(&meta.id, key);
             assert_eq!(meta.instructions, "chromium");
-            assert!(meta.loaders.iter().any(|l| *l == "file"));
+            assert!(meta.loaders.contains(&"file".to_owned()));
         }
     }
 
     #[cfg(target_os = "windows")]
     #[test]
     fn windows_specific_loaders_match_const_array() {
-        let map = get_supported_importers::<MockInstalledBrowserRetriever>();
+        let map = get_supported_importers::<MockInstalledBrowserRetriever>(false);
         let ids = [
             "bravecsv",
             "chromecsv",

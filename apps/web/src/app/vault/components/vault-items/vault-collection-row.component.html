@@ -27,7 +27,7 @@
       bitLink
       [disabled]="disabled"
       type="button"
-      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
       linkType="secondary"
       title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
       [routerLink]="[]"
@@ -35,42 +35,57 @@
       queryParamsHandling="merge"
       appStopProp
     >
-      <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
+      <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
     </button>
     @if (showAddAccess) {
-      <button
+      <span
         bitBadge
-        type="button"
+        role="button"
         (click)="addAccess(CollectionPermission.Manage)"
         variant="warning"
+        class="tw-cursor-pointer"
       >
         {{ "addAccess" | i18n }}
-      </button>
+      </span>
     }
   </div>
 </td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
-  <app-org-badge
-    [disabled]="disabled"
-    [organizationId]="collection.organizationId"
-    [organizationName]="collection.organizationId | orgNameFromId: organizations"
-    appStopProp
+@if (showOwner) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    <app-org-badge
+      [disabled]="disabled"
+      [organizationId]="collection.organizationId"
+      [organizationName]="collection.organizationId | orgNameFromId: organizations"
+      appStopProp
+    >
+    </app-org-badge>
+  </td>
+}
+@if (showCollections) {
+  <td bitCell [ngClass]="RowHeightClass"></td>
+}
+@if (showGroups) {
+  <td
+    bitCell
+    [ngClass]="RowHeightClass"
+    class="tw-hidden tw-overflow-hidden tw-pr-7 xl:tw-table-cell tw-text-sm"
   >
-  </app-org-badge>
-</td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showCollections"></td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showGroups">
-  <app-group-badge
-    *ngIf="collectionGroups"
-    [selectedGroups]="collectionGroups"
-    [allGroups]="groups"
-  ></app-group-badge>
-</td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showPermissionsColumn">
-  <p class="tw-mb-0 tw-text-muted" [title]="permissionTooltip">
-    {{ permissionText }}
-  </p>
-</td>
+    @if (collectionGroups) {
+      <app-group-badge [selectedGroups]="collectionGroups" [allGroups]="groups"></app-group-badge>
+    }
+  </td>
+}
+@if (showPermissionsColumn) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell tw-text-sm">
+    <p
+      class="tw-mb-0 tw-truncate tw-text-muted"
+      [bitTooltip]="permissionTooltip"
+      [title]="permissionText"
+    >
+      {{ permissionText }}
+    </p>
+  </td>
+}
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {
     <button
@@ -84,31 +99,35 @@
     ></button>
   }
   <bit-menu #collectionOptions>
-    <ng-container *ngIf="canEditCollection">
-      <button type="button" bitMenuItem (click)="edit(false)">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-        {{ "editInfo" | i18n }}
-      </button>
-      <button type="button" bitMenuItem (click)="access(false)">
-        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-        {{ "editAccess" | i18n }}
-      </button>
-    </ng-container>
-    <ng-container *ngIf="!canEditCollection && canViewCollectionInfo">
-      <button type="button" bitMenuItem (click)="edit(true)">
-        <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-        {{ "viewInfo" | i18n }}
-      </button>
-      <button type="button" bitMenuItem (click)="access(true)">
-        <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-        {{ "viewAccess" | i18n }}
-      </button>
-    </ng-container>
-    <button *ngIf="canDeleteCollection" type="button" bitMenuItem (click)="deleteCollection()">
-      <span class="tw-text-danger">
-        <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+    @if (canEditCollection) {
+      <ng-container>
+        <button type="button" bitMenuItem (click)="edit(false)">
+          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          {{ "editInfo" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="access(false)">
+          <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+          {{ "editAccess" | i18n }}
+        </button>
+      </ng-container>
+    }
+    @if (!canEditCollection && canViewCollectionInfo) {
+      <ng-container>
+        <button type="button" bitMenuItem (click)="edit(true)">
+          <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+          {{ "viewInfo" | i18n }}
+        </button>
+        <button type="button" bitMenuItem (click)="access(true)">
+          <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+          {{ "viewAccess" | i18n }}
+        </button>
+      </ng-container>
+    }
+    @if (canDeleteCollection) {
+      <button type="button" variant="danger" bitMenuItem (click)="deleteCollection()">
+        <bit-icon fixedWidth name="bwi-trash" slot="start" />
         {{ "delete" | i18n }}
-      </span>
-    </button>
+      </button>
+    }
   </bit-menu>
 </td>

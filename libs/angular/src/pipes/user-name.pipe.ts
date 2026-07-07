@@ -9,7 +9,6 @@ export interface User {
 
 @Pipe({
   name: "userName",
-  standalone: false,
 })
 export class UserNamePipe implements PipeTransform {
   transform(user?: User): string {

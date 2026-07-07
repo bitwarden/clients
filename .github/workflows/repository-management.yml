@@ -29,7 +29,7 @@ on:
         default: false
       target_ref:
         default: "main"
-        description: "Branch/Tag to target for cut"
+        description: "Branch/Tag to target for cut (ignored if not cutting rc)"
         required: true
         type: string
       version_number_override:
@@ -70,7 +70,8 @@ jobs:
       version_desktop: ${{ steps.set-final-version-output.outputs.version_desktop }}
       version_web: ${{ steps.set-final-version-output.outputs.version_web }}
     permissions:
-      id-token: write
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Validate version input format
@@ -79,41 +80,17 @@ jobs:
         with:
           version: ${{ inputs.version_number_override }}
 
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Get Azure Key Vault secrets
-        id: get-kv-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: gh-org-bitwarden
-          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
-        id: app-token
-        with:
-          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
-          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
-
       - name: Check out branch
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: main
-          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.ref }}
+          token: ${{ github.token }}
           persist-credentials: true
 
       - name: Configure Git
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
       ########################
       # VERSION BUMP SECTION #
@@ -425,13 +402,35 @@ jobs:
             echo "No changes to commit!";
           fi
 
-      - name: Commit files
+      - name: Create branch name
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git commit -m "Bumped client version(s)" -a
+        id: create-branch-name
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="version-bump-${TIMESTAMP}"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Push changes
+      - name: Create branch and commit version bump
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
-        run: git push
+        env:
+          BRANCH_NAME: ${{ steps.create-branch-name.outputs.branch_name }}
+        run: |
+          git checkout -b "$BRANCH_NAME"
+          git commit -m "Bumped client version(s)" -a
+
+      - name: Push branch and create PR
+        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        env:
+          BRANCH_NAME: ${{ steps.create-branch-name.outputs.branch_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git push -u origin "$BRANCH_NAME"
+          gh pr create \
+            --title "Bump client version(s)" \
+            --body "Automated version bump created by repository-management workflow" \
+            --label "version update" \
+            --base main \
+            --head "$BRANCH_NAME"
 
   cut_branch:
     name: Cut branch
@@ -441,38 +440,14 @@ jobs:
       - bump_version
     runs-on: ubuntu-24.04
     permissions:
-      id-token: write
+      contents: write
 
     steps:
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Get Azure Key Vault secrets
-        id: get-kv-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: gh-org-bitwarden
-          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Generate GH App token
-        uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
-        id: app-token
-        with:
-          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
-          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
-
       - name: Check out target ref
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.target_ref }}
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ github.token }}
           persist-credentials: true
 
       - name: Check if ${{ needs.setup.outputs.branch }} branch exists

@@ -9,8 +9,10 @@ import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { createNewSummaryData } from "../../helpers";
-import { RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
+import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
 import { mockMemberCipherDetailsResponse } from "../../models/mocks/member-cipher-details-response.mock";
 import {
   mockApplicationData,
@@ -22,7 +24,6 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
@@ -59,7 +60,7 @@ describe("RiskInsightsOrchestratorService", () => {
   let mockPasswordHealthService: PasswordHealthService;
   const mockReportApiService = mock<RiskInsightsApiService>();
   let mockReportService: RiskInsightsReportService;
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>();
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>();
   const mockLogService = mock<LogService>();
 
   beforeEach(() => {
@@ -104,34 +105,6 @@ describe("RiskInsightsOrchestratorService", () => {
   });
 
   describe("fetchReport", () => {
-    it("should call with correct org and user IDs and emit ReportState", (done) => {
-      // Arrange
-      const privateOrganizationDetailsSubject = service["_organizationDetailsSubject"];
-      const privateUserIdSubject = service["_userIdSubject"];
-
-      // Set up organization and user context
-      privateOrganizationDetailsSubject.next({
-        organizationId: mockOrgId,
-        organizationName: mockOrgName,
-      });
-      privateUserIdSubject.next(mockUserId);
-
-      // Act
-      service.fetchReport();
-
-      // Assert
-      service.rawReportData$.subscribe((state) => {
-        if (!state.loading) {
-          expect(mockReportService.getRiskInsightsReport$).toHaveBeenCalledWith(
-            mockOrgId,
-            mockUserId,
-          );
-          expect(state.data).toEqual(reportState);
-          done();
-        }
-      });
-    });
-
     it("should emit error ReportState when getRiskInsightsReport$ throws", (done) => {
       // Setup error passed via constructor for this test case
       mockReportService.getRiskInsightsReport$ = jest
@@ -156,9 +129,8 @@ describe("RiskInsightsOrchestratorService", () => {
         organizationName: mockOrgName,
       });
       _userIdSubject.next(mockUserId);
-      testService.fetchReport();
       testService.rawReportData$.subscribe((state) => {
-        if (!state.loading) {
+        if (state.status != ReportStatus.Loading) {
           expect(state.error).toBe("Failed to fetch report");
           expect(state.data).toBeNull();
           done();
@@ -182,9 +154,23 @@ describe("RiskInsightsOrchestratorService", () => {
       // Act
       service.generateReport();
 
+      const metricsData = new RiskInsightsMetrics();
+      metricsData.totalApplicationCount = 3;
+      metricsData.totalAtRiskApplicationCount = 1;
+      metricsData.totalAtRiskMemberCount = 2;
+      metricsData.totalAtRiskPasswordCount = 1;
+      metricsData.totalCriticalApplicationCount = 1;
+      metricsData.totalCriticalAtRiskApplicationCount = 1;
+      metricsData.totalCriticalMemberCount = 1;
+      metricsData.totalCriticalAtRiskMemberCount = 1;
+      metricsData.totalCriticalPasswordCount = 0;
+      metricsData.totalCriticalAtRiskPasswordCount = 0;
+      metricsData.totalMemberCount = 5;
+      metricsData.totalPasswordCount = 2;
+
       // Assert
       service.rawReportData$.subscribe((state) => {
-        if (!state.loading && state.data) {
+        if (state.status != ReportStatus.Loading && state.data) {
           expect(mockMemberCipherDetailsApiService.getMemberCipherDetails).toHaveBeenCalledWith(
             mockOrgId,
           );
@@ -193,11 +179,50 @@ describe("RiskInsightsOrchestratorService", () => {
             mockEnrichedReportData,
             mockSummaryData,
             mockApplicationData,
+            metricsData,
             { organizationId: mockOrgId, userId: mockUserId },
           );
           expect(state.data.reportData).toEqual(mockEnrichedReportData);
           expect(state.data.summaryData).toEqual(mockSummaryData);
           expect(state.data.applicationData).toEqual(mockApplicationData);
+          done();
+        }
+      });
+    });
+
+    it("should emit error ReportState when saveRiskInsightsReport$ throws", (done) => {
+      // Override the save mock to throw before creating the service
+      mockReportService.saveRiskInsightsReport$ = jest
+        .fn()
+        .mockReturnValue(throwError(() => new Error("Save failed")));
+
+      const testService = new RiskInsightsOrchestratorService(
+        mockAccountService,
+        mockCipherService,
+        mockCriticalAppsService,
+        mockLogService,
+        mockMemberCipherDetailsApiService,
+        mockOrganizationService,
+        mockPasswordHealthService,
+        mockReportApiService,
+        mockReportService,
+        mockRiskInsightsEncryptionService,
+      );
+
+      const privateOrganizationDetailsSubject = testService["_organizationDetailsSubject"];
+      const privateUserIdSubject = testService["_userIdSubject"];
+
+      privateOrganizationDetailsSubject.next({
+        organizationId: mockOrgId,
+        organizationName: mockOrgName,
+      });
+      privateUserIdSubject.next(mockUserId);
+
+      testService.generateReport();
+
+      testService.rawReportData$.subscribe((state) => {
+        if (state.status === ReportStatus.Error) {
+          expect(state.error).toBe("Failed to generate or save report");
           done();
         }
       });

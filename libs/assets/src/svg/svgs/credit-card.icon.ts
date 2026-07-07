@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const CreditCardIcon = svgIcon`
+export const CreditCardIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0.98 15.86 95.04 65.76">
     <path class="tw-fill-illustration-bg-secondary" d="M.98 21.62a5.76 5.76 0 0 1 5.76-5.76h57.6a5.76 5.76 0 0 1 5.76 5.76v33.6a5.76 5.76 0 0 1-5.76 5.76H6.74a5.76 5.76 0 0 1-5.76-5.76v-33.6Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M64.34 17.78H6.74a3.84 3.84 0 0 0-3.84 3.84v33.6a3.84 3.84 0 0 0 3.84 3.84h57.6a3.84 3.84 0 0 0 3.84-3.84v-33.6a3.84 3.84 0 0 0-3.84-3.84Zm-57.6-1.92a5.76 5.76 0 0 0-5.76 5.76v33.6a5.76 5.76 0 0 0 5.76 5.76h57.6a5.76 5.76 0 0 0 5.76-5.76v-33.6a5.76 5.76 0 0 0-5.76-5.76H6.74Z" clip-rule="evenodd"/>

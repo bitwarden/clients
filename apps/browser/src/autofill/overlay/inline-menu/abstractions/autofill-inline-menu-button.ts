@@ -10,6 +10,7 @@ export type InitAutofillInlineMenuButtonMessage = UpdateAuthStatusMessage & {
   styleSheetUrl: string;
   translations: Record<string, string>;
   portKey: string;
+  token: string;
 };
 
 export type AutofillInlineMenuButtonWindowMessageHandlers = {

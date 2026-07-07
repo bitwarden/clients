@@ -18,6 +18,8 @@ export interface SecretDeleteOperation {
   secrets: SecretListView[];
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./secret-delete.component.html",
   standalone: false,
@@ -48,7 +50,7 @@ export class SecretDeleteDialogComponent {
 
     if (bulkResponses.find((response) => response.errorMessage)) {
       this.openBulkStatusDialog(bulkResponses.filter((response) => response.errorMessage));
-      this.dialogRef.close(true);
+      await this.dialogRef.close(true);
       return;
     }
 
@@ -60,7 +62,7 @@ export class SecretDeleteDialogComponent {
       message: this.i18nService.t(message),
     });
 
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 
   openBulkStatusDialog(bulkStatusResults: BulkOperationStatus[]) {

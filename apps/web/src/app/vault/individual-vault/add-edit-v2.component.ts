@@ -78,6 +78,8 @@ export interface AddEditCipherDialogCloseResult {
   ],
   providers: [{ provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService }],
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AddEditComponentV2 implements OnInit {
   config: CipherFormConfig;
   headerText: string;
@@ -130,7 +132,7 @@ export class AddEditComponentV2 implements OnInit {
    * Method to handle cancel action. Called when a user clicks the cancel button.
    */
   async cancel() {
-    this.dialogRef.close({ action: AddEditCipherDialogResult.Canceled });
+    await this.dialogRef.close({ action: AddEditCipherDialogResult.Canceled });
   }
 
   /**
@@ -147,6 +149,13 @@ export class AddEditComponentV2 implements OnInit {
       [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
       [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+      [CipherType.BankAccount]: isEditMode
+        ? "editItemHeaderBankAccount"
+        : "newItemHeaderBankAccount",
+      [CipherType.DriversLicense]: isEditMode
+        ? "editItemHeaderLicense"
+        : "newItemHeaderDriversLicense",
+      [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }
@@ -171,7 +180,7 @@ export class AddEditComponentV2 implements OnInit {
    * @param cipherView The cipher view that was saved.
    */
   async onCipherSaved(cipherView: CipherView) {
-    this.dialogRef.close({
+    await this.dialogRef.close({
       action:
         this.config.mode === "add"
           ? AddEditCipherDialogResult.Added
@@ -191,5 +200,8 @@ export function openAddEditCipherDialog(
   dialogService: DialogService,
   config: DialogConfig<CipherFormConfig>,
 ): DialogRef<AddEditCipherDialogCloseResult> {
-  return dialogService.open(AddEditComponentV2, config);
+  return dialogService.open<AddEditCipherDialogCloseResult, CipherFormConfig, AddEditComponentV2>(
+    AddEditComponentV2,
+    config,
+  );
 }

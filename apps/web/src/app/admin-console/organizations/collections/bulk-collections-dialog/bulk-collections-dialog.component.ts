@@ -7,14 +7,16 @@ import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 import {
   CollectionAdminService,
   OrganizationUserApiService,
-  CollectionView,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -82,6 +84,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private i18nService: I18nService,
     private collectionAdminService: CollectionAdminService,
     private toastService: ToastService,
+    private configService: ConfigService,
   ) {
     this.numCollections = this.params.collections.length;
     const organization$ = this.accountService.activeAccount$.pipe(
@@ -139,13 +142,22 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       groups,
     );
 
+    const batchBarEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM37785_VaultBatchBar,
+    );
+    const editedMessage = batchBarEnabled
+      ? this.i18nService.t(
+          this.params.collections.length === 1 ? "collectionEdited" : "collectionsEdited",
+        )
+      : this.i18nService.t("collectionsEdited");
+
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("editedCollections"),
+      message: editedMessage,
     });
 
-    this.dialogRef.close(BulkCollectionsDialogResult.Saved);
+    await this.dialogRef.close(BulkCollectionsDialogResult.Saved);
   };
 
   static open(dialogService: DialogService, config: DialogConfig<BulkCollectionsDialogParams>) {

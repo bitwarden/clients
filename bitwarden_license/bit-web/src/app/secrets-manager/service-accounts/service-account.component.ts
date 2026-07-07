@@ -15,6 +15,8 @@ import { AccessService } from "./access/access.service";
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
 import { ServiceAccountService } from "./service-account.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-service-account",
   templateUrl: "./service-account.component.html",

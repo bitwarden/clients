@@ -5,13 +5,13 @@ import { firstValueFrom, map, switchMap } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserConfirmRequest,
+  OrganizationUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -28,7 +28,6 @@ export class ConfirmCommand {
     private encryptService: EncryptService,
     private organizationUserApiService: OrganizationUserApiService,
     private accountService: AccountService,
-    private configService: ConfigService,
     private i18nService: I18nService,
   ) {}
 
@@ -75,16 +74,15 @@ export class ConfirmCommand {
       if (orgUser == null) {
         throw new Error("Member id does not exist for this organization.");
       }
+
+      this.validateOrganizationUserStatus(orgUser);
+
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
       const key = await this.encryptService.encapsulateKeyUnsigned(orgKey, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
-      if (
-        await firstValueFrom(this.configService.getFeatureFlag$(FeatureFlag.CreateDefaultLocation))
-      ) {
-        req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
-      }
+      req.defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
       await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
@@ -100,6 +98,24 @@ export class ConfirmCommand {
     const defaultCollectionName = this.i18nService.t("myItems");
     const encrypted = await this.encryptService.encryptString(defaultCollectionName, orgKey);
     return encrypted.encryptedString;
+  }
+
+  private validateOrganizationUserStatus(orgUser: OrganizationUserDetailsResponse): void {
+    if (orgUser.status === OrganizationUserStatusType.Invited) {
+      throw new Error("User must accept the invitation before they can be confirmed.");
+    }
+
+    if (orgUser.status === OrganizationUserStatusType.Confirmed) {
+      throw new Error("User is already confirmed.");
+    }
+
+    if (orgUser.status === OrganizationUserStatusType.Revoked) {
+      throw new Error("User is revoked and cannot be confirmed.");
+    }
+
+    if (orgUser.status !== OrganizationUserStatusType.Accepted) {
+      throw new Error("User is not in a valid state to be confirmed.");
+    }
   }
 }
 

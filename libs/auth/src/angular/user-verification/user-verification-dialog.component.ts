@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { Component, Inject, ViewChild } from "@angular/core";
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -46,6 +46,10 @@ import { UserVerificationFormInputComponent } from "./user-verification-form-inp
   ],
 })
 export class UserVerificationDialogComponent {
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(FormGroupDirective) private formGroupDirective: FormGroupDirective;
+
   verificationForm = this.formBuilder.group({
     secret: this.formBuilder.control<VerificationWithSecret | null>(null),
   });
@@ -165,7 +169,7 @@ export class UserVerificationDialogComponent {
    *
    *      // ... Do something with the custom request type
    *
-   *       await someServicer.sendMyRequestThatVerfiesUserIdentity(
+   *       await someServicer.sendMyRequestThatVerifiesUserIdentity(
    *         // ... Some other data
    *         request,
    *       );
@@ -277,17 +281,21 @@ export class UserVerificationDialogComponent {
           });
         }
       }
-    } catch (e) {
+    } catch {
       // Catch handles OTP and MP verification scenarios as those throw errors on verification failure instead of returning false like PIN and biometrics.
       this.invalidSecret = true;
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("error"),
-        message: e.message,
+        message: this.i18nService.t("userVerificationFailed"),
       });
       return;
     }
   };
+
+  submitFromPaste(): void {
+    this.formGroupDirective?.onSubmit(new Event("submit"));
+  }
 
   cancel() {
     this.close({
@@ -297,6 +305,6 @@ export class UserVerificationDialogComponent {
   }
 
   close(dialogResult: UserVerificationDialogResult) {
-    this.dialogRef.close(dialogResult);
+    void this.dialogRef.close(dialogResult);
   }
 }

@@ -2,9 +2,6 @@
 // @ts-strict-ignore
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -18,6 +15,8 @@ import {
   StateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
+import { CipherType } from "../../vault/enums";
+import { RestrictedItemTypesService } from "../../vault/services/restricted-item-types.service";
 import { ClearClipboardDelay, AutofillOverlayVisibility } from "../constants";
 import { ClearClipboardDelaySetting, InlineMenuVisibilitySetting } from "../types";
 
@@ -92,7 +91,25 @@ const CLEAR_CLIPBOARD_DELAY = new UserKeyDefinition(
   AUTOFILL_SETTINGS_DISK_LOCAL,
   "clearClipboardDelay",
   {
-    deserializer: (value: ClearClipboardDelaySetting) => value ?? ClearClipboardDelay.Never,
+    deserializer: (value: ClearClipboardDelaySetting) => value ?? ClearClipboardDelay.FiveMinutes,
+    clearOn: [],
+  },
+);
+
+const HAD_PRE_MIGRATION_CLIPBOARD_VALUE = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK_LOCAL,
+  "hadPreMigrationClipboardValue",
+  {
+    deserializer: (value: boolean) => value ?? false,
+    clearOn: [],
+  },
+);
+
+const CLIPBOARD_SETTING_UPDATED_NOTIFICATION_DISMISSED = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "clipboardSettingUpdatedNotificationDismissed",
+  {
+    deserializer: (value: boolean) => value ?? false,
     clearOn: [],
   },
 );
@@ -119,6 +136,10 @@ export abstract class AutofillSettingsServiceAbstraction {
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
   setClearClipboardDelay: (newValue: ClearClipboardDelaySetting) => Promise<void>;
+  hadPreMigrationClipboardValue$: Observable<boolean>;
+  clipboardSettingUpdatedNotificationDismissed$: Observable<boolean>;
+  setClipboardSettingUpdatedNotificationDismissed: (newValue: boolean) => Promise<void>;
+  showClipboardSettingUpdateNotification$: Observable<boolean>;
 }
 
 export class AutofillSettingsService implements AutofillSettingsServiceAbstraction {
@@ -153,6 +174,14 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   private clearClipboardDelayState: ActiveUserState<ClearClipboardDelaySetting>;
   readonly clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
+
+  private hadPreMigrationClipboardValueState: ActiveUserState<boolean>;
+  readonly hadPreMigrationClipboardValue$: Observable<boolean>;
+
+  private clipboardSettingUpdatedNotificationDismissedState: ActiveUserState<boolean>;
+  readonly clipboardSettingUpdatedNotificationDismissed$: Observable<boolean>;
+
+  readonly showClipboardSettingUpdateNotification$: Observable<boolean>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -219,7 +248,33 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
     this.clearClipboardDelayState = this.stateProvider.getActive(CLEAR_CLIPBOARD_DELAY);
     this.clearClipboardDelay$ = this.clearClipboardDelayState.state$.pipe(
-      map((x) => x ?? ClearClipboardDelay.Never),
+      map((x) => x ?? ClearClipboardDelay.FiveMinutes),
+    );
+
+    this.hadPreMigrationClipboardValueState = this.stateProvider.getActive(
+      HAD_PRE_MIGRATION_CLIPBOARD_VALUE,
+    );
+    this.hadPreMigrationClipboardValue$ = this.hadPreMigrationClipboardValueState.state$.pipe(
+      map((x) => x ?? false),
+    );
+
+    this.clipboardSettingUpdatedNotificationDismissedState = this.stateProvider.getActive(
+      CLIPBOARD_SETTING_UPDATED_NOTIFICATION_DISMISSED,
+    );
+    this.clipboardSettingUpdatedNotificationDismissed$ =
+      this.clipboardSettingUpdatedNotificationDismissedState.state$.pipe(map((x) => x ?? false));
+
+    // Observable that determines if notification should be shown
+    // Shows notification if:
+    // 1. User went through migration with null/Never value (hadPreMigrationValue is true)
+    // 2. Notification hasn't been dismissed
+    this.showClipboardSettingUpdateNotification$ = combineLatest([
+      this.hadPreMigrationClipboardValue$,
+      this.clipboardSettingUpdatedNotificationDismissed$,
+    ]).pipe(
+      map(([hadPreMigrationValue, dismissed]) => {
+        return hadPreMigrationValue && !dismissed;
+      }),
     );
   }
 
@@ -261,5 +316,9 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setClearClipboardDelay(newValue: ClearClipboardDelaySetting): Promise<void> {
     await this.clearClipboardDelayState.update(() => newValue);
+  }
+
+  async setClipboardSettingUpdatedNotificationDismissed(newValue: boolean): Promise<void> {
+    await this.clipboardSettingUpdatedNotificationDismissedState.update(() => newValue);
   }
 }

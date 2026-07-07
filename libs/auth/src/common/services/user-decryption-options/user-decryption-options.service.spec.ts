@@ -1,12 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
-import { Utils } from "@bitwarden/common/platform/misc/utils";
-import {
-  FakeAccountService,
-  FakeStateProvider,
-  mockAccountServiceWith,
-} from "@bitwarden/common/spec";
+import { FakeSingleUserStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { newGuid } from "@bitwarden/guid";
 
 import { UserDecryptionOptions } from "../../models/domain/user-decryption-options";
 
@@ -17,15 +13,10 @@ import {
 
 describe("UserDecryptionOptionsService", () => {
   let sut: UserDecryptionOptionsService;
-
-  const fakeUserId = Utils.newGuid() as UserId;
-  let fakeAccountService: FakeAccountService;
-  let fakeStateProvider: FakeStateProvider;
+  let fakeStateProvider: FakeSingleUserStateProvider;
 
   beforeEach(() => {
-    fakeAccountService = mockAccountServiceWith(fakeUserId);
-    fakeStateProvider = new FakeStateProvider(fakeAccountService);
-
+    fakeStateProvider = new FakeSingleUserStateProvider();
     sut = new UserDecryptionOptionsService(fakeStateProvider);
   });
 
@@ -42,55 +33,71 @@ describe("UserDecryptionOptionsService", () => {
     },
   };
 
-  describe("userDecryptionOptions$", () => {
-    it("should return the active user's decryption options", async () => {
-      await fakeStateProvider.setUserState(USER_DECRYPTION_OPTIONS, userDecryptionOptions);
+  describe("userDecryptionOptionsById$", () => {
+    it("should return user decryption options for a specific user", async () => {
+      const userId = newGuid() as UserId;
 
-      const result = await firstValueFrom(sut.userDecryptionOptions$);
+      fakeStateProvider.getFake(userId, USER_DECRYPTION_OPTIONS).nextState(userDecryptionOptions);
+
+      const result = await firstValueFrom(sut.userDecryptionOptionsById$(userId));
 
       expect(result).toEqual(userDecryptionOptions);
     });
   });
 
-  describe("hasMasterPassword$", () => {
-    it("should return the hasMasterPassword property of the active user's decryption options", async () => {
-      await fakeStateProvider.setUserState(USER_DECRYPTION_OPTIONS, userDecryptionOptions);
+  describe("hasMasterPasswordById$", () => {
+    it("should return true when user has a master password", async () => {
+      const userId = newGuid() as UserId;
 
-      const result = await firstValueFrom(sut.hasMasterPassword$);
+      fakeStateProvider.getFake(userId, USER_DECRYPTION_OPTIONS).nextState(userDecryptionOptions);
+
+      const result = await firstValueFrom(sut.hasMasterPasswordById$(userId));
 
       expect(result).toBe(true);
     });
-  });
 
-  describe("userDecryptionOptionsById$", () => {
-    it("should return the user decryption options for the given user", async () => {
-      const givenUser = Utils.newGuid() as UserId;
-      await fakeAccountService.addAccount(givenUser, {
-        name: "Test User 1",
-        email: "test1@email.com",
-        emailVerified: false,
-      });
-      await fakeStateProvider.setUserState(
-        USER_DECRYPTION_OPTIONS,
-        userDecryptionOptions,
-        givenUser,
-      );
+    it("should return false when user does not have a master password", async () => {
+      const userId = newGuid() as UserId;
+      const optionsWithoutMasterPassword = {
+        ...userDecryptionOptions,
+        hasMasterPassword: false,
+      };
 
-      const result = await firstValueFrom(sut.userDecryptionOptionsById$(givenUser));
+      fakeStateProvider
+        .getFake(userId, USER_DECRYPTION_OPTIONS)
+        .nextState(optionsWithoutMasterPassword);
 
-      expect(result).toEqual(userDecryptionOptions);
+      const result = await firstValueFrom(sut.hasMasterPasswordById$(userId));
+
+      expect(result).toBe(false);
     });
   });
 
-  describe("setUserDecryptionOptions", () => {
-    it("should set the active user's decryption options", async () => {
-      await sut.setUserDecryptionOptions(userDecryptionOptions);
+  describe("setUserDecryptionOptionsById", () => {
+    it("should set user decryption options for a specific user", async () => {
+      const userId = newGuid() as UserId;
 
-      const result = await firstValueFrom(
-        fakeStateProvider.getActive(USER_DECRYPTION_OPTIONS).state$,
-      );
+      await sut.setUserDecryptionOptionsById(userId, userDecryptionOptions);
+
+      const fakeState = fakeStateProvider.getFake(userId, USER_DECRYPTION_OPTIONS);
+      const result = await firstValueFrom(fakeState.state$);
 
       expect(result).toEqual(userDecryptionOptions);
+    });
+
+    it("should overwrite existing user decryption options", async () => {
+      const userId = newGuid() as UserId;
+      const initialOptions = { ...userDecryptionOptions, hasMasterPassword: false };
+      const updatedOptions = { ...userDecryptionOptions, hasMasterPassword: true };
+
+      const fakeState = fakeStateProvider.getFake(userId, USER_DECRYPTION_OPTIONS);
+      fakeState.nextState(initialOptions);
+
+      await sut.setUserDecryptionOptionsById(userId, updatedOptions);
+
+      const result = await firstValueFrom(fakeState.state$);
+
+      expect(result).toEqual(updatedOptions);
     });
   });
 });

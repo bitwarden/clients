@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/billing/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +29,7 @@ export class PremiumComponent extends BasePremiumComponent {
     billingAccountProfileStateService: BillingAccountProfileStateService,
     toastService: ToastService,
     accountService: AccountService,
+    billingApiService: BillingApiServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -39,6 +41,7 @@ export class PremiumComponent extends BasePremiumComponent {
       billingAccountProfileStateService,
       toastService,
       accountService,
+      billingApiService,
     );
   }
 }

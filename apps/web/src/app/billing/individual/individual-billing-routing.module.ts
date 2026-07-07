@@ -1,18 +1,18 @@
 import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
 
-import { componentRouteSwap } from "@bitwarden/angular/utils/component-route-swap";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { hasPremiumPersonallyGuard } from "@bitwarden/web-vault/app/billing/guards/has-premium-personally.guard";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
+import { SelfHostedPremiumComponent } from "@bitwarden/web-vault/app/billing/individual/premium/self-hosted-premium.component";
+import { CloudHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/cloud-hosted-account-subscription.component";
+import { SelfHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app/billing/individual/subscription/self-hosted-account-subscription.component";
 
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
-import { PremiumVNextComponent } from "./premium/premium-vnext.component";
-import { PremiumComponent } from "./premium/premium.component";
+import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
-import { UserSubscriptionComponent } from "./user-subscription.component";
+
+const isSelfHosted = () => inject(PlatformUtilsService).isSelfHost();
 
 const routes: Routes = [
   {
@@ -20,28 +20,50 @@ const routes: Routes = [
     component: SubscriptionComponent,
     data: { titleId: "subscription" },
     children: [
-      { path: "", pathMatch: "full", redirectTo: "premium" },
+      { path: "", pathMatch: "full", redirectTo: "user-subscription" },
+      /**
+       * Two-Route Matching Strategy for /user-subscription:
+       *
+       * 1. Self-Hosted Environment → SelfHostedAccountSubscriptionComponent
+       *    (Redirects to /premium if the user lacks a personal premium subscription)
+       * 2. Cloud-Hosted (default) → CloudHostedAccountSubscriptionComponent
+       */
       {
         path: "user-subscription",
-        component: UserSubscriptionComponent,
+        component: SelfHostedAccountSubscriptionComponent,
+        data: { titleId: "premiumMembership" },
+        canMatch: [isSelfHosted],
+        canActivate: [hasPremiumPersonallyGuard],
+      },
+      {
+        path: "user-subscription",
+        component: CloudHostedAccountSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
-      ...componentRouteSwap(
-        PremiumComponent,
-        PremiumVNextComponent,
-        () => {
-          const configService = inject(ConfigService);
-          const platformUtilsService = inject(PlatformUtilsService);
-
-          return configService
-            .getFeatureFlag$(FeatureFlag.PM24033PremiumUpgradeNewDesign)
-            .pipe(map((flagValue) => flagValue === true && !platformUtilsService.isSelfHost()));
-        },
-        {
-          data: { titleId: "goPremium" },
-          path: "premium",
-        },
-      ),
+      /**
+       * Two-Route Matching Strategy for /premium:
+       *
+       * Routes are evaluated in order using canMatch guards. The first route that matches will be selected.
+       *
+       * 1. Self-Hosted Environment → SelfHostedPremiumComponent
+       *    - Matches when platformUtilsService.isSelfHost() === true
+       *
+       * 2. Cloud-Hosted (default) → CloudHostedPremiumComponent
+       *    - Evaluated when Route 1 doesn't match (not self-hosted)
+       */
+      // Route 1: Self-Hosted -> SelfHostedPremiumComponent
+      {
+        path: "premium",
+        component: SelfHostedPremiumComponent,
+        data: { titleId: "goPremium" },
+        canMatch: [isSelfHosted],
+      },
+      // Route 2: Cloud Hosted (default) -> CloudHostedPremiumComponent
+      {
+        path: "premium",
+        component: CloudHostedPremiumComponent,
+        data: { titleId: "goPremium" },
+      },
       {
         path: "payment-details",
         component: AccountPaymentDetailsComponent,

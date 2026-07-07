@@ -9,13 +9,13 @@
     <li>
       <p>
         {{ "trialConfirmationEmail" | i18n }}
-        <span class="tw-font-bold">{{ email }}</span
+        <span class="tw-font-medium">{{ email }}</span
         >.
       </p>
     </li>
     <li *ngIf="trialLength > 0">
       <p>
-        {{ "trialPaidInfoMessage" | i18n: orgLabel }}
+        {{ "trialPaidInfoMessageSpecificTrialLength" | i18n: orgLabel : trialLength }}
       </p>
     </li>
   </ul>

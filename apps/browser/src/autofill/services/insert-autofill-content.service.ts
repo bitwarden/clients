@@ -1,15 +1,16 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
 
-import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
+import AutofillScript, {
+  AutofillInsertActions,
+  FillScript,
+  FillScriptActionTypes,
+} from "../models/autofill-script";
 import { FormFieldElement } from "../types";
 import {
   currentlyInSandboxedIframe,
   elementIsFillableFormField,
   elementIsInputElement,
-  elementIsSelectElement,
-  elementIsTextAreaElement,
+  isReadonlyOrDisabledFormFieldElement,
 } from "../utils";
 
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -22,6 +23,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     click_on_opid: ({ opid }) => this.handleClickOnFieldByOpidAction(opid),
     focus_by_opid: ({ opid }) => this.handleFocusOnFieldByOpidAction(opid),
   };
+  private showAnimations: boolean = true;
 
   /**
    * InsertAutofillContentService constructor. Instantiates the
@@ -36,10 +38,12 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * Handles autofill of the forms on the current page based on the
    * data within the passed fill script object.
    * @param {AutofillScript} fillScript
+   * @param {boolean} showAnimations
    * @returns {Promise<void>}
    * @public
    */
-  async fillForm(fillScript: AutofillScript) {
+  async fillForm(fillScript: AutofillScript, showAnimations: boolean = true) {
+    this.showAnimations = showAnimations;
     if (
       !fillScript.script?.length ||
       currentlyInSandboxedIframe() ||
@@ -50,7 +54,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     }
 
     for (let index = 0; index < fillScript.script.length; index++) {
-      await this.runFillScriptAction(fillScript.script[index], index);
+      await this.runFillScriptAction(fillScript.script[index]);
     }
   }
 
@@ -116,27 +120,28 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   /**
    * Runs the autofill action based on the action type and the opid.
    * Each action is subsequently delayed by 20 milliseconds.
-   * @param {"click_on_opid" | "focus_by_opid" | "fill_by_opid"} action
-   * @param {string} opid
-   * @param {string} value
-   * @param {number} actionIndex
+   * @param {FillScript} [action, opid, value]
    * @returns {Promise<void>}
    * @private
    */
-  private runFillScriptAction = (
-    [action, opid, value]: FillScript,
-    actionIndex: number,
-  ): Promise<void> => {
+  private runFillScriptAction = ([action, opid, value]: FillScript): Promise<void> => {
     if (!opid || !this.autofillInsertActions[action]) {
-      return;
+      return Promise.resolve();
     }
 
     const delayActionsInMilliseconds = 20;
     return new Promise((resolve) =>
       setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
+        if (action === FillScriptActionTypes.fill_by_opid && !!value?.length) {
+          this.autofillInsertActions.fill_by_opid({ opid, value });
+        } else if (action === FillScriptActionTypes.click_on_opid) {
+          this.autofillInsertActions.click_on_opid({ opid });
+        } else if (action === FillScriptActionTypes.focus_by_opid) {
+          this.autofillInsertActions.focus_by_opid({ opid });
+        }
+
         resolve();
-      }, delayActionsInMilliseconds * actionIndex),
+      }, delayActionsInMilliseconds),
     );
   };
 
@@ -158,7 +163,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleClickOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
-    this.triggerClickOnElement(element);
+
+    if (element) {
+      this.triggerClickOnElement(element);
+    }
   }
 
   /**
@@ -170,6 +178,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleFocusOnFieldByOpidAction(opid: string) {
     const element = this.collectAutofillContentService.getAutofillFieldElementByOpid(opid);
+
+    if (!element) {
+      return;
+    }
 
     if (document.activeElement === element) {
       element.blur();
@@ -187,20 +199,14 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private insertValueIntoField(element: FormFieldElement | null, value: string) {
-    const elementCanBeReadonly =
-      elementIsInputElement(element) || elementIsTextAreaElement(element);
-    const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
-    const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
+    if (!element || !value) {
+      return;
+    }
 
+    const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
     const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
-    if (
-      !element ||
-      !value ||
-      elementAlreadyHasTheValue ||
-      (elementCanBeReadonly && element.readOnly) ||
-      (elementCanBeFilled && element.disabled)
-    ) {
+    if (elementAlreadyHasTheValue || isReadonlyOrDisabledFormFieldElement(element)) {
       return;
     }
 
@@ -280,6 +286,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
+    if (!this.showAnimations) {
+      return;
+    }
+
     const skipAnimatingElement =
       elementIsFillableFormField(element) &&
       !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);
@@ -298,7 +308,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerClickOnElement(element?: HTMLElement): void {
-    if (typeof element?.click !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.click !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -313,7 +323,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFocusOnElement(element: HTMLElement | undefined, shouldResetValue = false): void {
-    if (typeof element?.focus !== TYPE_CHECK.FUNCTION) {
+    if (!element || typeof element.focus !== TYPE_CHECK.FUNCTION) {
       return;
     }
 
@@ -349,7 +359,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYUP];
     for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
       element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
     }

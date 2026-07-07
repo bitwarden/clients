@@ -1,18 +1,21 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { once } from "node:events";
+import { pathToFileURL } from "node:url";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { processisolations } from "@bitwarden/desktop-napi";
 import { BiometricStateService } from "@bitwarden/key-management";
 
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -26,12 +29,30 @@ import {
   isWindows,
 } from "../utils";
 
+import { resolveProtocolPath } from "./protocol";
+
+// customFileOrigin = `${customFileScheme}://${customFileHost}`
+const customFileScheme = "bw-desktop-file";
+const customFileHost = "bundle";
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: customFileScheme,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
 export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
   isClosing = false;
+  private isReloading = false;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -47,30 +68,53 @@ export class WindowMain {
     private logService: LogService,
     private storageService: AbstractStorageService,
     private desktopSettingsService: DesktopSettingsService,
+    private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
+    private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
-  init(): Promise<any> {
+  init(show: boolean = true): Promise<any> {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
-      this.logService.info("Reloading render process");
-      // User might have changed theme, ensure the window is updated.
-      this.win.setBackgroundColor(await this.getBackgroundColor());
-
-      // By default some linux distro collect core dumps on crashes which gets written to disk.
-      if (this.enableRendererProcessForceCrashReload) {
-        const crashEvent = once(this.win.webContents, "render-process-gone");
-        this.win.webContents.forcefullyCrashRenderer();
-        await crashEvent;
+      if (isDev()) {
+        this.logService.info("Process reload requested, but skipping in development mode");
+        return;
       }
 
-      this.win.webContents.reloadIgnoringCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.session.clearCache();
-      this.logService.info("Render process reloaded");
+      // LockService can fire reload-process concurrently for each user account.
+      // Skip duplicates so we don't race the crash + reload sequence with itself.
+      if (this.isReloading) {
+        this.logService.info("Reload already in progress, skipping duplicate request");
+        return;
+      }
+      this.isReloading = true;
+      try {
+        this.logService.info("Reloading render process");
+        // User might have changed theme, ensure the window is updated.
+        this.win.setBackgroundColor(await this.getBackgroundColor());
+
+        // By default some linux distro collect core dumps on crashes which gets written to disk.
+        if (this.enableRendererProcessForceCrashReload) {
+          const crashEvent = once(this.win.webContents, "render-process-gone");
+          this.win.webContents.forcefullyCrashRenderer();
+          await crashEvent;
+
+          // Workaround for electron/electron#48661: yielding one event-loop tick
+          // before reloading lets the crashed renderer fully tear down so the
+          // subsequent reloadIgnoringCache() reliably spawns a new renderer.
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+
+        this.win.webContents.reloadIgnoringCache();
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.session.clearCache();
+        this.logService.info("Render process reloaded");
+      } finally {
+        this.isReloading = false;
+      }
     });
 
     ipcMain.on("window-focus", () => {
@@ -100,10 +144,10 @@ export class WindowMain {
             applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
             // Because modal is used in front of another app, UX wise it makes sense to hide the main window when leaving modal mode.
             this.win.hide();
-          } else if (!lastValue.isModalModeActive && newValue.isModalModeActive) {
+          } else if (newValue.isModalModeActive) {
             // Apply the popup modal styles
             this.logService.info("Applying popup modal styles", newValue.modalPosition);
-            applyPopupModalStyles(this.win, newValue.modalPosition);
+            applyPopupModalStyles(this.win, newValue.showTrafficButtons, newValue.modalPosition);
             this.win.show();
           }
         }),
@@ -126,8 +170,11 @@ export class WindowMain {
             return;
           } else {
             app.on("second-instance", (event, argv, workingDirectory) => {
-              // Someone tried to run a second instance, we should focus our window.
-              if (this.win != null) {
+              // Someone tried to run a second instance (e.g. launching from the desktop
+              // icon or terminal while already running). Always bring us to the foreground.
+              if (this.focusWindowCallback != null) {
+                void this.focusWindowCallback();
+              } else if (this.win != null) {
                 if (this.win.isMinimized() || !this.win.isVisible()) {
                   this.win.show();
                 }
@@ -154,6 +201,9 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.setupAppProtocol();
+
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
             if (!isSnapStore()) {
@@ -183,8 +233,9 @@ export class WindowMain {
             }
           }
 
-          await this.createWindow();
+          await this.createWindow("full-app", show);
           resolve();
+
           if (this.argvCallback != null) {
             this.argvCallback(process.argv);
           }
@@ -202,7 +253,9 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win == null) {
+          if (this.focusWindowCallback != null) {
+            await this.focusWindowCallback();
+          } else if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon
@@ -225,6 +278,28 @@ export class WindowMain {
     }
   }
 
+  private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
+    // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
+    // We have it disabled by default until self-hosted users are updated to maintain compatibility.
+    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
+    if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
+      return url.format({
+        protocol: "file:",
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        ...partial,
+      });
+    }
+
+    return url.format({
+      protocol: customFileScheme,
+      host: customFileHost,
+      pathname: "index.html",
+      slashes: true,
+      ...partial,
+    });
+  }
+
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
@@ -235,16 +310,7 @@ export class WindowMain {
 
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        //pathname: `${__dirname}/index.html`,
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-        hash: targetPath,
-        query: {
-          redirectUrl: targetPath,
-        },
-      }),
+      this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
@@ -255,24 +321,50 @@ export class WindowMain {
   }
 
   /**
+   * Register a custom bw-desktop-file:// protocol handler to serve the renderer's bundled files following Electron's
+   * guidance to use custom schemes for loading local content. Requests to bw-desktop-file://bundle/<path> are
+   * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
+   *
+   * References:
+   *  https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   *  https://www.electronjs.org/docs/latest/api/protocol#protocolhandlescheme-handler
+   */
+  private setupAppProtocol() {
+    this.session.protocol.handle(customFileScheme, (req) => {
+      try {
+        const safePath = resolveProtocolPath(req.url, customFileHost, __dirname);
+        if (safePath !== null) {
+          return net.fetch(pathToFileURL(safePath).toString());
+        }
+      } catch (e) {
+        this.logService.error(`Error handling protocol request for ${req.url}`, e);
+      }
+
+      this.logService.error(`Invalid app protocol request: ${req.url}`);
+      return new Response("bad", { status: 400, headers: { "content-type": "text/html" } });
+    });
+  }
+
+  /**
    * Creates the main window. The template argument is used to determine the styling of the window and what url will be loaded.
    * When the template is "modal-app", the window will be styled as a modal and the passkeys page will be loaded.
    * TODO: We might want to refactor the template argument to accomodate more target pages, e.g. ssh-agent.
    */
-  async createWindow(template: "full-app" | "modal-app" = "full-app"): Promise<void> {
+  async createWindow(
+    template: "full-app" | "modal-app" = "full-app",
+    show: boolean = true,
+  ): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
       this.defaultHeight,
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
 
-    this.session = session.fromPartition("persist:bitwarden", { cache: false });
-
     // Create the browser window.
     this.win = new BrowserWindow({
       width: this.windowStates[mainWindowSizeKey].width,
       height: this.windowStates[mainWindowSizeKey].height,
-      minWidth: 680,
+      minWidth: 600,
       minHeight: 500,
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
@@ -303,7 +395,9 @@ export class WindowMain {
       this.win.webContents.zoomFactor = this.windowStates[mainWindowSizeKey].zoomFactor ?? 1.0;
     });
 
-    // Persist zoom changes immediately when user zooms in/out or resets zoom
+    // Persist zoom changes from mouse wheel and programmatic zoom operations
+    // NOTE: This event does NOT fire for keyboard shortcuts (Ctrl+/-/0, Cmd+/-/0)
+    // which are handled by custom menu click handlers in ViewMenu
     // We can't depend on higher level web events (like close) to do this
     // because locking the vault resets window state.
     this.win.webContents.on("zoom-changed", async () => {
@@ -316,28 +410,26 @@ export class WindowMain {
       this.win.maximize();
     }
 
-    this.win.show();
+    if (show) {
+      this.win.show();
+    }
 
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
-        }),
-        {
+      void this.win
+        .loadURL(this.getWindowUrl(), {
           userAgent: cleanUserAgent(this.win.webContents.userAgent),
-        },
-      );
+        })
+        .then(() => {
+          if (isDev()) {
+            this.win.webContents.openDevTools();
+          }
+        });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
+        this.getWindowUrl({
           hash: "/passkeys",
           query: {
             redirectUrl: "/passkeys",
@@ -347,11 +439,6 @@ export class WindowMain {
           userAgent: cleanUserAgent(this.win.webContents.userAgent),
         },
       );
-    }
-
-    // Open the DevTools.
-    if (isDev()) {
-      this.win.webContents.openDevTools();
     }
 
     // Emitted when the window is closed.
@@ -392,6 +479,16 @@ export class WindowMain {
       });
     });
 
+    this.win.webContents.setWindowOpenHandler(({ url }) => {
+      // For security reasons, we redirect all requests to open new windows from the renderer process to the system browser.
+      // SafeShell will check the URL against our allowlist and log if an attempt is made to open a URL that isn't considered safe.
+
+      this.logService.debug(`Redirecting link to external browser: ${url}`);
+      void this.shell.openExternal(url, UrlType.WebUrl);
+
+      return { action: "deny" };
+    });
+
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)
       .then((preventScreenshots) => {
         this.win.setContentProtection(preventScreenshots);
@@ -430,6 +527,11 @@ export class WindowMain {
     this.enableAlwaysOnTop = !this.win.isAlwaysOnTop();
     this.win.setAlwaysOnTop(this.enableAlwaysOnTop);
     await this.desktopSettingsService.setAlwaysOnTop(this.enableAlwaysOnTop);
+  }
+
+  async saveZoomFactor(zoomFactor: number) {
+    this.windowStates[mainWindowSizeKey].zoomFactor = zoomFactor;
+    await this.desktopSettingsService.setWindow(this.windowStates[mainWindowSizeKey]);
   }
 
   private windowStateChangeHandler(configKey: string, win: BrowserWindow) {

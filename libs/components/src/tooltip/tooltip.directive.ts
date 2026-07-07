@@ -8,12 +8,17 @@ import {
   ElementRef,
   Injector,
   input,
-  effect,
   signal,
+  model,
+  computed,
+  effect,
+  OnDestroy,
 } from "@angular/core";
 
 import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
+
+export const TOOLTIP_DELAY_MS = 800;
 
 /**
  * Directive to add a tooltip to any element. The tooltip content is provided via the `bitTooltip` input.
@@ -24,32 +29,57 @@ import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
-    "(focus)": "showTooltip()",
-    "(blur)": "hideTooltip()",
+    "(focusin)": "onFocusIn($event)",
+    "(focusout)": "onFocusOut()",
+    "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
 })
-export class TooltipDirective implements OnInit {
+export class TooltipDirective implements OnInit, OnDestroy {
+  private static nextId = 0;
   /**
    * The value of this input is forwarded to the tooltip.component to render
    */
-  readonly bitTooltip = input.required<string>();
+  readonly tooltipContent = model("", { alias: "bitTooltip" });
   /**
    * The value of this input is forwarded to the tooltip.component to set its position explicitly.
    * @default "above-center"
    */
   readonly tooltipPosition = input<TooltipPositionIdentifier>("above-center");
 
+  /**
+   * Input so the consumer can choose to add the tooltip id to the aria-describedby attribute of the host element.
+   */
+  readonly addTooltipToDescribedby = input<boolean>(false);
+
+  /**
+   * When `true`, any visible tooltip is torn down and `showTooltip()` becomes a no-op.
+   * Sibling directives on the same element (e.g. `MenuTriggerForDirective`) flip this
+   * so a tooltip can't compete with a popover that's owning the user's attention.
+   */
+  readonly suppressed = signal(false);
+
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
-  private elementRef = inject(ElementRef);
+  private showTimeoutId: ReturnType<typeof setTimeout> | undefined;
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
-  private injector = inject(Injector);
   private positionStrategy = this.overlay
     .position()
     .flexibleConnectedTo(this.elementRef)
     .withFlexibleDimensions(false)
     .withPush(true);
+  private tooltipId = `bit-tooltip-${TooltipDirective.nextId++}`;
+  private currentDescribedByIds =
+    this.elementRef.nativeElement.getAttribute("aria-describedby") || null;
+
+  constructor() {
+    effect(() => {
+      if (this.suppressed()) {
+        this.destroyTooltip();
+      }
+    });
+  }
 
   private tooltipPortal = new ComponentPortal(
     TooltipComponent,
@@ -59,22 +89,87 @@ export class TooltipDirective implements OnInit {
         {
           provide: TOOLTIP_DATA,
           useValue: {
-            content: this.bitTooltip,
+            content: this.tooltipContent,
             isVisible: this.isVisible,
             tooltipPosition: this.tooltipPosition,
+            id: signal(this.tooltipId),
           },
         },
       ],
     }),
   );
 
-  private showTooltip = () => {
-    this.isVisible.set(true);
-  };
+  /**
+   * Clear any pending show timeout
+   *
+   * Use cases: prevent tooltip from appearing after hide; clear existing timeout before showing a
+   * new tooltip
+   */
+  private clearTimeout() {
+    if (this.showTimeoutId !== undefined) {
+      clearTimeout(this.showTimeoutId);
+      this.showTimeoutId = undefined;
+    }
+  }
 
-  private hideTooltip = () => {
+  private destroyTooltip = () => {
+    this.clearTimeout();
+    this.overlayRef?.dispose();
+    this.overlayRef = undefined;
     this.isVisible.set(false);
   };
+
+  protected showTooltip = () => {
+    if (this.suppressed()) {
+      return;
+    }
+
+    this.clearTimeout();
+
+    if (!this.overlayRef) {
+      this.overlayRef = this.overlay.create({
+        ...this.defaultPopoverConfig,
+        positionStrategy: this.positionStrategy,
+      });
+
+      this.overlayRef.attach(this.tooltipPortal);
+    }
+
+    this.showTimeoutId = setTimeout(() => {
+      this.isVisible.set(true);
+      this.showTimeoutId = undefined;
+    }, TOOLTIP_DELAY_MS);
+  };
+
+  protected hideTooltip = () => {
+    this.destroyTooltip();
+  };
+
+  /**
+   * Show tooltip on focus-visible (keyboard navigation) but not on regular focus (mouse click).
+   */
+  protected onFocusIn(event: FocusEvent) {
+    const target = event.target as HTMLElement;
+    if (target.matches(":focus-visible")) {
+      this.showTooltip();
+    }
+  }
+
+  protected onFocusOut() {
+    this.hideTooltip();
+  }
+
+  protected readonly resolvedDescribedByIds = computed(() => {
+    if (this.addTooltipToDescribedby()) {
+      if (this.currentDescribedByIds) {
+        return `${this.currentDescribedByIds || ""} ${this.tooltipId}`;
+      } else {
+        return this.tooltipId;
+      }
+    } else {
+      return this.currentDescribedByIds;
+    }
+  });
 
   private computePositions(tooltipPosition: TooltipPositionIdentifier) {
     const chosenPosition = tooltipPositions.find((position) => position.id === tooltipPosition);
@@ -91,20 +186,9 @@ export class TooltipDirective implements OnInit {
 
   ngOnInit() {
     this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
+  }
 
-    this.overlayRef = this.overlay.create({
-      ...this.defaultPopoverConfig,
-      positionStrategy: this.positionStrategy,
-    });
-
-    this.overlayRef.attach(this.tooltipPortal);
-
-    effect(
-      () => {
-        this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
-        this.overlayRef?.updatePosition();
-      },
-      { injector: this.injector },
-    );
+  ngOnDestroy(): void {
+    this.destroyTooltip();
   }
 }

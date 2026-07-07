@@ -9,7 +9,6 @@ import { VerificationType } from "@bitwarden/common/auth/enums/verification-type
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { KeyService } from "@bitwarden/key-management";
 
 /**
  * Used for general-purpose user verification throughout the app.
@@ -24,6 +23,8 @@ import { KeyService } from "@bitwarden/key-management";
   selector: "app-user-verification",
   standalone: false,
 })
+// FIXME(https://bitwarden.atlassian.net/browse/PM-28232): Use Directive suffix
+// eslint-disable-next-line @angular-eslint/directive-class-suffix
 export class UserVerificationComponent implements ControlValueAccessor, OnInit, OnDestroy {
   private _invalidSecret = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -72,13 +73,12 @@ export class UserVerificationComponent implements ControlValueAccessor, OnInit, 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private keyService: KeyService,
     private userVerificationService: UserVerificationService,
     private i18nService: I18nService,
   ) {}
 
   async ngOnInit() {
-    this.hasMasterPassword = await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
+    this.hasMasterPassword = await this.userVerificationService.hasMasterPassword();
     this.processChanges(this.secret.value);
 
     this.secret.valueChanges

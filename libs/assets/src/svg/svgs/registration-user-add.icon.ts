@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const RegistrationUserAddIcon = svgIcon`
+export const RegistrationUserAddIcon = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 10 80 60">
     <path class="tw-fill-illustration-bg-primary" d="M0 14.8A4.8 4.8 0 0 1 4.8 10h45.4a4.8 4.8 0 0 1 4.8 4.8v32.067a4.8 4.8 0 0 1-4.8 4.8H4.8a4.8 4.8 0 0 1-4.8-4.8V14.8Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M50.2 11.6H4.8a3.2 3.2 0 0 0-3.2 3.2v32.067a3.2 3.2 0 0 0 3.2 3.2h45.4a3.2 3.2 0 0 0 3.2-3.2V14.8a3.2 3.2 0 0 0-3.2-3.2ZM4.8 10A4.8 4.8 0 0 0 0 14.8v32.067a4.8 4.8 0 0 0 4.8 4.8h45.4a4.8 4.8 0 0 0 4.8-4.8V14.8a4.8 4.8 0 0 0-4.8-4.8H4.8Z" clip-rule="evenodd"/>

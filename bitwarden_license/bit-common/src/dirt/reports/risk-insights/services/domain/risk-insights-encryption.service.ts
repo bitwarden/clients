@@ -10,12 +10,17 @@ import { LogService } from "@bitwarden/logging";
 
 import { createNewSummaryData } from "../../helpers";
 import {
-  DecryptedReportData,
-  EncryptedReportData,
-  EncryptedDataWithKey,
+  validateApplicationHealthReportDetailArray,
+  validateOrganizationReportApplicationArray,
+  validateOrganizationReportSummary,
+} from "../../helpers/type-guards/risk-insights-type-guards";
+import {
   ApplicationHealthReportDetail,
-  OrganizationReportSummary,
+  DecryptedReportData,
+  EncryptedDataWithKey,
+  EncryptedReportData,
   OrganizationReportApplication,
+  OrganizationReportSummary,
 } from "../../models";
 
 export class RiskInsightsEncryptionService {
@@ -182,11 +187,18 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as ApplicationHealthReportDetail[];
+      const { data, errors } = validateApplicationHealthReportDetailArray(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Dropped ${errors.length} invalid report element(s):\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
       this.logService.error("[RiskInsightsEncryptionService] Failed to decrypt report", error);
-      return [];
+      throw new Error(
+        "Report data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -202,14 +214,21 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as OrganizationReportSummary;
+      const { data, errors } = validateOrganizationReportSummary(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Defaulted ${errors.length} invalid summary field(s) to 0:\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report summary",
         error,
       );
-      return createNewSummaryData();
+      throw new Error(
+        "Summary data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 
@@ -225,14 +244,21 @@ export class RiskInsightsEncryptionService {
       const decryptedData = await this.encryptService.decryptString(encryptedData, key);
       const parsedData = JSON.parse(decryptedData);
 
-      // TODO Add type guard to check that parsed data is actual type
-      return parsedData as OrganizationReportApplication[];
+      const { data, errors } = validateOrganizationReportApplicationArray(parsedData);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[RiskInsightsEncryptionService] Dropped ${errors.length} invalid application element(s):\n${errors.join("\n")}`,
+        );
+      }
+      return data;
     } catch (error: unknown) {
       this.logService.error(
         "[RiskInsightsEncryptionService] Failed to decrypt report applications",
         error,
       );
-      return [];
+      throw new Error(
+        "Application data validation failed. This may indicate data corruption or tampering.",
+      );
     }
   }
 }

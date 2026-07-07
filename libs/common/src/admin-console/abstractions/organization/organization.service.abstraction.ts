@@ -1,8 +1,10 @@
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
+import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
+import { PolicyService } from "../policy/policy.service.abstraction";
 
 export function canAccessVaultTab(org: Organization): boolean {
   return org.canViewAllCollections;
@@ -36,6 +38,18 @@ export function canAccessBillingTab(org: Organization): boolean {
   return org.isOwner;
 }
 
+/**
+ * Access Intelligence is only available to:
+ * - Enterprise organizations
+ * - Users in those organizations with report access
+ *
+ * @param org The organization to verify access
+ * @returns If true can access the Access Intelligence feature
+ */
+export function canAccessAccessIntelligence(org: Organization): boolean {
+  return org.canUseAccessIntelligence && org.canAccessReports;
+}
+
 export function canAccessOrgAdmin(org: Organization): boolean {
   // Admin console can only be accessed by Owners for disabled organizations
   if (!org.enabled && !org.isOwner) {
@@ -49,6 +63,24 @@ export function canAccessOrgAdmin(org: Organization): boolean {
     canAccessSettingsTab(org) ||
     canAccessVaultTab(org)
   );
+}
+
+export function canAccessEmergencyAccess(userId: UserId, policyService: PolicyService) {
+  return policyService
+    .policyAppliesToUser$(PolicyType.AutomaticUserConfirmation, userId)
+    .pipe(map((policyAppliesToUser) => !policyAppliesToUser));
+}
+
+/**
+ * Returns true when the user is constrained to a single organization.
+ * Combines SingleOrg and AutoConfirm policy checks — AutoConfirm implies
+ * a single-organization constraint for all members.
+ */
+export function singleOrganizationPolicyApplies$(userId: UserId, policyService: PolicyService) {
+  return combineLatest([
+    policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+    policyService.policyAppliesToUser$(PolicyType.AutomaticUserConfirmation, userId),
+  ]).pipe(map(([singleOrg, autoConfirm]) => singleOrg || autoConfirm));
 }
 
 /**
@@ -66,10 +98,22 @@ export function getOrganizationById(id: string) {
  */
 export abstract class OrganizationService {
   /**
-   * Publishes state for all organizations under the specified user.
+   * Publishes state for organizations where the user is in the Confirmed status.
+   * This means that they are a full member of the organization.
    * @returns An observable list of organizations
    */
   abstract organizations$(userId: UserId): Observable<Organization[]>;
+
+  /**
+   * Publishes state for organizations where the user is in the Accepted status.
+   * This means they have accepted their invite but have not been confirmed by
+   * an admin. The user does not have access to organization encryption keys
+   * yet and cannot decrypt data.
+   *
+   * You probably do not want this - consider {@link organizations$} instead.
+   * @returns An observable list of organizations
+   */
+  abstract acceptedOrganizations$(userId: UserId): Observable<Organization[]>;
 
   // @todo Clean these up. Continuing to expand them is not recommended.
   // @see https://bitwarden.atlassian.net/browse/AC-2252

@@ -1,7 +1,10 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
+import { map, switchMap } from "rxjs";
 
+import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
+import { AuthRoute } from "@bitwarden/angular/auth/constants";
 import {
   authGuard,
   lockGuard,
@@ -46,8 +49,12 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent } from "@bitwarden/key-management-ui";
+import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
+import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -55,8 +62,9 @@ import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/m
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
+import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
+import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
@@ -65,21 +73,23 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { EnvironmentSelectorComponent } from "./components/environment-selector/environment-selector.component";
 import { RouteDataProperties } from "./core";
 import { ReportsModule } from "./dirt/reports";
+import { DataRecoveryComponent } from "./key-management/data-recovery/data-recovery.component";
 import { ConfirmKeyConnectorDomainComponent } from "./key-management/key-connector/confirm-key-connector-domain.component";
-import { RemovePasswordComponent } from "./key-management/key-connector/remove-password.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { RequestSMAccessComponent } from "./secrets-manager/secrets-manager-landing/request-sm-access.component";
 import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm-landing.component";
+import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
-import { PreferencesComponent } from "./settings/preferences.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
+import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -93,12 +103,12 @@ const routes: Routes = [
   // so that the redirectGuard does not interrupt the navigation.
   {
     path: "register",
-    redirectTo: "signup",
+    redirectTo: AuthRoute.SignUp,
     pathMatch: "full",
   },
   {
     path: "trial",
-    redirectTo: "signup",
+    redirectTo: AuthRoute.SignUp,
     pathMatch: "full",
   },
   {
@@ -114,9 +124,9 @@ const routes: Routes = [
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
-        path: "accept-organization",
+        path: AuthWebRoute.AcceptOrgDirectInvite,
         canActivate: [deepLinkGuard()],
-        component: AcceptOrganizationComponent,
+        component: AcceptOrgDirectInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
@@ -128,7 +138,7 @@ const routes: Routes = [
           doNotSaveUrl: false,
         } satisfies RouteDataProperties,
       },
-      { path: "recover", pathMatch: "full", redirectTo: "recover-2fa" },
+      { path: "recover", pathMatch: "full", redirectTo: AuthWebRoute.RecoverTwoFactor },
       {
         path: "verify-recover-delete-org",
         component: VerifyRecoverDeleteOrgComponent,
@@ -142,7 +152,7 @@ const routes: Routes = [
     component: AnonLayoutWrapperComponent,
     children: [
       {
-        path: "login-with-passkey",
+        path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: TwoFactorAuthSecurityKeyIcon,
@@ -164,7 +174,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "signup",
+        path: AuthRoute.SignUp,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: RegistrationUserAddIcon,
@@ -189,7 +199,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "finish-signup",
+        path: AuthRoute.FinishSignUp,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: LockIcon,
@@ -203,11 +213,11 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login",
+        path: AuthRoute.Login,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
@@ -229,7 +239,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login-with-device",
+        path: AuthRoute.LoginWithDevice,
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -250,7 +260,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "admin-approval-requested",
+        path: AuthRoute.AdminApprovalRequested,
         data: {
           pageIcon: DevicesIcon,
           pageTitle: {
@@ -264,7 +274,7 @@ const routes: Routes = [
         children: [{ path: "", component: LoginViaAuthRequestComponent }],
       },
       {
-        path: "hint",
+        path: AuthRoute.PasswordHint,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
@@ -286,7 +296,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "login-initiated",
+        path: AuthRoute.LoginInitiated,
         canActivate: [tdeDecryptionRequiredGuard()],
         data: {
           pageIcon: DevicesIcon,
@@ -315,7 +325,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "set-initial-password",
+        path: AuthRoute.SetInitialPassword,
         canActivate: [authGuard],
         component: SetInitialPasswordComponent,
         data: {
@@ -324,7 +334,7 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
-        path: "signup-link-expired",
+        path: AuthWebRoute.SignUpLinkExpired,
         canActivate: [unauthGuardFn()],
         data: {
           pageIcon: TwoFactorTimeoutIcon,
@@ -337,13 +347,13 @@ const routes: Routes = [
             path: "",
             component: RegistrationLinkExpiredComponent,
             data: {
-              loginRoute: "/login",
+              loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
           },
         ],
       },
       {
-        path: "sso",
+        path: AuthRoute.Sso,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
@@ -368,7 +378,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "2fa",
+        path: AuthRoute.TwoFactor,
         component: TwoFactorAuthComponent,
         canActivate: [unauthGuardFn(), TwoFactorAuthGuard],
         children: [
@@ -408,7 +418,7 @@ const routes: Routes = [
         } satisfies AnonLayoutWrapperData,
       },
       {
-        path: "authentication-timeout",
+        path: AuthRoute.AuthenticationTimeout,
         canActivate: [unauthGuardFn()],
         children: [
           {
@@ -430,7 +440,7 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "recover-2fa",
+        path: AuthWebRoute.RecoverTwoFactor,
         canActivate: [unauthGuardFn()],
         children: [
           {
@@ -452,7 +462,7 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "device-verification",
+        path: AuthRoute.NewDeviceVerification,
         canActivate: [unauthGuardFn(), activeAuthGuard()],
         children: [
           {
@@ -471,7 +481,7 @@ const routes: Routes = [
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
       {
-        path: "accept-emergency",
+        path: AuthWebRoute.AcceptEmergencyAccessInvite,
         canActivate: [deepLinkGuard()],
         data: {
           pageTitle: {
@@ -492,7 +502,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "recover-delete",
+        path: AuthWebRoute.RecoverDeleteAccount,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
@@ -514,7 +524,7 @@ const routes: Routes = [
         ],
       },
       {
-        path: "verify-recover-delete",
+        path: AuthWebRoute.VerifyRecoverDeleteAccount,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
@@ -536,9 +546,9 @@ const routes: Routes = [
         canActivate: [authGuard],
         data: {
           pageTitle: {
-            key: "removeMasterPassword",
+            key: "verifyYourOrganization",
           },
-          titleId: "removeMasterPassword",
+          titleId: "verifyYourOrganization",
           pageIcon: LockIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -548,9 +558,9 @@ const routes: Routes = [
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
-          titleId: "confirmKeyConnectorDomain",
+          titleId: "verifyYourOrganization",
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
       },
@@ -596,7 +606,17 @@ const routes: Routes = [
         ],
       },
       {
-        path: "change-password",
+        path: "premium/checkout/success",
+        data: {
+          titleId: "paymentSuccessful",
+          pageIcon: null,
+          doNotSaveUrl: true,
+          maxWidth: "lg",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
+      },
+      {
+        path: AuthRoute.ChangePassword,
         component: ChangePasswordComponent,
         canActivate: [authGuard],
         data: {
@@ -626,13 +646,33 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        canActivate: [setupExtensionRedirectGuard],
+        canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
       },
       {
         path: "sends",
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
+        canActivate: [
+          organizationPolicyGuard((userId, policyService, configService) =>
+            configService
+              .getFeatureFlag$(FeatureFlag.SendControls)
+              .pipe(
+                switchMap((sendControlsEnabled) =>
+                  sendControlsEnabled
+                    ? policyService
+                        .policiesByType$(PolicyType.SendControls, userId)
+                        .pipe(
+                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
+                        )
+                    : policyService
+                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
+                        .pipe(map((policyApplies) => !policyApplies)),
+                ),
+              ),
+          ),
+        ],
+        canDeactivate: [unsavedSendEditsGuard],
       },
       {
         path: "sm-landing",
@@ -652,20 +692,25 @@ const routes: Routes = [
       {
         path: "settings",
         children: [
-          { path: "", pathMatch: "full", redirectTo: "account" },
+          { path: "", pathMatch: "full", redirectTo: AuthWebRouteSegment.Account },
           {
-            path: "account",
+            path: AuthWebRouteSegment.Account,
             component: AccountComponent,
             data: { titleId: "myAccount" } satisfies RouteDataProperties,
           },
           {
-            path: "preferences",
-            component: PreferencesComponent,
-            data: { titleId: "preferences" } satisfies RouteDataProperties,
+            path: "appearance",
+            component: AppearanceComponent,
+            data: { titleId: "appearance" } satisfies RouteDataProperties,
           },
           {
             path: "security",
             loadChildren: () => SecurityRoutingModule,
+          },
+          {
+            path: "data-recovery",
+            component: DataRecoveryComponent,
+            data: { titleId: "troubleshooting" } satisfies RouteDataProperties,
           },
           {
             path: "domain-rules",
@@ -680,16 +725,18 @@ const routes: Routes = [
               ),
           },
           {
-            path: "emergency-access",
+            path: AuthWebRouteSegment.EmergencyAccess,
             children: [
               {
                 path: "",
                 component: EmergencyAccessComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
               {
                 path: ":id",
                 component: EmergencyAccessViewComponent,
+                canActivate: [organizationPolicyGuard(canAccessEmergencyAccess)],
                 data: { titleId: "emergencyAccess" } satisfies RouteDataProperties,
               },
             ],
@@ -711,7 +758,7 @@ const routes: Routes = [
             loadComponent: () =>
               import("./tools/import/import-web.component").then((mod) => mod.ImportWebComponent),
             data: {
-              titleId: "importData",
+              titleId: "importNoun",
             } satisfies RouteDataProperties,
           },
           {
@@ -721,7 +768,7 @@ const routes: Routes = [
                 (mod) => mod.ExportWebComponent,
               ),
             data: {
-              titleId: "exportVault",
+              titleId: "exportNoun",
             } satisfies RouteDataProperties,
           },
           {

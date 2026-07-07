@@ -6,7 +6,7 @@ import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 
 import { SecretListView } from "../models/view/secret-list.view";
 import { SecretService } from "../secrets/secret.service";
@@ -21,6 +21,8 @@ import {
   SecretRestoreOperation,
 } from "./dialog/secret-restore.component";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-trash",
   templateUrl: "./trash.component.html",
@@ -62,6 +64,7 @@ export class TrashComponent implements OnInit {
         secretIds: secretIds,
         organizationId: this.organizationId,
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 
@@ -71,6 +74,7 @@ export class TrashComponent implements OnInit {
         secretIds: secretIds,
         organizationId: this.organizationId,
       },
+      positionStrategy: new CenterPositionStrategy(),
     });
   }
 

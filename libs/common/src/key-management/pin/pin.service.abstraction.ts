@@ -1,10 +1,6 @@
-// eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { PinLockType } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
-import { PinKey, UserKey } from "../../types/key";
-
-import { PinLockType } from "./pin-lock-type";
 
 /**
  * The PinService provides PIN-based unlock functionality for user accounts.
@@ -22,7 +18,7 @@ export abstract class PinServiceAbstraction {
    * @throws If the user is locked
    * @returns The user's PIN
    */
-  abstract getPin(userId: UserId): Promise<string>;
+  abstract getPin(userId: UserId): Promise<string | undefined>;
 
   /**
    * Setup pin unlock
@@ -38,7 +34,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the user's PinLockType {@link PinLockType}.
    */
-  abstract getPinLockType(userId: UserId): Promise<PinLockType>;
+  abstract getPinLockType(userId: UserId): Promise<PinLockType | undefined>;
 
   /**
    * Declares whether or not the user has a PIN set (either persistent or ephemeral).
@@ -59,20 +55,9 @@ export abstract class PinServiceAbstraction {
   abstract logout(userId: UserId): Promise<void>;
 
   /**
-   * Decrypts the UserKey with the provided PIN.
-   * @returns UserKey
+   * Verifies the validity of the provided PIN for the user.
+   * @returns A promise resolving to true if the PIN is valid, false otherwise.
    * @throws If the pin lock type is ephemeral but the ephemeral pin protected user key envelope is not available
    */
-  abstract decryptUserKeyWithPin(pin: string, userId: UserId): Promise<UserKey | null>;
-
-  /**
-   * @deprecated This is not deprecated, but only meant to be called by KeyService. DO NOT USE IT.
-   */
-  abstract userUnlocked(userId: UserId): Promise<void>;
-
-  /**
-   * Makes a PinKey from the provided PIN.
-   * @deprecated - Note: This is currently re-used by vault exports, which is still permitted but should be refactored out to use a different construct.
-   */
-  abstract makePinKey(pin: string, salt: string, kdfConfig: KdfConfig): Promise<PinKey>;
+  abstract validatePin(pin: string, userId: UserId): Promise<boolean>;
 }

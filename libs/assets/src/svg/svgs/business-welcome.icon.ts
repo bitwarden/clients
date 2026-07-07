@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const BusinessWelcome = svgIcon`
+export const BusinessWelcome = svg`
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="4.17 0.75 91.67 95.83">
   <path class="tw-fill-illustration-bg-secondary" d="M56.25 9.085A8.333 8.333 0 0 1 64.583.752h8.334a8.333 8.333 0 0 1 8.333 8.333v4.167h-25V9.085Z"/>
   <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M72.917 2.835h-8.334a6.25 6.25 0 0 0-6.25 6.25v2.084h20.834V9.085a6.25 6.25 0 0 0-6.25-6.25ZM64.583.752a8.333 8.333 0 0 0-8.333 8.333v4.167h25V9.085A8.333 8.333 0 0 0 72.917.752h-8.334Z" clip-rule="evenodd"/>

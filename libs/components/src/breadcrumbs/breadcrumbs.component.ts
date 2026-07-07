@@ -1,12 +1,23 @@
 import { CommonModule } from "@angular/common";
-import { Component, ContentChildren, QueryList, input } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  contentChildren,
+  inject,
+  input,
+} from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconModule } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
+import { TypographyModule } from "../typography";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 
@@ -15,42 +26,93 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
  * Bitwarden uses this component to indicate the user's current location in a set of data organized in
  * containers (Collections, Folders, or Projects).
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  imports: [I18nPipe, CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
+  imports: [
+    I18nPipe,
+    CommonModule,
+    LinkModule,
+    RouterModule,
+    IconModule,
+    IconButtonModule,
+    MenuModule,
+    TypographyModule,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    role: "navigation",
+    "[attr.aria-label]": "ariaLabel",
+  },
 })
 export class BreadcrumbsComponent {
-  readonly show = input(3);
+  private readonly i18nService = inject(I18nService);
+  protected readonly ariaLabel = this.i18nService.t("breadcrumbs");
+  /**
+   * The maximum number of breadcrumbs to show before overflow.
+   */
+  readonly show = input(4);
 
-  private breadcrumbs: BreadcrumbComponent[] = [];
+  /**
+   * The size of the breadcrumb text and icons. Defaults to "base" size.
+   */
+  readonly size = input<"small" | "base">("base");
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChildren(BreadcrumbComponent)
-  protected set breadcrumbList(value: QueryList<BreadcrumbComponent>) {
-    this.breadcrumbs = value.toArray();
-  }
+  /**
+   * Display an arrow after the last breadcrumb in the list.
+   *
+   * Intended to support usage of the breadcrumbs above our web header component. In this case, the
+   * "active" breadcrumb is displayed as the header of the page, so showing an arrow after the last
+   * breadcrumb provides better logical continuity of breadcrumbs -> header. Do not use this if the
+   * active breadcrumb is actually passed as a breadcrumb to `bit-breadcrumbs`.
+   */
+  readonly showTrailingArrow = input(false, { transform: booleanAttribute });
 
-  protected get beforeOverflow() {
-    if (this.hasOverflow) {
-      return this.breadcrumbs.slice(0, this.show() - 1);
+  protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
+
+  protected readonly activeBreadcrumb = computed(() => {
+    const result = this.breadcrumbs().find((breadcrumb) => breadcrumb.isActiveRoute());
+
+    return result;
+  });
+
+  /** Whether the breadcrumbs exceed the show limit and require an overflow menu */
+  protected readonly hasOverflow = computed(() => this.breadcrumbs().length > this.show());
+
+  /** Breadcrumbs shown before the overflow menu */
+  protected readonly beforeOverflow = computed(() => {
+    const items = this.breadcrumbs();
+    const showCount = this.show();
+
+    if (items.length > showCount) {
+      return items.slice(0, showCount - 1);
     }
+    return items;
+  });
 
-    return this.breadcrumbs;
-  }
+  /** Breadcrumbs hidden in the overflow menu */
+  protected readonly overflow = computed(() => {
+    return this.breadcrumbs().slice(this.show() - 1, -1);
+  });
 
-  protected get overflow() {
-    return this.breadcrumbs.slice(this.show() - 1, -1);
-  }
+  /** The last breadcrumb, shown after the overflow menu */
+  protected readonly afterOverflow = computed(() => this.breadcrumbs().at(-1));
 
-  protected get afterOverflow() {
-    return this.breadcrumbs.slice(-1);
-  }
+  protected readonly baseStyles = [
+    "tw-inline-block",
+    "!tw-m-0",
+    "focus-visible:!tw-text-fg-brand",
+    "focus-visible:!tw-rounded",
+    "focus-visible:tw-outline-none",
+    "focus-visible:tw-ring-2",
+    "focus-visible:tw-ring-border-focus",
+  ];
 
-  protected get hasOverflow() {
-    return this.breadcrumbs.length > this.show();
-  }
+  protected readonly breadcrumbStyles = [
+    ...this.baseStyles,
+    "!tw-text-fg-body",
+    "hover:!tw-text-fg-brand",
+  ];
+
+  protected readonly activeBreadcrumbStyles = [...this.baseStyles, "!tw-text-fg-heading"];
 }

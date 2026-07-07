@@ -1,12 +1,11 @@
 <div class="tw-mt-5 tw-flex tw-justify-center" *ngIf="loading">
   <div>
     <p class="tw-text-center">
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-2x tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin bwi-2x tw-text-muted"
+        [ariaLabel]="'loading' | i18n"
+      ></bit-icon>
     </p>
   </div>
 </div>

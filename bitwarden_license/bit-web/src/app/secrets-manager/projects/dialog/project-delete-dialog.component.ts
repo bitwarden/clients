@@ -25,6 +25,8 @@ export interface ProjectDeleteOperation {
   projects: ProjectListView[];
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./project-delete-dialog.component.html",
   standalone: false,
@@ -46,7 +48,7 @@ export class ProjectDeleteDialogComponent implements OnInit {
 
   ngOnInit(): void {
     if (!(this.data.projects?.length >= 1)) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
       throw new Error(
         "The project delete dialog was not called with the appropriate operation values.",
       );
@@ -75,7 +77,7 @@ export class ProjectDeleteDialogComponent implements OnInit {
     }
 
     await this.delete();
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   async delete() {

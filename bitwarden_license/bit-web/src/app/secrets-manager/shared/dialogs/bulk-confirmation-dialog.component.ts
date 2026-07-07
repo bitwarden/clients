@@ -22,6 +22,8 @@ export enum BulkConfirmationResult {
   Cancel,
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "sm-bulk-confirmation-dialog",
   templateUrl: "./bulk-confirmation-dialog.component.html",
@@ -43,7 +45,7 @@ export class BulkConfirmationDialogComponent implements OnInit {
       !this.data.message ||
       !(this.data.details?.length >= 1)
     ) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
       throw new Error(
         "The bulk confirmation dialog was not called with the appropriate operation values.",
       );

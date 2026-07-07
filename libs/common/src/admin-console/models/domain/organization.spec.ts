@@ -31,7 +31,9 @@ describe("Organization", () => {
       useResetPassword: true,
       useSecretsManager: true,
       usePasswordManager: true,
+      usePam: false,
       useActivateAutofillPolicy: false,
+      useAutomaticUserConfirmation: false,
       selfHost: false,
       usersGetPremium: false,
       seats: 10,
@@ -78,8 +80,8 @@ describe("Organization", () => {
       limitCollectionDeletion: false,
       limitItemDeletion: false,
       allowAdminAccessToAllCollectionItems: true,
-      userIsManagedByOrganization: false,
-      useRiskInsights: false,
+      userIsClaimedByOrganization: false,
+      useAccessIntelligence: false,
       useAdminSponsoredFamilies: false,
       isAdminInitiated: false,
       ssoEnabled: false,
@@ -177,6 +179,120 @@ describe("Organization", () => {
       const organization = new Organization(data);
 
       expect(organization.canManageDeviceApprovals).toBe(true);
+    });
+  });
+
+  describe("canEnableAutoConfirmPolicy", () => {
+    it("should return false when user cannot manage users or policies", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.manageUsers = false;
+      data.permissions.managePolicies = false;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+
+    it("should return false when user can manage users but useAutomaticUserConfirmation is false", () => {
+      data.type = OrganizationUserType.Admin;
+      data.useAutomaticUserConfirmation = false;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+
+    it("should return false when user has manageUsers permission but useAutomaticUserConfirmation is false", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.manageUsers = true;
+      data.useAutomaticUserConfirmation = false;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+
+    it("should return false when user can manage policies but useAutomaticUserConfirmation is false", () => {
+      data.type = OrganizationUserType.Admin;
+      data.usePolicies = true;
+      data.useAutomaticUserConfirmation = false;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+
+    it("should return false when user has managePolicies permission but usePolicies is false", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.managePolicies = true;
+      data.usePolicies = false;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+
+    it("should return true when admin has useAutomaticUserConfirmation enabled", () => {
+      data.type = OrganizationUserType.Admin;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(true);
+    });
+
+    it("should return true when owner has useAutomaticUserConfirmation enabled", () => {
+      data.type = OrganizationUserType.Owner;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(true);
+    });
+
+    it("should return true when user has manageUsers permission and useAutomaticUserConfirmation is enabled", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.manageUsers = true;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(true);
+    });
+
+    it("should return true when user has managePolicies permission, usePolicies is true, and useAutomaticUserConfirmation is enabled", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.managePolicies = true;
+      data.usePolicies = true;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(true);
+    });
+
+    it("should return true when user has both manageUsers and managePolicies permissions with useAutomaticUserConfirmation enabled", () => {
+      data.type = OrganizationUserType.User;
+      data.permissions.manageUsers = true;
+      data.permissions.managePolicies = true;
+      data.usePolicies = true;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(true);
+    });
+
+    it("should return false when provider user has useAutomaticUserConfirmation enabled", () => {
+      data.type = OrganizationUserType.Owner;
+      data.isProviderUser = true;
+      data.useAutomaticUserConfirmation = true;
+
+      const organization = new Organization(data);
+
+      expect(organization.canEnableAutoConfirmPolicy).toBe(false);
     });
   });
 });

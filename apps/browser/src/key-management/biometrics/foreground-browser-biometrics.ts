@@ -48,7 +48,11 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
       result: BiometricsStatus;
       error: string;
     }>(BiometricsCommands.GetBiometricsStatusForUser, { userId: id });
-    return response.result;
+    if (response != null) {
+      return response.result;
+    } else {
+      return BiometricsStatus.DesktopDisconnected;
+    }
   }
 
   async getShouldAutopromptNow(): Promise<boolean> {
@@ -71,5 +75,14 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
         }>(BiometricsCommands.CanEnableBiometricUnlock)
       ).result
     );
+  }
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {}
+
+  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
   }
 }

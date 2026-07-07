@@ -87,11 +87,10 @@ describe("AddEditComponentV2", () => {
         { provide: DIALOG_DATA, useValue: mockParams },
         { provide: DialogRef, useValue: dialogRef },
         { provide: I18nService, useValue: { t: jest.fn().mockReturnValue("login") } },
-        { provide: DialogService, useValue: dialogService },
         { provide: CipherService, useValue: cipherService },
         { provide: MessagingService, useValue: messagingService },
         { provide: OrganizationService, useValue: organizationService },
-        { provide: Router, useValue: mock<Router>() },
+        { provide: Router, useValue: mock<Router>({ url: "/", events: of() }) },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
@@ -105,7 +104,9 @@ describe("AddEditComponentV2", () => {
         },
         { provide: AccountService, useValue: accountService },
       ],
-    }).compileComponents();
+    })
+      .overrideProvider(DialogService, { useValue: dialogService })
+      .compileComponents();
 
     fixture = TestBed.createComponent(AddEditComponentV2);
     component = fixture.componentInstance;

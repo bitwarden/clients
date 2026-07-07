@@ -28,7 +28,7 @@ export const CACHE_EXPIRATION_KEY = new KeyDefinition<Date | null>(
   LOGIN_STRATEGY_MEMORY,
   "loginStrategyCacheExpiration",
   {
-    deserializer: (data) => (data ? null : new Date(data)),
+    deserializer: (data) => (data ? new Date(data) : null),
   },
 );
 

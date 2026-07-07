@@ -3,16 +3,24 @@
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { BankAccountApi } from "../api/bank-account.api";
 import { CardApi } from "../api/card.api";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
+import { DriversLicenseApi } from "../api/drivers-license.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
+import { PassportApi } from "../api/passport.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
 
 import { AttachmentResponse } from "./attachment.response";
 import { PasswordHistoryResponse } from "./password-history.response";
+
+export type CipherMiniResponse = Omit<
+  CipherResponse,
+  "edit" | "viewPassword" | "folderId" | "favorite" | "permissions"
+>;
 
 export class CipherResponse extends BaseResponse {
   id: string;
@@ -27,6 +35,9 @@ export class CipherResponse extends BaseResponse {
   identity: IdentityApi;
   secureNote: SecureNoteApi;
   sshKey: SshKeyApi;
+  bankAccount: BankAccountApi;
+  driversLicense: DriversLicenseApi;
+  passport: PassportApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
@@ -41,6 +52,7 @@ export class CipherResponse extends BaseResponse {
   archivedDate: string;
   reprompt: CipherRepromptType;
   key: string;
+  data?: string;
 
   constructor(response: any) {
     super(response);
@@ -90,6 +102,21 @@ export class CipherResponse extends BaseResponse {
       this.sshKey = new SshKeyApi(sshKey);
     }
 
+    const bankAccount = this.getResponseProperty("BankAccount");
+    if (bankAccount != null) {
+      this.bankAccount = new BankAccountApi(bankAccount);
+    }
+
+    const driversLicense = this.getResponseProperty("DriversLicense");
+    if (driversLicense != null) {
+      this.driversLicense = new DriversLicenseApi(driversLicense);
+    }
+
+    const passport = this.getResponseProperty("Passport");
+    if (passport != null) {
+      this.passport = new PassportApi(passport);
+    }
+
     const fields = this.getResponseProperty("Fields");
     if (fields != null) {
       this.fields = fields.map((f: any) => new FieldApi(f));
@@ -107,5 +134,6 @@ export class CipherResponse extends BaseResponse {
 
     this.reprompt = this.getResponseProperty("Reprompt") || CipherRepromptType.None;
     this.key = this.getResponseProperty("Key") || null;
+    this.data = this.getResponseProperty("Data");
   }
 }

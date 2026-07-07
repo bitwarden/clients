@@ -13,6 +13,8 @@ export interface SecretRestoreOperation {
   organizationId: string;
 }
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "./secret-restore.component.html",
   standalone: false,
@@ -38,7 +40,7 @@ export class SecretRestoreDialogComponent {
       this.data.secretIds.length === 1
         ? "secretRestoredSuccessToast"
         : "secretsRestoredSuccessToast";
-    this.dialogRef.close(this.data.secretIds);
+    await this.dialogRef.close(this.data.secretIds);
     this.toastService.showToast({
       variant: "success",
       title: null,

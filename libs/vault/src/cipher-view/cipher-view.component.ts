@@ -1,41 +1,53 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnChanges, OnDestroy } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { Component, computed, input, resource } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
+import {
+  CipherRiskService,
+  isPasswordAtRisk,
+} from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
-import { AnchorLinkDirective, CalloutModule, SearchModule } from "@bitwarden/components";
-
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
+import {
+  CalloutModule,
+  SearchModule,
+  TypographyModule,
+  LinkComponent,
+} from "@bitwarden/components";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
+import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
+import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
+import { PassportViewComponent } from "./passport-sections/passport-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
@@ -56,42 +68,44 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     SshKeyViewComponent,
+    BankAccountViewComponent,
+    DriversLicenseViewComponent,
+    PassportViewComponent,
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
-    AnchorLinkDirective,
+    LinkComponent,
+    TypographyModule,
   ],
 })
-export class CipherViewComponent implements OnChanges, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) cipher: CipherView | null = null;
+export class CipherViewComponent {
+  /**
+   * The cipher to display details for
+   */
+  readonly cipher = input.required<CipherView>();
 
-  // Required for fetching attachment data when viewed from cipher via emergency access
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() emergencyAccessId?: EmergencyAccessId;
+  /**
+   * Observable version of the cipher input
+   */
+  private readonly cipher$ = toObservable(this.cipher);
 
-  activeUserId$ = getUserId(this.accountService.activeAccount$);
+  /**
+   * Required for fetching attachment data when viewed from cipher via emergency access
+   */
+  readonly emergencyAccessId = input<EmergencyAccessId | undefined>();
 
   /**
    * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
    * `CipherService` and the `collectionIds` property of the cipher.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() collections?: CollectionView[];
+  readonly collections = input<CollectionView[] | undefined>(undefined);
 
-  /** Should be set to true when the component is used within the Admin Console */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() isAdminConsole?: boolean = false;
+  /**
+   * Should be set to true when the component is used within the Admin Console
+   */
+  readonly isAdminConsole = input<boolean>(false);
 
-  organization$: Observable<Organization | undefined> | undefined;
-  folder$: Observable<FolderView | undefined> | undefined;
-  private destroyed$: Subject<void> = new Subject();
-  cardIsExpired: boolean = false;
-  hadPendingChangePasswordTask: boolean = false;
+  readonly activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   constructor(
     private organizationService: OrganizationService,
@@ -103,126 +117,261 @@ export class CipherViewComponent implements OnChanges, OnDestroy {
     private changeLoginPasswordService: ChangeLoginPasswordService,
     private cipherService: CipherService,
     private logService: LogService,
+    private cipherRiskService: CipherRiskService,
+    private billingAccountService: BillingAccountProfileStateService,
+    private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
   ) {}
 
-  async ngOnChanges() {
-    if (this.cipher == null) {
-      return;
-    }
+  readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
+    combineLatest([this.activeUserId$, this.cipher$, toObservable(this.collections)]).pipe(
+      switchMap(([userId, cipher, providedCollections]) => {
+        // Use provided collections if available
+        if (providedCollections && providedCollections.length > 0) {
+          return of(providedCollections);
+        }
+        // Otherwise, load collections based on cipher's collectionIds
+        if (cipher.collectionIds && cipher.collectionIds.length > 0) {
+          return this.collectionService
+            .decryptedCollections$(userId)
+            .pipe(getByIds(cipher.collectionIds));
+        }
+        return of(undefined);
+      }),
+    ),
+  );
 
-    await this.loadCipherData();
+  readonly organization = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!userId || !cipher?.organizationId) {
+          return of(undefined);
+        }
+        return this.organizationService.organizations$(userId).pipe(
+          map((organizations) => {
+            return organizations.find((org) => org.id === cipher.organizationId);
+          }),
+        );
+      }),
+    ),
+  );
+  readonly folder = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!userId || !cipher?.folderId) {
+          return of(undefined);
+        }
+        return this.folderService.getDecrypted$(cipher.folderId, userId);
+      }),
+    ),
+  );
 
-    this.cardIsExpired = isCardExpired(this.cipher.card);
-  }
+  readonly hadPendingChangePasswordTask = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        // Early exit if not a Login cipher owned by an organization
+        if (cipher?.type !== CipherType.Login || !cipher?.organizationId) {
+          return of(false);
+        }
 
-  ngOnDestroy(): void {
-    this.destroyed$.next();
-    this.destroyed$.complete();
-  }
+        return combineLatest([
+          this.cipherService.ciphers$(userId),
+          this.defaultTaskService.pendingTasks$(userId),
+        ]).pipe(
+          map(([allCiphers, tasks]) => {
+            const cipherServiceCipher = allCiphers[cipher?.id as CipherId];
 
-  get hasCard() {
-    if (!this.cipher) {
+            // Show tasks only for Manage and Edit permissions
+            if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
+              return false;
+            }
+
+            return (
+              tasks?.some(
+                (task) =>
+                  task.cipherId === cipher?.id &&
+                  task.type === SecurityTaskType.UpdateAtRiskCredential,
+              ) ?? false
+            );
+          }),
+          catchError((error: unknown) => {
+            this.logService.error("Failed to retrieve change password tasks for cipher", error);
+            return of(false);
+          }),
+        );
+      }),
+    ),
+    { initialValue: false },
+  );
+
+  readonly hasCard = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
       return false;
     }
 
-    const { cardholderName, code, expMonth, expYear, number } = this.cipher.card;
+    const { cardholderName, code, expMonth, expYear, number } = cipher.card;
     return cardholderName || code || expMonth || expYear || number;
-  }
+  });
 
-  get hasLogin() {
-    if (!this.cipher) {
+  readonly cardIsExpired = computed(() => {
+    const cipher = this.cipher();
+    if (cipher == null) {
+      return false;
+    }
+    return isCardExpired(cipher.card);
+  });
+
+  readonly hasLogin = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
       return false;
     }
 
-    const { username, password, totp, fido2Credentials } = this.cipher.login;
+    const { username, password, totp, fido2Credentials } = cipher.login;
 
     return username || password || totp || fido2Credentials?.length > 0;
-  }
+  });
 
-  get hasAutofill() {
-    const uris = this.cipher?.login?.uris.length ?? 0;
+  readonly hasAutofill = computed(() => {
+    const cipher = this.cipher();
+    const uris = cipher?.login?.uris.length ?? 0;
 
     return uris > 0;
-  }
+  });
 
-  get hasSshKey() {
-    return !!this.cipher?.sshKey?.privateKey;
-  }
+  readonly hasSshKey = computed(() => {
+    const cipher = this.cipher();
+    return !!cipher?.sshKey?.privateKey;
+  });
 
-  get hasLoginUri() {
-    return this.cipher?.login?.hasUris;
-  }
+  readonly hasBankAccount = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
+  });
 
-  async loadCipherData() {
-    if (!this.cipher) {
-      return;
+  readonly hasDriversLicense = computed(() => {
+    const cipher = this.cipher();
+
+    if (!cipher) {
+      return false;
     }
 
-    const userId = await firstValueFrom(this.activeUserId$);
+    return Array.from(Object.values(cipher.driversLicense)).some((value) => Boolean(value));
+  });
 
-    // Load collections if not provided and the cipher has collectionIds
-    if (
-      this.cipher.collectionIds &&
-      this.cipher.collectionIds.length > 0 &&
-      (!this.collections || this.collections.length === 0)
-    ) {
-      this.collections = await firstValueFrom(
-        this.collectionService
-          .decryptedCollections$(userId)
-          .pipe(getByIds(this.cipher.collectionIds)),
-      );
+  readonly hasPassport = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
     }
+    return Array.from(Object.values(cipher.passport ?? {})).some((value) => Boolean(value));
+  });
 
-    if (this.cipher.organizationId) {
-      this.organization$ = this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.cipher.organizationId))
-        .pipe(takeUntil(this.destroyed$));
+  readonly hasLoginUri = computed(() => {
+    const cipher = this.cipher();
+    return cipher?.login?.hasUris;
+  });
 
-      if (this.cipher.type === CipherType.Login) {
-        await this.checkPendingChangePasswordTasks(userId);
-      }
-    }
-
-    if (this.cipher.folderId) {
-      this.folder$ = this.folderService
-        .getDecrypted$(this.cipher.folderId, userId)
-        .pipe(takeUntil(this.destroyed$));
-    }
-  }
-
-  async checkPendingChangePasswordTasks(userId: UserId): Promise<void> {
-    try {
-      // Show Tasks for Manage and Edit permissions
-      // Using cipherService to see if user has access to cipher in a non-AC context to address with Edit Except Password permissions
-      const allCiphers = await firstValueFrom(this.cipherService.ciphers$(userId));
-      const cipherServiceCipher = allCiphers[this.cipher?.id as CipherId];
-
-      if (!cipherServiceCipher?.edit || !cipherServiceCipher?.viewPassword) {
-        this.hadPendingChangePasswordTask = false;
-        return;
-      }
-
-      const tasks = await firstValueFrom(this.defaultTaskService.pendingTasks$(userId));
-
-      this.hadPendingChangePasswordTask = tasks?.some((task) => {
-        return (
-          task.cipherId === this.cipher?.id && task.type === SecurityTaskType.UpdateAtRiskCredential
+  /**
+   * Whether the login password for the cipher is considered at risk.
+   * The password is only evaluated when the user is premium and has edit access to the cipher.
+   */
+  readonly passwordIsAtRisk = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
+          return of(false);
+        }
+        return this.switchPremium$(
+          userId,
+          () =>
+            from(this.checkIfPasswordIsAtRisk(cipher.id as CipherId, userId as UserId)).pipe(
+              startWith(false),
+            ),
+          () => of(false),
         );
-      });
-    } catch (error) {
-      this.hadPendingChangePasswordTask = false;
-      this.logService.error("Failed to retrieve change password tasks for cipher", error);
+      }),
+    ),
+    { initialValue: false },
+  );
+
+  readonly showChangePasswordLink = computed(() => {
+    return (
+      this.hasLoginUri() &&
+      (this.hadPendingChangePasswordTask() ||
+        // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
+        // `hasPendingChangePasswordTask` supersedes the `showAtRiskPasswordNotifications` setting because it comes from
+        // an organization marking the cipher as at-risk.
+        (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
+    );
+  });
+
+  readonly showAtRiskPasswordNotifications = toSignal(
+    this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
+
+  readonly removeAtRiskCallout = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
+    { initialValue: false },
+  );
+
+  protected readonly changePasswordUrl = resource({
+    params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
+    loader: async ({ params }) => {
+      if (!params.showPwLink) {
+        return undefined;
+      }
+      try {
+        return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      } catch (e: any) {
+        this.logService.error(e.message);
+        return undefined;
+      }
+    },
+  });
+
+  readonly changePasswordLink = computed(() => {
+    if (this.changePasswordUrl.hasValue()) {
+      return this.changePasswordUrl.value();
     }
-  }
+    return undefined;
+  });
 
   launchChangePassword = async () => {
-    if (this.cipher != null) {
-      const url = await this.changeLoginPasswordService.getChangePasswordUrl(this.cipher);
+    const cipher = this.cipher();
+    if (cipher != null) {
+      const url = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
       if (url == null) {
         return;
       }
       this.platformUtilsService.launchUri(url);
     }
   };
+
+  /**
+   * Switches between two observables based on whether the user has a premium from any source.
+   */
+  private switchPremium$<T>(
+    userId: UserId,
+    ifPremium$: () => Observable<T>,
+    ifNonPremium$: () => Observable<T>,
+  ): Observable<T> {
+    return this.billingAccountService
+      .hasPremiumFromAnySource$(userId)
+      .pipe(switchMap((isPremium) => (isPremium ? ifPremium$() : ifNonPremium$())));
+  }
+
+  private async checkIfPasswordIsAtRisk(cipherId: CipherId, userId: UserId): Promise<boolean> {
+    try {
+      const risk = await this.cipherRiskService.computeCipherRiskForUser(cipherId, userId, true);
+      return isPasswordAtRisk(risk);
+    } catch (error: unknown) {
+      this.logService.error("Failed to check if password is at risk", error);
+      return false;
+    }
+  }
 }

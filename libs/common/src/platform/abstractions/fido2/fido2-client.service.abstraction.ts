@@ -135,12 +135,15 @@ export interface CreateCredentialResult {
  * Parameters for asserting a credential.
  */
 export interface AssertCredentialParams {
-  allowedCredentialIds: string[];
-  rpId: string;
+  allowedCredentials: {
+    id: string;
+    transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
+  }[];
+  rpId?: string;
   origin: string;
   challenge: string;
   userVerification?: UserVerification;
-  timeout: number;
+  timeout?: number;
   sameOriginWithAncestors: boolean;
   mediation?: "silent" | "optional" | "required" | "conditional";
   fallbackSupported: boolean;

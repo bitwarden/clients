@@ -83,6 +83,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  isAnyViewFocused() {
+    return Promise.resolve(false);
+  }
+
   launchUri(uri: string, options?: any): void {
     if (process.platform === "linux") {
       child_process.spawnSync("xdg-open", [uri]);
@@ -150,6 +154,10 @@ export class CliPlatformUtilsService implements PlatformUtilsService {
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
+  }
+
+  async packageType(): Promise<string | null> {
     return null;
   }
 }

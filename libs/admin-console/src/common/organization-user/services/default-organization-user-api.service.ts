@@ -13,10 +13,13 @@ import {
   OrganizationUserUpdateRequest,
   OrganizationUserBulkRequest,
 } from "../models/requests";
+import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
+import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -194,6 +197,20 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  postOrganizationUserAutoConfirm(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserConfirmRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/" + id + "/auto-confirm",
+      request,
+      true,
+      false,
+    );
+  }
+
   async postOrganizationUsersPublicKey(
     organizationId: string,
     ids: string[],
@@ -263,14 +280,14 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
-  putOrganizationUserResetPassword(
+  putOrganizationUserRecoverAccount(
     organizationId: string,
     id: string,
     request: OrganizationUserResetPasswordRequest,
   ): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/reset-password",
+      "/organizations/" + organizationId + "/users/" + id + "/recover-account",
       request,
       true,
       false,
@@ -325,11 +342,25 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return new ListResponse(r, OrganizationUserBulkResponse);
   }
 
-  restoreOrganizationUser(organizationId: string, id: string): Promise<void> {
+  revokeSelf(organizationId: string): Promise<void> {
     return this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/restore",
+      "/organizations/" + organizationId + "/users/revoke-self",
       null,
+      true,
+      false,
+    );
+  }
+
+  restoreOrganizationUser(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserRestoreRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/" + id + "/restore/vnext",
+      request,
       true,
       false,
     );
@@ -337,12 +368,12 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
 
   async restoreManyOrganizationUsers(
     organizationId: string,
-    ids: string[],
+    request: OrganizationUserBulkRestoreRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>> {
     const r = await this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/restore",
-      new OrganizationUserBulkRequest(ids),
+      request,
       true,
       true,
     );
@@ -367,6 +398,33 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       "DELETE",
       "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  async getPendingAutoConfirmUsers(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/users/pending-auto-confirm",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
+  }
+
+  async postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/bulk-auto-confirm",
+      request,
       true,
       true,
     );

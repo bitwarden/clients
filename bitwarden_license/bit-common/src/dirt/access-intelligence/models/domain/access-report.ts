@@ -1,0 +1,146 @@
+import { Observable, map, throwError } from "rxjs";
+
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import Domain from "@bitwarden/common/platform/models/domain/domain-base";
+import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
+import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
+
+import {
+  DecryptedAccessReportData,
+  AccessReportEncryptionService,
+} from "../../services/abstractions/access-report-encryption.service";
+import { AccessReportData } from "../data/access-report.data";
+import { AccessReportSettingsView } from "../view/access-report-settings.view";
+import { AccessReportView } from "../view/access-report.view";
+import { ApplicationHealthView } from "../view/application-health.view";
+import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
+
+/**
+ * Domain model for an Access Intelligence report. Encrypted form mapped
+ * between {@link AccessReportData} and {@link AccessReportView}.
+ */
+export class AccessReport extends Domain {
+  id: string = "";
+  organizationId: string = "";
+  reports: EncString = new EncString(""); // Reports + member registry
+  applications: EncString = new EncString("");
+  summary: EncString = new EncString("");
+  creationDate: Date;
+  contentEncryptionKey?: EncString;
+
+  constructor(obj?: AccessReportData) {
+    super();
+    if (obj == null) {
+      this.creationDate = new Date();
+      return;
+    }
+    this.id = obj.id;
+    this.organizationId = obj.organizationId;
+    this.reports = conditionalEncString(obj.reports) ?? new EncString("");
+    this.applications = conditionalEncString(obj.applications) ?? new EncString("");
+    this.summary = conditionalEncString(obj.summary) ?? new EncString("");
+    this.creationDate = new Date(obj.creationDate);
+    this.contentEncryptionKey = conditionalEncString(obj.contentEncryptionKey);
+  }
+
+  /**
+   * Decrypts the domain model to a view model.
+   *
+   * @param encryptionService - Service to handle decryption operations.
+   * @param context - The organization and user identifiers for key lookup.
+   * @returns Observable emitting the decrypted view and a `hadLegacyBlobs` flag that is `true`
+   *   when any blob was in the V1 format. The flag is a migration signal — callers that persist
+   *   reports should re-save when this is `true` to upgrade the blobs to V2 format.
+   */
+  decrypt$(
+    encryptionService: AccessReportEncryptionService,
+    context: { organizationId: OrganizationId; userId: UserId },
+  ): Observable<{ view: AccessReportView; hadLegacyBlobs: boolean }> {
+    if (!this.contentEncryptionKey) {
+      return throwError(() => new Error("Report encryption key not found"));
+    }
+
+    return encryptionService
+      .decryptReport$(
+        context,
+        {
+          encryptedReportData: this.reports,
+          encryptedSummaryData: this.summary,
+          encryptedApplicationData: this.applications,
+        },
+        this.contentEncryptionKey,
+      )
+      .pipe(
+        map((decryptedData) => {
+          const view = new AccessReportView();
+          view.id = this.id as OrganizationReportId;
+          view.organizationId = this.organizationId as OrganizationId;
+          view.creationDate = this.creationDate;
+          view.contentEncryptionKey = this.contentEncryptionKey;
+
+          view.reports = decryptedData.reportData.reports.map(ApplicationHealthView.fromData);
+          view.memberRegistry = Object.fromEntries(
+            Object.entries(decryptedData.reportData.memberRegistry).map(([id, data]) => [
+              id,
+              MemberRegistryEntryView.fromData(data),
+            ]),
+          );
+
+          view.applications = decryptedData.applicationData.map(AccessReportSettingsView.fromData);
+          view.summary = decryptedData.summaryData;
+
+          return { view, hadLegacyBlobs: decryptedData.hadLegacyBlobs === true };
+        }),
+      );
+  }
+
+  /**
+   * Converts domain model to data model for persistence
+   *
+   * @returns Data model ready for persistence
+   */
+  toData(): AccessReportData {
+    const data = new AccessReportData();
+    data.id = this.id;
+    data.organizationId = this.organizationId;
+    data.reports = this.reports.encryptedString ?? "";
+    data.applications = this.applications.encryptedString ?? "";
+    data.summary = this.summary.encryptedString ?? "";
+    data.creationDate = this.creationDate.toISOString();
+    data.contentEncryptionKey = this.contentEncryptionKey?.encryptedString ?? "";
+    return data;
+  }
+
+  /**
+   * Creates an encrypted domain model from a decrypted view model.
+   *
+   * @param view - The decrypted view model to encrypt.
+   * @param encryptionService - Service to handle encryption operations.
+   * @param context - The organization and user identifiers for key lookup.
+   */
+  static fromView$(
+    view: AccessReportView,
+    encryptionService: AccessReportEncryptionService,
+    context: { organizationId: OrganizationId; userId: UserId },
+  ): Observable<AccessReport> {
+    const payload: DecryptedAccessReportData = view.toEncryptionPayload();
+
+    return encryptionService.encryptReport$(context, payload, view.contentEncryptionKey).pipe(
+      map((encryptedData) => {
+        const domain = new AccessReport();
+        domain.id = view.id;
+        domain.organizationId = context.organizationId;
+        domain.reports = encryptedData.encryptedReportData;
+        domain.applications = encryptedData.encryptedApplicationData;
+        domain.summary = encryptedData.encryptedSummaryData;
+        domain.creationDate = view.creationDate;
+        domain.contentEncryptionKey = encryptedData.contentEncryptionKey;
+        return domain;
+      }),
+    );
+  }
+
+  // [TODO] SDK Mapping
+  // toSdkAccessReport(): SdkAccessReport {}
+  // static fromSdkAccessReport(obj?: SdkAccessReport): AccessReport | undefined {}
+}

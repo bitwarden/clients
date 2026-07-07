@@ -4,13 +4,15 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 
-import { awaitAsync } from "../../../../spec";
+import { awaitAsync, mockAccountInfoWith } from "../../../../spec";
 import { Matrix } from "../../../../spec/matrix";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import { NotificationResponse } from "../../../models/response/notification.response";
 import { UserId } from "../../../types/guid";
@@ -40,8 +42,10 @@ describe("NotificationsService", () => {
   let signalRNotificationConnectionService: MockProxy<SignalRConnectionService>;
   let authService: MockProxy<AuthService>;
   let webPushNotificationConnectionService: MockProxy<WebPushConnectionService>;
-  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringServiceAbstraction>;
+  let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
+  let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let activeAccount: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let accounts: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -69,11 +73,13 @@ describe("NotificationsService", () => {
     signalRNotificationConnectionService = mock<SignalRConnectionService>();
     authService = mock<AuthService>();
     webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
-    authRequestAnsweringService = mock<AuthRequestAnsweringServiceAbstraction>();
+    authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
+    autoConfirmService = mock<AutomaticUserConfirmationService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
-    configService.getFeatureFlag$.mockImplementation(() => of(true));
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
@@ -123,6 +129,8 @@ describe("NotificationsService", () => {
       webPushNotificationConnectionService,
       authRequestAnsweringService,
       configService,
+      autoConfirmService,
+      billingAccountProfileStateService,
     );
   });
 
@@ -134,11 +142,18 @@ describe("NotificationsService", () => {
       activeAccount.next(null);
       accounts.next({} as any);
     } else {
-      activeAccount.next({ id: userId, email: "email", name: "Test Name", emailVerified: true });
+      const accountInfo = mockAccountInfoWith({
+        email: "email",
+        name: "Test Name",
+      });
+      activeAccount.next({
+        id: userId,
+        ...accountInfo,
+      });
       const current = (accounts.getValue() as Record<string, any>) ?? {};
       accounts.next({
         ...current,
-        [userId]: { email: "email", name: "Test Name", emailVerified: true },
+        [userId]: accountInfo,
       } as any);
     }
   }
@@ -344,7 +359,13 @@ describe("NotificationsService", () => {
   describe("processNotification", () => {
     beforeEach(async () => {
       appIdService.getAppId.mockResolvedValue("test-app-id");
-      activeAccount.next({ id: mockUser1, email: "email", name: "Test Name", emailVerified: true });
+      activeAccount.next({
+        id: mockUser1,
+        ...mockAccountInfoWith({
+          email: "email",
+          name: "Test Name",
+        }),
+      });
     });
 
     describe("NotificationType.LogOut", () => {
@@ -389,6 +410,195 @@ describe("NotificationsService", () => {
         await sut["processNotification"](notification, mockUser1);
 
         expect(logoutCallback).not.toHaveBeenCalled();
+      });
+
+      it.each([
+        { featureFlagEnabled: false, reason: undefined },
+        { featureFlagEnabled: true, reason: undefined },
+        { featureFlagEnabled: false, reason: PushNotificationLogOutReasonType.KeyRotation },
+      ])(
+        "should call logout callback when featureFlag=$featureFlagEnabled and reason=$reason",
+        async ({ featureFlagEnabled, reason }) => {
+          configService.getFeatureFlag$.mockReturnValue(of(featureFlagEnabled));
+
+          const payload: { UserId: UserId; Reason?: PushNotificationLogOutReasonType } = {
+            UserId: mockUser1,
+            Reason: undefined,
+          };
+          if (reason != null) {
+            payload.Reason = reason;
+          }
+
+          const notification = new NotificationResponse({
+            type: NotificationType.LogOut,
+            payload,
+            contextId: "different-app-id",
+          });
+
+          await sut["processNotification"](notification, mockUser1);
+
+          expect(logoutCallback).toHaveBeenCalledWith("logoutNotification", mockUser1);
+        },
+      );
+
+      it("should skip logout when receiving key rotation reason with feature flag enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.LogOut,
+          payload: { UserId: mockUser1, Reason: PushNotificationLogOutReasonType.KeyRotation },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("NotificationType.SyncPolicy", () => {
+      it("forces a full sync so the API path can deserialize the policy", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.SyncPolicy,
+          payload: {},
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.fullSync).toHaveBeenCalledTimes(1);
+        expect(syncService.fullSync).toHaveBeenCalledWith(true);
+      });
+    });
+
+    describe("NotificationType.AuthRequest", () => {
+      it("should call receivedPendingAuthRequest when it exists (Extension/Desktop)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest!.mockResolvedValue(undefined as any);
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-123" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(authRequestAnsweringService.receivedPendingAuthRequest).toHaveBeenCalledWith(
+          mockUser1,
+          "auth-request-123",
+        );
+        expect(messagingService.send).not.toHaveBeenCalled();
+      });
+
+      it("should call messagingService.send when receivedPendingAuthRequest does not exist (Web)", async () => {
+        authRequestAnsweringService.receivedPendingAuthRequest = undefined as any;
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AuthRequest,
+          payload: { userId: mockUser1, id: "auth-request-456" },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+          notificationId: "auth-request-456",
+        });
+      });
+    });
+
+    describe("NotificationType.AutoConfirmMember", () => {
+      it("should call autoConfirmService.autoConfirmUser with correct parameters", async () => {
+        autoConfirmService.autoConfirmUser.mockResolvedValue();
+
+        const notification = new NotificationResponse({
+          type: NotificationType.AutoConfirmMember,
+          payload: {
+            UserId: mockUser1,
+            TargetUserId: "target-user-id",
+            TargetOrganizationUserId: "target-org-user-id",
+            OrganizationId: "org-id",
+          },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(autoConfirmService.autoConfirmUser).toHaveBeenCalledWith(
+          mockUser1,
+          "target-user-id",
+          "target-org-user-id",
+          "org-id",
+        );
+      });
+    });
+
+    describe("NotificationType.PremiumStatusChanged", () => {
+      beforeEach(() => {
+        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
+        billingAccountProfileStateService.setHasPremium.mockResolvedValue();
+      });
+
+      it("should call setHasPremium with premium=true when notification payload is true", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          true,
+          false,
+          mockUser1,
+        );
+      });
+
+      it("should call setHasPremium with premium=false when notification payload is false", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: false },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          false,
+          false,
+          mockUser1,
+        );
+      });
+
+      it("should preserve existing hasPremiumFromAnyOrganization value", async () => {
+        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(of(true));
+
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(billingAccountProfileStateService.setHasPremium).toHaveBeenCalledWith(
+          true,
+          true,
+          mockUser1,
+        );
+      });
+
+      it("should not trigger a full sync", async () => {
+        const notification = new NotificationResponse({
+          type: NotificationType.PremiumStatusChanged,
+          payload: { UserId: mockUser1, Premium: true },
+          contextId: "different-app-id",
+        });
+
+        await sut["processNotification"](notification, mockUser1);
+
+        expect(syncService.fullSync).not.toHaveBeenCalled();
       });
     });
   });

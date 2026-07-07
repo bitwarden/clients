@@ -28,7 +28,7 @@ describe("PasswordHealthService", () => {
     auditService.passwordLeaked.mockImplementation((password: string) =>
       Promise.resolve(password === "leaked" ? 2 : 0),
     );
-    service = new PasswordHealthService(passwordStrengthService, auditService);
+    service = new PasswordHealthService(auditService, passwordStrengthService);
 
     // Setup mock data
     mockValidCipher = mock<CipherView>({

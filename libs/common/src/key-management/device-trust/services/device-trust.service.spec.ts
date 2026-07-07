@@ -9,7 +9,6 @@ import {
   UserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptions,
 } from "@bitwarden/auth/common";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -22,6 +21,7 @@ import { DevicesApiServiceAbstraction } from "../../../auth/abstractions/devices
 import { UpdateDevicesTrustRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../../../auth/models/response/protected-device.response";
 import { DeviceType } from "../../../enums";
+import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -366,7 +366,6 @@ describe("deviceTrustService", () => {
 
       let makeDeviceKeySpy: jest.SpyInstance;
       let rsaGenerateKeyPairSpy: jest.SpyInstance;
-      let cryptoSvcGetUserKeySpy: jest.SpyInstance;
       let cryptoSvcRsaEncryptSpy: jest.SpyInstance;
       let encryptServiceWrapDecapsulationKeySpy: jest.SpyInstance;
       let encryptServiceWrapEncapsulationKeySpy: jest.SpyInstance;
@@ -402,6 +401,8 @@ describe("deviceTrustService", () => {
           "mockDeviceKeyEncryptedDevicePrivateKey",
         );
 
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
+
         // TypeScript will allow calling private methods if the object is of type 'any'
         makeDeviceKeySpy = jest
           .spyOn(deviceTrustService as any, "makeDeviceKey")
@@ -410,10 +411,6 @@ describe("deviceTrustService", () => {
         rsaGenerateKeyPairSpy = jest
           .spyOn(cryptoFunctionService, "rsaGenerateKeyPair")
           .mockResolvedValue(mockDeviceRsaKeyPair);
-
-        cryptoSvcGetUserKeySpy = jest
-          .spyOn(keyService, "getUserKey")
-          .mockResolvedValue(mockUserKey);
 
         cryptoSvcRsaEncryptSpy = jest
           .spyOn(encryptService, "encapsulateKeyUnsigned")
@@ -448,7 +445,7 @@ describe("deviceTrustService", () => {
 
         expect(makeDeviceKeySpy).toHaveBeenCalledTimes(1);
         expect(rsaGenerateKeyPairSpy).toHaveBeenCalledTimes(1);
-        expect(cryptoSvcGetUserKeySpy).toHaveBeenCalledTimes(1);
+        expect(keyService.userKey$).toHaveBeenCalledTimes(1);
 
         expect(cryptoSvcRsaEncryptSpy).toHaveBeenCalledTimes(1);
 
@@ -473,18 +470,13 @@ describe("deviceTrustService", () => {
       });
 
       it("throws specific error if user key is not found", async () => {
-        // setup the spy to return null
-        cryptoSvcGetUserKeySpy.mockResolvedValue(null);
+        keyService.userKey$.mockReturnValueOnce(of(null));
         // check if the expected error is thrown
         await expect(deviceTrustService.trustDevice(mockUserId)).rejects.toThrow(
           "User symmetric key not found",
         );
 
-        // reset the spy
-        cryptoSvcGetUserKeySpy.mockReset();
-
-        // setup the spy to return undefined
-        cryptoSvcGetUserKeySpy.mockResolvedValue(undefined);
+        keyService.userKey$.mockReturnValueOnce(of(undefined));
         // check if the expected error is thrown
         await expect(deviceTrustService.trustDevice(mockUserId)).rejects.toThrow(
           "User symmetric key not found",
@@ -501,11 +493,6 @@ describe("deviceTrustService", () => {
           method: "rsaGenerateKeyPair",
           spy: () => rsaGenerateKeyPairSpy,
           errorText: "rsaGenerateKeyPair error",
-        },
-        {
-          method: "getUserKey",
-          spy: () => cryptoSvcGetUserKeySpy,
-          errorText: "getUserKey error",
         },
         {
           method: "rsaEncrypt",
@@ -927,7 +914,7 @@ describe("deviceTrustService", () => {
     platformUtilsService.supportsSecureStorage.mockReturnValue(supportsSecureStorage);
 
     decryptionOptions.next({} as any);
-    userDecryptionOptionsService.userDecryptionOptions$ = decryptionOptions;
+    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(decryptionOptions);
 
     return new DeviceTrustService(
       keyGenerationService,
@@ -943,6 +930,7 @@ describe("deviceTrustService", () => {
       userDecryptionOptionsService,
       logService,
       configService,
+      accountService,
     );
   }
 });

@@ -48,14 +48,11 @@ export abstract class UserVerificationService {
    * @param userId The user id to check. If not provided, the current user is used
    * @returns True if the user has a master password
    * @deprecated Use UserDecryptionOptionsService.hasMasterPassword$ instead
+   * @remark To facilitate deprecation, many call sites were removed as part of PM-26413.
+   * Those remaining are blocked by currently-disallowed imports of auth/common.
+   * PM-27009 has been filed to track completion of this deprecation.
    */
   abstract hasMasterPassword(userId?: string): Promise<boolean>;
-  /**
-   * Check if the user has a master password and has used it during their current session
-   * @param userId The user id to check. If not provided, the current user id used
-   * @returns True if the user has a master password and has used it in the current session
-   */
-  abstract hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean>;
   /**
    * Verifies the user using the provided master password.
    * Attempts to verify client-side first, then server-side if necessary.

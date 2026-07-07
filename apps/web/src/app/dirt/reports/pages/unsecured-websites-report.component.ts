@@ -9,8 +9,12 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
+import { LogService } from "@bitwarden/logging";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
@@ -34,9 +38,10 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
-    private collectionService: CollectionService,
+    protected collectionService: CollectionService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -48,22 +53,56 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
-    await super.load();
+    this.logService.info("[UnsecuredWebsitesReport] load start");
+    try {
+      await super.load();
+      this.logService.info("[UnsecuredWebsitesReport] load success");
+    } catch (e) {
+      this.logService.error("[UnsecuredWebsitesReport] load failure", e);
+      throw e;
+    }
   }
 
   async setCiphers() {
-    const allCiphers = await this.getAllCiphers();
-    this.filterStatus = [0];
+    this.logService.info("[UnsecuredWebsitesReport] analysis start");
+    try {
+      const allCiphers = await this.getAllCiphers();
+      this.filterStatus = [0];
 
-    const unsecuredCiphers = allCiphers.filter((c) => {
-      return this.cipherContainsUnsecured(c);
-    });
+      let eligibleCipherCount = 0;
+      const unsecuredCiphers = allCiphers.filter((c) => {
+        if (
+          c.type === CipherType.Login &&
+          c.login.hasUris &&
+          !c.isDeleted &&
+          (this.organization || c.edit)
+        ) {
+          eligibleCipherCount++;
+        }
 
-    this.filterCiphersByOrg(unsecuredCiphers);
+        return this.cipherContainsUnsecured(c);
+      });
+
+      this.logService.info(
+        `[UnsecuredWebsitesReport] analysis candidates total=${allCiphers.length} eligible=${eligibleCipherCount}`,
+      );
+      this.logService.info(
+        `[UnsecuredWebsitesReport] analysis complete unsecured=${unsecuredCiphers.length}`,
+      );
+
+      this.filterCiphersByOrg(unsecuredCiphers);
+      this.logService.info(
+        `[UnsecuredWebsitesReport] filter complete displayed=${this.ciphers.length}`,
+      );
+    } catch (e) {
+      this.logService.error("[UnsecuredWebsitesReport] analysis failure", e);
+      throw e;
+    }
   }
 
   /**
@@ -101,14 +140,20 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     result: VaultItemDialogResult,
     updatedCipherView: CipherView,
   ): Promise<CipherView | null> {
+    this.logService.info(`[UnsecuredWebsitesReport] update check start result=${result}`);
+
     if (result === VaultItemDialogResult.Deleted) {
+      this.logService.info("[UnsecuredWebsitesReport] update check complete action=deleted");
       return null;
     }
 
     // If the cipher still contains unsecured URIs, return it as is
     if (this.cipherContainsUnsecured(updatedCipherView)) {
+      this.logService.info("[UnsecuredWebsitesReport] update check complete action=retain");
       return updatedCipherView;
     }
+
+    this.logService.info("[UnsecuredWebsitesReport] update check complete action=remove");
 
     return null;
   }

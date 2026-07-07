@@ -134,7 +134,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       it("should throw if the current version is less than 9", () => {
         expect(() =>
           sut.getFromGlobal({ stateDefinition: { name: "serviceName" }, key: "key" }),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -154,7 +154,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
             { stateDefinition: { name: "serviceName" }, key: "key" },
             "global_serviceName_key",
           ),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -171,7 +171,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       it("should throw if the current version is less than 9", () => {
         expect(() =>
           sut.getFromUser("userId", { stateDefinition: { name: "serviceName" }, key: "key" }),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -193,7 +193,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
             { stateDefinition: { name: "serviceName" }, key: "key" },
             "new_value",
           ),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
   });
@@ -340,7 +340,7 @@ function expectInjectedData(
  * Runs the {@link Migrator.migrate} method of your migrator. You may pass in your test data and get back the data after the migration.
  * This also injects extra properties at every level of your state and makes sure that it can be found.
  * @param migrator Your migrator to use to do the migration
- * @param initalData The data to start with
+ * @param initialData The data to start with
  * @returns State after your migration has ran.
  */
 export async function runMigrator<
@@ -348,10 +348,10 @@ export async function runMigrator<
   const TUsers extends readonly string[],
 >(
   migrator: TMigrator,
-  initalData?: InitialDataHint<TUsers>,
+  initialData?: InitialDataHint<TUsers>,
   direction: "migrate" | "rollback" = "migrate",
 ): Promise<Record<string, unknown>> {
-  const clonedData = JSON.parse(JSON.stringify(initalData ?? {}));
+  const clonedData = JSON.parse(JSON.stringify(initialData ?? {}));
 
   // Inject fake data at every level of the object
   const allInjectedData = injectData(clonedData, []);

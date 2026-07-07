@@ -1,59 +1,121 @@
-<ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
+<ng-template #step0Title>
+  <div class="tw-flex tw-flex-col">
+    @let showBadge = autoConfirmPolicy?.firstTimeDialog ?? false;
+    @if (showBadge) {
+      <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
+    }
+    <span>
+      {{ (showBadge ? "autoConfirm" : "editPolicy") | i18n }}
+      @if (!showBadge) {
+        <span class="tw-text-muted tw-font-normal tw-text-sm">
+          {{ policy()!.name | i18n }}
+        </span>
+      }
+    </span>
+  </div>
+</ng-template>
 
-<ng-template #step0>
+<ng-template #step0Content>
   <p class="tw-mb-6">
     {{ "autoConfirmPolicyEditDescription" | i18n }}
   </p>
 
   <ul class="tw-mb-6 tw-pl-6">
     <li>
-      <span class="tw-font-bold">
+      <span class="tw-font-medium">
         {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
       </span>
       {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
-      <a bitLink href="https://bitwarden.com/help/automatic-confirmation/" target="_blank">
+      <a
+        bitLink
+        href="https://bitwarden.com/help/automatic-confirmation/"
+        target="_blank"
+        endIcon="bwi-external-link"
+      >
         {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
-        <i class="bwi bwi-external-link bwi-fw"></i>
       </a>
     </li>
 
     <li>
       @if (singleOrgEnabled$ | async) {
-        <span class="tw-font-bold">
+        <span class="tw-font-medium">
           {{ "autoConfirmSingleOrgExemption" | i18n }}
         </span>
       } @else {
-        <span class="tw-font-bold">
+        <span class="tw-font-medium">
           {{ "autoConfirmSingleOrgRequired" | i18n }}
         </span>
       }
-      {{ "autoConfirmSingleOrgRequiredDescription" | i18n }}
+      {{ "autoConfirmSingleOrgRequiredDesc" | i18n }}
     </li>
 
     <li>
-      <span class="tw-font-bold">
+      <span class="tw-font-medium">
         {{ "autoConfirmNoEmergencyAccess" | i18n }}
       </span>
       {{ "autoConfirmNoEmergencyAccessDescription" | i18n }}
     </li>
   </ul>
 
-  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-  <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+  <bit-form-control>
+    <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+    <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+  </bit-form-control>
 </ng-template>
 
-<ng-template #step1>
+<ng-template #step0Footer>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    @let autoConfirmEnabled = autoConfirmEnabled$ | async;
+    @let managePoliciesOnly = managePoliciesOnly$ | async;
+    @if (autoConfirmEnabled || managePoliciesOnly) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
+  </button>
+  <button bitButton buttonType="secondary" type="button" bitDialogClose>
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>
+
+<ng-template #step1Title>
+  {{ "howToTurnOnAutoConfirm" | i18n }}
+</ng-template>
+
+<ng-template #step1Content>
   <div class="tw-flex tw-justify-center tw-mb-6">
-    <bit-icon class="tw-w-[233px]" [icon]="autoConfirmSvg"></bit-icon>
+    <bit-svg class="tw-w-[233px]" [content]="autoConfirmSvg"></bit-svg>
   </div>
   <ol>
-    <li>1. {{ "autoConfirmStep1" | i18n }}</li>
+    <li>1. {{ "autoConfirmExtension1" | i18n }}</li>
 
     <li>
-      2. {{ "autoConfirmStep2a" | i18n }}
+      2. {{ "autoConfirmExtension2" | i18n }}
       <strong>
-        {{ "autoConfirmStep2b" | i18n }}
+        {{ "autoConfirmExtension3" | i18n }}
       </strong>
     </li>
   </ol>
+</ng-template>
+
+<ng-template #step1Footer>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    {{ "openExtension" | i18n }}
+    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+  </button>
+  <button bitButton buttonType="secondary" type="button" bitDialogClose>
+    {{ "close" | i18n }}
+  </button>
 </ng-template>

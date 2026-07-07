@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
@@ -8,44 +6,52 @@ import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { CipherResponse } from "../response/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
+import { BankAccountData } from "./bank-account.data";
 import { CardData } from "./card.data";
+import { DriversLicenseData } from "./drivers-license.data";
 import { FieldData } from "./field.data";
 import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
+import { PassportData } from "./passport.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
 import { SshKeyData } from "./ssh-key.data";
 
 export class CipherData {
-  id: string;
-  organizationId: string;
-  folderId: string;
-  edit: boolean;
-  viewPassword: boolean;
-  permissions: CipherPermissionsApi;
-  organizationUseTotp: boolean;
-  favorite: boolean;
+  id: string = "";
+  organizationId?: string;
+  folderId?: string;
+  edit: boolean = false;
+  viewPassword: boolean = true;
+  permissions?: CipherPermissionsApi;
+  organizationUseTotp: boolean = false;
+  favorite: boolean = false;
   revisionDate: string;
-  type: CipherType;
-  name: string;
-  notes: string;
+  type: CipherType = CipherType.Login;
+  name: string = "";
+  notes?: string;
   login?: LoginData;
   secureNote?: SecureNoteData;
   card?: CardData;
   identity?: IdentityData;
   sshKey?: SshKeyData;
+  bankAccount?: BankAccountData;
+  driversLicense?: DriversLicenseData;
+  passport?: PassportData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
   collectionIds?: string[];
   creationDate: string;
-  deletedDate: string | undefined;
-  archivedDate: string | undefined;
-  reprompt: CipherRepromptType;
-  key: string;
+  deletedDate?: string;
+  archivedDate?: string;
+  reprompt: CipherRepromptType = CipherRepromptType.None;
+  key?: string;
+  data?: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
+      this.creationDate = this.revisionDate = new Date().toISOString();
       return;
     }
 
@@ -67,22 +73,33 @@ export class CipherData {
     this.archivedDate = response.archivedDate;
     this.reprompt = response.reprompt;
     this.key = response.key;
+    this.data = response.data;
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = new LoginData(response.login);
+        this.login = response.login && new LoginData(response.login);
         break;
       case CipherType.SecureNote:
-        this.secureNote = new SecureNoteData(response.secureNote);
+        this.secureNote = response.secureNote && new SecureNoteData(response.secureNote);
         break;
       case CipherType.Card:
-        this.card = new CardData(response.card);
+        this.card = response.card && new CardData(response.card);
         break;
       case CipherType.Identity:
-        this.identity = new IdentityData(response.identity);
+        this.identity = response.identity && new IdentityData(response.identity);
         break;
       case CipherType.SshKey:
-        this.sshKey = new SshKeyData(response.sshKey);
+        this.sshKey = response.sshKey && new SshKeyData(response.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = response.bankAccount && new BankAccountData(response.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense =
+          response.driversLicense && new DriversLicenseData(response.driversLicense);
+        break;
+      case CipherType.Passport:
+        this.passport = response.passport && new PassportData(response.passport);
         break;
       default:
         break;
@@ -101,7 +118,9 @@ export class CipherData {
 
   static fromJSON(obj: Jsonify<CipherData>) {
     const result = Object.assign(new CipherData(), obj);
-    result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    if (obj.permissions != null) {
+      result.permissions = CipherPermissionsApi.fromJSON(obj.permissions);
+    }
     return result;
   }
 }

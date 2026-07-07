@@ -1,10 +1,9 @@
 import { Observable, defer, map } from "rxjs";
 
-import { DeviceType, DeviceTypeMetadata } from "@bitwarden/common/enums";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-
+import { DeviceType, DeviceTypeMetadata } from "../../../enums";
 import { ListResponse } from "../../../models/response/list.response";
 import { AppIdService } from "../../../platform/abstractions/app-id.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { DevicesServiceAbstraction } from "../../abstractions/devices/devices.service.abstraction";
 import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
 import { DeviceView } from "../../abstractions/devices/views/device.view";

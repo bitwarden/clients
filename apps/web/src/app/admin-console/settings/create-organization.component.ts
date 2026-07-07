@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
@@ -17,13 +17,18 @@ import { SharedModule } from "../../shared";
   templateUrl: "create-organization.component.html",
   imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
 })
-export class CreateOrganizationComponent {
+export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected secretsManager = false;
   protected plan: PlanType = PlanType.Free;
   protected productTier: ProductTierType = ProductTierType.Free;
+  protected trialLength?: number;
 
-  constructor(private route: ActivatedRoute) {
-    this.route.queryParams.pipe(first(), takeUntilDestroyed()).subscribe((qParams) => {
+  constructor(private route: ActivatedRoute) {}
+
+  private destroy$ = new Subject<void>();
+
+  ngOnInit(): void {
+    this.route.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
       if (qParams.plan === "families" || qParams.productTier == ProductTierType.Families) {
         this.plan = PlanType.FamiliesAnnually;
         this.productTier = ProductTierType.Families;
@@ -45,6 +50,13 @@ export class CreateOrganizationComponent {
       }
 
       this.secretsManager = qParams.product == ProductType.SecretsManager;
+
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : undefined;
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,27 +1,47 @@
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule } from "@bitwarden/components";
+import { BitIconButtonComponent, ChipActionComponent } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+import { NotPremiumDirective } from "../../directives/not-premium.directive";
+
 @Component({
   selector: "app-premium-badge",
-  standalone: true,
   template: `
-    <button type="button" *appNotPremium bitBadge variant="success" (click)="promptForPremium()">
-      {{ "premium" | i18n }}
-    </button>
+    @if (iconOnly()) {
+      <button
+        type="button"
+        buttonType="side-nav"
+        size="xsmall"
+        *appNotPremium
+        bitIconButton="bwi-premium"
+        [label]="'upgradeToPremium' | i18n"
+        (click)="promptForPremium($event)"
+      ></button>
+    } @else {
+      <button
+        type="button"
+        *appNotPremium
+        bit-chip-action
+        startIcon="bwi-premium"
+        [variant]="'accent-primary'"
+        (click)="promptForPremium($event)"
+        [label]="'upgrade' | i18n"
+      ></button>
+    }
   `,
-  imports: [BadgeModule, JslibModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [I18nPipe, BitIconButtonComponent, ChipActionComponent, NotPremiumDirective],
 })
 export class PremiumBadgeComponent {
   readonly organizationId = input<string>();
+  protected readonly iconOnly = input<boolean>(false);
+  private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
-  constructor(private premiumUpgradePromptService: PremiumUpgradePromptService) {}
-
-  async promptForPremium() {
+  async promptForPremium(event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
     await this.premiumUpgradePromptService.promptForPremium(this.organizationId());
   }
 }

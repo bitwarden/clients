@@ -16,20 +16,20 @@ import {
 import {
   canAccessOrgAdmin,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderType } from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { BitwardenIcon } from "@bitwarden/components";
 
 export type ProductSwitcherItem = {
   /**
@@ -40,7 +40,7 @@ export type ProductSwitcherItem = {
   /**
    * Displayed icon
    */
-  icon: string;
+  icon: BitwardenIcon;
 
   /**
    * Route for items in the `bentoProducts$` section
@@ -112,7 +112,6 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
@@ -129,15 +128,12 @@ export class ProductSwitcherService {
 
   userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
-  shouldShowPremiumUpgradeButton$: Observable<boolean> = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton),
-    this.accountService.activeAccount$,
-  ]).pipe(
-    switchMap(([featureFlag, account]) => {
-      if (!featureFlag || !account) {
+  shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (!account) {
         return of(false);
       }
       return this.billingAccountProfileStateService
@@ -208,6 +204,13 @@ export class ProductSwitcherService {
               external: false,
             };
 
+        // Check if SM ads should be disabled for any organization
+        // SM ads are disabled if the user is a regular User (not Admin or Owner)
+        // in an organization that has useDisableSMAdsForUsers enabled
+        const shouldDisableSMAds = orgs.some(
+          (org) => org.useDisableSMAdsForUsers === true && org.type === OrganizationUserType.User,
+        );
+
         const products = {
           pm: {
             name: "Password Manager",
@@ -267,7 +270,8 @@ export class ProductSwitcherService {
 
         if (smOrg) {
           bento.push(products.sm);
-        } else {
+        } else if (!shouldDisableSMAds) {
+          // Only show SM in "other" section if ads are not disabled
           other.push(products.sm);
         }
 

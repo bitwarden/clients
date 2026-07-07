@@ -1,126 +1,176 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
-import { CipherId, EmergencyAccessId } from "@bitwarden/common/types/guid";
+import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, IconButtonModule, ToastService } from "@bitwarden/components";
+import {
+  isCipherAdminGetAttachmentDownloadUrlError,
+  isCipherGetAttachmentDownloadUrlError,
+} from "@bitwarden/sdk-internal";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+type DownloadOptions = { asAdmin?: boolean; emergencyAccessId?: EmergencyAccessId };
+
 @Component({
   selector: "app-download-attachment",
   templateUrl: "./download-attachment.component.html",
   imports: [AsyncActionsModule, CommonModule, JslibModule, IconButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DownloadAttachmentComponent {
   /** Attachment to download */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) attachment: AttachmentView;
+  readonly attachment = input.required<AttachmentView>();
 
   /** The cipher associated with the attachment */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) cipher: CipherView;
+  readonly cipher = input.required<CipherView>();
 
-  // When in view mode, we will want to check for the master password reprompt
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() checkPwReprompt?: boolean = false;
+  /** When in view mode, we will want to check for the master password reprompt */
+  readonly checkPwReprompt = input<boolean>(false);
 
-  // Required for fetching attachment data when viewed from cipher via emergency access
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() emergencyAccessId?: EmergencyAccessId;
+  /** Required for fetching attachment data when viewed from cipher via emergency access */
+  readonly emergencyAccessId = input<EmergencyAccessId>();
 
-  /** When owners/admins can mange all items and when accessing from the admin console, use the admin endpoint */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() admin?: boolean = false;
+  /** When owners/admins can manage all items and when accessing from the admin console, use the admin endpoint */
+  readonly admin = input<boolean>(false);
 
   constructor(
-    private i18nService: I18nService,
-    private apiService: ApiService,
-    private fileDownloadService: FileDownloadService,
-    private toastService: ToastService,
-    private stateProvider: StateProvider,
-    private cipherService: CipherService,
+    private readonly i18nService: I18nService,
+    private readonly apiService: ApiService,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly toastService: ToastService,
+    private readonly stateProvider: StateProvider,
+    private readonly cipherService: CipherService,
+    private readonly configService: ConfigService,
+    private readonly cipherSdkService: CipherSdkService,
   ) {}
 
-  protected get isDecryptionFailure(): boolean {
-    return this.attachment.fileName === DECRYPT_ERROR;
-  }
+  protected readonly isDecryptionFailure = computed(() => this.attachment().hasDecryptionError);
 
   /** Download the attachment */
-  download = async () => {
-    let url: string;
+  readonly download = async () => {
+    const attachment = this.attachment();
+    const cipher = this.cipher();
 
-    try {
-      const attachmentDownloadResponse = this.admin
-        ? await this.apiService.getAttachmentDataAdmin(this.cipher.id, this.attachment.id)
-        : await this.apiService.getAttachmentData(
-            this.cipher.id,
-            this.attachment.id,
-            this.emergencyAccessId,
-          );
-      url = attachmentDownloadResponse.url;
-    } catch (e) {
-      if (e instanceof ErrorResponse && (e as ErrorResponse).statusCode === 404) {
-        url = this.attachment.url;
-      } else if (e instanceof ErrorResponse) {
-        throw new Error((e as ErrorResponse).getSingleMessage());
-      } else {
-        throw e;
-      }
+    if (!attachment.id || !attachment.fileName) {
+      this.showErrorToast();
+      return;
+    }
+
+    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    if (!userId) {
+      this.showErrorToast();
+      return;
+    }
+
+    const url = await this.fetchUrl(cipher.id, attachment, userId);
+    if (!url) {
+      this.showErrorToast();
+      return;
     }
 
     const response = await fetch(new Request(url, { cache: "no-store" }));
     if (response.status !== 200) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
+      this.showErrorToast();
       return;
     }
 
     try {
-      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
-
       const decBuf = await this.cipherService.getDecryptedAttachmentBuffer(
-        this.cipher.id as CipherId,
-        this.attachment,
+        cipher.id as CipherId,
+        attachment,
         response,
         userId,
         // When the emergency access ID is present, the cipher is being viewed via emergency access.
         // Force legacy decryption in these cases.
-        this.emergencyAccessId ? true : false,
+        Boolean(this.emergencyAccessId()),
       );
 
       this.fileDownloadService.download({
-        fileName: this.attachment.fileName,
-        blobData: decBuf,
+        fileName: attachment.fileName,
+        blobData: decBuf as BlobPart,
       });
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("errorOccurred"),
-      });
+    } catch {
+      this.showErrorToast();
     }
   };
+
+  private async fetchUrl(
+    cipherId: string,
+    attachment: AttachmentView,
+    userId: UserId,
+  ): Promise<string | undefined> {
+    const useSdk = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk),
+    );
+
+    if (!attachment.id) {
+      return undefined;
+    }
+
+    try {
+      if (useSdk) {
+        return await this.cipherSdkService.getAttachmentDownloadUrl(
+          cipherId as CipherId,
+          attachment.id,
+          userId,
+          this.downloadOptions(),
+        );
+      }
+
+      const response = this.admin()
+        ? await this.apiService.getAttachmentDataAdmin(cipherId, attachment.id)
+        : await this.apiService.getAttachmentData(
+            cipherId,
+            attachment.id,
+            this.emergencyAccessId(),
+          );
+      return response.url;
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        return attachment.url;
+      }
+      if (
+        useSdk &&
+        (isCipherAdminGetAttachmentDownloadUrlError(e) ||
+          isCipherGetAttachmentDownloadUrlError(e)) &&
+        e.variant === "NotFound"
+      ) {
+        return attachment.url;
+      }
+      if (e instanceof ErrorResponse) {
+        throw new Error(e.getSingleMessage());
+      }
+      throw e;
+    }
+  }
+
+  private downloadOptions(): DownloadOptions | undefined {
+    if (this.admin()) {
+      return { asAdmin: true };
+    }
+    const eaId = this.emergencyAccessId();
+    if (eaId) {
+      return { emergencyAccessId: eaId };
+    }
+    return undefined;
+  }
+
+  private showErrorToast() {
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t("errorOccurred"),
+    });
+  }
 }

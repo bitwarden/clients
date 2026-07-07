@@ -1,105 +1,219 @@
-import { Component, DestroyRef, inject, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { lastValueFrom } from "rxjs";
 
 import {
   AllActivitiesService,
+  ApplicationHealthReportDetail,
+  ReportStatus,
   RiskInsightsDataService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { getById } from "@bitwarden/common/platform/misc";
-import { DialogService } from "@bitwarden/components";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { DialogService, PopoverModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
-import { RiskInsightsTabType } from "../models/risk-insights.models";
-import { ApplicationsLoadingComponent } from "../shared/risk-insights-loading.component";
+import { AccessIntelligenceCoachmarkComponent } from "../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../onboarding/access-intelligence-coachmark.service";
+import { RiskOverTimeService } from "../services/risk-over-time.service";
+import { ReportLoadingComponent } from "../shared/report-loading.component";
 
 import { ActivityCardComponent } from "./activity-card.component";
 import { PasswordChangeMetricComponent } from "./activity-cards/password-change-metric.component";
-import { NewApplicationsDialogComponent } from "./new-applications-dialog.component";
+import { NewApplicationsDialogComponent } from "./application-review-dialog/new-applications-dialog.component";
+import { TimePeriod, DEFAULT_TIME_PERIOD } from "./period-selector/period-selector.types";
+import { TrendWidgetComponent, TrendWidgetViewType } from "./trend-widget/trend-widget.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-all-activity",
   imports: [
-    ApplicationsLoadingComponent,
+    ReportLoadingComponent,
     SharedModule,
     ActivityCardComponent,
     PasswordChangeMetricComponent,
+    PopoverModule,
+    AccessIntelligenceCoachmarkComponent,
+    TrendWidgetComponent,
   ],
   templateUrl: "./all-activity.component.html",
 })
 export class AllActivityComponent implements OnInit {
-  organization: Organization | null = null;
+  // Prefer component input since route param controls UI state
+  readonly organizationId = input.required<OrganizationId>();
+
   totalCriticalAppsAtRiskMemberCount = 0;
   totalCriticalAppsCount = 0;
   totalCriticalAppsAtRiskCount = 0;
+  totalApplicationCount = 0;
   newApplicationsCount = 0;
-  newApplications: string[] = [];
-  passwordChangeMetricHasProgressBar = false;
+  newApplications: ApplicationHealthReportDetail[] = [];
+  extendPasswordChangeWidget = false;
+  allAppsHaveReviewDate = false;
+  isAllCaughtUp = false;
+  hasLoadedApplicationData = false;
+  showNeedsReviewState = false;
 
   destroyRef = inject(DestroyRef);
+  private configService = inject(ConfigService);
+
+  protected trendChartEnabled = false;
+  protected ReportStatusEnum = ReportStatus;
+
+  protected riskOverTimeData$ = this.riskOverTimeService.riskOverTimeData$;
+  protected isRiskOverTimeLoading$ = this.riskOverTimeService.isLoading$;
+  protected riskOverTimeError$ = this.riskOverTimeService.error$;
 
   constructor(
-    private accountService: AccountService,
     protected activatedRoute: ActivatedRoute,
     protected allActivitiesService: AllActivitiesService,
     protected dataService: RiskInsightsDataService,
     private dialogService: DialogService,
     protected organizationService: OrganizationService,
+    protected riskOverTimeService: RiskOverTimeService,
+    protected coachmarkService: AccessIntelligenceCoachmarkService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    this.trendChartEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AccessIntelligenceTrendChart,
+    );
 
-    if (organizationId) {
-      this.organization =
-        (await firstValueFrom(
-          this.organizationService.organizations$(userId).pipe(getById(organizationId)),
-        )) ?? null;
-
-      this.allActivitiesService.reportSummary$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((summary) => {
-          this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
-          this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
-          this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
-          this.newApplications = summary.newApplications;
-          this.newApplicationsCount = summary.newApplications.length;
-        });
-
-      this.allActivitiesService.passwordChangeProgressMetricHasProgressBar$
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((hasProgressBar) => {
-          this.passwordChangeMetricHasProgressBar = hasProgressBar;
-        });
+    if (this.trendChartEnabled) {
+      this.riskOverTimeService.initialize(
+        this.organizationId(),
+        DEFAULT_TIME_PERIOD,
+        TrendWidgetViewType.Applications,
+      );
     }
+
+    this.allActivitiesService.reportSummary$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((summary) => {
+        this.totalCriticalAppsAtRiskMemberCount = summary.totalCriticalAtRiskMemberCount;
+        this.totalCriticalAppsCount = summary.totalCriticalApplicationCount;
+        this.totalCriticalAppsAtRiskCount = summary.totalCriticalAtRiskApplicationCount;
+        this.totalApplicationCount = summary.totalApplicationCount;
+        // If we have application data, mark as loaded
+        if (summary.totalApplicationCount > 0) {
+          this.hasLoadedApplicationData = true;
+        }
+        this.updateShowNeedsReviewState();
+      });
+
+    this.dataService.newApplications$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((newApps) => {
+        this.newApplications = newApps;
+        this.newApplicationsCount = newApps.length;
+        this.updateIsAllCaughtUp();
+        this.updateShowNeedsReviewState();
+      });
+
+    this.allActivitiesService.extendPasswordChangeWidget$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((hasProgressBar) => {
+        this.extendPasswordChangeWidget = hasProgressBar;
+      });
+
+    this.dataService.enrichedReportData$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enrichedData) => {
+        if (enrichedData?.applicationData && enrichedData.applicationData.length > 0) {
+          this.hasLoadedApplicationData = true;
+          // Check if all apps have a review date (not null and not undefined)
+          this.allAppsHaveReviewDate = enrichedData.applicationData.every(
+            (app) => app.reviewedDate !== null && app.reviewedDate !== undefined,
+          );
+        } else {
+          this.hasLoadedApplicationData = enrichedData !== null;
+          this.allAppsHaveReviewDate = false;
+        }
+        this.updateIsAllCaughtUp();
+      });
   }
 
-  get RiskInsightsTabType() {
-    return RiskInsightsTabType;
+  /**
+   * Updates the isAllCaughtUp flag based on current state.
+   * Only shows "All caught up!" when:
+   * - Data has been loaded (hasLoadedApplicationData is true)
+   * - No new applications need review
+   * - All apps have a review date
+   */
+  private updateIsAllCaughtUp(): void {
+    this.isAllCaughtUp =
+      this.hasLoadedApplicationData &&
+      this.newApplicationsCount === 0 &&
+      this.allAppsHaveReviewDate;
   }
 
-  getLinkForRiskInsightsTab(tabIndex: RiskInsightsTabType): string {
-    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
-    return `/organizations/${organizationId}/access-intelligence/risk-insights?tabIndex=${tabIndex}`;
+  /**
+   * Updates the showNeedsReviewState flag based on current state.
+   * This state is shown when:
+   * - Data has been loaded
+   * - There are applications (totalApplicationCount > 0)
+   * - ALL apps do NOT have a review date (newApplicationsCount === totalApplicationCount)
+   */
+  private updateShowNeedsReviewState(): void {
+    this.showNeedsReviewState =
+      this.hasLoadedApplicationData &&
+      this.totalApplicationCount > 0 &&
+      this.newApplicationsCount === this.totalApplicationCount;
+  }
+
+  onTimespanChanged(timeframe: TimePeriod): void {
+    this.riskOverTimeService.setTimeframe(timeframe);
+  }
+
+  onViewChanged(dataView: TrendWidgetViewType): void {
+    this.riskOverTimeService.setDataView(dataView);
   }
 
   /**
    * Handles the review new applications button click.
    * Opens a dialog showing the list of new applications that can be marked as critical.
    */
-  onReviewNewApplications = async () => {
+  async onReviewNewApplications() {
+    const organizationId = this.activatedRoute.snapshot.paramMap.get("organizationId");
+
+    if (!organizationId) {
+      return;
+    }
+
+    // Pass organizationId via dialog data instead of having the dialog retrieve it from route.
+    // This ensures organizationId is immediately available when dialog opens, preventing
+    // timing issues where the dialog's checkForTasksToAssign() method runs before
+    // organizationId is populated via async route subscription.
     const dialogRef = NewApplicationsDialogComponent.open(this.dialogService, {
       newApplications: this.newApplications,
+      organizationId: organizationId as OrganizationId,
+      hasExistingCriticalApplications: this.totalCriticalAppsCount > 0,
     });
 
-    await firstValueFrom(dialogRef.closed);
-  };
+    await lastValueFrom(dialogRef.closed);
+  }
+
+  /**
+   * Handles the "View at-risk members" link click.
+   * Opens the at-risk members drawer for critical applications only.
+   */
+  async onViewAtRiskMembers() {
+    await this.dataService.setDrawerForCriticalAtRiskMembers("activityTabAtRiskMembers");
+  }
+
+  /**
+   * Handles the "View at-risk applications" link click.
+   * Opens the at-risk applications drawer for critical applications only.
+   */
+  async onViewAtRiskApplications() {
+    await this.dataService.setDrawerForCriticalAtRiskApps("activityTabAtRiskApplications");
+  }
+
+  protected readonly prioritizeRisksOpen = computed(
+    () => this.coachmarkService.activeStepId() === "prioritizeRisks",
+  );
 }

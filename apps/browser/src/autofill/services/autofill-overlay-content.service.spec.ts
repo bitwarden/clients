@@ -23,6 +23,7 @@ import {
   sendMockExtensionMessage,
 } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
+import { EventSecurity } from "../utils/event-security";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -32,6 +33,17 @@ import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualifi
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
+
+const mockRect = (rect: { left: number; top: number; width: number; height: number }) =>
+  ({
+    ...rect,
+    x: rect.left,
+    y: rect.top,
+    right: rect.left + rect.width,
+    bottom: rect.top + rect.height,
+    toJSON: () => ({}),
+  }) as DOMRectReadOnly;
+
 describe("AutofillOverlayContentService", () => {
   let domQueryService: DomQueryService;
   let domElementVisibilityService: DomElementVisibilityService;
@@ -44,6 +56,9 @@ describe("AutofillOverlayContentService", () => {
   const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
 
   beforeEach(async () => {
+    // Mock EventSecurity to allow synthetic events in tests
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     domQueryService = new DomQueryService();
     domElementVisibilityService = new DomElementVisibilityService();
@@ -88,14 +103,24 @@ describe("AutofillOverlayContentService", () => {
   });
 
   afterEach(() => {
+    // Disconnect observers and detach listeners so JSDOM can tear down cleanly
+    // between tests. This cascades to autofillOverlayContentService.destroy(),
+    // which matters for the window-message tests: each test's setup adds a window
+    // "message" listener, and leaked listeners re-process and mutate the shared
+    // subFrameData of later tests.
+    autofillInit?.destroy();
     jest.clearAllMocks();
+    // Tests that opt into fake timers leak the configuration across cases;
+    // reset so subsequent tests' microtask-based mocks (e.g. the
+    // IntersectionObserver mock in test.setup.ts) work as expected.
+    jest.useRealTimers();
   });
 
   afterAll(() => {
     mockQuerySelectorAll.mockRestore();
   });
 
-  describe("init", () => {
+  describe("startMonitoring", () => {
     let setupGlobalEventListenersSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -113,7 +138,7 @@ describe("AutofillOverlayContentService", () => {
         writable: true,
       });
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "DOMContentLoaded",
@@ -128,7 +153,7 @@ describe("AutofillOverlayContentService", () => {
         "handleVisibilityChangeEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "visibilitychange",
@@ -142,12 +167,27 @@ describe("AutofillOverlayContentService", () => {
         "handleWindowFocusOutEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(window.addEventListener).toHaveBeenCalledWith(
         "focusout",
         handleWindowFocusOutEventSpy,
       );
+    });
+
+    it("is idempotent across repeated calls", () => {
+      const sendExtensionMessageSpyForStart = jest.spyOn(
+        autofillOverlayContentService as any,
+        "sendExtensionMessage",
+      );
+
+      autofillOverlayContentService.startMonitoring();
+      autofillOverlayContentService.startMonitoring();
+
+      const cardsVisibilityCalls = sendExtensionMessageSpyForStart.mock.calls.filter(
+        ([command]) => command === "getInlineMenuCardsVisibility",
+      );
+      expect(cardsVisibilityCalls).toHaveLength(1);
     });
   });
 
@@ -157,6 +197,7 @@ describe("AutofillOverlayContentService", () => {
     let pageDetailsMock: AutofillPageDetails;
 
     beforeEach(() => {
+      autofillInit.startMonitoring();
       document.body.innerHTML = `
       <form id="validFormId">
         <input type="text" id="username-field" placeholder="username" />
@@ -196,6 +237,7 @@ describe("AutofillOverlayContentService", () => {
           htmlName: "username",
           htmlID: "username",
           placeholder: "username",
+          targeted: false,
         });
       });
 
@@ -320,6 +362,8 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
+          // Mock EventSecurity to allow synthetic events in tests
+          jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
         });
 
         it("closes the autofill inline menu when the `Escape` key is pressed", () => {
@@ -1148,9 +1192,72 @@ describe("AutofillOverlayContentService", () => {
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
         });
+
+        it("does not open the autofill inline menu for readonly fields", async () => {
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+        });
+
+        it("skips setup when focusing a readonly field", async () => {
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+        });
       });
 
       describe("hidden form field focus event", () => {
+        it("updates hidden field readonly from readonly or aria-readonly instead of disabled", async () => {
+          autofillFieldData.viewable = false;
+          autofillFieldData.readonly = false;
+          autofillFieldData.disabled = false;
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          input.disabled = false;
+          input.setAttribute("aria-readonly", "true");
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+          expect(autofillFieldData.readonly).toBe(true);
+          expect(autofillFieldData.disabled).toBe(false);
+        });
+
+        it("skips setup when hidden field is readonly on fallback", async () => {
+          autofillFieldData.viewable = false;
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+        });
+
         it("sets up the inline menu listeners if the autofill field data is in the cache", async () => {
           autofillFieldData.viewable = false;
           await autofillOverlayContentService.setupOverlayListeners(
@@ -1592,14 +1699,14 @@ describe("AutofillOverlayContentService", () => {
 
         it("skips triggering submission if a button is not found", async () => {
           const submitButton = document.querySelector("button");
-          submitButton.remove();
+          submitButton?.remove();
 
           await autofillOverlayContentService.setupOverlayListeners(
             autofillFieldElement,
             autofillFieldData,
             pageDetailsMock,
           );
-          submitButton.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          submitButton?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1616,7 +1723,7 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           await flushPromises();
-          submitButton.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          submitButton?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1630,7 +1737,7 @@ describe("AutofillOverlayContentService", () => {
             <div id="shadow-root"></div>
             <button id="button-el">Change Password</button>
           </div>`;
-          const shadowRoot = document.getElementById("shadow-root").attachShadow({ mode: "open" });
+          const shadowRoot = document.getElementById("shadow-root")!.attachShadow({ mode: "open" });
           shadowRoot.innerHTML = `
             <input type="password" id="password-field-1" placeholder="new password" />
           `;
@@ -1657,7 +1764,7 @@ describe("AutofillOverlayContentService", () => {
             pageDetailsMock,
           );
           await flushPromises();
-          buttonElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+          buttonElement?.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
             "formFieldSubmitted",
@@ -1705,7 +1812,97 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
+  describe("refreshMenuLayerPosition", () => {
+    it("calls refreshTopLayerPosition on the inline menu content service", () => {
+      autofillOverlayContentService.refreshMenuLayerPosition();
+
+      expect(inlineMenuContentService.refreshTopLayerPosition).toHaveBeenCalled();
+    });
+
+    it("does not throw if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      expect(() => serviceWithoutInlineMenu.refreshMenuLayerPosition()).not.toThrow();
+    });
+  });
+
+  describe("getOwnedInlineMenuTagNames", () => {
+    it("returns tag names from the inline menu content service", () => {
+      inlineMenuContentService.getOwnedTagNames.mockReturnValue(["div", "span"]);
+
+      const result = autofillOverlayContentService.getOwnedInlineMenuTagNames();
+
+      expect(result).toEqual(["div", "span"]);
+    });
+
+    it("returns an empty array if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      const result = serviceWithoutInlineMenu.getOwnedInlineMenuTagNames();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getUnownedTopLayerItems", () => {
+    it("returns unowned top layer items from the inline menu content service", () => {
+      const mockElements = document.querySelectorAll("div");
+      inlineMenuContentService.getUnownedTopLayerItems.mockReturnValue(mockElements);
+
+      const result = autofillOverlayContentService.getUnownedTopLayerItems(true);
+
+      expect(result).toEqual(mockElements);
+      expect(inlineMenuContentService.getUnownedTopLayerItems).toHaveBeenCalledWith(true);
+    });
+
+    it("returns undefined if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      const result = serviceWithoutInlineMenu.getUnownedTopLayerItems();
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe("clearUserFilledFields", () => {
+    it("deletes all user filled fields", () => {
+      const mockElement1 = document.createElement("input") as FillableFormFieldElement;
+      const mockElement2 = document.createElement("input") as FillableFormFieldElement;
+      autofillOverlayContentService["userFilledFields"] = {
+        username: mockElement1,
+        password: mockElement2,
+      };
+
+      autofillOverlayContentService.clearUserFilledFields();
+
+      expect(autofillOverlayContentService["userFilledFields"]).toEqual({});
+    });
+
+    it("does not throw when userFilledFields is null such as after destroy)", () => {
+      autofillOverlayContentService["userFilledFields"] = null;
+
+      expect(() => autofillOverlayContentService.clearUserFilledFields()).not.toThrow();
+      expect(autofillOverlayContentService["userFilledFields"]).toBeNull();
+    });
+  });
+
   describe("handleOverlayRepositionEvent", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+    });
+
     const repositionEvents = [EVENTS.SCROLL, EVENTS.RESIZE];
     repositionEvents.forEach((repositionEvent) => {
       it(`sends a message trigger overlay reposition message to the background when a ${repositionEvent} event occurs`, async () => {
@@ -1751,6 +1948,14 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("extension onMessage handlers", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+      // startMonitoring triggers `getInlineMenuCardsVisibility` /
+      // `getInlineMenuIdentitiesVisibility` sends; clear them so the
+      // per-handler assertions reflect only message-driven calls.
+      sendExtensionMessageSpy.mockClear();
+    });
+
     describe("generatedPasswordModifyLogin", () => {
       it("relays a message regarding password generation to store modified login data", async () => {
         const formFieldData: ModifyLoginCipherFormData = {
@@ -2038,7 +2243,7 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("skips focusing an element if no recently focused field exists", async () => {
-        autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+        (autofillOverlayContentService as any)["mostRecentlyFocusedField"] = null;
 
         sendMockExtensionMessage({
           command: "redirectAutofillInlineMenuFocusOut",
@@ -2138,7 +2343,6 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("returns null if the sub frame URL cannot be parsed correctly", async () => {
-        delete globalThis.location;
         globalThis.location = { href: "invalid-base" } as Location;
         sendMockExtensionMessage(
           {
@@ -2154,6 +2358,10 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("calculates the sub frame's offsets if a single frame with the referenced url exists", async () => {
+        const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ left: 0, top: 0, width: 1, height: 1 }));
         sendMockExtensionMessage(
           {
             command: "getSubFrameOffsets",
@@ -2208,7 +2416,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     describe("getSubFrameOffsetsFromWindowMessage", () => {
-      it("sends a message to the parent to calculate the sub frame positioning", () => {
+      it("sends a message to the parent to calculate the sub frame positioning without leaking the frame url", () => {
         jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
         const subFrameId = 10;
 
@@ -2221,7 +2429,6 @@ describe("AutofillOverlayContentService", () => {
           {
             command: "calculateSubFramePositioning",
             subFrameData: {
-              url: window.location.href,
               frameId: subFrameId,
               left: 0,
               top: 0,
@@ -2231,12 +2438,21 @@ describe("AutofillOverlayContentService", () => {
           },
           "*",
         );
+        expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
+          expect.objectContaining({
+            subFrameData: expect.objectContaining({ url: expect.anything() }),
+          }),
+          expect.anything(),
+        );
       });
 
       describe("calculateSubFramePositioning", () => {
         beforeEach(() => {
-          autofillOverlayContentService.init();
-          jest.spyOn(globalThis.parent, "postMessage");
+          autofillOverlayContentService.startMonitoring();
+          // Stub the relay so a forwarded message is recorded but not actually
+          // re-dispatched; calling through would cascade window messages into
+          // sibling tests via the shared (mutated) subFrameData object.
+          jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
           document.body.innerHTML = ``;
         });
 
@@ -2244,7 +2460,6 @@ describe("AutofillOverlayContentService", () => {
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2270,8 +2485,10 @@ describe("AutofillOverlayContentService", () => {
           });
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2294,7 +2511,6 @@ describe("AutofillOverlayContentService", () => {
                 left: expect.any(Number),
                 parentFrameIds: [1, 2, 3],
                 top: expect.any(Number),
-                url: "https://example.com/",
                 subFrameDepth: expect.any(Number),
               },
             },
@@ -2302,16 +2518,86 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("posts the calculated sub frame data to the background", async () => {
+        it("drops an incoming message that carries a url instead of relaying it", async () => {
+          Object.defineProperty(window, "top", {
+            value: null,
+            writable: true,
+          });
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // A stale (pre-fix) or hostile descendant frame includes its url in the message.
           const subFrameData = {
-            url: "https://example.com/",
+            url: "https://example.com/secret?token=should-not-leak",
             frameId: 10,
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
-            subFrameDepth: expect.any(Number),
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("drops an incoming message whose subFrameData fails the type guard", async () => {
+          // window.top is null and the iframe has a non-zero rect, so a message
+          // that passed the guard would be relayed; only the guard stops this one.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // Missing the required top/left/subFrameDepth numbers.
+          const subFrameData = { frameId: 10 };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("adds the iframe offset to the running position and posts the result to the background", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          // Distinct, non-zero left/top so the assertion catches an axis swap and
+          // proves the offset is accumulated onto the incoming values (not assigned).
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 5, top: 7 }));
+          // Zero padding/border so the offset is exactly the iframe's rect position.
+          jest
+            .spyOn(globalThis, "getComputedStyle")
+            .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+          // getCurrentTabFrameId resolves to the parent frame id appended to the chain.
+          sendExtensionMessageSpy.mockResolvedValue(4);
+          const subFrameData = {
+            frameId: 10,
+            left: 20,
+            top: 10,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
           };
 
           postWindowMessage(
@@ -2324,14 +2610,88 @@ describe("AutofillOverlayContentService", () => {
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: expect.any(Number),
-              top: expect.any(Number),
-              url: "https://example.com/",
+              left: 25, // 20 + iframe left 5
+              top: 17, // 10 + iframe top 7
               parentFrameIds: [1, 2, 3, 4],
-              subFrameDepth: expect.any(Number),
+              subFrameDepth: 1,
             },
           });
         });
+
+        it("re-dispatches each relayed message back through the handler until the max depth is reached", async () => {
+          // This frame is not the top frame, so each hop relays to the parent.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          // Re-dispatch the relayed message back into the window so the handler
+          // genuinely re-processes it (exercising the cascade), rather than the
+          // no-op stub which would swallow the relay after a single call. (jsdom's
+          // real postMessage delivery is not driven by a single flushPromises.)
+          const postMessageSpy = jest
+            .spyOn(globalThis.parent, "postMessage")
+            .mockImplementation((message: any) => {
+              globalThis.dispatchEvent(new MessageEvent("message", { data: message }));
+            });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          const subFrameData = {
+            frameId: 10,
+            left: 0,
+            top: 0,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          // The relay was re-dispatched and re-handled on each hop, incrementing the
+          // shared depth until the guard tore the listeners down at the top frame.
+          expect(postMessageSpy.mock.calls.length).toBeGreaterThan(1);
+          expect(subFrameData.subFrameDepth).toBeGreaterThanOrEqual(MAX_SUB_FRAME_DEPTH);
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "destroyAutofillInlineMenuListeners",
+            expect.anything(),
+          );
+        });
+      });
+    });
+
+    describe("calculateSubFrameOffsets", () => {
+      it("returns null when iframe has zero width and height", () => {
+        const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ left: 0, top: 0, width: 0, height: 0 }));
+
+        const result = autofillOverlayContentService["calculateSubFrameOffsets"](
+          iframe,
+          "https://example.com/",
+          10,
+        );
+
+        expect(result).toBeNull();
+      });
+
+      it("returns null when iframe is not connected to the document", () => {
+        const iframe = document.createElement("iframe") as HTMLIFrameElement;
+
+        jest
+          .spyOn(iframe, "getBoundingClientRect")
+          .mockReturnValue(mockRect({ width: 100, height: 50, left: 10, top: 20 }));
+
+        const result = autofillOverlayContentService["calculateSubFrameOffsets"](
+          iframe,
+          "https://example.com/",
+          10,
+        );
+        expect(result).toBeNull();
       });
     });
 
@@ -2549,7 +2909,7 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(globalThis.removeEventListener).toHaveBeenCalledWith(
         EVENTS.FOCUSOUT,
-        autofillOverlayContentService["handleFormFieldBlurEvent"],
+        autofillOverlayContentService["handleWindowFocusOutEvent"],
       );
       expect(
         autofillOverlayContentService["removeOverlayRepositionEventListeners"],
@@ -2559,7 +2919,7 @@ describe("AutofillOverlayContentService", () => {
     it("de-registers any event listeners that are attached to the form field elements", () => {
       jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
       jest.spyOn(autofillFieldElement, "removeEventListener");
-      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
+      jest.spyOn(autofillOverlayContentService["formFieldElements"], "clear");
 
       autofillOverlayContentService.destroy();
 
@@ -2572,11 +2932,9 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
         EVENTS.KEYUP,
-        autofillOverlayContentService["handleFormFieldKeyupEvent"],
+        autofillOverlayContentService["handleFormFieldKeyupEventAsListener"],
       );
-      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
-        autofillFieldElement,
-      );
+      expect(autofillOverlayContentService["formFieldElements"].clear).toHaveBeenCalled();
     });
 
     it("clears all existing timeouts", () => {

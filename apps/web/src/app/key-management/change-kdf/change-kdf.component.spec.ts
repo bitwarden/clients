@@ -231,8 +231,8 @@ describe("ChangeKdfComponent", () => {
         // Assert form values update to Argon2id defaults
         expect(formGroup.controls.kdf.value).toBe(KdfType.Argon2id);
         const kdfConfigFormGroup = formGroup.controls.kdfConfig;
-        expect(kdfConfigFormGroup.controls.iterations.value).toBe(3); // Argon2id default
-        expect(kdfConfigFormGroup.controls.memory.value).toBe(64); // Argon2id default
+        expect(kdfConfigFormGroup.controls.iterations.value).toBe(6); // Argon2id default
+        expect(kdfConfigFormGroup.controls.memory.value).toBe(32); // Argon2id default
         expect(kdfConfigFormGroup.controls.parallelism.value).toBe(4); // Argon2id default
       });
 

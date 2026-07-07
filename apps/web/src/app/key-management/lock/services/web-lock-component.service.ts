@@ -1,16 +1,20 @@
 import { inject } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { combineLatest, defer, filter, map, Observable } from "rxjs";
 
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
-import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  UnlockOptions,
+  WebAuthnPrfUnlockService,
+} from "@bitwarden/key-management-ui";
 
 export class WebLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
+  private readonly webAuthnPrfUnlockService = inject(WebAuthnPrfUnlockService);
+  private readonly sharedUnlockFollowerService = inject(SharedUnlockFollowerService);
 
   constructor() {}
 
@@ -42,9 +46,22 @@ export class WebLockComponentService implements LockComponentService {
     );
   }
 
+  getExternalUnlock$(userId: UserId): Observable<void> {
+    return this.sharedUnlockFollowerService.externalUnlock$.pipe(
+      filter((id) => id === userId),
+      map((): void => undefined),
+    );
+  }
+
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions | null> {
-    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId)?.pipe(
-      map((userDecryptionOptions: UserDecryptionOptions) => {
+    return combineLatest([
+      this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+      defer(async () => {
+        const available = await this.webAuthnPrfUnlockService.isPrfUnlockAvailable(userId);
+        return { available };
+      }),
+    ]).pipe(
+      map(([userDecryptionOptions, prfUnlockInfo]) => {
         const unlockOpts: UnlockOptions = {
           masterPassword: {
             enabled: userDecryptionOptions.hasMasterPassword,
@@ -55,6 +72,9 @@ export class WebLockComponentService implements LockComponentService {
           biometrics: {
             enabled: false,
             biometricsStatus: BiometricsStatus.PlatformUnsupported,
+          },
+          prf: {
+            enabled: prfUnlockInfo.available,
           },
         };
         return unlockOpts;

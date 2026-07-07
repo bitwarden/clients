@@ -43,16 +43,10 @@ export * from "./user-verification/user-verification-dialog.component";
 export * from "./user-verification/user-verification-dialog.types";
 export * from "./user-verification/user-verification-form-input.component";
 
-// vault timeout
-export * from "./vault-timeout-input/vault-timeout-input.component";
-
 // sso
 export * from "./sso/sso.component";
 export * from "./sso/sso-component.service";
 export * from "./sso/default-sso-component.service";
-
-// self hosted environment configuration dialog
-export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
 // two factor auth
 export * from "./two-factor-auth";

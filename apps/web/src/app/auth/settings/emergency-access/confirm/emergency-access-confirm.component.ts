@@ -72,7 +72,7 @@ export class EmergencyAccessConfirmComponent implements OnInit {
     }
 
     try {
-      this.dialogRef.close(EmergencyAccessConfirmDialogResult.Confirmed);
+      await this.dialogRef.close(EmergencyAccessConfirmDialogResult.Confirmed);
     } catch (e) {
       this.logService.error(e);
     }

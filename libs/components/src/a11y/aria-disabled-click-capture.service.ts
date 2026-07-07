@@ -1,5 +1,4 @@
-import { DOCUMENT } from "@angular/common";
-import { Injectable, Inject, NgZone, OnDestroy } from "@angular/core";
+import { Injectable, Inject, NgZone, OnDestroy, DOCUMENT } from "@angular/core";
 
 @Injectable({ providedIn: "root" })
 export class AriaDisabledClickCaptureService implements OnDestroy {

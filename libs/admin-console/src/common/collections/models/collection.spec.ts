@@ -1,14 +1,16 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
+import {
+  CollectionDetailsResponse,
+  Collection,
+  CollectionTypes,
+  CollectionData,
+} from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-
-import { Collection, CollectionTypes } from "./collection";
-import { CollectionData } from "./collection.data";
-import { CollectionDetailsResponse } from "./collection.response";
 
 describe("Collection", () => {
   let data: CollectionData;

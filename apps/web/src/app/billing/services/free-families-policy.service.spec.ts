@@ -38,7 +38,6 @@ describe("FreeFamiliesPolicyService", () => {
   describe("showSponsoredFamiliesDropdown$", () => {
     it("should return true when all conditions are met", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization that meets all criteria
@@ -58,7 +57,6 @@ describe("FreeFamiliesPolicyService", () => {
 
     it("should return false when organization is not Enterprise", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization that is not Enterprise tier
@@ -74,27 +72,8 @@ describe("FreeFamiliesPolicyService", () => {
       expect(result).toBe(false);
     });
 
-    it("should return false when feature flag is disabled", async () => {
-      // Configure mocks to disable feature flag
-      configService.getFeatureFlag$.mockReturnValue(of(false));
-      policyService.policiesByType$.mockReturnValue(of([]));
-
-      // Create a test organization that meets other criteria
-      const organization = {
-        id: "org-id",
-        productTierType: ProductTierType.Enterprise,
-        useAdminSponsoredFamilies: true,
-        isAdmin: true,
-      } as Organization;
-
-      // Test the method
-      const result = await firstValueFrom(service.showSponsoredFamiliesDropdown$(of(organization)));
-      expect(result).toBe(false);
-    });
-
     it("should return false when families feature is disabled by policy", async () => {
       // Configure mocks with a policy that disables the feature
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(
         of([{ organizationId: "org-id", enabled: true } as Policy]),
       );
@@ -114,7 +93,6 @@ describe("FreeFamiliesPolicyService", () => {
 
     it("should return false when useAdminSponsoredFamilies is false", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization with useAdminSponsoredFamilies set to false
@@ -132,7 +110,6 @@ describe("FreeFamiliesPolicyService", () => {
 
     it("should return true when user is an owner but not admin", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization where user is owner but not admin
@@ -152,7 +129,6 @@ describe("FreeFamiliesPolicyService", () => {
 
     it("should return true when user can manage users but is not admin or owner", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization where user can manage users but is not admin or owner
@@ -172,7 +148,6 @@ describe("FreeFamiliesPolicyService", () => {
 
     it("should return false when user has no admin permissions", async () => {
       // Configure mocks
-      configService.getFeatureFlag$.mockReturnValue(of(true));
       policyService.policiesByType$.mockReturnValue(of([]));
 
       // Create a test organization where user has no admin permissions

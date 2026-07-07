@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
@@ -18,22 +19,25 @@ import {
 import { first } from "rxjs/operators";
 
 import {
-  CollectionAccessSelectionView,
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
   OrganizationUserUserMiniResponse,
-  CollectionResponse,
-  CollectionView,
   CollectionService,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionView,
+  CollectionResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -136,7 +140,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showOrgSelector = false;
   protected formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],
-    externalId: { value: "", disabled: true },
+    // set to readonly in the template
+    externalId: { value: "", disabled: false },
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "" as OrganizationId,
@@ -146,6 +151,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+  );
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -359,6 +367,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.params.readonly === true;
   }
 
+  protected get accessTabLabel(): string {
+    return this.dialogReadonly
+      ? this.i18nService.t("viewAccess")
+      : this.i18nService.t("editAccess");
+  }
+
   protected async cancel() {
     this.close(CollectionDialogAction.Canceled);
   }
@@ -520,7 +534,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
-    this.dialogRef.close({ action, collection } as CollectionDialogResult);
+    void this.dialogRef.close({ action, collection } as CollectionDialogResult);
   }
 }
 
@@ -618,7 +632,7 @@ function mapUserToAccessItemView(
  */
 export function openCollectionDialog(
   dialogService: DialogService,
-  config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
+  config: DialogConfig<CollectionDialogParams, CollectionDialogResult>,
 ) {
   return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }

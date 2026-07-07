@@ -7,12 +7,13 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogRef,
-  AnchorLinkDirective,
+  LinkComponent,
   AsyncActionsModule,
   ButtonModule,
   DialogModule,
   DialogService,
   TypographyModule,
+  CenterPositionStrategy,
 } from "@bitwarden/components";
 
 export type DecryptionFailureDialogParams = {
@@ -31,7 +32,7 @@ export type DecryptionFailureDialogParams = {
     JslibModule,
     AsyncActionsModule,
     ButtonModule,
-    AnchorLinkDirective,
+    LinkComponent,
   ],
 })
 export class DecryptionFailureDialogComponent {
@@ -56,6 +57,9 @@ export class DecryptionFailureDialogComponent {
   }
 
   static open(dialogService: DialogService, params: DecryptionFailureDialogParams) {
-    return dialogService.open(DecryptionFailureDialogComponent, { data: params });
+    return dialogService.open(DecryptionFailureDialogComponent, {
+      data: params,
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 }

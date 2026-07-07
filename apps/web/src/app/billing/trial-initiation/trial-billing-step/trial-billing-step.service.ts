@@ -10,7 +10,7 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
-import { TaxClient } from "@bitwarden/web-vault/app/billing/clients";
+import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
   getBillingAddressFromControls,
@@ -55,13 +55,13 @@ export interface Trial {
   length: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class TrialBillingStepService {
   constructor(
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
   ) {}
 
   private plans$ = from(this.apiService.getPlans()).pipe(
@@ -114,12 +114,13 @@ export class TrialBillingStepService {
     tier: Tier,
     cadence: Cadence,
     billingAddressControls: BillingAddressControls,
+    coupons?: string[],
   ): Promise<{
     tax: number;
     total: number;
   }> => {
     const billingAddress = getBillingAddressFromControls(billingAddressControls);
-    return await this.taxClient.previewTaxForOrganizationSubscriptionPurchase(
+    return await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
       {
         tier,
         cadence,
@@ -138,6 +139,7 @@ export class TrialBillingStepService {
             : undefined,
       },
       billingAddress,
+      coupons,
     );
   };
 
@@ -146,6 +148,7 @@ export class TrialBillingStepService {
     cadence: Cadence,
     billingAddress: BillingAddressControls,
     paymentMethod: TokenizedPaymentMethod,
+    coupons?: string[],
   ): Promise<OrganizationResponse> => {
     const getPlanType = async (tier: Tier, cadence: Cadence) => {
       const plans = await firstValueFrom(this.plans$);
@@ -200,7 +203,9 @@ export class TrialBillingStepService {
           taxId: billingAddress.taxId ?? undefined,
         },
         skipTrial: trial.length === 0,
+        trialLength: trial.length,
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));

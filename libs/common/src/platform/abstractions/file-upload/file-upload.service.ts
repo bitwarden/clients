@@ -8,6 +8,7 @@ export abstract class FileUploadService {
     fileName: EncString,
     encryptedFileData: EncArrayBuffer,
     fileUploadMethods: FileUploadApiMethods,
+    options?: UploadOptions,
   ): Promise<void>;
 }
 
@@ -15,4 +16,10 @@ export type FileUploadApiMethods = {
   postDirect: (fileData: FormData) => Promise<void>;
   renewFileUploadUrl: () => Promise<string>;
   rollback: () => Promise<void>;
+};
+
+/** Options for file uploads */
+export type UploadOptions = {
+  /** Callback function to receive upload progress updates as a percentage (0-100) for uploads. */
+  onProgress?: (percent: number) => void;
 };

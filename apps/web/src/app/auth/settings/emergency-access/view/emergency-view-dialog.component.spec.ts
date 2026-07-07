@@ -8,6 +8,7 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -16,14 +17,16 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId, EmergencyAccessId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
+import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, DialogRef, DIALOG_DATA } from "@bitwarden/components";
-import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
@@ -41,6 +44,8 @@ describe("EmergencyViewDialogComponent", () => {
     type: CipherType.Login,
     login: { uris: [] } as Partial<LoginView>,
     card: {},
+    bankAccount: {},
+    driversLicense: {},
   } as Partial<CipherView> as CipherView;
 
   const accountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
@@ -68,28 +73,34 @@ describe("EmergencyViewDialogComponent", () => {
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: CipherRiskService, useValue: mock<CipherRiskService>() },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(false) },
+        },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
       ],
     })
       .overrideComponent(EmergencyViewDialogComponent, {
         remove: {
           providers: [
             { provide: PlatformUtilsService, useValue: PlatformUtilsService },
-            {
-              provide: ChangeLoginPasswordService,
-              useValue: ChangeLoginPasswordService,
-            },
-            { provide: ConfigService, useValue: ConfigService },
             { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
         add: {
           providers: [
             { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-            {
-              provide: ChangeLoginPasswordService,
-              useValue: mock<ChangeLoginPasswordService>(),
-            },
-            { provide: ConfigService, useValue: mock<ConfigService>() },
+            { provide: ChangeLoginPasswordService, useValue: mock<ChangeLoginPasswordService>() },
             { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
@@ -159,6 +170,30 @@ describe("EmergencyViewDialogComponent", () => {
       component["updateTitle"]();
 
       expect(component["title"]).toBe("viewItemHeaderNote");
+    });
+
+    it("sets ssh key title", () => {
+      mockCipher.type = CipherType.SshKey;
+
+      component["updateTitle"]();
+
+      expect(component["title"]).toBe("viewItemHeaderSshKey");
+    });
+
+    it("sets bank account title", () => {
+      mockCipher.type = CipherType.BankAccount;
+
+      component["updateTitle"]();
+
+      expect(component["title"]).toBe("viewItemHeaderBankAccount");
+    });
+
+    it("sets drivers license title", () => {
+      mockCipher.type = CipherType.DriversLicense;
+
+      component["updateTitle"]();
+
+      expect(component["title"]).toBe("viewItemHeaderLicense");
     });
   });
 });

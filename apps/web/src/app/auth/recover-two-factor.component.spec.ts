@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
+import { Router, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import {
@@ -7,69 +7,49 @@ import {
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RecoverTwoFactorComponent } from "./recover-two-factor.component";
 
 describe("RecoverTwoFactorComponent", () => {
   let component: RecoverTwoFactorComponent;
   let fixture: ComponentFixture<RecoverTwoFactorComponent>;
-
-  // Mock Services
   let mockRouter: MockProxy<Router>;
-  let mockApiService: MockProxy<ApiService>;
-  let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockI18nService: MockProxy<I18nService>;
-  let mockKeyService: MockProxy<KeyService>;
   let mockLoginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let mockToastService: MockProxy<ToastService>;
-  let mockConfigService: MockProxy<ConfigService>;
   let mockLoginSuccessHandlerService: MockProxy<LoginSuccessHandlerService>;
   let mockLogService: MockProxy<LogService>;
   let mockValidationService: MockProxy<ValidationService>;
 
-  beforeEach(() => {
-    mockRouter = mock<Router>();
-    mockApiService = mock<ApiService>();
-    mockPlatformUtilsService = mock<PlatformUtilsService>();
+  beforeEach(async () => {
     mockI18nService = mock<I18nService>();
-    mockKeyService = mock<KeyService>();
     mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
     mockToastService = mock<ToastService>();
-    mockConfigService = mock<ConfigService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
     mockLogService = mock<LogService>();
     mockValidationService = mock<ValidationService>();
 
-    TestBed.configureTestingModule({
-      declarations: [RecoverTwoFactorComponent],
+    await TestBed.configureTestingModule({
+      imports: [RecoverTwoFactorComponent],
       providers: [
-        { provide: Router, useValue: mockRouter },
-        { provide: ApiService, useValue: mockApiService },
-        { provide: PlatformUtilsService, mockPlatformUtilsService },
+        provideRouter([]),
         { provide: I18nService, useValue: mockI18nService },
-        { provide: KeyService, useValue: mockKeyService },
         { provide: LoginStrategyServiceAbstraction, useValue: mockLoginStrategyService },
         { provide: ToastService, useValue: mockToastService },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: LoginSuccessHandlerService, useValue: mockLoginSuccessHandlerService },
         { provide: LogService, useValue: mockLogService },
         { provide: ValidationService, useValue: mockValidationService },
       ],
-      imports: [I18nPipe],
-      // FIXME(PM-18598): Replace unknownElements and unknownProperties with actual imports
-      errorOnUnknownElements: false,
-    });
+    }).compileComponents();
+
+    mockRouter = TestBed.inject(Router) as MockProxy<Router>;
+    jest.spyOn(mockRouter, "navigate");
 
     fixture = TestBed.createComponent(RecoverTwoFactorComponent);
     component = fixture.componentInstance;

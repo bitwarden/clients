@@ -1,2 +1,10 @@
 allow-unwrap-in-tests=true
 allow-expect-in-tests=true
+
+disallowed-macros = [
+  { path = "log::trace", reason = "Use tracing for logging needs", replacement = "tracing::trace" },
+  { path = "log::debug", reason = "Use tracing for logging needs", replacement = "tracing::debug" },
+  { path = "log::info", reason = "Use tracing for logging needs", replacement = "tracing::info" },
+  { path = "log::warn", reason = "Use tracing for logging needs", replacement = "tracing::warn" },
+  { path = "log::error", reason = "Use tracing for logging needs", replacement = "tracing::error" },
+]

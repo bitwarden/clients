@@ -1,8 +1,8 @@
 import { importProvidersFrom } from "@angular/core";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
-import { action } from "@storybook/addon-actions";
 import { Meta, StoryObj, applicationConfig } from "@storybook/angular";
 import { of } from "rxjs";
+import { action } from "storybook/actions";
 import { ZXCVBNResult } from "zxcvbn";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -19,7 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
 
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -76,13 +76,6 @@ export default {
           useValue: {
             launchUri: () => Promise.resolve(true),
             copyToClipboard: () => true,
-          },
-        },
-        {
-          provide: KeyService,
-          useValue: {
-            makeMasterKey: () => Promise.resolve("example-master-key"),
-            hashMasterKey: () => Promise.resolve("example-master-key-hash"),
           },
         },
         {

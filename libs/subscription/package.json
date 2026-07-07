@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/subscription",
+  "version": "0.0.1",
+  "description": "Components and services for managing Bitwarden subscriptions.",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "billing"
+}

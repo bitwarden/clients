@@ -8,6 +8,7 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
+  LoginStrategySessionTimeoutService,
   FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
   FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
   FakeUserDecryptionOptions as UserDecryptionOptions,
@@ -18,12 +19,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -82,7 +83,8 @@ describe("TwoFactorAuthComponent", () => {
   let mockTwoFactorAuthCompCacheService: MockProxy<TwoFactorAuthComponentCacheService>;
   let mockAuthService: MockProxy<AuthService>;
   let mockConfigService: MockProxy<ConfigService>;
-  let mockKeyConnnectorService: MockProxy<KeyConnectorService>;
+  let mockKeyConnectorService: MockProxy<KeyConnectorService>;
+  let mockLoginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -119,8 +121,13 @@ describe("TwoFactorAuthComponent", () => {
     mockTwoFactorAuthCompService = mock<TwoFactorAuthComponentService>();
     mockAuthService = mock<AuthService>();
     mockConfigService = mock<ConfigService>();
-    mockKeyConnnectorService = mock<KeyConnectorService>();
-    mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
+    mockKeyConnectorService = mock<KeyConnectorService>();
+    mockKeyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
+
+    mockLoginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
+    mockLoginStrategySessionTimeoutService.loginSessionTimeout$ = new BehaviorSubject<void>(
+      undefined,
+    ).asObservable();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -176,7 +183,9 @@ describe("TwoFactorAuthComponent", () => {
     selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(
       mockUserDecryptionOpts.withMasterPassword,
     );
-    mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
+    mockUserDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      selectedUserDecryptionOptions,
+    );
 
     TestBed.configureTestingModule({
       declarations: [TestTwoFactorComponent],
@@ -221,7 +230,11 @@ describe("TwoFactorAuthComponent", () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
-        { provide: KeyConnectorService, useValue: mockKeyConnnectorService },
+        { provide: KeyConnectorService, useValue: mockKeyConnectorService },
+        {
+          provide: LoginStrategySessionTimeoutService,
+          useValue: mockLoginStrategySessionTimeoutService,
+        },
       ],
     });
 
@@ -414,11 +427,12 @@ describe("TwoFactorAuthComponent", () => {
 
       it("navigates to /confirm-key-connector-domain when Key Connector is enabled and user has no master password", async () => {
         selectedUserDecryptionOptions.next(mockUserDecryptionOpts.noMasterPasswordWithKeyConnector);
-        mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(
+        mockKeyConnectorService.requiresDomainConfirmation$.mockReturnValue(
           of({
             keyConnectorUrl:
               mockUserDecryptionOpts.noMasterPasswordWithKeyConnector.keyConnectorOption!
                 .keyConnectorUrl,
+            organizationSsoIdentifier: "test-sso-id",
           }),
         );
         const authResult = new AuthResult();

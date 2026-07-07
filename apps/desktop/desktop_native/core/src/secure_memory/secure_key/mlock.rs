@@ -1,8 +1,9 @@
 use std::ptr::NonNull;
 
-use super::crypto::MemoryEncryptionKey;
-use super::crypto::KEY_SIZE;
-use super::SecureKeyContainer;
+use super::{
+    crypto::{MemoryEncryptionKey, KEY_SIZE},
+    SecureKeyContainer,
+};
 
 /// A SecureKeyContainer that uses mlock to prevent the memory from being swapped to disk.
 /// This does not provide as strong protections as other methods, but is always supported.

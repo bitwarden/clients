@@ -13,9 +13,11 @@ const config = require(path.resolve(__dirname, "config.js"));
 const pjson = require(path.resolve(__dirname, "package.json"));
 
 module.exports.getEnv = function getEnv(params) {
-  const ENV = params.env || (process.env.ENV == null ? "development" : process.env.ENV);
-  const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
-  const LOGGING = process.env.LOGGING != "false";
+  const ENV = params.env?.ENV ?? process.env?.ENV ?? "development";
+  const NODE_ENV = params.env?.NODE_ENV ?? process.env?.NODE_ENV ?? "development";
+  const LOGGING =
+    params.env?.LOGGING ??
+    (process.env?.LOGGING === undefined ? true : process.env.LOGGING !== "false");
 
   return { ENV, NODE_ENV, LOGGING };
 };
@@ -35,7 +37,11 @@ const DEFAULT_PARAMS = {
  *  tsConfig: string;
  *  outputPath?: string;
  *  mode?: string;
- *  env?: string;
+ *  env?: {
+ *      ENV?: string;
+ *      NODE_ENV?: string;
+ *      LOGGING?: boolean;
+ *    };
  *  importAliases?: import("webpack").ResolveOptions["alias"];
  * }} params
  */
@@ -71,22 +77,6 @@ module.exports.buildConfig = function buildConfig(params) {
       type: "asset/resource",
     },
     {
-      test: /\.scss$/,
-      use: [
-        {
-          loader: MiniCssExtractPlugin.loader,
-        },
-        "css-loader",
-        "resolve-url-loader",
-        {
-          loader: "sass-loader",
-          options: {
-            sourceMap: true,
-          },
-        },
-      ],
-    },
-    {
       test: /\.css$/,
       use: [
         {
@@ -107,6 +97,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     {
       test: /\.[cm]?js$/,
+      exclude: /\.wasm\.js$/,
       use: [
         {
           loader: "babel-loader",
@@ -159,6 +150,11 @@ module.exports.buildConfig = function buildConfig(params) {
       template: path.resolve(__dirname, "src/connectors/duo-redirect.html"),
       filename: "duo-redirect-connector.html",
       chunks: ["connectors/duo-redirect", "styles"],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, "src/connectors/platform/proxy-cookie-redirect.html"),
+      filename: "proxy-cookie-redirect-connector.html",
+      chunks: ["connectors/platform/proxy-cookie-redirect", "styles"],
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src/404.html"),
@@ -304,8 +300,9 @@ module.exports.buildConfig = function buildConfig(params) {
                     ${"'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='" /* date input polyfill */}
                     ${"'sha256-JVRXyYPueLWdwGwY9m/7u4QlZ1xeQdqUj2t8OVIzZE4='" /* date input polyfill */}
                     ${"'sha256-EnIJNDxVnh0++RytXJOkU0sqtLDFt1nYUDOfeJ5SKxg='" /* ng-select */}
-                    ${"'sha256-dbBsIsz2pJ5loaLjhE6xWlmhYdjl6ghbwnGSCr4YObs='" /* cdk-virtual-scroll */}
                     ${"'sha256-S+uMh1G1SNQDAMG3seBmknQ26Wh+KSEoKdsNiy0joEE='" /* cdk-visually-hidden */}
+                    ${"'sha256-NioKnUhAWIPG1FfdlXRRJiUMWVaO2lqsAA83ioDrbRs='" /* cdk-virtual-scroll */}
+                    ${"'sha256-5Aa95/ZO6hntqOK1ZYDkfF0M76NFmrG+N39v6gp+12k='" /* related to angular */}
                     ;img-src
                     'self'
                     data:
@@ -313,7 +310,7 @@ module.exports.buildConfig = function buildConfig(params) {
                     https://*.paypal.com
                     https://www.paypalobjects.com
                     https://q.stripe.com
-                    https://haveibeenpwned.com
+                    https://logos.haveibeenpwned.com
                     ;media-src
                     'self'
                     https://assets.bitwarden.com
@@ -397,10 +394,11 @@ module.exports.buildConfig = function buildConfig(params) {
       "connectors/sso": path.resolve(__dirname, "src/connectors/sso.ts"),
       "connectors/duo-redirect": path.resolve(__dirname, "src/connectors/duo-redirect.ts"),
       "connectors/redirect": path.resolve(__dirname, "src/connectors/redirect.ts"),
-      styles: [
-        path.resolve(__dirname, "src/scss/styles.scss"),
-        path.resolve(__dirname, "src/scss/tailwind.css"),
-      ],
+      "connectors/platform/proxy-cookie-redirect": path.resolve(
+        __dirname,
+        "src/connectors/platform/proxy-cookie-redirect.ts",
+      ),
+      styles: [path.resolve(__dirname, "src/css/tailwind.css")],
       theme_head: path.resolve(__dirname, "src/theme.ts"),
     },
     cache:

@@ -1,6 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -12,16 +12,18 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
-import { VaultItemDialogResult } from "@bitwarden/web-vault/app/vault/components/vault-item-dialog/vault-item-dialog.component";
+import {
+  CipherFormConfigService,
+  PasswordRepromptService,
+  VaultItemDialogResult,
+} from "@bitwarden/vault";
 
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
   standalone: false,
@@ -36,12 +38,13 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     protected organizationService: OrganizationService,
     dialogService: DialogService,
     accountService: AccountService,
-    private logService: LogService,
+    protected logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     i18nService: I18nService,
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected changeDetectorRef: ChangeDetectorRef,
   ) {
     super(
       cipherService,
@@ -53,27 +56,50 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
-    await super.load();
+    this.logService.info("[InactiveTwoFactorReport] load start");
+    try {
+      await super.load();
+      this.logService.info("[InactiveTwoFactorReport] load success");
+    } catch (e) {
+      this.logService.error("[InactiveTwoFactorReport] load failure", e);
+      throw e;
+    }
   }
 
   async setCiphers() {
+    this.logService.info("[InactiveTwoFactorReport] analysis start");
     try {
       await this.load2fa();
     } catch (e) {
-      this.logService.error(e);
+      this.logService.error("[InactiveTwoFactorReport] 2fa directory load failure", e);
+      throw e;
     }
 
     if (this.services.size > 0) {
       const allCiphers = await this.getAllCiphers();
       const inactive2faCiphers: CipherView[] = [];
       const docs = new Map<string, string>();
+      let eligibleCipherCount = 0;
       this.filterStatus = [0];
 
       allCiphers.forEach((ciph) => {
+        const { type, login, isDeleted, edit, viewPassword } = ciph;
+        if (
+          type === CipherType.Login &&
+          (login.totp == null || login.totp === "") &&
+          login.hasUris &&
+          !isDeleted &&
+          (this.organization || edit) &&
+          viewPassword
+        ) {
+          eligibleCipherCount++;
+        }
+
         const [docFor2fa, isInactive2faCipher] = this.isInactive2faCipher(ciph);
 
         if (isInactive2faCipher) {
@@ -84,9 +110,23 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
         }
       });
 
+      this.logService.info(
+        `[InactiveTwoFactorReport] analysis candidates total=${allCiphers.length} eligible=${eligibleCipherCount}`,
+      );
+      this.logService.info(
+        `[InactiveTwoFactorReport] analysis complete inactive2fa=${inactive2faCiphers.length} docs=${docs.size}`,
+      );
+
       this.filterCiphersByOrg(inactive2faCiphers);
+      this.logService.info(
+        `[InactiveTwoFactorReport] filter complete displayed=${this.ciphers.length}`,
+      );
       this.cipherDocs = docs;
+      this.changeDetectorRef.markForCheck();
+      return;
     }
+
+    this.logService.info("[InactiveTwoFactorReport] analysis skipped reason=no services loaded");
   }
 
   private isInactive2faCipher(cipher: CipherView): [string, boolean] {
@@ -109,7 +149,18 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       const u = login.uris[i];
       if (u.uri != null && u.uri !== "") {
         const uri = u.uri.replace("www.", "");
+        const host = Utils.getHost(uri);
         const domain = Utils.getDomain(uri);
+        // check host first
+        if (host != null && this.services.has(host)) {
+          if (this.services.get(host) != null) {
+            docFor2fa = this.services.get(host) || "";
+          }
+          isInactive2faCipher = true;
+          break;
+        }
+
+        // then check domain
         if (domain != null && this.services.has(domain)) {
           if (this.services.get(domain) != null) {
             docFor2fa = this.services.get(domain) || "";
@@ -124,13 +175,20 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
   private async load2fa() {
     if (this.services.size > 0) {
+      this.logService.info(
+        `[InactiveTwoFactorReport] 2fa directory load skipped cached=${this.services.size}`,
+      );
       return;
     }
+
+    this.logService.info("[InactiveTwoFactorReport] 2fa directory fetch start");
     const response = await fetch(new Request("https://api.2fa.directory/v3/totp.json"));
     if (response.status !== 200) {
       throw new Error();
     }
+
     const responseJson = await response.json();
+    let servicesLoaded = 0;
     for (const service of responseJson) {
       const serviceData = service[1];
       if (serviceData.domain == null) {
@@ -142,10 +200,17 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
       if (serviceData["additional-domains"] != null) {
         for (const additionalDomain of serviceData["additional-domains"]) {
           this.services.set(additionalDomain, serviceData.documentation);
+          servicesLoaded++;
         }
       }
       this.services.set(serviceData.domain, serviceData.documentation);
+      servicesLoaded++;
     }
+
+    this.logService.info(
+      `[InactiveTwoFactorReport] 2fa directory fetch complete services=${servicesLoaded}`,
+    );
+    this.changeDetectorRef.markForCheck();
   }
 
   /**
@@ -163,7 +228,10 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
     result: VaultItemDialogResult,
     updatedCipherView: CipherView,
   ): Promise<CipherView | null> {
+    this.logService.info(`[InactiveTwoFactorReport] update check start result=${result}`);
+
     if (result === VaultItemDialogResult.Deleted) {
+      this.logService.info("[InactiveTwoFactorReport] update check complete action=deleted");
       return null;
     }
 
@@ -171,8 +239,11 @@ export class InactiveTwoFactorReportComponent extends CipherReportComponent impl
 
     if (isInactive2faCipher) {
       this.cipherDocs.set(updatedCipherView.id, docFor2fa);
+      this.logService.info("[InactiveTwoFactorReport] update check complete action=retain");
       return updatedCipherView;
     }
+
+    this.logService.info("[InactiveTwoFactorReport] update check complete action=remove");
 
     return null;
   }

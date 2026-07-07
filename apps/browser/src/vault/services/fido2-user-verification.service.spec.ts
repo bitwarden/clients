@@ -1,11 +1,15 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { newGuid } from "@bitwarden/guid";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
@@ -31,21 +35,24 @@ describe("Fido2UserVerificationService", () => {
   let fido2UserVerificationService: Fido2UserVerificationService;
 
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
-  let userVerificationService: MockProxy<UserVerificationService>;
+  let userDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let dialogService: MockProxy<DialogService>;
+  let accountService: FakeAccountService;
   let cipher: CipherView;
 
   beforeEach(() => {
     passwordRepromptService = mock<PasswordRepromptService>();
-    userVerificationService = mock<UserVerificationService>();
+    userDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     dialogService = mock<DialogService>();
+    accountService = mockAccountServiceWith(newGuid() as UserId);
 
     cipher = createCipherView();
 
     fido2UserVerificationService = new Fido2UserVerificationService(
       passwordRepromptService,
-      userVerificationService,
+      userDecryptionOptionsService,
       dialogService,
+      accountService,
     );
 
     (UserVerificationDialogComponent.open as jest.Mock).mockResolvedValue({
@@ -67,7 +74,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call master password reprompt dialog if user is redirected from lock screen, has master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(true);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
         passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
         const result = await fido2UserVerificationService.handleUserVerification(
@@ -82,7 +89,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call user verification dialog if user is redirected from lock screen, does not have a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await fido2UserVerificationService.handleUserVerification(
           true,
@@ -98,7 +105,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call user verification dialog if user is not redirected from lock screen, does not have a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await fido2UserVerificationService.handleUserVerification(
           true,
@@ -114,7 +121,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call master password reprompt dialog if user is not redirected from lock screen, has a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
         passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
         const result = await fido2UserVerificationService.handleUserVerification(
@@ -176,7 +183,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call master password reprompt dialog if user is redirected from lock screen, has master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(true);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
         passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
         const result = await fido2UserVerificationService.handleUserVerification(
@@ -191,7 +198,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call user verification dialog if user is redirected from lock screen, does not have a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await fido2UserVerificationService.handleUserVerification(
           false,
@@ -207,7 +214,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call user verification dialog if user is not redirected from lock screen, does not have a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await fido2UserVerificationService.handleUserVerification(
           false,
@@ -223,7 +230,7 @@ describe("Fido2UserVerificationService", () => {
 
       it("should call master password reprompt dialog if user is not redirected from lock screen, has a master password and master password reprompt is required", async () => {
         cipher.reprompt = CipherRepromptType.Password;
-        userVerificationService.hasMasterPassword.mockResolvedValue(false);
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
         passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
         const result = await fido2UserVerificationService.handleUserVerification(

@@ -262,6 +262,18 @@ describe("VaultPopupAutofillService", () => {
         );
       });
 
+      it("skips password prompt when skipPasswordReprompt is true", async () => {
+        mockCipher.id = "cipher-with-reprompt";
+        mockCipher.reprompt = CipherRepromptType.Password;
+        mockAutofillService.doAutoFill.mockResolvedValue(null);
+
+        const result = await service.doAutofill(mockCipher, true, true);
+
+        expect(result).toBe(true);
+        expect(mockPasswordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(mockAutofillService.doAutoFill).toHaveBeenCalled();
+      });
+
       describe("closePopup", () => {
         beforeEach(() => {
           jest.spyOn(BrowserApi, "closePopup").mockImplementation();
@@ -366,8 +378,7 @@ describe("VaultPopupAutofillService", () => {
         expect(result).toBe(true);
         expect(mockCipher.login.uris).toHaveLength(1);
         expect(mockCipher.login.uris[0].uri).toBe(mockCurrentTab.url);
-        expect(mockCipherService.encrypt).toHaveBeenCalledWith(mockCipher, mockUserId);
-        expect(mockCipherService.updateWithServer).toHaveBeenCalledWith(mockEncryptedCipher);
+        expect(mockCipherService.updateWithServer).toHaveBeenCalledWith(mockCipher, mockUserId);
       });
 
       it("should add a URI to the cipher when there are no existing URIs", async () => {

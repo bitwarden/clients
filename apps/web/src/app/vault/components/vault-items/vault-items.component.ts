@@ -1,12 +1,26 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Observable, combineLatest, map, of, startWith, switchMap } from "rxjs";
+import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
-import { CollectionView, Unassigned, CollectionAdminView } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminView,
+  Unassigned,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -18,6 +32,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
+import { RoutedVaultFilterService, VaultBatchBarService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -25,12 +40,11 @@ import {
   CollectionPermission,
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
-export const RowHeight = 75;
-export const RowHeightClass = `tw-h-[75px]`;
+export const RowHeight = 76.5;
+export const RowHeightClass = `tw-h-[76.5px]`;
 
 const MaxSelectionCount = 500;
 
@@ -111,8 +125,6 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() enforceOrgDataOwnershipPolicy: boolean;
 
-  private readonly restrictedPolicies = toSignal(this.restrictedItemTypesService.restricted$);
-
   private _ciphers?: C[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -139,18 +151,31 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();
 
+  protected readonly batchBarService = inject(VaultBatchBarService, {
+    optional: true,
+  }) as VaultBatchBarService<C> | null;
+
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
-  protected selection = new SelectionModel<VaultItem<C>>(true, [], true);
+  private readonly _localSelection = new SelectionModel<VaultItem<C>>(true, [], true);
+  get selection(): SelectionModel<VaultItem<C>> {
+    return this.batchBarService?.selection ?? this._localSelection;
+  }
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
+  protected showCopyAndLaunchActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
+    protected routedVaultFilterService: RoutedVaultFilterService,
+    private configService: ConfigService,
   ) {
+    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -217,6 +242,24 @@ export class VaultItemsComponent<C extends CipherViewLike> {
         );
       }),
     );
+
+    if (!this.batchBarService) {
+      this.routedVaultFilterService.filter$
+        .pipe(
+          distinctUntilChanged(
+            (prev, curr) =>
+              prev.organizationId === curr.organizationId &&
+              prev.collectionId === curr.collectionId &&
+              prev.folderId === curr.folderId &&
+              prev.type === curr.type &&
+              prev.organizationIdParamType === curr.organizationIdParamType,
+          ),
+          takeUntilDestroyed(),
+        )
+        .subscribe(() => {
+          this.clearSelection();
+        });
+    }
   }
 
   clearSelection() {
@@ -228,9 +271,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get isAllSelected() {
-    return this.editableItems
-      .slice(0, MaxSelectionCount)
-      .every((item) => this.selection.isSelected(item));
+    // Check selection against sorted items to match toggleAll() behavior
+    const sortedItems = this.getSortedEditableItems();
+    return sortedItems.slice(0, MaxSelectionCount).every((item) => this.selection.isSelected(item));
   }
 
   get isEmpty() {
@@ -244,27 +287,24 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get bulkArchiveAllowed() {
-    if (this.selection.selected.length === 0 || !this.userCanArchive) {
+    const selectedCiphers = this.selection.selected.filter((item) => item.cipher !== undefined);
+    if (selectedCiphers.length === 0 || !this.userCanArchive || this.showBulkTrashOptions) {
       return false;
     }
 
     return (
       this.userCanArchive &&
-      !this.selection.selected.find(
-        (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-      )
+      !selectedCiphers.find((item) => item.cipher && item.cipher.archivedDate)
     );
   }
 
   // Bulk Unarchive button should appear for Archive vault even if user does not have archive permissions
   get bulkUnarchiveAllowed() {
-    if (this.selection.selected.length === 0) {
+    if (this.selection.selected.length === 0 || this.showBulkTrashOptions) {
       return false;
     }
 
-    return !this.selection.selected.find(
-      (item) => !item.cipher?.archivedDate || item.cipher?.organizationId,
-    );
+    return !this.selection.selected.find((item) => !item.cipher?.archivedDate);
   }
 
   //@TODO: remove this function when removing the limitItemDeletion$ feature flag.
@@ -338,9 +378,30 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   protected toggleAll() {
-    this.isAllSelected
-      ? this.selection.clear()
-      : this.selection.select(...this.editableItems.slice(0, MaxSelectionCount));
+    if (this.isAllSelected) {
+      this.selection.clear();
+    } else {
+      const sortedItems = this.getSortedEditableItems();
+      this.selection.select(...sortedItems.slice(0, MaxSelectionCount));
+    }
+  }
+
+  /**
+   * Returns editableItems sorted according to the current table sort configuration.
+   * This ensures bulk selection matches the visual order displayed to the user.
+   */
+  private getSortedEditableItems(): VaultItem<C>[] {
+    const currentSort = this.dataSource.sort;
+    const items = [...this.editableItems];
+
+    // If no sort function is set, return items in their original order (as displayed in table)
+    if (!currentSort || !currentSort.fn) {
+      return items;
+    }
+
+    // Apply sort function with direction modifier (matches TableDataSource.sortData behavior)
+    const directionModifier = currentSort.direction === "asc" ? 1 : -1;
+    return items.sort((a, b) => currentSort.fn(a, b, currentSort.direction) * directionModifier);
   }
 
   protected event(event: VaultItemEvent<C>) {
@@ -390,37 +451,22 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     });
   }
 
-  // TODO: PM-13944 Refactor to use cipherAuthorizationService.canClone$ instead
-  protected canClone(vaultItem: VaultItem<C>) {
-    // This will check for restrictions from org policies before allowing cloning.
-    const isItemRestricted = this.restrictedPolicies().some(
-      (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+  protected canClone$(vaultItem: VaultItem<C>): Observable<boolean> {
+    return this.restrictedItemTypesService.restricted$.pipe(
+      switchMap((restrictedTypes) => {
+        // This will check for restrictions from org policies before allowing cloning.
+        const isItemRestricted = restrictedTypes.some(
+          (rt) => rt.cipherType === CipherViewLikeUtils.getType(vaultItem.cipher),
+        );
+        if (isItemRestricted) {
+          return of(false);
+        }
+        return this.cipherAuthorizationService.canCloneCipher$(
+          vaultItem.cipher,
+          this.showAdminActions,
+        );
+      }),
     );
-    if (isItemRestricted) {
-      return false;
-    }
-
-    if (vaultItem.cipher.organizationId == null) {
-      return true;
-    }
-
-    const org = this.allOrganizations.find((o) => o.id === vaultItem.cipher.organizationId);
-
-    // Admins and custom users can always clone in the Org Vault
-    if (this.viewingOrgVault && (org.isAdmin || org.permissions.editAnyCollection)) {
-      return true;
-    }
-
-    // Check if the cipher belongs to a collection with canManage permission
-    const orgCollections = this.allCollections.filter((c) => c.organizationId === org.id);
-
-    for (const collection of orgCollections) {
-      if (vaultItem.cipher.collectionIds.includes(collection.id as any) && collection.manage) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   protected canEditCipher(cipher: C) {
@@ -429,7 +475,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
+    return (organization?.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
   }
 
   protected canAssignCollections(cipher: C) {
@@ -483,10 +529,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // All ciphers are selectable, collections only if they can be edited or deleted
+    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted
     this.editableItems = items.filter(
       (item) =>
-        item.cipher !== undefined ||
+        (item.cipher !== undefined && this.canEditCipher(item.cipher)) ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );
@@ -561,12 +607,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
    * Sorts VaultItems, grouping collections before ciphers, and sorting each group alphabetically by name.
    */
   protected sortByName = (a: VaultItem<C>, b: VaultItem<C>, direction: SortDirection) => {
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
 
+    // Name comparison (direction-dependent, handled by directionModifier)
     return this.compareNames(a, b);
   };
 
@@ -588,8 +635,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return null;
     };
 
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
@@ -632,8 +679,8 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return priorityMap[permission] ?? -1;
     };
 
-    // Collections before ciphers
-    const collectionCompare = this.prioritizeCollections(a, b, direction);
+    // Collections before ciphers (direction-independent)
+    const collectionCompare = this.prioritizeCollections(a, b);
     if (collectionCompare !== 0) {
       return collectionCompare;
     }
@@ -641,11 +688,12 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     const priorityA = getPermissionPriority(a);
     const priorityB = getPermissionPriority(b);
 
-    // Higher priority first
+    // Higher priority first (direction-dependent, handled by directionModifier)
     if (priorityA !== priorityB) {
       return priorityA - priorityB;
     }
 
+    // Fallback to name comparison (direction-dependent, handled by directionModifier)
     return this.compareNames(a, b);
   };
 
@@ -656,22 +704,19 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   /**
    * Sorts VaultItems by prioritizing collections over ciphers.
-   * Collections are always placed before ciphers, regardless of the sorting direction.
+   * Always returns -1 for collections before ciphers, regardless of sort direction.
+   * This comparison is direction-independent; the direction is applied separately via directionModifier.
    */
-  private prioritizeCollections(
-    a: VaultItem<C>,
-    b: VaultItem<C>,
-    direction: SortDirection,
-  ): number {
+  private prioritizeCollections(a: VaultItem<C>, b: VaultItem<C>): number {
     if (a.collection && !b.collection) {
-      return direction === "asc" ? -1 : 1;
+      return -1; // a (collection) comes before b (cipher)
     }
 
     if (!a.collection && b.collection) {
-      return direction === "asc" ? 1 : -1;
+      return 1; // b (collection) comes before a (cipher)
     }
 
-    return 0;
+    return 0; // Both are collections or both are ciphers
   }
 
   private hasPersonalItems(): boolean {
