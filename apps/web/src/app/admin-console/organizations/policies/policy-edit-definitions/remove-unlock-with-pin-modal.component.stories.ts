@@ -10,10 +10,8 @@ import { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
  * drawer stories in remove-unlock-with-pin.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Remove Unlock With PIN/Modal (flag off)",
-    new RemoveUnlockWithPinPolicy(),
-  ),
+  ...policyModalMeta(new RemoveUnlockWithPinPolicy()),
+  title: "Admin Console/Organizations/Policies/Remove Unlock With PIN/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

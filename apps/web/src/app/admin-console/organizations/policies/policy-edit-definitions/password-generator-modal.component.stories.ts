@@ -10,10 +10,8 @@ import { PasswordGeneratorPolicy } from "./password-generator.component";
  * stories in password-generator.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Password Generator/Modal (flag off)",
-    new PasswordGeneratorPolicy(),
-  ),
+  ...policyModalMeta(new PasswordGeneratorPolicy()),
+  title: "Admin Console/Organizations/Policies/Password Generator/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

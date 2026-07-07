@@ -5,10 +5,8 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { ResetPasswordPolicy } from "./reset-password.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Reset Password",
-    new ResetPasswordPolicy(),
-  ),
+  ...policyDrawerMeta(new ResetPasswordPolicy()),
+  title: "Admin Console/Organizations/Policies/Reset Password",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

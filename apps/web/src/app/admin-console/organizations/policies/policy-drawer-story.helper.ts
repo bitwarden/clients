@@ -42,18 +42,22 @@ export type PolicyDrawerStoryArgs = PolicyDialogStoryArgs;
  *   from a single component, gated internally on `DialogRef.isDrawer`. Rendering that same
  *   component with `isDrawer: false` here is exactly what catches a regression like a badge or
  *   v2 component leaking into the modal when the `PolicyDrawers` flag is off.
+ *
+ * Deliberately does NOT set `title`: Storybook v7+ statically analyzes each story file's default
+ * export to build the sidebar, and it can't evaluate a spread of a function call. Every story file
+ * using this helper MUST set `title` as a literal string directly on its own default export (after
+ * the spread), or Storybook silently falls back to a file-path-based title - which is exactly how
+ * we ended up with policies scattered across two different sidebar locations.
  */
 function buildPolicyDialogMeta(
-  title: string,
   policy: BasePolicyEditDefinition,
   isDrawer: boolean,
-): Meta<PolicyDialogStoryArgs> {
+): Omit<Meta<PolicyDialogStoryArgs>, "title"> {
   const dialogComponent: Type<unknown> =
     (policy.editDialogComponent as unknown as Type<unknown>) ??
     (isDrawer ? PolicyEditDrawerComponent : PolicyEditDialogComponent);
 
   return {
-    title,
     component: dialogComponent,
     args: { enabled: false },
     argTypes: {
@@ -158,12 +162,20 @@ function buildPolicyDialogMeta(
 /**
  * Generates shared Storybook metadata for a policy's drawer story (`PolicyDrawers` flag on).
  * Per-story args drive the initial enabled state via the {@link PolicyApiServiceAbstraction} mock.
+ *
+ * IMPORTANT: the caller's default export MUST also set a literal `title` (see note on
+ * {@link buildPolicyDialogMeta}), e.g.:
+ * ```ts
+ * export default {
+ *   ...policyDrawerMeta(new MyPolicy()),
+ *   title: "Admin Console/Organizations/Policies/My Policy",
+ * } satisfies Meta<PolicyDialogStoryArgs>;
+ * ```
  */
 export function policyDrawerMeta(
-  title: string,
   policy: BasePolicyEditDefinition,
-): Meta<PolicyDialogStoryArgs> {
-  return buildPolicyDialogMeta(title, policy, true);
+): Omit<Meta<PolicyDialogStoryArgs>, "title"> {
+  return buildPolicyDialogMeta(policy, true);
 }
 
 /**
@@ -171,10 +183,12 @@ export function policyDrawerMeta(
  * default, pre-existing experience). Pair this with {@link policyDrawerMeta} for every policy that
  * has a `v2` component, so a visual diff (e.g. via Chromatic) catches any v2-only design change
  * (badge, component, description, etc.) leaking into the modal when the flag is off.
+ *
+ * IMPORTANT: the caller's default export MUST also set a literal `title` (see note on
+ * {@link buildPolicyDialogMeta}).
  */
 export function policyModalMeta(
-  title: string,
   policy: BasePolicyEditDefinition,
-): Meta<PolicyDialogStoryArgs> {
-  return buildPolicyDialogMeta(title, policy, false);
+): Omit<Meta<PolicyDialogStoryArgs>, "title"> {
+  return buildPolicyDialogMeta(policy, false);
 }

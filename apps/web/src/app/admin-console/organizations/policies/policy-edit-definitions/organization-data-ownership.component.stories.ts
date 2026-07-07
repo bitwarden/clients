@@ -10,10 +10,8 @@ import { OrganizationDataOwnershipPolicy } from "./organization-data-ownership.c
  * organization-data-ownership-modal.component.stories.ts to catch a v2 leak into the modal.
  */
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Organization Data Ownership",
-    new OrganizationDataOwnershipPolicy(),
-  ),
+  ...policyDrawerMeta(new OrganizationDataOwnershipPolicy()),
+  title: "Admin Console/Organizations/Policies/Organization Data Ownership",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

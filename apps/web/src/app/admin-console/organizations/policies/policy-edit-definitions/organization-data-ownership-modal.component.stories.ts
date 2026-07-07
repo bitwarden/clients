@@ -10,10 +10,8 @@ import { OrganizationDataOwnershipPolicy } from "./organization-data-ownership.c
  * stories in organization-data-ownership.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Organization Data Ownership/Modal (flag off)",
-    new OrganizationDataOwnershipPolicy(),
-  ),
+  ...policyModalMeta(new OrganizationDataOwnershipPolicy()),
+  title: "Admin Console/Organizations/Policies/Organization Data Ownership/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

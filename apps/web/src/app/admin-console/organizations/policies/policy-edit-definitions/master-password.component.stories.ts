@@ -10,10 +10,8 @@ import { MasterPasswordPolicy } from "./master-password.component";
  * master-password-modal.component.stories.ts to catch a v2 leak into the modal.
  */
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Master Password",
-    new MasterPasswordPolicy(),
-  ),
+  ...policyDrawerMeta(new MasterPasswordPolicy()),
+  title: "Admin Console/Organizations/Policies/Master Password",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

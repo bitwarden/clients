@@ -13,10 +13,9 @@ import { BlockClaimedDomainAccountCreationPolicy } from "./block-claimed-domain-
  * stories in block-claimed-domain-account-creation.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
+  ...policyModalMeta(new BlockClaimedDomainAccountCreationPolicy()),
+  title:
     "Admin Console/Organizations/Policies/Block Claimed Domain Account Creation/Modal (flag off)",
-    new BlockClaimedDomainAccountCreationPolicy(),
-  ),
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

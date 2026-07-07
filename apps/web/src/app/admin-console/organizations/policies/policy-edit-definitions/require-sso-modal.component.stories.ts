@@ -10,10 +10,8 @@ import { RequireSsoPolicy } from "./require-sso.component";
  * drawer stories in require-sso.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Require SSO/Modal (flag off)",
-    new RequireSsoPolicy(),
-  ),
+  ...policyModalMeta(new RequireSsoPolicy()),
+  title: "Admin Console/Organizations/Policies/Require SSO/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

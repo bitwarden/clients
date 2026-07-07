@@ -10,10 +10,8 @@ import { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component
  * drawer stories in autotype-policy.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Desktop Autotype Default Setting/Modal (flag off)",
-    new DesktopAutotypeDefaultSettingPolicy(),
-  ),
+  ...policyModalMeta(new DesktopAutotypeDefaultSettingPolicy()),
+  title: "Admin Console/Organizations/Policies/Desktop Autotype Default Setting/Modal (flag off)",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

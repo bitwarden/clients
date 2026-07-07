@@ -13,10 +13,8 @@ import { FreeFamiliesSponsorshipPolicy } from "./free-families-sponsorship.compo
  * stories in free-families-sponsorship.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Free Families Sponsorship/Modal (flag off)",
-    new FreeFamiliesSponsorshipPolicy(),
-  ),
+  ...policyModalMeta(new FreeFamiliesSponsorshipPolicy()),
+  title: "Admin Console/Organizations/Policies/Free Families Sponsorship/Modal (flag off)",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

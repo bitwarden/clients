@@ -10,10 +10,8 @@ import { ResetPasswordPolicy } from "./reset-password.component";
  * stories in reset-password.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Reset Password/Modal (flag off)",
-    new ResetPasswordPolicy(),
-  ),
+  ...policyModalMeta(new ResetPasswordPolicy()),
+  title: "Admin Console/Organizations/Policies/Reset Password/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

@@ -10,10 +10,8 @@ import { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
  * drawer stories in restricted-item-types.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Restricted Item Types/Modal (flag off)",
-    new RestrictedItemTypesPolicy(),
-  ),
+  ...policyModalMeta(new RestrictedItemTypesPolicy()),
+  title: "Admin Console/Organizations/Policies/Restricted Item Types/Modal (flag off)",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

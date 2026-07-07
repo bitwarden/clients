@@ -13,10 +13,8 @@ import { DisablePersonalVaultExportPolicy } from "./disable-personal-vault-expor
  * stories in disable-personal-vault-export.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Disable Personal Vault Export/Modal (flag off)",
-    new DisablePersonalVaultExportPolicy(),
-  ),
+  ...policyModalMeta(new DisablePersonalVaultExportPolicy()),
+  title: "Admin Console/Organizations/Policies/Disable Personal Vault Export/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

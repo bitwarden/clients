@@ -5,10 +5,8 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { PasswordGeneratorPolicy } from "./password-generator.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Password Generator",
-    new PasswordGeneratorPolicy(),
-  ),
+  ...policyDrawerMeta(new PasswordGeneratorPolicy()),
+  title: "Admin Console/Organizations/Policies/Password Generator",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

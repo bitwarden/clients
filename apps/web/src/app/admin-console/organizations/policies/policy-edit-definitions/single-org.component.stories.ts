@@ -5,10 +5,8 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { SingleOrgPolicy } from "./single-org.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Single Organization",
-    new SingleOrgPolicy(),
-  ),
+  ...policyDrawerMeta(new SingleOrgPolicy()),
+  title: "Admin Console/Organizations/Policies/Single Organization",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

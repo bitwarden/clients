@@ -10,10 +10,8 @@ import { TwoFactorAuthenticationPolicy } from "./two-factor-authentication.compo
  * drawer stories in two-factor-authentication.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Two Factor Authentication/Modal (flag off)",
-    new TwoFactorAuthenticationPolicy(),
-  ),
+  ...policyModalMeta(new TwoFactorAuthenticationPolicy()),
+  title: "Admin Console/Organizations/Policies/Two Factor Authentication/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

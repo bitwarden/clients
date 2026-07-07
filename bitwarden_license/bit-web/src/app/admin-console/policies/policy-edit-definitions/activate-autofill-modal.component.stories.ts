@@ -13,10 +13,8 @@ import { ActivateAutofillPolicy } from "./activate-autofill.component";
  * stories in activate-autofill.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Activate Autofill/Modal (flag off)",
-    new ActivateAutofillPolicy(),
-  ),
+  ...policyModalMeta(new ActivateAutofillPolicy()),
+  title: "Admin Console/Organizations/Policies/Activate Autofill/Modal (flag off)",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

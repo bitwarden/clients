@@ -10,10 +10,8 @@ import { SingleOrgPolicy } from "./single-org.component";
  * stories in single-org.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Single Organization/Modal (flag off)",
-    new SingleOrgPolicy(),
-  ),
+  ...policyModalMeta(new SingleOrgPolicy()),
+  title: "Admin Console/Organizations/Policies/Single Organization/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

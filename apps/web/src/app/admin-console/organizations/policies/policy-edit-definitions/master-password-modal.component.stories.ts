@@ -11,10 +11,8 @@ import { MasterPasswordPolicy } from "./master-password.component";
  * forward. Compare against the drawer stories in master-password.component.stories.ts.
  */
 export default {
-  ...policyModalMeta(
-    "Admin Console/Organizations/Policies/Master Password/Modal (flag off)",
-    new MasterPasswordPolicy(),
-  ),
+  ...policyModalMeta(new MasterPasswordPolicy()),
+  title: "Admin Console/Organizations/Policies/Master Password/Modal (flag off)",
 };
 
 type Story = StoryObj<PolicyDialogStoryArgs>;

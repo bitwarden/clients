@@ -8,10 +8,8 @@ import {
 import { ActivateAutofillPolicy } from "./activate-autofill.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Activate Autofill",
-    new ActivateAutofillPolicy(),
-  ),
+  ...policyDrawerMeta(new ActivateAutofillPolicy()),
+  title: "Admin Console/Organizations/Policies/Activate Autofill",
 } satisfies Meta<PolicyDialogStoryArgs>;
 
 type Story = StoryObj<PolicyDialogStoryArgs>;
