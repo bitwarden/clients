@@ -81,9 +81,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   readonly deletionHoursOptions: Option<SendDeletionDatePreset | null>[] = [];
 
-  readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
-    new SendControlsPolicyData(),
-  );
+  readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group({
+    disableSend: false,
+    whoCanAccess: WhoCanAccessType.Any,
+    allowedDomains: null,
+    disableHideEmail: false,
+    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    deletionHours: null,
+  });
   readonly allowedSendTypesMultiSelectControl = new FormControl<
     (SelectItemView & { value: SendType })[]
   >([], { validators: [Validators.required] });
