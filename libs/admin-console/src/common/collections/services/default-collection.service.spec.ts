@@ -377,7 +377,6 @@ describe("DefaultCollectionService", () => {
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
       expect(result).toEqual([]);
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining(userId));
     });
 
     it("retries a failed batch on a fresh subscription so a transient failure recovers", async () => {

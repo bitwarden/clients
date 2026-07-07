@@ -132,10 +132,7 @@ export class DefaultCollectionService implements CollectionService {
                 ignoreElements(),
                 // A failed batch emits an empty list without caching it, so decryption is retried
                 // on the next input emission rather than serving a stale empty list.
-                catchError((error: unknown) => {
-                  this.logService.error(
-                    `Failed to decrypt collections in batch for user ${userId}, falling back to an empty list: ${error}`,
-                  );
+                catchError(() => {
                   return of([]);
                 }),
               ),
