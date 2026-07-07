@@ -2792,12 +2792,6 @@
   "unlockWithMasterPassword": {
     "message": "Unlock with master password"
   },
-  "awaitDesktop": {
-    "message": "Awaiting confirmation from desktop"
-  },
-  "awaitDesktopDesc": {
-    "message": "Please confirm using biometrics in the Bitwarden desktop application to set up biometrics for browser."
-  },
   "lockWithMasterPassOnRestart": {
     "message": "Lock with master password on browser restart"
   },
@@ -6061,9 +6055,6 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
-  "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
-  },
   "authenticating": {
     "message": "Authenticating"
   },
@@ -6750,6 +6741,18 @@
   },
   "sharedUnlockDescriptionFirefox": {
     "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
+  "newPermissionNeeded": {
+    "message": "New permission needed"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+  },
+  "biometricPermissionDesc": {
+    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "enterMonth": {
     "message": "Enter month."

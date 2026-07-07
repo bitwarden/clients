@@ -433,6 +433,11 @@ export default class RuntimeBackground {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
       }
+      case "reloadExtension":
+        // Extension reload has to happen in the background context, since we first have
+        // to close all popups and popouts, then reload.
+        await BrowserApi.reloadExtension();
+        break;
     }
   }
 
