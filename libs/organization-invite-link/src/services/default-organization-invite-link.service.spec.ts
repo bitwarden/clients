@@ -225,7 +225,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
       apiService.refresh.mockResolvedValue(response);
 
-      await firstValueFrom(sut.refreshInviteLink(mockUserId, mockOrgId));
+      await sut.refreshInviteLink(mockUserId, mockOrgId);
 
       expect(inviteLinkClient.make_invite).toHaveBeenCalledWith(mockOrgId);
       expect(apiService.refresh).toHaveBeenCalledWith(
@@ -247,7 +247,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
         throw new Error("sdk crypto failure");
       });
 
-      await expect(firstValueFrom(sut.refreshInviteLink(mockUserId, mockOrgId))).rejects.toThrow(
+      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
         "sdk crypto failure",
       );
     });

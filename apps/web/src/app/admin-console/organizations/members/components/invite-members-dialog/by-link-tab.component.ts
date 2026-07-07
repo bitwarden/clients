@@ -187,7 +187,7 @@ export class ByLinkTabComponent {
 
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
-    await firstValueFrom(this.inviteLinkService.refreshInviteLink(userId, this.organizationId()));
+    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId());
 
     this.toastService.showToast({
       variant: "success",

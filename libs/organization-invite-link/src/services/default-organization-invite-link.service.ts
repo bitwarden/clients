@@ -68,17 +68,14 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
-  refreshInviteLink(userId: UserId, orgId: OrganizationId): Observable<void> {
-    return this.generateEncryptedKey(userId, orgId).pipe(
-      switchMap(({ invite }) => {
-        const request = new OrganizationInviteLinkRefreshRequest({
-          invite,
-          supportsConfirmation: true,
-        });
-        return this.apiService.refresh(orgId, request);
-      }),
-      switchMap((response) => this.upsert(userId, new OrganizationInviteLink(response))),
-    );
+  async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
+    const { invite } = await firstValueFrom(this.generateEncryptedKey(userId, orgId));
+    const request = new OrganizationInviteLinkRefreshRequest({
+      invite,
+      supportsConfirmation: true,
+    });
+    const response = await this.apiService.refresh(orgId, request);
+    await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
   reconstructUrl(
