@@ -76,7 +76,6 @@ export default {
   args: {
     size: "base",
     showTrailingArrow: false,
-    show: 4,
   },
   argTypes: {
     breadcrumbs: {
@@ -90,7 +89,7 @@ export default {
       control: { type: "boolean" },
     },
     show: {
-      control: { type: "number" },
+      table: { disable: true },
     },
   },
 } as Meta;
@@ -191,4 +190,29 @@ export const WithTrailingArrow: Story = {
   args: {
     showTrailingArrow: true,
   },
+};
+
+/**
+ * Breadcrumb overflow is width-driven: as the container narrows, the middle crumbs
+ * collapse into the "More" menu while the first (root) and last (current page) crumbs
+ * stay anchored. At very small widths the root collapses too, and finally the current
+ * page truncates. Drag the container's resize handle (bottom-right) to see it adapt.
+ */
+export const ResponsiveOverflow: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-resize-x tw-overflow-auto tw-rounded tw-border tw-border-solid tw-border-secondary-300 tw-p-3" style="width: 600px; max-width: 100%;">
+        <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+          <bit-breadcrumb route="/vault">Single sign-on</bit-breadcrumb>
+          <bit-breadcrumb route="/acme-corp">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/groups">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/members">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/items">Page name</bit-breadcrumb>
+          <bit-breadcrumb route="/settings">Configure SSO</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </div>
+      <router-outlet/>
+    `,
+  }),
 };

@@ -1,13 +1,26 @@
 <ng-template #arrow>
   <bit-icon
     name="bwi-angle-right"
-    class="tw-text-fg-body"
-    [class]="size() === 'small' ? 'tw-text-sm tw-mt-1 tw-mx-2' : 'tw-text-xl tw-mt-0.5 tw-mx-3'"
+    class="tw-shrink-0 tw-text-fg-body"
+    [class]="size() === 'small' ? 'tw-text-md tw-mx-2' : 'tw-text-xl tw-mx-3'"
   />
 </ng-template>
 
-<ng-template #breadcrumbLink let-breadcrumb="breadcrumb">
-  @if (!breadcrumb.isActiveRoute()) {
+<!--
+  Renders a single breadcrumb: the active/current page as static text (with
+  aria-current), a routed crumb as a link, or a click-only crumb as a button.
+-->
+<ng-template #crumb let-breadcrumb="breadcrumb">
+  @if (breadcrumb.isActiveRoute()) {
+    <span
+      [class]="activeBreadcrumbStyles"
+      [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+      aria-current="page"
+      tabindex="0"
+    >
+      <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+    </span>
+  } @else if (breadcrumb.route()) {
     <a
       [class]="breadcrumbStyles"
       [routerLink]="breadcrumb.route()"
@@ -18,86 +31,84 @@
       <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
     </a>
   } @else {
-    <span
-      [class]="activeBreadcrumbStyles"
+    <button
+      type="button"
+      [class]="breadcrumbStyles"
+      (click)="breadcrumb.onClick($event)"
       [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
-      aria-current="page"
-      tabindex="0"
     >
       <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-    </span>
+    </button>
   }
 </ng-template>
 
-<ng-template #breadcrumbButton let-breadcrumb="breadcrumb">
-  <button
-    type="button"
-    [class]="breadcrumbStyles"
-    (click)="breadcrumb.onClick($event)"
-    [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
-  >
-    <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-  </button>
-</ng-template>
-
-<ng-template #breadcrumbLinkOrButton let-breadcrumb="breadcrumb">
-  @if (breadcrumb.route()) {
-    <ng-container [ngTemplateOutlet]="breadcrumbLink" [ngTemplateOutletContext]="{ breadcrumb }" />
-  } @else {
-    <ng-container
-      [ngTemplateOutlet]="breadcrumbButton"
-      [ngTemplateOutletContext]="{ breadcrumb }"
-    />
-  }
-</ng-template>
-
-@for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
-  <ng-container
-    [ngTemplateOutlet]="breadcrumbLinkOrButton"
-    [ngTemplateOutletContext]="{ breadcrumb }"
-  ></ng-container>
-  @if (!last) {
-    <ng-container [ngTemplateOutlet]="arrow" />
-  }
-}
-
-@if (hasOverflow()) {
-  @if (beforeOverflow().length > 0) {
-    <ng-container [ngTemplateOutlet]="arrow" />
-  }
-  <button
-    type="button"
-    bitIconButton="bwi-ellipsis-h"
-    [bitMenuTriggerFor]="overflowMenu"
-    size="small"
-    [label]="'moreBreadcrumbs' | i18n"
-  ></button>
-  <bit-menu #overflowMenu>
-    @for (breadcrumb of overflow(); track breadcrumb) {
-      @if (breadcrumb.route(); as route) {
-        <a
-          bitMenuItem
-          [routerLink]="route"
-          [queryParams]="breadcrumb.queryParams()"
-          [queryParamsHandling]="breadcrumb.queryParamsHandling()"
-        >
-          <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-        </a>
-      } @else {
-        <button type="button" bitMenuItem (click)="breadcrumb.onClick($event)">
-          <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
-        </button>
+<!--
+  The overflow list packs breadcrumbs with the "middle" strategy: the first and
+  last (current page) crumbs stay anchored while the run between them collapses
+  into the "More" menu. Separators live inside each item/trigger so they hide in
+  place along with their owner. The trigger sits right after the first crumb, so
+  a collapsed trail renders as `First > … > survivors > Current`.
+-->
+<div
+  bitOverflowList
+  strategy="middle"
+  #ovf="bitOverflowList"
+  [containerWidth]="availableWidth()"
+  class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-nowrap tw-items-center tw-overflow-hidden"
+  [class.tw-invisible]="!ovf.ready()"
+>
+  @for (breadcrumb of breadcrumbs(); track breadcrumb; let i = $index; let first = $first) {
+    <span bitOverflowItem class="tw-flex tw-shrink-0 tw-items-center">
+      @if (!first) {
+        <ng-container [ngTemplateOutlet]="arrow" />
       }
+      <!--
+        Only stamp the crumb's projected content when it's displayed. Overflowed
+        crumbs render their content in the menu instead; a breadcrumb's `content()`
+        uses `<ng-content>`, which can only project into one location at a time, so
+        stamping it in both the row and the menu would blank one of them.
+      -->
+      @if (ovf.displayed().includes(i)) {
+        <ng-container [ngTemplateOutlet]="crumb" [ngTemplateOutletContext]="{ breadcrumb }" />
+      }
+    </span>
+
+    @if (first) {
+      <span bitOverflowTrigger class="tw-flex tw-shrink-0 tw-items-center">
+        @if (ovf.displayed().includes(0)) {
+          <ng-container [ngTemplateOutlet]="arrow" />
+        }
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-h"
+          [bitMenuTriggerFor]="overflowMenu"
+          size="small"
+          [label]="'moreBreadcrumbs' | i18n"
+        ></button>
+      </span>
     }
-  </bit-menu>
-  <ng-container [ngTemplateOutlet]="arrow" />
-  @if (afterOverflow(); as breadcrumb) {
-    <ng-container
-      [ngTemplateOutlet]="breadcrumbLinkOrButton"
-      [ngTemplateOutletContext]="{ breadcrumb }"
-    ></ng-container>
   }
-}
+</div>
+
+<bit-menu #overflowMenu>
+  @for (i of ovf.overflow(); track i) {
+    @let breadcrumb = breadcrumbs()[i];
+    @if (breadcrumb.route(); as route) {
+      <a
+        bitMenuItem
+        [routerLink]="route"
+        [queryParams]="breadcrumb.queryParams()"
+        [queryParamsHandling]="breadcrumb.queryParamsHandling()"
+      >
+        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+      </a>
+    } @else {
+      <button type="button" bitMenuItem (click)="breadcrumb.onClick($event)">
+        <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+      </button>
+    }
+  }
+</bit-menu>
 
 @if (showTrailingArrow()) {
   <ng-container [ngTemplateOutlet]="arrow" />
