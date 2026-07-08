@@ -3,13 +3,13 @@ import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BannerModule, TypographyModule } from "@bitwarden/components";
+import { BannerModule } from "@bitwarden/components";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BannerModule, CommonModule, JslibModule, TypographyModule],
+  imports: [BannerModule, CommonModule, JslibModule],
   selector: "fill-assist-active-banner",
   templateUrl: "fill-assist-active-banner.component.html",
 })
