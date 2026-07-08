@@ -288,12 +288,17 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        service.updateUser(mockOrganization, mockUserId, request).subscribe({
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = true;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
             expect(encryptService.encryptString).not.toHaveBeenCalled();
             expect(request.defaultUserCollectionName).toBeUndefined();
             expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
-              mockOrganization.id,
+              org.id,
               mockUserId,
               request,
             );
@@ -305,7 +310,7 @@ describe("DefaultOrganizationUserService", () => {
     );
 
     it.each([OrganizationUserType.User, OrganizationUserType.Custom])(
-      "should encrypt the default collection name and include it in the request for non-exempt type %s",
+      "should encrypt the default collection name and include it in the request for non-exempt type %s when useMyItems and usePolicies are enabled",
       (userType, done: jest.DoneCallback) => {
         setupCommonMocks();
         const request = new OrganizationUserUpdateRequest({
@@ -313,7 +318,12 @@ describe("DefaultOrganizationUserService", () => {
           permissions: mockPermissions,
         });
 
-        service.updateUser(mockOrganization, mockUserId, request).subscribe({
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = true;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
           next: () => {
             expect(i18nService.t).toHaveBeenCalledWith("myItems");
             expect(encryptService.encryptString).toHaveBeenCalledWith(
@@ -324,7 +334,36 @@ describe("DefaultOrganizationUserService", () => {
               mockEncryptedCollectionName.encryptedString,
             );
             expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
-              mockOrganization.id,
+              org.id,
+              mockUserId,
+              request,
+            );
+            done();
+          },
+          error: done,
+        });
+      },
+    );
+
+    it.each([OrganizationUserType.User, OrganizationUserType.Custom])(
+      "should not encrypt the default collection name for non-exempt type %s when useMyItems or usePolicies is disabled",
+      (userType, done: jest.DoneCallback) => {
+        const request = new OrganizationUserUpdateRequest({
+          type: userType,
+          permissions: mockPermissions,
+        });
+
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = false;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
+          next: () => {
+            expect(encryptService.encryptString).not.toHaveBeenCalled();
+            expect(request.defaultUserCollectionName).toBeUndefined();
+            expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
+              org.id,
               mockUserId,
               request,
             );

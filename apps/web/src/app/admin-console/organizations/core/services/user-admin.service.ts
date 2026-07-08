@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import {
   OrganizationUserApiService,
@@ -7,10 +7,7 @@ import {
   OrganizationUserService,
   OrganizationUserUpdateRequest,
 } from "@bitwarden/admin-console/common";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { getById } from "@bitwarden/common/platform/misc";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 
 import { CoreOrganizationModule } from "../core-organization.module";
@@ -21,8 +18,6 @@ export class UserAdminService {
   constructor(
     private organizationUserApiService: OrganizationUserApiService,
     private organizationUserService: OrganizationUserService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {}
 
   async get(
@@ -46,7 +41,7 @@ export class UserAdminService {
 
   // TODO: Remove this wrapper once MemberDialogComponent (the old dialog) is deleted.
   // Callers should use saveV2() directly with an OrganizationUserUpdateRequest.
-  async save(userView: OrganizationUserAdminView): Promise<void> {
+  async save(userView: OrganizationUserAdminView, organization: Organization): Promise<void> {
     const request = new OrganizationUserUpdateRequest({
       type: userView.type,
       permissions: userView.permissions,
@@ -55,27 +50,16 @@ export class UserAdminService {
       accessSecretsManager: userView.accessSecretsManager,
     });
 
-    await this.saveV2(request, userView.id, userView.organizationId);
+    await this.saveV2(request, userView.id, organization);
   }
 
   async saveV2(
     request: OrganizationUserUpdateRequest,
-    userId: Guid,
-    organizationId: OrganizationId,
+    organizationUserId: Guid,
+    organization: Organization,
   ): Promise<void> {
     await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        getUserId,
-        switchMap((activeUserId) => this.organizationService.organizations$(activeUserId)),
-        getById(organizationId),
-        switchMap((organization) => {
-          if (organization == null) {
-            throw new Error("Organization not found");
-          }
-
-          return this.organizationUserService.updateUser(organization, userId, request);
-        }),
-      ),
+      this.organizationUserService.updateUser(organization, organizationUserId, request),
     );
   }
 

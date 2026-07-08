@@ -129,7 +129,10 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
     const exempt =
       request.type === OrganizationUserType.Owner || request.type === OrganizationUserType.Admin;
 
-    if (exempt) {
+    const shouldSetDefaultCollection =
+      !exempt && organization.useMyItems && organization.usePolicies;
+
+    if (!shouldSetDefaultCollection) {
       return from(
         this.organizationUserApiService.putOrganizationUser(organization.id, userId, request),
       );
