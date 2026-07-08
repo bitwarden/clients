@@ -240,6 +240,8 @@ export class EditMemberDialogComponent {
       ),
     );
 
+    let formInitialized = false;
+
     combineLatest({
       organization: this.organization$,
       collections: collections$,
@@ -277,8 +279,13 @@ export class EditMemberDialogComponent {
           return;
         }
 
-        this.loadOrganizationUser(userDetails, groups, collections, organization);
-        this.loading.set(false);
+        // Only patch the form on first load — subsequent emissions update the item list
+        // (collectionAccessItems) but must not overwrite user-made permission changes.
+        if (!formInitialized) {
+          formInitialized = true;
+          this.loadOrganizationUser(userDetails, groups, collections, organization);
+          this.loading.set(false);
+        }
       });
   }
 
