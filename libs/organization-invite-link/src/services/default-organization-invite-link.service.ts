@@ -57,6 +57,9 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     allowedDomains: string[],
   ): Promise<void> {
+    if (allowedDomains.length === 0) {
+      throw new Error("At least one allowed domain is required.");
+    }
     const request = new OrganizationInviteLinkUpdateRequest({
       allowedDomains,
     });
@@ -67,7 +70,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   async refreshInviteLink(
     userId: UserId,
     orgId: OrganizationId,
-    supportsConfirmation: boolean = false,
+    supportsConfirmation: boolean,
   ): Promise<void> {
     const invite = await firstValueFrom(this.makeInvite(userId, orgId));
     const request = new OrganizationInviteLinkRefreshRequest({

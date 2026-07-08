@@ -193,15 +193,15 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
   });
 
-  describe("updateInviteLink", () => {
-    it("calls apiService.update with new domains and caches result", async () => {
+  describe("updateAllowedDomains", () => {
+    it("calls apiService.updateAllowedDomains with new domains and caches result", async () => {
       const response = makeResponseModel({ allowedDomains: ["updated.com"] });
-      apiService.update.mockResolvedValue(response);
+      apiService.updateAllowedDomains.mockResolvedValue(response);
 
-      await sut.updateInviteLink(mockUserId, mockOrgId, ["updated.com"], false);
+      await sut.updateAllowedDomains(mockUserId, mockOrgId, ["updated.com"]);
 
       expect(inviteLinkClient.make_invite).not.toHaveBeenCalled();
-      expect(apiService.update).toHaveBeenCalledWith(
+      expect(apiService.updateAllowedDomains).toHaveBeenCalledWith(
         mockOrgId,
         expect.objectContaining({ allowedDomains: ["updated.com"] }),
       );
@@ -214,7 +214,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
     });
 
     it("throws when no domains are provided", async () => {
-      await expect(sut.updateInviteLink(mockUserId, mockOrgId, [], false)).rejects.toThrow(
+      await expect(sut.updateAllowedDomains(mockUserId, mockOrgId, [])).rejects.toThrow(
         "At least one allowed domain is required.",
       );
     });
