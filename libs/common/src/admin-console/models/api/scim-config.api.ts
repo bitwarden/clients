@@ -6,6 +6,7 @@ import { ScimProviderType } from "../../enums";
 export class ScimConfigApi extends BaseResponse {
   enabled: boolean;
   scimProvider: ScimProviderType;
+  inviteUsersAfterProvisioning: boolean | null;
 
   constructor(data: any) {
     super(data);
@@ -14,5 +15,6 @@ export class ScimConfigApi extends BaseResponse {
     }
     this.enabled = this.getResponseProperty("Enabled");
     this.scimProvider = this.getResponseProperty("ScimProvider");
+    this.inviteUsersAfterProvisioning = this.getResponseProperty("InviteUsersAfterProvisioning");
   }
 }

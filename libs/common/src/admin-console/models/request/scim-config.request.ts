@@ -5,6 +5,7 @@ import { ScimProviderType } from "../../enums";
 export class ScimConfigRequest {
   constructor(
     private enabled: boolean,
-    private scimProvider: ScimProviderType = null,
+    private scimProvider: ScimProviderType | null = null,
+    private inviteUsersAfterProvisioning: boolean = true,
   ) {}
 }
