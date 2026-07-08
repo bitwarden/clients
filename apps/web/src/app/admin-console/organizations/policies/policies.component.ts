@@ -91,12 +91,17 @@ export class PoliciesComponent {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
+  private readonly policyEditDefinitionsDict = Object.fromEntries(
+    this.policyListService.getPolicies().map((p) => [p.type, p]),
+  ) as Record<PolicyType, BasePolicyEditDefinition>;
+
   protected readonly policiesEnabledMap$: Observable<Map<PolicyType, boolean>> =
     this.orgPolicies$.pipe(
       map((orgPolicies) => {
         const policiesEnabledMap: Map<PolicyType, boolean> = new Map<PolicyType, boolean>();
         orgPolicies.forEach((op) => {
-          policiesEnabledMap.set(op.type, op.enabled);
+          const showEnabled = this.policyEditDefinitionsDict[op.type]?.enabled(op) ?? op.enabled;
+          policiesEnabledMap.set(op.type, showEnabled);
         });
         return policiesEnabledMap;
       }),
