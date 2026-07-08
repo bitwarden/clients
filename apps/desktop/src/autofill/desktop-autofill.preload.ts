@@ -1,21 +1,17 @@
 import { ipcRenderer } from "electron";
 
 import type { autofill } from "@bitwarden/desktop-napi";
+type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
+type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
+type PasskeyAssertionWithoutUserInterfaceRequest =
+  autofill.PasskeyAssertionWithoutUserInterfaceRequest;
+type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
+type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
+type NativeStatus = autofill.NativeStatus;
 
 import { RunCommandParams, RunCommandResult } from "./main/main-desktop-autofill.service";
 import { AutofillCommand } from "./models/autofill-command";
-
-type CompletionCallback<T> = {
-  (error: null, response: T): void;
-  (error: Error, response: null): void;
-};
-
-type IpcListener<Request, Response> = (
-  clientId: number,
-  sequenceNumber: number,
-  request: Request,
-  completeCallback: CompletionCallback<Response>,
-) => void;
+import { CompletionCallback, IpcListener } from "./models/ipc-handler.type";
 
 export const DesktopAutofillPreload = {
   runCommand: <C extends AutofillCommand>(
@@ -24,125 +20,57 @@ export const DesktopAutofillPreload = {
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
-  listenPasskeyRegistration: (
-    fn: IpcListener<autofill.PasskeyRegistrationRequest, autofill.PasskeyRegistrationResponse>,
-  ) => {
-    ipcRenderer.on(
-      "autofill.passkeyRegistration",
-      (
-        event,
-        data: {
-          clientId: number;
-          sequenceNumber: number;
-          request: autofill.PasskeyRegistrationRequest;
-        },
-      ) => {
-        const { clientId, sequenceNumber, request } = data;
-        fn(clientId, sequenceNumber, request, (error, response) => {
-          if (error) {
-            ipcRenderer.send("autofill.completeError", {
-              clientId,
-              sequenceNumber,
-              error: error.message,
-            });
-            return;
-          }
+  listenPasskeyRegistration: makeListener<PasskeyRegistrationRequest, PasskeyRegistrationResponse>(
+    "autofill.passkeyRegistration",
+    "autofill.completePasskeyRegistration",
+  ),
 
-          ipcRenderer.send("autofill.completePasskeyRegistration", {
-            clientId,
-            sequenceNumber,
-            response,
-          });
-        });
-      },
-    );
-  },
+  listenPasskeyAssertion: makeListener<PasskeyAssertionRequest, PasskeyAssertionResponse>(
+    "autofill.passkeyAssertion",
+    "autofill.completePasskeyAssertion",
+  ),
 
-  listenPasskeyAssertion: (
-    fn: IpcListener<autofill.PasskeyAssertionRequest, autofill.PasskeyAssertionResponse>,
-  ) => {
-    ipcRenderer.on(
-      "autofill.passkeyAssertion",
-      (
-        event,
-        data: {
-          clientId: number;
-          sequenceNumber: number;
-          request: autofill.PasskeyAssertionRequest;
-        },
-      ) => {
-        const { clientId, sequenceNumber, request } = data;
-        fn(clientId, sequenceNumber, request, (error, response) => {
-          if (error) {
-            ipcRenderer.send("autofill.completeError", {
-              clientId,
-              sequenceNumber,
-              error: error.message,
-            });
-            return;
-          }
+  listenPasskeyAssertionWithoutUserInterface: makeListener<
+    PasskeyAssertionWithoutUserInterfaceRequest,
+    PasskeyAssertionResponse
+  >("autofill.passkeyAssertionWithoutUserInterface", "autofill.completePasskeyAssertion"),
 
-          ipcRenderer.send("autofill.completePasskeyAssertion", {
-            clientId,
-            sequenceNumber,
-            response,
-          });
-        });
-      },
-    );
-  },
-  listenPasskeyAssertionWithoutUserInterface: (
-    fn: IpcListener<
-      autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-      autofill.PasskeyAssertionResponse
-    >,
-  ) => {
-    ipcRenderer.on(
-      "autofill.passkeyAssertionWithoutUserInterface",
-      (
-        event,
-        data: {
-          clientId: number;
-          sequenceNumber: number;
-          request: autofill.PasskeyAssertionWithoutUserInterfaceRequest;
-        },
-      ) => {
-        const { clientId, sequenceNumber, request } = data;
-        fn(clientId, sequenceNumber, request, (error, response) => {
-          if (error) {
-            ipcRenderer.send("autofill.completeError", {
-              clientId,
-              sequenceNumber,
-              error: error.message,
-            });
-            return;
-          }
-
-          ipcRenderer.send("autofill.completePasskeyAssertion", {
-            clientId,
-            sequenceNumber,
-            response,
-          });
-        });
-      },
-    );
-  },
-  listenNativeStatus: (
-    fn: (clientId: number, sequenceNumber: number, request: autofill.NativeStatus) => void,
-  ) => {
-    ipcRenderer.on(
-      "autofill.nativeStatus",
-      (
-        event,
-        data: {
-          clientId: number;
-          sequenceNumber: number;
-          request: autofill.NativeStatus;
-        },
-      ) => {
-        const { clientId, sequenceNumber, request } = data;
-        fn(clientId, sequenceNumber, request);
-      },
-    );
-  },
+  listenNativeStatus: makeListener<NativeStatus, void>("autofill.nativeStatus"),
 };
+
+function makeListener<Request, Response>(incomingChannel: string, outgoingChannel?: string) {
+  return (fn: IpcListener<Request, Response>) => {
+    ipcRenderer.on(
+      incomingChannel,
+      (
+        _event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: Request;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        const completeCallback: CompletionCallback<Response> | undefined = outgoingChannel
+          ? (error, response) => {
+              if (error) {
+                ipcRenderer.send("autofill.completeError", {
+                  clientId,
+                  sequenceNumber,
+                  error: error.message,
+                });
+                return;
+              }
+
+              ipcRenderer.send(outgoingChannel, {
+                clientId,
+                sequenceNumber,
+                response,
+              });
+            }
+          : undefined;
+        fn(clientId, sequenceNumber, request, completeCallback);
+      },
+    );
+  };
+}

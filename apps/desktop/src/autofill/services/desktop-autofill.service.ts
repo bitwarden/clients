@@ -219,8 +219,14 @@ export class DesktopAutofillService implements OnDestroy {
           this.logService.debug(
             `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
           );
-          callback(new Error("Native credential sync feature flag is disabled"), null);
+          if (callback) {
+            callback(new Error("Native credential sync feature flag is disabled"), null);
+          }
           return;
+        }
+
+        if (!callback) {
+          throw new Error("No callback specified to return passkey registration response");
         }
 
         this.registrationRequest = request;
@@ -260,8 +266,14 @@ export class DesktopAutofillService implements OnDestroy {
           this.logService.debug(
             `listenPasskeyAssertionWithoutUserInterface: Native credential sync feature flag (${this.featureFlag}) is disabled`,
           );
-          callback(new Error("Native credential sync feature flag is disabled"), null);
+          if (callback) {
+            callback(new Error("Native credential sync feature flag is disabled"), null);
+          }
           return;
+        }
+
+        if (!callback) {
+          throw new Error("No callback specified to return passkey assertion response");
         }
 
         this.logService.debug(
@@ -302,8 +314,14 @@ export class DesktopAutofillService implements OnDestroy {
           this.logService.debug(
             `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
           );
-          callback(new Error("Native credential sync feature flag is disabled"), null);
+          if (callback) {
+            callback(new Error("Native credential sync feature flag is disabled"), null);
+          }
           return;
+        }
+
+        if (!callback) {
+          throw new Error("No callback specified to return passkey assertion response");
         }
 
         this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
