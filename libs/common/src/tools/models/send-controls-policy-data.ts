@@ -12,6 +12,8 @@ export class SendControlsPolicyData {
   allowedDomains: string | null = null;
   /** When true prevent users from creating Sends with their email hidden */
   disableHideEmail: boolean = false;
+  /** Specify the deletion interval that new Sends must have when created */
+  deletionHours: number | null = null;
   /** Specify which types of Sends can be created */
   allowedSendTypes: SendType[] = [SendType.Text, SendType.File];
 }

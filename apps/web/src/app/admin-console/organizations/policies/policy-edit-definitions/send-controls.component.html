@@ -4,7 +4,7 @@
 </bit-form-control>
 
 <div [formGroup]="data">
-  <bit-hint class="tw-mt-4 tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
+  <bit-hint class="tw-mb-2">{{ "sendControlsEnableDescription" | i18n }}</bit-hint>
   <bit-radio-group formControlName="disableSend" [block]="true">
     <bit-radio-button [value]="false">
       <bit-label>{{ "allow" | i18n }}</bit-label>
@@ -38,6 +38,20 @@
       </bit-form-field>
     }
     <bit-hint class="tw-mb-2">{{ "additionalOptions" | i18n }}</bit-hint>
+    <bit-form-control>
+      <bit-label>{{ "enforceDeletionDate" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox [formControl]="showDeletionHours" />
+    </bit-form-control>
+    @if (showDeletionHours.value) {
+      <bit-form-field>
+        <bit-label>{{ "sendDeletionDate" | i18n }}</bit-label>
+        <bit-select formControlName="deletionHours">
+          @for (option of deletionHoursOptions; track option.value) {
+            <bit-option [value]="option.value" [label]="option.label"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    }
     <bit-form-control disableMargin>
       <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
       <bit-label>{{ "sendControlHideEmailDescription" | i18n }}</bit-label>
