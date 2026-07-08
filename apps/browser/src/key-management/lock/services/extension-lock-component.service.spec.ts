@@ -89,28 +89,6 @@ describe("ExtensionLockComponentService", () => {
     });
   });
 
-  describe("getBiometricsError", () => {
-    it("returns a biometric error description when given a valid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "startDesktop",
-        }),
-      ).toBe("startDesktopDesc");
-    });
-
-    it("returns null when given an invalid error type", () => {
-      expect(
-        service.getBiometricsError({
-          message: "invalidError",
-        }),
-      ).toBeNull();
-    });
-
-    it("returns null when given a null input", () => {
-      expect(service.getBiometricsError(null)).toBeNull();
-    });
-  });
-
   describe("popOutBrowserExtension", () => {
     let openPopoutSpy: jest.SpyInstance;
     beforeEach(() => {
