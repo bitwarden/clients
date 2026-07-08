@@ -80,13 +80,6 @@ export class BreadcrumbsComponent {
   );
 
   /**
-   * @deprecated Breadcrumb overflow is now width-driven — breadcrumbs collapse into the
-   * "More" menu when they don't fit the available space, regardless of count. This input
-   * is ignored and will be removed. See {@link OverflowListDirective}.
-   */
-  readonly show = input(4);
-
-  /**
    * The size of the breadcrumb text and icons. Defaults to "base" size.
    */
   readonly size = input<"small" | "base">("base");

@@ -96,9 +96,6 @@ export default {
     showTrailingArrow: {
       control: { type: "boolean" },
     },
-    show: {
-      table: { disable: true },
-    },
   },
 } as Meta;
 
