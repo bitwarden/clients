@@ -52,17 +52,15 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 
-  async updateInviteLink(
+  async updateAllowedDomains(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomains: string[],
-    supportsConfirmation: boolean,
   ): Promise<void> {
     const request = new OrganizationInviteLinkUpdateRequest({
       allowedDomains,
-      supportsConfirmation,
     });
-    const response = await this.apiService.update(orgId, request);
+    const response = await this.apiService.updateAllowedDomains(orgId, request);
     await this.upsert(userId, new OrganizationInviteLink(response));
   }
 

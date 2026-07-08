@@ -150,10 +150,10 @@ export class ByLinkTabComponent {
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
     if (inviteLink) {
-      // TODO: Milestone 3: determine supportsConfirmation from the state of the
-      // "require admin confirmation" toggle switch TBD
-      await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains, false);
+      await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
     } else {
+      // TODO: Determine supportsConfirmation from the state of the "require admin confirmation"
+      // toggle switch in milestone 3
       await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains, false);
     }
 

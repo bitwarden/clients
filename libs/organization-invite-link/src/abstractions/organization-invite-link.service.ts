@@ -25,11 +25,10 @@ export abstract class OrganizationInviteLinkService {
   /**
    * Update the allowed domains on an existing invite link.
    */
-  abstract updateInviteLink(
+  abstract updateAllowedDomains(
     userId: UserId,
     orgId: OrganizationId,
     allowedDomain: string[],
-    supportsConfirmation: boolean,
   ): Promise<void>;
 
   /**
