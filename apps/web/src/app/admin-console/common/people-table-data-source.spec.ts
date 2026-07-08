@@ -7,7 +7,7 @@ import {
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
-import { PeopleTableDataSource } from "./people-table-data-source";
+import { PeopleTableDataSource, peopleFilter } from "./people-table-data-source";
 
 interface MockUser {
   id: string;
@@ -109,6 +109,8 @@ describe("PeopleTableDataSource", () => {
         { ...createMockUser("5"), status: OrganizationUserStatusType.Confirmed },
         { ...createMockUser("6"), status: OrganizationUserStatusType.Confirmed },
         { ...createMockUser("7"), status: OrganizationUserStatusType.Revoked },
+        { ...createMockUser("8"), status: OrganizationUserStatusType.Staged },
+        { ...createMockUser("9"), status: OrganizationUserStatusType.Staged },
       ];
       dataSource.data = users;
 
@@ -116,7 +118,43 @@ describe("PeopleTableDataSource", () => {
       expect(dataSource.acceptedUserCount).toBe(1);
       expect(dataSource.confirmedUserCount).toBe(3);
       expect(dataSource.revokedUserCount).toBe(1);
-      expect(dataSource.activeUserCount).toBe(6); // All except revoked
+      expect(dataSource.stagedUserCount).toBe(2);
+      // All except revoked. Staged users are active and counted here.
+      expect(dataSource.activeUserCount).toBe(8);
+    });
+  });
+
+  describe("peopleFilter status filtering", () => {
+    const userWithStatus = (id: string, status: OrganizationUserStatusType) =>
+      ({ ...createMockUser(id), status }) as any;
+
+    const staged = userWithStatus("1", OrganizationUserStatusType.Staged);
+    const invited = userWithStatus("2", OrganizationUserStatusType.Invited);
+    const confirmed = userWithStatus("3", OrganizationUserStatusType.Confirmed);
+    const revoked = userWithStatus("4", OrganizationUserStatusType.Revoked);
+
+    it("matches only Staged users when filtering by the Staged status", () => {
+      const matchesStaged = peopleFilter("", OrganizationUserStatusType.Staged);
+
+      expect(matchesStaged(staged)).toBe(true);
+      expect(matchesStaged(invited)).toBe(false);
+      expect(matchesStaged(confirmed)).toBe(false);
+      expect(matchesStaged(revoked)).toBe(false);
+    });
+
+    it("requires both the status and the text search to match", () => {
+      // createMockUser("1") => email "user1@example.com"
+      expect(peopleFilter("user1", OrganizationUserStatusType.Staged)(staged)).toBe(true);
+      expect(peopleFilter("nomatch", OrganizationUserStatusType.Staged)(staged)).toBe(false);
+    });
+
+    it("includes Staged in the default 'All' view and excludes only Revoked", () => {
+      const matchesAll = peopleFilter("", undefined);
+
+      expect(matchesAll(staged)).toBe(true);
+      expect(matchesAll(invited)).toBe(true);
+      expect(matchesAll(confirmed)).toBe(true);
+      expect(matchesAll(revoked)).toBe(false);
     });
   });
 });

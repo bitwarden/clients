@@ -1174,7 +1174,6 @@ const safeProviders: SafeProvider[] = [
       InternalPolicyService,
       AuthServiceAbstraction,
       AccountServiceAbstraction,
-      ConfigService,
     ],
   }),
   safeProvider({

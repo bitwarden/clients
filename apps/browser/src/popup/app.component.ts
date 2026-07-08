@@ -110,7 +110,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
-    private readonly destoryRef: DestroyRef,
+    private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private popupSizeService: PopupSizeService,
     private logService: LogService,
@@ -123,7 +123,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   async ngOnInit() {
@@ -162,7 +162,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(
         tap(async (msg: any) => {
           if (msg.command === "doneLoggingOut") {
-            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completeted logout?
+            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completed logout?
             this.authService.logOut(async () => {
               if (msg.logoutReason) {
                 await this.displayLogoutReason(msg.logoutReason);
