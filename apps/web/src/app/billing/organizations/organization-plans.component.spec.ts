@@ -984,6 +984,49 @@ describe("OrganizationPlansComponent", () => {
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
 
+    it("defaults the create request to the in-product initiation path", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.NewOrganizationCreationInProduct,
+        }),
+      );
+    });
+
+    it("sends the provided initiation path on the create request", async () => {
+      fixture.componentRef.setInput(
+        "initiationPath",
+        InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+      );
+
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+        }),
+      );
+    });
+
     it("should emit onSuccess after successful creation", async () => {
       const onSuccessSpy = jest.spyOn(component.onSuccess, "emit");
 

@@ -135,6 +135,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
   readonly trialLength = input<number | undefined>(undefined);
 
+  /** Marketing-vs-product origin recorded on the create request; drives Stripe's trialInitiationPath metadata. */
+  readonly initiationPath = input<InitiationPath>(InitiationPath.NewOrganizationCreationInProduct);
+
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -1050,7 +1053,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     );
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
-    request.initiationPath = "New organization creation in-product";
+    request.initiationPath = this.initiationPath();
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;

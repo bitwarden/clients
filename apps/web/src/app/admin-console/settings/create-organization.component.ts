@@ -27,6 +27,7 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected plan: PlanType = PlanType.Free;
   protected productTier: ProductTierType = ProductTierType.Free;
   protected trialLength?: number;
+  protected initiationPath: InitiationPath = InitiationPath.NewOrganizationCreationInProduct;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -57,6 +58,15 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
       this.secretsManager = qParams.product == ProductType.SecretsManager;
 
       this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : undefined;
+
+      // A `product` query param is only present when the user arrives from the marketing
+      // deep link (in-product navigations to this page are param-less), so treat its presence
+      // as a marketing-initiated trial. The server maps this onto Stripe's trialInitiationPath.
+      if (qParams.product != null) {
+        this.initiationPath = this.secretsManager
+          ? InitiationPath.SecretsManagerTrialFromMarketingWebsite
+          : InitiationPath.PasswordManagerTrialFromMarketingWebsite;
+      }
     });
   }
 
