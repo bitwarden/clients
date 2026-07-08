@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -40,7 +41,14 @@ describe("NewSendDropdownV2Component", () => {
         { provide: AccountService, useValue: accountService },
         { provide: PremiumUpgradePromptService, useValue: premiumUpgradeService },
         { provide: I18nService, useValue: i18nService },
-        { provide: ConfigService, useValue: configService },
+        { provide: PolicyService, useValue: mock<PolicyService>() },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: () => of(false),
+            getFeatureFlag: () => Promise.resolve(false),
+          },
+        },
       ],
     }).compileComponents();
 
