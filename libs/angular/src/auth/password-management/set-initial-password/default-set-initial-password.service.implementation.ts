@@ -538,7 +538,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
    * which handles both JIT MP and TDE + Permission user flows.
    *
    * Since these methods can handle the JIT MP flow - which creates a new user key and sets it to state - we
-   * must retreive that user key here in this method.
+   * must retrieve that user key here in this method.
    *
    * But the new handleResetPasswordAutoEnroll() method is only used in the TDE + Permission user case, in which
    * case we already have the user key and can simply pass it through via method parameter ( @see handleResetPasswordAutoEnroll )

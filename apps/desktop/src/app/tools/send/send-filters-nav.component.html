@@ -1,29 +1,38 @@
-<bit-nav-group
-  icon="bwi-send"
-  [text]="'send' | i18n"
-  route="send"
-  (click)="selectTypeAndNavigate()"
->
+@if (allowedSendTypes().length > 1) {
+  <bit-nav-group
+    icon="bwi-send"
+    [text]="'send' | i18n"
+    route="send"
+    (click)="selectTypeAndNavigate()"
+  >
+    <bit-nav-item
+      icon="bwi-send"
+      [text]="'allSends' | i18n"
+      (click)="selectTypeAndNavigate(null); $event.stopPropagation()"
+      [forceActiveStyles]="activeSendType() === null"
+    />
+    <bit-nav-item
+      icon="bwi-file-text"
+      [text]="'sendTypeText' | i18n"
+      (click)="selectTypeAndNavigate(SendType.Text); $event.stopPropagation()"
+      [forceActiveStyles]="activeSendType() === SendType.Text"
+    />
+    <bit-nav-item
+      icon="bwi-file"
+      [text]="'sendTypeFile' | i18n"
+      (click)="selectTypeAndNavigate(SendType.File); $event.stopPropagation()"
+      [forceActiveStyles]="activeSendType() === SendType.File"
+    >
+      <ng-container slot="end">
+        <app-premium-badge [iconOnly]="true" />
+      </ng-container>
+    </bit-nav-item>
+  </bit-nav-group>
+} @else {
   <bit-nav-item
     icon="bwi-send"
-    [text]="'allSends' | i18n"
-    (click)="selectTypeAndNavigate(null); $event.stopPropagation()"
-    [forceActiveStyles]="activeSendType() === null"
+    [text]="'send' | i18n"
+    (click)="selectTypeAndNavigate()"
+    route="send"
   />
-  <bit-nav-item
-    icon="bwi-file-text"
-    [text]="'sendTypeText' | i18n"
-    (click)="selectTypeAndNavigate(SendType.Text); $event.stopPropagation()"
-    [forceActiveStyles]="activeSendType() === SendType.Text"
-  />
-  <bit-nav-item
-    icon="bwi-file"
-    [text]="'sendTypeFile' | i18n"
-    (click)="selectTypeAndNavigate(SendType.File); $event.stopPropagation()"
-    [forceActiveStyles]="activeSendType() === SendType.File"
-  >
-    <ng-container slot="end">
-      <app-premium-badge [iconOnly]="true" />
-    </ng-container>
-  </bit-nav-item>
-</bit-nav-group>
+}

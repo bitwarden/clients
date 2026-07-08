@@ -11,7 +11,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 // eslint-disable-next-line @bitwarden/platform/no-enums
 export enum FeatureFlag {
   /* Admin Console Team */
-  BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
@@ -31,6 +30,7 @@ export enum FeatureFlag {
   MacOsNativeCredentialSync = "macos-native-credential-sync",
   EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
+  DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
 
   /* Desktop Native */
   WindowsDesktopAutotype = "windows-desktop-autotype",
@@ -51,7 +51,6 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
-  LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
   // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
   // get to use the feature.
@@ -103,6 +102,7 @@ export enum FeatureFlag {
   PM32016RemoveAtRiskCallout = "pm-32016-remove-at-risk-callout",
   PM37785_VaultBatchBar = "pm-37785-vault-batch-bar",
   PM37785_DesktopVaultBatchBar = "pm-37785-desktop-vault-batch-bar",
+  PM32380_BtnTextAddCreate = "pm-32380-btn-text-add-create",
 
   /* Platform */
   FedRampGovRegion = "fedramp-gov-region",
@@ -132,7 +132,6 @@ const FALSE = false as boolean;
  */
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
-  [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
@@ -143,6 +142,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Desktop Native */
@@ -185,6 +185,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32016RemoveAtRiskCallout]: FALSE,
   [FeatureFlag.PM37785_VaultBatchBar]: FALSE,
   [FeatureFlag.PM37785_DesktopVaultBatchBar]: FALSE,
+  [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
   [FeatureFlag.SafariAccountSwitching]: FALSE,
@@ -210,7 +211,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,

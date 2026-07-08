@@ -1347,16 +1347,16 @@
     "message": "附加选项"
   },
   "enableFillAssist": {
-    "message": "使用填充助手"
+    "message": "使用填充辅助"
   },
   "turnOnFillAssist": {
-    "message": "启用填充助手"
+    "message": "启用填充辅助"
   },
   "enableFillAssistDescription": {
-    "message": "填充助手通过使用站点特定的规则来提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
+    "message": "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。使用此功能时，不会收集或保存任何数据。"
   },
   "aboutFillAssist": {
-    "message": "关于填充助手"
+    "message": "关于填充辅助"
   },
   "enableContextMenuItem": {
     "message": "显示上下文菜单选项"
@@ -1912,7 +1912,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "停用您浏览器内置的密码管理器设置以避免冲突。"
+    "message": "停用您浏览器的内置密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -2337,6 +2337,10 @@
     "message": "新增笔记",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "新建安全笔记",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "编辑笔记",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "查看笔记",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "已选择"
+  },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "批量操作"
@@ -4798,7 +4814,7 @@
     "message": "功能尚不被支持"
   },
   "yourPasskeyIsLocked": {
-    "message": "使用通行密钥需要身份验证。请验证身份以继续。"
+    "message": "需要身份验证才能使用通行密钥。验证您的身份以继续。"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"
@@ -4987,6 +5003,20 @@
     "message": "将 Bitwarden 设置为默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "使您的自动填充体验更好",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "系统会请求您授予 $BROWSER$ 浏览器权限，将 Bitwarden 设置为您的默认密码管理器。",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "无法将 Bitwarden 设置为默认密码管理器",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5000,20 +5030,20 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+    "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
   },
   "allow": {
-    "message": "Allow",
+    "message": "允许",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "跳过"
   },
   "saveCipherAttemptSuccess": {
     "message": "凭据保存成功！",
@@ -5689,6 +5719,12 @@
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
   },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
   "nothingSelected": {
     "message": "您没有选择任何内容。"
   },
@@ -6258,7 +6294,7 @@
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
   },
   "wasmNotSupported": {
-    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。使用 Bitwarden App 需要 WebAssembly。",
+    "message": "您的浏览器不支持 WebAssembly 或 WebAssembly 未启用。需要 WebAssembly 才能使用 Bitwarden App。",
     "description": "'WebAssembly' is a technical term and should not be translated."
   },
   "showMore": {

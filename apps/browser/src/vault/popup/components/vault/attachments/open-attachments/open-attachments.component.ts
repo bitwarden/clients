@@ -80,8 +80,9 @@ export class OpenAttachmentsComponent implements OnInit {
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    const cipherDomain = await this.cipherService.get(this.cipherId, activeUserId);
-    const cipher = await this.cipherService.decrypt(cipherDomain, activeUserId);
+    const cipher = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, this.cipherId),
+    );
 
     if (!cipher.organizationId) {
       this.cipherIsAPartOfFreeOrg = false;

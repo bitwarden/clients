@@ -4,16 +4,14 @@
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
@@ -28,6 +26,10 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = MasterPasswordPolicyComponent;
+
+  display$(organization: Organization, configService: ConfigService) {
+    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v) => !v));
+  }
 }
 
 @Component({
@@ -59,7 +61,6 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
   constructor(
     private formBuilder: FormBuilder,
     i18nService: I18nService,
-    private organizationService: OrganizationService,
   ) {
     super();
 
@@ -75,12 +76,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
 
   async ngOnInit() {
     super.ngOnInit();
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
-    );
-    this.showKeyConnectorInfo = organization.keyConnectorEnabled;
+    const organization = await firstValueFrom(this.organization$);
+    this.showKeyConnectorInfo = organization?.keyConnectorEnabled ?? false;
   }
 }

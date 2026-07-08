@@ -16,6 +16,7 @@ manual_test = []
 [dependencies]
 anyhow = { workspace = true }
 async-trait = { workspace = true }
+autofill_provider = { path = "../autofill_provider", features = ["napi"] }
 autotype = { path = "../autotype" }
 chromium_importer = { path = "../chromium_importer" }
 desktop_core = { path = "../core" }

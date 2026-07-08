@@ -979,6 +979,9 @@
   "close": {
     "message": "மூடு"
   },
+  "done": {
+    "message": "Done"
+  },
   "delete": {
     "message": "நீக்கு"
   },
@@ -1203,6 +1206,10 @@
     "message": "New Note",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
@@ -1243,6 +1250,10 @@
     "message": "Edit Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -1282,6 +1293,10 @@
   "viewItemHeaderNote": {
     "message": "View Note",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
@@ -1618,6 +1633,45 @@
   },
   "deleteItem": {
     "message": "பொருளை நீக்கு"
+  },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
   },
   "deleteFolder": {
     "message": "கோப்புறையை நீக்கு"
@@ -2280,6 +2334,24 @@
   "deleteSelectedConfirmation": {
     "message": "நீங்கள் தொடர விரும்புகிறீர்களா?"
   },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
   "moveSelectedItemsDesc": {
     "message": "நீங்கள் தேர்ந்தெடுத்த $COUNT$ உருப்படி(கள்) சேர்க்க விரும்பும் கோப்புறையைத் தேர்ந்தெடுக்கவும்.",
     "placeholders": {
@@ -2880,6 +2952,9 @@
   },
   "restrictedItemTypePolicyDesc": {
     "message": "உறுப்பினர்கள் கார்டு உருப்படி வகைகளை உருவாக்க அனுமதிக்க வேண்டாம். ஏற்கனவே உள்ள கார்டுகள் தானாகவே அகற்றப்படும்."
+  },
+  "restrictedItemTypePolicyDescV2": {
+    "message": "Do not allow members to create and store credit card items in their vaults. When this policy is turned on, existing cards will be automatically hidden."
   },
   "restrictCardTypeImport": {
     "message": "கார்டு உருப்படி வகைகளை இம்போர்ட் செய்ய முடியாது"
@@ -4866,6 +4941,12 @@
   "deletedCollections": {
     "message": "நீக்கப்பட்ட சேகரிப்புகள்"
   },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
   "deletedCollectionId": {
     "message": "$ID$ சேகரிப்பு நீக்கப்பட்டது.",
     "placeholders": {
@@ -5972,6 +6053,18 @@
   "and": {
     "message": "மற்றும்"
   },
+  "acceptInviteWithMasterPassword": {
+    "message": "To finish accepting this invitation, log in with your master password."
+  },
+  "ssoLoginRequiresInviteAcceptance": {
+    "message": "You cannot log in with SSO until you have accepted an invitation to join $ORGANIZATION_NAME$.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "இந்த பெட்டியை சரிபார்ப்பதன் மூலம், பின்வருவனவற்றை நீங்கள் ஒப்புக்கொள்கிறீர்கள்:"
   },
@@ -6061,6 +6154,10 @@
   },
   "selected": {
     "message": "தேர்ந்தெடுக்கப்பட்டது"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
     "message": "பரிந்துரைக்கப்பட்டது"
@@ -6213,8 +6310,14 @@
   "twoStepLoginPolicyDesc": {
     "message": "உறுப்பினர்களுக்கு இரண்டு-படி உள்நுழைவை அமைக்குமாறு தேவை."
   },
+  "twoStepLoginPolicyDescV2": {
+    "message": "Require members to set up two-step login. This policy won't be enforced for owners and admins."
+  },
   "twoStepLoginPolicyWarning": {
     "message": "உரிமையாளர்கள் அல்லது நிர்வாகிகள் அல்லாத மற்றும் தங்கள் கணக்கிற்காக இரண்டு-படி உள்நுழைவை அமைக்காத நிறுவன உறுப்பினர்கள் நிறுவனத்திலிருந்து நீக்கப்படுவார்கள் மற்றும் மாற்றம் குறித்து ஒரு மின்னஞ்சல் அறிவிப்பைப் பெறுவார்கள்."
+  },
+  "twoStepLoginPolicyWarningV2": {
+    "message": "Enabling this policy will revoke any users who do not have two-step login enabled on their accounts. Affected users will be notified by email."
   },
   "twoStepLoginPolicyUserWarning": {
     "message": "உங்கள் பயனர் கணக்கில் இரண்டு-படி உள்நுழைவு அமைக்கப்பட வேண்டிய ஒரு நிறுவனத்தின் உறுப்பினர் நீங்கள். நீங்கள் அனைத்து இரண்டு-படி உள்நுழைவு வழங்குநர்களையும் அணைத்தால், இந்த நிறுவனங்களில் இருந்து நீங்கள் தானாகவே நீக்கப்படுவீர்கள்."
@@ -6482,11 +6585,20 @@
   "requireSsoPolicyDesc": {
     "message": "உறுப்பினர்கள் எண்டர்பிரைஸ் ஒற்றை உள்நுழைவு முறையைப் பயன்படுத்தி உள்நுழைய வேண்டும்."
   },
+  "requireSsoPolicyTitle": {
+    "message": "Require single sign-on (SSO)"
+  },
+  "requireSsoPolicyDescV2": {
+    "message": "Require members to log in using SSO. This policy won't be enforced for owners and admins."
+  },
   "prerequisite": {
     "message": "முன்தேவை"
   },
   "requireSsoPolicyReq": {
     "message": "இந்தக் கொள்கையைச் செயல்படுத்துவதற்கு முன்பு ஒற்றை நிறுவன எண்டர்பிரைஸ் கொள்கை இயக்கப்பட்டிருக்க வேண்டும்."
+  },
+  "requireSsoPolicyReqV2": {
+    "message": "You must enable the single organization policy before enabling this one."
   },
   "requireSsoPolicyReqError": {
     "message": "ஒற்றை நிறுவனக் கொள்கை அமைக்கப்படவில்லை."
@@ -6887,6 +6999,18 @@
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
   },
+  "centralizeDataOwnershipDescV2": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. Learn more about "
+  },
+  "centralizeDataOwnershipBenefit3V2": {
+    "message": "Give all users a dedicated “My Items” space for managing their own logins."
+  },
+  "promptUsersToMoveItemsV2": {
+    "message": "Prompt users to move their vault items to the organization"
+  },
+  "enablePolicy": {
+    "message": "Enable policy"
+  },
   "organizationDataOwnership": {
     "message": "நிறுவன தரவு உரிமையை அமல்படுத்து"
   },
@@ -7010,9 +7134,15 @@
   "desktopAutotypePolicy": {
     "message": "Desktop Autotype Default Setting"
   },
+  "desktopAutotypePolicyTitleV2": {
+    "message": "Desktop autotype default setting"
+  },
   "desktopAutotypePolicyDesc": {
     "message": "Turn Desktop Autotype ON by default for members. Members can turn Autotype off manually in the Desktop client.",
     "description": "This policy will enable Desktop Autotype by default for members on Unlock."
+  },
+  "desktopAutotypePolicyDescV2": {
+    "message": "Enable desktop autotype for members. Members will be able to turn autotype off manually in the desktop client."
   },
   "disableSend": {
     "message": "Send-ஐ அகற்று"
@@ -7968,6 +8098,9 @@
   },
   "disablePersonalVaultExportDescription": {
     "message": "உறுப்பினர்கள் தங்கள் தனிப்பட்ட பெட்டகத்திலிருந்து தரவை ஏற்றுமதி செய்ய அனுமதிக்க வேண்டாம்."
+  },
+  "disablePersonalVaultExportDescriptionV2": {
+    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
   },
   "vaultExportDisabled": {
     "message": "பெட்டக ஏற்றுமதி அகற்றப்பட்டது"
@@ -10944,6 +11077,9 @@
   "editedCollections": {
     "message": "திருத்தப்பட்ட சேகரிப்புகள்"
   },
+  "editedCollection": {
+    "message": "Edited collection"
+  },
   "baseUrl": {
     "message": "சேவையக URL"
   },
@@ -11322,6 +11458,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "சேகரிப்புகள் வெற்றிகரமாக ஒதுக்கப்பட்டன"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "நீங்கள் $TOTAL_COUNT$ உருப்படிகளைத் தேர்ந்தெடுத்துள்ளீர்கள். திருத்தும் அனுமதிகள் இல்லாததால், $READONLY_COUNT$ உருப்படிகளை உங்களால் புதுப்பிக்க முடியாது.",
@@ -12622,8 +12764,14 @@
   "freeFamiliesSponsorship": {
     "message": "இலவச Bitwarden குடும்பங்கள் ஸ்பான்சர்ஷிப்பை நீக்கு"
   },
+  "freeFamiliesSponsorshipPolicyTitleV2": {
+    "message": "Remove sponsored Families plan"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "இந்த அமைப்பின் மூலம் உறுப்பினர்கள் குடும்பத் திட்டத்தைப் பயன்படுத்த அனுமதிக்க வேண்டாம்."
+  },
+  "freeFamiliesSponsorshipPolicyDescV2": {
+    "message": "Do not allow members to redeem a Families plan sponsored by your organization."
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "அமெரிக்காவில் உள்ள வாடிக்கையாளர்களுக்கு மட்டுமே வங்கிக் கணக்கு மூலம் பணம் செலுத்துதல் கிடைக்கும். உங்கள் வங்கிக் கணக்கை சரிபார்க்க நீங்கள் கட்டாயப்படுத்தப்படுவீர்கள். அடுத்த 1-2 வணிக நாட்களுக்குள் நாங்கள் ஒரு மைக்ரோ-வைப்புத் தொகையை வைப்போம். வங்கிக் கணக்கைச் சரிபார்க்க, இந்த வைப்புத்தொகையிலிருந்து வரும் அறிக்கை விளக்கக் குறியீட்டை அமைப்பின் பில்லிங் பக்கத்தில் உள்ளிடவும். வங்கிக் கணக்கைச் சரிபார்க்கத் தவறினால், கட்டணம் தவறவிடப்பட்டு உங்கள் சந்தா இடைநிறுத்தப்படும்."
@@ -13051,6 +13199,9 @@
   },
   "removeUnlockWithPinPolicyDesc": {
     "message": "உறுப்பினர்கள் தங்கள் கணக்கை பின் குறியீட்டைக் கொண்டு திறக்க அனுமதிக்க வேண்டாம்."
+  },
+  "removeUnlockWithPinPolicyDescV2": {
+    "message": "Members will not be allowed to unlock their account with a PIN."
   },
   "upgradeForFullEventsMessage": {
     "message": "உங்கள் நிறுவனத்திற்கான நிகழ்வுப் பதிவுகள் சேமிக்கப்படவில்லை. நிறுவன நிகழ்வுப் பதிவுகளை முழுமையாக அணுக, Teams அல்லது Enterprise திட்டத்திற்கு மேம்படுத்தவும்."
@@ -13705,8 +13856,17 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Prevent users from creating accounts outside of your organization using email addresses from claimed domains."
   },
+  "blockClaimedDomainAccountCreationDescV2": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside your organization."
+  },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "A domain must be claimed before activating this policy."
+  },
+  "blockClaimedDomainAccountCreationPrerequisiteV2": {
+    "message": "Before turning on this policy, you must claim a domain."
+  },
+  "blockClaimedDomainAccountCreationLearnMoreV2": {
+    "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
     "message": "Your vault timeout exceeds the restrictions set by your organization."
@@ -14347,7 +14507,17 @@
     "message": "Refresh reports and insights regularly to catch new risks and see the latest metrics as your org grows."
   },
   "coachmarkStepsIndicator": {
-    "message": "$CURRENT$ of $TOTAL$"
+    "message": "$CURRENT$ of $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
   },
   "coachmarkStepIndicator": {
     "message": "Step $CURRENT$ of $TOTAL$",
@@ -14536,6 +14706,9 @@
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
+  "clickedVaultBannerButton": {
+    "message": "Clicked vault banner button"
+  },
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
@@ -14596,6 +14769,27 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "paymentSuccessful": {
+    "message": "Payment successful"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plan purchased"
+  },
+  "renewalDate": {
+    "message": "Renewal date"
+  },
+  "upgradeStatus": {
+    "message": "Upgrade status"
+  },
+  "processing": {
+    "message": "Processing"
+  },
+  "managePlanInWebApp": {
+    "message": "Manage plan in web app"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."

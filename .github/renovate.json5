@@ -313,7 +313,7 @@
         "clap",
         "jsdom",
         "jszip",
-        "oidc-client-ts",
+        "oauth4webapi",
         "papaparse",
         "utf-8-validate",
         "verifysign",

@@ -14,6 +14,7 @@ import {
   merge,
   Observable,
   shareReplay,
+  startWith,
   switchMap,
   take,
 } from "rxjs";
@@ -153,7 +154,10 @@ export class MembersComponent {
   protected rowHeightClass = `tw-h-[66px]`;
 
   constructor() {
-    combineLatest([this.searchControl.valueChanges.pipe(debounceTime(200)), this.statusToggle])
+    combineLatest([
+      this.searchControl.valueChanges.pipe(startWith(this.searchControl.value), debounceTime(200)),
+      this.statusToggle,
+    ])
       .pipe(takeUntilDestroyed())
       .subscribe(
         ([searchText, status]) => (this.dataSource().filter = peopleFilter(searchText, status)),
@@ -195,9 +199,9 @@ export class MembersComponent {
     combineLatest([this.route.queryParams, organization$])
       .pipe(
         concatMap(async ([qParams, organization]) => {
-          await this.load(organization!);
+          this.searchControl.setValue(qParams.search, { emitEvent: false });
 
-          this.searchControl.setValue(qParams.search);
+          await this.load(organization!);
 
           if (qParams.viewEvents != null) {
             const user = this.dataSource().data.filter((u) => u.id === qParams.viewEvents);
@@ -237,6 +241,10 @@ export class MembersComponent {
   async load(organization: Organization) {
     const response = await this.memberService.loadUsers(organization);
     this.dataSource().data = response;
+    // Apply the current filter synchronously alongside the data so the table never renders
+    // an unfiltered frame (e.g. showing a just-revoked member) while waiting for the debounced
+    // searchControl/statusToggle subscription to catch up.
+    this.dataSource().filter = peopleFilter(this.searchControl.value, this.statusToggle.value);
     this.firstLoaded.set(true);
   }
 
@@ -258,11 +266,7 @@ export class MembersComponent {
   }
 
   async confirm(user: OrganizationUserView, organization: Organization) {
-    const confirmUserSideEffect = () => {
-      user.status = this.userStatusType.Confirmed;
-      this.dataSource().replaceUser(user);
-    };
-
+    const sideEffect = async () => await this.load(organization);
     const publicKeyResult = await this.memberActionsService.getPublicKeyForConfirm(user);
 
     if (publicKeyResult == null) {
@@ -271,7 +275,7 @@ export class MembersComponent {
     }
 
     const result = await this.memberActionsService.confirmUser(user, publicKeyResult, organization);
-    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, confirmUserSideEffect);
+    await this.handleMemberActionResult(result, "hasBeenConfirmed", user, sideEffect);
   }
 
   async revoke(user: OrganizationUserView, organization: Organization) {
@@ -519,11 +523,11 @@ export class MembersComponent {
     ];
 
     const result = {
-      showBulkConfirmUsers: members.every((m) => m.status == OrganizationUserStatusType.Accepted),
-      showBulkReinviteUsers: members.every((m) => m.status == OrganizationUserStatusType.Invited),
-      showBulkRestoreUsers: members.every((m) => m.status == OrganizationUserStatusType.Revoked),
-      showBulkRevokeUsers: members.every((m) => m.status != OrganizationUserStatusType.Revoked),
-      showBulkRemoveUsers: members.every((m) => !m.claimedByOrganization),
+      showBulkConfirmUsers: members.every((m) => m.canConfirm),
+      showBulkReinviteUsers: members.every((m) => m.canReinvite),
+      showBulkRestoreUsers: members.every((m) => m.canRestore),
+      showBulkRevokeUsers: members.every((m) => m.canRevoke),
+      showBulkRemoveUsers: members.every((m) => m.canRemove),
       showBulkDeleteUsers: members.every(
         (m) => m.claimedByOrganization && validStatuses.includes(m.status),
       ),

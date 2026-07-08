@@ -7,7 +7,7 @@
  * under `AutofillInit`), the controller is the sole caller of these
  * methods on its sub-monitors.
  *
- * See `apps/browser/src/autofill/content/lifecycle.design.md` for the
+ * See `apps/browser/src/autofill/lifecycle.design.md` for the
  * rationale, broader invariants, and end-to-end protocol.
  */
 export interface AutofillMonitor {

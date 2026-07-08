@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -70,6 +71,7 @@ describe("AddEditFolderDialogComponent", () => {
         { provide: ToastService, useValue: { showToast } },
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: DialogRef, useValue: dialogRef },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })
       .overrideProvider(DialogService, { useValue: { openSimpleDialog } })

@@ -97,26 +97,47 @@ export class InactiveTwoFactorReportComponent
 
   async ngOnInit() {
     this.isAdminConsoleActive = true;
+    this.logService.info("[InactiveTwoFactorOrganizationReport] org setup start");
 
     this.route.parent?.parent?.params
       .pipe(
         tap(async (params) => {
-          const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          this.organization = await firstValueFrom(
-            this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
-          );
-          const manageableCiphers = await this.cipherService.getAll(userId);
-          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
-          const collections = await firstValueFrom(
-            this.collectionService.decryptedCollections$(userId),
-          );
-          this.sharedCollectionIds = new Set(
-            collections
-              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
-              .map((c) => c.id as string),
-          );
-          await super.ngOnInit();
-          this.changeDetectorRef.markForCheck();
+          this.logService.info("[InactiveTwoFactorOrganizationReport] route params received");
+
+          try {
+            const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+            this.organization = await firstValueFrom(
+              this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
+            );
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] organization context loaded found=${this.organization != null}`,
+            );
+
+            const manageableCiphers = await this.cipherService.getAll(userId);
+            this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] manageable ciphers loaded count=${this.manageableCipherIds.size}`,
+            );
+
+            const collections = await firstValueFrom(
+              this.collectionService.decryptedCollections$(userId),
+            );
+            this.sharedCollectionIds = new Set(
+              collections
+                .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+                .map((c) => c.id as string),
+            );
+            this.logService.info(
+              `[InactiveTwoFactorOrganizationReport] shared collections loaded count=${this.sharedCollectionIds.size}`,
+            );
+
+            await super.ngOnInit();
+            this.logService.info("[InactiveTwoFactorOrganizationReport] org setup complete");
+            this.changeDetectorRef.markForCheck();
+          } catch (e) {
+            this.logService.error("[InactiveTwoFactorOrganizationReport] org setup failure", e);
+            throw e;
+          }
         }),
         takeUntil(this.destroyed$),
       )

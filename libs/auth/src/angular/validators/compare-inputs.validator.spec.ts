@@ -52,7 +52,7 @@ describe("compareInputs", () => {
     );
   });
 
-  it("should throw an error if the name of one of the form controls is incorrect or mispelled", () => {
+  it("should throw an error if the name of one of the form controls is incorrect or misspelled", () => {
     // Arrange
     const formGroupMissingControl = new FormGroup({
       ctrlA: new FormControl("content"),

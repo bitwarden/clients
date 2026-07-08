@@ -1,24 +1,13 @@
 import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import {
-  combineLatest,
-  defer,
-  firstValueFrom,
-  map,
-  Observable,
-  of,
-  startWith,
-  switchMap,
-} from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, startWith, switchMap } from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { getById } from "@bitwarden/common/platform/misc";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -56,7 +45,6 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
   constructor(
-    private readonly organizationService: OrganizationService,
     private readonly policyService: PolicyService,
     private readonly autoConfirmService: AutomaticUserConfirmationService,
     private readonly router: Router,
@@ -95,15 +83,8 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
       map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
     );
 
-  // defer() ensures this.organizationId() is read at subscription time rather than at
-  // class-field initialization time, where it would still be undefined.
-  protected readonly managePoliciesOnly$: Observable<boolean> = defer(() =>
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-      getById(this.organizationId()),
-      map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
-    ),
+  protected readonly managePoliciesOnly$: Observable<boolean> = this.organization$.pipe(
+    map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
   );
 
   protected readonly saveDisabled$ = combineLatest([
@@ -111,7 +92,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
     this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
   ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
 
-  readonly policySteps: PolicyStep[] = [
+  override readonly policySteps: PolicyStep[] = [
     {
       titleContent: this.step0Title,
       bodyContent: this.step0Content,
@@ -130,8 +111,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
   protected override async savePolicy(): Promise<PolicyStepResult | void> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
-    const organizations = await firstValueFrom(this.organizationService.organizations$(userId));
-    const organization = organizations.find((o) => o.id === this.organizationId()) ?? null;
+    const organization = await firstValueFrom(this.organization$);
     const managePoliciesOnly = (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
 
     const policies = await firstValueFrom(this.policyService.policies$(userId));

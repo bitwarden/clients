@@ -28,10 +28,7 @@
     }
 
     @if (config.cipherType === CipherType.SshKey) {
-      <vault-sshkey-section
-        [disabled]="config.mode === 'partial-edit'"
-        [originalCipherView]="originalCipherView"
-      ></vault-sshkey-section>
+      <vault-sshkey-section [originalCipherView]="originalCipherView"></vault-sshkey-section>
     }
 
     @if (config.cipherType === CipherType.BankAccount) {

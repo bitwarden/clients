@@ -143,7 +143,7 @@ export class Fido2AuthenticatorService<
 
       if (cipherId === undefined) {
         this.logService?.warning(
-          `[Fido2Authenticator] Aborting because user confirmation was not recieved.`,
+          `[Fido2Authenticator] Aborting because user confirmation was not received.`,
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
@@ -399,7 +399,7 @@ export class Fido2AuthenticatorService<
     return credentials.map((c) => c.login.fido2Credentials[0]);
   }
 
-  /** Finds existing crendetials and returns the `cipherId` for each one */
+  /** Finds existing credentials and returns the `cipherId` for each one */
   private async findExcludedCredentials(
     credentials: PublicKeyCredentialDescriptor[],
   ): Promise<string[]> {

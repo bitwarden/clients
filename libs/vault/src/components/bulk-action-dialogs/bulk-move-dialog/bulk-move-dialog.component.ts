@@ -100,7 +100,7 @@ export class BulkMoveDialogComponent implements OnInit {
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t("movedItems"),
+      message: this.i18nService.t(this.cipherIds.length === 1 ? "movedItem" : "movedItems"),
     });
     this.close(BulkMoveDialogResult.Moved);
   };

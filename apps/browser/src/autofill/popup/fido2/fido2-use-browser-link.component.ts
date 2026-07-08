@@ -32,7 +32,7 @@ export class Fido2UseBrowserLinkComponent {
   ) {}
 
   /**
-   * Aborts the current FIDO2 session and fallsback to the browser.
+   * Abort the current FIDO2 session and fallback to the browser.
    * @param excludeDomain - Identifies if the domain should be excluded from future FIDO2 prompts.
    */
   protected async abort(excludeDomain = true) {

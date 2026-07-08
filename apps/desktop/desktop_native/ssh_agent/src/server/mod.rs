@@ -15,7 +15,7 @@ use std::sync::Arc;
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
 // external exports for napi
-pub use auth_policy::{AuthRequest, SignRequest};
+pub use auth_policy::{AuthRequest, ConnectionContext, SessionBindContext, SignRequest};
 use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
 pub use protocol::{SIGNamespace, SignFlags};

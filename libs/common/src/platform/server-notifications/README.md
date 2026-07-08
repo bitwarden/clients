@@ -65,7 +65,7 @@ no adverse effects from just adding another `push` event listener in each contex
 This is a special implementation that can be opted into being used through the dev flag
 `noopNotifications`. When that flag is true then the noop version of server notifications will be
 used. This is usually done to keep the console cleaner from any logs that might happen from the
-default implementation. We could, in the future decide to depracate this implementation in favor
+default implementation. We could, in the future decide to deprecate this implementation in favor
 of instructing users to use `http://-` as their notifications url in the `local.json` configuration.
 That should largely have the same behavior and would allow us to maintain one fewer implementation.
 

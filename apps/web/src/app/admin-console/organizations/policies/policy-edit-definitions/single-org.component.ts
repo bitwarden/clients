@@ -6,6 +6,8 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
+import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
 export class SingleOrgPolicy extends BasePolicyEditDefinition {
   name = "singleOrg";
   description = "singleOrgPolicyDesc";
@@ -13,6 +15,10 @@ export class SingleOrgPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.DataControl;
   priority = 10;
   component = SingleOrgPolicyComponent;
+  v2 = {
+    component: SimpleTogglePolicyComponent,
+    description: "singleOrgPolicyDescV2",
+  };
 }
 
 @Component({

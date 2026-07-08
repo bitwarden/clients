@@ -79,7 +79,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       ),
     ),
   ]).pipe(
-    switchMap(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
+    map(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, organizationDataOwnershipPolicy),
     ),
   );
@@ -251,11 +251,11 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     await this.setCollapsedFilterNodes(collapsedFilterNodes, userId);
   }
 
-  protected async buildOrganizationTree(
+  protected buildOrganizationTree(
     orgs: Organization[],
     singleOrgPolicy: boolean,
     organizationDataOwnershipPolicy: boolean,
-  ): Promise<TreeNode<OrganizationFilter>> {
+  ): TreeNode<OrganizationFilter> {
     const headNode = this.getOrganizationFilterHead();
     if (!organizationDataOwnershipPolicy) {
       const myVaultNode = this.getOrganizationFilterMyVault();

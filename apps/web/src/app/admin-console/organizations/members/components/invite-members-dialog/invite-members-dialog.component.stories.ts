@@ -9,6 +9,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -55,6 +56,11 @@ const mockToastService = {
 
 const mockPlatformUtilsService = {
   copyToClipboard: () => {},
+};
+
+const mockEventCollectionService = {
+  collect: () => Promise.resolve(),
+  collectMany: () => Promise.resolve(),
 };
 
 const mockDialogRef = {
@@ -205,6 +211,7 @@ export default {
         { provide: CollectionAdminService, useValue: mockCollectionAdminService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: MemberActionsService, useValue: mockMemberActionsService },
+        { provide: EventCollectionService, useValue: mockEventCollectionService },
         {
           provide: OrgDomainApiServiceAbstraction,
           useValue: { getAllByOrgId: () => Promise.resolve([]) },

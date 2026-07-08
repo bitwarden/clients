@@ -18,6 +18,7 @@ import {
   ButtonModule,
   FormFieldModule,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -105,6 +106,10 @@ describe("ExposedPasswordsReportComponent", () => {
         {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigServiceMock,
+        },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
         },
       ],
       schemas: [],

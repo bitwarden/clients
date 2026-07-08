@@ -464,26 +464,22 @@ describe("VaultItemDialogComponent", () => {
       });
 
       it("refreshes the cipher from local state and switches to view mode", async () => {
-        const latestCipher = { id: "cipher-id" } as any;
         const refreshedCipherView = { id: "cipher-id", attachments: [] } as any;
-        cipherServiceMock.get.mockResolvedValue(latestCipher);
-        cipherServiceMock.decrypt.mockResolvedValue(refreshedCipherView);
+        cipherServiceMock.cipherView$.mockReturnValue(of(refreshedCipherView));
 
         await component.cancel();
 
-        expect(cipherServiceMock.get).toHaveBeenCalledWith("cipher-id", "test-user-id");
-        expect(cipherServiceMock.decrypt).toHaveBeenCalledWith(latestCipher, "test-user-id");
+        expect(cipherServiceMock.cipherView$).toHaveBeenCalledWith("test-user-id", "cipher-id");
         expect(component["cipher"]).toBe(refreshedCipherView);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });
 
       it("leaves the existing cipher in place when local state has no cipher", async () => {
         const originalCipher = component["cipher"];
-        cipherServiceMock.get.mockResolvedValue(null as any);
+        cipherServiceMock.cipherView$.mockReturnValue(of(undefined));
 
         await component.cancel();
 
-        expect(cipherServiceMock.decrypt).not.toHaveBeenCalled();
         expect(component["cipher"]).toBe(originalCipher);
         expect((component as any).changeMode).toHaveBeenCalledWith("view");
       });

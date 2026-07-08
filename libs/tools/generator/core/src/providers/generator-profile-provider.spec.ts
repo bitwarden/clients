@@ -51,7 +51,7 @@ const accounts: Record<UserId, Account> = {
   [UnverifiedEmailUser]: {
     id: UnverifiedEmailUser,
     ...mockAccountInfoWith({
-      name: "a user with an unverfied email",
+      name: "a user with an unverified email",
       email: "unverified@example.com",
       emailVerified: false,
     }),

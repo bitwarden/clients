@@ -518,7 +518,13 @@ async fn test_session_bind_is_forwarding_reaches_approval_layer() {
     requester
         .expect_request_sign_approval()
         .once()
-        .withf(|req| req.sign_request.is_forwarding)
+        .withf(|req| {
+            req.sign_request
+                .connection
+                .session_bind
+                .as_ref()
+                .is_some_and(|s| s.is_forwarding)
+        })
         .returning(|_| Ok(true));
 
     let mut agent = BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester);

@@ -11,7 +11,7 @@
 >
   @let showHeaderBorder = bodyHasScrolledFrom().top;
   <header
-    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
+    class="tw-flex tw-justify-between tw-items-center tw-gap-2 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
     [ngClass]="{
       'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
       'tw-px-6 tw-py-4 has-[[biticonbutton]]:tw-pe-4': isDrawer,
@@ -19,11 +19,21 @@
       'tw-border-transparent': !showHeaderBorder,
     }"
   >
+    @if (isStacked()) {
+      <button
+        type="button"
+        bitIconButton="bwi-angle-left"
+        buttonType="primaryGhost"
+        size="default"
+        bitDialogClose
+        [label]="'back' | i18n"
+      ></button>
+    }
     <h2
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
-      class="tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
+      class="tw-flex-1 tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
       tabindex="-1"
       #dialogHeader
     >
@@ -45,7 +55,7 @@
           bitIconButton="bwi-close"
           buttonType="primaryGhost"
           size="default"
-          bitDialogClose
+          (click)="closeDialog()"
           [label]="'close' | i18n"
         ></button>
       }

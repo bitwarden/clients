@@ -928,7 +928,7 @@ describe("VaultTimeoutSettingsService", () => {
       await expect(result).rejects.toThrow("Vault Timeout cannot be null.");
     });
 
-    it("should throw an error if a null vault timout action is provided", async () => {
+    it("should throw an error if a null vault timeout action is provided", async () => {
       // note: don't await here because we want to test the error
       const result = vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, 30, null);
       // Assert

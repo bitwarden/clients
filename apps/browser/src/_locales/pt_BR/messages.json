@@ -2337,6 +2337,10 @@
     "message": "Nova anotação",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Nova anotação segura",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "Editar anotação",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Editar anotação segura",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Ver anotação",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Ver anotação segura",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
@@ -2493,6 +2505,10 @@
   },
   "selected": {
     "message": "Selecionado"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Ações em massa"
@@ -4987,6 +5003,20 @@
     "message": "Tornar o Bitwarden o gerenciador de senhas padrão",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Melhore sua experiência de preenchimento automático",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Será solicitado que você conceda uma permissão da extensão do $BROWSER$ para tornar o Bitwarden seu gerenciador de senhas padrão.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Não é possível configurar o Bitwarden como o gerenciador de senhas padrão",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5000,7 +5030,7 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "Tornar o Bitwarden o gerenciador de senhas padrão do seu navegador"
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "from the browser prompt to give Bitwarden permission to change your settings."
@@ -5009,11 +5039,11 @@
     "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
   },
   "allow": {
-    "message": "Allow",
+    "message": "Permitir",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "Pular"
   },
   "saveCipherAttemptSuccess": {
     "message": "Credenciais salvas com sucesso!",
@@ -5688,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Conjuntos atribuídos com sucesso"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "Você não selecionou nada."

@@ -198,7 +198,7 @@ describe("BaseImporter class", () => {
       ["5/21", "5", "2021"],
       ["10/2100", "10", "2100"],
     ])(
-      "sets ciper card expYear & expMonth and returns true",
+      "sets cipher card expYear & expMonth and returns true",
       (expiration, expectedMonth, expectedYear) => {
         const result = importer.setCardExpiration(cipher, expiration);
         expect(cipher.card.expMonth).toBe(expectedMonth);

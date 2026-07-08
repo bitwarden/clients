@@ -29,7 +29,12 @@ export class ApplicationVersioningService extends VersioningService<AccessReport
       this.logService.debug(
         `[ApplicationVersioningService] Application blob: version ${this.currentVersion} — no transformation needed`,
       );
-      const data = validateAccessReportSettingsDataArray(json.data);
+      const { data, errors } = validateAccessReportSettingsDataArray(json.data);
+      if (errors.length > 0) {
+        this.logService.warning(
+          `[ApplicationVersioningService] Dropped ${errors.length} invalid application setting(s):\n${errors.join("\n")}`,
+        );
+      }
       return { data, wasLegacy: false };
     }
 

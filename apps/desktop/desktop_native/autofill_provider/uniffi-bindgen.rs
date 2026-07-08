@@ -1,9 +1,9 @@
-#[cfg(target_os = "macos")]
+#[cfg(feature = "uniffi")]
 fn main() {
     uniffi::uniffi_bindgen_main()
 }
 
-#[cfg(not(target_os = "macos"))]
+#[cfg(not(feature = "uniffi"))]
 fn main() {
-    unimplemented!("uniffi-bindgen is not enabled on this target.");
+    unimplemented!("The uniffi feature is not enabled; uniffi-bindgen will not be built");
 }

@@ -9,6 +9,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import {
   CipherFormConfigService,
   PasswordRepromptService,
@@ -42,6 +43,7 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     syncService: SyncService,
     cipherFormConfigService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    protected logService: LogService,
   ) {
     super(
       cipherService,
@@ -53,43 +55,69 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
       syncService,
       cipherFormConfigService,
       adminConsoleCipherFormConfigService,
+      logService,
     );
   }
 
   async ngOnInit() {
-    await super.load();
+    this.logService.info("[ExposedPasswordsReport] load start");
+    try {
+      await super.load();
+      this.logService.info("[ExposedPasswordsReport] load success");
+    } catch (e) {
+      this.logService.error("[ExposedPasswordsReport] load failure", e);
+      throw e;
+    }
   }
 
   async setCiphers() {
-    const allCiphers = await this.getAllCiphers();
-    const exposedPasswordCiphers: ReportResult[] = [];
-    const promises: Promise<void>[] = [];
-    this.filterStatus = [0];
+    this.logService.info("[ExposedPasswordsReport] analysis start");
+    try {
+      const allCiphers = await this.getAllCiphers();
+      const exposedPasswordCiphers: ReportResult[] = [];
+      const promises: Promise<void>[] = [];
+      let eligibleCipherCount = 0;
+      this.filterStatus = [0];
 
-    allCiphers.forEach((ciph) => {
-      const { type, login, isDeleted, edit, viewPassword } = ciph;
-      if (
-        type !== CipherType.Login ||
-        login.password == null ||
-        login.password === "" ||
-        isDeleted ||
-        (!this.organization && !edit) ||
-        !viewPassword
-      ) {
-        return;
-      }
-
-      const promise = this.isPasswordExposed(ciph).then((result) => {
-        if (result) {
-          exposedPasswordCiphers.push(result);
+      allCiphers.forEach((ciph) => {
+        const { type, login, isDeleted, edit, viewPassword } = ciph;
+        if (
+          type !== CipherType.Login ||
+          login.password == null ||
+          login.password === "" ||
+          isDeleted ||
+          (!this.organization && !edit) ||
+          !viewPassword
+        ) {
+          return;
         }
-      });
-      promises.push(promise);
-    });
-    await Promise.all(promises);
 
-    this.filterCiphersByOrg(exposedPasswordCiphers);
-    this.dataSource.sort = { column: "exposedXTimes", direction: "desc" };
+        eligibleCipherCount++;
+        const promise = this.isPasswordExposed(ciph).then((result) => {
+          if (result) {
+            exposedPasswordCiphers.push(result);
+          }
+        });
+        promises.push(promise);
+      });
+      this.logService.info(
+        `[ExposedPasswordsReport] analysis candidates total=${allCiphers.length} eligible=${eligibleCipherCount}`,
+      );
+
+      await Promise.all(promises);
+      this.logService.info(
+        `[ExposedPasswordsReport] analysis complete exposed=${exposedPasswordCiphers.length}`,
+      );
+
+      this.filterCiphersByOrg(exposedPasswordCiphers);
+      this.logService.info(
+        `[ExposedPasswordsReport] filter complete displayed=${this.ciphers.length}`,
+      );
+      this.dataSource.sort = { column: "exposedXTimes", direction: "desc" };
+    } catch (e) {
+      this.logService.error("[ExposedPasswordsReport] analysis failure", e);
+      throw e;
+    }
   }
 
   private async isPasswordExposed(cv: CipherView): Promise<ReportResult | null> {
@@ -97,12 +125,18 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     if (login.password == null) {
       return null;
     }
-    return await this.auditService.passwordLeaked(login.password).then((exposedCount) => {
-      if (exposedCount > 0) {
-        return { ...cv, exposedXTimes: exposedCount } as ReportResult;
-      }
-      return null;
-    });
+
+    try {
+      return await this.auditService.passwordLeaked(login.password).then((exposedCount) => {
+        if (exposedCount > 0) {
+          return { ...cv, exposedXTimes: exposedCount } as ReportResult;
+        }
+        return null;
+      });
+    } catch (e) {
+      this.logService.error("[ExposedPasswordsReport] leak check failure", e);
+      throw e;
+    }
   }
 
   protected canManageCipher(c: CipherView): boolean {
@@ -114,6 +148,18 @@ export class ExposedPasswordsReportComponent extends CipherReportComponent imple
     result: VaultItemDialogResult,
     updatedCipherView: CipherView,
   ): Promise<CipherView | null> {
-    return await this.isPasswordExposed(updatedCipherView);
+    this.logService.info(`[ExposedPasswordsReport] update check start result=${result}`);
+
+    if (result === VaultItemDialogResult.Deleted) {
+      this.logService.info("[ExposedPasswordsReport] update check complete action=deleted");
+      return null;
+    }
+
+    const exposedReportResult = await this.isPasswordExposed(updatedCipherView);
+    this.logService.info(
+      `[ExposedPasswordsReport] update check complete action=${exposedReportResult ? "retain" : "remove"}`,
+    );
+
+    return exposedReportResult;
   }
 }

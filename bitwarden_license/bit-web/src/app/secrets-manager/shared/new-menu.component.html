@@ -5,7 +5,7 @@
   [bitMenuTriggerFor]="newMenu"
   startIcon="bwi-plus"
 >
-  {{ "new" | i18n }}
+  {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
 </button>
 
 <bit-menu #newMenu>

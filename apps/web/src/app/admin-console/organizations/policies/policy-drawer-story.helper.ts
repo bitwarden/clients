@@ -7,6 +7,7 @@ import {
 } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -93,6 +94,10 @@ export function policyDrawerMeta(
           {
             provide: DialogService,
             useValue: { openSimpleDialog: () => Promise.resolve(false) },
+          },
+          {
+            provide: OrganizationService,
+            useValue: { organizations$: () => of([]) },
           },
         ],
       }),

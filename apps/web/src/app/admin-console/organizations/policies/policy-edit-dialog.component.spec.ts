@@ -51,14 +51,20 @@ describe("PolicyEditDialogComponent", () => {
   beforeEach(async () => {
     policyApiService = mock<PolicyApiServiceAbstraction>();
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
+    const accountService = mock<AccountService>();
+    accountService.activeAccount$ = NEVER;
+
+    const authService = mock<AuthService>();
+    authService.authStatusFor$.mockReturnValue(NEVER);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
         { provide: DIALOG_DATA, useValue: dialogData },
-        { provide: AccountService, useValue: mock<AccountService>() },
-        { provide: AuthService, useValue: mock<AuthService>() },
+        { provide: AccountService, useValue: accountService },
+        { provide: AuthService, useValue: authService },
         { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: DialogRef, useValue: mock<DialogRef>() },

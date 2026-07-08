@@ -45,4 +45,12 @@ pub trait ApprovalRequester: Send + Sync {
         &self,
         request: SignApprovalRequest,
     ) -> Result<bool, ApprovalError>;
+
+    /// Requests approval for a list-keys operation.
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(true)` - Request was approved
+    /// * `Ok(false)` - Request was denied.
+    async fn request_list_approval(&self) -> Result<bool, ApprovalError>;
 }

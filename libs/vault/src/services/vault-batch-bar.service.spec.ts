@@ -792,23 +792,23 @@ describe("VaultBatchBarService", () => {
       expect(mockCipherService.restoreManyWithServer).toHaveBeenCalledWith([cipher.id], userId);
     });
 
-    it("shows 'restoredItems' toast when ciphers are not archived", async () => {
+    it("shows 'restoredItem' toast when a single cipher is not archived", async () => {
       service.selection.select(makeCipherItem());
 
       await service.bulkRestore();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "restoredItems" }),
+        expect.objectContaining({ message: "restoredItem" }),
       );
     });
 
-    it("shows 'archivedItemsRestored' toast when all ciphers are archived", async () => {
+    it("shows 'archivedItemRestored' toast when a single archived cipher is restored", async () => {
       service.selection.select(makeCipherItem({ archivedDate: new Date() }));
 
       await service.bulkRestore();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "archivedItemsRestored" }),
+        expect.objectContaining({ message: "archivedItemRestored" }),
       );
     });
 

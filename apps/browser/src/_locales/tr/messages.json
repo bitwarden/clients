@@ -2337,6 +2337,10 @@
     "message": "Yeni not",
     "description": "Header for new note item type"
   },
+  "newItemHeaderSecureNote": {
+    "message": "Yeni güvenli not",
+    "description": "Header for new secure note item type"
+  },
   "newItemHeaderSshKey": {
     "message": "Yeni SSH anahtarı",
     "description": "Header for new SSH key item type"
@@ -2377,6 +2381,10 @@
     "message": "Notu düzenle",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Güvenli notu düzenle",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH anahtarını düzenle",
     "description": "Header for edit SSH key item type"
@@ -2416,6 +2424,10 @@
   "viewItemHeaderNote": {
     "message": "Notu göster",
     "description": "Header for view note item type"
+  },
+  "viewItemHeaderSecureNote": {
+    "message": "Güvenli notu göster",
+    "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
     "message": "SSH anahtarını göster",
@@ -2494,11 +2506,15 @@
   "selected": {
     "message": "Seçildi"
   },
+  "selectedLowercase": {
+    "message": "seçili",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
     "message": "Toplu işlemler"
   },
   "bulkActionsBarAnnouncement": {
-    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "message": "$COUNT$ öğe seçildi. Toplu işlem çubuğu artık ekranın alt kısmında görüntüleniyor. Odağı toplu işlem çubuğuna kaydırmak için $SHORTCUTBINDING$ tuşuna basın.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4398,7 +4414,7 @@
     "message": "Bir veya daha fazla e-posta geçersiz"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "E-posta alıcı listesi 2.500 karakteri aşamaz. Devam etmek için bir veya daha fazla alıcıyı kaldırın."
   },
   "inputTrimValidator": {
     "message": "Girdi yalnızca boşluktan ibaret olamaz.",
@@ -4987,6 +5003,20 @@
     "message": "Bitwarden'ı varsayılan parola yöneticiniz yapın",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Otomatik doldurmayı iyileştirin",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Bitwarden'ı varsayılan parola yöneticiniz yapmak için $BROWSER$ tarayıcısına izin vermeniz istenecektir.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Bitwarden varsayılan parola yöneticisi olarak ayarlanamadı",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -5000,7 +5030,7 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerPromptTitle": {
-    "message": "Make Bitwarden your browser's default password manager"
+    "message": "Bitwarden'ı tarayıcınızın varsayılan parola yöneticisi yapın"
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "from the browser prompt to give Bitwarden permission to change your settings."
@@ -5009,11 +5039,11 @@
     "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
   },
   "allow": {
-    "message": "Allow",
+    "message": "İzin ver",
     "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
   },
   "skip": {
-    "message": "Skip"
+    "message": "Atla"
   },
   "saveCipherAttemptSuccess": {
     "message": "Kimlik bilgileri başarıyla kaydedildi!",
@@ -5688,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Başarıyla atanan koleksiyonlar"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "Hiçbir şey seçmediniz."
@@ -6538,7 +6574,7 @@
     "message": "Kullanıcı doğrulaması başarısız oldu."
   },
   "sharedUnlock": {
-    "message": "Shared unlock"
+    "message": "Ortak kilit açma"
   },
   "sharedUnlockDescription": {
     "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
@@ -6716,7 +6752,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Kopya oluştur"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birden fazla koleksiyona dahil olan öğeleri \"Öğelerim\"e aktaramazsınız"

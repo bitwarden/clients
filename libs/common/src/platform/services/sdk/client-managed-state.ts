@@ -29,6 +29,7 @@ export async function initializeClientManagedState(
       new EphemeralPinEnvelopeMapper(),
     ),
     organization_shared_key: null,
+    send: null,
   });
 }
 
