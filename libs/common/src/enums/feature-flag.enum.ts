@@ -17,6 +17,8 @@ export enum FeatureFlag {
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
+  // TODO: PM-40137 - Remove this flag
+  PM27060_PasswordPreloginFromSdk = "pm-27060-password-prelogin-from-sdk",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
@@ -186,6 +188,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
