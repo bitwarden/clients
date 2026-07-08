@@ -246,8 +246,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation
         ) {
           this.logService.info(
-            "[Notifications Service] Skipping logout due to no logout key rotation",
+            "[Notifications Service] Skipping logout due to no logout key rotation. Performing full sync.",
           );
+          await this.syncService.fullSync(true);
         } else {
           await this.logoutCallback("logoutNotification", userId);
         }
