@@ -225,6 +225,13 @@ export class CipherService implements CipherServiceAbstraction {
     );
   }, this.clearCipherViewsForUser$);
 
+  cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
+    return this.cipherViews$(userId).pipe(
+      filterOutNullish(),
+      map((ciphers) => ciphers.find((cipher) => cipher.id === cipherId)),
+    );
+  }
+
   addEditCipherInfo$(userId: UserId): Observable<AddEditCipherInfo> {
     return this.addEditCipherInfoState(userId).state$;
   }
@@ -2454,11 +2461,10 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
-    const featureEnabled = await this.configService.getFeatureFlag(FeatureFlag.CipherKeyEncryption);
     const meetsServerVersion = await firstValueFrom(
       this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
     );
-    return featureEnabled && meetsServerVersion;
+    return meetsServerVersion;
   }
 
   /**

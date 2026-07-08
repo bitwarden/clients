@@ -325,12 +325,12 @@ describe("VaultBatchBarService", () => {
       expect(service.canArchive()).toBe(false);
     });
 
-    it("returns false when any cipher has an organizationId", () => {
+    it("returns true when an org cipher is selected and userCanArchive is true", () => {
       userCanArchiveSubject.next(true);
 
       service.selection.select(makeCipherItem({ organizationId: orgId }));
 
-      expect(service.canArchive()).toBe(false);
+      expect(service.canArchive()).toBe(true);
     });
 
     it("returns false when any cipher has an archivedDate", () => {
@@ -369,10 +369,10 @@ describe("VaultBatchBarService", () => {
       expect(service.canUnarchive()).toBe(false);
     });
 
-    it("returns false when any cipher has an organizationId", () => {
+    it("returns true when an archived org cipher is selected", () => {
       service.selection.select(makeCipherItem({ archivedDate: new Date(), organizationId: orgId }));
 
-      expect(service.canUnarchive()).toBe(false);
+      expect(service.canUnarchive()).toBe(true);
     });
 
     it("returns true when all selected ciphers are archived personal items", () => {
@@ -792,23 +792,23 @@ describe("VaultBatchBarService", () => {
       expect(mockCipherService.restoreManyWithServer).toHaveBeenCalledWith([cipher.id], userId);
     });
 
-    it("shows 'restoredItems' toast when ciphers are not archived", async () => {
+    it("shows 'restoredItem' toast when a single cipher is not archived", async () => {
       service.selection.select(makeCipherItem());
 
       await service.bulkRestore();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "restoredItems" }),
+        expect.objectContaining({ message: "restoredItem" }),
       );
     });
 
-    it("shows 'archivedItemsRestored' toast when all ciphers are archived", async () => {
+    it("shows 'archivedItemRestored' toast when a single archived cipher is restored", async () => {
       service.selection.select(makeCipherItem({ archivedDate: new Date() }));
 
       await service.bulkRestore();
 
       expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "archivedItemsRestored" }),
+        expect.objectContaining({ message: "archivedItemRestored" }),
       );
     });
 
