@@ -91,11 +91,7 @@ where
                         return Err(AuthError::KeystoreError(error));
                     }
                 };
-                info!(
-                    public_key = %sign_request.public_key,
-                    is_forwarding = %sign_request.is_forwarding,
-                    "Requesting sign approval."
-                );
+                info!(?sign_request, "Requesting sign approval.");
 
                 self.approval_handler
                     .request_sign_approval(SignApprovalRequest {
@@ -123,7 +119,7 @@ mod tests {
     use super::*;
     use crate::{
         approval::{ApprovalError, MockApprovalRequester},
-        server::SIGNamespace,
+        server::{ConnectionContext, SIGNamespace, SessionBindContext},
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
@@ -136,25 +132,23 @@ mod tests {
 
     fn create_test_sign_request(
         public_key: crate::crypto::PublicKey,
-        process_name: Option<&str>,
-        is_forwarding: bool,
+        connection: ConnectionContext,
         namespace: Option<SIGNamespace>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
-            process_name: process_name.map(std::string::ToString::to_string),
-            is_forwarding,
+            connection,
             namespace,
-            flags: None,
-            host_fingerprint: None,
         })
     }
 
     fn create_default_test_sign_request(public_key: crate::crypto::PublicKey) -> AuthRequest {
         create_test_sign_request(
             public_key,
-            Some(TEST_PROCESS_NAME),
-            TEST_IS_FORWARDING,
+            ConnectionContext {
+                process_name: Some(TEST_PROCESS_NAME.to_string()),
+                session_bind: None,
+            },
             None,
         )
     }
@@ -179,7 +173,6 @@ mod tests {
     }
 
     const TEST_PROCESS_NAME: &str = "ssh";
-    const TEST_IS_FORWARDING: bool = false;
 
     #[tokio::test]
     async fn test_authorize_list_initialized_keystore_allows_without_callback() {
@@ -385,8 +378,13 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .withf(|req| {
-                req.sign_request.process_name == Some("test-process".to_string())
-                    && req.sign_request.is_forwarding
+                req.sign_request.connection.process_name == Some("test-process".to_string())
+                    && req
+                        .sign_request
+                        .connection
+                        .session_bind
+                        .as_ref()
+                        .is_some_and(|s| s.is_forwarding)
                     && req.sign_request.namespace == Some(SIGNamespace::Unsupported)
             })
             .times(1)
@@ -396,8 +394,13 @@ mod tests {
 
         let request = create_test_sign_request(
             test_pub_key,
-            Some("test-process"),
-            true,
+            ConnectionContext {
+                process_name: Some("test-process".to_string()),
+                session_bind: Some(SessionBindContext {
+                    is_forwarding: true,
+                    host_fingerprint: "test-fingerprint".to_string(),
+                }),
+            },
             Some(SIGNamespace::Unsupported),
         );
         let result = policy.authorize(&request).await;
