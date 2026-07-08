@@ -182,8 +182,8 @@ export class TrialBillingStepService {
         billingEmail: trial.organization.email,
         initiationPath:
           trial.product === "passwordManager"
-            ? "Password Manager trial from marketing website"
-            : "Secrets Manager trial from marketing website",
+            ? InitiationPath.PasswordManagerTrialFromMarketingWebsite
+            : InitiationPath.SecretsManagerTrialFromMarketingWebsite,
       },
       plan:
         trial.product === "passwordManager"

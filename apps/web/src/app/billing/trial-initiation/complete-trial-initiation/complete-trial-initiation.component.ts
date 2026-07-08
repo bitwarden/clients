@@ -207,14 +207,15 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   /** create an organization on trial without payment method */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
-    let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
+    let trialInitiationPath: InitiationPath =
+      InitiationPath.PasswordManagerTrialFromMarketingWebsite;
     let plan: PlanInformation = {
       type: await this.getPlanType(),
       passwordManagerSeats: 1,
     };
 
     if (this.product === ProductType.SecretsManager) {
-      trialInitiationPath = "Secrets Manager trial from marketing website";
+      trialInitiationPath = InitiationPath.SecretsManagerTrialFromMarketingWebsite;
       plan = {
         ...plan,
         subscribeToSecretsManager: true,
@@ -316,7 +317,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
             this.orgInfoFormGroup.value.billingEmail == null
               ? ""
               : this.orgInfoFormGroup.value.billingEmail,
-          initiationPath: "Password Manager trial from marketing website",
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
         },
         plan: {
           type: 0,
