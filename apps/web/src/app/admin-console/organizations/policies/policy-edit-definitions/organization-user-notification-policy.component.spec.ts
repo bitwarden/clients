@@ -8,7 +8,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,6 +18,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationUserNotificationPolicy,
   OrganizationUserNotificationPolicyComponent,
+  OrganizationUserNotificationPolicyV2Component,
 } from "./organization-user-notification-policy.component";
 
 const ORG_ID = "org1" as OrganizationId;
@@ -41,6 +41,12 @@ describe("OrganizationUserNotificationPolicy", () => {
     expect(policy.description).toBe("organizationUserNotificationPolicyDesc");
     expect(policy.type).toBe(PolicyType.OrganizationUserNotification);
     expect(policy.component).toBe(OrganizationUserNotificationPolicyComponent);
+  });
+
+  it("renders the v2 component inside the drawer", () => {
+    const policy = new OrganizationUserNotificationPolicy();
+
+    expect(policy.v2?.component).toBe(OrganizationUserNotificationPolicyV2Component);
   });
 });
 
@@ -77,17 +83,16 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
     }).compileComponents();
   });
 
-  describe("when SingleOrg policy is not enabled", () => {
+  describe("initial state", () => {
     beforeEach(() => {
-      mockPolicyService.policies$.mockReturnValue(of([]));
       createComponent();
     });
 
-    it("disables the enabled control", () => {
-      expect(component.enabled.disabled).toBe(true);
+    it("enables the enabled control", () => {
+      expect(component.enabled.enabled).toBe(true);
     });
 
-    it("disables all form controls", () => {
+    it("disables all form controls until the policy is enabled", () => {
       const { header, description, buttonText, showAfterEveryLogin } = component.data.controls;
       expect(header.disabled).toBe(true);
       expect(description.disabled).toBe(true);
@@ -96,16 +101,9 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
     });
   });
 
-  describe("when SingleOrg policy is enabled", () => {
+  describe("enable/disable behavior", () => {
     beforeEach(() => {
-      mockPolicyService.policies$.mockReturnValue(
-        of([{ type: PolicyType.SingleOrg, enabled: true } as Policy]),
-      );
       createComponent();
-    });
-
-    it("enables the enabled control", () => {
-      expect(component.enabled.enabled).toBe(true);
     });
 
     it("keeps form controls disabled when policy is initially not enabled", () => {
@@ -191,9 +189,6 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
 
   describe("form validation", () => {
     beforeEach(async () => {
-      mockPolicyService.policies$.mockReturnValue(
-        of([{ type: PolicyType.SingleOrg, enabled: true } as Policy]),
-      );
       createComponent();
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
       await component.ngOnInit();
@@ -283,9 +278,6 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
 
   describe("buildRequestData", () => {
     beforeEach(() => {
-      mockPolicyService.policies$.mockReturnValue(
-        of([{ type: PolicyType.SingleOrg, enabled: true } as Policy]),
-      );
       createComponent();
     });
 
