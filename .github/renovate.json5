@@ -478,6 +478,23 @@
         "electron-updater",
       ],
     },
+    {
+      // Add snapcraft compatibility note to electron-builder PRs
+      matchPackageNames: ["electron-builder"],
+      prBodyNotes: [
+        "⚠️ **Snapcraft Compatibility Check Required**",
+        "",
+        "electron-builder 26.x + core22 requires snapcraft ≤8.x due to deprecated 'snap pack' command.",
+        "Currently pinned to `8.x/stable` in `.github/workflows/build-desktop.yml` (lines 205, 362)",
+        "",
+        "**If upgrading to electron-builder ≥27.0.0:**",
+        "- Test if electron-builder v27 + core22 works with snapcraft 9.x",
+        "- OR migrate to core24 in `apps/desktop/electron-builder.json` (requires ubuntu-24.04 runners)",
+        "- If compatible, remove `--channel=8.x/stable` pin from workflow",
+        "",
+        "Related: BRE-2018",
+      ],
+    },
 
     // ==================== Dashboard Rules ====================
     {
