@@ -5,7 +5,12 @@ import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import {
+  InitiationPath,
+  PlanType,
+  ProductTierType,
+  ProductType,
+} from "@bitwarden/common/billing/enums";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";

@@ -21,7 +21,7 @@ import {
   PaymentInformation,
   SubscriptionInformation,
 } from "../abstractions";
-import { PaymentMethodType, PlanType } from "../enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "../enums";
 
 import { OrganizationBillingService } from "./organization-billing.service";
 

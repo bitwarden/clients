@@ -17,7 +17,12 @@ import {
   OrganizationInformation,
   PlanInformation,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
+import {
+  InitiationPath,
+  PlanType,
+  ProductTierType,
+  ProductType,
+} from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -29,9 +34,6 @@ import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-b
 import { RouterService } from "../../../core/router.service";
 import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
-export type InitiationPath =
-  | "Password Manager trial from marketing website"
-  | "Secrets Manager trial from marketing website";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

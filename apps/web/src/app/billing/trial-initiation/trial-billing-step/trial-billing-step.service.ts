@@ -9,7 +9,7 @@ import {
   OrganizationBillingServiceAbstraction,
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
-import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
 import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
