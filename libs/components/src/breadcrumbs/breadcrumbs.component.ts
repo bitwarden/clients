@@ -7,6 +7,7 @@ import {
   computed,
   contentChildren,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
@@ -111,6 +112,12 @@ export class BreadcrumbsComponent {
       this.hostWidth.set(hostEl.clientWidth);
       ro.observe(hostEl);
       this.destroyRef.onDestroy(() => ro.disconnect());
+    });
+
+    // Push our size down to each child crumb so they can size projected icon tiles in step.
+    effect(() => {
+      const size = this.size();
+      this.breadcrumbs().forEach((breadcrumb) => breadcrumb.size.set(size));
     });
   }
 

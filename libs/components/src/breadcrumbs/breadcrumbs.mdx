@@ -41,6 +41,15 @@ they are not hooked into the router.
 
 <Canvas of={stories.DefaultAsButtons} />
 
+### Start slot
+
+A leading element can be projected into the `start` slot for a richer visual than the `icon` input —
+most commonly a `bit-icon-tile`. When a `bit-icon-tile` is projected, its `size` is controlled by
+the breadcrumbs `size`, so it stays in step with the crumbs without any extra wiring (a consumer can
+still override it by setting `size` explicitly on the tile).
+
+<Canvas of={stories.WithStartSlot} />
+
 ### Sizes
 
 Size should be chosen based on available space. Use the base size on large screen layouts where

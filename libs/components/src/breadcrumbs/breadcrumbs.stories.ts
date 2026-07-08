@@ -5,6 +5,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
 import { I18nMockService } from "../utils";
@@ -28,7 +29,14 @@ export default {
   component: BreadcrumbsComponent,
   decorators: [
     moduleMetadata({
-      imports: [LinkModule, MenuModule, IconButtonModule, RouterModule, BreadcrumbComponent],
+      imports: [
+        LinkModule,
+        MenuModule,
+        IconButtonModule,
+        RouterModule,
+        BreadcrumbComponent,
+        IconTileComponent,
+      ],
       providers: [
         {
           provide: I18nService,
@@ -113,6 +121,40 @@ export const Default: Story = {
 
 export const Small: Story = {
   ...Default,
+  args: {
+    size: "small",
+  },
+};
+
+export const WithStartSlot: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+    <bit-breadcrumbs ${formatArgsForCodeSnippet<BreadcrumbsComponent>(args)}>
+      <bit-breadcrumb route="/vault">
+        <bit-icon-tile slot="start" icon="bwi-vault" />
+        Vault
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/acme-corp">
+        <bit-icon-tile slot="start" icon="bwi-business" variant="success" />
+        ACME Corp
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/groups">
+        <bit-icon-tile slot="start" icon="bwi-users" variant="warning" />
+        Groups
+      </bit-breadcrumb>
+      <bit-breadcrumb route="/members">
+        <bit-icon-tile slot="start" icon="bwi-user" variant="danger" />
+        Members
+      </bit-breadcrumb>
+    </bit-breadcrumbs>
+    <router-outlet />
+    `,
+  }),
+};
+
+export const WithStartSlotSmall: Story = {
+  ...WithStartSlot,
   args: {
     size: "small",
   },

@@ -88,6 +88,9 @@
       </span>
     }
   }
+  @if (showTrailingArrow()) {
+    <ng-container [ngTemplateOutlet]="arrow" />
+  }
 </div>
 
 <bit-menu #overflowMenu>
@@ -109,7 +112,3 @@
     }
   }
 </bit-menu>
-
-@if (showTrailingArrow()) {
-  <ng-container [ngTemplateOutlet]="arrow" />
-}
