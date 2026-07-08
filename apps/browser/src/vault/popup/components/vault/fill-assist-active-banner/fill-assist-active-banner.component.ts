@@ -15,7 +15,7 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 })
 export class FillAssistActiveBannerComponent {
   /**
-   * Flag indicating that fill assist targeting rules are in effect for the current tab.
+   * Flag indicating that Fill Assist targeting rules are in effect for the current tab.
    */
   protected readonly showFillAssistActiveBanner$: Observable<boolean> =
     this.vaultPopupAutofillService.showFillAssistActiveBanner$;

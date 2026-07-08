@@ -136,7 +136,7 @@ describe("VaultPopupAutofillService", () => {
       );
     });
 
-    it("emits `true` when the current tab has a targeting-rule blocklist (empty array), which fill assist actively enforces", async () => {
+    it("emits `true` when the current tab has a targeting-rule blocklist (empty array), which Fill Assist actively enforces", async () => {
       mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue([]);
 
       expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
