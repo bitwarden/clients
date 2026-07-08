@@ -1370,6 +1370,9 @@
   "enableFillAssist": {
     "message": "Use fill assist"
   },
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using fill assist on this page."
+  },
   "turnOnFillAssist": {
     "message": "Turn on fill assist"
   },

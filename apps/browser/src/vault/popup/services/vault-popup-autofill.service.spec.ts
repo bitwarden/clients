@@ -1,7 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -56,6 +56,14 @@ describe("VaultPopupAutofillService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
 
+  // Controllable upstream subjects. `showFillAssistActiveBanner$` (and the other banner streams)
+  // capture these references at construction via shareReplay({ refCount: false }), so they must be
+  // wired before `testBed.inject` and driven via `.next()` rather than reassigned afterwards.
+  let pageDetailsSubject: BehaviorSubject<PageDetail[]>;
+  let blockedInteractionsUrisSubject: BehaviorSubject<any>;
+  let resolvedEnableFillAssistSubject: BehaviorSubject<boolean>;
+  let targetingRulesSubject: BehaviorSubject<any>;
+
   beforeEach(() => {
     jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockCurrentTab);
@@ -66,8 +74,16 @@ describe("VaultPopupAutofillService", () => {
       .spyOn(mockInlineMenuFieldQualificationService, "isFieldForIdentityForm")
       .mockReturnValue(true);
 
-    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
-    mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
+    pageDetailsSubject = new BehaviorSubject<PageDetail[]>([]);
+    blockedInteractionsUrisSubject = new BehaviorSubject({});
+    resolvedEnableFillAssistSubject = new BehaviorSubject(true);
+    targetingRulesSubject = new BehaviorSubject(null);
+
+    mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(pageDetailsSubject);
+    mockDomainSettingsService.blockedInteractionsUris$ = blockedInteractionsUrisSubject;
+    mockDomainSettingsService.resolvedEnableFillAssist$ = resolvedEnableFillAssistSubject;
+    mockDomainSettingsService.targetingRules$ = targetingRulesSubject;
+    mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(null);
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -104,6 +120,66 @@ describe("VaultPopupAutofillService", () => {
 
   it("should be created", () => {
     expect(service).toBeTruthy();
+  });
+
+  describe("showFillAssistActiveBanner$", () => {
+    // A minimal, non-empty `FormContent[]`. The exact shape is irrelevant here because
+    // `getTargetingRulesForUrl` is mocked; only the emptiness of the result matters to the banner.
+    const applicableTargetingRules = [{ category: "login", fields: {} }] as any;
+
+    it("emits `true` when the current tab has targeted fill rules", async () => {
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
+      expect(mockDomainSettingsService.getTargetingRulesForUrl).toHaveBeenCalledWith(
+        mockCurrentTab.url,
+      );
+    });
+
+    it("emits `true` when the current tab has a targeting-rule blocklist (empty array), which fill assist actively enforces", async () => {
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue([]);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
+    });
+
+    it("emits `false` when no targeting rules apply to the current tab (a null result)", async () => {
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(null);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits `false` when there is no current tab, even if rules would otherwise apply", async () => {
+      jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(null);
+      service.refreshCurrentTab();
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+    });
+
+    it("emits `false` and skips the targeting-rule lookup while the tab is blocklisted, even if the blocked banner was dismissed", async () => {
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
+      // `bannerIsDismissed: true` means the blocked banner is hidden, but the tab is still blocked.
+      blockedInteractionsUrisSubject.next({ "example.com": { bannerIsDismissed: true } });
+
+      expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
+      expect(mockDomainSettingsService.getTargetingRulesForUrl).not.toHaveBeenCalled();
+    });
+
+    it("re-evaluates and emits `true` once the tab is no longer blocklisted and rules apply", async () => {
+      mockDomainSettingsService.getTargetingRulesForUrl.mockResolvedValue(applicableTargetingRules);
+      blockedInteractionsUrisSubject.next({ "example.com": { bannerIsDismissed: false } });
+
+      const tracked = subscribeTo(service.showFillAssistActiveBanner$);
+      await tracked.pauseUntilReceived(1);
+      expect(tracked.emissions[0]).toBe(false);
+
+      // Tab is unblocked (removed from the blocked-interactions list).
+      blockedInteractionsUrisSubject.next({});
+      await tracked.pauseUntilReceived(2);
+
+      expect(tracked.emissions[1]).toBe(true);
+      tracked.unsubscribe();
+    });
   });
 
   describe("currentAutofillTab$", () => {

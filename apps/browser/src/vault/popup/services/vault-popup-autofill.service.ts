@@ -170,6 +170,40 @@ export class VaultPopupAutofillService {
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
+  /**
+   * Emits `true` when Fill Assist targeting rules apply to the current tab (any non-`null`
+   * response from {@link DomainSettingsService.getTargetingRulesForUrl}).
+   */
+  showFillAssistActiveBanner$: Observable<boolean> = combineLatest([
+    this.currentAutofillTab$,
+    this.domainSettingsService.resolvedEnableFillAssist$,
+    this.domainSettingsService.targetingRules$,
+    this.currentTabIsOnBlocklist$,
+  ]).pipe(
+    // `resolvedEnableFillAssist`, `targetingRules` are included to trigger new state
+    // resolution, not consumed directly
+    switchMap(async ([currentTab, , , tabIsOnBlocklist]) => {
+      // A blocklisted tab suppresses all autofill, so Fill Assist is moot regardless of the
+      // blocked-domains banner's shown/dismissed state.
+      if (tabIsOnBlocklist) {
+        return false;
+      }
+
+      if (!currentTab?.url?.length) {
+        return false;
+      }
+
+      const targetingRules = await this.domainSettingsService.getTargetingRulesForUrl(
+        currentTab.url,
+      );
+
+      // Any non-`null` result means rules apply, including an empty array (a targeting-rule
+      // blocklist that intentionally suppresses autofill). Only `null` (no rules) is inactive.
+      return Array.isArray(targetingRules);
+    }),
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
   nonLoginCipherTypesOnPage$: Observable<{
     [CipherType.Card]: boolean;
     [CipherType.Identity]: boolean;
