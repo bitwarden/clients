@@ -11,34 +11,45 @@ type NativeStatus = autofill.NativeStatus;
 
 import { RunCommandParams, RunCommandResult } from "./main/main-desktop-autofill.service";
 import { AutofillCommand } from "./models/autofill-command";
+import {
+  AutofillIpcChannelControl,
+  AutofillIpcChannelIncoming,
+  AutofillIpcChannelOutgoing,
+} from "./models/autofill-ipc-channels";
 import { CompletionCallback, IpcListener } from "./models/ipc-handler.type";
 
 export const DesktopAutofillPreload = {
   runCommand: <C extends AutofillCommand>(
     params: RunCommandParams<C>,
-  ): Promise<RunCommandResult<C>> => ipcRenderer.invoke("autofill.runCommand", params),
+  ): Promise<RunCommandResult<C>> =>
+    ipcRenderer.invoke(AutofillIpcChannelControl.RunCommand, params),
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
   listenPasskeyRegistration: makeListener<PasskeyRegistrationRequest, PasskeyRegistrationResponse>(
-    "autofill.passkeyRegistration",
-    "autofill.completePasskeyRegistration",
+    AutofillIpcChannelIncoming.PasskeyRegistration,
+    AutofillIpcChannelOutgoing.PasskeyRegistration,
   ),
-
   listenPasskeyAssertion: makeListener<PasskeyAssertionRequest, PasskeyAssertionResponse>(
-    "autofill.passkeyAssertion",
-    "autofill.completePasskeyAssertion",
+    AutofillIpcChannelIncoming.PasskeyAssertion,
+    AutofillIpcChannelOutgoing.PasskeyAssertion,
   ),
 
   listenPasskeyAssertionWithoutUserInterface: makeListener<
     PasskeyAssertionWithoutUserInterfaceRequest,
     PasskeyAssertionResponse
-  >("autofill.passkeyAssertionWithoutUserInterface", "autofill.completePasskeyAssertion"),
+  >(
+    AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
+    AutofillIpcChannelOutgoing.PasskeyAssertion,
+  ),
 
-  listenNativeStatus: makeListener<NativeStatus, void>("autofill.nativeStatus"),
+  listenNativeStatus: makeListener<NativeStatus, void>(AutofillIpcChannelIncoming.NativeStatus),
 };
 
-function makeListener<Request, Response>(incomingChannel: string, outgoingChannel?: string) {
+function makeListener<Request, Response>(
+  incomingChannel: AutofillIpcChannelIncoming,
+  outgoingChannel?: AutofillIpcChannelOutgoing,
+) {
   return (fn: IpcListener<Request, Response>) => {
     ipcRenderer.on(
       incomingChannel,
@@ -54,7 +65,7 @@ function makeListener<Request, Response>(incomingChannel: string, outgoingChanne
         const completeCallback: CompletionCallback<Response> | undefined = outgoingChannel
           ? (error, response) => {
               if (error) {
-                ipcRenderer.send("autofill.completeError", {
+                ipcRenderer.send(AutofillIpcChannelOutgoing.Error, {
                   clientId,
                   sequenceNumber,
                   error: error.message,
