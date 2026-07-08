@@ -30,6 +30,8 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { webmapperContextMenuItems } from "../webmapper/menu";
+
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
 function separatorIds() {
@@ -115,6 +117,7 @@ export class MainContextMenuHandler {
         title: "Triage Autofill Issues",
         requiresFeatureFlag: FeatureFlag.EnableAutofillTriage,
       },
+      ...webmapperContextMenuItems(),
     ];
   })();
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [

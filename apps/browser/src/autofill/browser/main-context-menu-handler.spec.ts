@@ -31,6 +31,8 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { webmapperContextMenuItems, WEBMAPPER_ROOT_ID } from "../webmapper/menu";
+
 import { MainContextMenuHandler } from "./main-context-menu-handler";
 
 /**
@@ -196,10 +198,15 @@ describe("context-menu", () => {
 
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
-      // 10 base items + 1 separator + 1 triage item = 12
-      expect(createSpy).toHaveBeenCalledTimes(12);
+      // 10 base items + 1 separator + 1 triage item + the webmapper tree (also
+      // gated on EnableAutofillTriage).
+      expect(createSpy).toHaveBeenCalledTimes(12 + webmapperContextMenuItems().length);
       expect(createSpy).toHaveBeenCalledWith(
         expect.objectContaining({ id: AUTOFILL_TRIAGE_ID }),
+        expect.any(Function),
+      );
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: WEBMAPPER_ROOT_ID }),
         expect.any(Function),
       );
     });
