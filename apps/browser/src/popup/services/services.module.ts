@@ -199,6 +199,7 @@ import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/servi
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
+import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
@@ -414,6 +415,11 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       AuthService,
     ],
+  }),
+  safeProvider({
+    provide: WebmapperDraftService,
+    useClass: WebmapperDraftService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AbstractStorageService,
