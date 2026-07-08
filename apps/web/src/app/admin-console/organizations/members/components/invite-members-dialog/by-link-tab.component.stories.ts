@@ -132,7 +132,7 @@ const makeRender =
               inviteLink$: () => inviteLink$.asObservable(),
               reconstructUrl: () => of(mockInviteLinkUrl),
               createInviteLink: upsertLink,
-              updateInviteLink: upsertLink,
+              updateAllowedDomains: upsertLink,
               refreshInviteLink: () => Promise.resolve(),
               delete: () => {
                 inviteLink$.next(undefined);
