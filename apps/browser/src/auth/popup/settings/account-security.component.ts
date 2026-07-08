@@ -69,6 +69,7 @@ import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -230,6 +231,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
+          // Biometrics status shouldn't be checked if permissions are needed.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
+          }
+
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
@@ -372,6 +381,40 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   async updateBiometric(enabled: boolean) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (enabled) {
+      let granted;
+      try {
+        granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
+      } catch (e) {
+        // eslint-disable-next-line
+        console.error(e);
+
+        if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
+          await this.dialogService.openSimpleDialog({
+            title: { key: "nativeMessaginPermissionSidebarTitle" },
+            content: { key: "nativeMessaginPermissionSidebarDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+            type: "info",
+          });
+
+          this.form.controls.biometric.setValue(false);
+          return;
+        }
+      }
+
+      if (!granted) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "nativeMessaginPermissionErrorTitle" },
+          content: { key: "nativeMessaginPermissionErrorDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "danger",
+        });
+
+        this.form.controls.biometric.setValue(false);
+        return;
+      }
+
       try {
         await this.keyService.refreshAdditionalKeys(userId);
 
