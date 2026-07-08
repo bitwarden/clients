@@ -7,8 +7,6 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { Invite, OrganizationId as SdkOrganizationId } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
-type InviteBundle = { invite: Invite };
-
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
@@ -44,7 +42,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     allowedDomains: string[],
     supportsConfirmation: boolean,
   ): Promise<void> {
-    const { invite } = await firstValueFrom(this.generateEncryptedKey(userId, orgId));
+    const invite = await firstValueFrom(this.makeInvite(userId, orgId));
     const request = new OrganizationInviteLinkCreateRequest({
       allowedDomains,
       invite,
@@ -73,7 +71,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     supportsConfirmation: boolean = false,
   ): Promise<void> {
-    const { invite } = await firstValueFrom(this.generateEncryptedKey(userId, orgId));
+    const invite = await firstValueFrom(this.makeInvite(userId, orgId));
     const request = new OrganizationInviteLinkRefreshRequest({
       invite,
       supportsConfirmation,
@@ -137,12 +135,12 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     return inviteLink;
   }
 
-  private generateEncryptedKey(userId: UserId, orgId: OrganizationId): Observable<InviteBundle> {
+  private makeInvite(userId: UserId, orgId: OrganizationId): Observable<Invite> {
     return this.sdkService.userClient$(userId).pipe(
       map((sdk) => {
         using ref = sdk.take();
         const bundle = ref.value.invite_link().make_invite(asUuid<SdkOrganizationId>(orgId));
-        return { invite: bundle.invite };
+        return bundle.invite;
       }),
     );
   }
