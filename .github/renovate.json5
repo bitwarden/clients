@@ -492,8 +492,8 @@
         "- OR migrate to core24 in `apps/desktop/electron-builder.json` (requires ubuntu-24.04 runners)",
         "- If compatible, remove `--channel=8.x/stable` pin from workflow",
         "",
-        "Related: BRE-2018"
-      ]
+        "Related: BRE-2018",
+      ],
     },
 
     // ==================== Dashboard Rules ====================
