@@ -325,12 +325,12 @@ describe("VaultBatchBarService", () => {
       expect(service.canArchive()).toBe(false);
     });
 
-    it("returns false when any cipher has an organizationId", () => {
+    it("returns true when an org cipher is selected and userCanArchive is true", () => {
       userCanArchiveSubject.next(true);
 
       service.selection.select(makeCipherItem({ organizationId: orgId }));
 
-      expect(service.canArchive()).toBe(false);
+      expect(service.canArchive()).toBe(true);
     });
 
     it("returns false when any cipher has an archivedDate", () => {
@@ -369,10 +369,10 @@ describe("VaultBatchBarService", () => {
       expect(service.canUnarchive()).toBe(false);
     });
 
-    it("returns false when any cipher has an organizationId", () => {
+    it("returns true when an archived org cipher is selected", () => {
       service.selection.select(makeCipherItem({ archivedDate: new Date(), organizationId: orgId }));
 
-      expect(service.canUnarchive()).toBe(false);
+      expect(service.canUnarchive()).toBe(true);
     });
 
     it("returns true when all selected ciphers are archived personal items", () => {
