@@ -368,6 +368,7 @@ import { PhishingDataService } from "../dirt/phishing-detection/services/phishin
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
 import { BackgroundBrowserBiometricsService } from "../key-management/biometrics/background-browser-biometrics.service";
 import { BrowserSessionTimeoutTypeService } from "../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { SHARED_UNLOCK_EXTERNAL } from "../key-management/shared-unlock-messages";
 import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.service";
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
@@ -1847,6 +1848,9 @@ export default class MainBackground {
     }
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart2)) {
       await this.sharedUnlockFollowerService.start();
+      this.sharedUnlockFollowerService.externalUnlock$.subscribe((userId) => {
+        this.messagingService.send(SHARED_UNLOCK_EXTERNAL, { userId });
+      });
     }
     this.badgeService.startListening();
 

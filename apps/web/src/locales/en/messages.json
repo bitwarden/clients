@@ -646,11 +646,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -1777,6 +1796,9 @@
   },
   "deletedItems": {
     "message": "Items sent to trash"
+  },
+  "movedItem": {
+    "message": "Item moved"
   },
   "movedItems": {
     "message": "Items moved"
@@ -7320,12 +7342,20 @@
     "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -9389,7 +9419,6 @@
         "example": "HEC"
       }
     }
-
   },
   "inputRequired": {
     "message": "Input is required."
@@ -11253,8 +11282,14 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
+  "collectionsEdited": {
+    "message": "Collections edited"
+  },
   "editedCollections": {
     "message": "Edited collections"
+  },
+  "collectionEdited": {
+    "message": "Collection edited"
   },
   "editedCollection": {
     "message": "Edited collection"
@@ -11643,6 +11678,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -13471,6 +13518,10 @@
       }
     }
   },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
   "archiveItemsSingular": {
     "message": "Archive $NUM$ item",
     "description": "Title of the archive items dialog when a single item is selected",
@@ -14299,7 +14350,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -14768,6 +14819,10 @@
     "message": "Control whether members can use Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendTypes": {
+    "message": "Send types",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "any": {
     "message": "Any"
   },
@@ -14876,6 +14931,12 @@
   },
   "sendAccessOptionAnyoneWithAPassword": {
     "message": "Password set by member"
+  },
+  "enforceDeletionDate": {
+    "message": "Enforce deletion date"
+  },
+  "sendDeletionDate": {
+    "message": "Deletion date"
   },
   "hideMyEmail": {
     "message": "Hide my email address from recipients."
@@ -15014,6 +15075,15 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",

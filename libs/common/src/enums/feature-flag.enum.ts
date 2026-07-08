@@ -51,7 +51,6 @@ export enum FeatureFlag {
   EnrollAeadOnKeyRotation = "enroll-aead-on-key-rotation",
   ForceUpdateKDFSettings = "pm-18021-force-update-kdf-settings",
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
-  LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   // Note: Shared unlock is divided into two parts. Leader and follower. The leader is gated behind part 1, and
   // does not have user facing changes. It is an emergency only roll-back flag. Part 2 is where users actually
   // get to use the feature.
@@ -89,7 +88,6 @@ export enum FeatureFlag {
   PM32009NewItemTypes = "pm-32009-new-item-types",
   PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
-  CipherKeyEncryption = "cipher-key-encryption",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
   PM28191CipherAdminOpsToSdk = "pm-28191-cipher-admin-ops-to-sdk",
   PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
@@ -171,7 +169,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
-  [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM28191CipherAdminOpsToSdk]: FALSE,
@@ -212,7 +209,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.SharedUnlockPart1]: FALSE,
   [FeatureFlag.SharedUnlockPart2]: FALSE,
-  [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
   [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.ForceUpgradeV2Encryption]: FALSE,

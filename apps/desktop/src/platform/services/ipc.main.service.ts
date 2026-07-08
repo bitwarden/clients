@@ -20,7 +20,6 @@ import {
 
 import { NativeMessagingMain } from "../../main/native-messaging.main";
 import { WindowMain } from "../../main/window.main";
-import { isDev } from "../../utils";
 
 export class IpcMainService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
@@ -173,11 +172,9 @@ export class IpcMainService extends IpcService {
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
-      if (isDev()) {
-        await ipcRegisterDiscoverHandler(this.client, {
-          version: await this.app.getVersion(),
-        });
-      }
+      await ipcRegisterDiscoverHandler(this.client, {
+        version: this.app.getVersion(),
+      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

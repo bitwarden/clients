@@ -383,7 +383,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: ForegroundBrowserBiometricsService,
-    deps: [],
+    deps: [PlatformUtilsService],
   }),
   safeProvider({
     provide: SyncService,
@@ -630,6 +630,7 @@ const safeProviders: SafeProvider[] = [
       WebAuthnPrfUnlockService,
       SharedUnlockSettingsService,
       ConfigService,
+      MessageListener,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
