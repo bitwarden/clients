@@ -13,7 +13,6 @@ import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
   CollectionResponse,
 } from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
@@ -704,7 +703,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -719,7 +718,7 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
