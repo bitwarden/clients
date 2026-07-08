@@ -13,6 +13,7 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -121,6 +122,13 @@ function buildPolicyDialogMeta(
           {
             provide: OrganizationService,
             useValue: { organizations$: () => of([]) },
+          },
+          {
+            // Only policies with additional metadata to encrypt (e.g. OrganizationDataOwnershipPolicy's
+            // default user collection name) inject this, but providing it unconditionally is harmless
+            // for every other policy.
+            provide: EncryptService,
+            useValue: { encryptString: () => Promise.resolve({ encryptedString: "encrypted" }) },
           },
           {
             // Only PolicyEditDialogComponent/MultiStepPolicyEditDialogComponent inject this
