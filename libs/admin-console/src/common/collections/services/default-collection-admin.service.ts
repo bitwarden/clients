@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/common/admin-console/models/collections";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -95,8 +95,10 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     await this.apiService.deleteCollection(organizationId, collectionId);
   }
 
-  private async updateLocalCollections(response: CollectionDetailsResponse, userId: UserId) {
-    await this.collectionService.upsert(new CollectionData(response), userId);
+  private async updateLocalCollections(response: CollectionAccessDetailsResponse, userId: UserId) {
+    response.assigned
+      ? await this.collectionService.upsert(new CollectionData(response), userId)
+      : await this.collectionService.delete([response.id as CollectionId], userId);
   }
 
   async bulkAssignAccess(
