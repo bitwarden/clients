@@ -7,7 +7,7 @@ import { BaseCardDirective } from "./base-card/base-card.directive";
   template: `<ng-content></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-p-4 [@media(min-width:650px)]:tw-p-6",
+    class: "tw-p-4 [@media(min-width:769px)]:tw-p-6",
   },
   hostDirectives: [BaseCardDirective],
 })
