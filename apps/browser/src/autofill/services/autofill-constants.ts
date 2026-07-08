@@ -1,5 +1,20 @@
-import { AutofillTargetingRuleTypes } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
+import {
+  AutofillTargetingRuleTypes,
+  FormPurposeCategories,
+} from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType, FormPurposeCategory } from "@bitwarden/common/autofill/types";
+import { CipherType } from "@bitwarden/common/vault/enums";
+
+/**
+ * Authoritative cipher-type mapping for targeting-rule form categories whose
+ * fields all belong to a single cipher type.
+ */
+export const targetedFormCategoryFillTypes: Partial<Record<FormPurposeCategory, CipherType>> = {
+  [FormPurposeCategories.AccountLogin]: CipherType.Login,
+  [FormPurposeCategories.PaymentCard]: CipherType.Card,
+  [FormPurposeCategories.Identity]: CipherType.Identity,
+  [FormPurposeCategories.Address]: CipherType.Identity,
+};
 
 export const loginQualifiers: AutofillTargetingRuleType[] = [
   AutofillTargetingRuleTypes.username,

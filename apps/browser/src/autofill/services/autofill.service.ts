@@ -19,6 +19,7 @@ import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
   CardExpiryDateDelimiters,
+  FormPurposeCategories,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -71,6 +72,20 @@ import {
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
 } from "./autofill-constants";
+
+/**
+ * A Login cipher stores a single `login.username` that represents whatever the
+ * primary login identifier is (an actual username, an email, or a phone number).
+ * A targeting-rule `account-login` form may expose that identifier under any of
+ * these field types (and often has no `username` field at all). When filling a
+ * Login cipher, route `login.username` to the highest-priority identifier field
+ * present in the form, in this order, and skip the others.
+ */
+const loginIdentifierQualifierPriority: string[] = [
+  AutofillTargetingRuleTypes.username,
+  AutofillTargetingRuleTypes.email,
+  AutofillTargetingRuleTypes.phone,
+];
 
 export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
@@ -891,21 +906,42 @@ export default class AutofillService implements AutofillServiceInterface {
         ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
         .map((u) => u.uri!) ?? [];
 
-    // Note; targeted fields intentionally skip the untrusted iframe check. The
+    // Note, targeted fields intentionally skip the untrusted iframe check. The
     // presence of targeting rules represents explicit expectations of the target
+
+    // For a Login cipher, `login.username` fills only the single highest-priority
+    // identifier field present in an `account-login` form (see the priority list).
+    const isLoginCipher = cipher.type === CipherType.Login;
+    const loginIdentifierQualifier = isLoginCipher
+      ? this.resolveLoginIdentifierQualifier(pageDetails)
+      : null;
 
     for (const field of pageDetails.fields) {
       if (!field.targeted || !field.fieldQualifier) {
         continue;
       }
 
-      // Password-generation flow synthesizes a Login cipher whose `password`
-      // carries the generated value. The standard newPassword → null policy
-      // would suppress that fill, so override it here.
-      const value =
-        isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword
-          ? (cipher.login?.password ?? null)
-          : this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      let value: string | null;
+      if (isPasswordGeneration && field.fieldQualifier === AutofillTargetingRuleTypes.newPassword) {
+        // The Login cipher is a transient representation of the generated password
+        // value, so the usual logic skipping new password fills does not apply here
+        value = cipher.login?.password ?? null;
+      } else if (
+        isLoginCipher &&
+        field.formCategory === FormPurposeCategories.AccountLogin &&
+        loginIdentifierQualifierPriority.includes(field.fieldQualifier)
+      ) {
+        // The login identifier fills the winning identifier field only; sibling
+        // identifier fields are skipped. This presumes a _login_ form will not require
+        // more than one of a `loginIdentifierQualifierPriority` (e.g. only one of
+        // username, email, or phone number).
+        value =
+          field.fieldQualifier === loginIdentifierQualifier
+            ? (cipher.login?.username ?? null)
+            : null;
+      } else {
+        value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      }
 
       if (!value) {
         continue;
@@ -919,6 +955,31 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fillScript;
+  }
+
+  /**
+   * Determines which identifier field a Login cipher's `login.username` should
+   * fill, given the targeted fields present on `account-login` forms. Returns
+   * the highest-priority present qualifier (username > email > phone), or null
+   * when none are present.
+   */
+  private resolveLoginIdentifierQualifier(pageDetails: AutofillPageDetails): string | null {
+    const presentIdentifierQualifiers = new Set(
+      pageDetails.fields
+        .filter(
+          (field) =>
+            field.targeted &&
+            field.formCategory === FormPurposeCategories.AccountLogin &&
+            field.fieldQualifier != null,
+        )
+        .map((field) => field.fieldQualifier as string),
+    );
+
+    return (
+      loginIdentifierQualifierPriority.find((qualifier) =>
+        presentIdentifierQualifiers.has(qualifier),
+      ) ?? null
+    );
   }
 
   /**

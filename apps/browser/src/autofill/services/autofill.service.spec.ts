@@ -8,6 +8,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
+  FormPurposeCategories,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
@@ -1953,6 +1954,156 @@ describe("AutofillService", () => {
         passwordField,
         "stored-password",
       );
+    });
+
+    it("fills an email-only account-login form's email field with the Login cipher username", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "m.moss@example.com", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        "m.moss@example.com",
+      );
+    });
+
+    it("fills a phone-only account-login form's phone field with the Login cipher username", async () => {
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_0_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "0118 999 881 999 119 7253", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        "0118 999 881 999 119 7253",
+      );
+    });
+
+    it("prefers the username field over email/phone when multiple identifier fields are present in a login form", async () => {
+      const usernameField = buildTargetedField({
+        opid: "targeted_field_0_username",
+        fieldQualifier: AutofillTargetingRuleTypes.username,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const emailField = buildTargetedField({
+        opid: "targeted_field_1_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_2_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "dreynholm", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([usernameField, emailField, phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        usernameField,
+        "dreynholm",
+      );
+      expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        expect.anything(),
+      );
+      expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        expect.anything(),
+      );
+    });
+
+    it("does not collapse identifier fields for an Identity cipher (email/phone map to their identity values)", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_1_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Identity;
+      options.cipher.identity = mock<IdentityView>({
+        email: "r.trenneman@example.com",
+        phone: "55 55 5555 5555",
+      });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField, phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        "r.trenneman@example.com",
+      );
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        "55 55 5555 5555",
+      );
+    });
+
+    it("does not route the Login cipher username to email/phone fields outside an account-login form", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountCreation,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "j.barber@example.com", uris: [] });
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField]),
+        options,
+      );
+
+      expect(result).toBeNull();
     });
   });
 

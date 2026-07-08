@@ -1,10 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EVENTS } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillTargetingRuleTypes,
+  EVENTS,
+  FormPurposeCategories,
+} from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import AutofillInit from "../content/autofill-init";
+import { AutofillFieldQualifier } from "../enums/autofill-field.enums";
 import {
   AutofillOverlayElement,
   InlineMenuFillTypes,
@@ -1531,6 +1536,135 @@ describe("AutofillOverlayContentService", () => {
             InlineMenuFillTypes.CurrentPasswordUpdate,
           );
         });
+      });
+    });
+
+    describe("setTargetedFieldFillType", () => {
+      const setFillType = (overrides: Partial<AutofillField>) => {
+        const field = createAutofillFieldMock({ targeted: true, ...overrides });
+        autofillOverlayContentService["setTargetedFieldFillType"](field);
+        return field.inlineMenuFillType;
+      };
+
+      it("resolves an account-login form's email field to a Login fill type (not Identity)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves an account-login form's phone field to a Login fill type (not Identity)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.phone,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves an account-login form's password field to a Login fill type (not password generation)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.password,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves a payment-card form's cardholderName field to a Card fill type", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.cardholderName,
+            formCategory: FormPurposeCategories.PaymentCard,
+          }),
+        ).toEqual(CipherType.Card);
+      });
+
+      it("resolves identity and address form fields to an Identity fill type", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.firstName,
+            formCategory: FormPurposeCategories.Identity,
+          }),
+        ).toEqual(CipherType.Identity);
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.postalCode,
+            formCategory: FormPurposeCategories.Address,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("routes a username field on an identity form to Identity via category (overriding the login qualifier inference)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.username,
+            formCategory: FormPurposeCategories.Identity,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("falls back to qualifier inference when the category is not a single-cipher-type category", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: FormPurposeCategories.AccountCreation,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("falls back to qualifier inference when no category is present (e.g. iframe-routed targeted field)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: undefined,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("keeps newPassword mapped to password generation regardless of category", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(InlineMenuFillTypes.PasswordGeneration);
+      });
+    });
+
+    describe("storeQualifiedUserFilledField login-identifier capture", () => {
+      const captureUsernameFor = (qualifier: string) => {
+        autofillOverlayContentService["userFilledFields"] = {};
+        const element = document.createElement(
+          "input",
+        ) as ElementWithOpId<FillableFormFieldElement>;
+        const field = createAutofillFieldMock({ fieldQualifier: qualifier });
+        autofillOverlayContentService["storeQualifiedUserFilledField"](element, field);
+        return autofillOverlayContentService["userFilledFields"].username;
+      };
+
+      it("captures a targeted email field as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.email)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("captures a targeted phone field as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.phone)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("captures a heuristic identity phone field as the login username", () => {
+        expect(captureUsernameFor(AutofillFieldQualifier.identityPhone)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("does not capture an unrelated field (e.g. postal code) as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.postalCode)).toBeUndefined();
       });
     });
 

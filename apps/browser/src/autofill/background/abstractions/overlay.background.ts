@@ -158,7 +158,7 @@ export type OverlayBackgroundExtensionMessage = {
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
   iframeSrc?: string;
-  iframeTargetedFields?: { selector: string; fieldType: string }[];
+  iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &

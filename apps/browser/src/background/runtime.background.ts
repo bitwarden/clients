@@ -241,12 +241,14 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        return await this.main.domainSettingsService.getTargetingRulesForUrl(
-          // Because content scripts are injected into all _frames_, we give precedence
-          // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
-          // selector collision with coincidentally-matching in-frame structures.
-          sender.url ?? sender.tab?.url,
-        );
+        // Because content scripts are injected into all _frames_, we give precedence
+        // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
+        // selector collision with coincidentally-matching in-frame structures.
+        const senderURL = sender.url ?? sender.tab?.url;
+        const targetingRulesForUrl =
+          await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
+
+        return targetingRulesForUrl;
       }
       case "authResult": {
         if (!(await this.isValidVaultReferrer(msg.referrer))) {
