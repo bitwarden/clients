@@ -718,7 +718,7 @@
 * Kept outside @layer components so Tailwind does not tree-shake the selector.
 */
 .cdk-drag-preview {
-  background-color: rgb(var(--color-background));
+  background-color: rgb(var(--color-bg-primary));
   color: rgb(var(--color-text-main));
   overflow: hidden;
 }
