@@ -137,6 +137,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     await this.syncIfReturningFromCheckout();
+    window.addEventListener("focus", this.onWindowFocus);
 
     this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
@@ -298,9 +299,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener("focus", this.onWindowFocus);
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  private readonly onWindowFocus = (): void => {
+    void this.syncIfReturningFromCheckout();
+  };
 
   private async syncIfReturningFromCheckout(): Promise<void> {
     try {

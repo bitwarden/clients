@@ -173,4 +173,42 @@ describe("AppComponent (browser popup)", () => {
     expect(premiumCheckoutPendingService.consumeCheckoutPending).not.toHaveBeenCalled();
     expect(syncService.fullSync).not.toHaveBeenCalled();
   });
+
+  describe("window refocus (popout / sidebar)", () => {
+    const flushAsync = () => new Promise(process.nextTick);
+
+    it("syncs when the window regains focus with a checkout pending", async () => {
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      await component.ngOnInit();
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+      window.dispatchEvent(new Event("focus"));
+      await flushAsync();
+
+      expect(syncService.fullSync).toHaveBeenCalledWith(true);
+    });
+
+    it("does not sync on refocus when no checkout is pending", async () => {
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      await component.ngOnInit();
+
+      window.dispatchEvent(new Event("focus"));
+      await flushAsync();
+
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
+
+    it("stops listening for focus after the component is destroyed", async () => {
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(false);
+      await component.ngOnInit();
+      component.ngOnDestroy();
+
+      premiumCheckoutPendingService.consumeCheckoutPending.mockResolvedValue(true);
+      window.dispatchEvent(new Event("focus"));
+      await flushAsync();
+
+      expect(syncService.fullSync).not.toHaveBeenCalled();
+    });
+  });
 });
