@@ -2461,11 +2461,10 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
-    const featureEnabled = await this.configService.getFeatureFlag(FeatureFlag.CipherKeyEncryption);
     const meetsServerVersion = await firstValueFrom(
       this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
     );
-    return featureEnabled && meetsServerVersion;
+    return meetsServerVersion;
   }
 
   /**
