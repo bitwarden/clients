@@ -55,7 +55,6 @@ import {
   UserKey,
   MasterKey,
   ProviderKey,
-  CipherKey,
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
@@ -436,10 +435,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       "bitwarden-send",
       "send",
     );
-  }
-
-  async makeCipherKey(): Promise<CipherKey> {
-    return (await this.keyGenerationService.createKey(512)) as CipherKey;
   }
 
   async clearKeys(userId: UserId): Promise<void> {
