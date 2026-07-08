@@ -5,6 +5,16 @@ import { autofill } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../main/window.main";
 import { AutofillCommandDefinition } from "../models/autofill-command";
+import {
+  AutofillIpcChannelControl,
+  AutofillIpcChannelIncoming,
+  AutofillIpcChannelOutgoing,
+  AutofillIpcDefinitionMap,
+  AutofillIpcRequest,
+  AutofillIpcResponse,
+} from "../models/autofill-ipc-channels";
+
+import AutofillIpcServer = autofill.AutofillIpcServer;
 
 type BufferedMessage = {
   channel: string;
@@ -32,7 +42,7 @@ type CompletionCallback<Response> = (
 ) => void;
 
 export class DesktopAutofillMain {
-  private ipcServer?: autofill.AutofillIpcServer;
+  private ipcServer?: AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
   private completionCallbacks: Map<string, CompletionCallback<any>> = new Map();
@@ -73,7 +83,7 @@ export class DesktopAutofillMain {
 
   async init() {
     ipcMain.handle(
-      "autofill.runCommand",
+      AutofillIpcChannelControl.RunCommand,
       <C extends AutofillCommandDefinition>(
         _event: any,
         params: RunCommandParams<C>,
@@ -83,39 +93,24 @@ export class DesktopAutofillMain {
     );
 
     // Register IPC listeners and response callbacks
-    const registrationListener = this.makeListener<
-      autofill.PasskeyRegistrationRequest,
-      autofill.PasskeyRegistrationResponse
-    >(
-      "autofill.AutofillIpcServer.registration",
-      "autofill.passkeyRegistration",
-      "autofill.completePasskeyRegistration",
-      autofill.AutofillIpcServer.prototype.completeRegistration,
+    const registrationListener = this.makeListener(
+      AutofillIpcChannelIncoming.PasskeyRegistration,
+      AutofillIpcChannelOutgoing.PasskeyRegistration,
+      AutofillIpcServer.prototype.completeRegistration,
     );
-    const assertionListener = this.makeListener<
-      autofill.PasskeyAssertionRequest,
-      autofill.PasskeyAssertionResponse
-    >(
-      "autofill.AutofillIpcServer.assertion",
-      "autofill.passkeyAssertion",
-      "autofill.completePasskeyAssertion",
-      autofill.AutofillIpcServer.prototype.completeAssertion,
+    const assertionListener = this.makeListener(
+      AutofillIpcChannelIncoming.PasskeyAssertion,
+      AutofillIpcChannelOutgoing.PasskeyAssertion,
+      AutofillIpcServer.prototype.completeAssertion,
     );
-    const assertionWithoutUserInterfaceListener = this.makeListener<
-      autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-      autofill.PasskeyAssertionResponse
-    >(
-      "autofill.AutofillIpcServer.assertionWithoutUserInterface",
-      "autofill.passkeyAssertionWithoutUserInterface",
-      "autofill.completePasskeyAssertion",
-      autofill.AutofillIpcServer.prototype.completeAssertion,
+    const assertionWithoutUserInterfaceListener = this.makeListener(
+      AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
+      AutofillIpcChannelOutgoing.PasskeyAssertion,
+      AutofillIpcServer.prototype.completeAssertion,
     );
-    const nativeStatusListener = this.makeListener<autofill.NativeStatus, void>(
-      "autofill.AutofillIpcServer.nativeStatus",
-      "autofill.nativeStatus",
-    );
+    const nativeStatusListener = this.makeListener(AutofillIpcChannelIncoming.NativeStatus);
 
-    this.ipcServer = await autofill.AutofillIpcServer.listen(
+    this.ipcServer = await AutofillIpcServer.listen(
       "af",
       registrationListener,
       assertionListener,
@@ -123,7 +118,7 @@ export class DesktopAutofillMain {
       nativeStatusListener,
     );
 
-    ipcMain.on("autofill.listenerReady", () => {
+    ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {
       this.listenerReady = true;
       this.logService.info(
         `Listener is ready, flushing ${this.messageBuffer.length} buffered messages`,
@@ -131,8 +126,8 @@ export class DesktopAutofillMain {
       this.flushMessageBuffer();
     });
 
-    ipcMain.on("autofill.completeError", (event, data) => {
-      this.logService.debug("autofill.completeError", data);
+    ipcMain.on(AutofillIpcChannelOutgoing.Error, (event, data) => {
+      this.logService.debug("[DesktopAutofillMain]", AutofillIpcChannelOutgoing.Error, data);
       const { clientId, sequenceNumber, error } = data;
       this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
     });
@@ -145,27 +140,25 @@ export class DesktopAutofillMain {
    * renderer process, which is forwarded back to the autofill IPC server using
    * the given completion callback.
    *
-   * @param {string} listenerName - The name for the listener, used for logging.
    * @param {string} toRendererChannel - Channel to send requests to the renderer process.
    * @param {[string]} fromRendererChannel - Channel to listen for responses from the renderer process. Excluded if the IPC request does not expect a response.
    * @param {[string]} completeCallback - Callback to execute on a response from the renderer process. This should be a reference to a prototype method on {@link autofill.AutofillIpcServer}. Excluded if the IPC request does not expect a response.
    *
    * @returns A callback that can be used to register with {@link autofill.AutofillIpcServer.listen}.
    */
-  private makeListener<Request, Response>(
-    listenerName: string,
-    toRendererChannel: string,
-    fromRendererChannel?: string,
-    completeCallback?: CompletionCallback<Response>,
-  ): Listener<Request> {
+  private makeListener<K extends AutofillIpcChannelIncoming>(
+    toRendererChannel: K,
+    fromRendererChannel?: AutofillIpcDefinitionMap[K]["outgoing"],
+    completeCallback?: CompletionCallback<AutofillIpcResponse<K>>,
+  ): Listener<AutofillIpcRequest<K>> {
     const callback = (
       error: Error | null,
       clientId: number,
       sequenceNumber: number,
-      request: Request,
+      request: AutofillIpcRequest<K>,
     ) => {
       if (error) {
-        this.logService.error(listenerName, error);
+        this.logService.error("[NativeAutofillMain]", `${toRendererChannel}:`, error);
         this.ipcServer?.completeError(clientId, sequenceNumber, String(error));
         return;
       }

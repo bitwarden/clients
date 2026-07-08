@@ -1,20 +1,14 @@
 import { ipcRenderer } from "electron";
 
-import type { autofill } from "@bitwarden/desktop-napi";
-type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
-type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
-type PasskeyAssertionWithoutUserInterfaceRequest =
-  autofill.PasskeyAssertionWithoutUserInterfaceRequest;
-type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
-type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
-type NativeStatus = autofill.NativeStatus;
-
 import { RunCommandParams, RunCommandResult } from "./main/main-desktop-autofill.service";
 import { AutofillCommand } from "./models/autofill-command";
 import {
   AutofillIpcChannelControl,
   AutofillIpcChannelIncoming,
   AutofillIpcChannelOutgoing,
+  AutofillIpcDefinitionMap,
+  AutofillIpcRequest,
+  AutofillIpcResponse,
 } from "./models/autofill-ipc-channels";
 import { CompletionCallback, IpcListener } from "./models/ipc-handler.type";
 
@@ -26,31 +20,28 @@ export const DesktopAutofillPreload = {
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 
-  listenPasskeyRegistration: makeListener<PasskeyRegistrationRequest, PasskeyRegistrationResponse>(
+  listenPasskeyRegistration: makeListener(
     AutofillIpcChannelIncoming.PasskeyRegistration,
     AutofillIpcChannelOutgoing.PasskeyRegistration,
   ),
-  listenPasskeyAssertion: makeListener<PasskeyAssertionRequest, PasskeyAssertionResponse>(
+  listenPasskeyAssertion: makeListener(
     AutofillIpcChannelIncoming.PasskeyAssertion,
     AutofillIpcChannelOutgoing.PasskeyAssertion,
   ),
 
-  listenPasskeyAssertionWithoutUserInterface: makeListener<
-    PasskeyAssertionWithoutUserInterfaceRequest,
-    PasskeyAssertionResponse
-  >(
+  listenPasskeyAssertionWithoutUserInterface: makeListener(
     AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
     AutofillIpcChannelOutgoing.PasskeyAssertion,
   ),
 
-  listenNativeStatus: makeListener<NativeStatus, void>(AutofillIpcChannelIncoming.NativeStatus),
+  listenNativeStatus: makeListener(AutofillIpcChannelIncoming.NativeStatus),
 };
 
-function makeListener<Request, Response>(
-  incomingChannel: AutofillIpcChannelIncoming,
-  outgoingChannel?: AutofillIpcChannelOutgoing,
+function makeListener<K extends AutofillIpcChannelIncoming>(
+  incomingChannel: K,
+  outgoingChannel?: AutofillIpcDefinitionMap[K]["outgoing"],
 ) {
-  return (fn: IpcListener<Request, Response>) => {
+  return (fn: IpcListener<AutofillIpcRequest<K>, AutofillIpcResponse<K>>) => {
     ipcRenderer.on(
       incomingChannel,
       (
@@ -58,28 +49,29 @@ function makeListener<Request, Response>(
         data: {
           clientId: number;
           sequenceNumber: number;
-          request: Request;
+          request: AutofillIpcRequest<K>;
         },
       ) => {
         const { clientId, sequenceNumber, request } = data;
-        const completeCallback: CompletionCallback<Response> | undefined = outgoingChannel
-          ? (error, response) => {
-              if (error) {
-                ipcRenderer.send(AutofillIpcChannelOutgoing.Error, {
+        const completeCallback: CompletionCallback<AutofillIpcResponse<K>> | undefined =
+          outgoingChannel
+            ? (error, response) => {
+                if (error) {
+                  ipcRenderer.send(AutofillIpcChannelOutgoing.Error, {
+                    clientId,
+                    sequenceNumber,
+                    error: error.message,
+                  });
+                  return;
+                }
+
+                ipcRenderer.send(outgoingChannel, {
                   clientId,
                   sequenceNumber,
-                  error: error.message,
+                  response,
                 });
-                return;
               }
-
-              ipcRenderer.send(outgoingChannel, {
-                clientId,
-                sequenceNumber,
-                response,
-              });
-            }
-          : undefined;
+            : undefined;
         fn(clientId, sequenceNumber, request, completeCallback);
       },
     );
