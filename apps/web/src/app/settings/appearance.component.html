@@ -43,5 +43,14 @@
         <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
       </div>
     </div>
+    @if (newUiBetaEnabled$ | async) {
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="useNewUi" />
+        <bit-label>
+          {{ "useNewUi" | i18n }}
+        </bit-label>
+        <bit-hint>{{ "useNewUiDesc" | i18n }}</bit-hint>
+      </bit-form-control>
+    }
   </form>
 </bit-container>

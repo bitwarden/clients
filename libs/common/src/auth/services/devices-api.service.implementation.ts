@@ -9,6 +9,7 @@ import { UntrustDevicesRequestModel } from "../models/request/untrust-devices.re
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
+import { DeviceSettingsRequest } from "./devices/requests/device-settings.request";
 import { TrustedDeviceKeysRequest } from "./devices/requests/trusted-device-keys.request";
 
 export class DevicesApiServiceImplementation implements DevicesApiServiceAbstraction {
@@ -88,6 +89,21 @@ export class DevicesApiServiceImplementation implements DevicesApiServiceAbstrac
         headers.set("Device-Identifier", deviceIdentifier);
       },
     );
+  }
+
+  async updateDeviceSettings(
+    deviceIdentifier: string,
+    request: DeviceSettingsRequest,
+  ): Promise<DeviceResponse> {
+    const result = await this.apiService.send(
+      "PUT",
+      `/devices/${deviceIdentifier}/settings`,
+      request,
+      true,
+      true,
+    );
+
+    return new DeviceResponse(result);
   }
 
   async getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse> {

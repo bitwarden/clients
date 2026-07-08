@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { filter, firstValueFrom, switchMap } from "rxjs";
 
+import { DeviceSettingsServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-settings.service.abstraction";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -37,13 +38,18 @@ export class AppearanceComponent implements OnInit {
     enableFavicons: true,
     theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
+    useNewUi: false,
   });
+
+  /** Drives visibility of the new-UI toggle; hidden when the beta flag is off. */
+  protected readonly newUiBetaEnabled$ = this.deviceSettingsService.newUiBetaEnabled$;
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly i18nService: I18nService,
     private readonly themeStateService: ThemeStateService,
     private readonly domainSettingsService: DomainSettingsService,
+    private readonly deviceSettingsService: DeviceSettingsServiceAbstraction,
     private readonly destroyRef: DestroyRef,
   ) {
     const localeOptions: LocaleOption[] = [];
@@ -65,11 +71,18 @@ export class AppearanceComponent implements OnInit {
   }
 
   async ngOnInit() {
+    // Only pull the per-device value from the server when the beta is available; otherwise the
+    // toggle is hidden and useNewUi$ is forced to false anyway.
+    if (await firstValueFrom(this.deviceSettingsService.newUiBetaEnabled$)) {
+      await this.deviceSettingsService.refreshFromServer();
+    }
+
     this.form.setValue(
       {
         enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
         theme: await firstValueFrom(this.themeStateService.selectedTheme$),
         locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
+        useNewUi: await firstValueFrom(this.deviceSettingsService.useNewUi$),
       },
       { emitEvent: false },
     );
@@ -99,6 +112,16 @@ export class AppearanceComponent implements OnInit {
         switchMap(async (locale) => {
           await this.i18nService.setLocale(locale);
           window.location.reload();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+
+    this.form.controls.useNewUi.valueChanges
+      .pipe(
+        filter((useNewUi) => useNewUi != null),
+        switchMap(async (useNewUi) => {
+          await this.deviceSettingsService.setUseNewUi(useNewUi);
         }),
         takeUntilDestroyed(this.destroyRef),
       )

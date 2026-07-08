@@ -2,6 +2,7 @@ import { ListResponse } from "../../models/response/list.response";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
+import { DeviceSettingsRequest } from "../services/devices/requests/device-settings.request";
 
 export abstract class DevicesApiServiceAbstraction {
   abstract getKnownDevice(email: string, deviceIdentifier: string): Promise<boolean>;
@@ -21,6 +22,17 @@ export abstract class DevicesApiServiceAbstraction {
     updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
     deviceIdentifier: string,
   ): Promise<void>;
+
+  /**
+   * Applies a partial update of per-device settings for the given device. Settings are scoped to a
+   * single device and are not shared across the user's other clients.
+   * @param deviceIdentifier - client generated id (not device id in DB)
+   * @param request - the settings to change; omitted settings are left as-is
+   */
+  abstract updateDeviceSettings(
+    deviceIdentifier: string,
+    request: DeviceSettingsRequest,
+  ): Promise<DeviceResponse>;
 
   abstract getDeviceKeys(deviceIdentifier: string): Promise<ProtectedDeviceResponse>;
 

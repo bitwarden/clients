@@ -3,6 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ApiService } from "../../abstractions/api.service";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 
+import { DeviceSettingsRequest } from "./devices/requests/device-settings.request";
 import { DevicesApiServiceImplementation } from "./devices-api.service.implementation";
 
 describe("DevicesApiServiceImplementation", () => {
@@ -83,6 +84,28 @@ describe("DevicesApiServiceImplementation", () => {
           encryptedPublicKey: userKeyEncrypted,
           encryptedUserKey: publicKeyEncrypted,
         },
+        true,
+        true,
+      );
+    });
+  });
+
+  describe("updateDeviceSettings", () => {
+    it("updates device settings and returns device response", async () => {
+      const deviceIdentifier = "device123";
+      const mockResponse = { id: "123", name: "Test Device", UseNewUi: true };
+      apiService.send.mockResolvedValue(mockResponse);
+
+      const result = await devicesApiService.updateDeviceSettings(
+        deviceIdentifier,
+        new DeviceSettingsRequest(true),
+      );
+
+      expect(result).toBeInstanceOf(DeviceResponse);
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        `/devices/${deviceIdentifier}/settings`,
+        { useNewUi: true },
         true,
         true,
       );

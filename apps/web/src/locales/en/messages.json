@@ -2952,6 +2952,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
+  "useNewUi": {
+    "message": "Use the new UI"
+  },
+  "useNewUiDesc": {
+    "message": "Switch this device to the redesigned interface. This preference applies only to the current device."
+  },
   "default": {
     "message": "Default"
   },

@@ -4,6 +4,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { DeviceSettingsServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-settings.service.abstraction";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -17,10 +18,13 @@ describe("AppearanceComponent", () => {
   let mockI18nService: MockProxy<I18nService>;
   let mockThemeStateService: MockProxy<ThemeStateService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
+  let mockDeviceSettingsService: MockProxy<DeviceSettingsServiceAbstraction>;
 
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
   const mockUserSetLocale$ = new BehaviorSubject<string | undefined>("en");
+  const mockUseNewUi$ = new BehaviorSubject<boolean>(false);
+  const mockNewUiBetaEnabled$ = new BehaviorSubject<boolean>(true);
 
   const mockSupportedLocales = ["en", "es", "fr", "de"];
   const mockLocaleNames = new Map([
@@ -34,6 +38,14 @@ describe("AppearanceComponent", () => {
     mockI18nService = mock<I18nService>();
     mockThemeStateService = mock<ThemeStateService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
+    mockDeviceSettingsService = mock<DeviceSettingsServiceAbstraction>();
+
+    mockUseNewUi$.next(false);
+    mockNewUiBetaEnabled$.next(true);
+    mockDeviceSettingsService.useNewUi$ = mockUseNewUi$;
+    mockDeviceSettingsService.newUiBetaEnabled$ = mockNewUiBetaEnabled$;
+    mockDeviceSettingsService.refreshFromServer.mockResolvedValue(undefined);
+    mockDeviceSettingsService.setUseNewUi.mockResolvedValue(undefined);
 
     mockI18nService.supportedTranslationLocales = mockSupportedLocales;
     mockI18nService.localeNames = mockLocaleNames;
@@ -56,6 +68,7 @@ describe("AppearanceComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
+        { provide: DeviceSettingsServiceAbstraction, useValue: mockDeviceSettingsService },
       ],
     })
       .overrideComponent(AppearanceComponent, {
@@ -114,7 +127,27 @@ describe("AppearanceComponent", () => {
         enableFavicons: false,
         theme: ThemeTypes.Dark,
         locale: "es",
+        useNewUi: false,
       });
+    }));
+
+    it("should refresh from the server and seed useNewUi from the cached value", fakeAsync(() => {
+      mockUseNewUi$.next(true);
+
+      fixture.detectChanges();
+      flush();
+
+      expect(mockDeviceSettingsService.refreshFromServer).toHaveBeenCalled();
+      expect(component.form.value.useNewUi).toBe(true);
+    }));
+
+    it("should not refresh from the server when the beta flag is off", fakeAsync(() => {
+      mockNewUiBetaEnabled$.next(false);
+
+      fixture.detectChanges();
+      flush();
+
+      expect(mockDeviceSettingsService.refreshFromServer).not.toHaveBeenCalled();
     }));
 
     it("should set locale to null when user locale not set", fakeAsync(() => {
@@ -178,6 +211,28 @@ describe("AppearanceComponent", () => {
       flush();
 
       expect(mockThemeStateService.setSelectedTheme).not.toHaveBeenCalled();
+    }));
+  });
+
+  describe("useNewUi value changes", () => {
+    beforeEach(fakeAsync(() => {
+      fixture.detectChanges();
+      flush();
+      jest.clearAllMocks();
+    }));
+
+    it("should persist the preference for the current device when toggled on", fakeAsync(() => {
+      component.form.controls.useNewUi.setValue(true);
+      flush();
+
+      expect(mockDeviceSettingsService.setUseNewUi).toHaveBeenCalledWith(true);
+    }));
+
+    it("should persist the preference for the current device when toggled off", fakeAsync(() => {
+      component.form.controls.useNewUi.setValue(false);
+      flush();
+
+      expect(mockDeviceSettingsService.setUseNewUi).toHaveBeenCalledWith(false);
     }));
   });
 

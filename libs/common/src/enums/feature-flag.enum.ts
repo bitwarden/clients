@@ -115,6 +115,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* UIF */
+  NewUiBetaSwitch = "new-ui-beta-switch",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -233,6 +236,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* UIF */
+  [FeatureFlag.NewUiBetaSwitch]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

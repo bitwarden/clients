@@ -103,6 +103,7 @@ import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarde
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { DeviceSettingsServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-settings.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { MasterPasswordApiService as MasterPasswordApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
@@ -130,6 +131,7 @@ import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
+import { DeviceSettingsServiceImplementation } from "@bitwarden/common/auth/services/device-settings.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master-password/master-password-api.service.implementation";
@@ -1500,6 +1502,11 @@ const safeProviders: SafeProvider[] = [
     provide: DevicesServiceAbstraction,
     useClass: DevicesServiceImplementation,
     deps: [AppIdServiceAbstraction, DevicesApiServiceAbstraction, I18nServiceAbstraction],
+  }),
+  safeProvider({
+    provide: DeviceSettingsServiceAbstraction,
+    useClass: DeviceSettingsServiceImplementation,
+    deps: [StateProvider, DevicesApiServiceAbstraction, AppIdServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: AuthRequestApiServiceAbstraction,

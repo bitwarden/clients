@@ -98,6 +98,7 @@ export const USER_NOTIFICATION_SETTINGS_DISK = new StateDefinition(
   "disk",
 );
 
+export const DEVICE_SETTINGS_DISK = new StateDefinition("deviceSettings", "disk");
 export const DOMAIN_SETTINGS_DISK = new StateDefinition("domainSettings", "disk");
 export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "disk");
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
