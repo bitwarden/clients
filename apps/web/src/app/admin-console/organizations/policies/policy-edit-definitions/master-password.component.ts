@@ -4,20 +4,20 @@
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
+
+import { MasterPasswordPolicyV2Component } from "./master-password-v2.component";
 
 export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
@@ -26,10 +26,13 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = MasterPasswordPolicyComponent;
-
-  display$(organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers).pipe(map((v) => !v));
-  }
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
+  v2 = {
+    component: MasterPasswordPolicyV2Component,
+    // MasterPasswordPolicyV2Component renders its own description inline; MasterPasswordPolicyComponent
+    // (v1) does not, so the dialog's own showDescription (defaults to true) must stay on for v1.
+    showDescription: false,
+  };
 }
 
 @Component({

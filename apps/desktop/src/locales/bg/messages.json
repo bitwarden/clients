@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Прикачени файлове"
   },
+  "attachmentsNeedFix": {
+    "message": "Този запис съдържа стар, прикачен файл, който трябва да бъде поправен. Натиснете, за да научите повече."
+  },
   "viewItem": {
     "message": "Преглед на елемента"
+  },
+  "viewCollectionWithName": {
+    "message": "Преглед на колекция – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Преглед на елемента за вписване",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Преглед на паспорта",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Добавяне на данни за вписване",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Добавяне на карта",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Добавяне на самоличност",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Добавяне на бележка",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Добавяне на защитена бележка",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Добавяне на SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Добавяне на банкова сметка",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Добавяне на лиценз",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Добавяне на паспорт",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Нов елемент за вписване",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Редактиране на защитената бележка",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Редактиране на SSH ключа",
@@ -322,6 +386,29 @@
     "message": "Наистина ли искате да изтриете завинаги това Изпращане?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Създаване",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Добавяне на колекция"
+  },
   "new": {
     "message": "Ново",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Редактиране на елемента"
+  },
+  "editItemWithName": {
+    "message": "Редактиране на елемент – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "Е-поща"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Изтриване на елемента"
+  },
+  "deleteItemsCount": {
+    "message": "Изтриване на $COUNT$ елемента",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Този елемент ще бъде преместен в кошчето. След като престои там 30 дни, ще бъде изтрит завинаги."
+  },
+  "deleteItemsDesc": {
+    "message": "Тези елементи ще бъдат преместени в кошчето. След като престоят там 30 дни, ще бъдат изтрити завинаги."
+  },
+  "deleteItemPermanently": {
+    "message": "Изтриване на елемента завинаги"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Изтриване на $COUNT$ елемента завинаги",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Няма да можете да възстановите този елемент."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Няма да можете да възстановите тези елементи."
+  },
+  "deleteSelection": {
+    "message": "Изтриване на избраното"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Избраните елементи и колекции ще бъдат изтрити завинаги."
   },
   "deleteFolder": {
     "message": "Изтриване на папка"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Архивираният елемент е възстановен"
   },
+  "archivedItemsRestored": {
+    "message": "Архивираните елементи са възстановени"
+  },
   "restoredItem": {
     "message": "Записът е възстановен"
   },
+  "restoredItems": {
+    "message": "Елементите са възстановени"
+  },
   "permanentlyDelete": {
     "message": "Окончателно изтриване"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Елементите бяха изтрити завинаги"
+  },
+  "deletedItems": {
+    "message": "Елементите са преместени в кошчето"
+  },
+  "deletedCollections": {
+    "message": "Изтрити колекции"
+  },
+  "collectionDeleted": {
+    "message": "Колекцията е изтрита"
+  },
+  "collectionsDeleted": {
+    "message": "Колекциите са изтрити"
+  },
+  "movedItems": {
+    "message": "Елементите са преместени"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Излизането от трезора изцяло спира достъпа до него след изтичане на времето. Ще ви се наложи отново да се идентифицирате, за да го достъпите. Сигурни ли сте, че искате това действие?"
@@ -2767,6 +2926,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
+    "message": "Създаване на изпращане",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
     "message": "Създаване на изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в $ORG$. Вече няма да притежавате този елемент.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в $ORG$. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Разархивиране и запазване"
+  },
+  "archiveItemsPlural": {
+    "message": "Архивиране на $NUM$ елемента",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Архивиране на $NUM$ елемент",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "След като бъдат архивирани, тези елементи няма да се показван в резултатите при търсене, нито в предложенията за автоматично попълване."
+  },
+  "bulkArchiveItems": {
+    "message": "Елементите са архивирани"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Елементите са извадени от архива"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Изберете папка, в която да се добавят $COUNT$ избран(и) запис(а).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Изберете папка"
   },
   "restartPremium": {
     "message": "Подновяване на платения абонамент"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Елементът не може да бъде запазен. Трябва да бъдете потвърден(а) в организацията, за да можете да запазвате елементи."
+  },
+  "addToFolder": {
+    "message": "Добавяне в папка"
+  },
+  "deleteCollection": {
+    "message": "Изтриване на колекцията"
+  },
+  "deleteCollectionsCount": {
+    "message": "Изтриване на $COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Тази колекция ще бъде изтрита завинаги."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Тези колекции ще бъдат изтрити завинаги."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
