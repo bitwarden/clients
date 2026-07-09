@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, Inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
@@ -112,7 +113,11 @@ export class OffboardingSurveyComponent {
     otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
-  protected readonly isOtherReason = computed(() => this.formGroup.value.reason === "other");
+  private readonly reason = toSignal(this.formGroup.controls.reason.valueChanges, {
+    initialValue: this.formGroup.controls.reason.value,
+  });
+
+  protected readonly isOtherReason = computed(() => this.reason() === "other");
 
   constructor(
     @Inject(DIALOG_DATA) private readonly dialogParams: OffboardingSurveyDialogParams,
