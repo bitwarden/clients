@@ -35,6 +35,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
@@ -59,7 +60,7 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
-import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
+import { PureCrypto, WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import {
@@ -189,7 +190,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("MasterKey is required");
     }
 
-    const newUserKey = await this.keyGenerationService.createKey(512);
+    await SdkLoadService.Ready;
+    const newUserKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
@@ -344,7 +346,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Content encryption key is AES256_CBC_HMAC
-    const cek = await this.keyGenerationService.createKey(512);
+    await SdkLoadService.Ready;
+    const cek = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
     const wrappedCek = await this.encryptService.wrapSymmetricKey(cek, key);
     return [cek, wrappedCek];
   }
@@ -399,7 +402,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("No public key found for user " + userId);
     }
 
-    const shareKey = await this.keyGenerationService.createKey(512);
+    await SdkLoadService.Ready;
+    const shareKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
     const encShareKey = await this.encryptService.encapsulateKeyUnsigned(shareKey, publicKey);
     return [encShareKey, shareKey as T];
   }
@@ -512,7 +516,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("Cannot initialize account, keys already exist.");
     }
 
-    const userKey = (await this.keyGenerationService.createKey(512)) as UserKey;
+    await SdkLoadService.Ready;
+    const userKey = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key()) as UserKey;
     const [publicKey, privateKey] = await this.makeKeyPair(userKey);
     if (privateKey.encryptedString == null) {
       throw new Error("Failed to create valid private key.");
