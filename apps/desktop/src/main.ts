@@ -38,6 +38,7 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -66,7 +67,6 @@ import { ElectronLogMainService } from "./platform/services/electron-log.main.se
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
-import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
