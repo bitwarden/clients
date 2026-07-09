@@ -289,7 +289,6 @@ export class Program extends BaseProgram {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
             this.serviceContainer.accountService,
-            this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.logService,
             this.serviceContainer.keyConnectorService,
             this.serviceContainer.environmentService,

@@ -17,6 +17,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -47,6 +48,7 @@ import {
   OrgKey,
   ProviderKey,
 } from "@bitwarden/common/types/key";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { KdfConfigService } from "./abstractions/kdf-config.service";
 import { DefaultKeyService } from "./key.service";
@@ -75,6 +77,11 @@ describe("keyService", () => {
     stateProvider = new FakeStateProvider(accountService);
 
     await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
 
     keyService = new DefaultKeyService(
       masterPasswordService,
@@ -196,7 +203,8 @@ describe("keyService", () => {
       const mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
       const mockEncryptedUserKey = makeEncString("encryptedUserKey");
 
-      keyGenerationService.createKey.mockResolvedValue(mockUserKey);
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(mockUserKey);
       encryptService.wrapSymmetricKey.mockResolvedValue(mockEncryptedUserKey);
       const stretchedMasterKey = new SymmetricCryptoKey(new Uint8Array(64));
       keyGenerationService.stretchKey.mockResolvedValue(stretchedMasterKey);
@@ -204,7 +212,7 @@ describe("keyService", () => {
       const result = await keyService.makeUserKey(makeSymmetricCryptoKey<MasterKey>(32));
 
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(mockUserKey, stretchedMasterKey);
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(result[0]).toBe(mockUserKey);
       expect(result[1]).toBe(mockEncryptedUserKey);
     });
@@ -836,7 +844,8 @@ describe("keyService", () => {
       keyService.userPublicKey$ = jest
         .fn()
         .mockReturnValueOnce(new BehaviorSubject(mockUserPublicKey));
-      keyGenerationService.createKey.mockResolvedValue(shareKey);
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(shareKey);
       encryptService.encapsulateKeyUnsigned.mockResolvedValue(mockEncapsulatedKey);
     });
 
@@ -845,7 +854,7 @@ describe("keyService", () => {
 
       expect(result).toEqual([mockEncapsulatedKey, shareKey as OrgKey]);
       expect(keyService.userPublicKey$).toHaveBeenCalledWith(mockUserId);
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
         shareKey,
         mockUserPublicKey,
@@ -857,7 +866,7 @@ describe("keyService", () => {
 
       expect(result).toEqual([mockEncapsulatedKey, shareKey as ProviderKey]);
       expect(keyService.userPublicKey$).toHaveBeenCalledWith(mockUserId);
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalledWith(
         shareKey,
         mockUserPublicKey,
@@ -870,7 +879,7 @@ describe("keyService", () => {
         await expect(keyService.makeOrgKey(userId)).rejects.toThrow("UserId is required");
 
         expect(keyService.userPublicKey$).not.toHaveBeenCalled();
-        expect(keyGenerationService.createKey).not.toHaveBeenCalled();
+        expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
         expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
       },
     );
@@ -882,7 +891,7 @@ describe("keyService", () => {
         "No public key found for user " + mockUserId,
       );
 
-      expect(keyGenerationService.createKey).not.toHaveBeenCalled();
+      expect(PureCrypto.make_aes256_cbc_hmac_key).not.toHaveBeenCalled();
       expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
     });
   });
@@ -1025,7 +1034,8 @@ describe("keyService", () => {
       mockPublicKey = "mockPublicKey";
       mockPrivateKey = makeEncString("mockPrivateKey");
 
-      keyGenerationService.createKey.mockResolvedValue(userKey);
+      jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+      jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(userKey);
       jest.spyOn(keyService, "makeKeyPair").mockResolvedValue([mockPublicKey, mockPrivateKey]);
       jest.spyOn(keyService, "setUserKey").mockResolvedValue();
     });
@@ -1066,11 +1076,9 @@ describe("keyService", () => {
     });
 
     it("successfully initializes account with new keys", async () => {
-      const keyCreationSize = 512;
-
       const result = await keyService.initAccount(mockUserId);
 
-      expect(keyGenerationService.createKey).toHaveBeenCalledWith(keyCreationSize);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
       expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, mockUserId);
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(

@@ -8,6 +8,7 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
@@ -23,6 +24,7 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
+import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
@@ -30,7 +32,6 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
 import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
 import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { EncString } from "../../crypto/models/enc-string";
@@ -75,7 +76,6 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
   deviceTrusted$ = this.deviceTrustedSubject.asObservable();
 
   constructor(
-    private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
     private keyService: KeyService,
     private encryptService: EncryptService,
@@ -379,7 +379,10 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
 
   private async makeDeviceKey(): Promise<DeviceKey> {
     // Create 512-bit device key
-    const deviceKey = (await this.keyGenerationService.createKey(512)) as DeviceKey;
+    await SdkLoadService.Ready;
+    const deviceKey = SymmetricCryptoKey.fromSdk(
+      PureCrypto.make_aes256_cbc_hmac_key(),
+    ) as DeviceKey;
 
     return deviceKey;
   }

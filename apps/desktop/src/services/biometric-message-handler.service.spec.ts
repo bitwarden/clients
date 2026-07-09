@@ -17,6 +17,19 @@ import { DesktopSettingsService } from "../platform/services/desktop-settings.se
 
 import { BiometricMessageHandlerService } from "./biometric-message-handler.service";
 
+jest.mock("@bitwarden/sdk-internal", () => ({
+  PureCrypto: {
+    make_aes256_cbc_hmac_key: jest.fn(),
+  },
+}));
+
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
+  SdkLoadService: { Ready: Promise.resolve() },
+}));
+
+const makeAes256CbcHmacKey = jest.requireMock("@bitwarden/sdk-internal").PureCrypto
+  .make_aes256_cbc_hmac_key as jest.Mock;
+
 const SomeUser = "SomeUser" as UserId;
 const AnotherUser = "SomeOtherUser" as UserId;
 const accounts = {
@@ -67,6 +80,7 @@ describe("BiometricMessageHandlerService", () => {
       },
     };
     cryptoFunctionService.randomBytes.mockResolvedValue(new Uint8Array(64) as CsprngArray);
+    makeAes256CbcHmacKey.mockReturnValue(Utils.fromBufferToB64(new Uint8Array(64)));
     cryptoFunctionService.rsaEncrypt.mockResolvedValue(
       Utils.fromUtf8ToArray("encrypted") as CsprngArray,
     );

@@ -4,12 +4,13 @@ import { firstValueFrom } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { Response } from "../../models/response";
@@ -21,7 +22,6 @@ import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.comman
 export class UnlockCommand {
   constructor(
     private accountService: AccountService,
-    private cryptoFunctionService: CryptoFunctionService,
     private logService: ConsoleLogService,
     private keyConnectorService: KeyConnectorService,
     private environmentService: EnvironmentService,
@@ -76,8 +76,9 @@ export class UnlockCommand {
   }
 
   private async setNewSessionKey() {
-    const key = await this.cryptoFunctionService.randomBytes(64);
-    process.env.BW_SESSION = Utils.fromBufferToB64(key);
+    await SdkLoadService.Ready;
+    const key = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+    process.env.BW_SESSION = key.toBase64();
   }
 
   private async successResponse() {
