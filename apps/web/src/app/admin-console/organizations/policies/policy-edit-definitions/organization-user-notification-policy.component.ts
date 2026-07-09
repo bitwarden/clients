@@ -26,6 +26,7 @@ import {
   IconComponent,
   TooltipDirective,
   CalloutComponent,
+  SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -54,6 +55,10 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   component = OrganizationUserNotificationPolicyComponent;
   category = PolicyCategory.VaultManagement;
   priority = 70;
+  v2 = {
+    component: OrganizationUserNotificationPolicyV2Component,
+    prerequisiteKey: "singleOrgPrerequisite",
+  };
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner);
@@ -191,3 +196,23 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
       });
   }
 }
+
+// Drawer (v2) variant. Reuses all form logic from the standard component and only swaps the
+// template: the enable toggle is rendered as a switch and the policy description is rendered by
+// the surrounding PolicyEditDrawerComponent instead of the form.
+@Component({
+  templateUrl: "organization-user-notification-policy-v2.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitFormFieldComponent,
+    CheckboxModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    TypographyModule,
+    IconComponent,
+    TooltipDirective,
+    SwitchComponent,
+    I18nPipe,
+  ],
+})
+export class OrganizationUserNotificationPolicyV2Component extends OrganizationUserNotificationPolicyComponent {}
