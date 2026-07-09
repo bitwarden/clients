@@ -2767,29 +2767,11 @@
   "acceptPoliciesRequired": {
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
   },
-  "enableBrowserIntegration": {
-    "message": "Allow browser integration"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Allow DuckDuckGo browser integration"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Use your Bitwarden vault when browsing with DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Browser integration not supported"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Unfortunately browser integration is currently not supported in the Microsoft Store version."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"

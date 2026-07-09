@@ -79,11 +79,12 @@ import { InitializeFeatureFlagOverridesMigrator } from "./migrations/79-initiali
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { ConsolidateTrayToRunInBackground } from "./migrations/80-consolidate-tray-to-run-in-background";
 import { EnableDesktopSharingIfBiometricsEnabled } from "./migrations/81-enable-desktop-sharing-if-biometrics-enabled";
+import { RemoveBrowserIntegrationEnabled } from "./migrations/82-remove-browser-integration-enabled";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 81;
+export const CURRENT_VERSION = 82;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -166,7 +167,8 @@ export function createMigrationBuilder() {
     .with(MigrateSsoRequiredCache, 77, 78)
     .with(InitializeFeatureFlagOverridesMigrator, 78, 79)
     .with(ConsolidateTrayToRunInBackground, 79, 80)
-    .with(EnableDesktopSharingIfBiometricsEnabled, 80, CURRENT_VERSION);
+    .with(EnableDesktopSharingIfBiometricsEnabled, 80, 81)
+    .with(RemoveBrowserIntegrationEnabled, 81, CURRENT_VERSION);
 }
 
 export async function currentVersion(
