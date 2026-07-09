@@ -9,17 +9,6 @@ use serde_with::{
 
 use crate::{BitwardenError, Callback, TimedCallback};
 
-/// Request to get the window handle of the desktop client.
-#[derive(Debug, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct WindowHandleQueryRequest {
-    /// Marker field for parsing; data is never read.
-    ///
-    /// TODO: this is used to disambiguate parsing the type in desktop_napi.
-    /// This will be cleaned up in PM-23485.
-    window_handle: String,
-}
-
 /// Response to window handle request.
 #[serde_as]
 #[derive(Debug, Serialize, Deserialize)]
