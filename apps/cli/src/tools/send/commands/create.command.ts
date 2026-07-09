@@ -162,7 +162,7 @@ export class SendCreateCommand {
 
       const sendView = SendResponse.toView(req);
       const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      // Forward the plaintext so the SDK path can derive the send password over the key it
+      // Forward the plaintext password so the SDK path can derive the send password over the key it
       // generates; the legacy path ignores it.
       await this.sendApiService.save([encSend, fileData], password);
       const newSend = await this.sendService.getFromState(encSend.id);
