@@ -1073,7 +1073,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       KeyService,
       EncryptService,
-      CryptoFunctionServiceAbstraction,
       KdfConfigService,
       ApiServiceAbstraction,
       RestrictedItemTypesService,
@@ -1094,7 +1093,6 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       KeyService,
       EncryptService,
-      CryptoFunctionServiceAbstraction,
       CollectionService,
       KdfConfigService,
       RestrictedItemTypesService,
@@ -1312,7 +1310,6 @@ const safeProviders: SafeProvider[] = [
       TokenServiceAbstraction,
       LogService,
       OrganizationServiceAbstraction,
-      KeyGenerationService,
       LOGOUT_CALLBACK,
       StateProvider,
       ConfigService,
@@ -1372,14 +1369,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationInviteLinkService,
     useClass: DefaultOrganizationInviteLinkService,
-    deps: [
-      KeyService,
-      EncryptService,
-      KeyGenerationService,
-      OrganizationInviteLinkApiService,
-      StateProvider,
-      EnvironmentService,
-    ],
+    deps: [OrganizationInviteLinkApiService, StateProvider, EnvironmentService, SdkService],
   }),
   safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
@@ -1510,7 +1500,6 @@ const safeProviders: SafeProvider[] = [
     provide: DeviceTrustServiceAbstraction,
     useClass: DeviceTrustService,
     deps: [
-      KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       KeyService,
       EncryptService,
