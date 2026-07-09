@@ -40,7 +40,6 @@ export class DefaultThemeStateService implements ThemeStateService {
     private defaultTheme: Theme = ThemeTypes.System,
   ) {}
 
-  // test
   async setSelectedTheme(theme: Theme): Promise<void> {
     await this.selectedThemeState.update(() => theme, {
       shouldUpdate: (currentTheme) => currentTheme !== theme,
