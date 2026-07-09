@@ -83,20 +83,38 @@
             </bit-form-control>
           }
           @if (sharedUnlockFeatureEnabled$ | async) {
-            <bit-form-control [disableMargin]="true">
-              <input
-                bitCheckbox
-                id="allowSharingUnlockState"
-                type="checkbox"
-                formControlName="allowSharingUnlockState"
-              />
-              <bit-label for="allowSharingUnlockState" class="tw-whitespace-normal">
-                {{ "sharedUnlock" | i18n }}
-              </bit-label>
-              <bit-hint class="tw-text-sm">
-                {{ sharedUnlockDescriptionKey | i18n }}
-              </bit-hint>
-            </bit-form-control>
+            @if (showSharedUnlockWithDesktop) {
+              <bit-form-control [disableMargin]="!showSharedUnlockWithWeb">
+                <input
+                  bitCheckbox
+                  id="allowSharingUnlockStateWithDesktop"
+                  type="checkbox"
+                  formControlName="allowSharingUnlockStateWithDesktop"
+                />
+                <bit-label for="allowSharingUnlockStateWithDesktop" class="tw-whitespace-normal">
+                  {{ "sharedUnlockWithDesktop" | i18n }}
+                </bit-label>
+                <bit-hint class="tw-text-sm">
+                  {{ "sharedUnlockWithDesktopDescription" | i18n }}
+                </bit-hint>
+              </bit-form-control>
+            }
+            @if (showSharedUnlockWithWeb) {
+              <bit-form-control [disableMargin]="true">
+                <input
+                  bitCheckbox
+                  id="allowSharingUnlockStateWithWeb"
+                  type="checkbox"
+                  formControlName="allowSharingUnlockStateWithWeb"
+                />
+                <bit-label for="allowSharingUnlockStateWithWeb" class="tw-whitespace-normal">
+                  {{ "sharedUnlockWithWeb" | i18n }}
+                </bit-label>
+                <bit-hint class="tw-text-sm">
+                  {{ "sharedUnlockWithWebDescription" | i18n }}
+                </bit-hint>
+              </bit-form-control>
+            }
           }
         </bit-card>
       </bit-section>
