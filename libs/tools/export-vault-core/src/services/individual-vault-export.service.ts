@@ -108,6 +108,7 @@ export class IndividualVaultExportService
 
     // attachments
     let skippedAttachmentCount = 0;
+    const cipherNameMap = new Map<string, number>();
 
     for (const cipher of await this.cipherService.getAllDecrypted(activeUserId)) {
       if (
@@ -118,8 +119,18 @@ export class IndividualVaultExportService
       ) {
         continue;
       }
+      // Replace disallowed characters with "_" and ensure we don't have multiple "_" in a row
+      let cipherFolderName = cipher.name.replace(/[/\\><:"|?*]/g, "_").replace(/__+/g, "_");
+      const cipherNameCount = cipherNameMap.get(cipher.name);
+      if (cipherNameCount === undefined) {
+        cipherNameMap.set(cipher.name, 1);
+      } else {
+        cipherNameMap.set(cipher.name, cipherNameCount + 1);
+        cipherFolderName += `_${cipherNameCount}`;
+      }
+      const cipherFolder = attachmentsFolder.folder(cipherFolderName);
 
-      const cipherFolder = attachmentsFolder.folder(cipher.id);
+      const attachmentNameMap = new Map<string, number>();
       for (const attachment of cipher.attachments) {
         try {
           const response = await this.downloadAttachment(cipher.id, attachment.id);
@@ -130,8 +141,27 @@ export class IndividualVaultExportService
             response,
             activeUserId,
           );
+          // We try to replace disallowed characters while preserving the filetype suffix, if it exists
+          const fileNameParts = attachment.fileName.split(".");
+          let attachmentFileName = attachment.fileName;
+          let attachmentFileSuffix = "";
+          if (fileNameParts.length > 1) {
+            attachmentFileName = fileNameParts.slice(0, -1).join("");
+            attachmentFileSuffix = `.${fileNameParts[fileNameParts.length - 1]}`;
+          }
+          attachmentFileName = attachmentFileName
+            .replace(/[/\\><:"|?*.]/g, "_")
+            .replace(/__+/g, "_");
+          let fullAttachmentName = `${attachmentFileName}${attachmentFileSuffix}`;
+          const filenameCount = attachmentNameMap.get(fullAttachmentName);
+          if (filenameCount === undefined) {
+            attachmentNameMap.set(fullAttachmentName, 1);
+          } else {
+            attachmentNameMap.set(fullAttachmentName, filenameCount + 1);
+            fullAttachmentName = `${attachmentFileName}_${filenameCount}${attachmentFileSuffix}`;
+          }
 
-          cipherFolder.file(attachment.fileName, decBuf);
+          cipherFolder.file(fullAttachmentName, decBuf);
         } catch (error) {
           this.logService.error(`Failed to export attachment: Cipher Id: ${cipher.id}`, error);
           skippedAttachmentCount++;

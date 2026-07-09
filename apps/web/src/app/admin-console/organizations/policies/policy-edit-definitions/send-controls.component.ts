@@ -25,6 +25,8 @@ import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,6 +34,7 @@ import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-cont
 import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   FormFieldModule,
   Option,
@@ -48,8 +51,8 @@ import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-polic
 import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
-  name = "sendControls";
-  description = "sendControlsPolicyDescV2";
+  name = "manageSend";
+  description = "sendControlsPolicyDescV3";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
@@ -57,6 +60,19 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
+  }
+
+  override enabled(policy: PolicyResponse): boolean {
+    // This policy is always enabled, and is driven entirely through its `policy.data` configuration.
+    // The 'enabled' UI reflects whether the Send feature is enabled, rather than whether the policy is enabled.
+
+    // It is enabled by default:
+    if (policy == null || policy.data == null) {
+      return true;
+    }
+
+    // Or enabled if the Send feature is enabled:
+    return !policy.data.disableSend;
   }
 }
 
@@ -89,6 +105,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
     deletionHours: null,
   });
+  readonly enableSendControl = new FormControl<boolean>(false);
   readonly allowedSendTypesMultiSelectControl = new FormControl<
     (SelectItemView & { value: SendType })[]
   >([], { validators: [Validators.required] });
@@ -180,17 +197,12 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
           this.showDomains.set(false);
         }
       });
-    this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
-      if (!enabled) {
-        this.data.disable();
-        this.showDeletionHours.disable();
-        this.allowedSendTypesMultiSelectControl.disable();
-      } else {
-        this.data.enable();
-        this.showDeletionHours.enable();
-        this.allowedSendTypesMultiSelectControl.enable();
-      }
-    });
+    // The actual boolean field in the policy is the opposite of its toggle
+    this.enableSendControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enableSend) => {
+        this.data.get("disableSend")?.patchValue(!enableSend);
+      });
     this.data
       .get("deletionHours")
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
@@ -213,13 +225,26 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         this.data.get("allowedSendTypes")?.patchValue((values ?? []).map<SendType>((v) => v.value));
       });
     super.ngOnInit();
-    // The separate multi-select form control must be initialized after we've loaded the policy data
-    const currentSendTypes = this.data.get("allowedSendTypes")?.value ?? [];
+  }
+
+  protected override loadData(): void {
+    const policyResponseData =
+      (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
+    if (policyResponseData.allowedSendTypes == null) {
+      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
+    }
+    if (policyResponseData.whoCanAccess == null) {
+      policyResponseData.whoCanAccess = WhoCanAccessType.Any;
+    }
+
+    this.data.patchValue(policyResponseData);
+
+    // The two separate form controls (enabled toggle and Send Types multi-select) must be initialized separately
+    this.enableSendControl.patchValue(!(policyResponseData.disableSend ?? false));
     this.allowedSendTypesMultiSelectControl.patchValue(
       this.allSendTypeOptions().filter((asto) =>
-        currentSendTypes.some((st) => st.toString() === asto.id),
+        policyResponseData.allowedSendTypes.some((st) => st.toString() === asto.id),
       ),
-      { emitEvent: false },
     );
   }
 
@@ -265,5 +290,18 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       }
       return null;
     };
+  }
+
+  override buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
+    // This policy is always enabled, but unlike other policies whether it shows as such on the
+    // policy admin screen is determined by whether or not the 'Enable Send' toggle is on or off.
+    // Therefore when saving the policy we set both enabled and data fields directly
+    return Promise.resolve({
+      policy: {
+        enabled: true,
+        data: this.data.value,
+      },
+      metadata: null,
+    });
   }
 }
