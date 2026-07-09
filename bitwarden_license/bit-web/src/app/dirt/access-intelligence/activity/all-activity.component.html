@@ -81,7 +81,13 @@
 
     <!-- All Caught Up State -->
     @if (isAllCaughtUp) {
-      <li class="tw-col-span-1">
+      <li
+        class="tw-col-span-1"
+        [bitPopoverAnchorFor]="prioritizeRisksCoachmark.popover()"
+        [popoverOpen]="prioritizeRisksOpen()"
+        [position]="'above-center'"
+        [spotlight]="true"
+      >
         <dirt-activity-card
           [title]="'applicationsNeedingReview' | i18n"
           [cardMetrics]="'allCaughtUp' | i18n"
@@ -98,7 +104,13 @@
     }
     <!-- Needs Review State (No apps have been reviewed) -->
     @else if (showNeedsReviewState) {
-      <li class="tw-col-span-1 md:tw-col-span-2 lg:tw-col-span-2">
+      <li
+        class="tw-col-span-1 md:tw-col-span-2 lg:tw-col-span-2"
+        [bitPopoverAnchorFor]="prioritizeRisksCoachmark.popover()"
+        [popoverOpen]="prioritizeRisksOpen()"
+        [position]="'above-center'"
+        [spotlight]="true"
+      >
         <dirt-activity-card
           [title]="'applicationsNeedingReview' | i18n"
           [cardMetrics]="'organizationHasItemsSavedForApplications' | i18n: totalApplicationCount"
@@ -115,7 +127,13 @@
     }
     <!-- Default State (New applications to review) -->
     @else {
-      <li class="tw-col-span-1">
+      <li
+        class="tw-col-span-1"
+        [bitPopoverAnchorFor]="prioritizeRisksCoachmark.popover()"
+        [popoverOpen]="prioritizeRisksOpen()"
+        [position]="'above-center'"
+        [spotlight]="true"
+      >
         <dirt-activity-card
           [title]="'reviewNewApplications' | i18n"
           [cardMetrics]="'newApplicationsWithCount' | i18n: newApplicationsCount"
@@ -131,4 +149,6 @@
       </li>
     }
   </ul>
+
+  <dirt-ai-coachmark #prioritizeRisksCoachmark stepId="prioritizeRisks"></dirt-ai-coachmark>
 }

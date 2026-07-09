@@ -1,10 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { EVENTS } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillTargetingRuleTypes,
+  EVENTS,
+  FormPurposeCategories,
+} from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import AutofillInit from "../content/autofill-init";
+import { AutofillFieldQualifier } from "../enums/autofill-field.enums";
 import {
   AutofillOverlayElement,
   InlineMenuFillTypes,
@@ -103,14 +108,24 @@ describe("AutofillOverlayContentService", () => {
   });
 
   afterEach(() => {
+    // Disconnect observers and detach listeners so JSDOM can tear down cleanly
+    // between tests. This cascades to autofillOverlayContentService.destroy(),
+    // which matters for the window-message tests: each test's setup adds a window
+    // "message" listener, and leaked listeners re-process and mutate the shared
+    // subFrameData of later tests.
+    autofillInit?.destroy();
     jest.clearAllMocks();
+    // Tests that opt into fake timers leak the configuration across cases;
+    // reset so subsequent tests' microtask-based mocks (e.g. the
+    // IntersectionObserver mock in test.setup.ts) work as expected.
+    jest.useRealTimers();
   });
 
   afterAll(() => {
     mockQuerySelectorAll.mockRestore();
   });
 
-  describe("init", () => {
+  describe("startMonitoring", () => {
     let setupGlobalEventListenersSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -128,7 +143,7 @@ describe("AutofillOverlayContentService", () => {
         writable: true,
       });
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "DOMContentLoaded",
@@ -143,7 +158,7 @@ describe("AutofillOverlayContentService", () => {
         "handleVisibilityChangeEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "visibilitychange",
@@ -157,12 +172,27 @@ describe("AutofillOverlayContentService", () => {
         "handleWindowFocusOutEvent",
       );
 
-      autofillOverlayContentService.init();
+      autofillOverlayContentService.startMonitoring();
 
       expect(window.addEventListener).toHaveBeenCalledWith(
         "focusout",
         handleWindowFocusOutEventSpy,
       );
+    });
+
+    it("is idempotent across repeated calls", () => {
+      const sendExtensionMessageSpyForStart = jest.spyOn(
+        autofillOverlayContentService as any,
+        "sendExtensionMessage",
+      );
+
+      autofillOverlayContentService.startMonitoring();
+      autofillOverlayContentService.startMonitoring();
+
+      const cardsVisibilityCalls = sendExtensionMessageSpyForStart.mock.calls.filter(
+        ([command]) => command === "getInlineMenuCardsVisibility",
+      );
+      expect(cardsVisibilityCalls).toHaveLength(1);
     });
   });
 
@@ -172,6 +202,7 @@ describe("AutofillOverlayContentService", () => {
     let pageDetailsMock: AutofillPageDetails;
 
     beforeEach(() => {
+      autofillInit.startMonitoring();
       document.body.innerHTML = `
       <form id="validFormId">
         <input type="text" id="username-field" placeholder="username" />
@@ -1508,6 +1539,135 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
+    describe("setTargetedFieldFillType", () => {
+      const setFillType = (overrides: Partial<AutofillField>) => {
+        const field = createAutofillFieldMock({ targeted: true, ...overrides });
+        autofillOverlayContentService["setTargetedFieldFillType"](field);
+        return field.inlineMenuFillType;
+      };
+
+      it("resolves an account-login form's email field to a Login fill type (not Identity)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves an account-login form's phone field to a Login fill type (not Identity)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.phone,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves an account-login form's password field to a Login fill type (not password generation)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.password,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(CipherType.Login);
+      });
+
+      it("resolves a payment-card form's cardholderName field to a Card fill type", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.cardholderName,
+            formCategory: FormPurposeCategories.PaymentCard,
+          }),
+        ).toEqual(CipherType.Card);
+      });
+
+      it("resolves identity and address form fields to an Identity fill type", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.firstName,
+            formCategory: FormPurposeCategories.Identity,
+          }),
+        ).toEqual(CipherType.Identity);
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.postalCode,
+            formCategory: FormPurposeCategories.Address,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("routes a username field on an identity form to Identity via category (overriding the login qualifier inference)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.username,
+            formCategory: FormPurposeCategories.Identity,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("falls back to qualifier inference when the category is not a single-cipher-type category", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: FormPurposeCategories.AccountCreation,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("falls back to qualifier inference when no category is present (e.g. iframe-routed targeted field)", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.email,
+            formCategory: undefined,
+          }),
+        ).toEqual(CipherType.Identity);
+      });
+
+      it("keeps newPassword mapped to password generation regardless of category", () => {
+        expect(
+          setFillType({
+            fieldQualifier: AutofillTargetingRuleTypes.newPassword,
+            formCategory: FormPurposeCategories.AccountLogin,
+          }),
+        ).toEqual(InlineMenuFillTypes.PasswordGeneration);
+      });
+    });
+
+    describe("storeQualifiedUserFilledField login-identifier capture", () => {
+      const captureUsernameFor = (qualifier: string) => {
+        autofillOverlayContentService["userFilledFields"] = {};
+        const element = document.createElement(
+          "input",
+        ) as ElementWithOpId<FillableFormFieldElement>;
+        const field = createAutofillFieldMock({ fieldQualifier: qualifier });
+        autofillOverlayContentService["storeQualifiedUserFilledField"](element, field);
+        return autofillOverlayContentService["userFilledFields"].username;
+      };
+
+      it("captures a targeted email field as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.email)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("captures a targeted phone field as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.phone)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("captures a heuristic identity phone field as the login username", () => {
+        expect(captureUsernameFor(AutofillFieldQualifier.identityPhone)).toBeInstanceOf(
+          HTMLInputElement,
+        );
+      });
+
+      it("does not capture an unrelated field (e.g. postal code) as the login username", () => {
+        expect(captureUsernameFor(AutofillTargetingRuleTypes.postalCode)).toBeUndefined();
+      });
+    });
+
     describe("sets up form submission event listeners", () => {
       describe("listeners set up on a fields with a form", () => {
         let form: HTMLFormElement;
@@ -1873,6 +2033,10 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("handleOverlayRepositionEvent", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+    });
+
     const repositionEvents = [EVENTS.SCROLL, EVENTS.RESIZE];
     repositionEvents.forEach((repositionEvent) => {
       it(`sends a message trigger overlay reposition message to the background when a ${repositionEvent} event occurs`, async () => {
@@ -1918,6 +2082,14 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("extension onMessage handlers", () => {
+    beforeEach(() => {
+      autofillInit.startMonitoring();
+      // startMonitoring triggers `getInlineMenuCardsVisibility` /
+      // `getInlineMenuIdentitiesVisibility` sends; clear them so the
+      // per-handler assertions reflect only message-driven calls.
+      sendExtensionMessageSpy.mockClear();
+    });
+
     describe("generatedPasswordModifyLogin", () => {
       it("relays a message regarding password generation to store modified login data", async () => {
         const formFieldData: ModifyLoginCipherFormData = {
@@ -2378,7 +2550,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     describe("getSubFrameOffsetsFromWindowMessage", () => {
-      it("sends a message to the parent to calculate the sub frame positioning", () => {
+      it("sends a message to the parent to calculate the sub frame positioning without leaking the frame url", () => {
         jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
         const subFrameId = 10;
 
@@ -2391,7 +2563,6 @@ describe("AutofillOverlayContentService", () => {
           {
             command: "calculateSubFramePositioning",
             subFrameData: {
-              url: window.location.href,
               frameId: subFrameId,
               left: 0,
               top: 0,
@@ -2401,12 +2572,21 @@ describe("AutofillOverlayContentService", () => {
           },
           "*",
         );
+        expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith(
+          expect.objectContaining({
+            subFrameData: expect.objectContaining({ url: expect.anything() }),
+          }),
+          expect.anything(),
+        );
       });
 
       describe("calculateSubFramePositioning", () => {
         beforeEach(() => {
-          autofillOverlayContentService.init();
-          jest.spyOn(globalThis.parent, "postMessage");
+          autofillOverlayContentService.startMonitoring();
+          // Stub the relay so a forwarded message is recorded but not actually
+          // re-dispatched; calling through would cascade window messages into
+          // sibling tests via the shared (mutated) subFrameData object.
+          jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
           document.body.innerHTML = ``;
         });
 
@@ -2414,7 +2594,6 @@ describe("AutofillOverlayContentService", () => {
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2444,7 +2623,6 @@ describe("AutofillOverlayContentService", () => {
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
           const subFrameData = {
-            url: "https://example.com/",
             frameId: 10,
             left: 0,
             top: 0,
@@ -2467,7 +2645,6 @@ describe("AutofillOverlayContentService", () => {
                 left: expect.any(Number),
                 parentFrameIds: [1, 2, 3],
                 top: expect.any(Number),
-                url: "https://example.com/",
                 subFrameDepth: expect.any(Number),
               },
             },
@@ -2475,19 +2652,86 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("posts the calculated sub frame data to the background", async () => {
+        it("drops an incoming message that carries a url instead of relaying it", async () => {
+          Object.defineProperty(window, "top", {
+            value: null,
+            writable: true,
+          });
           document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
           const iframe = document.querySelector("iframe") as HTMLIFrameElement;
           jest
             .spyOn(iframe, "getBoundingClientRect")
             .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // A stale (pre-fix) or hostile descendant frame includes its url in the message.
           const subFrameData = {
-            url: "https://example.com/",
+            url: "https://example.com/secret?token=should-not-leak",
             frameId: 10,
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
-            subFrameDepth: expect.any(Number),
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("drops an incoming message whose subFrameData fails the type guard", async () => {
+          // window.top is null and the iframe has a non-zero rect, so a message
+          // that passed the guard would be relayed; only the guard stops this one.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          // Missing the required top/left/subFrameDepth numbers.
+          const subFrameData = { frameId: 10 };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+            "updateSubFrameData",
+            expect.anything(),
+          );
+        });
+
+        it("adds the iframe offset to the running position and posts the result to the background", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          // Distinct, non-zero left/top so the assertion catches an axis swap and
+          // proves the offset is accumulated onto the incoming values (not assigned).
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 5, top: 7 }));
+          // Zero padding/border so the offset is exactly the iframe's rect position.
+          jest
+            .spyOn(globalThis, "getComputedStyle")
+            .mockReturnValue({ getPropertyValue: () => "0" } as unknown as CSSStyleDeclaration);
+          // getCurrentTabFrameId resolves to the parent frame id appended to the chain.
+          sendExtensionMessageSpy.mockResolvedValue(4);
+          const subFrameData = {
+            frameId: 10,
+            left: 20,
+            top: 10,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
           };
 
           postWindowMessage(
@@ -2500,13 +2744,54 @@ describe("AutofillOverlayContentService", () => {
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: expect.any(Number),
-              top: expect.any(Number),
-              url: "https://example.com/",
+              left: 25, // 20 + iframe left 5
+              top: 17, // 10 + iframe top 7
               parentFrameIds: [1, 2, 3, 4],
-              subFrameDepth: expect.any(Number),
+              subFrameDepth: 1,
             },
           });
+        });
+
+        it("re-dispatches each relayed message back through the handler until the max depth is reached", async () => {
+          // This frame is not the top frame, so each hop relays to the parent.
+          Object.defineProperty(window, "top", { value: null, writable: true });
+          // Re-dispatch the relayed message back into the window so the handler
+          // genuinely re-processes it (exercising the cascade), rather than the
+          // no-op stub which would swallow the relay after a single call. (jsdom's
+          // real postMessage delivery is not driven by a single flushPromises.)
+          const postMessageSpy = jest
+            .spyOn(globalThis.parent, "postMessage")
+            .mockImplementation((message: any) => {
+              globalThis.dispatchEvent(new MessageEvent("message", { data: message }));
+            });
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          jest
+            .spyOn(iframe, "getBoundingClientRect")
+            .mockReturnValue(mockRect({ width: 1, height: 1, left: 2, top: 2 }));
+          const subFrameData = {
+            frameId: 10,
+            left: 0,
+            top: 0,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
+          };
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          // The relay was re-dispatched and re-handled on each hop, incrementing the
+          // shared depth until the guard tore the listeners down at the top frame.
+          expect(postMessageSpy.mock.calls.length).toBeGreaterThan(1);
+          expect(subFrameData.subFrameDepth).toBeGreaterThanOrEqual(MAX_SUB_FRAME_DEPTH);
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "destroyAutofillInlineMenuListeners",
+            expect.anything(),
+          );
         });
       });
     });
@@ -2758,7 +3043,7 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(globalThis.removeEventListener).toHaveBeenCalledWith(
         EVENTS.FOCUSOUT,
-        autofillOverlayContentService["handleFormFieldBlurEvent"],
+        autofillOverlayContentService["handleWindowFocusOutEvent"],
       );
       expect(
         autofillOverlayContentService["removeOverlayRepositionEventListeners"],
@@ -2768,7 +3053,7 @@ describe("AutofillOverlayContentService", () => {
     it("de-registers any event listeners that are attached to the form field elements", () => {
       jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
       jest.spyOn(autofillFieldElement, "removeEventListener");
-      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
+      jest.spyOn(autofillOverlayContentService["formFieldElements"], "clear");
 
       autofillOverlayContentService.destroy();
 
@@ -2783,9 +3068,7 @@ describe("AutofillOverlayContentService", () => {
         EVENTS.KEYUP,
         autofillOverlayContentService["handleFormFieldKeyupEventAsListener"],
       );
-      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
-        autofillFieldElement,
-      );
+      expect(autofillOverlayContentService["formFieldElements"].clear).toHaveBeenCalled();
     });
 
     it("clears all existing timeouts", () => {

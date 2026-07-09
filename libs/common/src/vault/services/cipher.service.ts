@@ -12,9 +12,6 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
-import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -32,8 +29,12 @@ import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { FileUploadType } from "../../platform/enums";
+import { MessageSender } from "../../platform/messaging";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -223,6 +224,13 @@ export class CipherService implements CipherServiceAbstraction {
       }),
     );
   }, this.clearCipherViewsForUser$);
+
+  cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined> {
+    return this.cipherViews$(userId).pipe(
+      filterOutNullish(),
+      map((ciphers) => ciphers.find((cipher) => cipher.id === cipherId)),
+    );
+  }
 
   addEditCipherInfo$(userId: UserId): Observable<AddEditCipherInfo> {
     return this.addEditCipherInfoState(userId).state$;
@@ -1172,6 +1180,8 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
+
     // The organization's symmetric key or the user's user key
     const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
 
@@ -1187,6 +1197,41 @@ export class CipherService implements CipherServiceAbstraction {
       new Uint8Array(data),
       attachmentKey[0],
     );
+
+    if (useSdk) {
+      await this.clearCache(userId);
+
+      const created = await this.cipherSdkService.createAttachment(
+        cipher.id as CipherId,
+        {
+          key: attachmentKey[1].encryptedString,
+          fileName: encFileName.encryptedString,
+          fileSize: encData.buffer.byteLength,
+          lastKnownRevisionDate: cipher.revisionDate.toISOString(),
+          asAdmin: admin,
+        },
+        userId,
+      );
+
+      await this.cipherFileUploadService.uploadPrepared(
+        cipher.id,
+        created.attachmentId,
+        created.uploadUrl,
+        created.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
+        encFileName,
+        encData,
+        userId,
+        admin,
+        options,
+      );
+
+      if (admin) {
+        // Admin ops bypass local state; the SDK returns the merged cipher inline.
+        return Cipher.fromSdkCipher(created.cipher) ?? cipher;
+      }
+
+      return await this.get(cipher.id, userId);
+    }
 
     const response = await this.cipherFileUploadService.upload(
       cipher,
@@ -1963,7 +2008,11 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher;
     }
 
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
     let cipherDomain = await this.get(cipher.id, userId);
+    // The SDK path returns the decrypted, post-upgrade view directly; track the latest one so we
+    // can return it without an extra decrypt. The non-SDK path keeps threading `cipherDomain`.
+    let upgradedView: CipherView | undefined;
 
     for (const attachmentView of cipher.attachments) {
       if (
@@ -1974,48 +2023,70 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       try {
-        // 1. Get download URL
-        const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
+        if (useSdk) {
+          upgradedView = await this.upgradeOldAttachmentViaSdk(
+            cipher.id,
+            attachmentView.id,
+            userId,
+          );
+        } else {
+          // 1. Get download URL
+          const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
 
-        // 2. Download attachment data
-        const dataResponse = await this.apiService.nativeFetch(
-          new Request(downloadUrl, { cache: "no-store" }),
-        );
+          // 2. Download attachment data
+          const dataResponse = await this.apiService.nativeFetch(
+            new Request(downloadUrl, { cache: "no-store" }),
+          );
 
-        if (dataResponse.status !== 200) {
-          throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+          if (dataResponse.status !== 200) {
+            throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+          }
+
+          // 3. Decrypt the attachment
+          const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
+            cipher.id as CipherId,
+            attachmentView,
+            dataResponse,
+            userId,
+          );
+
+          // 4. Re-upload with attachment key
+          await this.saveAttachmentRawWithServer(
+            cipherDomain,
+            attachmentView.fileName,
+            decryptedBuffer,
+            userId,
+          );
+
+          // 5. Delete the old attachment
+          const cipherData = await this.deleteAttachmentWithServer(
+            cipher.id,
+            attachmentView.id,
+            userId,
+          );
+          cipherDomain = new Cipher(cipherData);
         }
-
-        // 3. Decrypt the attachment
-        const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
-          cipher.id as CipherId,
-          attachmentView,
-          dataResponse,
-          userId,
-        );
-
-        // 4. Re-upload with attachment key
-        cipherDomain = await this.saveAttachmentRawWithServer(
-          cipherDomain,
-          attachmentView.fileName,
-          decryptedBuffer,
-          userId,
-        );
-
-        // 5. Delete the old attachment
-        const cipherData = await this.deleteAttachmentWithServer(
-          cipher.id,
-          attachmentView.id,
-          userId,
-        );
-        cipherDomain = new Cipher(cipherData);
       } catch (e) {
         this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
         throw e;
       }
     }
 
-    return await this.decrypt(cipherDomain, userId);
+    return upgradedView ?? (await this.decrypt(cipherDomain, userId));
+  }
+
+  private async upgradeOldAttachmentViaSdk(
+    cipherId: string,
+    attachmentId: string,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    await this.clearCache(userId);
+
+    return await this.cipherSdkService.upgradeAttachment(
+      cipherId as CipherId,
+      attachmentId,
+      userId,
+    );
   }
 
   private async getAttachmentDownloadUrl(
@@ -2390,11 +2461,10 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
-    const featureEnabled = await this.configService.getFeatureFlag(FeatureFlag.CipherKeyEncryption);
     const meetsServerVersion = await firstValueFrom(
       this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
     );
-    return featureEnabled && meetsServerVersion;
+    return meetsServerVersion;
   }
 
   /**

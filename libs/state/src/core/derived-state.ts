@@ -5,7 +5,7 @@ export type StateConverter<TFrom extends Array<unknown>, TTo> = (...args: TFrom)
 /**
  * State derived from an observable and a converter function
  *
- * Derived state is cached and persisted to memory for sychronization across execution contexts.
+ * Derived state is cached and persisted to memory for synchronization across execution contexts.
  * For clients with multiple execution contexts, the derived state will be executed only once in the background process.
  */
 export interface DerivedState<T> {

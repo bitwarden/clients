@@ -235,6 +235,7 @@ import {
 
 import { CliBiometricsService } from "../key-management/cli-biometrics-service";
 import { CliProcessReloadService } from "../key-management/cli-process-reload.service";
+import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
@@ -693,6 +694,7 @@ export class ServiceContainer {
       this.apiService,
       this.stateProvider,
       this.configService,
+      this.v2UpgradeTokenStateService,
       customUserAgent,
     );
 
@@ -752,7 +754,6 @@ export class ServiceContainer {
       this.tokenService,
       this.logService,
       this.organizationService,
-      this.keyGenerationService,
       logoutCallback,
       this.stateProvider,
       this.configService,
@@ -799,7 +800,6 @@ export class ServiceContainer {
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.keyService,
       this.encryptService,
@@ -1136,6 +1136,9 @@ export class ServiceContainer {
       new CliBiometricsService(),
       this.biometricStateService,
       this.platformUtilsService,
+      new CliUserKeyRotationService(),
+      this.cipherService,
+      this.sdkService,
     );
   }
 

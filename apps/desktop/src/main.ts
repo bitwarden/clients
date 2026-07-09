@@ -12,14 +12,13 @@ import { AccountServiceImplementation } from "@bitwarden/common/auth/services/ac
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService, NoopIpcService } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -66,6 +65,7 @@ import { DesktopSettingsService } from "./platform/services/desktop-settings.ser
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
+import { IpcMainService } from "./platform/services/ipc.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
@@ -222,11 +222,6 @@ export class Main {
 
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
-    const encryptService = new EncryptServiceImplementation(
-      this.mainCryptoFunctionService,
-      this.logService,
-      true,
-    );
 
     this.shell = new SafeShell(this.logService);
 
@@ -238,6 +233,7 @@ export class Main {
       this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
+      () => this.trayMain.restoreFromTray(),
     );
 
     this.biometricsService = new MainBiometricsService(
@@ -246,8 +242,6 @@ export class Main {
       this.logService,
       process.platform,
       biometricStateService,
-      encryptService,
-      this.mainCryptoFunctionService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
@@ -323,6 +317,13 @@ export class Main {
       app.getAppPath(),
     );
 
+    this.ipcService = new IpcMainService(
+      this.logService,
+      app,
+      this.nativeMessagingMain,
+      this.windowMain,
+    );
+
     this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
 
     this.clipboardMain = new ClipboardMain();
@@ -348,7 +349,6 @@ export class Main {
       this.logService,
       this.windowMain,
     );
-    this.ipcService = new NoopIpcService(this.logService);
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
@@ -388,9 +388,11 @@ export class Main {
           },
         ]);
 
-        // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
-        if (isAutostart) {
-          await this.trayMain.hideToTray();
+        // Autostart starts to tray. Any auto-start mechanism must provide this flag.
+        // Only hide to tray when running in the background is enabled; otherwise there
+        // would be a hidden window with no tray icon to bring it back.
+        if (isAutostart && (await firstValueFrom(this.desktopSettingsService.runInBackground$))) {
+          this.trayMain.hideToTray();
         }
 
         this.powerMonitorMain.init();
@@ -406,7 +408,6 @@ export class Main {
             await this.nativeMessagingMain.generateDdgManifests();
           }
 
-          // Start native messaging when shared unlock is enabled at runtime
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {
@@ -415,7 +416,7 @@ export class Main {
 
         app.removeAsDefaultProtocolClient("bitwarden");
         if (process.env.NODE_ENV === "development" && process.platform === "win32") {
-          // Fix development build on Windows requirering a different protocol client
+          // Fix development build on Windows requiring a different protocol client
           app.setAsDefaultProtocolClient("bitwarden", process.execPath, [
             process.argv[1],
             path.resolve(process.argv[2]),
