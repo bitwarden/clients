@@ -85,7 +85,7 @@ const mockOrganizationUserService = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Confirm Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Confirm Dialog",
   component: BulkConfirmDialogComponent,
   decorators: [
     moduleMetadata({

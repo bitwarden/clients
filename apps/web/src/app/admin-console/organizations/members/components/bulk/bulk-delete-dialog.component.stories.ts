@@ -51,7 +51,7 @@ const mockDeleteManagedMemberWarningService = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Delete Dialog",
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Delete Dialog",
   component: BulkDeleteDialogComponent,
   decorators: [
     moduleMetadata({

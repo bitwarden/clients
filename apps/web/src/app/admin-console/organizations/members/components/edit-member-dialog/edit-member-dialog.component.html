@@ -4,10 +4,12 @@
     @if (!loading()) {
       <span class="tw-text-sm tw-normal-case tw-text-muted">{{ params.name }}</span>
     }
-    @if (isRevoked()) {
-      <span bitBadge variant="secondary">{{ "revoked" | i18n }}</span>
-    }
   </span>
+  @if (isRevoked()) {
+    <span bitDialogHeaderEnd class="tw-mr-4">
+      <span bitBadge variant="subtle">{{ "revoked" | i18n }}</span>
+    </span>
+  }
   <div bitDialogContent>
     @if (loading()) {
       <i
