@@ -1,6 +1,5 @@
 import { catchError, concatMap, firstValueFrom } from "rxjs";
 
-
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -47,7 +46,20 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
           using ref = sdk.take();
 
-          const collectionMap = new Map<string, Collection>(collections.map((c) => [c.id, c]));
+          const collectionMap = new Map<string, Collection>();
+          for (const collection of collections) {
+            if (collectionMap.has(collection.id)) {
+              // Decrypted views are re-associated with their source `Collection` by id below
+              // (needed to preserve `defaultUserCollectionEmail`, which gates the security
+              // restriction in `CollectionView.canEditName()`). A duplicate id would make that
+              // re-association ambiguous and could silently attach the wrong collection's
+              // metadata to a decrypted view, so fail closed instead of guessing.
+              throw new Error(
+                `Duplicate collection id passed to decryptManyWithFailures: ${collection.id}`,
+              );
+            }
+            collectionMap.set(collection.id, collection);
+          }
 
           const result: DecryptCollectionListResult = ref.value
             .vault()
