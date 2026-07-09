@@ -2,9 +2,8 @@ import { ipcRenderer } from "electron";
 
 import type { autofill } from "@bitwarden/desktop-napi";
 
-import { Command } from "../platform/main/autofill/command";
-import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/native-autofill.main";
-
+import { RunCommandParams, RunCommandResult } from "./main/main-desktop-autofill.service";
+import { AutofillCommand } from "./models/autofill-command";
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
@@ -42,8 +41,9 @@ const sshAgent = {
 
 export default {
   sshAgent,
-  runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
-    ipcRenderer.invoke("autofill.runCommand", params),
+  runCommand: <C extends AutofillCommand>(
+    params: RunCommandParams<C>,
+  ): Promise<RunCommandResult<C>> => ipcRenderer.invoke("autofill.runCommand", params),
 
   listenerReady: () => ipcRenderer.send("autofill.listenerReady"),
 

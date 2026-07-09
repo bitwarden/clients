@@ -38,12 +38,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill } from "@bitwarden/desktop-napi";
 
-import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
+import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
-  NativeAutofillFido2Credential,
-  NativeAutofillPasswordCredential,
-  NativeAutofillSyncCommand,
-} from "../../platform/main/autofill/sync.command";
+  AutofillFido2Credential,
+  AutofillPasswordCredential,
+  AutofillSyncCommand,
+} from "../models/autofill-sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
@@ -145,8 +145,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[] = [];
-    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
+    let fido2Credentials: AutofillFido2Credential[] = [];
+    let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -183,7 +183,7 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials,
     });
 
-    const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
+    const syncResult = await ipc.autofill.runCommand<AutofillSyncCommand>({
       namespace: "autofill",
       command: "sync",
       params: {
@@ -201,7 +201,7 @@ export class DesktopAutofillService implements OnDestroy {
   /** Get autofill status from OS */
   private status() {
     // TODO: Investigate why this type needs to be explicitly set
-    return ipc.autofill.runCommand<NativeAutofillStatusCommand>({
+    return ipc.autofill.runCommand<AutofillStatusCommand>({
       namespace: "autofill",
       command: "status",
       params: {},
