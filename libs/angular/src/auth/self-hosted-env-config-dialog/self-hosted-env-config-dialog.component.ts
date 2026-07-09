@@ -171,10 +171,9 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    /**
-     * Populate the form with the current self-hosted environment settings.
-     */
-    this.environmentService.environment$
+    // Populate the form with the current self-hosted environment settings.
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.environmentService.globalEnvironment$
       .pipe(
         take(1),
         filter((env) => {
@@ -207,7 +206,7 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.environmentService.setEnvironment(Region.SelfHosted, {
+    await this.environmentService.setGlobalEnvironment(Region.SelfHosted, {
       base: this.baseUrl.value,
       api: this.apiUrl.value,
       identity: this.identityUrl.value,

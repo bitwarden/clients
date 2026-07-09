@@ -82,7 +82,8 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
   }
 
   private async initSelectedRegionAndListenForEnvChanges() {
-    this.environmentService.environment$
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.environmentService.globalEnvironment$
       .pipe(
         map((env: Environment) => {
           const region: Region = env.getRegion();
@@ -137,7 +138,7 @@ export class RegistrationEnvSelectorComponent implements OnInit, OnDestroy {
 
             if (selectedRegion !== Region.SelfHosted) {
               this.selectedRegionChange.emit(selectedRegion);
-              return from(this.environmentService.setEnvironment(selectedRegion.key));
+              return from(this.environmentService.setGlobalEnvironment(selectedRegion.key));
             }
 
             return of(null);

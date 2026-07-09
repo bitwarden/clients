@@ -45,6 +45,9 @@ describe("ExtensionLoginComponentService", () => {
     environmentService.environment$ = new BehaviorSubject<Environment>({
       getWebVaultUrl: () => baseUrl,
     } as Environment);
+    environmentService.globalEnvironment$ = new BehaviorSubject<Environment>({
+      getWebVaultUrl: () => baseUrl,
+    } as Environment);
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
 
     TestBed.configureTestingModule({

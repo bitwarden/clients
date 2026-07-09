@@ -49,7 +49,8 @@ export class ExtensionLoginComponentService
     codeChallenge: string,
     orgSsoIdentifier?: string,
   ): Promise<void> {
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
     const webVaultUrl = env.getWebVaultUrl();
 
     const redirectUri = webVaultUrl + "/sso-connector.html";

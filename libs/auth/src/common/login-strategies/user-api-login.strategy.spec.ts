@@ -209,6 +209,7 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
+    environmentService.globalEnvironment$ = new BehaviorSubject(env);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -225,6 +226,7 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
+    environmentService.globalEnvironment$ = new BehaviorSubject(env);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -243,6 +245,7 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
+    environmentService.globalEnvironment$ = new BehaviorSubject(env);
     configService.getFeatureFlag
       .calledWith(FeatureFlag.UnlockKeyConnectorWithSdk)
       .mockResolvedValue(true);
@@ -268,6 +271,7 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
+    environmentService.globalEnvironment$ = new BehaviorSubject(env);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
     masterPasswordService.masterKeySubject.next(masterKey);
@@ -294,6 +298,7 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
+    environmentService.globalEnvironment$ = new BehaviorSubject(env);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
     masterPasswordService.masterKeySubject.next(masterKey);

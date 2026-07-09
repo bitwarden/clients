@@ -124,8 +124,9 @@ export class LoginViaAuthRequestComponent implements OnInit, OnDestroy {
         });
       });
 
-    // Get the web vault URL from the environment service
-    this.environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
+    // Get the web vault URL from the environment service.
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.environmentService.globalEnvironment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.webVaultUrl = env.getWebVaultUrl();
       this.deviceManagementUrl = `${this.webVaultUrl}/#/settings/security/device-management`;
     });

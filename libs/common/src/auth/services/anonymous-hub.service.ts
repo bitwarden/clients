@@ -33,7 +33,10 @@ export class AnonymousHubService implements AnonymousHubServiceAbstraction {
   ) {}
 
   async createHubConnection(token: string) {
-    this.url = (await firstValueFrom(this.environmentService.environment$)).getNotificationsUrl();
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    this.url = (
+      await firstValueFrom(this.environmentService.globalEnvironment$)
+    ).getNotificationsUrl();
     if (!this.url.startsWith("https://") && !this.platformUtilsService.isDev()) {
       throw new InsecureUrlNotAllowedError();
     }

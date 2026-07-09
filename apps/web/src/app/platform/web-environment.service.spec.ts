@@ -109,20 +109,20 @@ describe("WebEnvironmentService", () => {
         expect(env.getHostname()).toEqual(PROD_US_REGION.domain);
       });
 
-      describe("setEnvironment", () => {
+      describe("setGlobalEnvironment", () => {
         it("throws an error when trying to set the environment to self-hosted", async () => {
-          await expect(service.setEnvironment(Region.SelfHosted)).rejects.toThrow(
-            "setEnvironment does not work in web for self-hosted.",
+          await expect(service.setGlobalEnvironment(Region.SelfHosted)).rejects.toThrow(
+            "setGlobalEnvironment does not work in web for self-hosted.",
           );
         });
 
         it("only returns the current env's urls when trying to set the environment to the current region", async () => {
-          const urls = await service.setEnvironment(Region.US);
+          const urls = await service.setGlobalEnvironment(Region.US);
           expect(urls).toEqual(expectedProdUSUrls);
         });
 
         it("errors if the selected region is unknown", async () => {
-          await expect(service.setEnvironment("unknown" as Region)).rejects.toThrow(
+          await expect(service.setGlobalEnvironment("unknown" as Region)).rejects.toThrow(
             "The selected region is not known as an available region.",
           );
         });
@@ -134,7 +134,7 @@ describe("WebEnvironmentService", () => {
           const newRegion = Region.EU;
           const newRegionConfig = PRODUCTION_REGIONS.find((r) => r.key === newRegion);
 
-          await service.setEnvironment(newRegion);
+          await service.setGlobalEnvironment(newRegion);
 
           expect(window.location.href).toEqual(
             newRegionConfig.urls.webVault + "/#" + routeAndQueryParams,
@@ -226,20 +226,20 @@ describe("WebEnvironmentService", () => {
         expect(env.getHostname()).toEqual(prodEURegionConfig.domain);
       });
 
-      describe("setEnvironment", () => {
+      describe("setGlobalEnvironment", () => {
         it("throws an error when trying to set the environment to self-hosted", async () => {
-          await expect(service.setEnvironment(Region.SelfHosted)).rejects.toThrow(
-            "setEnvironment does not work in web for self-hosted.",
+          await expect(service.setGlobalEnvironment(Region.SelfHosted)).rejects.toThrow(
+            "setGlobalEnvironment does not work in web for self-hosted.",
           );
         });
 
         it("only returns the current env's urls when trying to set the environment to the current region", async () => {
-          const urls = await service.setEnvironment(Region.EU);
+          const urls = await service.setGlobalEnvironment(Region.EU);
           expect(urls).toEqual(expectedProdEUUrls);
         });
 
         it("errors if the selected region is unknown", async () => {
-          await expect(service.setEnvironment("unknown" as Region)).rejects.toThrow(
+          await expect(service.setGlobalEnvironment("unknown" as Region)).rejects.toThrow(
             "The selected region is not known as an available region.",
           );
         });
@@ -251,7 +251,7 @@ describe("WebEnvironmentService", () => {
           const newRegion = Region.US;
           const newRegionConfig = PRODUCTION_REGIONS.find((r) => r.key === newRegion);
 
-          await service.setEnvironment(newRegion);
+          await service.setGlobalEnvironment(newRegion);
 
           expect(window.location.href).toEqual(
             newRegionConfig.urls.webVault + "/#" + routeAndQueryParams,
@@ -349,20 +349,20 @@ describe("WebEnvironmentService", () => {
         expect(env.getHostname()).toEqual(QA_US_WEB_REGION_CONFIG.domain);
       });
 
-      describe("setEnvironment", () => {
+      describe("setGlobalEnvironment", () => {
         it("throws an error when trying to set the environment to self-hosted", async () => {
-          await expect(service.setEnvironment(Region.SelfHosted)).rejects.toThrow(
-            "setEnvironment does not work in web for self-hosted.",
+          await expect(service.setGlobalEnvironment(Region.SelfHosted)).rejects.toThrow(
+            "setGlobalEnvironment does not work in web for self-hosted.",
           );
         });
 
         it("only returns the current env's urls when trying to set the environment to the current region", async () => {
-          const urls = await service.setEnvironment(QA_US_REGION_KEY);
+          const urls = await service.setGlobalEnvironment(QA_US_REGION_KEY);
           expect(urls).toEqual(expected_QA_US_Urls);
         });
 
         it("errors if the selected region is unknown", async () => {
-          await expect(service.setEnvironment("unknown" as Region)).rejects.toThrow(
+          await expect(service.setGlobalEnvironment("unknown" as Region)).rejects.toThrow(
             "The selected region is not known as an available region.",
           );
         });
@@ -371,7 +371,7 @@ describe("WebEnvironmentService", () => {
           const routeAndQueryParams = "/signup?example=1&another=2";
           (router as any).url = routeAndQueryParams;
 
-          await service.setEnvironment(QA_EU_REGION_KEY);
+          await service.setGlobalEnvironment(QA_EU_REGION_KEY);
 
           expect(window.location.href).toEqual(
             QA_EU_WEB_REGION_CONFIG.urls.webVault + "/#" + routeAndQueryParams,
@@ -444,20 +444,20 @@ describe("WebEnvironmentService", () => {
         expect(env.getHostname()).toEqual(QA_EU_WEB_REGION_CONFIG.domain);
       });
 
-      describe("setEnvironment", () => {
+      describe("setGlobalEnvironment", () => {
         it("throws an error when trying to set the environment to self-hosted", async () => {
-          await expect(service.setEnvironment(Region.SelfHosted)).rejects.toThrow(
-            "setEnvironment does not work in web for self-hosted.",
+          await expect(service.setGlobalEnvironment(Region.SelfHosted)).rejects.toThrow(
+            "setGlobalEnvironment does not work in web for self-hosted.",
           );
         });
 
         it("only returns the current env's urls when trying to set the environment to the current region", async () => {
-          const urls = await service.setEnvironment(QA_EU_REGION_KEY);
+          const urls = await service.setGlobalEnvironment(QA_EU_REGION_KEY);
           expect(urls).toEqual(expected_QA_EU_Urls);
         });
 
         it("errors if the selected region is unknown", async () => {
-          await expect(service.setEnvironment("unknown" as Region)).rejects.toThrow(
+          await expect(service.setGlobalEnvironment("unknown" as Region)).rejects.toThrow(
             "The selected region is not known as an available region.",
           );
         });
@@ -466,7 +466,7 @@ describe("WebEnvironmentService", () => {
           const routeAndQueryParams = "/signup?example=1&another=2";
           (router as any).url = routeAndQueryParams;
 
-          await service.setEnvironment(QA_US_REGION_KEY);
+          await service.setGlobalEnvironment(QA_US_REGION_KEY);
 
           expect(window.location.href).toEqual(
             QA_US_WEB_REGION_CONFIG.urls.webVault + "/#" + routeAndQueryParams,

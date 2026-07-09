@@ -122,7 +122,7 @@ export class DefaultConfigService implements ConfigService {
 
             return combineLatest([
               this.environmentService
-                .getEnvironment$(userId)
+                .userEnvironment$(userId)
                 .pipe(distinctUntilChanged(environmentComparer)),
               this.userConfigFor$(userId),
             ]).pipe(

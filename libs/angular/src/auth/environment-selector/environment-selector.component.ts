@@ -72,6 +72,6 @@ export class EnvironmentSelectorComponent implements OnDestroy {
       return;
     }
 
-    await this.environmentService.setEnvironment(option);
+    await this.environmentService.setGlobalEnvironment(option);
   }
 }

@@ -82,9 +82,11 @@ describe("SendComponent", () => {
     configService.getFeatureFlag$.mockReturnValue(of(true));
 
     // Setup environmentService mock
-    environmentService.getEnvironment.mockResolvedValue({
-      getSendUrl: () => "https://send.bitwarden.com/#/",
-    } as any);
+    environmentService.userEnvironment$.mockReturnValue(
+      of({
+        getSendUrl: () => "https://send.bitwarden.com/#/",
+      } as any),
+    );
 
     // Setup i18nService mock
     i18nService.t.mockImplementation((key: string) => key);
@@ -267,7 +269,7 @@ describe("SendComponent", () => {
 
       await component["onCopySend"](mockSend);
 
-      expect(environmentService.getEnvironment).toHaveBeenCalled();
+      expect(environmentService.userEnvironment$).toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(
         "https://send.bitwarden.com/#/test-access-id/test-key",
       );
