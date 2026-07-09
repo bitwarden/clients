@@ -13,6 +13,7 @@ import {
   AutofillMessageCommand,
 } from "../enums/autofill-message.enums";
 import { AutofillPort } from "../enums/autofill-port.enum";
+import { assertSynchronousScope } from "../rx";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 
@@ -64,6 +65,23 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     frameId: number | undefined;
   }>();
 
+  /**
+   * Guards decision #2's synchronous-fold one-way door (see PLAN-autofill-tab-lifecycle.md):
+   * `handleInjectScriptPortOnDisconnect` reads `connectedPorts.value` immediately after
+   * emitting and relies on this fold propagating synchronously. Reports if a future change
+   * (e.g. a timer added upstream) puts an async boundary between the event and the fold.
+   */
+  private readonly connectedPortsFoldGuard = assertSynchronousScope(
+    "autofill-lifecycle:connectedPorts-fold",
+    (message) => this.logService.warning(message),
+  );
+
+  /** Same guarantee as {@link connectedPortsFoldGuard}, for the monitoring-state fold. */
+  private readonly monitoringStateFoldGuard = assertSynchronousScope(
+    "autofill-lifecycle:monitoringState-fold",
+    (message) => this.logService.warning(message),
+  );
+
   constructor(
     private authService: AuthService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
@@ -82,6 +100,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     // place (no per-event allocation); reads go through `connectedPorts.value`.
     this.portEvent$
       .pipe(
+        this.connectedPortsFoldGuard.enter,
         scan((ports, event) => {
           switch (event.type) {
             case "connect":
@@ -96,6 +115,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
           }
           return ports;
         }, new Set<chrome.runtime.Port>()),
+        this.connectedPortsFoldGuard.exit,
       )
       .subscribe(this.connectedPorts);
 
@@ -103,6 +123,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     // mutated in place and widened to ReadonlyMap to prevent casual mutation.
     this.monitorLifecycle$
       .pipe(
+        this.monitoringStateFoldGuard.enter,
         scan((state, event) => {
           const key = this.monitorFrameKey(event.tabId, event.frameId);
           if (event.active) {
@@ -112,6 +133,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
           }
           return state;
         }, new Map<string, boolean>()),
+        this.monitoringStateFoldGuard.exit,
       )
       .subscribe(this.monitoringState);
 
