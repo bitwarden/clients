@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -8,11 +8,13 @@ import {
   ValidationErrors,
   ValidatorFn,
 } from "@angular/forms";
-import { startWith } from "rxjs";
+import { map, startWith, switchMap } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -88,7 +90,16 @@ interface OrganizationUserNotificationPolicyOptions {
 })
 export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly policyService = inject(PolicyService);
   private readonly i18nService = inject(I18nService);
+
+  private readonly singleOrgEnabled$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    switchMap((userId) => this.policyService.policies$(userId)),
+    map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
+  );
+
+  protected readonly singleOrgEnabled = toSignal(this.singleOrgEnabled$, { initialValue: false });
 
   // Component implementation
   readonly data: FormGroup<ControlsOf<OrganizationUserNotificationPolicyOptions>> =
@@ -152,9 +163,15 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
     const { header, description, buttonText, showAfterEveryLogin } = this.data.controls;
     const dependents = [header, description, showAfterEveryLogin];
 
-    this.enabled.enable();
-    if (this.enabled.value) {
-      dependents.forEach((c) => c.enable());
+    if (!this.singleOrgEnabled()) {
+      this.enabled.disable();
+      dependents.forEach((c) => c.disable());
+      buttonText.disable();
+    } else {
+      this.enabled.enable();
+      if (this.enabled.value) {
+        dependents.forEach((c) => c.enable());
+      }
     }
 
     this.enabled.valueChanges
