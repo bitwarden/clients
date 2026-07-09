@@ -73,8 +73,23 @@ export class ImportCommand {
     const promptForPassword_callback = async () => {
       return await this.promptPassword();
     };
+
+    // The web UI exposes the Keeper method via a dropdown
+    // The CLI infers it from the file extension when the user passes the unified `keeper` ID
+    let resolvedFormat: ImportType = format;
+    if (format === "keeper") {
+      const lower = filepath.toLowerCase();
+      if (lower.endsWith(".csv")) {
+        resolvedFormat = "keepercsv";
+      } else if (lower.endsWith(".json")) {
+        resolvedFormat = "keeperjson";
+      } else {
+        return Response.badRequest("Cannot determine Keeper file type. Use a .csv or .json file.");
+      }
+    }
+
     const importer = await this.importService.getImporter(
-      format,
+      resolvedFormat,
       promptForPassword_callback,
       organizationId,
     );
