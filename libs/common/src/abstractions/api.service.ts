@@ -60,7 +60,6 @@ import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -158,7 +157,6 @@ export abstract class ApiService {
   abstract postAccountVerifyEmailToken(request: VerifyEmailRequest): Promise<any>;
   abstract postAccountRecoverDelete(request: DeleteRecoverRequest): Promise<any>;
   abstract postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any>;
-  abstract postAccountKdf(request: KdfRequest): Promise<any>;
   abstract postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse>;
   abstract postUserRotateApiKey(
     id: string,
