@@ -4,12 +4,14 @@ import { BehaviorSubject } from "rxjs";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { EncryptedReportData, DecryptedReportData } from "../../models";
 import { mockApplicationData, mockReportData, mockSummaryData } from "../../models/mocks/mock-data";
@@ -50,8 +52,12 @@ describe("RiskInsightsEncryptionService", () => {
 
     jest.clearAllMocks();
 
-    // Always use the same contentEncryptionKey for both encrypt and decrypt tests
-    mockKeyGenerationService.createKey.mockResolvedValue(contentEncryptionKey);
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(PureCrypto, "make_aes256_cbc_hmac_key").mockReturnValue({} as any);
+    jest.spyOn(SymmetricCryptoKey, "fromSdk").mockReturnValue(contentEncryptionKey);
     mockEncryptService.wrapSymmetricKey.mockResolvedValue(new EncString(ENCRYPTED_KEY));
     mockEncryptService.encryptString.mockResolvedValue(new EncString(ENCRYPTED_TEXT));
     mockEncryptService.unwrapSymmetricKey.mockResolvedValue(contentEncryptionKey);
@@ -84,7 +90,7 @@ describe("RiskInsightsEncryptionService", () => {
 
       // Assert: ensure that the methods were called with the expected parameters
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
-      expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(PureCrypto.make_aes256_cbc_hmac_key).toHaveBeenCalled();
 
       // Assert all variables were encrypted
       expect(mockEncryptService.encryptString).toHaveBeenCalledWith(
