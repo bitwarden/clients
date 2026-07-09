@@ -150,9 +150,11 @@ export class ByLinkTabComponent {
     const inviteLink = await firstValueFrom(this.inviteLink$);
 
     if (inviteLink) {
-      await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
+      await this.inviteLinkService.updateAllowedDomains(userId, this.organizationId(), domains);
     } else {
-      await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains);
+      // TODO: Determine supportsConfirmation from the state of the "require admin confirmation"
+      // toggle switch in milestone 3
+      await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains, false);
     }
 
     this.form.markAsPristine();
@@ -186,7 +188,9 @@ export class ByLinkTabComponent {
 
   readonly refreshLink = async () => {
     const userId = await firstValueFrom(this.userId$);
-    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId());
+    // TODO: Milestone 3: determine supportsConfirmation from the state of the
+    // "require admin confirmation" toggle switch TBD
+    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId(), false);
 
     this.toastService.showToast({
       variant: "success",
