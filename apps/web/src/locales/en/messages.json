@@ -65,6 +65,9 @@
   "riskOverTime": {
     "message": "Risk over time"
   },
+  "filterRiskOverTime": {
+    "message": "Filter risk over time"
+  },
   "passwordsAtRisk": {
     "message": "Passwords at risk"
   },
@@ -6968,6 +6971,9 @@
   "allSends": {
     "message": "All Sends"
   },
+  "filterSends": {
+    "message": "Filter Sends"
+  },
   "maxAccessCountReached": {
     "message": "Max access count reached",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
@@ -12296,6 +12302,9 @@
   },
   "selectAPlan": {
     "message": "Select a plan"
+  },
+  "planBillingInterval": {
+    "message": "Plan billing interval"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% Discount"

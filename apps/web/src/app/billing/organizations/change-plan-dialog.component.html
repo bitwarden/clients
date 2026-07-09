@@ -18,7 +18,11 @@
       <div class="tw-flex tw-items-center tw-gap-2">
         <!-- Plan Interval Toggle -->
         <div class="tw-inline-block" *ngIf="!isSubscriptionCanceled">
-          <bit-toggle-group [selected]="selectedInterval" (selectedChange)="updateInterval($event)">
+          <bit-toggle-group
+            [selected]="selectedInterval"
+            (selectedChange)="updateInterval($event)"
+            [label]="'planBillingInterval' | i18n"
+          >
             <bit-toggle
               *ngFor="
                 let planInterval of getPlanIntervals();

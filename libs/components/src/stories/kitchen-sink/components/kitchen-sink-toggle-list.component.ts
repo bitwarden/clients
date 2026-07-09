@@ -11,7 +11,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
       <bit-toggle-group
         [selected]="selectedToggle()"
         (selectedChange)="selectedToggle.set($event)"
-        aria-label="Company list filter"
+        label="Company list filter"
       >
         <bit-toggle value="all"> All <bit-berry [value]="3"></bit-berry> </bit-toggle>
 
