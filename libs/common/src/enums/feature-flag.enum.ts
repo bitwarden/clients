@@ -15,6 +15,7 @@ export enum FeatureFlag {
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
+  StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
   // TODO: PM-40137 - Remove this flag
@@ -134,6 +135,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,

@@ -65,6 +65,9 @@
   "riskOverTime": {
     "message": "Risk over time"
   },
+  "filterRiskOverTime": {
+    "message": "Filter risk over time"
+  },
   "passwordsAtRisk": {
     "message": "Passwords at risk"
   },
@@ -6057,6 +6060,15 @@
       }
     }
   },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "reorderToggleButton": {
     "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
     "placeholders": {
@@ -6958,6 +6970,9 @@
   },
   "allSends": {
     "message": "All Sends"
+  },
+  "filterSends": {
+    "message": "Filter Sends"
   },
   "maxAccessCountReached": {
     "message": "Max access count reached",
@@ -9406,6 +9421,20 @@
   },
   "scimApiKeyHelperText": {
     "message": "This API key has access to manage users within your organization. It should be kept secret."
+  },
+  "scimInviteUsersAfterProvisioning": {
+    "message": "Automatically send email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHint": {
+    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimInviteUsersAfterProvisioningHelpTitle": {
+    "message": "About email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHelpBody": {
+    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
     "message": "Copy the SCIM API key to your clipboard",
@@ -12273,6 +12302,9 @@
   },
   "selectAPlan": {
     "message": "Select a plan"
+  },
+  "planBillingInterval": {
+    "message": "Plan billing interval"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% Discount"

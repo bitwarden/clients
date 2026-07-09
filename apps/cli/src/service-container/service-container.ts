@@ -116,6 +116,7 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -135,6 +136,7 @@ import { AppIdService } from "@bitwarden/common/platform/services/app-id.service
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -332,6 +334,7 @@ export class ServiceContainer {
   authRequestApiService: AuthRequestApiServiceAbstraction;
   configApiService: ConfigApiServiceAbstraction;
   configService: ConfigService;
+  availableRegionsService: AvailableRegionsService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -620,6 +623,11 @@ export class ServiceContainer {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
     );
 
     this.domainSettingsService = new DefaultDomainSettingsService(
