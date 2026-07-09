@@ -1,0 +1,49 @@
+import { Meta, Primary, Controls, Canvas, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./marketing-card.stories";
+
+<Meta of={stories} />
+
+```ts
+import { MarketingCardComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+## When to use
+
+The marketing card is a variant of [`<bit-card>`](/docs/component-library-cards-card--docs) that
+adds a branded border to draw attention to promotional or upsell content — plan upgrades, feature
+announcements, and similar calls to action. Reach for a plain `<bit-card>` for neutral,
+presentational content; reserve the marketing card for content that is meant to stand out.
+
+<Canvas of={stories.Default} />
+
+## Backgrounds
+
+Content projected into the `background` slot fills the card behind the main content. The background
+layer sits behind the card content and is clipped to the card's rounded corners, so it can be a
+solid color, a gradient, an image, or an inline SVG.
+
+### Color or gradient
+
+A simple `div` sized with `tw-size-full` fills the background layer.
+
+<Canvas of={stories.WithBackground} />
+
+### Image
+
+An `<img>` uses `tw-size-full` with `tw-object-cover` so it fills the card and crops to its aspect
+ratio instead of stretching. Decorative background images use `alt=""` so screen readers skip them.
+Ensure the projected content keeps sufficient contrast against the image.
+
+<Canvas of={stories.WithImageBackground} />
+
+### Inline SVG
+
+An inline `<svg>` uses `tw-size-full` with `preserveAspectRatio="xMidYMid slice"` to cover the card.
+Color its shapes with theme-token `tw-fill-*` utilities so the artwork tracks the active theme, and
+mark it `aria-hidden="true"` since it is decorative.
+
+<Canvas of={stories.WithSvgBackground} />
