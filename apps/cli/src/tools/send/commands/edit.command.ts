@@ -107,7 +107,7 @@ export class SendEditCommand {
 
     try {
       const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
-      // Forward the plaintext (null when preserving an existing password) so the SDK path can
+      // Forward the plaintext  password (null when preserving an existing password) so the SDK path can
       // derive the send password over the key it generates; the legacy path ignores it.
       await this.sendApiService.save([encSend, encFileData], req.password);
     } catch (e) {
