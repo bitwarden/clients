@@ -1,8 +1,8 @@
 import { _isNumberValue } from "@angular/cdk/coercion";
 import {
-  CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
   CdkVirtualScrollViewport,
+  VIRTUAL_SCROLL_STRATEGY,
 } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
@@ -45,9 +45,20 @@ import { SortState, cycleSort } from "./sort-model";
 import { SyncScrollLeftDirective } from "./sync-scroll-left.directive";
 import { TableDef } from "./table-def";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
+import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
 /** Grid track width for the internal selection (checkbox) column. */
 const SELECTION_COLUMN_WIDTH = "40px";
+
+/**
+ * Fixed heights (px) of group headers when virtualized. The scroll strategy needs
+ * known item heights, and the rendered header is pinned to these — so they must
+ * match the header chrome defined in {@link BitTableV2Component.groupHeaderClass}.
+ * The projected header content is a single-line label, so the height is the table's
+ * to define, not the consumer's.
+ */
+const GROUP_HEADER_HEIGHT = 40;
+const SUBGROUP_HEADER_HEIGHT = 28;
 
 /** The `filterValues` key a projected `bit-search`'s term is adopted under. */
 const SEARCH_FILTER_KEY = "search";
@@ -154,7 +165,6 @@ type RenderItem<T> =
   imports: [
     CommonModule,
     CdkVirtualScrollViewport,
-    CdkFixedSizeVirtualScroll,
     CdkVirtualForOf,
     BitCellComponent,
     BitHeaderRowComponent,
@@ -166,9 +176,17 @@ type RenderItem<T> =
     I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // Filter chips projected into the table register against this host via the
-  // `bitTableFilter` bridge; the table folds their values into `filtered`.
-  providers: [{ provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) }],
+  providers: [
+    // Filter chips projected into the table register against this host via the
+    // `bitTableFilter` bridge; the table folds their values into `filtered`.
+    { provide: FILTER_HOST, useExisting: forwardRef(() => BitTableV2Component) },
+    // The virtual-scroll viewport in the template picks up the table's own strategy.
+    {
+      provide: VIRTUAL_SCROLL_STRATEGY,
+      useFactory: (table: BitTableV2Component) => table.scrollStrategy,
+      deps: [forwardRef(() => BitTableV2Component)],
+    },
+  ],
   host: {
     // In `fill` mode the host becomes a flex column that fills its parent's
     // height, so the table can hand a bounded height down to its scroll region.
@@ -451,6 +469,14 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         );
       }
     });
+
+    // The strategy pulls heights lazily, so a collapse (which changes the row count)
+    // is handled by CDK's `onDataLengthChanged`. This covers the other case — heights
+    // changing with no row-count change (e.g. row height) — which CDK can't observe.
+    effect(() => {
+      this.itemHeights();
+      this.scrollStrategy.refresh();
+    });
   }
 
   /**
@@ -717,6 +743,51 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     return items;
   });
 
+  /**
+   * Per-item pixel heights for {@link TableVirtualScrollStrategy}, in render order:
+   * data rows use {@link virtualRowHeight}, group headers use the fixed
+   * {@link headerHeight} for their level. Empty until {@link virtualRowHeight} is set.
+   */
+  protected readonly itemHeights = computed<number[]>(() => {
+    const rowHeight = this.virtualRowHeight();
+    if (rowHeight === undefined) {
+      return [];
+    }
+    return this.renderItems().map((item) =>
+      item.kind === "row" ? rowHeight : this.headerHeight(item.level),
+    );
+  });
+
+  /** Fixed virtualized height for a group header at `level` (0 = top, 1 = subgroup). */
+  protected headerHeight(level: number): number {
+    return level === 0 ? GROUP_HEADER_HEIGHT : SUBGROUP_HEADER_HEIGHT;
+  }
+
+  /** Total pixel height of every render item (rows + group headers). */
+  protected readonly totalContentHeight = computed(() =>
+    this.itemHeights().reduce((sum, height) => sum + height, 0),
+  );
+
+  /**
+   * trackBy for the render list — a header by its group, a row by the consumer's
+   * {@link trackBy} (falling back to row identity). Shared by the virtualized
+   * `cdkVirtualFor` and the non-virtualized `@for`.
+   */
+  protected readonly trackRenderItem: TrackByFunction<RenderItem<T>> = (index, item) => {
+    if (item.kind !== "row") {
+      return item.group;
+    }
+    const trackBy = this.trackBy();
+    return trackBy ? trackBy(index, item.row) : item.row;
+  };
+
+  /**
+   * Virtual-scroll strategy for the viewport, provided to it via
+   * `VIRTUAL_SCROLL_STRATEGY`. Reads {@link itemHeights} lazily; the constructor
+   * effect nudges it to re-render when heights change.
+   */
+  readonly scrollStrategy = new TableVirtualScrollStrategy(this.itemHeights);
+
   /** Index array for the skeleton rows shown while loading. */
   protected readonly skeletonRows = computed(() => [...Array(this.loadingRows()).keys()]);
 
@@ -740,7 +811,9 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     if (rowHeight === undefined) {
       return undefined;
     }
-    const contentHeight = this.rows().length * rowHeight;
+    // Content height includes group headers, so grouped tables grow to fit them;
+    // the `maxRows` cap stays row-based ("show N rows before scrolling").
+    const contentHeight = this.totalContentHeight();
     const maxRows = this.maxRows();
     const height =
       maxRows !== undefined ? Math.min(maxRows * rowHeight, contentHeight) : contentHeight;

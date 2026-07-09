@@ -30,6 +30,7 @@ import { BitCellComponent } from "./bit-cell.component";
 import { BitColumnComponent } from "./bit-column.component";
 import { BitHeaderCellComponent } from "./bit-header-cell.component";
 import { BitHeaderRowComponent } from "./bit-header-row.component";
+import { BitRowGroupComponent } from "./bit-row-group.component";
 import { BitRowComponent } from "./bit-row.component";
 import { BitTableFilterDirective } from "./bit-table-filter.directive";
 import { BitTablePaginatorComponent } from "./bit-table-paginator.component";
@@ -404,6 +405,7 @@ export default {
         BitCellComponent,
         BitHeaderRowComponent,
         BitRowComponent,
+        BitRowGroupComponent,
         BitTableToolbarComponent,
         BitTablePaginatorComponent,
         BitCellLoadingDirective,
@@ -704,6 +706,60 @@ export const Scrollable: Story = {
             <bit-header-cell>Other</bit-header-cell>
             <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
           </bit-column>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
+type GroupedRow = { id: number; name: string; type: "login" | "card" | "note" };
+
+const GROUP_TYPES = ["login", "card", "note"] as const;
+
+const groupedTable = defineTable<GroupedRow>(
+  signal(
+    [...Array(90).keys()].map((i) => ({
+      id: i + 1,
+      name: `Item ${i + 1}`,
+      type: GROUP_TYPES[i % 3],
+    })),
+  ),
+);
+
+/**
+ * Grouping composes with virtualization. A single scroll viewport renders the
+ * interleaved group headers and rows, positioned by a variable-size scroll strategy
+ * (headers and rows have different heights). Groups are a `list`-presentation
+ * feature; collapsing one drops its rows from the virtual list and the viewport
+ * re-measures. `virtualRowHeight` is the row's full advance (cell height + the list
+ * row's bottom margin).
+ */
+export const GroupedVirtualized: Story = {
+  render: () => ({
+    props: {
+      table: groupedTable,
+      trackBy: (_: number, item: GroupedRow) => item.id,
+      isLogin: (row: GroupedRow) => row.type === "login",
+      isCard: (row: GroupedRow) => row.type === "card",
+      isNote: (row: GroupedRow) => row.type === "note",
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [tableDef]="table"
+          presentation="list"
+          [virtualRowHeight]="70"
+          [trackBy]="trackBy"
+          [height]="8"
+        >
+          <bit-column sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+
+          <bit-row-group collapsible [match]="isLogin">Logins</bit-row-group>
+          <bit-row-group collapsible [match]="isCard">Cards</bit-row-group>
+          <bit-row-group collapsible [match]="isNote">Notes</bit-row-group>
         </bit-table-v2>
       </bit-layout>
     `,

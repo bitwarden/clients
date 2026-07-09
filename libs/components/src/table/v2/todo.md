@@ -4,13 +4,20 @@ Tracked follow-ups for the v2 table. Keep entries short; link to the code they t
 
 ## Virtual scroll + row groups
 
-Grouping (`<bit-row-group>`) currently renders only in the **non-virtualized** body
-(`table-v2.component.html`). Virtualization (`virtualRowHeight`) and grouping don't compose yet:
+Grouping (`<bit-row-group>`) composes with virtualization: a single viewport renders the
+interleaved group headers and rows, positioned by `TableVirtualScrollStrategy`
+(`table-virtual-scroll.strategy.ts`) from per-item heights. Remaining:
 
-- CDK's fixed-size strategy assumes one item height, but group headers and rows differ.
-- Needs a custom two-height `VirtualScrollStrategy` (header height vs row height) or
-  `cdkAutosizeVirtualScroll`, plus sticky section headers inside the transformed viewport.
-- Until then, grouping + virtualization should warn/no-op.
+- **Sticky section headers.** Headers scroll away with their group rather than pinning to
+  the top of the viewport. Needs sticky positioning within CDK's transformed content.
+- **Header-height precision.** Header heights are fixed constants (`GROUP_HEADER_HEIGHT` /
+  `SUBGROUP_HEADER_HEIGHT` in `table-v2.component.ts`) forced onto the rendered header, so a
+  header taller than its constant clips. If variable-height headers are ever needed, measure
+  instead — and move the knob onto `<bit-row-group>` (which owns the header content).
+- **Buffer hysteresis.** The strategy over-scans a single fixed `BUFFER_PX` (200) each side and
+  recomputes the range every scroll. CDK's fixed-size strategy uses `minBufferPx`/`maxBufferPx`
+  hysteresis (top up in chunks) for fewer re-renders under fast scrolling; adopt that if the
+  churn matters.
 
 ## Row groups — remaining
 

@@ -50,6 +50,51 @@
   }
 </ng-template>
 
+<!--
+  One render item — a group header or a data row — shared by the virtualized and
+  non-virtualized bodies so grouped rendering is identical in both. `forceHeight`
+  pins headers to the fixed heights the virtual-scroll strategy assumes; the
+  non-virtualized body passes it false so headers size to content.
+-->
+<ng-template #renderItemTpl let-item="item" let-forceHeight="forceHeight">
+  @if (item.kind === "group") {
+    @if (item.group.collapsible()) {
+      <button
+        type="button"
+        [class]="groupHeaderButtonClass(item.level)"
+        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+        [attr.aria-expanded]="!item.group.collapsed()"
+        (click)="item.group.toggle()"
+      >
+        <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+        <!-- Count only on top-level group headers. -->
+        @if (item.level === 0) {
+          <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+        }
+        <bit-icon
+          [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
+          [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
+          aria-hidden="true"
+        ></bit-icon>
+      </button>
+    } @else {
+      <div
+        [class]="groupHeaderClass(item.level)"
+        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+      >
+        <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+        @if (item.level === 0) {
+          <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+        }
+      </div>
+    }
+  } @else {
+    <bit-row>
+      <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"></ng-container>
+    </bit-row>
+  }
+</ng-template>
+
 <ng-content select="bit-bulk-actions-bar"></ng-content>
 
 <div [ngClass]="containerClass()">
@@ -113,28 +158,38 @@
         </ng-content>
       } @else if (isVirtualized()) {
         <!--
-          Virtualized body: only the rows live in the viewport. CDK positions
-          rows absolutely (no in-flow height), so the viewport needs a bounded
-          height: an explicit `viewportHeight` (capped at `height` rows), or
-          `flex-1` to fill the host in `fill` mode.
+          Virtualized body: rows and group headers live in one viewport, positioned
+          by `TableVirtualScrollStrategy` from `itemHeights()` (so mixed row/header
+          heights compose). CDK positions content absolutely (no in-flow height), so
+          the viewport needs a bounded height: an explicit `viewportHeight` (capped
+          at `height` rows), or `flex-1` to fill the host in `fill` mode.
         -->
         <cdk-virtual-scroll-viewport
           class="tw-overscroll-x-none"
-          [itemSize]="virtualRowHeight()!"
           [style.height]="isFill() ? null : viewportHeight()"
           [class.tw-flex-1]="isFill()"
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
-          <bit-row *cdkVirtualFor="let r of rows(); trackBy: trackBy(); templateCacheSize: 0">
-            <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: r }"></ng-container>
-          </bit-row>
+          <ng-container
+            *cdkVirtualFor="
+              let item of renderItems();
+              trackBy: trackRenderItem;
+              templateCacheSize: 0
+            "
+          >
+            <ng-container
+              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: true }"
+            ></ng-container>
+          </ng-container>
         </cdk-virtual-scroll-viewport>
       } @else {
         <!--
           Non-virtualized body: fills the host in `fill` mode. A row-count cap
           needs a known row height, so it's virtualization-only; non-virtualized
           tables grow to content and size via a CSS class if they need a bound.
+          `renderItems()` interleaves group headers and rows (or is just the flat
+          rows when ungrouped); headers size to content here.
         -->
         <div
           class="tw-overflow-auto tw-overscroll-x-none"
@@ -142,56 +197,10 @@
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
-          @if (groupingActive()) {
-            <!--
-              Grouped body: `renderItems()` interleaves group headers and rows.
-              A header spans the full width above its rows; the row count is
-              appended automatically.
-            -->
-            @for (item of renderItems(); track item.kind === "row" ? item.row : item.group) {
-              @if (item.kind === "group") {
-                @if (item.group.collapsible()) {
-                  <button
-                    type="button"
-                    [class]="groupHeaderButtonClass(item.level)"
-                    [attr.aria-expanded]="!item.group.collapsed()"
-                    (click)="item.group.toggle()"
-                  >
-                    <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-                    <!-- Count only on top-level group headers. -->
-                    @if (item.level === 0) {
-                      <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
-                    }
-                    <bit-icon
-                      [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
-                      [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
-                      aria-hidden="true"
-                    ></bit-icon>
-                  </button>
-                } @else {
-                  <div [class]="groupHeaderClass(item.level)">
-                    <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-                    @if (item.level === 0) {
-                      <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
-                    }
-                  </div>
-                }
-              } @else {
-                <bit-row>
-                  <ng-container
-                    *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"
-                  ></ng-container>
-                </bit-row>
-              }
-            }
-          } @else {
-            @for (r of rows(); track r) {
-              <bit-row>
-                <ng-container
-                  *ngTemplateOutlet="bodyCells; context: { $implicit: r }"
-                ></ng-container>
-              </bit-row>
-            }
+          @for (item of renderItems(); track trackRenderItem($index, item)) {
+            <ng-container
+              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+            ></ng-container>
           }
         </div>
       }
