@@ -11,7 +11,7 @@
     <!-- ================================================================
          CREATE MODE — single form for name + method + (automatic fields)
          ================================================================ -->
-    <form [formGroup]="createForm" [bitSubmit]="submitCreate">
+    <form [formGroup]="createForm" [bitSubmit]="submitCreate" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
@@ -181,7 +181,7 @@
          ================================================================ -->
 
     <!-- Name card -->
-    <form [formGroup]="nameForm" [bitSubmit]="submitName">
+    <form [formGroup]="nameForm" [bitSubmit]="submitName" class="tw-max-w-4xl">
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
@@ -238,7 +238,7 @@
 
     <!-- Policy card (Automatic only) -->
     @if (showPolicyCard()) {
-      <form [formGroup]="policyForm" [bitSubmit]="submitPolicy">
+      <form [formGroup]="policyForm" [bitSubmit]="submitPolicy" class="tw-max-w-4xl">
         <bit-section>
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
