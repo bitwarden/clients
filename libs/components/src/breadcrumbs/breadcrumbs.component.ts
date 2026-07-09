@@ -117,10 +117,11 @@ export class BreadcrumbsComponent {
   protected readonly baseStyles = [
     "tw-inline-block",
     "!tw-m-0",
+    "tw-rounded",
     "focus-visible:!tw-text-fg-brand",
-    "focus-visible:!tw-rounded",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
+    "focus-visible:tw-ring-inset",
     "focus-visible:tw-ring-border-focus",
   ];
 
