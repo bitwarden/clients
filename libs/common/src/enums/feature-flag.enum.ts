@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
+  CollectionBulkDecryptWithFailures = "collection-bulk-decrypt-with-failures",
   PolicyDrawers = "pm-34804-policy-drawers",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
   StagedStatus = "pm-34423-staged-status",
@@ -135,6 +136,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
+  [FeatureFlag.CollectionBulkDecryptWithFailures]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 

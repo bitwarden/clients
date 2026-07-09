@@ -2,6 +2,8 @@ import { catchError, concatMap, firstValueFrom } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -13,6 +15,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
   constructor(
     private sdkService: SdkService,
     private logService: LogService,
+    private configService: ConfigService,
   ) {}
 
   async decrypt(collection: Collection, userId: UserId): Promise<CollectionView> {
@@ -37,6 +40,65 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       return [[], []];
     }
 
+    const bulkDecryptEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.CollectionBulkDecryptWithFailures,
+    );
+
+    return bulkDecryptEnabled
+      ? this.decryptManyWithFailuresBulk(collections, userId)
+      : this.decryptManyWithFailuresOriginal(collections, userId);
+  }
+
+  /**
+   * Original implementation: decrypts each collection individually via the SDK, one at a time.
+   * A collection that fails to decrypt is logged and returned in the failures array instead of
+   * aborting the rest of the batch.
+   */
+  private async decryptManyWithFailuresOriginal(
+    collections: Collection[],
+    userId: UserId,
+  ): Promise<[CollectionView[], Collection[]]> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+
+          const views: CollectionView[] = [];
+          const failures: Collection[] = [];
+          for (const collection of collections) {
+            try {
+              const sdkView = ref.value.vault().collections().decrypt(collection.toSdkCollection());
+              views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
+            } catch (error: unknown) {
+              this.logService.error(`Failed to decrypt collection ${collection.id}: ${error}`);
+              failures.push(collection);
+            }
+          }
+
+          return [views, failures] as [CollectionView[], Collection[]];
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to decrypt collections in batch: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  /**
+   * Batched implementation using the SDK's `decrypt_list_with_failures`, which parallelizes
+   * decryption of the whole list for better performance on large lists. Gated behind
+   * {@link FeatureFlag.CollectionBulkDecryptWithFailures} until the SDK bindings that expose
+   * this method have rolled out everywhere this service is used.
+   */
+  private async decryptManyWithFailuresBulk(
+    collections: Collection[],
+    userId: UserId,
+  ): Promise<[CollectionView[], Collection[]]> {
     return firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {

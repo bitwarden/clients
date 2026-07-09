@@ -31,6 +31,10 @@ export abstract class CollectionEncryptionService {
    * failures separately. Unlike `decryptMany`, a single collection that fails to decrypt does
    * not silently drop — it is returned in the failures array instead.
    *
+   * Implementations may use `FeatureFlag.CollectionBulkDecryptWithFailures` to choose between a
+   * batched SDK call and decrypting collections one at a time, but both paths must uphold this
+   * successes/failures contract.
+   *
    * @param collections The encrypted collection objects
    * @param userId The user ID whose keys will be used for decryption
    *
