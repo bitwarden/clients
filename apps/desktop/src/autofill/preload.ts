@@ -10,6 +10,10 @@ import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
+type CompletionCallback<T> = {
+  (error: null, response: T): void;
+  (error: Error, response: null): void;
+};
 const sshAgent = {
   init: async (useV2: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
@@ -48,10 +52,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyRegistrationRequest,
-      completeCallback: (
-        error: Error | null,
-        response: autofill.PasskeyRegistrationResponse,
-      ) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyRegistrationResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -90,7 +91,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyAssertionRequest,
-      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -128,7 +129,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(

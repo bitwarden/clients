@@ -24,4 +24,12 @@ export abstract class ImportServiceAbstraction {
     promptForPassword_callback: () => Promise<string>,
     organizationId: string,
   ) => Importer;
+
+  // Import an already-parsed ImportResult directly.
+  importImportResult: (
+    importResult: ImportResult,
+    organizationId?: string,
+    selectedImportTarget?: FolderView | CollectionView,
+    canAccessImportExport?: boolean,
+  ) => Promise<ImportResult>;
 }

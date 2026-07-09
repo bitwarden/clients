@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Prílohy"
   },
+  "attachmentsNeedFix": {
+    "message": "Táto položka má staré prílohy, ktoré je potrebné opraviť."
+  },
   "viewItem": {
     "message": "Zobraziť položku"
+  },
+  "viewCollectionWithName": {
+    "message": "Zobraziť zbierku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Zobraziť prihlásenie",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Zobraziť pas",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Pridať prihlasovacie údaje",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Pridať kartu",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Pridať identitu",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Pridať poznámku",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Pridať zabezpečenú poznámku",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Pridať kľúč SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Pridať bankový účet",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Pridať vodičský preukaz",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Pridať pas",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Upraviť zabezpečenú poznámku",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Upraviť prihlasovacie údaje",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Upraviť kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Upraviť identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Upraviť poznámku",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Upraviť kľúč SSH",
@@ -322,6 +386,29 @@
     "message": "Naozaj chcete natrvalo odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Zobraziť prihlasovacie údaje",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Zobraziť kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Zobraziť identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Zobraziť poznámku",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Vytvoriť",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Pridať zbierku"
+  },
   "new": {
     "message": "Nové",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Upraviť položku"
+  },
+  "editItemWithName": {
+    "message": "Upraviť položku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "E-mailová adresa"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Odstrániť položku"
+  },
+  "deleteItemsCount": {
+    "message": "Odstrániť položky: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Táto položka bude presunutá do koša. Po 30 dňoch v koši bude natrvalo odstránená."
+  },
+  "deleteItemsDesc": {
+    "message": "Tieto položky budú odoslané do koša. Po 30 dňoch budú natrvalo odstránené."
+  },
+  "deleteItemPermanently": {
+    "message": "Odstrániť položku natrvalo"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Odstrániť položky natrvalo: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Túto položku už nebude možné obnoviť."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Tieto položky už nebude možné obnoviť."
+  },
+  "deleteSelection": {
+    "message": "Odstrániť výber"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Vybrané položky a zbierky budú natrvalo odstránené."
   },
   "deleteFolder": {
     "message": "Odstrániť priečinok"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Archivovaná položka bola obnovená"
   },
+  "archivedItemsRestored": {
+    "message": "Archivované položky boli obnovené"
+  },
   "restoredItem": {
     "message": "Položka bola obnovená"
   },
+  "restoredItems": {
+    "message": "Položky boli obnovené"
+  },
   "permanentlyDelete": {
     "message": "Natrvalo odstrániť"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Položky boli natrvalo odstránené"
+  },
+  "deletedItems": {
+    "message": "Položky boli presunuté do koša"
+  },
+  "deletedCollections": {
+    "message": "Odstránené zbierky"
+  },
+  "collectionDeleted": {
+    "message": "Zbierka bola odstránená"
+  },
+  "collectionsDeleted": {
+    "message": "Zbierky boli odstránené"
+  },
+  "movedItems": {
+    "message": "Položky boli presunuté"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Odhlásenie bude vyžadovať online prihlásenie po vypršaní časového limitu. Naozaj chcete použiť toto nastavenie?"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "Nový Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Vytvoriť Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do $ORG$. Už ju nebudete vlastniť.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybranú organizáciu. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na $ORG$. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Zrušiť archiváciu a uložiť"
+  },
+  "archiveItemsPlural": {
+    "message": "Archivovať položky: $NUM$",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archivovať $NUM$ položku",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Po archivácii budú tieto položky vylúčené z výsledkov vyhľadávania a návrhov automatického vypĺňania."
+  },
+  "bulkArchiveItems": {
+    "message": "Položky archivované"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky boli odobrané z archívu"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Vyberte priečinok, do ktorého chcete pridať vybrané položky ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Vyberte priečinok"
   },
   "restartPremium": {
     "message": "Reštartovať Prémium"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
+  },
+  "addToFolder": {
+    "message": "Pridať do priečinka"
+  },
+  "deleteCollection": {
+    "message": "Odstrániť zbierku"
+  },
+  "deleteCollectionsCount": {
+    "message": "Odstrániť zbierky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Táto zbierka bude natrvalo odstránená."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Tieto zbierky budú natrvalo odstránené."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
