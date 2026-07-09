@@ -1,11 +1,11 @@
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
+
 import { SdkRandomizer } from "./sdk-randomizer";
 
 const mockGenRange = jest.fn();
 
 jest.mock("@bitwarden/sdk-internal", () => ({
-  SdkRandomNumberClient: jest.fn().mockImplementation(() => ({
-    gen_range: mockGenRange,
-  })),
+  SdkRandomNumberClient: jest.fn(),
 }));
 
 jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
@@ -15,6 +15,12 @@ jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => 
 }));
 
 describe("SdkRandomizer", () => {
+  beforeEach(() => {
+    (SdkRandomNumberClient as jest.Mock).mockImplementation(() => ({
+      gen_range: mockGenRange,
+    }));
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
   });
