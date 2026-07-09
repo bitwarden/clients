@@ -32,7 +32,7 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
     showDescription: false,
   };
 
-  display(organization: Organization, configService: ConfigService) {
+  display$(organization: Organization, _configService: ConfigService) {
     return of(organization.useActivateAutofillPolicy);
   }
 }

@@ -8,10 +8,8 @@ import {
 import { FreeFamiliesSponsorshipPolicy } from "./free-families-sponsorship.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Free Families Sponsorship",
-    new FreeFamiliesSponsorshipPolicy(),
-  ),
+  ...policyDrawerMeta(new FreeFamiliesSponsorshipPolicy()),
+  title: "Admin Console/Organizations/Policies/Free Families Sponsorship",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

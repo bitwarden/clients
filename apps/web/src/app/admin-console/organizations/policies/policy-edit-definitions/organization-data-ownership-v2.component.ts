@@ -1,16 +1,12 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -19,9 +15,7 @@ import { SwitchComponent } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category";
-import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
+import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
 type SaveOrganizationDataOwnershipPolicyRequest = SavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -30,23 +24,6 @@ type SaveOrganizationDataOwnershipPolicyRequest = SavePolicyRequest<{
 type OrganizationDataOwnershipPolicyData = {
   enableIndividualItemsTransfer: boolean;
 };
-
-export class OrganizationDataOwnershipPolicyV2 extends BasePolicyEditDefinition {
-  name = "centralizeDataOwnership";
-  description = "centralizeDataOwnershipDesc";
-  type = PolicyType.OrganizationDataOwnership;
-  category = PolicyCategory.DataControl;
-  priority = 20;
-  component = OrganizationDataOwnershipPolicyV2Component;
-  showDescription = false;
-  showEnabledBadge = true;
-
-  editDialogComponent = MultiStepPolicyEditDialogComponent;
-
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);
-  }
-}
 
 @Component({
   selector: "organization-data-ownership-policy-v2-edit",

@@ -4,11 +4,7 @@ import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } fr
 import { map } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -22,25 +18,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category";
-import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
-
-export class MasterPasswordPolicyV2 extends BasePolicyEditDefinition {
-  name = "masterPassPolicyTitle";
-  description = "masterPassPolicyDesc";
-  type = PolicyType.MasterPassword;
-  category = PolicyCategory.Authentication;
-  priority = 10;
-  component = MasterPasswordPolicyV2Component;
-  showDescription = false;
-  showEnabledBadge = true;
-  editDialogComponent = MultiStepPolicyEditDialogComponent;
-
-  display$(organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);
-  }
-}
+import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
 @Component({
   selector: "master-password-policy-v2-edit",

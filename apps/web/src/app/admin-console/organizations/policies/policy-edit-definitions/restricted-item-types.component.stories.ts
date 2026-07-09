@@ -5,10 +5,8 @@ import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 import { RestrictedItemTypesPolicy } from "./restricted-item-types.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Restricted Item Types",
-    new RestrictedItemTypesPolicy(),
-  ),
+  ...policyDrawerMeta(new RestrictedItemTypesPolicy()),
+  title: "Admin Console/Organizations/Policies/Restricted Item Types",
 } satisfies Meta<PolicyDrawerStoryArgs>;
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;
