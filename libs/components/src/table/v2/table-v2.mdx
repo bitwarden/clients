@@ -484,6 +484,57 @@ repeated key → array), which is lossy at the edges (a literal `"true"` string,
 — the trade for readable URLs. URL sync needs a router in context; without one (e.g. in a dialog)
 it's a no-op.
 
+## List presentation
+
+> **Beta — work in progress.** List presentation and grouping are new and still stabilizing; the API
+> and visuals may change, and there are known gaps. Prefer the default `table` presentation for
+> production tables for now.
+
+`[presentation]` switches how rows are drawn — the data engine (sorting, filtering, selection,
+pagination) is identical either way. It defaults to `"table"` (the bordered column grid); set it to
+`"list"` to drop the table chrome and render each row as a standalone `bit-item`-style card. The
+column header row is kept for assistive tech but visually hidden.
+
+```html
+<bit-table-v2 [tableDef]="table" presentation="list">…columns…</bit-table-v2>
+```
+
+<Canvas of={stories.List} />
+
+Reach for `list` where an item-style list fits better than a dense grid (e.g. a vault list). The
+cell slots ([Cell content layout](#cell-content-layout)) give you the same leading-icon / title /
+subtitle / trailing layout `bit-item` provides.
+
+### Grouping
+
+Project `<bit-row-group>`s to partition rows into labeled sections. Each group takes a `[match]`
+predicate; a row joins the first group whose predicate returns `true`, in declaration order. The
+projected content is the header label, and the row count is appended automatically:
+
+```html
+<bit-table-v2 [tableDef]="table" presentation="list">
+  <bit-column>
+    <bit-header-cell>Name</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+  </bit-column>
+
+  <bit-row-group [match]="isLogin">Logins</bit-row-group>
+  <bit-row-group [match]="isCard">Cards</bit-row-group>
+</bit-table-v2>
+```
+
+- **First-match-wins**, in declaration order. Rows no group claims render in a trailing headerless
+  block; empty groups render nothing.
+- **`collapsible`** turns the header into a toggle that hides the group's rows (open by default).
+- **One level of nesting** — a `<bit-row-group>` inside another sub-partitions its parent's rows;
+  deeper nesting is ignored (and warns).
+
+Grouping requires `list` presentation (it's ignored, with a warning, in `table`) and can't be
+combined with a paginator. It composes with [virtual scrolling](#virtual-scrolling): a single
+viewport renders the interleaved headers and rows.
+
+<Canvas of={stories.GroupedVirtualized} />
+
 ## Scrolling and the sticky header
 
 By default the table grows to fit its rows and scrolls with the page. To bound it — so the body
