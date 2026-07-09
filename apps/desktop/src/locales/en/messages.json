@@ -459,6 +459,18 @@
     "message": "Copy value",
     "description": "Copy value to clipboard"
   },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
   "minimizeOnCopyToClipboard": {
     "message": "Minimize when copying to clipboard"
   },
@@ -838,6 +850,15 @@
   "deleteWebsite": {
     "message": "Delete website"
   },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "owner": {
     "message": "Owner"
   },
@@ -846,6 +867,15 @@
   },
   "editField": {
     "message": "Edit field"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
@@ -2767,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "Terms of Service and Privacy Policy have not been acknowledged."
   },
-  "enableBrowserIntegration": {
-    "message": "Allow browser integration"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Allow DuckDuckGo browser integration"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Use your Bitwarden vault when browsing with DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Browser integration not supported"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Unfortunately browser integration is currently not supported in the Microsoft Store version."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
