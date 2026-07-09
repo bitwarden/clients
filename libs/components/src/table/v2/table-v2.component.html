@@ -58,36 +58,47 @@
 -->
 <ng-template #renderItemTpl let-item="item" let-forceHeight="forceHeight">
   @if (item.kind === "group") {
-    @if (item.group.collapsible()) {
-      <button
-        type="button"
-        [class]="groupHeaderButtonClass(item.level)"
-        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
-        [attr.aria-expanded]="!item.group.collapsed()"
-        (click)="item.group.toggle()"
-      >
-        <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-        <!-- Count only on top-level group headers. -->
-        @if (item.level === 0) {
-          <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
-        }
-        <bit-icon
-          [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
-          [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
-          aria-hidden="true"
-        ></bit-icon>
-      </button>
-    } @else {
-      <div
-        [class]="groupHeaderClass(item.level)"
-        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
-      >
-        <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-        @if (item.level === 0) {
-          <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
-        }
-      </div>
-    }
+    <!--
+      A group header is a table row whose single header cell spans every column
+      (`aria-colspan`), so it's valid structure inside `role="table"` rather than a
+      bare element. The collapse affordance carries `aria-expanded`.
+    -->
+    <div role="row">
+      @if (item.group.collapsible()) {
+        <button
+          type="button"
+          role="columnheader"
+          [attr.aria-colspan]="columnCount()"
+          [attr.aria-expanded]="!item.group.collapsed()"
+          [class]="groupHeaderButtonClass(item.level)"
+          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+          (click)="item.group.toggle()"
+        >
+          <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+          <!-- Count only on top-level group headers. -->
+          @if (item.level === 0) {
+            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+          }
+          <bit-icon
+            [class]="item.level === 0 ? 'tw-ps-2' : 'tw-ms-auto'"
+            [name]="item.group.collapsed() ? 'bwi-angle-down' : 'bwi-angle-up'"
+            aria-hidden="true"
+          ></bit-icon>
+        </button>
+      } @else {
+        <div
+          role="columnheader"
+          [attr.aria-colspan]="columnCount()"
+          [class]="groupHeaderClass(item.level)"
+          [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+        >
+          <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
+          @if (item.level === 0) {
+            <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
+          }
+        </div>
+      }
+    </div>
   } @else {
     <bit-row>
       <ng-container *ngTemplateOutlet="bodyCells; context: { $implicit: item.row }"></ng-container>

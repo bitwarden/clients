@@ -28,7 +28,6 @@ interleaved group headers and rows, positioned by `TableVirtualScrollStrategy`
   for the slide. Route collapse through `bit-disclosure` if we want the animation.
 - **Dynamic-group helper.** A `bit-row-group-az` (and folder) helper that `@for`s a key set into
   predicate `<bit-row-group>`s, for group sets too large to declare by hand.
-- **ARIA.** Group headers render as plain elements; revisit `role="rowgroup"` / heading semantics.
 
 ## Horizontal scroll — remaining
 

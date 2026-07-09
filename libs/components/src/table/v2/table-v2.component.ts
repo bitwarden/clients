@@ -585,6 +585,11 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       .filter((c): c is BitColumnComponent => c !== undefined);
   });
 
+  /** Total column count including the selection column — the `aria-colspan` a group header spans. */
+  protected readonly columnCount = computed(
+    () => this.effectiveColumns().length + (this.selectionModel() ? 1 : 0),
+  );
+
   /**
    * Grid-template-columns string derived from the column registry, consumed by
    * `<bit-row>` and `<bit-header-row>`. `undefined` in manual mode.
