@@ -260,7 +260,7 @@
           {{ "revoke" | i18n }}
         </button>
       }
-      @if (!params.managedByOrganization) {
+      @if (!params.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"
@@ -272,7 +272,7 @@
           {{ "remove" | i18n }}
         </button>
       }
-      @if (params.managedByOrganization) {
+      @if (params.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"

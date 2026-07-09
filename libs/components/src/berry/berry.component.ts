@@ -24,7 +24,7 @@ export type BerryVariant =
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "[class]": "containerClasses()",
-    "[class.tw-hidden]": "!content() && type() === 'count'",
+    "[class.!tw-hidden]": "!content() && type() === 'count'",
   },
 })
 export class BerryComponent {

@@ -312,6 +312,9 @@ export class DefaultPolicyService implements PolicyService {
         return false;
       case PolicyType.AutomaticUserConfirmation:
         return false;
+      case PolicyType.OrganizationUserNotification:
+        // organization user notification banner applies to everyone, including admins and owners
+        return false;
       case PolicyType.MasterPassword:
         // MasterPassword policy applies to everyone, including admins and owners
         return false;

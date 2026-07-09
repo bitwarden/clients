@@ -1,5 +1,9 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
+import {
+  AutofillTargetingRuleType,
+  FormContent,
+  FormPurposeCategory,
+} from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -40,6 +44,17 @@ import { AutoFillConstants } from "./autofill-constants";
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
   fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
+};
+
+/**
+ * A single targeting-rule field whose selector crosses an iframe boundary and
+ * is routed to the sub-frame for local resolution. (mirrors {@link ResolveFieldTarget}).
+ */
+type IframeTargetedField = {
+  selector: string;
+  fieldType: AutofillTargetingRuleType;
+  formCategory?: FormPurposeCategory;
 };
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
@@ -57,9 +72,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
   private currentLocationHref = "";
-  private intersectionObserver: IntersectionObserver | null = null;
+  private readonly intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
-  private mutationObserver: MutationObserver | null = null;
+  private readonly mutationObserver: MutationObserver;
+  private isMonitoring = false;
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
@@ -110,6 +126,62 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
+
+    this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
+    this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
+      root: null,
+      rootMargin: "0px",
+      // Safari doesn't seem to function properly with a threshold of 1.
+      threshold: 0.9999,
+    });
+  }
+
+  /**
+   * Attaches the mutation observer to the document. The intersection
+   * observer is allocated at construction; it attaches per-field as
+   * fields are cached during page-details collection. Idempotent.
+   */
+  startMonitoring(): void {
+    if (this.isMonitoring) {
+      return;
+    }
+    this.isMonitoring = true;
+    this.currentLocationHref = globalThis.location.href;
+    // FIXME we might be able to use an alternate (less expensive) mutation observer setup when targeting rules are being used
+    this.mutationObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  /**
+   * Detaches observers and clears monitoring-scoped state so a future
+   * `startMonitoring()` begins fresh against the current page. Idempotent.
+   */
+  stopMonitoring(): void {
+    this.isMonitoring = false;
+    if (this.updateAfterMutationIdleCallback !== null) {
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
+    }
+    if (this.shadowDomCheckTimeout) {
+      clearTimeout(this.shadowDomCheckTimeout);
+      this.shadowDomCheckTimeout = null;
+    }
+    this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
+    this.pendingOverlaySetup.clear();
+    this.mutationObserver.disconnect();
+    this.intersectionObserver.disconnect();
+    this._autofillFormElements.clear();
+    this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+    this.elementInitializingIntersectionObserver.clear();
+    this.noFieldsFound = false;
+    this.domRecentlyMutated = true;
+    this.pendingShadowDomCheck = false;
+    this.currentLocationHref = "";
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -127,16 +199,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // Set up listeners on top-layer candidates that predate Mutation Observer setup
     if (this.autofillOverlayContentService) {
       this.setupInitialTopLayerListeners();
-    }
-
-    // FIXME we might be able to use an alternate (less expensive) mutation observer setup when targeting rules are being used
-    if (this.mutationObserver === null) {
-      this.setupMutationObserver();
-    }
-
-    // FIXME should we move this logic down (e.g. allow a targeted rule to fill fields outside the viewport)?
-    if (this.intersectionObserver === null) {
-      this.setupIntersectionObserver();
     }
 
     // Check for targeting rules before running heuristic collection
@@ -273,7 +335,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const targets: ResolveFieldTarget[] = forms.flatMap((form) =>
       (Object.entries(form.fields) as Array<[AutofillTargetingRuleType, string[]]>)
         .filter(([, alternatives]) => alternatives?.length)
-        .map(([fieldType, selectorAlternatives]) => ({ fieldType, selectorAlternatives })),
+        .map(([fieldType, selectorAlternatives]) => ({
+          fieldType,
+          selectorAlternatives,
+          formCategory: form.category,
+        })),
     );
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -319,11 +385,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @param targetedFields - Selector/fieldType pairs resolved to this frame
    */
   async applyExternalTargetedFields(
-    targetedFields: { selector: string; fieldType: string }[],
+    targetedFields: { selector: string; fieldType: string; formCategory?: string }[],
   ): Promise<void> {
     const targets: ResolveFieldTarget[] = targetedFields.map((t) => ({
       selectorAlternatives: [t.selector],
       fieldType: t.fieldType as AutofillTargetingRuleType,
+      formCategory: t.formCategory as FormPurposeCategory,
     }));
 
     const { localFields, iframeTargets } = this.resolveTargetedFields(targets);
@@ -372,20 +439,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private resolveTargetedFields(targets: ResolveFieldTarget[]): {
     localFields: AutofillField[];
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>;
+    iframeTargets: Map<string, IframeTargetedField[]>;
   } {
     const localFields: AutofillField[] = [];
     // Accumulates targets that live inside iframes, keyed by the iframe's URL.
     // These are routed to the iframe's own content script instead of being
     // collected here, so the existing sub-frame offset infrastructure handles
     // their positioning correctly.
-    const iframeTargets = new Map<
-      string,
-      { selector: string; fieldType: AutofillTargetingRuleType }[]
-    >();
+    const iframeTargets = new Map<string, IframeTargetedField[]>();
 
     for (let targetIndex = 0; targetIndex < targets.length; targetIndex++) {
-      const { selectorAlternatives, fieldType } = targets[targetIndex];
+      const { selectorAlternatives, fieldType, formCategory } = targets[targetIndex];
       if (!selectorAlternatives?.length) {
         continue;
       }
@@ -409,6 +473,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             iframeTargets.get(iframeSrc)!.push({
               selector: innerSelector,
               fieldType,
+              formCategory,
             });
           }
           break;
@@ -425,6 +490,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
             formFieldElement,
             fieldType,
             localFields.length,
+            formCategory,
           );
           localFields.push(autofillField);
           this.cacheAutofillFieldElement(localFields.length - 1, formFieldElement, autofillField);
@@ -450,9 +516,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * The receiving frame's `applyExternalTargetedFields` will resolve locally
    * or re-route onward, enabling multi-hop chains.
    */
-  private routeIframeTargets(
-    iframeTargets: Map<string, { selector: string; fieldType: AutofillTargetingRuleType }[]>,
-  ): void {
+  private routeIframeTargets(iframeTargets: Map<string, IframeTargetedField[]>): void {
     for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
       void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
         iframeSrc,
@@ -475,6 +539,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     fieldType: AutofillTargetingRuleType,
     index: number,
+    formCategory?: FormPurposeCategory,
   ): AutofillField {
     const field = new AutofillField();
     field.opid = element.opid;
@@ -490,8 +555,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     field.title = element.getAttribute("title");
     field.tagName = element.tagName?.toLowerCase();
     field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
-    field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
+    field.fieldQualifier = fieldType;
     field.targeted = true;
+    field.formCategory = formCategory;
     return field;
   }
 
@@ -665,7 +731,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         globalThis.document.documentElement,
         this.formFieldQueryString,
         (node: Node) => this.isNodeFormFieldElement(node),
-        this.mutationObserver ?? undefined,
+        this.mutationObserver,
       );
     }
 
@@ -742,11 +808,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       dataSetValues: this.getDataSetValues(element),
     };
 
+    // FIXME should a targeted rule be allowed to fill non-viewable fields
+    // without waiting for them to enter the viewport?
     if (!autofillFieldBase.viewable) {
       this.elementInitializingIntersectionObserver.add(element);
-      if (this.intersectionObserver !== null) {
-        this.intersectionObserver.observe(element);
-      }
+      this.intersectionObserver.observe(element);
     }
 
     if (elementIsSpanElement(element)) {
@@ -783,6 +849,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         ? this.getSelectElementOptions(element as HTMLSelectElement)
         : null,
       form: fieldFormElement ? this.getPropertyOrAttribute(fieldFormElement, "opid") : null,
+      "aria-describedby": this.getPropertyOrAttribute(
+        element,
+        AUTOFILL_ATTRIBUTES.ARIA_DESCRIBEDBY,
+      ),
       "aria-hidden": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HIDDEN, true),
       "aria-disabled": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_DISABLED, true),
       "aria-haspopup": this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.ARIA_HASPOPUP, true),
@@ -1288,7 +1358,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         return false;
       },
-      this.mutationObserver ?? undefined,
+      this.mutationObserver,
     );
 
     if (formElements.length || formFieldElements.length) {
@@ -1352,21 +1422,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   };
 
   /**
-   * Sets up a mutation observer on the body of the document. Observes changes to
-   * DOM elements to ensure we have an updated set of autofill field data.
+   * Handles observed DOM mutations and identifies if a mutation is related to
+   * an autofill element. If so, it will update the autofill element data.
+   * @param {MutationRecord[]} mutations
    * @private
    */
-  private setupMutationObserver() {
-    this.currentLocationHref = globalThis.location.href;
-    this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
-    this.mutationObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
-      childList: true,
-      subtree: true,
-    });
-  }
-
   private handleMutationObserverMutation = (mutations: MutationRecord[]) => {
     if (this.currentLocationHref !== globalThis.location.href) {
       this.handleWindowLocationMutation();
@@ -1843,18 +1903,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Sets up an IntersectionObserver to observe found form
-   * field elements that are not viewable in the viewport.
-   */
-  private setupIntersectionObserver() {
-    this.intersectionObserver = new IntersectionObserver(this.handleFormElementIntersection, {
-      root: null,
-      rootMargin: "0px",
-      threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1,
-    });
-  }
-
-  /**
    * Handles observed form field elements that are not viewable in the viewport.
    * Will re-evaluate the visibility of the element and set up the autofill
    * overlay listeners on the field if it is viewable.
@@ -1872,9 +1920,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
       if (!cachedAutofillFieldElement) {
-        if (this.intersectionObserver !== null) {
-          this.intersectionObserver.unobserve(entry.target);
-        }
+        this.intersectionObserver.unobserve(entry.target);
         continue;
       }
 
@@ -1886,9 +1932,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cachedAutofillFieldElement.viewable = true;
       this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
-      if (this.intersectionObserver !== null) {
-        this.intersectionObserver.unobserve(entry.target);
-      }
+      this.intersectionObserver.unobserve(entry.target);
     }
   };
 
@@ -1991,29 +2035,5 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         (node: Node) => nodeIsInputElement(node) && node.type === "password",
       )?.length > 0
     );
-  }
-
-  /**
-   * Destroys the CollectAutofillContentService. Clears all
-   * timeouts and disconnects the mutation observer.
-   */
-  destroy() {
-    if (this.updateAfterMutationIdleCallback !== null) {
-      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
-      this.updateAfterMutationIdleCallback = null;
-    }
-    if (this.shadowDomCheckTimeout) {
-      clearTimeout(this.shadowDomCheckTimeout);
-    }
-    this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
-    this.pendingOverlaySetup.clear();
-    if (this.mutationObserver !== null) {
-      this.mutationObserver.disconnect();
-      this.mutationObserver = null;
-    }
-    if (this.intersectionObserver !== null) {
-      this.intersectionObserver.disconnect();
-      this.intersectionObserver = null;
-    }
   }
 }

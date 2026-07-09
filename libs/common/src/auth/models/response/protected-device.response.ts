@@ -34,7 +34,7 @@ export class ProtectedDeviceResponse extends BaseResponse {
    */
   encryptedUserKey: EncString;
   /**
-   * Intended to be the public key that was generated for a device upon trust and encrypted. Currenly encrypted using
+   * Intended to be the public key that was generated for a device upon trust and encrypted. Currently encrypted using
    * a users symmetric key so that when trusted and unlocked a user can decrypt the public key for all their devices.
    * This enabled a user to rotate the keys for all of their devices.
    */

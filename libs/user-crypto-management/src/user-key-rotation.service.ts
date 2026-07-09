@@ -1,5 +1,4 @@
-import { catchError, EMPTY, firstValueFrom, map } from "rxjs";
-
+import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogService } from "@bitwarden/logging";
 import {
@@ -42,30 +41,22 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       return false;
     }
 
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          this.logService.info("[UserKey Rotation] Re-encrypting user data with new user key...");
-          await ref.value.user_crypto_management().password_change_and_rotate_user_keys({
-            old_password: currentMasterPassword,
-            password: newMasterPassword,
-            hint: hint,
-            trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
-            trusted_organization_public_keys: trustedOrganizationPublicKeys,
-          } as PasswordChangeAndRotateUserKeysRequest);
-          return true;
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to rotate user keys: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+    return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+      this.logService.info("[UserKey Rotation] Re-encrypting user data with new user key...");
+      try {
+        await sdk.user_crypto_management().password_change_and_rotate_user_keys({
+          old_password: currentMasterPassword,
+          password: newMasterPassword,
+          hint: hint,
+          trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
+          trusted_organization_public_keys: trustedOrganizationPublicKeys,
+        } as PasswordChangeAndRotateUserKeysRequest);
+        return true;
+      } catch (error) {
+        this.logService.error(`Failed to rotate user keys: ${error}`);
+        return false;
+      }
+    });
   }
 
   async rotateUserKey(
@@ -80,27 +71,16 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       return false;
     }
 
-    return await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          this.logService.info(
-            "[UserKeyRotationService] Re-encrypting user data with new user key...",
-          );
-          await ref.value.user_crypto_management().rotate_user_keys({
-            key_rotation_method: keyRotationMethod,
-            trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
-            trusted_organization_public_keys: trustedOrganizationPublicKeys,
-            upgrade_token_action: upgradeTokenAction,
-          } as RotateUserKeysRequest);
-          return true;
-        }),
-      ),
-    );
+    return await withPasswordManagerSdk(userId, this.sdkService, async (sdk) => {
+      this.logService.info("[UserKeyRotationService] Re-encrypting user data with new user key...");
+      await sdk.user_crypto_management().rotate_user_keys({
+        key_rotation_method: keyRotationMethod,
+        trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
+        trusted_organization_public_keys: trustedOrganizationPublicKeys,
+        upgrade_token_action: upgradeTokenAction,
+      } as RotateUserKeysRequest);
+      return true;
+    });
   }
 
   async verifyTrust(userId: UserId): Promise<TrustVerificationResult> {
@@ -111,23 +91,16 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     // Once signing is implemented, this is the place to also sign the keys and
     // upload the signed trust claims.
     this.logService.info("[Userkey rotation] Verifying trust...");
-    const [emergencyAccessV1Memberships, organizationV1Memberships] = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          const untrustedMemberships = await ref.value
-            .user_crypto_management()
-            .get_untrusted_memberships();
-          return [
-            untrustedMemberships.emergency_access_memberships,
-            untrustedMemberships.organization_memberships,
-          ] as const;
-        }),
-      ),
+    const [emergencyAccessV1Memberships, organizationV1Memberships] = await withPasswordManagerSdk(
+      userId,
+      this.sdkService,
+      async (sdk) => {
+        const untrustedMemberships = await sdk.user_crypto_management().get_untrusted_memberships();
+        return [
+          untrustedMemberships.emergency_access_memberships,
+          untrustedMemberships.organization_memberships,
+        ] as const;
+      },
     );
     this.logService.info("result", { emergencyAccessV1Memberships, organizationV1Memberships });
 
