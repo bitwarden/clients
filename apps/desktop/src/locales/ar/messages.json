@@ -135,8 +135,20 @@
   "attachments": {
     "message": "المرفقات"
   },
+  "attachmentsNeedFix": {
+    "message": "This item has old file attachments that need to be fixed."
+  },
   "viewItem": {
     "message": "عرض العنصر"
+  },
+  "viewCollectionWithName": {
+    "message": "View collection - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "عرض تسجيل الدخول",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "عرض جواز السفر",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "إضافة تسجيل دخول",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "إضافة بطاقة",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "إضافة هوية",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "إضافة ملاحظة",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "إضافة ملاحظة آمنة",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "إضافة مفتاح SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "إضافة حساب بنكي",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "إضافة ترخيص",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "إضافة جواز سفر",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "تسجيل دخول جديد",
@@ -230,6 +278,22 @@
     "message": "تعديل الملاحظة الآمنة",
     "description": "Header for edit secure note item type"
   },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "تعديل تسجيل الدخول",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "تعديل البطاقة",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "تعديل الهوية",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "تعديل الملاحظة",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "تعديل مفتاح SSH",
     "description": "Header for edit SSH key item type"
@@ -263,7 +327,7 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "سيتم حذف الإرسال نهائياً في هذا التاريخ.",
+    "message": "سيتم حذف Send نهائيا في هذا التاريخ.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
@@ -289,14 +353,14 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "لا يمكن لأحد عرض هذا الإرسال بعد الوصول إلى الحد الأقصى.",
+    "message": "لا يمكن لأحد عرض Send هذا بعد الوصول إلى الحد الأقصى.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
     "message": "ملاحظة خاصة"
   },
   "sendDetails": {
-    "message": "إرسال التفاصيل",
+    "message": "تفاصيل Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
@@ -319,8 +383,31 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "هل أنت متأكد من رغبتك في حذف هذا الإرسال نهائيا؟",
+    "message": "هل أنت متأكد من رغبتك في حذف Send هذا نهائيا؟",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "عرض تسجيل الدخول",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "عرض البطاقة",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "عرض الهوية",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "عرض الملاحظة",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "إنشاء",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "إضافة مجموعة"
   },
   "new": {
     "message": "جديد",
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "تعديل العنصر"
+  },
+  "editItemWithName": {
+    "message": "تعديل عنصر - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "عنوان البريد الإلكتروني"
@@ -364,10 +460,10 @@
     "description": "Copy value to clipboard"
   },
   "minimizeOnCopyToClipboard": {
-    "message": "تصغير عند النسخ إلى الحافظة"
+    "message": "تصغير النافذة عند النسخ إلى الحافظة"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "تصغير عند نسخ بيانات عنصر إلى الحافظة."
+    "message": "تصغير النافذة عند نسخ بيانات عنصر إلى الحافظة."
   },
   "toggleVisibility": {
     "message": "تبديل الظهور"
@@ -500,10 +596,10 @@
     "message": "انتهت مهلة طلب مفتاح SSH."
   },
   "enableSshAgent": {
-    "message": "تمكين وكيل SSH"
+    "message": "تفعيل وكيل SSH"
   },
   "enableSshAgentDesc": {
-    "message": "تمكين وكيل SSH لتوقيع طلبات SSH مباشرة من خزنة Bitwarden الخاص بك."
+    "message": "تفعيل وكيل SSH لتوقيع طلبات SSH مباشرة من خزنة Bitwarden الخاص بك."
   },
   "enableSshAgentHelp": {
     "message": "وكيل SSH هو خدمة موجهة للمطورين تسمح لك بتوقيع طلبات SSH مباشرة من مخزن Bitwarden الخاص بك."
@@ -527,10 +623,10 @@
     "message": "تذكر حتى يتم قفل الخزنة"
   },
   "premiumRequired": {
-    "message": "مطلوب اشتراك بريميوم"
+    "message": "يتطلب الباقة Premium"
   },
   "premiumRequiredDesc": {
-    "message": "هذه المِيزة متاحة فقط للعضوية المميزة."
+    "message": "يتطلب وجود اشتراك باقة Premium لاستخدام هذه الميزة."
   },
   "syncWithBrowser": {
     "message": "المزامنة مع المتصفح"
@@ -558,10 +654,10 @@
     "message": "خطأ في فك التشفير"
   },
   "couldNotDecryptVaultItemsBelow": {
-    "message": "تعذّر على Bitwarden فك تشفير عنصر(العناصر) المخزنة في الخزنة والمذكورة أدناه."
+    "message": "تعذر على Bitwarden فك تشفير العناصر المخزنة في الخزنة والمذكورة أدناه."
   },
   "contactCSToAvoidDataLossPart1": {
-    "message": "فريق نجاح العملاء",
+    "message": "فريق دعم العملاء",
     "description": "This is part of a larger sentence. The full sentence will read 'Contact customer success to avoid additional data loss.'"
   },
   "contactCSToAvoidDataLossPart2": {
@@ -627,7 +723,7 @@
     "message": "د"
   },
   "expirationMonth": {
-    "message": "شهر انتهاء الصَّلاحِيَة"
+    "message": "شهر انتهاء الصلاحية"
   },
   "expirationYear": {
     "message": "سنة انتهاء الصلاحية"
@@ -730,7 +826,7 @@
     "message": "تعديل الحقل"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "هل أنت متأكد من رغبتك في حذف هذا المرفق نهائياً؟"
+    "message": "هل أنت متأكد من رغبتك في حذف هذا المرفق نهائيا؟"
   },
   "fieldType": {
     "message": "نوع الحقل"
@@ -751,7 +847,7 @@
     "message": "استخدم مربعات الاختيار إذا كنت تريد الملء التلقائي لمربع اختيار في نموذج، مثل تذكر البريد الإلكتروني"
   },
   "linkedHelpText": {
-    "message": "استخدم حقلاً مرتبطاً عند مواجهة مشكلات في الملء التلقائي لموقع ويب معين."
+    "message": "استخدم حقلا مرتبطا عند مواجهة مشكلات في الملء التلقائي لموقع ويب معين."
   },
   "linkedLabelHelpText": {
     "message": "أدخل معرف html للحقل، أو الاسم، أو aria-label، أو النص المؤقت."
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "حذف العنصر"
+  },
+  "deleteItemsCount": {
+    "message": "حذف عناصر $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
   },
   "deleteFolder": {
     "message": "حذف المجلد"
@@ -1044,7 +1179,7 @@
     "message": "الحجم الأقصى للملف هو 500 ميجابايت."
   },
   "legacyEncryptionUnsupported": {
-    "message": "التشفير القديم لم يعد مدعوماً. يُرجى التواصل مع الدعم لاسترداد حسابك."
+    "message": "التشفير القديم لم يعد مدعوما. يرجى التواصل مع الدعم لاسترداد حسابك."
   },
   "editedFolder": {
     "message": "تم حفظ المجلد"
@@ -1235,7 +1370,7 @@
     "message": "خطأ غير متوقع"
   },
   "closeThisBitwardenWindow": {
-    "message": "أغلق نافذة Bitwarden هذه وحاول مجدداً."
+    "message": "أغلق نافذة Bitwarden هذه وحاول مجددا."
   },
   "itemInformation": {
     "message": "معلومات العنصر"
@@ -1269,7 +1404,7 @@
     "message": "تم إلغاء المصادقة أو استغرقت وقتا طويلا. الرجاء المحاولة مرة أخرى."
   },
   "openInNewTab": {
-    "message": "فتح في علامة تبويب جديدة"
+    "message": "افتح في صفحة جديدة"
   },
   "invalidVerificationCode": {
     "message": "رمز التحقق غير صالح"
@@ -1290,7 +1425,7 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "لا تسأل مجدداً على هذا الجهاز لمدة 30 يوماً"
+    "message": "لا تسأل مجددا على هذا الجهاز لمدة 30 يوما"
   },
   "selectAnotherMethod": {
     "message": "اختر طريقة أخرى",
@@ -1375,7 +1510,7 @@
     "message": "يجب عليك إضافة URL الخادم الأساسي أو بيئة مخصصة واحدة على الأقل."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "يجب أن تستخدم عناوين الروابط HTTPS."
+    "message": "يجب أن تستخدم URLs الروابط HTTPS."
   },
   "customEnvironment": {
     "message": "بيئة مخصصة"
@@ -1442,7 +1577,7 @@
     "message": "ستعمل إعدادات التشفير الجديدة الموصى بها على تحسين أمان حسابك. أدخل كلمة مرورك الرئيسية للتحديث الآن."
   },
   "rotateAccountEncKey": {
-    "message": "تدوير مفتاح تشفير حسابي أيضاً"
+    "message": "تدوير مفتاح تشفير حسابي أيضا"
   },
   "impactOfRotatingYourEncryptionKey": {
     "message": "تأثير تدوير مفتاح التشفير الخاص بك"
@@ -1457,7 +1592,7 @@
     "message": "هل أنت متأكد من رغبتك في تدوير مفتاح تشفير حسابك؟"
   },
   "updateEncryptionKeyWarning": {
-    "message": "بعد تحديث مفتاح التشفير، يجب عليك تسجيل الخروج وإعادة تسجيل الدخول في جميع تطبيقات Bitwarden التي تستخدمها حالياً (مثل تطبيق الهاتف أو إضافات المتصفح). قد يؤدي عدم تسجيل الخروج وإعادة الدخول (الذي يُنزّل مفتاح التشفير الجديد) إلى تلف البيانات. سنحاول تسجيل خروجك تلقائياً، لكن قد يتأخر ذلك."
+    "message": "بعد تحديث مفتاح التشفير، يجب عليك تسجيل الخروج وإعادة تسجيل الدخول في جميع تطبيقات Bitwarden التي تستخدمها حاليا (مثل تطبيق الهاتف أو إضافات المتصفح). قد يؤدي عدم تسجيل الخروج وإعادة الدخول (الذي ينزل مفتاح التشفير الجديد) إلى تلف البيانات. سنحاول تسجيل خروجك تلقائيا، لكن قد يتأخر ذلك."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "ستصبح أي قيود على الصادرات قمت بحفظها غير صالحة."
@@ -1588,7 +1723,7 @@
     "message": "أو"
   },
   "unlockWithBiometrics": {
-    "message": "فتح باستخدام القياسات الحيوية"
+    "message": "فتح باستخدام المصادقة البيومترية"
   },
   "unlockWithMasterPassword": {
     "message": "فتح بكلمة مرور رئيسية"
@@ -1702,10 +1837,10 @@
     "message": "إبقاء Bitwarden قيد التشغيل في الخلفية"
   },
   "runInBackgroundDesc": {
-    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحا من منطقة الإشعارات. ينصح بذلك عند استخدام وكيل SSH أو تكامل المتصفح."
+    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحا في منطقة الإشعارات. ينصح بذلك عند استخدام وكيل SSH أو ميزة الملء التلقائي للمتصفح."
   },
   "runInBackgroundDescMac": {
-    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحاً من شريط القوائم. ينصح بذلك عند استخدام وكيل SSH أو تكامل المتصفح."
+    "message": "عند إغلاق النافذة، يبقى Bitwarden متاحا من شريط القوائم. ينصح بذلك عند استخدام وكيل SSH أو تكامل المتصفح."
   },
   "openAtLogin": {
     "message": "بدء التشغيل تلقائياً عند تسجيل الدخول"
@@ -1948,7 +2083,7 @@
     "message": "تم اختياره"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "تم اختياره",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2295,7 +2430,7 @@
     "message": "حذف حسابك دائم. لا يمكن التراجع عنه."
   },
   "deleteAccountOrganizationOwnerWarning": {
-    "message": "أنت المالك الوحيد لمؤسسة واحدة على الأقل. حذف حسابك سيؤدي أيضاً إلى حذف أي مؤسسة أنت مالكها الوحيد."
+    "message": "أنت المالك الوحيد لمنظمة واحدة على الأقل. حذف حسابك سيؤدي أيضا إلى حذف أي منظمات أنت مالكها الوحيد."
   },
   "cannotDeleteAccountOrganizationOwnerDesc": {
     "message": "لا يمكنك حذف حسابك وأنت مالك منظمة. انقل الملكية أو احذف المنظمة أولا."
@@ -2347,7 +2482,7 @@
     "message": "تغييرات غير محفوظة"
   },
   "unsavedChangesUpdateBody": {
-    "message": "أنت مالك لمؤسسة واحدة على الأقل. سيؤدي حذف حسابك إلى حذف أي مؤسسة أنت مالكها الوحيد."
+    "message": "← إذا غادرت الآن، فلن يتم حفظ التعديلات. ثبت التحديث لاحقا لتتمكن من البقاء وحفظ التعديلات."
   },
   "installLater": {
     "message": "التثبيت لاحقا"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "تمت استعادة العنصر المحفوظ"
   },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "العنصر المستعاد"
   },
+  "restoredItems": {
+    "message": "Items restored"
+  },
   "permanentlyDelete": {
     "message": "حُذف نهائيًا"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Items permanently deleted"
+  },
+  "deletedItems": {
+    "message": "Items sent to trash"
+  },
+  "deletedCollections": {
+    "message": "Deleted collections"
+  },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
+  "movedItems": {
+    "message": "Items moved"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "سيؤدي تسجيل الخروج إلى إزالة جميع إمكانية الوصول إلى خزانتك ويتطلب المصادقة عبر الإنترنت بعد انتهاء المهلة. هل أنت متأكد من أنك تريد استخدام هذا الإعداد؟"
@@ -2471,7 +2630,7 @@
     "message": "اجعل التحقق بخطوتين سلسا"
   },
   "totpHelper": {
-    "message": " يمكن لـ Bitwarden تخزين رموز التحقق بخطوتين وملئها. انسخ المفتاح والصقه في هذا الحقل."
+    "message": "يمكن لـ Bitwarden تخزين رموز التحقق بخطوتين وملئها. انسخ المفتاح والصقه في هذا الحقل."
   },
   "totpHelperWithCapture": {
     "message": "يمكن لـ Bitwarden تخزين رموز التحقق بخطوتين وملئها. حدد أيقونة الكاميرا لالتقاط صورة شاشة لرمز QR الخاص بمصادقة هذا الموقع، أو انسخ المفتاح والصقه في هذا الحقل."
@@ -2481,13 +2640,13 @@
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
-    "message": "لا يمكن للمؤسسات المجانية استخدام المرفقات"
+    "message": "لا يمكن للمنظمات المجانية استخدام المرفقات"
   },
   "singleFieldNeedsAttention": {
     "message": "حقل واحد يحتاج إلى انتباهك."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ حقلاً تحتاج إلى انتباهك.",
+    "message": "$COUNT$ حقلا تحتاج إلى انتباهك.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2499,7 +2658,7 @@
     "message": "بطاقة منتهية الصلاحية"
   },
   "cardExpiredMessage": {
-    "message": "إن كنت قد جددتها، حدِّث معلومات البطاقة"
+    "message": "إن كنت قد جددتها، حدث معلومات البطاقة"
   },
   "verificationRequired": {
     "message": "التحقق مطلوب",
@@ -2557,10 +2716,10 @@
     "message": "كلمة المرور الرئيسية الجديدة لا تفي بمتطلبات السياسة العامة."
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "تتطلب سياسة مؤسسة واحدة أو أكثر أن تستوفي كلمة المرور الرئيسية المتطلبات التالية:"
+    "message": "تتطلب سياسة منظمة واحدة أو أكثر أن تستوفي كلمة المرور الرئيسية المتطلبات التالية:"
   },
   "receiveMarketingEmails": {
-    "message": "تلقّي تحديثات Bitwarden في بريدك الإلكتروني."
+    "message": "استلام تحديثات Bitwarden في بريدك الإلكتروني."
   },
   "unsubscribe": {
     "message": "إلغاء الاشتراك"
@@ -2569,13 +2728,13 @@
     "message": "في أي وقت."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "من خلال المتابعة، أنت توافق على"
+    "message": "بالمتابعة، فإنك توافق على"
   },
   "and": {
     "message": "و"
   },
   "acceptPolicies": {
-    "message": "من خلال تحديد هذا المربع فإنك توافق على ما يلي:"
+    "message": "بوضع علامة في هذا المربع، فإنك توافق على ما يلي:"
   },
   "acceptPoliciesRequired": {
     "message": "لم يتم الاعتراف بشروط الخدمة وسياسة الخصوصية."
@@ -2629,16 +2788,16 @@
     "message": "إذا لم تكن أنت من قدم هذا الطلب، فلا توافق عليه."
   },
   "biometricsNotEnabledTitle": {
-    "message": "القياسات الحيوية غير مفعلة"
+    "message": "المصادقة البيومترية غير مفعلة"
   },
   "biometricsNotEnabledDesc": {
-    "message": "القياسات الحيوية للمتصفح تتطلب القياسات الحيوية لسطح المكتب ليتم تمكينها في الإعدادات أولاً."
+    "message": "المصادقة البيومترية للمتصفح تتطلب المصادقة البيومترية لسطح المكتب ليتم تمكينها في الإعدادات أولاً."
   },
   "biometricsManualSetupTitle": {
     "message": "الإعداد التلقائي غير متوفر"
   },
   "biometricsManualSetupDesc": {
-    "message": "بسبب طريقة التثبيت، لا يمكن تمكين دعم القياسات الحيوية تلقائياً. هل ترغب في فتح الوثائق حول كيفية القيام بذلك يدوياً؟"
+    "message": "بسبب طريقة التثبيت، لا يمكن تمكين دعم المصادقة البيومترية تلقائياً. هل ترغب في فتح الوثائق حول كيفية القيام بذلك يدوياً؟"
   },
   "personalOwnershipSubmitError": {
     "message": "بسبب سياسة المؤسسة، يمنع عليك حفظ العناصر في خزانتك الشخصية. غيّر خيار الملكية إلى مؤسسة واختر من المجموعات المتاحة."
@@ -2662,7 +2821,7 @@
     "message": "البيانات الشخصية"
   },
   "identification": {
-    "message": "تعريف الهوية"
+    "message": "تحديد الهوية"
   },
   "contactInfo": {
     "message": "معلومات الاتصال"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "إنشاء إرسال",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2908,13 +3071,13 @@
     "message": "تعيين PIN"
   },
   "verifyWithBiometrics": {
-    "message": "التحقق بواسطة القياسات الحيوية"
+    "message": "التحقق بواسطة المصادقة البيومترية"
   },
   "awaitingConfirmation": {
     "message": "في انتظار تأكيد"
   },
   "couldNotCompleteBiometrics": {
-    "message": "لا يمكن إكمال القياسات الحيوية."
+    "message": "لا يمكن إكمال المصادقة البيومترية."
   },
   "needADifferentMethod": {
     "message": "هل تحتاج إلى طريقة مختلفة؟"
@@ -3036,7 +3199,7 @@
     "message": "تمت إزالة كلمة المرور الرئيسية"
   },
   "organizationName": {
-    "message": "اسم المؤسسة"
+    "message": "اسم المنظمة"
   },
   "keyConnectorDomain": {
     "message": "نطاق Key Connector"
@@ -3655,7 +3818,7 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "يوصي Bitwarden بتحديث إعدادات القياسات الحيوية الخاصة بك لطلب كلمة المرور الرئيسية (أو PIN) عند فتح القفل الأول. هل ترغب في تحديث إعداداتك الآن؟"
+    "message": "يوصي Bitwarden بتحديث إعدادات المصادقة البيومترية الخاصة بك لطلب كلمة المرور الرئيسية (أو PIN) عند فتح القفل الأول. هل ترغب في تحديث إعداداتك الآن؟"
   },
   "windowsBiometricUpdateWarningTitle": {
     "message": "تحديث الإعدادات الموصى بها"
@@ -3685,7 +3848,7 @@
     "message": "طلب موافقة المشرف"
   },
   "unableToCompleteLogin": {
-    "message": "تعذّر إتمام تسجيل الدخول"
+    "message": "تعذر إتمام تسجيل الدخول"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "يجب عليك تسجيل الدخول من جهاز موثوق أو الطلب من مسؤولك تعيين كلمة مرور لك."
@@ -3797,16 +3960,16 @@
     "message": "عدم الوثوق"
   },
   "organizationNotTrusted": {
-    "message": "المؤسسة غير موثوقة"
+    "message": "المنظمة غير موثوقة"
   },
   "emergencyAccessTrustWarning": {
     "message": "لأمان حسابك، تأكد فقط إذا كنت قد منحت صلاحية الوصول في حالات الطوارئ لهذا المستخدم وكانت عبارة بصمة الإصبع الخاصة به تطابق ما هو معروض في حسابه"
   },
   "orgTrustWarning": {
-    "message": "لأمان حسابك، تابع فقط إذا كنت عضواً في هذه المؤسسة، وكانت ميزة استرداد الحساب مفعّلة، وكانت عبارة بصمة الإصبع المعروضة أدناه تطابق بصمة المؤسسة."
+    "message": "لأمان حسابك، تابع فقط إذا كنت عضوا في هذه المنظمة، وكانت ميزة استرداد الحساب مفعلة، وكانت عبارة بصمة الإصبع المعروضة أدناه تطابق بصمة المنظمة."
   },
   "orgTrustWarning1": {
-    "message": "تمتلك هذه المؤسسة سياسة مؤسسية تسجّلك تلقائياً في استرداد الحساب. سيسمح هذا التسجيل لمسؤولي المؤسسة بتغيير كلمة مرورك. تابع فقط إذا كنت تعرف هذه المؤسسة وكانت عبارة بصمة الإصبع المعروضة أدناه تطابق بصمة المؤسسة."
+    "message": "تمتلك هذه المنظمة سياسة مؤسسية تسجلك تلقائيا في استرداد الحساب. سيسمح هذا التسجيل لمسؤولي المنظمة بتغيير كلمة مرورك. تابع فقط إذا كنت تعرف هذه المؤسسة وكانت عبارة بصمة الإصبع المعروضة أدناه تطابق بصمة المؤسسة."
   },
   "trustUser": {
     "message": "وثوق بالمستخدم"
@@ -3927,7 +4090,7 @@
     "message": "لن يتم نسخ مفتاح المرور"
   },
   "passkeyNotCopiedAlert": {
-    "message": "لن يتم نسخ مفتاح المرور إلى العنصر المستنسخ. هل تريد الاستمرار في استنساخ هذا العنصر؟"
+    "message": "لن يتم نسخ مفتاح المرور إلى العنصر المستنسخ. هل تريد متابعة استنساخ هذا العنصر؟"
   },
   "aliasDomain": {
     "message": "الاسم البديل للنطاق"
@@ -4066,7 +4229,7 @@
     "message": "تم تخطي مرفق تالف واحد أثناء التصدير، وتم تصدير جميع بيانات الخزنة والمرفقات الأخرى بنجاح."
   },
   "exportSuccessSkippedAttachments": {
-    "message": " تم تخطي $COUNT$ من المرفقات التالفة أثناء التصدير، وتم تصدير جميع بيانات الخزنة والمرفقات الأخرى بنجاح.",
+    "message": "تم تخطي $COUNT$ من المرفقات التالفة أثناء التصدير، وتم تصدير جميع بيانات الخزنة والمرفقات الأخرى بنجاح.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4282,7 +4445,7 @@
     "message": "فتح القفل بالمصادقة البيومترية غير متاح لأن فتح القفل بالـ PIN أو كلمة المرور مطلوب أولا."
   },
   "biometricsStatusHelptextHardwareUnavailable": {
-    "message": "فتح القفل بالمصادقة البيومترية غير متاح حالياً."
+    "message": "فتح القفل بالمصادقة البيومترية غير متاح حاليا."
   },
   "biometricsStatusHelptextAutoSetupNeeded": {
     "message": "فتح القفل بالمصادقة البيومترية غير متاح بسبب خطأ في إعداد ملفات النظام."
@@ -4315,7 +4478,7 @@
     "message": "خيارات إضافية"
   },
   "itemHistory": {
-    "message": "سِجل العنصر"
+    "message": "سجل العنصر"
   },
   "lastEdited": {
     "message": "آخر تعديل"
@@ -4336,7 +4499,7 @@
     "message": "تحذير: إعادة توجيه الوكيل"
   },
   "agentForwardingWarningText": {
-    "message": "يأتي هذا الطلب من جهاز متصل عن بعد سجلت الدخول إليه."
+    "message": "يأتي هذا الطلب من جهاز متصل عن بعد سجلت الدخول إليه"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "يطلب الوصول إلى"
@@ -4378,13 +4541,13 @@
     "message": "إعداد تسجيل الدخول بخطوتين"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "سيرسل Bitwarden رمزا إلى بريدك الإلكتروني للتحقق من تسجيل الدخول من الأجهزة الجديدة بدءا من ${DATE}."
+    "message": "سيرسل Bitwarden رمزا إلى بريدك الإلكتروني للتحقق من تسجيل الدخول من الأجهزة الجديدة بدءا من فبراير 2025."
   },
   "newDeviceVerificationNoticeContentPage2": {
     "message": "يمكنك إعداد تسجيل الدخول بخطوتين كطريقة بديلة لحماية حسابك أو تغيير بريدك الإلكتروني إلى بريد يمكنك الوصول إليه."
   },
   "remindMeLater": {
-    "message": "ذكرني لاحقاً"
+    "message": "ذكرني لاحقا"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
     "message": "هل لديك وصول موثوق إلى بريدك الإلكتروني، $EMAIL$؟",
@@ -4426,7 +4589,7 @@
     "message": "استبدال مفتاح المرور؟"
   },
   "unableToSavePasskey": {
-    "message": "تعذّر حفظ مفتاح المرور"
+    "message": "تعذر حفظ مفتاح المرور"
   },
   "alreadyContainsPasskey": {
     "message": "يحتوي هذا العنصر على مفتاح مرور. هل أنت متأكد من أنك تريد استبدال مفتاح المرور الحالي؟"
@@ -4456,19 +4619,19 @@
     "message": "تحديث الإضافة مطلوب"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "الإضافة التي تستخدمها غير محدّثة. يرجى تحديثها أو تعطيل التحقق من بصمة الإصبع في إعدادات تطبيق سطح المكتب."
+    "message": "إضافة المتصفح المستخدمة غير محدّثة. يرجى تحديثها أو تعطيل التحقق من بصمة الإصبع في إعدادات تطبيق سطح المكتب."
   },
   "changeAtRiskPassword": {
     "message": "تغيير كلمة المرور المعرضة للخطر"
   },
   "changeAtRiskPasswordAndAddWebsite": {
-    "message": "تسجيل الدخول هذا معرض للخطر وينقصه موقع ويب. أضف موقعاً وقم بتغيير كلمة المرور لتعزيز الأمان."
+    "message": "حساب الدخول هذا معرض للخطر ولا يرتبط بأي موقع إلكتروني. أضف موقعا إلكترونيا و استبدل كلمة المرور لتعزيز الأمان."
   },
   "vulnerablePassword": {
     "message": "كلمة مرور ضعيفة."
   },
   "changeNow": {
-    "message": "قم بالتغيير الآن"
+    "message": "تغيير الآن"
   },
   "missingWebsite": {
     "message": "ينقص موقع ويب"
@@ -4492,7 +4655,7 @@
     "message": "مجلد جديد"
   },
   "folderName": {
-    "message": "اسم المجلّد"
+    "message": "اسم المجلد"
   },
   "folderHintText": {
     "message": "قم بدمج المجلد بإضافة اسم المجلد الرئيسي متبوعا بـ \"/\". مثال: إجتماعي/منتديات"
@@ -4529,7 +4692,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "وفّر وقتك مع الملء التلقائي"
+    "message": "وفر وقتك مع الملء التلقائي"
   },
   "newLoginNudgeBodyOne": {
     "message": "أضف",
@@ -4550,25 +4713,25 @@
     "message": "دفع سلس عبر الإنترنت"
   },
   "newCardNudgeBody": {
-    "message": "مع البطاقات، عبّئ نماذج الدفع بأمان ودقة بشكل تلقائي."
+    "message": "مع البطاقات، عبئ نماذج الدفع بأمان ودقة بشكل تلقائي."
   },
   "newIdentityNudgeTitle": {
     "message": "تبسيط إنشاء الحسابات"
   },
   "newIdentityNudgeBody": {
-    "message": "مع الهويات، عبّئ نماذج التسجيل أو الاتصال الطويلة بشكل تلقائي وسريع."
+    "message": "باستخدام الهويات، يمكنك ملء نماذج التسجيل أو نماذج الاتصال الطويلة تلقائيا وبسرعة."
   },
   "newNoteNudgeTitle": {
     "message": "احفظ بياناتك الحساسة بأمان"
   },
   "newNoteNudgeBody": {
-    "message": "مع الملاحظات، خزّن البيانات الحساسة بأمان كتفاصيل الحسابات البنكية أو التأمين."
+    "message": "باستخدام الملاحظات، يمكنك تخزين البيانات الحساسة، مثل التفاصيل المصرفية أو المتعلقة بالتأمين، بشكل آمن."
   },
   "newSshNudgeTitle": {
     "message": "وصول SSH مناسب للمطورين"
   },
   "newSshNudgeBodyOne": {
-    "message": "خزّن مفاتيحك واتصل عبر وكيل SSH للمصادقة السريعة والمشفرة.",
+    "message": "خزن مفاتيحك واتصل عبر وكيل SSH للمصادقة السريعة والمشفرة.",
     "description": "Two part message",
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
@@ -4590,22 +4753,22 @@
     "message": "تعيين لهذه المجموعات"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "فقط أعضاء المؤسسة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
+    "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "فقط أعضاء المؤسسة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العنصر."
+    "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العناصر."
   },
   "noCollectionsAssigned": {
-    "message": "لم يتم إسناد أي مجموعات"
+    "message": "لم يتم تعيين أي مجموعات"
   },
   "assign": {
     "message": "تعيين"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "فقط أعضاء المؤسسة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العناصر."
+    "message": "فقط أعضاء المنظمة الذين لديهم صلاحية الوصول إلى هذه المجموعات سيتمكنون من رؤية العناصر."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "لقد حددت $TOTAL_COUNT$ عنصراً. لا يمكنك تحديث$READONLY_COUNT$ من العناصر لأنك لا تملك صلاحيات التعديل.",
+    "message": "لقد حددت $TOTAL_COUNT$ عنصرا. لا يمكنك تحديث $READONLY_COUNT$ من العناصر لأنك لا تملك صلاحيات التعديل.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4617,10 +4780,10 @@
     }
   },
   "selectCollectionsToAssign": {
-    "message": "حدد المجموعات المراد تخصيصها"
+    "message": "حدد المجموعات المراد تعيينها"
   },
   "personalItemsTransferWarning": {
-    "message": "سيتم نقل $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى المؤسسة المحددة. لن تكون مالكاً لهذه العناصر بعد الآن.",
+    "message": "سيتم نقل $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذه العناصر بعد الآن.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4629,7 +4792,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "سيتم نقل $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى $ORG$. لن تكون مالكاً لهذه العناصر بعد الآن.",
+    "message": "سيتم نقل $PERSONAL_ITEMS_COUNT$ بشكل دائم إلى $ORG$. لن تكون مالكا لهذه العناصر بعد الآن.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "سيتم نقل عنصر واحد بشكل دائم إلى المؤسسة المحددة. لن تكون مالكاً لهذا العنصر بعد الآن."
-  },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "سيتم نقل عنصر واحد بشكل دائم إلى $ORG$. لن تكون مالكاً لهذا العنصر بعد الآن.",
+    "message": "سيتم نقل عنصر واحد بشكل دائم إلى $ORG$. لن تكون مالكا لهذا العنصر بعد الآن.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "سيتم نقل عنصر واحد بشكل دائم إلى المنظمة المحددة. لن تكون مالكا لهذا العنصر بعد الآن."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4788,7 +4973,7 @@
     "message": "لا توجد عناصر في الأرشيف"
   },
   "noItemsInArchiveDesc": {
-    "message": "ستظهر العناصر المؤرشفة هنا وستُستثنى من نتائج البحث العامة واقتراحات الملء التلقائي."
+    "message": "ستظهر العناصر المؤرشفة هنا وستستبعد من نتائج البحث العامة واقتراحات الملء التلقائي."
   },
   "itemArchiveToast": {
     "message": "تمت أرشفة العنصر"
@@ -4800,19 +4985,60 @@
     "message": "أرشفة العنصر"
   },
   "archiveItemDialogContent": {
-    "message": "بعد الأرشفة، سيُستثنى هذا العنصر من نتائج البحث واقتراحات الملء التلقائي."
+    "message": "بعد الأرشفة، سيستبعد هذا العنصر من نتائج البحث واقتراحات الملء التلقائي."
   },
   "unArchiveAndSave": {
     "message": "إلغاء الأرشفة والحفظ"
   },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archive $NUM$ item",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Select folder"
+  },
   "restartPremium": {
-    "message": "استأنف Premium"
+    "message": "إعادة تشغيل باقة Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "انتهى اشتراكك في Premium"
+    "message": "انتهى اشتراكك في الباقة Premium"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "لاستعادة الوصول إلى أرشيفك، أعد تفعيل اشتراك Premium. إذا قمت بتعديل تفاصيل عنصر مؤرشف قبل إعادة التفعيل، سيتم نقله مجدداً إلى خزنتك."
+    "message": "لاستعادة الوصول إلى أرشيفك، أعد تفعيل اشتراك Premium. إذا قمت بتعديل تفاصيل عنصر مؤرشف قبل إعادة التفعيل، سيتم نقله مجددا إلى خزنتك."
   },
   "itemRestored": {
     "message": "تمت استعادة العنصر"
@@ -4845,10 +5071,10 @@
     "message": "أمان متقدم عبر الإنترنت"
   },
   "upgradeToPremium": {
-    "message": "الترقية إلى Premium"
+    "message": "الترقية إلى الباقة Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "لم تعد مؤسستك تستخدم كلمات المرور الرئيسية لتسجيل الدخول إلى Bitwarden. للمتابعة، تحقق من المؤسسة والنطاق."
+    "message": "لم تعد منظمتك تستخدم كلمات المرور الرئيسية لتسجيل الدخول إلى Bitwarden. للمتابعة، تحقق من المنظمة والنطاق."
   },
   "continueWithLogIn": {
     "message": "تابع تسجيل الدخول"
@@ -4860,19 +5086,19 @@
     "message": "نطاق"
   },
   "keyConnectorDomainTooltip": {
-    "message": "سيخزن هذا النطاق مفاتيح تشفير حسابك، لذا تأكد من الوثوق به. إذا لم تكن متأكداً، تحقق مع مسؤولك."
+    "message": "سيخزن هذا النطاق مفاتيح تشفير حسابك، لذا تأكد من الوثوق به. إذا لم تكن متأكدا، تحقق مع مسؤولك."
   },
   "verifyYourOrganization": {
-    "message": "تحقق من مؤسستك لتسجيل الدخول"
+    "message": "تحقق من منظمتك لتسجيل الدخول"
   },
   "organizationVerified": {
-    "message": "تم التحقق من المؤسسة"
+    "message": "تم التحقق من المنظمة"
   },
   "domainVerified": {
     "message": "تم التحقق من النطاق"
   },
   "leaveOrganizationContent": {
-    "message": "إذا لم تتحقق من مؤسستك، سيتم إلغاء وصولك إليها."
+    "message": "إذا لم تتحقق من منظمتك، سيتم إلغاء وصولك إليها."
   },
   "leaveNow": {
     "message": "غادر الآن"
@@ -4884,13 +5110,13 @@
     "message": "للمتابعة في تسجيل الدخول، تحقق من هذا النطاق."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "للمتابعة في تسجيل الدخول، تحقق من المؤسسة والنطاق."
+    "message": "للمتابعة في تسجيل الدخول، تحقق من المنظمة والنطاق."
   },
   "sessionTimeoutSettingsAction": {
     "message": "إجراء انتهاء الجلسة"
   },
   "errorCannotDecrypt": {
-    "message": "خطأ: تعذّر فك التشفير"
+    "message": "خطأ: تعذر فك التشفير"
   },
   "sessionTimeoutHeader": {
     "message": "انتهاء مهلة الجلسة"
@@ -4902,10 +5128,10 @@
     "message": "تغيير حجم شريط التنقل الجانبي"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "هذا الإعداد تديره مؤسستك."
+    "message": "هذا الإعداد تديره منظمتك."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "حددت مؤسستك الحد الأقصى لمدة انتهاء الجلسة بـ $HOURS$ ساعة و $MINUTES$ دقيقة.",
+    "message": "حددت منظمتك الحد الأقصى لمهلة انتهاء الجلسة بـ $HOURS$ ساعة و $MINUTES$ دقيقة.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4918,10 +5144,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "حددت مؤسستك مهلة انتهاء الجلسة الافتراضية عند قفل النظام."
+    "message": "حددت منظمتك مهلة انتهاء الجلسة الافتراضية عند قفل النظام."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "حددت مؤسستك مهلة انتهاء الجلسة الافتراضية عند إعادة التشغيل."
+    "message": "حددت منظمتك مهلة انتهاء الجلسة الافتراضية عند إعادة التشغيل."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "لا يمكن أن يتجاوز الحد الأقصى لمدة انتهاء الجلسة $HOURS$ ساعة و $MINUTES$ دقيقة",
@@ -4976,7 +5202,7 @@
     "message": "هل أنت متأكد من المغادرة؟"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "بالرفض، ستبقى عناصرك الشخصية في حسابك، لكنك ستخسر حق الوصول إلى العناصر المشتركة وميزات المؤسسة."
+    "message": "بالرفض، ستبقى عناصرك الشخصية في حسابك، لكنك ستخسر حق الوصول إلى العناصر المشتركة وميزات المنظمة."
   },
   "leaveConfirmationDialogContentTwo": {
     "message": "تواصل مع مسؤولك لاستعادة الوصول."
@@ -5003,7 +5229,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "تشترط $ORGANIZATION$ أن تكون جميع العناصر مملوكة للمؤسسة لأغراض الأمان والامتثال.",
+    "message": "تشترط $ORGANIZATION$ أن تكون جميع العناصر مملوكة للمنظمة لأغراض الأمان والامتثال.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5024,10 +5250,10 @@
     "message": "رفض والمغادرة"
   },
   "organizationIsSuspended": {
-    "message": "تم تعليق نشاط المؤسسة"
+    "message": "تم تعليق نشاط المنظمة"
   },
   "organizationIsSuspendedDesc": {
-    "message": "لا يمكن الوصول إلى العناصر في المؤسسات المعلق نشاطها. تواصل مع مالك مؤسستك للمساعدة."
+    "message": "لا يمكن الوصول إلى العناصر في المنظمة المعلق نشاطها. تواصل مع مالك منظمتك للمساعدة."
   },
   "percentageCompleted": {
     "message": "$PERCENT$ مكتمل",
@@ -5042,19 +5268,19 @@
     "message": "لا توجد عناصر في سلة المهملات"
   },
   "noItemsInTrashDesc": {
-    "message": "العناصر التي تحذفها ستظهر هنا وستُحذف نهائياً بعد 30 يوماً"
+    "message": "العناصر التي تحذفها ستظهر هنا وستحذف نهائيا بعد 30 يوما"
   },
   "noItemsInVault": {
     "message": "لا توجد عناصر في الخزنة"
   },
   "emptyVaultDescription": {
-    "message": "تحمي الخزنة أكثر من مجرد كلمات مرورك. خزّن تسجيلات الدخول والهويات والبطاقات والملاحظات بأمان هنا."
+    "message": "تحمي الخزنة أكثر من مجرد كلمات مرورك. خزن تسجيلات الدخول والهويات والبطاقات والملاحظات بأمان هنا."
   },
   "emptyFavorites": {
     "message": "لم تضف أي عناصر إلى المفضلة بعد"
   },
   "emptyFavoritesDesc": {
-    "message": "أضف العناصر الأكثر استخداماً إلى المفضلة للوصول السريع."
+    "message": "أضف العناصر الأكثر استخداما إلى المفضلة للوصول السريع."
   },
   "noSearchResults": {
     "message": "لم يتم العثور على نتائج بحث"
@@ -5109,7 +5335,7 @@
     "message": "فشل التحقق من هوية المستخدم."
   },
   "domainNotAllowed": {
-    "message": "يرجى إدراج النطاقات التالية فقط: $DOMAINS$. يُرجى المراجعة والمحاولة مرة أخرى",
+    "message": "يرجى إدراج النطاقات التالية فقط: $DOMAINS$. يرجى المراجعة والمحاولة مرة أخرى",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -5159,10 +5385,10 @@
     "message": "فردي"
   },
   "accountNumber": {
-    "message": "رَقم الحساب"
+    "message": "رقم الحساب"
   },
   "bankRoutingNumber": {
-    "message": "رَقم التوجيه",
+    "message": "رقم التوجيه",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
@@ -5175,7 +5401,7 @@
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "رَقم هاتف البَنك"
+    "message": "رقم هاتف البنك"
   },
   "searchBankAccount": {
     "message": "البحث في الحسابات البنكية"
@@ -5184,10 +5410,10 @@
     "message": "البحث في جوازات السفر"
   },
   "copyAccountNumber": {
-    "message": "نسخ رَقم الحساب"
+    "message": "نسخ رقم الحساب"
   },
   "copyRoutingNumber": {
-    "message": "نسخ رَقم التوجيه"
+    "message": "نسخ رقم التوجيه"
   },
   "copyPin": {
     "message": "نسخ رمز PIN"
@@ -5199,7 +5425,7 @@
     "message": "نسخ الاسم على الحساب"
   },
   "copyBranchNumber": {
-    "message": "نسخ رَقم الفرع"
+    "message": "نسخ رقم الفرع"
   },
   "copySwiftCode": {
     "message": "نسخ رمز SWIFT"
@@ -5241,7 +5467,7 @@
     "message": "أخرى"
   },
   "newBankAccountNudgeTitle": {
-    "message": "خزّن تفاصيل حسابك البنكي بأمان"
+    "message": "خزن تفاصيل حسابك البنكي بأمان"
   },
   "newBankAccountNudgeBody": {
     "message": "احفظ معلومات حسابك البنكي للوصول إليها بسهولة وأمان عبر أجهزتك."
@@ -5356,6 +5582,37 @@
     "message": "فئة الرخصة"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "تعذّر حفظ العنصر. يجب تأكيد عضويتك في المنظمة لحفظ العناصر."
+    "message": "تعذر حفظ العنصر. يجب تأكيد عضويتك في المنظمة لحفظ العناصر."
+  },
+  "addToFolder": {
+    "message": "Add to folder"
+  },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

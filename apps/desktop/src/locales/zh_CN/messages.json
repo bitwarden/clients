@@ -135,8 +135,20 @@
   "attachments": {
     "message": "附件"
   },
+  "attachmentsNeedFix": {
+    "message": "此项目包含需要修复的旧文件附件。"
+  },
   "viewItem": {
     "message": "查看项目"
+  },
+  "viewCollectionWithName": {
+    "message": "查看集合 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "查看登录",
@@ -174,6 +186,42 @@
     "message": "查看护照",
     "description": "Header for view passport item type"
   },
+  "addItemHeaderLogin": {
+    "message": "添加登录",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "添加支付卡",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "添加身份",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "添加笔记",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "添加安全笔记",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "添加 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "添加银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "添加驾驶证",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "添加护照",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -191,7 +239,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "新建安全笔记",
+    "message": "新增安全笔记",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
@@ -322,6 +386,29 @@
     "message": "确定要永久删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "创建",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "添加集合"
+  },
   "new": {
     "message": "新增",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "编辑项目"
+  },
+  "editItemWithName": {
+    "message": "编辑项目 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "电子邮箱地址"
@@ -809,6 +905,45 @@
   "deleteItem": {
     "message": "删除项目"
   },
+  "deleteItemsCount": {
+    "message": "删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "此项目将被发送到回收站。30 天后，它将被永久删除。"
+  },
+  "deleteItemsDesc": {
+    "message": "这些项目将被发送到回收站。30 天后，它们将被永久删除。"
+  },
+  "deleteItemPermanently": {
+    "message": "永久删除项目"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "永久删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "您将无法恢复此项目。"
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "您将无法恢复这些项目。"
+  },
+  "deleteSelection": {
+    "message": "删除所选"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "所选项目和集合将被永久删除。"
+  },
   "deleteFolder": {
     "message": "删除文件夹"
   },
@@ -976,7 +1111,7 @@
     "message": "数字最少个数"
   },
   "minSpecial": {
-    "message": "符号最少个数",
+    "message": "特殊字符最少个数",
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
@@ -2182,7 +2317,7 @@
     "message": "无法导入支付卡项目类型"
   },
   "restrictCardTypeImportDesc": {
-    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "归档项目已恢复"
   },
+  "archivedItemsRestored": {
+    "message": "归档项目已恢复"
+  },
   "restoredItem": {
+    "message": "项目已恢复"
+  },
+  "restoredItems": {
     "message": "项目已恢复"
   },
   "permanentlyDelete": {
     "message": "永久删除"
+  },
+  "permanentlyDeletedItems": {
+    "message": "项目已永久删除"
+  },
+  "deletedItems": {
+    "message": "项目已发送到回收站"
+  },
+  "deletedCollections": {
+    "message": "删除了集合"
+  },
+  "collectionDeleted": {
+    "message": "集合已删除"
+  },
+  "collectionsDeleted": {
+    "message": "集合已删除"
+  },
+  "movedItems": {
+    "message": "项目已移动"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "新增 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3631,7 +3794,7 @@
     "message": "已登录！"
   },
   "important": {
-    "message": "重要事项："
+    "message": "重要："
   },
   "accessing": {
     "message": "正在访问"
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 个项目将永久转移到 $ORG$ 。您将不再拥有该项目。",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到 $ORG$ 。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4800,10 +4985,51 @@
     "message": "归档项目"
   },
   "archiveItemDialogContent": {
-    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "归档后，此项目将被排除在搜索结果和自动填充建议之外。"
   },
   "unArchiveAndSave": {
     "message": "取消归档并保存"
+  },
+  "archiveItemsPlural": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "归档后，这些项目将被排除在搜索结果和自动填充建议之外。"
+  },
+  "bulkArchiveItems": {
+    "message": "项目已归档"
+  },
+  "bulkUnarchiveItems": {
+    "message": "项目已取消归档"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "选择一个您想要将这 $COUNT$ 个所选项目添加到的文件夹。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "选择文件夹"
   },
   "restartPremium": {
     "message": "重启高级版"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
+  },
+  "addToFolder": {
+    "message": "添加到文件夹"
+  },
+  "deleteCollection": {
+    "message": "删除集合"
+  },
+  "deleteCollectionsCount": {
+    "message": "删除 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "此集合将被永久删除。"
+  },
+  "deleteCollectionsDesc": {
+    "message": "这些集合将被永久删除。"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

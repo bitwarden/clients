@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Вложения"
   },
+  "attachmentsNeedFix": {
+    "message": "К этому элементу прикреплены старые вложения, которые необходимо исправить."
+  },
   "viewItem": {
     "message": "Просмотр элемента"
+  },
+  "viewCollectionWithName": {
+    "message": "Просмотр коллекции - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Просмотр логина",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Просмотреть паспорт",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Добавить логин",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Добавить карту",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Добавить личную информацию",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Добавить заметку",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Добавить защищенную заметку",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Добавить ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Добавить банковский счет",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Добавить водительское удостоверение",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Добавить паспорт",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Новый логин",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Изменить защищенную заметку",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Редактировать ключ SSH",
@@ -322,6 +386,29 @@
     "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Создать",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Добавить коллекцию"
+  },
   "new": {
     "message": "Новый",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Изменение элемента"
+  },
+  "editItemWithName": {
+    "message": "Редактирование элемента - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "Адрес email"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Удалить элемент"
+  },
+  "deleteItemsCount": {
+    "message": "Удалить элементов: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Этот элемент будет отправлен в корзину. По истечении 30 дней он будет удален безвозвратно."
+  },
+  "deleteItemsDesc": {
+    "message": "Эти элементы будут отправлены в корзину. По истечении 30 дней они будут удалены безвозвратно."
+  },
+  "deleteItemPermanently": {
+    "message": "Удалить элемент навсегда"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Удалить элементы навсегда: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Вы не сможете восстановить этот элемент."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Вы не сможете восстановить эти элементы."
+  },
+  "deleteSelection": {
+    "message": "Удалить выделенное"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Выбранные элементы и коллекции будут удалены навсегда."
   },
   "deleteFolder": {
     "message": "Удалить папку"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Архивированный элемент восстановлен"
   },
+  "archivedItemsRestored": {
+    "message": "Архивированные элементы восстановлены"
+  },
   "restoredItem": {
     "message": "Элемент восстановлен"
   },
+  "restoredItems": {
+    "message": "Элементы восстановлены"
+  },
   "permanentlyDelete": {
     "message": "Удалить окончательно"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Элементы удалены окончательно"
+  },
+  "deletedItems": {
+    "message": "Элементы отправлены в корзину"
+  },
+  "deletedCollections": {
+    "message": "Коллекция удалена"
+  },
+  "collectionDeleted": {
+    "message": "Коллекция удалена"
+  },
+  "collectionsDeleted": {
+    "message": "Коллекции удалены"
+  },
+  "movedItems": {
+    "message": "Элементы перемещены"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "По истечении тайм-аута будет выполнен выход, что приведет к отмене всех прав доступа к вашему хранилищу и потребует онлайн-аутентификации. Вы уверены, что хотите использовать этот параметр?"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "Новая Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Создать Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 элемент будет навсегда передан $ORG$. Вы больше не будете владельцем этих элементов.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы $ORG$. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Разархивировать и сохранить"
+  },
+  "archiveItemsPlural": {
+    "message": "Архивировать $NUM$ элементов",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Архивировать $NUM$ элемент",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
+  },
+  "bulkArchiveItems": {
+    "message": "Элементы архивированы"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Элементы разархивированы"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Выберите папку, в которую вы хотите добавить выбранные элементы ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Выбрать папку"
   },
   "restartPremium": {
     "message": "Переподключить Премиум"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
+  },
+  "addToFolder": {
+    "message": "Добавить в папку"
+  },
+  "deleteCollection": {
+    "message": "Удалить коллекцию"
+  },
+  "deleteCollectionsCount": {
+    "message": "Удалить коллекций: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Эта коллекция будет удалена навсегда."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Эти коллекции будут удалены навсегда."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

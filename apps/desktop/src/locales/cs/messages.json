@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Přílohy"
   },
+  "attachmentsNeedFix": {
+    "message": "Tato položka obsahuje staré přílohy, které vyžadují opravu."
+  },
   "viewItem": {
     "message": "Zobrazit položku"
+  },
+  "viewCollectionWithName": {
+    "message": "Zobrazit sbírku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Zobrazit přihlášení",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Zobrazit pas",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Přidat přihlašovací údaje",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Přidat kartu",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Přidat identitu",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Přidat poznámku",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Přidat bezpečnou poznámku",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Přidat SSH klíč",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Přidat bankovní účet",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Přidat řidičský průkaz",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Přidat pas",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nové přihlášení",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Upravit bezpečnou poznámku",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Upravit přihlašovací údaje",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Upravit kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Upravit identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Upravit poznámku",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Upravit SSH klíč",
@@ -322,6 +386,29 @@
     "message": "Opravdu chcete tento Send trvale smazat?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Zobrazit přihlašovací údaje",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Zobrazit kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Zobrazit identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Zobrazit poznámku",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Vytořit",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Přidat sbírku"
+  },
   "new": {
     "message": "Nová",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Upravit položku"
+  },
+  "editItemWithName": {
+    "message": "Upravit položku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "E-mailová adresa"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Smazat položku"
+  },
+  "deleteItemsCount": {
+    "message": "Smazat $COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Tato položka bude vysypána do Vašeho koše. Po 30 dnech bude trvale smazána."
+  },
+  "deleteItemsDesc": {
+    "message": "Tyto položky budou vysypány do Vašeho koše. Po 30 dnech budou trvale smazány."
+  },
+  "deleteItemPermanently": {
+    "message": "Trvale smazat položku"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Trvale smazat $COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Nebudete moci obnovit tuto položku."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Nebudete moci obnovit tyto položky."
+  },
+  "deleteSelection": {
+    "message": "Smazat výběr"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Vybrané položky a sbírky budou trvale smazány."
   },
   "deleteFolder": {
     "message": "Smazat složku"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Archivovaná položka byla obnovena"
   },
+  "archivedItemsRestored": {
+    "message": "Archivované položky byly obnoveny"
+  },
   "restoredItem": {
     "message": "Položka byla obnovena"
   },
+  "restoredItems": {
+    "message": "Položky byly obnoveny"
+  },
   "permanentlyDelete": {
     "message": "Trvale smazat"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Položky byly trvale smazány"
+  },
+  "deletedItems": {
+    "message": "Položky byly přesunuty do koše"
+  },
+  "deletedCollections": {
+    "message": "Byly smazány sbírky"
+  },
+  "collectionDeleted": {
+    "message": "Sbírka byla smazána"
+  },
+  "collectionsDeleted": {
+    "message": "Kolekce byly smazány"
+  },
+  "movedItems": {
+    "message": "Položky byly přesunuty"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Po vypršení časového limitu dojde k odhlášení. Přístup k trezoru bude odebrán a pro opětovné přihlášení bude vyžadováno online ověření. Opravdu chcete použít toto nastavení?"
@@ -2770,6 +2929,10 @@
     "message": "Nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createSendV2": {
+    "message": "Vytvořit Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendTextDesc": {
     "message": "Text, který chcete odeslat."
   },
@@ -2881,7 +3044,7 @@
     "message": "Aktualizovat hlavní heslo"
   },
   "updateMasterPasswordWarning": {
-    "message": "Administrátor v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+    "message": "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do $ORG$. Tuto položku již nebudete vlastnit.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do $ORG$. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Odebrat z archivu a uložit"
+  },
+  "archiveItemsPlural": {
+    "message": "Archivovat $NUM$ položek",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archivovat $NUM$ položku",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Jakmile budou tyto položky archivovány, budou vyloučeny z výsledků vyhledávání a z návrhů automatického vyplňování."
+  },
+  "bulkArchiveItems": {
+    "message": "Archivované položky"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky odebrané z archivu"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Vyberte složku, do které chcete přidat $COUNT$ vybraných položek.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Vybrat složku"
   },
   "restartPremium": {
     "message": "Restartovat Premium"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Položku nelze uložit. Musíte potvrdit organizaci pro uložení položek."
+  },
+  "addToFolder": {
+    "message": "Přidat do složky"
+  },
+  "deleteCollection": {
+    "message": "Smazat sbírku"
+  },
+  "deleteCollectionsCount": {
+    "message": "Smazat $COUNT$ sbírek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Tato sbírka bude trvale smazána."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Tyto sbírky budou trvale smazány."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

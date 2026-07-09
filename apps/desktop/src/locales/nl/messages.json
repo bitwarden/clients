@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Bijlagen"
   },
+  "attachmentsNeedFix": {
+    "message": "Dit item heeft oude bestandsbijlagen die aangepast moeten worden."
+  },
   "viewItem": {
     "message": "Item weergeven"
+  },
+  "viewCollectionWithName": {
+    "message": "Collectie weergeven - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Login weergeven",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Paspoort weergeven",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Login toevoegen",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kaart toevoegen",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Identiteit toevoegen",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Notitie toevoegen",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Veilige notitie toevoegen",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH-sleutel toevoegen",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bankrekening toevoegen",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Rijbewijs toevoegen",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Paspoort toevoegen",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nieuwe login",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Veilige notitie bewerken",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Login bewerken",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Kaart bewerken",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Identiteit bewerken",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Notitie bewerken",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "SSH-sleutel bewerken",
@@ -322,6 +386,29 @@
     "message": "Weet je zeker dat je deze Send permanent wil verwijderen?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Login weergeven",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Kaart weergeven",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Identiteit weergeven",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Notitie weergeven",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Aanmaken",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Verzameling toevoegen"
+  },
   "new": {
     "message": "Nieuw",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Item bewerken"
+  },
+  "editItemWithName": {
+    "message": "Item bewerken - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "E-mailadres"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Verwijder item"
+  },
+  "deleteItemsCount": {
+    "message": "$COUNT$ items verwijderen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Dit item wordt naar je prullenbak verzonden. Na 30 dagen wordt het definitief verwijderd."
+  },
+  "deleteItemsDesc": {
+    "message": "Deze items worden naar je prullenbak verzonden. Na 30 dagen worden ze definitief verwijderd."
+  },
+  "deleteItemPermanently": {
+    "message": "Item definitief verwijderen"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "$COUNT$ items definitief verwijderen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Je kunt dit item niet herstellen."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Je kunt deze items niet herstellen."
+  },
+  "deleteSelection": {
+    "message": "Selectie verwijderen"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "De geselecteerde items en verzamelingen worden definitief verwijderd."
   },
   "deleteFolder": {
     "message": "Verwijder folder"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Gearchiveerd item hersteld"
   },
+  "archivedItemsRestored": {
+    "message": "Gearchiveerde items hersteld"
+  },
   "restoredItem": {
     "message": "Hersteld item"
   },
+  "restoredItems": {
+    "message": "Items hersteld"
+  },
   "permanentlyDelete": {
     "message": "Definitief verwijderen"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Items definitief verwijderd"
+  },
+  "deletedItems": {
+    "message": "Items naar de prullenbak verstuurd"
+  },
+  "deletedCollections": {
+    "message": "Verwijderde collecties"
+  },
+  "collectionDeleted": {
+    "message": "Collectie verwijderd"
+  },
+  "collectionsDeleted": {
+    "message": "Collecties verwijderd"
+  },
+  "movedItems": {
+    "message": "Items verplaatst"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Uitloggen ontneemt je de toegang tot je kluis en vereist online authenticatie na een periode van time-out. Weet je zeker dat je deze instelling wilt gebruiken?"
@@ -2767,6 +2926,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSend": {
+    "message": "Send aanmaken",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
     "message": "Send aanmaken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 item wordt permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van dit item.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan $ORG$. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Dearchiveren en opslaan"
+  },
+  "archiveItemsPlural": {
+    "message": "$NUM$ items archiveren",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "$NUM$ item archiveren",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Eenmaal gearchiveerd worden deze items uitgesloten van zoekresultaten en suggesties voor automatisch invullen."
+  },
+  "bulkArchiveItems": {
+    "message": "Items gearchiveerd"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items gedearchiveerd"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Kies een map waaraan je de $COUNT$ geselecteerde item(s) wilt toevoegen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Map selecteren"
   },
   "restartPremium": {
     "message": "Premium herstarten"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Kan het item niet opslaan. Voor het opslaan van items moet het bevestigd zijn dat je bij de organisatie hoort."
+  },
+  "addToFolder": {
+    "message": "Aan map toevoegen"
+  },
+  "deleteCollection": {
+    "message": "Collectie verwijderen"
+  },
+  "deleteCollectionsCount": {
+    "message": "$COUNT$ colecties verwijderen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Deze collectie(s) wordt definitief verwijderd."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Deze collectie(s) worden definitief verwijderd."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

@@ -78,7 +78,7 @@
     "message": "Carteira de habilitação"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Carteira de motorista ou identidade"
+    "message": "Carteira de habilitação ou identidade"
   },
   "chooseItemToAdd": {
     "message": "Escolha o item a adicionar"
@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Anexos"
   },
+  "attachmentsNeedFix": {
+    "message": "Este item tem anexos de arquivos antigos que precisam ser corrigidos."
+  },
   "viewItem": {
     "message": "Ver item"
+  },
+  "viewCollectionWithName": {
+    "message": "Ver conjunto - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Ver credencial",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Ver passaporte",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Adicionar credencial",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Adicionar cartão",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Adicionar identidade",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Adicionar anotação",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Adicionar anotação segura",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Adicionar chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Adicionar conta bancária",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Adicionar habilitação",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Adicionar passaporte",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Editar anotação segura",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Editar anotação",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
@@ -322,6 +386,29 @@
     "message": "Tem certeza de que deseja apagar este Send permanentemente?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Ver anotação",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Criar",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Adicionar conjunto"
+  },
   "new": {
     "message": "Criar",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Editar item"
+  },
+  "editItemWithName": {
+    "message": "Editar item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "Endereço de e-mail"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Apagar item"
+  },
+  "deleteItemsCount": {
+    "message": "Apagar $COUNT$ itens",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Este item será enviado para a lixeira. Depois de 30 dias lá, ele será apagado permanentemente."
+  },
+  "deleteItemsDesc": {
+    "message": "Estes itens serão enviados para a lixeira. Depois de 30 dias lá, eles serão apagados permanentemente."
+  },
+  "deleteItemPermanently": {
+    "message": "Apagar item permanentemente"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Apagar $COUNT$ itens permanentemente",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Você não poderá recuperar este item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Você não poderá recuperar estes itens."
+  },
+  "deleteSelection": {
+    "message": "Apagar seleção"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Os itens e conjuntos selecionados serão apagados permanentemente."
   },
   "deleteFolder": {
     "message": "Apagar pasta"
@@ -1948,7 +2083,7 @@
     "message": "Selecionado"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "selecionado",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Item arquivado restaurado"
   },
+  "archivedItemsRestored": {
+    "message": "Itens arquivados restaurados"
+  },
   "restoredItem": {
     "message": "Item restaurado"
   },
+  "restoredItems": {
+    "message": "Itens restaurados"
+  },
   "permanentlyDelete": {
     "message": "Excluir permanentemente"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Itens apagados permanentemente"
+  },
+  "deletedItems": {
+    "message": "Itens enviados para a lixeira"
+  },
+  "deletedCollections": {
+    "message": "Conjuntos apagados"
+  },
+  "collectionDeleted": {
+    "message": "Conjunto apagado"
+  },
+  "collectionsDeleted": {
+    "message": "Conjuntos apagados"
+  },
+  "movedItems": {
+    "message": "Itens movidos"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Ao desconectar-se, todo o seu acesso ao cofre será removido e será necessária a autenticação on-line após o período do limite de tempo. Tem certeza de que deseja usar esta configuração?"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "Novo Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Criar Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4641,9 +4804,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "Um item será permanentemente transferido para a organização selecionada. Você deixará de ser o proprietário desse item."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "Um item será permanentemente transferido para $ORG$. Você deixará de ser o proprietário desse item.",
     "placeholders": {
@@ -4653,14 +4813,39 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "Um item será permanentemente transferido para a organização selecionada. Você deixará de ser o proprietário desse item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Você não será mais o proprietário desses itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para $ORG$. Você não será mais o proprietário desses itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "Conjuntos atribuídos com sucesso"
   },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Item atribuído às coleções"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Itens atribuídos às coleções"
   },
   "nothingSelected": {
     "message": "Você não selecionou nada."
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Desarquivar e salvar"
+  },
+  "archiveItemsPlural": {
+    "message": "Arquivar $NUM$ itens",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Arquivar $NUM$ item",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Ao arquivar, esses itens serão excluídos dos resultados de busca e das sugestões de preenchimento automático."
+  },
+  "bulkArchiveItems": {
+    "message": "Itens arquivados"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Itens desarquivados"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Escolha a pasta para a qual você deseja adicionar o(s) $COUNT$ item(ns) selecionado(s).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Selecionar pasta"
   },
   "restartPremium": {
     "message": "Retomar Premium"
@@ -5156,7 +5382,7 @@
     "message": "Empresa"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "Indivíduo"
   },
   "accountNumber": {
     "message": "Número da conta"
@@ -5279,7 +5505,7 @@
     "message": "A entrada deve ser um número inteiro"
   },
   "hideEmailPolicyInEffect": {
-    "message": "Sua organização requer visibilidade de email. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
+    "message": "Sua organização requer visibilidade do e-mail. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
   },
   "sideNavigation": {
     "message": "Navegação lateral"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Não é possível salvar o item. Você deve ser confirmado na organização para salvar os itens."
+  },
+  "addToFolder": {
+    "message": "Adicionar à pasta"
+  },
+  "deleteCollection": {
+    "message": "Apagar conjunto"
+  },
+  "deleteCollectionsCount": {
+    "message": "Apagar $COUNT$ conjuntos",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Este conjunto será apagado permanentemente."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Estes conjuntos serão apagados permanentemente."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Nova notificação",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
