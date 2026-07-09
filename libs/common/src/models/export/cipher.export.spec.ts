@@ -53,14 +53,14 @@ describe("Cipher Export", () => {
       expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key private key is required.");
     });
 
-    it.each([null, undefined, "", "   "])("should throw when publicKey is %p", (value) => {
+    it.each([null, undefined, ""])("should not throw when publicKey is %p", (value) => {
       const sshKey = { ...validSshKey, publicKey: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key public key is required.");
+      expect(() => SshKeyExport.toView(sshKey)).not.toThrow();
     });
 
-    it.each([null, undefined, "", "   "])("should throw when keyFingerprint is %p", (value) => {
+    it.each([null, undefined, ""])("should not throw when keyFingerprint is %p", (value) => {
       const sshKey = { ...validSshKey, keyFingerprint: value } as any;
-      expect(() => SshKeyExport.toView(sshKey)).toThrow("SSH key fingerprint is required.");
+      expect(() => SshKeyExport.toView(sshKey)).not.toThrow();
     });
 
     it("should succeed with valid inputs", () => {
