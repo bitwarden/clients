@@ -731,8 +731,8 @@ const groupedTable = defineTable<GroupedRow>(
  * interleaved group headers and rows, positioned by a variable-size scroll strategy
  * (headers and rows have different heights). Groups are a `list`-presentation
  * feature; collapsing one drops its rows from the virtual list and the viewport
- * re-measures. `virtualRowHeight` is the row's full advance (cell height + the list
- * row's bottom margin).
+ * re-measures. `virtualRowHeight` is the row's full advance — for a single-line
+ * `list` row that's the `bit-item`-aligned content height plus the row's bottom margin.
  */
 export const GroupedVirtualized: Story = {
   render: () => ({
@@ -748,7 +748,7 @@ export const GroupedVirtualized: Story = {
         <bit-table-v2
           [tableDef]="table"
           presentation="list"
-          [virtualRowHeight]="70"
+          [virtualRowHeight]="44"
           [trackBy]="trackBy"
           [height]="8"
         >

@@ -19,7 +19,7 @@
 
 <ng-template #bodyCells let-row>
   @if (selectionModel(); as sel) {
-    <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0">
+    <div role="cell" class="tw-flex tw-items-center tw-px-3">
       @if (sel.isSelectable(row)) {
         <input
           type="checkbox"
@@ -39,7 +39,7 @@
 
 <ng-template #loadingCells>
   @if (selectionModel()) {
-    <div role="cell" class="tw-flex tw-items-center tw-h-16 tw-px-3 tw-py-0"></div>
+    <div role="cell" class="tw-flex tw-items-center tw-px-3"></div>
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.loadingTemplate(); as tpl) {

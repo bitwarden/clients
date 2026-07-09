@@ -45,8 +45,10 @@ export class BitRowComponent {
   protected readonly hostClasses = computed(() => {
     const layout = "tw-grid tw-grid-flow-col tw-auto-cols-fr";
     if (this.table?.presentation() === "list") {
+      // `list` rows size to content off a `bit-item`-style minimum height.
       return `${layout} tw-min-h-9 tw-mb-1.5 tw-rounded-lg tw-bg-background tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow hover:tw-bg-hover-default`;
     }
-    return `${layout} tw-border-0 tw-border-t tw-border-solid tw-border-border-base first:tw-border-t-0`;
+    // `table` rows own the fixed row height; cells stretch to fill it and center content.
+    return `${layout} tw-h-16 tw-border-0 tw-border-t tw-border-solid tw-border-border-base first:tw-border-t-0`;
   });
 }
