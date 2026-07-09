@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { concatMap, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -17,7 +17,6 @@ import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "../key-management/biometrics/desktop.biometrics.service";
 import { LegacyMessage, LegacyMessageWrapper } from "../models/native-messaging";
-import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 const MessageValidTimeout = 10 * 1000;
 const HashAlgorithmForAsymmetricEncryption = "sha1";
@@ -71,22 +70,10 @@ export class BiometricMessageHandlerService {
     private cryptoFunctionService: CryptoFunctionService,
     private encryptService: EncryptService,
     private logService: LogService,
-    private desktopSettingService: DesktopSettingsService,
     private biometricsService: DesktopBiometricsService,
     private accountService: AccountService,
     private authService: AuthService,
-  ) {
-    this.desktopSettingService.browserIntegrationEnabled$
-      .pipe(
-        concatMap(async (browserIntegrationEnabled) => {
-          if (!browserIntegrationEnabled) {
-            this.logService.info("[Native Messaging IPC] Clearing connected apps");
-            await this.connectedApps.clear();
-          }
-        }),
-      )
-      .subscribe();
-  }
+  ) {}
 
   private connectedApps: ConnectedApps = new ConnectedApps();
 
