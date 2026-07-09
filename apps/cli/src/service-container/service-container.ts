@@ -654,6 +654,25 @@ export class ServiceContainer {
       this.fileUploadService,
       this.sendService,
     );
+    const sdkClientFactory = flagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkLoadService = new CliSdkLoadService();
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
+      this.accountCryptographicStateService,
+      this.apiService,
+      this.stateProvider,
+      this.configService,
+      this.v2UpgradeTokenStateService,
+      customUserAgent,
+    );
+
     this.sendApiService = new SendApiServiceSelector(
       this.configService,
       legacySendApiService,
@@ -677,25 +696,6 @@ export class ServiceContainer {
       this.newPolicyService,
       this.apiService,
       this.accountService,
-    );
-
-    const sdkClientFactory = flagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkLoadService = new CliSdkLoadService();
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      this.stateProvider,
-      this.configService,
-      this.v2UpgradeTokenStateService,
-      customUserAgent,
     );
 
     this.registerSdkService = new DefaultRegisterSdkService(
