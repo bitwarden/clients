@@ -156,6 +156,7 @@ import {
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -195,6 +196,7 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -496,6 +498,7 @@ export default class MainBackground {
   mainContextMenuHandler: MainContextMenuHandler;
   cipherContextMenuHandler: CipherContextMenuHandler;
   configService: ConfigService;
+  availableRegionsService: AvailableRegionsService;
   configApiService: ConfigApiServiceAbstraction;
   devicesApiService: DevicesApiServiceAbstraction;
   devicesService: DevicesServiceAbstraction;
@@ -907,6 +910,11 @@ export default class MainBackground {
       this.logService,
       this.stateProvider,
       this.authService,
+    );
+
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
     );
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
