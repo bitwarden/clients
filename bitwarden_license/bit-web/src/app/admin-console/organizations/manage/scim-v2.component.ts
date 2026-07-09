@@ -217,7 +217,7 @@ export class ScimV2Component {
       true,
       new ScimConfigRequest(
         this.enabled.value ?? false,
-        null,
+        undefined,
         this.inviteUsersAfterProvisioning.value ?? true,
       ),
     );
