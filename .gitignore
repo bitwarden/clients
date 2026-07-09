@@ -62,3 +62,6 @@ apps/**/config/local.json
 # DevContainer generated files
 .devcontainer/native-gui/docker-compose.override.yml
 .devcontainer/common/.env
+
+# Debug run artifacts
+.debug/

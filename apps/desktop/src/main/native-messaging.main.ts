@@ -140,13 +140,13 @@ export class NativeMessagingMain {
     this.ipcServer?.sendTo(clientId, JSON.stringify(message));
   }
 
-  private async generateChromeJson(binaryPath: string) {
+  private generateChromeJson(binaryPath: string, allowedOrigins: string[]) {
     return {
       name: "com.8bit.bitwarden",
       description: "Bitwarden desktop <-> browser bridge",
       path: binaryPath,
       type: "stdio",
-      allowed_origins: await this.loadChromeIds(),
+      allowed_origins: allowedOrigins,
     };
   }
 
@@ -166,6 +166,8 @@ export class NativeMessagingMain {
       throw new Error(`Unable to find proxy binary: ${binaryPath}`);
     }
 
+    const allowedOrigins = await this.loadChromeIds();
+
     switch (process.platform) {
       case "win32": {
         const destination = path.join(this.userPath, "browsers");
@@ -175,7 +177,7 @@ export class NativeMessagingMain {
         );
         await this.writeManifest(
           path.join(destination, "chrome.json"),
-          await this.generateChromeJson(binaryPath),
+          this.generateChromeJson(binaryPath, allowedOrigins),
         );
 
         const nmhs = this.getWindowsNMHS();
@@ -194,7 +196,7 @@ export class NativeMessagingMain {
           if (existsSync(value)) {
             const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
 
-            let manifest: any = await this.generateChromeJson(binaryPath);
+            let manifest: any = this.generateChromeJson(binaryPath, allowedOrigins);
             if (key === "Firefox" || key === "Zen") {
               manifest = await this.generateFirefoxJson(binaryPath);
             }
@@ -204,6 +206,16 @@ export class NativeMessagingMain {
             this.logService.warning(`${key} not found, skipping.`);
           }
         }
+
+        if (process.env.BITWARDEN_CHROME_PROFILE_DIR) {
+          const p = path.join(
+            process.env.BITWARDEN_CHROME_PROFILE_DIR,
+            "NativeMessagingHosts",
+            "com.8bit.bitwarden.json",
+          );
+          await this.writeManifest(p, this.generateChromeJson(binaryPath, allowedOrigins));
+        }
+
         break;
       }
       case "linux": {
@@ -235,7 +247,7 @@ export class NativeMessagingMain {
             } else {
               await this.writeManifest(
                 path.join(nhmsPath, "com.8bit.bitwarden.json"),
-                await this.generateChromeJson(browserBinaryPath),
+                this.generateChromeJson(browserBinaryPath, allowedOrigins),
               );
             }
           } else {
@@ -259,7 +271,7 @@ export class NativeMessagingMain {
             } else if (key === "Chrome" || key === "Chromium" || key === "Microsoft Edge") {
               await this.writeManifest(
                 path.join(value, "com.8bit.bitwarden.json"),
-                await this.generateChromeJson(sandboxedProxyBinaryPath),
+                this.generateChromeJson(sandboxedProxyBinaryPath, allowedOrigins),
               );
             } else {
               this.logService.warning(`Flatpak ${key} not supported, skipping.`);
@@ -481,6 +493,10 @@ export class NativeMessagingMain {
       }
     }
 
+    if (process.env.BITWARDEN_CHROME_PROFILE_DIR) {
+      chromePaths.push(process.env.BITWARDEN_CHROME_PROFILE_DIR);
+    }
+
     for (const chromePath of chromePaths) {
       try {
         // The chrome profile directories are named "Default", "Profile 1", "Profile 2", etc.
@@ -495,24 +511,30 @@ export class NativeMessagingMain {
             const prefs = JSON.parse(
               await fs.readFile(path.join(chromePath, profile, "Preferences"), "utf8"),
             );
-            const commands: Map<string, any> = prefs.extensions.commands;
+            const commands: Map<string, any> = prefs.extensions?.commands;
 
             // If one of the commands is autofill_login or generate_password, we know it's probably the Bitwarden extension
-            for (const { command_name, extension } of Object.values(commands)) {
+            for (const { command_name, extension } of Object.values(commands ?? {})) {
               if (command_name === "autofill_login" || command_name === "generate_password") {
-                ids.add(`chrome-extension://${extension}/`);
-                this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                const id = `chrome-extension://${extension}/`;
+                if (!ids.has(id)) {
+                  ids.add(id);
+                  this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                }
               }
             }
 
             // Match via settings too. Sometimes global commands don't register properly.
-            const settings: Map<string, any> = prefs.extensions.settings;
-            for (const [extension, setting] of Object.entries(settings)) {
+            const settings: Map<string, any> = prefs.extensions?.settings;
+            for (const [extension, setting] of Object.entries(settings ?? {})) {
               if (setting.commands) {
                 for (const [command_name] of Object.entries(setting.commands)) {
                   if (command_name === "autofill_login" || command_name === "generate_password") {
-                    ids.add(`chrome-extension://${extension}/`);
-                    this.logService.info(`Found extension ${chromePath}: ${extension}`);
+                    const id = `chrome-extension://${extension}/`;
+                    if (!ids.has(id)) {
+                      ids.add(id);
+                      this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                    }
                   }
                 }
               }

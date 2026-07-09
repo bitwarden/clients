@@ -59,7 +59,7 @@
       "type": "chrome",
       "request": "attach",
       "name": "Web: Renderer (attach)",
-      "port": 9223,
+      "port": 9200,
       "webRoot": "${workspaceFolder}/apps/web",
       "sourceMaps": true,
       "timeout": 60000
