@@ -74,7 +74,7 @@ export class BitRowGroupComponent<T = unknown> {
       destroyRef.onDestroy(() => parent.unregisterChild(this));
       return;
     }
-    const table = inject<BitTableV2Component>(forwardRef(() => BitTableV2Component));
+    const table = inject<BitTableV2Component<T>>(forwardRef(() => BitTableV2Component));
     table.registerGroup(this);
     destroyRef.onDestroy(() => table.unregisterGroup(this));
   }

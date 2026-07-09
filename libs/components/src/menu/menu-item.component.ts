@@ -9,6 +9,8 @@ import {
   ChangeDetectionStrategy,
 } from "@angular/core";
 
+import { MenuCloseDirective } from "./menu-close.directive";
+
 /**
  * Shared menu-item appearance — padding, rounding, focus ring, and disabled
  * states — without a `display` utility, so it composes with `tw-block` (menu
@@ -53,6 +55,7 @@ export const menuItemPrimaryStyles = [
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  hostDirectives: [MenuCloseDirective],
   host: {
     "[class]": "classList()",
     role: "menuitem",
