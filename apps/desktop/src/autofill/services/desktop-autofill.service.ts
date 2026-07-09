@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable, OnDestroy } from "@angular/core";
 import {
   Subject,
@@ -52,7 +50,7 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest: autofill.PasskeyRegistrationRequest;
+  private registrationRequest?: autofill.PasskeyRegistrationRequest;
   private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
   private isEnabled: boolean = false;
 
@@ -72,8 +70,10 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   async init() {
-    this.isEnabled =
-      this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag));
+    if (!this.featureFlag) {
+      return;
+    }
+    this.isEnabled = (await this.configService.getFeatureFlag(this.featureFlag)) === true;
     if (!this.isEnabled) {
       return;
     }
@@ -82,7 +82,7 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
-        tap((enabled) => (this.isEnabled = enabled)),
+        tap((enabled) => (this.isEnabled = enabled === true)),
         filter((enabled) => enabled === true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
@@ -98,9 +98,9 @@ export class DesktopAutofillService implements OnDestroy {
             switchMap(([userId]) => this.cipherService.cipherViews$(userId)),
           );
         }),
-        debounceTime(100), // just a precaution to not spam the sync if there are multiple changes (we typically observe a null change)
         // No filter for empty arrays here - we want to sync even if there are 0 items
         filter((cipherViewMap) => cipherViewMap !== null),
+        debounceTime(100),
 
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap ?? []))),
         takeUntil(this.destroy$),
@@ -145,8 +145,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[];
-    let passwordCredentials: NativeAutofillPasswordCredential[];
+    let fido2Credentials: NativeAutofillFido2Credential[] = [];
+    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -155,16 +155,19 @@ export class DesktopAutofillService implements OnDestroy {
             !cipher.isDeleted &&
             cipher.type === CipherType.Login &&
             cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some((uri) => uri.match !== UriMatchStrategy.Never) &&
-            cipher.login.uris.some((uri) => !Utils.isNullOrWhitespace(uri.uri)) &&
+            cipher.login.uris.some(
+              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+            ) &&
             !Utils.isNullOrWhitespace(cipher.login.username) &&
             !Utils.isNullOrWhitespace(cipher.login.password),
         )
         .map((cipher) => ({
           type: "password",
           cipherId: cipher.id,
-          uri: cipher.login.uris.find((uri) => uri.match !== UriMatchStrategy.Never).uri,
-          username: cipher.login.username,
+          uri: cipher.login.uris.find(
+            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+          )!.uri as string,
+          username: cipher.login.username as string,
         }));
     }
 
@@ -236,7 +239,13 @@ export class DesktopAutofillService implements OnDestroy {
         callback(null, this.convertRegistrationResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyRegistration error", error);
-        callback(error, null);
+        if (error instanceof Error) {
+          callback(error, null);
+        } else if (typeof error === "string") {
+          callback(new Error(error), null);
+        } else {
+          callback(new Error(JSON.stringify(error)), null);
+        }
       }
     });
 
@@ -269,7 +278,14 @@ export class DesktopAutofillService implements OnDestroy {
           callback(null, this.convertAssertionResponse(request, response));
         } catch (error) {
           this.logService.error("listenPasskeyAssertion error", error);
-          callback(error, null);
+
+          if (error instanceof Error) {
+            callback(error, null);
+          } else if (typeof error === "string") {
+            callback(new Error(error), null);
+          } else {
+            callback(new Error(JSON.stringify(error)), null);
+          }
           return;
         }
       },
@@ -297,7 +313,13 @@ export class DesktopAutofillService implements OnDestroy {
         callback(null, this.convertAssertionResponse(request, response));
       } catch (error) {
         this.logService.error("listenPasskeyAssertion error", error);
-        callback(error, null);
+        if (error instanceof Error) {
+          callback(error, null);
+        } else if (typeof error === "string") {
+          callback(new Error(error), null);
+        } else {
+          callback(new Error(JSON.stringify(error)), null);
+        }
       }
     });
 
@@ -409,8 +431,15 @@ export class DesktopAutofillService implements OnDestroy {
       | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
+    // TODO(PM-40112): Model this as an optional field. macOS requires a user handle to be
+    // passed, since they expect all credentials to be discoverable credentials,
+    // but the Windows provider accepts non-discoverable credentials. The
+    // non-null requirement should be pushed into macOS's implementation.
+    const userHandle = response.selectedCredential.userHandle
+      ? Array.from(new Uint8Array(response.selectedCredential.userHandle))
+      : [];
     return {
-      userHandle: Array.from(new Uint8Array(response.selectedCredential.userHandle)),
+      userHandle,
       rpId: request.rpId,
       signature: Array.from(new Uint8Array(response.signature)),
       clientDataHash: request.clientDataHash,
