@@ -142,9 +142,9 @@ export class DesktopAutofillMain {
    *
    * @param {string} toRendererChannel - Channel to send requests to the renderer process.
    * @param {[string]} fromRendererChannel - Channel to listen for responses from the renderer process. Excluded if the IPC request does not expect a response.
-   * @param {[string]} completeCallback - Callback to execute on a response from the renderer process. This should be a reference to a prototype method on {@link autofill.AutofillIpcServer}. Excluded if the IPC request does not expect a response.
+   * @param {[string]} completeCallback - Callback to execute on a response from the renderer process. This should be a reference to a prototype method on {@link AutofillIpcServer}. Excluded if the IPC request does not expect a response.
    *
-   * @returns A callback that can be used to register with {@link autofill.AutofillIpcServer.listen}.
+   * @returns A callback that can be used to register with {@link AutofillIpcServer.listen}.
    */
   private makeListener<K extends AutofillIpcChannelIncoming>(
     toRendererChannel: K,

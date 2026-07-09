@@ -37,6 +37,13 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill } from "@bitwarden/desktop-napi";
+type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
+type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
+type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
+type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
+type PasskeyAssertionWithoutUserInterfaceRequest =
+  autofill.PasskeyAssertionWithoutUserInterfaceRequest;
+type NativeStatus = autofill.NativeStatus;
 
 import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
@@ -51,7 +58,7 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private registrationRequest?: autofill.PasskeyRegistrationRequest;
+  private registrationRequest?: PasskeyRegistrationRequest;
   private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
   private isEnabled: boolean = false;
 
@@ -214,8 +221,8 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   async doPasskeyRegistration(
-    request: autofill.PasskeyRegistrationRequest,
-  ): Promise<autofill.PasskeyRegistrationResponse> {
+    request: PasskeyRegistrationRequest,
+  ): Promise<PasskeyRegistrationResponse> {
     const controller = new AbortController();
     this.registrationRequest = request;
 
@@ -227,9 +234,7 @@ export class DesktopAutofillService implements OnDestroy {
     return this.convertRegistrationResponse(request, response);
   }
 
-  async doPasskeyAssertion(
-    request: autofill.PasskeyAssertionRequest,
-  ): Promise<autofill.PasskeyAssertionResponse> {
+  async doPasskeyAssertion(request: PasskeyAssertionRequest): Promise<PasskeyAssertionResponse> {
     const controller = new AbortController();
 
     const assumeUserPresence = false;
@@ -244,8 +249,8 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   async doPasskeyAssertionWithoutUserInterface(
-    request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-  ): Promise<autofill.PasskeyAssertionResponse> {
+    request: PasskeyAssertionWithoutUserInterfaceRequest,
+  ): Promise<PasskeyAssertionResponse> {
     const controller = new AbortController();
 
     const assumeUserPresence = true;
@@ -259,7 +264,7 @@ export class DesktopAutofillService implements OnDestroy {
     return this.convertAssertionResponse(request, response);
   }
 
-  async doNativeStatus(status: autofill.NativeStatus): Promise<void> {
+  async doNativeStatus(status: NativeStatus): Promise<void> {
     this.logService.info("Received native status", status.key, status.value);
     if (status.key === "request-sync") {
       // perform ad-hoc sync
@@ -411,9 +416,7 @@ export class DesktopAutofillService implements OnDestroy {
    * @returns
    */
   private convertAssertionRequest(
-    request:
-      | autofill.PasskeyAssertionRequest
-      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    request: PasskeyAssertionRequest | PasskeyAssertionWithoutUserInterfaceRequest,
     assumeUserPresence: boolean = false,
   ): Fido2AuthenticatorGetAssertionParams {
     let allowedCredentials;
@@ -444,9 +447,7 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   private convertAssertionResponse(
-    request:
-      | autofill.PasskeyAssertionRequest
-      | autofill.PasskeyAssertionWithoutUserInterfaceRequest,
+    request: PasskeyAssertionRequest | PasskeyAssertionWithoutUserInterfaceRequest,
     response: Fido2AuthenticatorGetAssertionResult,
   ): autofill.PasskeyAssertionResponse {
     // TODO(PM-40112): Model this as an optional field. macOS requires a user handle to be
