@@ -154,15 +154,17 @@
           Using the Meldium web vault, navigate to "Settings". Locate the "Export data" function and
           click "Show me my data" to save the CSV file.
         </ng-container>
-        <ng-container *ngIf="format === 'keepercsv'">
-          Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
-          the "CSV" option. Click "Export" to save the CSV file.
-        </ng-container>
-        <ng-container *ngIf="format === 'keeperjson'">
-          Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
-          the "JSON" option. Click "Export" to save the JSON file.
+        <ng-container *ngIf="format === 'keeper'">
+          For detailed instructions visit our
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            endIcon="bwi-external-link"
+            href="https://bitwarden.com/help/import-from-keeper/"
+            >help site</a
+          >
         </ng-container>
         <ng-container *ngIf="showChromiumInstructions$ | async">
           <span *ngIf="format !== 'chromecsv'">
@@ -464,33 +466,47 @@
           (error)="this.handleChromeImportError($event)"
         ></import-chrome>
       } @else {
-        <bit-form-field>
-          <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-            <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-              {{ "chooseFile" | i18n }}
-            </button>
-            {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
-          </div>
-          <input
-            bitInput
-            #fileSelector
-            type="file"
-            id="import_input_file"
-            formControlName="file"
-            (change)="setSelectedFile($event)"
-            hidden
-            class="tw-hidden"
-          />
-        </bit-form-field>
-        <bit-form-field disableMargin>
-          <bit-label>{{ "orCopyPasteFileContents" | i18n }}</bit-label>
-          <textarea
-            id="import_textarea_fileContents"
-            bitInput
-            formControlName="fileContents"
-          ></textarea>
-        </bit-form-field>
+        <!--
+          We want to reuse the file selector below, so all the Keeper stuff has to be in this block.
+          Show Keeper sub-format dropdown. The import-keeper component is smart enough to only show UI in the "direct" mode.
+        -->
+        @if (isKeeperFormat) {
+          <import-keeper
+            [formGroup]="formGroup"
+            (importCompleted)="performDirectImport($event)"
+          ></import-keeper>
+        }
+
+        <!-- Show file selector and textarea for non-Keeper formats or non-direct Keeper methods -->
+        @if (!isKeeperFormat || keeperMethod !== "direct") {
+          <bit-form-field>
+            <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
+            <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
+              <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+                {{ "chooseFile" | i18n }}
+              </button>
+              {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
+            </div>
+            <input
+              bitInput
+              #fileSelector
+              type="file"
+              id="import_input_file"
+              formControlName="file"
+              (change)="setSelectedFile($event)"
+              hidden
+              class="tw-hidden"
+            />
+          </bit-form-field>
+          <bit-form-field disableMargin>
+            <bit-label>{{ "orCopyPasteFileContents" | i18n }}</bit-label>
+            <textarea
+              id="import_textarea_fileContents"
+              bitInput
+              formControlName="fileContents"
+            ></textarea>
+          </bit-form-field>
+        }
       }
     </bit-card>
   </bit-section>

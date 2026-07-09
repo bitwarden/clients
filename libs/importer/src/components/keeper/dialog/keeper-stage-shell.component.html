@@ -1,0 +1,30 @@
+<bit-dialog [disableAnimations]="true" [title]="title()" [subtitle]="email()">
+  <button
+    bitDialogHeaderEnd
+    type="button"
+    bitIconButton="bwi-close"
+    buttonType="primaryGhost"
+    size="default"
+    [label]="'close' | i18n"
+    (click)="close.emit()"
+  ></button>
+  <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
+  <ng-container bitDialogFooter>
+    @if (primaryLabel()) {
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        [loading]="loading()"
+        (click)="primary.emit()"
+      >
+        {{ primaryLabel() }}
+      </button>
+    }
+    @if (secondaryLabel()) {
+      <button bitButton buttonType="secondary" type="button" (click)="secondary.emit()">
+        {{ secondaryLabel() }}
+      </button>
+    }
+  </ng-container>
+</bit-dialog>
