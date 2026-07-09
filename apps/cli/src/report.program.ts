@@ -61,7 +61,7 @@ export class ReportProgram extends BaseProgram {
   }
 
   private validateObject(requestedObject: string, validObjects: string[]): boolean {
-    if (!validObjects.includes(requestedObject)) {
+    if (!validObjects.includes(requestedObject.toLowerCase())) {
       this.processResponse(
         Response.badRequest(
           'Unknown object "' +

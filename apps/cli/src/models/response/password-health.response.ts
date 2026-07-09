@@ -28,8 +28,8 @@ export class PasswordHealthResponse implements BaseResponse {
       result.reuse_count != null && result.reuse_count > 1 ? result.reuse_count : null;
 
     const exposed = result.exposed_result;
-    this.exposed = exposed.type === "Found";
-    this.exposedCount = exposed.type === "Found" ? exposed.value : null;
+    this.exposed = exposed.type === "Found" && exposed.value > 0;
+    this.exposedCount = exposed.type === "Found" && exposed.value > 0 ? exposed.value : null;
     this.exposedError = exposed.type === "Error" ? exposed.value : null;
   }
 }
