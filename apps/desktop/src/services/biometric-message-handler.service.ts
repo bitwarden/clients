@@ -8,10 +8,12 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "../key-management/biometrics/desktop.biometrics.service";
 import { LegacyMessage, LegacyMessageWrapper } from "../models/native-messaging";
@@ -260,14 +262,15 @@ export class BiometricMessageHandlerService {
     remotePublicKey: Uint8Array,
     appId: string,
   ) {
-    const secret = await this.cryptoFunctionService.randomBytes(64);
+    await SdkLoadService.Ready;
+    const secret = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
-    connectedApp.sessionSecret = new SymmetricCryptoKey(secret).keyB64;
+    connectedApp.sessionSecret = secret.keyB64;
     await this.connectedApps.set(appId, connectedApp);
 
     this.logService.info("[Native Messaging IPC] Setting up secure channel");
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
-      secret,
+      secret.toEncoded(),
       remotePublicKey,
       HashAlgorithmForAsymmetricEncryption,
     );
