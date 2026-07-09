@@ -73,7 +73,11 @@ describe("CreateCommand", () => {
     );
     keyService.getOrgKey.mockResolvedValue(mockOrgKey);
     encryptService.encryptString.mockResolvedValue(mockEncString);
-    apiService.postCollection.mockResolvedValue({ id: "new-collection-id" } as any);
+    apiService.postCollection.mockResolvedValue({
+      id: "new-collection-id",
+      groups: [],
+      users: [],
+    } as any);
 
     command = new CreateCommand(
       cipherService,
@@ -212,6 +216,25 @@ describe("CreateCommand", () => {
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.postCollection.mockResolvedValue({
+        id: "new-collection-id",
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ groups: requestGroups }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
     });
   });
 });
