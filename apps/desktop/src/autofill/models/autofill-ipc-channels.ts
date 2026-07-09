@@ -8,13 +8,13 @@
  */
 
 import type { autofill } from "@bitwarden/desktop-napi";
+type NativeStatus = autofill.NativeStatus;
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
-type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
-type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
-type NativeStatus = autofill.NativeStatus;
+type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
+type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 
 export const AutofillIpcChannelIncoming = Object.freeze({
   NativeStatus: "autofill.nativeStatus",
@@ -42,10 +42,10 @@ export type AutofillIpcChannelOutgoing =
  * `outgoing?: never` marks a fire-and-forget channel that expects no response.
  */
 export type AutofillIpcDefinitionMap = {
-  [AutofillIpcChannelIncoming.PasskeyRegistration]: {
-    request: PasskeyRegistrationRequest;
-    response: PasskeyRegistrationResponse;
-    outgoing: typeof AutofillIpcChannelOutgoing.PasskeyRegistration;
+  [AutofillIpcChannelIncoming.NativeStatus]: {
+    request: NativeStatus;
+    response: void;
+    outgoing?: never;
   };
   [AutofillIpcChannelIncoming.PasskeyAssertion]: {
     request: PasskeyAssertionRequest;
@@ -57,10 +57,10 @@ export type AutofillIpcDefinitionMap = {
     response: PasskeyAssertionResponse;
     outgoing: typeof AutofillIpcChannelOutgoing.PasskeyAssertion;
   };
-  [AutofillIpcChannelIncoming.NativeStatus]: {
-    request: NativeStatus;
-    response: void;
-    outgoing?: never;
+  [AutofillIpcChannelIncoming.PasskeyRegistration]: {
+    request: PasskeyRegistrationRequest;
+    response: PasskeyRegistrationResponse;
+    outgoing: typeof AutofillIpcChannelOutgoing.PasskeyRegistration;
   };
 };
 
