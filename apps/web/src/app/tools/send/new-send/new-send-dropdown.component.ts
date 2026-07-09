@@ -20,6 +20,7 @@ import {
   SendAddEditDialogComponent,
   SendFormService,
   SendItemDialogResult,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -72,6 +73,11 @@ export class NewSendDropdownComponent {
     );
   }
 
+  private readonly sendPolicyService = inject(SendPolicyService);
+  protected readonly allowedSendTypes = toSignal(this.sendPolicyService.allowedSendTypes$, {
+    initialValue: [SendType.Text, SendType.File],
+  });
+
   //when unwinding this feature flag, move to a ternary in the .html file
   get title() {
     if (this.hideIcon) {
@@ -121,5 +127,11 @@ export class NewSendDropdownComponent {
       return closeResult.closed;
     }
     return true;
+  }
+
+  /** Called when SendType is restricted to a single type — create it immediately */
+  async onRestrictedClick() {
+    const allowedSendTypes = this.allowedSendTypes();
+    await this.createSend(allowedSendTypes[0]);
   }
 }
