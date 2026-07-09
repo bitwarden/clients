@@ -67,13 +67,13 @@ async function run(context) {
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
-    const packageId = "com.bitwarden.desktop";
+    const packageId = context.packager.appInfo.id;
 
     if (is_mas) {
       const entitlementsName = "entitlements.desktop_proxy.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
@@ -84,7 +84,7 @@ async function run(context) {
         inheritEntitlementsName,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
@@ -92,10 +92,10 @@ async function run(context) {
       const entitlementsName = "entitlements.mac.inherit.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
   }
