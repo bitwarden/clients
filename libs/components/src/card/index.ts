@@ -1,5 +1,4 @@
 export * from "./base-card";
 export * from "./card.component";
 export * from "./card-content.component";
-export * from "./marketing-card.component";
 export * from "./segmented-card.component";
