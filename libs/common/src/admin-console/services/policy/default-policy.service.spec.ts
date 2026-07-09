@@ -22,7 +22,7 @@ import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { MockSdkService } from "../../../platform/spec/mock-sdk.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 
 import { DefaultPolicyService } from "./default-policy.service";
 import { POLICIES } from "./policy-state";

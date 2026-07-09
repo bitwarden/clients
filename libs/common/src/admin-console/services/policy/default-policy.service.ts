@@ -8,7 +8,7 @@ import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -65,14 +65,11 @@ export class DefaultPolicyService implements PolicyService {
     return combineLatest([
       this.organizationService.organizations$(userId),
       this.organizationService.acceptedOrganizations$(userId),
+      // Note: use newPolicyService state to include both accepted and confirmed policies
       this.newPolicyService.policies$(userId),
       this.sdkService().client$,
     ]).pipe(
       map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
-        if (!sdkClient) {
-          throw new Error("SDK not available");
-        }
-
         const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
         const sdkOrganizationContext = confirmedOrganizations
           .concat(acceptedOrganizations)

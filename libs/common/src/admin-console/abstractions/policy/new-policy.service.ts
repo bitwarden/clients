@@ -5,13 +5,12 @@ import { PolicyData } from "../../models/data/policy.data";
 import { Policy } from "../../models/domain/policy";
 
 /**
- * Service for managing policy state and enforcement using the SDK,
- * including use of accepted-state policy data.
- * Policies can be enforced in both accepted and confirmed statuses.
+ * Used for managing local policy state where the user is
+ * in either the accepted or confirmed states.
  * This is internal to AC Team for now and should NOT BE USED by outside consumers.
  */
 export abstract class InternalNewPolicyService {
-  /** @returns all {@link Policy} objects held in the `policiesNew` local state for the specified user. */
+  /** @returns all {@link Policy} objects for organizations in which the user is accepted or confirmed. */
   abstract policies$: (userId: UserId) => Observable<Policy[]>;
   /** Upsert a single policy into the `policiesNew` local state. */
   abstract upsert: (policy: PolicyData, userId: UserId) => Promise<void>;

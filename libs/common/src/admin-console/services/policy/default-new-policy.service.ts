@@ -2,7 +2,7 @@ import { map, Observable } from "rxjs";
 
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyData } from "../../models/data/policy.data";
 import { Policy } from "../../models/domain/policy";
 
