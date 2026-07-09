@@ -25,4 +25,20 @@ export abstract class CollectionEncryptionService {
    * @returns A promise that resolves to an array of decrypted collection views
    */
   abstract decryptMany(collections: Collection[], userId: UserId): Promise<CollectionView[]>;
+
+  /**
+   * Decrypts many collections using the SDK for the given userId, returning successes and
+   * failures separately. Unlike `decryptMany`, a single collection that fails to decrypt does
+   * not silently drop — it is returned in the failures array instead.
+   *
+   * @param collections The encrypted collection objects
+   * @param userId The user ID whose keys will be used for decryption
+   *
+   * @returns A promise that resolves to a tuple containing an array of decrypted collection
+   * views, and an array of collections that failed to decrypt.
+   */
+  abstract decryptManyWithFailures(
+    collections: Collection[],
+    userId: UserId,
+  ): Promise<[CollectionView[], Collection[]]>;
 }

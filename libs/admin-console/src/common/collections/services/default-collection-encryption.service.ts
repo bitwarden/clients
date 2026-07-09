@@ -1,10 +1,12 @@
 import { catchError, concatMap, firstValueFrom } from "rxjs";
 
+
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { DecryptCollectionListResult } from "@bitwarden/sdk-internal";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 
@@ -25,8 +27,15 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
   }
 
   async decryptMany(collections: Collection[], userId: UserId): Promise<CollectionView[]> {
+    return (await this.decryptManyWithFailures(collections, userId))[0];
+  }
+
+  async decryptManyWithFailures(
+    collections: Collection[],
+    userId: UserId,
+  ): Promise<[CollectionView[], Collection[]]> {
     if (!collections || collections.length === 0) {
-      return [];
+      return [[], []];
     }
 
     return firstValueFrom(
@@ -38,16 +47,33 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
           using ref = sdk.take();
 
-          const views: CollectionView[] = [];
-          for (const collection of collections) {
-            try {
-              const sdkView = ref.value.vault().collections().decrypt(collection.toSdkCollection());
-              views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
-            } catch (error: unknown) {
-              this.logService.error(`Failed to decrypt collection ${collection.id}: ${error}`);
-            }
+          const collectionMap = new Map<string, Collection>(collections.map((c) => [c.id, c]));
+
+          const result: DecryptCollectionListResult = ref.value
+            .vault()
+            .collections()
+            .decrypt_list_with_failures(collections.map((c) => c.toSdkCollection()));
+
+          const views = result.successes
+            .map((sdkView) => {
+              const id = sdkView.id ? uuidAsString(sdkView.id) : "";
+              const original = collectionMap.get(id);
+              if (!original) {
+                return null;
+              }
+              return CollectionView.fromSdkCollectionView(sdkView, original);
+            })
+            .filter((v): v is CollectionView => v !== null);
+
+          const failedCollections = result.failures.map((sdkCollection) =>
+            Collection.fromSdkCollection(sdkCollection),
+          );
+
+          for (const failure of failedCollections) {
+            this.logService.error(`Failed to decrypt collection ${failure.id}`);
           }
-          return views;
+
+          return [views, failedCollections] as [CollectionView[], Collection[]];
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collections in batch: ${error}`);
