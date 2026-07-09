@@ -2,7 +2,7 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
+import { AccessCondition, AccessRuleView, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,20 +18,28 @@ function rule(
   name: string,
   conditions: AccessCondition[],
   singleActiveLease = false,
-): AccessRuleResponse {
-  return new AccessRuleResponse({
-    Id: id,
-    Name: name,
-    Enabled: true,
-    Collections: [COLLECTION_ID],
-    Conditions: conditions,
-    SingleActiveLease: singleActiveLease,
-  });
+): AccessRuleView {
+  return {
+    id,
+    organizationId: ORG_ID,
+    name,
+    description: undefined,
+    enabled: true,
+    conditions,
+    singleActiveLease,
+    defaultLeaseDurationSeconds: undefined,
+    maxLeaseDurationSeconds: undefined,
+    allowsExtensions: false,
+    maxExtensionDurationSeconds: undefined,
+    collections: [COLLECTION_ID],
+    creationDate: "2024-01-01T00:00:00.000Z",
+    revisionDate: "2024-01-01T00:00:00.000Z",
+  } as unknown as AccessRuleView;
 }
 
 /** A stub PamApiService that serves a fixed rule set, so the callout renders in isolation. */
-const pamApiStub = (rules: AccessRuleResponse[]): Partial<PamApiService> => ({
-  listAccessRules: () => Promise.resolve({ data: rules } as never),
+const pamApiStub = (rules: AccessRuleView[]): Partial<PamApiService> => ({
+  listAccessRules: () => Promise.resolve(rules),
 });
 
 export default {

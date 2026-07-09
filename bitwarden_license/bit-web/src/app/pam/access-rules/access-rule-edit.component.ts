@@ -6,18 +6,23 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import type { AccessRuleAddEditRequest } from "@bitwarden/bit-pam";
 import {
-  AccessRuleRequest,
-  AccessRuleResponse,
+  AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
   PamApiService,
+  accessRuleErrorMessage,
+  isAccessRuleNotFound,
+  isHumanApproval,
+  isIpAllowlist,
+  isKnownAccessCondition,
   snapToNearestAccessRuleDuration,
 } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -35,6 +40,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import type { CollectionId as SdkCollectionId } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IpAllowlistEditorComponent } from "../access-rule-editor/ip-allowlist/ip-allowlist-editor.component";
@@ -142,7 +148,7 @@ export class AccessRuleEditComponent {
   protected readonly noDurationCap = NO_DURATION_CAP;
 
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
-  protected readonly existing = signal<AccessRuleResponse | null>(null);
+  protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
   protected readonly titleText = computed(() =>
     this.i18nService.t(this.editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle"),
@@ -170,6 +176,16 @@ export class AccessRuleEditComponent {
     // condition is enabled; the editor owns its own row-level validation.
     ipAllowlistCidrs: [[] as string[]],
   });
+
+  /**
+   * Condition kinds this client doesn't model (e.g. the server's `time_of_day`),
+   * stashed off the loaded rule so `submit()` can carry them forward unchanged.
+   * The checkbox-driven form only rebuilds the known kinds (`human_approval` /
+   * `ip_allowlist`); without this, editing any other property of a rule that
+   * carries an unrecognised condition would silently drop it on save. Empty for
+   * the create flow, where there is no existing rule to preserve conditions from.
+   */
+  private readonly unknownConditions = signal<AccessCondition[]>([]);
 
   private readonly allCollections = signal<{ id: string; name: string }[]>([]);
   protected readonly collectionsLoading = signal(true);
@@ -206,21 +222,22 @@ export class AccessRuleEditComponent {
     }
   }
 
-  /** Fetch the rule under edit; on a stale/inaccessible id, toast and route back. */
-  private async loadRule(): Promise<AccessRuleResponse | null> {
+  /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
+  private async loadRule(): Promise<AccessRuleView | null> {
     try {
       return await this.pamApi.getAccessRule(this.organizationId, this.accessRuleId!);
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamAccessRuleNotFound"),
-      });
+    } catch (e) {
+      const message = isAccessRuleNotFound(e)
+        ? this.i18nService.t("pamAccessRuleNotFound")
+        : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleNotFound"));
+      this.toastService.showToast({ variant: "error", message });
       await this.navigateToList();
       return null;
     }
   }
 
-  private applyRule(rule: AccessRuleResponse): void {
+  private applyRule(rule: AccessRuleView): void {
+    this.unknownConditions.set(rule.conditions?.filter((c) => !isKnownAccessCondition(c)) ?? []);
     this.formGroup.patchValue({
       name: rule.name,
       description: rule.description ?? "",
@@ -233,9 +250,9 @@ export class AccessRuleEditComponent {
       allowsExtensions: rule.allowsExtensions,
       maxExtensionDurationSeconds:
         rule.maxExtensionDurationSeconds ?? DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
-      humanApprovalEnabled: hasKind(rule.conditions, "human_approval"),
-      ipAllowlistEnabled: hasKind(rule.conditions, "ip_allowlist"),
-      ipAllowlistCidrs: findCidrs(rule.conditions),
+      humanApprovalEnabled: rule.conditions?.some(isHumanApproval) ?? false,
+      ipAllowlistEnabled: rule.conditions?.some(isIpAllowlist) ?? false,
+      ipAllowlistCidrs: rule.conditions?.find(isIpAllowlist)?.cidrs ?? [],
     });
   }
 
@@ -255,7 +272,7 @@ export class AccessRuleEditComponent {
     });
   }
 
-  private async loadCollections(rule: AccessRuleResponse | null): Promise<void> {
+  private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const collections = await firstValueFrom(
@@ -265,10 +282,12 @@ export class AccessRuleEditComponent {
 
       // Map the rule's stored collection IDs onto the now-loaded options so the
       // chips render with real names rather than raw UUIDs.
-      const optionsById = new Map(this.collectionOptions().map((c) => [c.id, c]));
+      const optionsById = new Map(
+        this.collectionOptions().map((c): [string, SelectItemView] => [c.id, c]),
+      );
       const selected = (rule?.collections ?? [])
-        .map((id) => optionsById.get(id))
-        .filter((c): c is SelectItemView => c != null);
+        .map((id) => optionsById.get(uuidAsString(id)))
+        .filter((c: SelectItemView | undefined): c is SelectItemView => c != null);
       this.formGroup.controls.collections.setValue(selected);
     } finally {
       this.collectionsLoading.set(false);
@@ -311,10 +330,7 @@ export class AccessRuleEditComponent {
     const conditions: AccessCondition[] = [];
 
     if (value.humanApprovalEnabled) {
-      conditions.push({
-        kind: "human_approval",
-        approvers: { mode: "collection_managers" },
-      });
+      conditions.push({ kind: "human_approval" });
     }
 
     if (value.ipAllowlistEnabled) {
@@ -324,26 +340,37 @@ export class AccessRuleEditComponent {
       });
     }
 
-    const request = new AccessRuleRequest({
+    // Carry forward any condition kinds this client doesn't model (e.g. the
+    // server's `time_of_day`) so editing an unrelated field on the rule doesn't
+    // silently delete them. See `unknownConditions` for why this is additive
+    // rather than round-tripping the whole array.
+    conditions.push(...this.unknownConditions());
+
+    // No runtime UUID validation here (unlike the SDK-boundary code in
+    // `AccessRulesSdkService`) — this is just a type-level bridge from the
+    // multi-select's plain string ids to the SDK's branded `CollectionId`.
+    const request: AccessRuleAddEditRequest = {
       name: value.name,
-      description: value.description.length === 0 ? null : value.description,
+      description: value.description.length === 0 ? undefined : value.description,
       conditions,
-      collections: value.collections.map((i) => i.id),
+      collections: value.collections.map((i) => i.id as unknown as SdkCollectionId),
       defaultLeaseDurationSeconds: value.defaultLeaseDurationSeconds,
       maxLeaseDurationSeconds:
-        value.maxLeaseDurationSeconds === NO_DURATION_CAP ? null : value.maxLeaseDurationSeconds,
+        value.maxLeaseDurationSeconds === NO_DURATION_CAP
+          ? undefined
+          : value.maxLeaseDurationSeconds,
       singleActiveLease: value.singleActiveLease,
       enabled: value.enabled,
       allowsExtensions: value.allowsExtensions,
       maxExtensionDurationSeconds: value.allowsExtensions
         ? value.maxExtensionDurationSeconds
-        : null,
-    });
+        : undefined,
+    };
 
     try {
       const existing = this.existing();
       if (existing != null) {
-        await this.pamApi.updateAccessRule(this.organizationId, existing.id, request);
+        await this.pamApi.updateAccessRule(this.organizationId, uuidAsString(existing.id), request);
         this.toastService.showToast({
           variant: "success",
           message: this.i18nService.t("pamAccessRuleUpdated"),
@@ -357,10 +384,7 @@ export class AccessRuleEditComponent {
       }
       await this.navigateToList();
     } catch (e) {
-      const message =
-        e instanceof ErrorResponse
-          ? (e.message ?? this.i18nService.t("unexpectedError"))
-          : this.i18nService.t("unexpectedError");
+      const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
       this.toastService.showToast({ variant: "error", message });
     }
   };
@@ -371,18 +395,4 @@ export class AccessRuleEditComponent {
   private navigateToList(): Promise<boolean> {
     return this.router.navigate([".."], { relativeTo: this.route });
   }
-}
-
-function hasKind(
-  conditions: AccessCondition[] | undefined,
-  kind: AccessCondition["kind"],
-): boolean {
-  return conditions?.some((c) => c.kind === kind) ?? false;
-}
-
-function findCidrs(conditions: AccessCondition[]): string[] {
-  const ip = conditions.find(
-    (c): c is Extract<AccessCondition, { kind: "ip_allowlist" }> => c.kind === "ip_allowlist",
-  );
-  return ip?.cidrs ?? [];
 }

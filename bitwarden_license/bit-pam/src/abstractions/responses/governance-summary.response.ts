@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-import { AccessCondition, parseAccessConditions } from "../access-rule";
+import type { AccessCondition } from "../access-rule";
 
 /**
  * One row in the organization governance dashboard — one leasing-enabled
@@ -23,7 +23,10 @@ export class CollectionGovernanceRowResponse extends BaseResponse {
     super(response);
     this.collectionId = this.getResponseProperty("CollectionId");
     this.collectionName = this.getResponseProperty("CollectionName");
-    this.conditions = parseAccessConditions(this.getResponseProperty("Conditions"));
+    // Governance has no backend yet (see `MockGovernanceService`); its demo data is
+    // already shaped like `AccessCondition[]`, so this reads it through as-is rather
+    // than validating/parsing a server wire format (there is no server format yet).
+    this.conditions = (this.getResponseProperty("Conditions") ?? []) as AccessCondition[];
     this.memberWithAccessCount = this.getResponseProperty("MemberWithAccessCount") ?? 0;
     this.pendingRequestCount = this.getResponseProperty("PendingRequestCount") ?? 0;
     this.activeLeaseCount = this.getResponseProperty("ActiveLeaseCount") ?? 0;

@@ -1,5 +1,3 @@
-import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
-
 import { AccessRuleFilter, accessRuleMatchesFilter, accessRuleWindow } from "./access-rule-table";
 import { formatDurationShort } from "./lease-window.utils";
 
@@ -9,13 +7,19 @@ const FOUR_HOURS = 4 * 60 * 60;
 describe("accessRuleWindow", () => {
   it("returns null when there is no default duration", () => {
     expect(
-      accessRuleWindow({ defaultLeaseDurationSeconds: null, maxLeaseDurationSeconds: null }),
+      accessRuleWindow({
+        defaultLeaseDurationSeconds: undefined,
+        maxLeaseDurationSeconds: undefined,
+      }),
     ).toBeNull();
   });
 
   it("returns the default alone when there is no cap", () => {
     expect(
-      accessRuleWindow({ defaultLeaseDurationSeconds: ONE_HOUR, maxLeaseDurationSeconds: null }),
+      accessRuleWindow({
+        defaultLeaseDurationSeconds: ONE_HOUR,
+        maxLeaseDurationSeconds: undefined,
+      }),
     ).toBe(formatDurationShort(ONE_HOUR));
   });
 
@@ -39,9 +43,7 @@ describe("accessRuleWindow", () => {
 });
 
 describe("accessRuleMatchesFilter", () => {
-  const rule = (
-    overrides: Partial<Pick<AccessRuleResponse, "name" | "enabled" | "collections">>,
-  ) => ({
+  const rule = (overrides: Partial<{ name: string; enabled: boolean; collections: string[] }>) => ({
     name: "VPN access",
     enabled: true,
     collections: ["col-1"],

@@ -1,72 +1,97 @@
-export const ConditionKind = Object.freeze({
-  HumanApproval: "human_approval",
-  IpAllowlist: "ip_allowlist",
-} as const);
-export type ConditionKind = (typeof ConditionKind)[keyof typeof ConditionKind];
+import type { AccessCondition } from "@bitwarden/sdk-internal";
+
+// `export type` is REQUIRED (not `export`) — these are type-only re-exports of the
+// wasm SDK's shapes. Because they carry no runtime value, this line is erased by the
+// compiler, so jest never resolves the wasm package while running bit-pam's unit tests.
+export type {
+  AccessCondition,
+  AccessRuleAddEditRequest,
+  AccessRuleView,
+} from "@bitwarden/sdk-internal";
 
 /**
- * How human approval routes a request.
- *  - `collection_managers`: any manager on the gated collection can approve.
- *  - `specific`: only the listed users can approve.
+ * The subset of {@link AccessCondition} this client version knows how to render.
+ * The SDK passes unrecognised condition kinds through unchanged (a server-side rule
+ * can carry a condition newer than this client), so UI code that matches on `kind`
+ * should narrow to this type first via {@link isKnownAccessCondition} and skip
+ * anything else rather than rendering nothing or crashing.
  */
-export type Approvers = { mode: "collection_managers" } | { mode: "specific"; userIds: string[] };
+export type KnownAccessCondition = Extract<
+  AccessCondition,
+  { kind: "human_approval" } | { kind: "ip_allowlist" }
+>;
+
+const KNOWN_ACCESS_CONDITION_KINDS: ReadonlyArray<KnownAccessCondition["kind"]> = [
+  "human_approval",
+  "ip_allowlist",
+];
 
 /**
- * A single access check on an access request. An access rule is a flat list of
- * conditions, ANDed together. Zero conditions means no access checks — the
- * lease settings still apply, but anyone with collection access can lease.
+ * Type guard for a condition kind this client understands. See
+ * {@link KnownAccessCondition}.
  */
-export type AccessCondition =
-  | { kind: "human_approval"; approvers?: Approvers }
-  | { kind: "ip_allowlist"; cidrs: string[] };
-
-const get = (obj: Record<string, unknown>, key: string): unknown =>
-  obj[key] ?? obj[key.charAt(0).toUpperCase() + key.slice(1)];
-
-function parseApprovers(json: unknown): Approvers | undefined {
-  if (json == null || typeof json !== "object") {
-    return undefined;
-  }
-  const obj = json as Record<string, unknown>;
-  const mode = get(obj, "mode");
-  if (mode === "collection_managers") {
-    return { mode: "collection_managers" };
-  }
-  if (mode === "specific") {
-    const ids = get(obj, "userIds");
-    return { mode: "specific", userIds: Array.isArray(ids) ? ids.map(String) : [] };
-  }
-  return undefined;
+export function isKnownAccessCondition(
+  condition: AccessCondition,
+): condition is KnownAccessCondition {
+  return (KNOWN_ACCESS_CONDITION_KINDS as readonly string[]).includes(condition.kind);
 }
 
-export function parseAccessCondition(json: unknown): AccessCondition {
-  if (json == null || typeof json !== "object") {
-    throw new Error("Invalid condition: not an object");
-  }
-  const obj = json as Record<string, unknown>;
-  const kind = get(obj, "kind");
-  switch (kind) {
-    case ConditionKind.HumanApproval: {
-      const approvers = parseApprovers(get(obj, "approvers"));
-      return approvers ? { kind: "human_approval", approvers } : { kind: "human_approval" };
-    }
-    case ConditionKind.IpAllowlist:
-      return { kind: "ip_allowlist", cidrs: get(obj, "cidrs") as string[] };
-    default:
-      throw new Error(`Invalid condition: unknown kind "${String(kind)}"`);
-  }
+/** Type guard for the `human_approval` condition variant. */
+export function isHumanApproval(
+  condition: AccessCondition,
+): condition is Extract<AccessCondition, { kind: "human_approval" }> {
+  return condition.kind === "human_approval";
+}
+
+/** Type guard for the `ip_allowlist` condition variant. */
+export function isIpAllowlist(
+  condition: AccessCondition,
+): condition is Extract<AccessCondition, { kind: "ip_allowlist" }> {
+  return condition.kind === "ip_allowlist";
+}
+
+/** The `variant` values the SDK's access-rule operations can throw. */
+export type AccessRuleErrorVariant =
+  | "BadRequest"
+  | "NotFound"
+  | "Validation"
+  | "InvalidConditions"
+  | "MissingField"
+  | "Chrono"
+  | "Api";
+
+/**
+ * The flat error shape thrown by the SDK's access-rule CRUD calls
+ * (`commercial().pam().access_rules()`). Hand-written rather than imported: the SDK
+ * does not yet publish an `AccessRuleError` type or an `isAccessRuleError` guard for
+ * it (unlike e.g. `CryptoError`/`isCryptoError`, already generated for other domains
+ * in `@bitwarden/sdk-internal`) — this mirrors that same wasm-bindgen convention (a
+ * `name`-tagged `Error` subclass with a `variant` discriminant) so this file can be
+ * swapped to the SDK's own export once it lands, with no change to callers of
+ * {@link accessRuleErrorMessage} / {@link isAccessRuleNotFound}.
+ */
+export interface AccessRuleError extends Error {
+  name: "AccessRuleError";
+  variant: AccessRuleErrorVariant;
+}
+
+function isAccessRuleError(e: unknown): e is AccessRuleError {
+  return (
+    e instanceof Error &&
+    (e as Partial<AccessRuleError>).name === "AccessRuleError" &&
+    typeof (e as Partial<AccessRuleError>).variant === "string"
+  );
 }
 
 /**
- * Parse the server's conditions document — a flat array of conditions ANDed together — into the UI's
- * `AccessCondition[]`. A null/undefined value yields an empty list; any non-array value throws.
+ * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
+ * `e` isn't that shape — callers fall back to a generic error message in that case.
  */
-export function parseAccessConditions(json: unknown): AccessCondition[] {
-  if (json == null) {
-    return [];
-  }
-  if (!Array.isArray(json)) {
-    throw new Error("Invalid conditions: not an array");
-  }
-  return json.map(parseAccessCondition);
+export function accessRuleErrorMessage(e: unknown): string | undefined {
+  return isAccessRuleError(e) ? e.message : undefined;
+}
+
+/** True when `e` is the SDK's `AccessRuleError` with the `NotFound` variant. */
+export function isAccessRuleNotFound(e: unknown): boolean {
+  return isAccessRuleError(e) && e.variant === "NotFound";
 }

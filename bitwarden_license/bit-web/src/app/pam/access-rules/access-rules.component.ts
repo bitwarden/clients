@@ -13,12 +13,13 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import {
-  AccessRuleResponse,
+  AccessRuleView,
   AccessRuleStatusFilter,
+  accessRuleErrorMessage,
   accessRuleMatchesFilter,
 } from "@bitwarden/bit-pam";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -83,7 +84,7 @@ export class AccessRulesComponent {
 
   protected readonly loading = toSignal(this.accessRules.loading$, { initialValue: true });
   protected readonly rules = toSignal(this.accessRules.rules$, {
-    initialValue: [] as AccessRuleResponse[],
+    initialValue: [] as AccessRuleView[],
   });
   private readonly collectionNameById = toSignal(this.accessRules.collectionNameById$, {
     initialValue: new Map<string, string>(),
@@ -161,7 +162,15 @@ export class AccessRulesComponent {
       const status = this.statusValue();
       const collectionId = this.collectionValue();
       this.dataSource.filter = (row) =>
-        accessRuleMatchesFilter(row.rule, row.collectionNames, { text, status, collectionId });
+        accessRuleMatchesFilter(
+          {
+            name: row.rule.name,
+            enabled: row.rule.enabled,
+            collections: row.rule.collections.map(uuidAsString),
+          },
+          row.collectionNames,
+          { text, status, collectionId },
+        );
     });
   }
 
@@ -174,10 +183,10 @@ export class AccessRulesComponent {
     this.router.navigate(["new"], { relativeTo: this.route, queryParams: { template: key } });
 
   /** Navigate to the edit page for a rule (a shareable, deep-linkable URL). */
-  protected readonly openEdit = (rule: AccessRuleResponse): Promise<boolean> =>
+  protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
-  protected readonly toggleEnabled = async (rule: AccessRuleResponse): Promise<void> => {
+  protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
     try {
       await this.accessRules.setEnabled(rule, nextEnabled);
@@ -192,7 +201,7 @@ export class AccessRulesComponent {
     }
   };
 
-  protected readonly remove = async (rule: AccessRuleResponse): Promise<void> => {
+  protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "pamAccessRuleDeleteConfirmTitle" },
       content: {
@@ -302,7 +311,7 @@ export class AccessRulesComponent {
 
   // --- Helpers ---
 
-  private selectedRules(): AccessRuleResponse[] {
+  private selectedRules(): AccessRuleView[] {
     const ids = this.selectedIds();
     return this.processedRows()
       .filter((r) => ids.has(r.id))
@@ -310,10 +319,7 @@ export class AccessRulesComponent {
   }
 
   private showError(e: unknown): void {
-    const message =
-      e instanceof ErrorResponse
-        ? (e.message ?? this.i18nService.t("unexpectedError"))
-        : this.i18nService.t("unexpectedError");
+    const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
     this.toastService.showToast({ variant: "error", message });
   }
 }

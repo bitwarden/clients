@@ -1,76 +1,102 @@
-import { parseAccessCondition, parseAccessConditions } from "./access-rule";
+import type { AccessRuleError, AccessRuleErrorVariant } from "./access-rule";
+import {
+  accessRuleErrorMessage,
+  isAccessRuleNotFound,
+  isHumanApproval,
+  isIpAllowlist,
+  isKnownAccessCondition,
+} from "./access-rule";
 
-describe("parseAccessCondition", () => {
-  it("parses a human_approval condition without approvers", () => {
-    expect(parseAccessCondition({ kind: "human_approval" })).toEqual({ kind: "human_approval" });
+function accessRuleError(variant: AccessRuleErrorVariant, message = "boom"): AccessRuleError {
+  const error = new Error(message) as unknown as AccessRuleError;
+  (error as { name: string }).name = "AccessRuleError";
+  (error as { variant: AccessRuleErrorVariant }).variant = variant;
+  return error;
+}
+
+describe("accessRuleErrorMessage", () => {
+  it("returns the message for the SDK's flat AccessRuleError shape", () => {
+    expect(accessRuleErrorMessage(accessRuleError("Validation", "Name is required"))).toBe(
+      "Name is required",
+    );
   });
 
-  it("parses collection_managers approvers", () => {
+  it.each<AccessRuleErrorVariant>([
+    "BadRequest",
+    "NotFound",
+    "Validation",
+    "InvalidConditions",
+    "MissingField",
+    "Chrono",
+    "Api",
+  ])("recognises the %s variant", (variant) => {
+    expect(accessRuleErrorMessage(accessRuleError(variant))).toBe("boom");
+  });
+
+  it("returns undefined for a plain Error", () => {
+    expect(accessRuleErrorMessage(new Error("network down"))).toBeUndefined();
+  });
+
+  it("returns undefined for a look-alike object that isn't an Error instance", () => {
     expect(
-      parseAccessCondition({ kind: "human_approval", approvers: { mode: "collection_managers" } }),
-    ).toEqual({ kind: "human_approval", approvers: { mode: "collection_managers" } });
+      accessRuleErrorMessage({ name: "AccessRuleError", variant: "NotFound", message: "x" }),
+    ).toBeUndefined();
   });
 
-  it("parses specific approvers, coercing user ids to strings", () => {
-    expect(
-      parseAccessCondition({
-        kind: "human_approval",
-        approvers: { mode: "specific", userIds: [1, "b"] },
-      }),
-    ).toEqual({ kind: "human_approval", approvers: { mode: "specific", userIds: ["1", "b"] } });
-  });
-
-  it("drops an unrecognised approver mode back to bare human_approval", () => {
-    expect(
-      parseAccessCondition({ kind: "human_approval", approvers: { mode: "nonsense" } }),
-    ).toEqual({ kind: "human_approval" });
-  });
-
-  it("parses an ip_allowlist condition", () => {
-    expect(parseAccessCondition({ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] })).toEqual({
-      kind: "ip_allowlist",
-      cidrs: ["10.0.0.0/8"],
-    });
-  });
-
-  it("accepts PascalCase keys from the wire", () => {
-    expect(parseAccessCondition({ Kind: "ip_allowlist", Cidrs: ["10.0.0.0/8"] })).toEqual({
-      kind: "ip_allowlist",
-      cidrs: ["10.0.0.0/8"],
-    });
-  });
-
-  it("throws on a non-object", () => {
-    expect(() => parseAccessCondition(null)).toThrow("not an object");
-    expect(() => parseAccessCondition("nope")).toThrow("not an object");
-  });
-
-  it("throws on an unknown kind", () => {
-    expect(() => parseAccessCondition({ kind: "mystery" })).toThrow('unknown kind "mystery"');
+  it("returns undefined for null/undefined/non-error values", () => {
+    expect(accessRuleErrorMessage(null)).toBeUndefined();
+    expect(accessRuleErrorMessage(undefined)).toBeUndefined();
+    expect(accessRuleErrorMessage("nope")).toBeUndefined();
   });
 });
 
-describe("parseAccessConditions", () => {
-  it("returns an empty list for null/undefined", () => {
-    expect(parseAccessConditions(null)).toEqual([]);
-    expect(parseAccessConditions(undefined)).toEqual([]);
+describe("isAccessRuleNotFound", () => {
+  it("is true only for the NotFound variant", () => {
+    expect(isAccessRuleNotFound(accessRuleError("NotFound"))).toBe(true);
   });
 
-  it("maps each element through parseAccessCondition", () => {
-    expect(
-      parseAccessConditions([{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: [] }]),
-    ).toEqual([{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: [] }]);
+  it("is false for other AccessRuleError variants", () => {
+    expect(isAccessRuleNotFound(accessRuleError("Validation"))).toBe(false);
+    expect(isAccessRuleNotFound(accessRuleError("Api"))).toBe(false);
   });
 
-  it("returns an empty list for an empty array", () => {
-    expect(parseAccessConditions([])).toEqual([]);
+  it("is false for a non-AccessRuleError error", () => {
+    expect(isAccessRuleNotFound(new Error("NotFound"))).toBe(false);
   });
 
-  it("throws when the value is not an array", () => {
-    expect(() => parseAccessConditions({ kind: "human_approval" })).toThrow("not an array");
+  it("is false for null/undefined", () => {
+    expect(isAccessRuleNotFound(null)).toBe(false);
+    expect(isAccessRuleNotFound(undefined)).toBe(false);
+  });
+});
+
+describe("isHumanApproval", () => {
+  it("matches a human_approval condition", () => {
+    expect(isHumanApproval({ kind: "human_approval" })).toBe(true);
   });
 
-  it("propagates parse errors for malformed entries", () => {
-    expect(() => parseAccessConditions([{ kind: "mystery" }])).toThrow('unknown kind "mystery"');
+  it("does not match an ip_allowlist condition", () => {
+    expect(isHumanApproval({ kind: "ip_allowlist", cidrs: [] })).toBe(false);
+  });
+});
+
+describe("isIpAllowlist", () => {
+  it("matches an ip_allowlist condition", () => {
+    expect(isIpAllowlist({ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] })).toBe(true);
+  });
+
+  it("does not match a human_approval condition", () => {
+    expect(isIpAllowlist({ kind: "human_approval" })).toBe(false);
+  });
+});
+
+describe("isKnownAccessCondition", () => {
+  it("recognises human_approval and ip_allowlist", () => {
+    expect(isKnownAccessCondition({ kind: "human_approval" })).toBe(true);
+    expect(isKnownAccessCondition({ kind: "ip_allowlist", cidrs: [] })).toBe(true);
+  });
+
+  it("rejects a kind this client doesn't know about, without throwing", () => {
+    expect(isKnownAccessCondition({ kind: "some_future_condition" } as never)).toBe(false);
   });
 });

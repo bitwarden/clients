@@ -2,7 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { firstValueFrom, of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
+import { AccessRuleView, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -16,18 +16,23 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 function rule(
   id: string,
   { enabled = true, name = "Rule", collections = [] as string[] } = {},
-): AccessRuleResponse {
-  return new AccessRuleResponse({
-    Id: id,
-    OrganizationId: "org-1",
-    Name: name,
-    Enabled: enabled,
-    Collections: collections,
-    Conditions: [],
-    SingleActiveLease: false,
-    CreationDate: "2024-01-01T00:00:00.000Z",
-    RevisionDate: "2024-01-01T00:00:00.000Z",
-  });
+): AccessRuleView {
+  return {
+    id,
+    organizationId: "org-1",
+    name,
+    description: undefined,
+    enabled,
+    conditions: [],
+    singleActiveLease: false,
+    defaultLeaseDurationSeconds: undefined,
+    maxLeaseDurationSeconds: undefined,
+    allowsExtensions: false,
+    maxExtensionDurationSeconds: undefined,
+    collections,
+    creationDate: "2024-01-01T00:00:00.000Z",
+    revisionDate: "2024-01-01T00:00:00.000Z",
+  } as unknown as AccessRuleView;
 }
 
 describe("AccessRulesService", () => {
@@ -40,7 +45,7 @@ describe("AccessRulesService", () => {
 
   const setup = (cols: { id: string; name: string }[] = []) => {
     pamApi = {
-      listAccessRules: jest.fn().mockResolvedValue({ data: [] }),
+      listAccessRules: jest.fn().mockResolvedValue([]),
       updateAccessRule: jest.fn(),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
@@ -63,9 +68,7 @@ describe("AccessRulesService", () => {
   describe("load", () => {
     it("populates rules + collection names and clears loading", async () => {
       setup([{ id: "col-1", name: "Engineering" }]);
-      pamApi.listAccessRules.mockResolvedValue({
-        data: [rule("rule-1", { collections: ["col-1"] })],
-      });
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { collections: ["col-1"] })]);
 
       await service.load("org-1" as never);
 
@@ -78,9 +81,9 @@ describe("AccessRulesService", () => {
 
     it("projects rules into rows with resolved collection names", async () => {
       setup([{ id: "col-1", name: "Engineering" }]);
-      pamApi.listAccessRules.mockResolvedValue({
-        data: [rule("rule-1", { name: "VPN", collections: ["col-1"] })],
-      });
+      pamApi.listAccessRules.mockResolvedValue([
+        rule("rule-1", { name: "VPN", collections: ["col-1"] }),
+      ]);
 
       await service.load("org-1" as never);
 
@@ -94,7 +97,7 @@ describe("AccessRulesService", () => {
   describe("getRule", () => {
     it("returns the loaded rule by id, or undefined", async () => {
       setup();
-      pamApi.listAccessRules.mockResolvedValue({ data: [rule("rule-1")] });
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1")]);
       await service.load("org-1" as never);
 
       expect(service.getRule("rule-1")?.id).toBe("rule-1");
@@ -105,7 +108,7 @@ describe("AccessRulesService", () => {
   describe("setEnabled", () => {
     it("round-trips the rule with the new flag and patches state", async () => {
       setup();
-      pamApi.listAccessRules.mockResolvedValue({ data: [rule("rule-1", { enabled: true })] });
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1", { enabled: true })]);
       await service.load("org-1" as never);
       pamApi.updateAccessRule.mockResolvedValue(rule("rule-1", { enabled: false }));
 
@@ -123,7 +126,7 @@ describe("AccessRulesService", () => {
     it("skips rules already in the target state and returns the changed count", async () => {
       setup();
       const rules = [rule("rule-1", { enabled: false }), rule("rule-2", { enabled: true })];
-      pamApi.listAccessRules.mockResolvedValue({ data: rules });
+      pamApi.listAccessRules.mockResolvedValue(rules);
       await service.load("org-1" as never);
       pamApi.updateAccessRule.mockImplementation((_org, id) => rule(id, { enabled: true }));
 
@@ -137,7 +140,7 @@ describe("AccessRulesService", () => {
     it("returns 0 and makes no calls when nothing needs changing", async () => {
       setup();
       const rules = [rule("rule-1", { enabled: true })];
-      pamApi.listAccessRules.mockResolvedValue({ data: rules });
+      pamApi.listAccessRules.mockResolvedValue(rules);
       await service.load("org-1" as never);
 
       const changed = await service.setManyEnabled(rules, true);
@@ -150,7 +153,7 @@ describe("AccessRulesService", () => {
   describe("delete", () => {
     it("removes the rule from state", async () => {
       setup();
-      pamApi.listAccessRules.mockResolvedValue({ data: [rule("rule-1"), rule("rule-2")] });
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2")]);
       await service.load("org-1" as never);
 
       await service.delete(rule("rule-1"));
@@ -162,9 +165,7 @@ describe("AccessRulesService", () => {
   describe("deleteMany", () => {
     it("removes all given rules from state", async () => {
       setup();
-      pamApi.listAccessRules.mockResolvedValue({
-        data: [rule("rule-1"), rule("rule-2"), rule("rule-3")],
-      });
+      pamApi.listAccessRules.mockResolvedValue([rule("rule-1"), rule("rule-2"), rule("rule-3")]);
       await service.load("org-1" as never);
 
       await service.deleteMany([rule("rule-1"), rule("rule-3")]);

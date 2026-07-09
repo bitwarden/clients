@@ -17,6 +17,7 @@ import {
   AccessCondition,
   formatCondition,
   GovernanceService,
+  isKnownAccessCondition,
   OrganizationGovernanceSummaryResponse,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -184,13 +185,20 @@ export class GovernanceDashboardComponent implements OnInit {
     return { [PAM_COLLECTION_FILTER_QUERY_PARAM]: collectionId };
   }
 
-  /** Render a row's conditions as a single human-readable string. */
+  /**
+   * Render a row's conditions as a single human-readable string. Filters to the
+   * condition kinds this client recognises first — `formatCondition` throws on
+   * anything else (e.g. the server's `time_of_day`), and a summary row should
+   * degrade to omitting/collapsing an unmodeled condition rather than crashing
+   * the dashboard. Mirrors `summarizeConditions` in `format-access-rule.ts`.
+   */
   private renderRule(conditions: AccessCondition[]): string {
-    if (conditions.length === 0) {
+    const known = conditions.filter(isKnownAccessCondition);
+    if (known.length === 0) {
       return this.i18nService.t("pamAccessRuleNone");
     }
     const separator = this.i18nService.t("pamAccessRuleSeparator");
-    return conditions
+    return known
       .map((c) => {
         const summary = formatCondition(c);
         return summary.params?.count != null

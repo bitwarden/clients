@@ -1,5 +1,6 @@
 import { concat, from, merge, Observable, of, Subject, switchMap, timer } from "rxjs";
 
+import type { AccessRuleAddEditRequest, AccessRuleView } from "@bitwarden/bit-pam";
 import {
   AccessAuditEventResponse,
   AccessDecisionRequest,
@@ -11,8 +12,6 @@ import {
   AccessRequestCreateRequest,
   AccessRequestDetailsResponse,
   AccessRequestResultResponse,
-  AccessRuleRequest,
-  AccessRuleResponse,
   CipherAccessState,
   CipherAccessStateResponse,
   PamApiService,
@@ -22,8 +21,16 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
+import { AccessRulesSdkService } from "./access-rules-sdk.service";
+
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
+/**
+ * HTTP implementation of every PAM surface except access-rule CRUD, which is
+ * delegated to {@link AccessRulesSdkService} (the Rust SDK's
+ * `commercial().pam().access_rules()` client) — see `bit-pam`'s CLAUDE.md for the
+ * split rationale.
+ */
 export class DefaultPamApiService implements PamApiService {
   /**
    * Pumped after every successful mutation so that any active
@@ -39,6 +46,7 @@ export class DefaultPamApiService implements PamApiService {
   constructor(
     private apiService: ApiService,
     private accessEvents: AccessEventService,
+    private accessRulesSdk: AccessRulesSdkService,
   ) {}
 
   getCipherAccessState$(cipherId: string, _userId: string): Observable<CipherAccessState> {
@@ -201,38 +209,33 @@ export class DefaultPamApiService implements PamApiService {
     this.localRefresh$.next();
   }
 
-  async listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>> {
-    const r = await this.send("GET", `/organizations/${organizationId}/access-rules`, null, true);
-    return new ListResponse(r, AccessRuleResponse);
+  // Access-rule CRUD is served by the Rust SDK, not HTTP — delegate as-is (no
+  // `localRefresh$` pump here: rule CRUD was never part of that refresh signal).
+  async listAccessRules(organizationId: string): Promise<AccessRuleView[]> {
+    return this.accessRulesSdk.listAccessRules(organizationId);
   }
 
-  async getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse> {
-    return new AccessRuleResponse(
-      await this.send("GET", `/organizations/${organizationId}/access-rules/${id}`, null, true),
-    );
+  async getAccessRule(organizationId: string, id: string): Promise<AccessRuleView> {
+    return this.accessRulesSdk.getAccessRule(organizationId, id);
   }
 
   async createAccessRule(
     organizationId: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse> {
-    return new AccessRuleResponse(
-      await this.send("POST", `/organizations/${organizationId}/access-rules`, request, true),
-    );
+    request: AccessRuleAddEditRequest,
+  ): Promise<AccessRuleView> {
+    return this.accessRulesSdk.createAccessRule(organizationId, request);
   }
 
   async updateAccessRule(
     organizationId: string,
     id: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse> {
-    return new AccessRuleResponse(
-      await this.send("PUT", `/organizations/${organizationId}/access-rules/${id}`, request, true),
-    );
+    request: AccessRuleAddEditRequest,
+  ): Promise<AccessRuleView> {
+    return this.accessRulesSdk.updateAccessRule(organizationId, id, request);
   }
 
   async deleteAccessRule(organizationId: string, id: string): Promise<void> {
-    await this.send("DELETE", `/organizations/${organizationId}/access-rules/${id}`, null, false);
+    return this.accessRulesSdk.deleteAccessRule(organizationId, id);
   }
 
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {

@@ -4,15 +4,18 @@ import { BehaviorSubject, Observable, combineLatest, firstValueFrom, map } from 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import {
   AccessCondition,
-  AccessRuleResponse,
+  AccessRuleView,
   PamApiService,
   accessRuleToRequest,
   accessRuleWindow,
   formatRelativeTime,
+  isHumanApproval,
+  isIpAllowlist,
 } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { BitwardenIcon } from "@bitwarden/components";
 
@@ -23,13 +26,13 @@ export type ConditionBadge = {
 };
 
 /**
- * A flattened, presentation-ready view of an {@link AccessRuleResponse}. The derived
+ * A flattened, presentation-ready view of an {@link AccessRuleView}. The derived
  * `name`, `status`, and `revisionDate` properties are what {@link TableDataSource}'s
  * default accessor sorts on, so each sortable column maps to a property here.
  */
 export type AccessRuleRow = {
   id: string;
-  rule: AccessRuleResponse;
+  rule: AccessRuleView;
   name: string;
   enabled: boolean;
   status: string;
@@ -66,11 +69,11 @@ export class AccessRulesService {
   /** Set by {@link load}; the org all subsequent mutations target. */
   private organizationId: OrganizationId | null = null;
 
-  private readonly _rules$ = new BehaviorSubject<AccessRuleResponse[]>([]);
+  private readonly _rules$ = new BehaviorSubject<AccessRuleView[]>([]);
   private readonly _collectionNameById$ = new BehaviorSubject<Map<string, string>>(new Map());
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
 
-  readonly rules$: Observable<AccessRuleResponse[]> = this._rules$.asObservable();
+  readonly rules$: Observable<AccessRuleView[]> = this._rules$.asObservable();
   readonly collectionNameById$: Observable<Map<string, string>> =
     this._collectionNameById$.asObservable();
   readonly loading$: Observable<boolean> = this._loading$.asObservable();
@@ -87,27 +90,27 @@ export class AccessRulesService {
     this._loading$.next(true);
     try {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-      const [rulesResponse, collections] = await Promise.all([
+      const [rules, collections] = await Promise.all([
         this.pamApi.listAccessRules(organizationId),
         firstValueFrom(this.collectionAdminService.collectionAdminViews$(organizationId, userId)),
       ]);
       this._collectionNameById$.next(new Map(collections.map((c) => [c.id, c.name])));
-      this._rules$.next(rulesResponse.data);
+      this._rules$.next(rules);
     } finally {
       this._loading$.next(false);
     }
   }
 
   /** The currently-loaded rule with the given id, if any. */
-  getRule(id: string): AccessRuleResponse | undefined {
-    return this._rules$.value.find((r) => r.id === id);
+  getRule(id: string): AccessRuleView | undefined {
+    return this._rules$.value.find((r) => uuidAsString(r.id) === id);
   }
 
   /** Toggle a single rule's enabled flag, patching local state with the result. */
-  async setEnabled(rule: AccessRuleResponse, enabled: boolean): Promise<void> {
+  async setEnabled(rule: AccessRuleView, enabled: boolean): Promise<void> {
     const updated = await this.pamApi.updateAccessRule(
       this.requireOrganizationId(),
-      rule.id,
+      uuidAsString(rule.id),
       accessRuleToRequest(rule, enabled),
     );
     this._rules$.next(this._rules$.value.map((r) => (r.id === rule.id ? updated : r)));
@@ -117,7 +120,7 @@ export class AccessRulesService {
    * Enable/disable many rules at once, skipping rules already in the target state.
    * Returns the number of rules actually changed (0 when none needed updating).
    */
-  async setManyEnabled(rules: AccessRuleResponse[], enabled: boolean): Promise<number> {
+  async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
     const targets = rules.filter((r) => r.enabled !== enabled);
     if (targets.length === 0) {
       return 0;
@@ -126,26 +129,30 @@ export class AccessRulesService {
       targets.map((rule) =>
         this.pamApi.updateAccessRule(
           this.requireOrganizationId(),
-          rule.id,
+          uuidAsString(rule.id),
           accessRuleToRequest(rule, enabled),
         ),
       ),
     );
-    const byId = new Map(updated.map((r) => [r.id, r]));
-    this._rules$.next(this._rules$.value.map((r) => byId.get(r.id) ?? r));
+    const byId = new Map(
+      updated.map((r: AccessRuleView): [string, AccessRuleView] => [uuidAsString(r.id), r]),
+    );
+    this._rules$.next(this._rules$.value.map((r) => byId.get(uuidAsString(r.id)) ?? r));
     return updated.length;
   }
 
   /** Delete a single rule, dropping it from local state. */
-  async delete(rule: AccessRuleResponse): Promise<void> {
-    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id);
+  async delete(rule: AccessRuleView): Promise<void> {
+    await this.pamApi.deleteAccessRule(this.requireOrganizationId(), uuidAsString(rule.id));
     this._rules$.next(this._rules$.value.filter((r) => r.id !== rule.id));
   }
 
   /** Delete many rules at once, dropping them all from local state. */
-  async deleteMany(rules: AccessRuleResponse[]): Promise<void> {
+  async deleteMany(rules: AccessRuleView[]): Promise<void> {
     await Promise.all(
-      rules.map((rule) => this.pamApi.deleteAccessRule(this.requireOrganizationId(), rule.id)),
+      rules.map((rule) =>
+        this.pamApi.deleteAccessRule(this.requireOrganizationId(), uuidAsString(rule.id)),
+      ),
     );
     const removed = new Set(rules.map((r) => r.id));
     this._rules$.next(this._rules$.value.filter((r) => !removed.has(r.id)));
@@ -158,20 +165,21 @@ export class AccessRulesService {
     return this.organizationId;
   }
 
-  private buildRows(rules: AccessRuleResponse[], names: Map<string, string>): AccessRuleRow[] {
+  private buildRows(rules: AccessRuleView[], names: Map<string, string>): AccessRuleRow[] {
     const now = Date.now();
     return rules.map((rule) => {
       const revisionDate = Date.parse(rule.revisionDate);
       return {
-        id: rule.id,
+        id: uuidAsString(rule.id),
         rule,
         name: rule.name,
         enabled: rule.enabled,
         status: this.i18nService.t(rule.enabled ? "pamAccessRuleEnabled" : "disabled"),
         revisionDate: Number.isNaN(revisionDate) ? 0 : revisionDate,
         collectionNames: rule.collections
-          .map((id) => names.get(id) ?? id)
-          .sort((a, b) => a.localeCompare(b)),
+          .map(uuidAsString)
+          .map((id): string => names.get(id) ?? id)
+          .sort((a: string, b: string) => a.localeCompare(b)),
         conditionBadges: conditionBadges(rule.conditions),
         accessWindow: accessRuleWindow(rule),
         lastModified: Number.isNaN(revisionDate)
@@ -184,13 +192,13 @@ export class AccessRulesService {
 
 function conditionBadges(conditions: AccessCondition[]): ConditionBadge[] {
   const badges: ConditionBadge[] = [];
-  const requiresApproval = conditions.some((c) => c.kind === "human_approval");
+  const requiresApproval = conditions.some(isHumanApproval);
   badges.push(
     requiresApproval
       ? { icon: "bwi-users", labelKey: "pamAccessRuleConditionRequiresApproval" }
       : { icon: "bwi-check", labelKey: "pamAccessRuleConditionAutoApproved" },
   );
-  if (conditions.some((c) => c.kind === "ip_allowlist")) {
+  if (conditions.some(isIpAllowlist)) {
     badges.push({ icon: "bwi-globe", labelKey: "pamAccessRuleConditionIpRestricted" });
   }
   return badges;

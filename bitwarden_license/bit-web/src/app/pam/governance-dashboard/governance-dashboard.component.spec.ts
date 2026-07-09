@@ -7,6 +7,7 @@ import {
   CollectionGovernanceRowResponse,
   OrganizationGovernanceSummaryResponse,
   GovernanceService,
+  PamApiService,
 } from "@bitwarden/bit-pam";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,10 +16,20 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { AccessRequestNameResolver } from "../access-request-name-resolver.service";
+
 import {
   GovernanceDashboardComponent,
   PAM_COLLECTION_FILTER_QUERY_PARAM,
 } from "./governance-dashboard.component";
+
+// JSDOM has no ResizeObserver; the tab nav bar's overflow list constructs one.
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(global as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverStub;
 
 /**
  * Hand-roll a response shape that matches what the API returns. Constructing
@@ -83,6 +94,11 @@ describe("GovernanceDashboardComponent", () => {
         { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
+        // The template unconditionally nests <app-pam-access-audit> once an
+        // organizationId is set; it injects these two, so they must be provided
+        // even though this spec doesn't otherwise exercise the audit tab.
+        { provide: PamApiService, useValue: mock<PamApiService>() },
+        { provide: AccessRequestNameResolver, useValue: mock<AccessRequestNameResolver>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -232,6 +248,46 @@ describe("GovernanceDashboardComponent", () => {
       expect(i18nService.t).toHaveBeenCalledWith("pamAccessRuleHumanApproval");
       expect(i18nService.t).toHaveBeenCalledWith("pamAccessRuleIpAllowlist", "1");
     });
+
+    it("renders without throwing when a row carries a condition kind this client doesn't recognise", async () => {
+      // `time_of_day` stands in for any server-side condition kind newer than this
+      // client (the SDK passes these through unchanged). `formatCondition` throws
+      // on anything outside `human_approval`/`ip_allowlist`, so `renderRule` must
+      // filter it out before mapping rather than crashing the dashboard.
+      await expect(
+        setup({
+          summary: makeSummary([
+            {
+              CollectionId: "col-1",
+              CollectionName: "Servers",
+              Conditions: [
+                { kind: "human_approval" },
+                { kind: "time_of_day", tz: "UTC", windows: [] },
+              ],
+              MemberWithAccessCount: 1,
+            },
+          ]),
+        }),
+      ).resolves.not.toThrow();
+
+      // The recognised sibling condition still renders normally.
+      expect(i18nService.t).toHaveBeenCalledWith("pamAccessRuleHumanApproval");
+    });
+
+    it("renders pamAccessRuleNone when every condition on a row is unrecognised", async () => {
+      await setup({
+        summary: makeSummary([
+          {
+            CollectionId: "col-1",
+            CollectionName: "Servers",
+            Conditions: [{ kind: "time_of_day", tz: "UTC", windows: [] }],
+            MemberWithAccessCount: 1,
+          },
+        ]),
+      });
+
+      expect(i18nService.t).toHaveBeenCalledWith("pamAccessRuleNone");
+    });
   });
 
   describe("click-throughs", () => {
@@ -314,6 +370,8 @@ describe("GovernanceDashboardComponent", () => {
           { provide: ConfigService, useValue: configService },
           { provide: DialogService, useValue: mock<DialogService>() },
           { provide: ToastService, useValue: mock<ToastService>() },
+          { provide: PamApiService, useValue: mock<PamApiService>() },
+          { provide: AccessRequestNameResolver, useValue: mock<AccessRequestNameResolver>() },
           {
             provide: ActivatedRoute,
             useValue: { snapshot: { paramMap: convertToParamMap({ organizationId: "org-1" }) } },

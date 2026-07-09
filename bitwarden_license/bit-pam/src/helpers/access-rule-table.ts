@@ -1,4 +1,4 @@
-import { AccessRuleResponse } from "../abstractions/responses/access-rule.response";
+import type { AccessRuleView } from "../abstractions/access-rule";
 
 import { formatDurationShort } from "./lease-window.utils";
 
@@ -18,7 +18,7 @@ export type AccessRuleFilter = {
  * `default–max` range when a distinct cap is set. Null when no default.
  */
 export function accessRuleWindow(
-  rule: Pick<AccessRuleResponse, "defaultLeaseDurationSeconds" | "maxLeaseDurationSeconds">,
+  rule: Pick<AccessRuleView, "defaultLeaseDurationSeconds" | "maxLeaseDurationSeconds">,
 ): string | null {
   const def = rule.defaultLeaseDurationSeconds;
   if (def == null) {
@@ -35,9 +35,16 @@ export function accessRuleWindow(
  * Whether a rule passes the table's combined toolbar filter. `collectionNames`
  * are the resolved display names for the rule's collections, matched against
  * the search text alongside the rule name.
+ *
+ * `rule.collections` is typed as plain `readonly string[]` rather than
+ * `Pick<AccessRuleView, "collections">` — the SDK's `CollectionId[]` is a
+ * *different* nominal brand than `@bitwarden/common`'s `CollectionId` (both are
+ * plain strings underneath), so this widens the parameter to whichever the caller
+ * has on hand instead of forcing a cast at every call site. An `AccessRuleView`'s
+ * `collections` is still assignable here — array element types widen covariantly.
  */
 export function accessRuleMatchesFilter(
-  rule: Pick<AccessRuleResponse, "name" | "enabled" | "collections">,
+  rule: { name: string; enabled: boolean; collections: readonly string[] },
   collectionNames: string[],
   filter: AccessRuleFilter,
 ): boolean {

@@ -78,25 +78,39 @@ server-side. Server tests: `dotnet test test/Core.Test/Core.Test.csproj --filter
 
 ## API client — `PamApiService`
 
-Abstract class: `src/abstractions/pam-api.service.ts`. HTTP impl:
-`bitwarden_license/bit-web/src/app/pam/services/default-pam-api.service.ts`
-(commercial). Routes (all under the standard API base; `send()` is the thin
-wrapper):
+Abstract class: `src/abstractions/pam-api.service.ts`. Two implementations sit
+behind it, split by transport — **rule CRUD goes through the Rust SDK; every
+other lease/request/audit call stays HTTP.**
 
-| Method & path                                                    | Purpose                                                                                                                        |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /leases/ciphers/{id}/state`                                 | Access-state snapshot (active lease / pending / approved request). 404 = not gated or flag off → empty snapshot, banner inert. |
-| `GET /leases/ciphers/{id}/pre-check`                             | Resolve approval workflow (`AccessApprovalMode`) for the caller.                                                               |
-| `POST /leases/ciphers/{id}`                                      | Submit an access request.                                                                                                      |
-| `GET /leases/ciphers/{id}/cipher`                                | **@deprecated** — full leased cipher; scheduled for removal.                                                                   |
-| `GET /access-requests/inbox` `/history` `/mine`                  | Approver pending / approver history / requester's own.                                                                         |
-| `POST /access-requests/{id}/decision`                            | Approver approve/deny (`AccessDecisionRequest`).                                                                               |
-| `POST /access-requests/{id}/revoke`                              | Cancel a pending / approved request.                                                                                           |
-| `POST /access-requests/{id}/activate`                            | Activate an approved request → mints the lease.                                                                                |
-| `GET /leases/mine` `/active` `/history`                          | Caller's leases / managed-scope active / managed-scope ended.                                                                  |
-| `POST /leases/{id}/extend`                                       | Request an extension (`AccessLeaseExtensionRequest`).                                                                          |
-| `POST /leases/{id}/revoke`                                       | End an active lease (`AccessLeaseRevokeRequest`).                                                                              |
-| `GET·POST·PUT·DELETE /organizations/{orgId}/access-rules[/{id}]` | Rule CRUD.                                                                                                                     |
+- **HTTP impl**: `bitwarden_license/bit-web/src/app/pam/services/default-pam-api.service.ts`
+  — covers every row below except the last. Routes are all under the standard
+  API base; `send()` is the thin wrapper.
+- **SDK impl**: `bitwarden_license/bit-web/src/app/pam/services/access-rules-sdk.service.ts`
+  (`AccessRulesSdkService`) — the five access-rule CRUD methods, composed into
+  `DefaultPamApiService` (constructor param) rather than implemented there.
+  Calls `client.commercial().pam().access_rules()` per the canonical
+  SDK-consumption pattern (see `SendSdkApiService` in `libs/common`): resolve
+  the active user, `sdk.take()` a client `Ref`, dispose it (`using`) once the
+  call settles. IDs cross `PamApiService` as plain `string`s and are branded
+  via `asUuid<T>()` only at the SDK call site. Errors surface as the SDK's flat
+  `AccessRuleError` shape (`{ name: "AccessRuleError", variant, message }`) —
+  UI code interprets them via `accessRuleErrorMessage`/`isAccessRuleNotFound`
+  (`src/abstractions/access-rule.ts`), never `ErrorResponse`.
+
+| Method & path                                                                              | Purpose                                                                                                                        |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `GET /leases/ciphers/{id}/state`                                                           | Access-state snapshot (active lease / pending / approved request). 404 = not gated or flag off → empty snapshot, banner inert. |
+| `GET /leases/ciphers/{id}/pre-check`                                                       | Resolve approval workflow (`AccessApprovalMode`) for the caller.                                                               |
+| `POST /leases/ciphers/{id}`                                                                | Submit an access request.                                                                                                      |
+| `GET /leases/ciphers/{id}/cipher`                                                          | **@deprecated** — full leased cipher; scheduled for removal.                                                                   |
+| `GET /access-requests/inbox` `/history` `/mine`                                            | Approver pending / approver history / requester's own.                                                                         |
+| `POST /access-requests/{id}/decision`                                                      | Approver approve/deny (`AccessDecisionRequest`).                                                                               |
+| `POST /access-requests/{id}/revoke`                                                        | Cancel a pending / approved request.                                                                                           |
+| `POST /access-requests/{id}/activate`                                                      | Activate an approved request → mints the lease.                                                                                |
+| `GET /leases/mine` `/active` `/history`                                                    | Caller's leases / managed-scope active / managed-scope ended.                                                                  |
+| `POST /leases/{id}/extend`                                                                 | Request an extension (`AccessLeaseExtensionRequest`).                                                                          |
+| `POST /leases/{id}/revoke`                                                                 | End an active lease (`AccessLeaseRevokeRequest`).                                                                              |
+| `listAccessRules`/`getAccessRule`/`createAccessRule`/`updateAccessRule`/`deleteAccessRule` | Rule CRUD — **SDK, not HTTP** (`AccessRulesSdkService`; see above).                                                            |
 
 **Governance is a separate abstraction.** `getGovernanceSummary`,
 `bulkRevokeLeases`, `unblockNewLeases`, and `isLeasingFrozen` live on their own
@@ -123,8 +137,14 @@ All in `src/abstractions/`. Codes matter (they cross the wire):
 - `AccessDeciderKind` — `Human: "human"`, `Automatic: "automatic"`.
 - `AccessRequestStatus` — `pending | approved | activated | denied | cancelled | expired`.
 - `AccessLeaseStatus` — `active | expired | revoked | cancelled` (`cancelled` = the holder ended their own lease; `revoked` = an operator ended it).
-- `ConditionKind` — `human_approval | ip_allowlist`.
 - `GatedState` (`helpers/gated-state.ts`) — `unleased | gated_no_lease | gated_active_lease`.
+
+`AccessCondition`'s `kind` is **not** a local const-object anymore — it's a
+type-only re-export of the SDK's shape (`abstractions/access-rule.ts`), currently
+`human_approval | ip_allowlist` plus an unknown-kind passthrough the SDK
+preserves for forward-compat. Match on it defensively: filter to
+`isKnownAccessCondition` (or use `isHumanApproval`/`isIpAllowlist`) before
+switching, and skip anything else rather than rendering it.
 
 A request's decision log is `decisions: Decision[]` on
 `AccessRequestDetailsResponse`; use `helpers/find-human-decision.ts` to pull the
@@ -132,21 +152,34 @@ human (non-automatic) decision for display.
 
 ## Library layout
 
-- `abstractions/` — interfaces, enums, and `responses/` DTOs (server → client).
-  Includes the abstract `PamApiService`, `GovernanceService`, and
-  `AccessEventService`. (The
+- `abstractions/` — interfaces, enums, and `responses/` DTOs (server → client)
+  for the **HTTP** surfaces (leases, requests, audit). Includes the abstract
+  `PamApiService`, `GovernanceService`, and `AccessEventService`.
+  `abstractions/access-rule.ts` is the exception: rule CRUD moved to the SDK, so
+  it holds no DTO class, just a type-only re-export of the SDK's
+  `AccessRuleView`/`AccessRuleAddEditRequest`/`AccessCondition` shapes plus the
+  small helpers around them (`accessRuleErrorMessage`, `isAccessRuleNotFound`,
+  `isHumanApproval`, `isIpAllowlist`, `isKnownAccessCondition`). (The
   `PamInboxBadgeService` nav-badge seam lives in `apps/web/src/app/pam/`, **not
   here** — OSS code consumes it, so it stays outside `bitwarden_license/`.)
-- `services/requests/` — `requests/` (client → server DTOs) only. The `Default*`
-  service implementations **moved to commercial**
+- `services/requests/` — `requests/` (client → server HTTP DTOs) for the
+  lease/request/audit surfaces only — there is no `AccessRuleRequest` here
+  anymore (the SDK's `AccessRuleAddEditRequest` type replaces it). The
+  `Default*` service implementations **moved to commercial**
   (`bitwarden_license/bit-web/src/app/pam/services/`): `DefaultPamApiService`,
-  `DefaultAccessEventService` (filters the app-wide push stream to
+  `AccessRulesSdkService` (the SDK-backed rule-CRUD half `DefaultPamApiService`
+  composes), `DefaultAccessEventService` (filters the app-wide push stream to
   `NotificationType.RefreshAccessRequest` (29) and exposes `accessChanged$()`),
   and `LeasedCipherFetcherService` (wraps the deprecated leased-cipher fetch into
   a transient `Cipher`).
 - `helpers/` — **pure, framework-free** functions (formatting, filtering,
   validation, lease-window math). Each has a `.spec.ts` alongside. Keep them free
-  of Angular/DOM so they stay CLI-shareable.
+  of Angular/DOM so they stay CLI-shareable. `accessRuleToRequest`
+  (`helpers/access-rule-request.ts`) builds the create/update payload for the
+  enable/disable toggles by copying every field off the loaded `AccessRuleView`
+  and overriding only `enabled` — copy _every_ field here, including
+  `allowsExtensions`/`maxExtensionDurationSeconds`; a rule enable/disable toggle
+  must not silently change unrelated settings.
 - The cipher-lease banner component also lives in commercial code now
   (`bit-web/.../pam/cipher-lease-banner/`, bound to the `CIPHER_VIEW_BANNER`
   token); this library holds no components.

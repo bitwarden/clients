@@ -3,7 +3,7 @@ import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { of } from "rxjs";
 
-import { AccessCondition, AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
+import { AccessCondition, AccessRuleView, PamApiService } from "@bitwarden/bit-pam";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -21,15 +21,23 @@ function rule(overrides: {
   enabled?: boolean;
   collections?: string[];
   conditions?: AccessCondition[];
-}): AccessRuleResponse {
-  return new AccessRuleResponse({
-    Id: overrides.id ?? "rule-1",
-    Name: overrides.name ?? "Rule 1",
-    Enabled: overrides.enabled ?? true,
-    Collections: overrides.collections ?? [COLLECTION_ID],
-    Conditions: overrides.conditions ?? [],
-    SingleActiveLease: false,
-  });
+}): AccessRuleView {
+  return {
+    id: overrides.id ?? "rule-1",
+    organizationId: "org-1",
+    name: overrides.name ?? "Rule 1",
+    description: undefined,
+    enabled: overrides.enabled ?? true,
+    conditions: overrides.conditions ?? [],
+    singleActiveLease: false,
+    defaultLeaseDurationSeconds: undefined,
+    maxLeaseDurationSeconds: undefined,
+    allowsExtensions: false,
+    maxExtensionDurationSeconds: undefined,
+    collections: overrides.collections ?? [COLLECTION_ID],
+    creationDate: "2024-01-01T00:00:00.000Z",
+    revisionDate: "2024-01-01T00:00:00.000Z",
+  } as unknown as AccessRuleView;
 }
 
 describe("CollectionAccessRuleCalloutComponent", () => {
@@ -40,7 +48,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
   beforeEach(async () => {
     pamEnabled = true;
-    listAccessRules = jest.fn().mockResolvedValue({ data: [] });
+    listAccessRules = jest.fn().mockResolvedValue([]);
     logError = jest.fn();
     dialogClose = jest.fn();
 
@@ -88,7 +96,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
   it("renders nothing and skips the fetch when the PAM feature flag is off", async () => {
     pamEnabled = false;
-    listAccessRules.mockResolvedValue({ data: [rule({ name: "VPN access" })] });
+    listAccessRules.mockResolvedValue([rule({ name: "VPN access" })]);
 
     const fixture = await create();
 
@@ -97,7 +105,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("renders nothing and skips the fetch in create mode (no collectionId)", async () => {
-    listAccessRules.mockResolvedValue({ data: [rule({ name: "VPN access" })] });
+    listAccessRules.mockResolvedValue([rule({ name: "VPN access" })]);
 
     const fixture = await create({ collectionId: undefined });
 
@@ -106,12 +114,10 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("renders nothing when no enabled rule targets the collection", async () => {
-    listAccessRules.mockResolvedValue({
-      data: [
-        rule({ id: "a", name: "Disabled here", enabled: false, collections: [COLLECTION_ID] }),
-        rule({ id: "b", name: "Enabled elsewhere", collections: ["other-col"] }),
-      ],
-    });
+    listAccessRules.mockResolvedValue([
+      rule({ id: "a", name: "Disabled here", enabled: false, collections: [COLLECTION_ID] }),
+      rule({ id: "b", name: "Enabled elsewhere", collections: ["other-col"] }),
+    ]);
 
     const fixture = await create();
 
@@ -119,18 +125,16 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("renders a callout naming the enabled rule targeting the collection", async () => {
-    listAccessRules.mockResolvedValue({
-      data: [
-        rule({
-          id: "a",
-          name: "VPN access",
-          collections: [COLLECTION_ID],
-          conditions: [{ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
-        }),
-        rule({ id: "b", name: "Enabled elsewhere", collections: ["other-col"] }),
-        rule({ id: "c", name: "Disabled here", enabled: false, collections: [COLLECTION_ID] }),
-      ],
-    });
+    listAccessRules.mockResolvedValue([
+      rule({
+        id: "a",
+        name: "VPN access",
+        collections: [COLLECTION_ID],
+        conditions: [{ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
+      }),
+      rule({ id: "b", name: "Enabled elsewhere", collections: ["other-col"] }),
+      rule({ id: "c", name: "Disabled here", enabled: false, collections: [COLLECTION_ID] }),
+    ]);
 
     const fixture = await create();
 
@@ -143,7 +147,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("deep-links to the specific rule on the organization's access-rules page", async () => {
-    listAccessRules.mockResolvedValue({ data: [rule({ id: "rule-42", name: "VPN access" })] });
+    listAccessRules.mockResolvedValue([rule({ id: "rule-42", name: "VPN access" })]);
 
     const fixture = await create();
 
@@ -155,7 +159,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
   });
 
   it("closes the dialog when the rule name link is clicked", async () => {
-    listAccessRules.mockResolvedValue({ data: [rule({ name: "VPN access" })] });
+    listAccessRules.mockResolvedValue([rule({ name: "VPN access" })]);
 
     const fixture = await create();
 

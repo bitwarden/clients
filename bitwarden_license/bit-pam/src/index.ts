@@ -1,9 +1,17 @@
-export {
-  Approvers,
+export type {
   AccessCondition,
-  ConditionKind,
-  parseAccessCondition,
-  parseAccessConditions,
+  AccessRuleAddEditRequest,
+  AccessRuleError,
+  AccessRuleErrorVariant,
+  AccessRuleView,
+  KnownAccessCondition,
+} from "./abstractions/access-rule";
+export {
+  accessRuleErrorMessage,
+  isAccessRuleNotFound,
+  isHumanApproval,
+  isIpAllowlist,
+  isKnownAccessCondition,
 } from "./abstractions/access-rule";
 export { CipherAccessState, PamApiService } from "./abstractions/pam-api.service";
 export { GovernanceService } from "./abstractions/governance.service";
@@ -30,7 +38,6 @@ export {
   AccessAuditEventKind,
   AccessAuditEventResponse,
 } from "./abstractions/responses/access-audit-event.response";
-export { AccessRuleResponse } from "./abstractions/responses/access-rule.response";
 export { BulkRevokeResult } from "./abstractions/responses/bulk-revoke.result";
 export {
   CollectionGovernanceRowResponse,
@@ -44,7 +51,7 @@ export { AccessRequestCreateRequest } from "./services/requests/access-request-c
 export { AccessDecisionRequest } from "./services/requests/access-decision.request";
 export { AccessLeaseExtensionRequest } from "./services/requests/access-lease-extension.request";
 export { AccessLeaseRevokeRequest } from "./services/requests/access-lease-revoke.request";
-export { AccessRuleRequest, accessRuleToRequest } from "./services/requests/access-rule.request";
+export { accessRuleToRequest } from "./helpers/access-rule-request";
 
 export { GatedState } from "./helpers/gated-state";
 export { AccessRequestForApproval, UserForApproval, canApprove } from "./helpers/can-approve";

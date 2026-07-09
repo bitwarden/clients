@@ -3,11 +3,12 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { catchError, combineLatest, from, map, of, switchMap } from "rxjs";
 
-import { AccessRuleResponse, PamApiService, summarizeRuleConditions } from "@bitwarden/bit-pam";
+import { AccessRuleView, PamApiService, summarizeRuleConditions } from "@bitwarden/bit-pam";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -51,20 +52,24 @@ export class CollectionAccessRuleCalloutComponent {
     ]).pipe(
       switchMap(([enabled, organizationId, collectionId]) => {
         if (!enabled || !organizationId || !collectionId) {
-          return of<AccessRuleResponse[]>([]);
+          return of<AccessRuleView[]>([]);
         }
         return from(this.pamApiService.listAccessRules(organizationId)).pipe(
-          map((response) =>
-            response.data.filter((rule) => rule.enabled && rule.collections.includes(collectionId)),
+          map((rules) =>
+            rules.filter(
+              (rule) =>
+                rule.enabled &&
+                rule.collections.map(uuidAsString).includes(uuidAsString(collectionId)),
+            ),
           ),
           catchError((e: unknown) => {
             this.logService.error(e);
-            return of<AccessRuleResponse[]>([]);
+            return of<AccessRuleView[]>([]);
           }),
         );
       }),
     ),
-    { initialValue: [] as AccessRuleResponse[] },
+    { initialValue: [] as AccessRuleView[] },
   );
 
   /**

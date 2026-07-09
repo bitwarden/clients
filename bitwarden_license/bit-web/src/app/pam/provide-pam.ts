@@ -1,5 +1,8 @@
 import { AccessEventService, GovernanceService, PamApiService } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
@@ -15,6 +18,7 @@ import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-c
 import { PamGatedCipherReloader } from "./gated-cipher-reloader.service";
 // DEMO ONLY: governance has no backend yet, so it is always mocked (see provider TODO).
 import { MockGovernanceService } from "./mock/mock-governance.service";
+import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
 import { DefaultAccessEventService } from "./services/default-access-event.service";
 import { DefaultPamApiService } from "./services/default-pam-api.service";
 import { LeasedCipherFetcherService } from "./services/leased-cipher-fetcher.service";
@@ -37,9 +41,19 @@ export function providePam(): SafeProvider[] {
   return [
     safeProvider({
       provide: PamApiService,
-      useFactory: (apiService: ApiService, accessEvents: AccessEventService) =>
-        new DefaultPamApiService(apiService, accessEvents),
-      deps: [ApiService, AccessEventService],
+      useFactory: (
+        apiService: ApiService,
+        accessEvents: AccessEventService,
+        sdkService: SdkService,
+        accountService: AccountService,
+        logService: LogService,
+      ) =>
+        new DefaultPamApiService(
+          apiService,
+          accessEvents,
+          new AccessRulesSdkService(sdkService, accountService, logService),
+        ),
+      deps: [ApiService, AccessEventService, SdkService, AccountService, LogService],
     }),
     safeProvider({
       provide: GovernanceService,

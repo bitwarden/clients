@@ -4,7 +4,7 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { AccessRuleResponse, PamApiService } from "@bitwarden/bit-pam";
+import { AccessRuleView, PamApiService } from "@bitwarden/bit-pam";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SelectItemView, ToastService } from "@bitwarden/components";
@@ -115,7 +115,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     { id: "col-3", name: "Finance" },
   ];
 
-  const setup = async (state: RouteState, existing?: AccessRuleResponse) => {
+  const setup = async (state: RouteState, existing?: AccessRuleView) => {
     pamApi = {
       getAccessRule: jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
@@ -153,7 +153,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       id: "rule-1",
       collections: ["col-1", "col-3"],
       conditions: [],
-    } as unknown as AccessRuleResponse);
+    } as unknown as AccessRuleView);
 
     expect(controls().collections.value.map((i) => i.id)).toEqual(["col-1", "col-3"]);
     // Chips show real names, not raw UUIDs.
@@ -197,6 +197,51 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(request.conditions).toEqual([
       { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
     ]);
+  });
+
+  it("carries forward condition kinds this client doesn't model when editing a rule", async () => {
+    // `time_of_day` isn't a kind this client's checkboxes model (only
+    // human_approval/ip_allowlist are); it stands in for any future server-side
+    // condition kind the SDK passes through unrecognised.
+    const existingRule = {
+      id: "rule-1",
+      name: "Existing rule",
+      collections: ["col-2"],
+      conditions: [
+        { kind: "human_approval" },
+        { kind: "time_of_day", tz: "UTC", windows: [] } as any,
+      ],
+    } as unknown as AccessRuleView;
+
+    await setup({ params: { accessRuleId: "rule-1" } }, existingRule);
+
+    // Edit an unrelated field to exercise the round-trip.
+    controls().description.setValue("updated description");
+
+    await component["submit"]();
+
+    expect(pamApi.updateAccessRule).toHaveBeenCalledTimes(1);
+    const [, , request] = pamApi.updateAccessRule.mock.calls[0];
+    expect(request.conditions).toEqual(
+      expect.arrayContaining([{ kind: "time_of_day", tz: "UTC", windows: [] }]),
+    );
+    // The known condition is still rebuilt from its checkbox as normal.
+    expect(request.conditions).toEqual(expect.arrayContaining([{ kind: "human_approval" }]));
+  });
+
+  it("does not carry a condition stash when creating a new rule (no applyRule)", async () => {
+    await setup({});
+
+    controls().name.setValue("New rule");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+
+    await component["submit"]();
+
+    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
+    const [, request] = pamApi.createAccessRule.mock.calls[0];
+    expect(request.conditions).toEqual([]);
   });
 
   it("does not submit when required fields are missing", async () => {

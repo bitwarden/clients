@@ -1,20 +1,20 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom, Subject } from "rxjs";
 
+import type { AccessRuleAddEditRequest, AccessRuleView } from "@bitwarden/bit-pam";
 import {
   AccessApprovalMode,
-  AccessCondition,
   AccessDecisionRequest,
   AccessDecisionVerdict,
   AccessEventService,
   AccessLeaseExtensionRequest,
   AccessLeaseRevokeRequest,
   AccessRequestCreateRequest,
-  AccessRuleRequest,
 } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 
+import { AccessRulesSdkService } from "./access-rules-sdk.service";
 import { DefaultPamApiService } from "./default-pam-api.service";
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -22,6 +22,7 @@ const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 describe("DefaultPamApiService", () => {
   let apiService: MockProxy<ApiService>;
   let accessEvents: Subject<void>;
+  let accessRulesSdk: MockProxy<AccessRulesSdkService>;
   let service: DefaultPamApiService;
 
   beforeEach(() => {
@@ -29,7 +30,8 @@ describe("DefaultPamApiService", () => {
     accessEvents = new Subject<void>();
     const leaseEventService = mock<AccessEventService>();
     leaseEventService.accessChanged$.mockReturnValue(accessEvents.asObservable());
-    service = new DefaultPamApiService(apiService, leaseEventService);
+    accessRulesSdk = mock<AccessRulesSdkService>();
+    service = new DefaultPamApiService(apiService, leaseEventService, accessRulesSdk);
   });
 
   describe("getAccessPreCheck", () => {
@@ -352,216 +354,55 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("listAccessRules", () => {
-    it("GETs /organizations/{orgId}/access-rules and wraps in ListResponse", async () => {
-      apiService.send.mockResolvedValue({
-        Data: [
-          {
-            Id: "pol-1",
-            OrganizationId: "org-1",
-            Name: "Human approval",
-            Description: null,
-            Conditions: [{ Kind: "human_approval" }],
-            CreationDate: "2026-05-25T00:00:00Z",
-            RevisionDate: "2026-05-25T00:00:00Z",
-          },
-        ],
-        ContinuationToken: null,
-      });
+  // Access-rule CRUD is served by the SDK (`AccessRulesSdkService`), not `ApiService.send` —
+  // see `access-rules-sdk.service.spec.ts` for coverage of the SDK call shape itself. This
+  // only verifies the delegation wiring.
+  describe("access rule delegation", () => {
+    const ruleView = {} as AccessRuleView;
+    const request = {} as AccessRuleAddEditRequest;
+
+    it("delegates listAccessRules to AccessRulesSdkService", async () => {
+      accessRulesSdk.listAccessRules.mockResolvedValue([ruleView]);
 
       const result = await service.listAccessRules("org-1");
 
-      expect(apiService.send).toHaveBeenCalledWith(
-        "GET",
-        "/organizations/org-1/access-rules",
-        null,
-        true,
-        true,
-      );
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].id).toBe("pol-1");
-      expect(result.data[0].conditions[0].kind).toBe("human_approval");
+      expect(accessRulesSdk.listAccessRules).toHaveBeenCalledWith("org-1");
+      expect(result).toEqual([ruleView]);
     });
 
-    it("parses a multi-condition `Conditions` array on list items", async () => {
-      apiService.send.mockResolvedValue({
-        Data: [
-          {
-            Id: "pol-1",
-            OrganizationId: "org-1",
-            Name: "Approval + IP",
-            Description: null,
-            Conditions: [
-              { kind: "human_approval" },
-              { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
-            ],
-            CreationDate: "2026-05-25T00:00:00Z",
-            RevisionDate: "2026-05-25T00:00:00Z",
-          },
-        ],
-        ContinuationToken: null,
-      });
+    it("delegates getAccessRule to AccessRulesSdkService", async () => {
+      accessRulesSdk.getAccessRule.mockResolvedValue(ruleView);
 
-      const result = await service.listAccessRules("org-1");
+      const result = await service.getAccessRule("org-1", "rule-1");
 
-      expect(result.data[0].conditions).toEqual([
-        { kind: "human_approval" },
-        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
-      ]);
-    });
-  });
-
-  describe("getAccessRule", () => {
-    it("GETs /organizations/{orgId}/access-rules/{id} and wraps the response", async () => {
-      apiService.send.mockResolvedValue({
-        Id: "pol-1",
-        OrganizationId: "org-1",
-        Name: "Human approval",
-        Description: null,
-        Conditions: [{ Kind: "human_approval" }],
-        CreationDate: "2026-05-25T00:00:00Z",
-        RevisionDate: "2026-05-25T00:00:00Z",
-      });
-
-      const result = await service.getAccessRule("org-1", "pol-1");
-
-      expect(apiService.send).toHaveBeenCalledWith(
-        "GET",
-        "/organizations/org-1/access-rules/pol-1",
-        null,
-        true,
-        true,
-      );
-      expect(result.id).toBe("pol-1");
-      expect(result.conditions[0].kind).toBe("human_approval");
+      expect(accessRulesSdk.getAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
+      expect(result).toBe(ruleView);
     });
 
-    it("parses a single-condition `Conditions` array", async () => {
-      // Mirrors the real server response: a camelCase `conditions` array.
-      apiService.send.mockResolvedValue({
-        id: "pol-1",
-        organizationId: "org-1",
-        name: "Test",
-        description: null,
-        conditions: [{ kind: "human_approval" }],
-        creationDate: "2026-06-08T08:49:30.7166667Z",
-        revisionDate: "2026-06-08T17:50:25.84Z",
-        object: "accessRule",
-      });
+    it("delegates createAccessRule to AccessRulesSdkService", async () => {
+      accessRulesSdk.createAccessRule.mockResolvedValue(ruleView);
 
-      const result = await service.getAccessRule("org-1", "pol-1");
+      const result = await service.createAccessRule("org-1", request);
 
-      expect(result.conditions).toEqual([{ kind: "human_approval" }]);
+      expect(accessRulesSdk.createAccessRule).toHaveBeenCalledWith("org-1", request);
+      expect(result).toBe(ruleView);
     });
 
-    it("derives ip_allowlist cidrs from the `Conditions` array", async () => {
-      apiService.send.mockResolvedValue({
-        Id: "pol-1",
-        OrganizationId: "org-1",
-        Name: "IP restricted",
-        Description: null,
-        Conditions: [{ kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] }],
-        CreationDate: "2026-05-25T00:00:00Z",
-        RevisionDate: "2026-05-25T00:00:00Z",
-      });
+    it("delegates updateAccessRule to AccessRulesSdkService", async () => {
+      accessRulesSdk.updateAccessRule.mockResolvedValue(ruleView);
 
-      const result = await service.getAccessRule("org-1", "pol-1");
+      const result = await service.updateAccessRule("org-1", "rule-1", request);
 
-      expect(result.conditions).toEqual([
-        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8", "192.168.0.0/16"] },
-      ]);
+      expect(accessRulesSdk.updateAccessRule).toHaveBeenCalledWith("org-1", "rule-1", request);
+      expect(result).toBe(ruleView);
     });
 
-    it("parses a multi-condition `Conditions` array", async () => {
-      apiService.send.mockResolvedValue({
-        Id: "pol-1",
-        OrganizationId: "org-1",
-        Name: "Approval + IP",
-        Description: null,
-        Conditions: [{ kind: "human_approval" }, { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }],
-        CreationDate: "2026-05-25T00:00:00Z",
-        RevisionDate: "2026-05-25T00:00:00Z",
-      });
+    it("delegates deleteAccessRule to AccessRulesSdkService", async () => {
+      accessRulesSdk.deleteAccessRule.mockResolvedValue(undefined);
 
-      const result = await service.getAccessRule("org-1", "pol-1");
+      await service.deleteAccessRule("org-1", "rule-1");
 
-      expect(result.conditions).toEqual([
-        { kind: "human_approval" },
-        { kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] },
-      ]);
-    });
-  });
-
-  describe("createAccessRule", () => {
-    it("POSTs /organizations/{orgId}/access-rules and wraps the response", async () => {
-      apiService.send.mockResolvedValue({
-        Id: "pol-1",
-        OrganizationId: "org-1",
-        Name: "Human approval",
-        Description: null,
-        Conditions: [{ Kind: "human_approval" }],
-        CreationDate: "2026-05-25T00:00:00Z",
-        RevisionDate: "2026-05-25T00:00:00Z",
-      });
-      const createConditions: AccessCondition[] = [{ kind: "human_approval" }];
-      const req = new AccessRuleRequest({ name: "Human approval", conditions: createConditions });
-
-      const result = await service.createAccessRule("org-1", req);
-
-      expect(apiService.send).toHaveBeenCalledWith(
-        "POST",
-        "/organizations/org-1/access-rules",
-        req,
-        true,
-        true,
-      );
-      expect(result.id).toBe("pol-1");
-    });
-  });
-
-  describe("updateAccessRule", () => {
-    it("PUTs /organizations/{orgId}/access-rules/{id} and wraps the response", async () => {
-      apiService.send.mockResolvedValue({
-        Id: "pol-1",
-        OrganizationId: "org-1",
-        Name: "Human approval (updated)",
-        Description: null,
-        Conditions: [{ Kind: "human_approval" }],
-        CreationDate: "2026-05-25T00:00:00Z",
-        RevisionDate: "2026-05-26T00:00:00Z",
-      });
-      const updateConditions: AccessCondition[] = [{ kind: "human_approval" }];
-      const req = new AccessRuleRequest({
-        name: "Human approval (updated)",
-        conditions: updateConditions,
-      });
-
-      const result = await service.updateAccessRule("org-1", "pol-1", req);
-
-      expect(apiService.send).toHaveBeenCalledWith(
-        "PUT",
-        "/organizations/org-1/access-rules/pol-1",
-        req,
-        true,
-        true,
-      );
-      expect(result.name).toBe("Human approval (updated)");
-    });
-  });
-
-  describe("deleteAccessRule", () => {
-    it("DELETEs /organizations/{orgId}/access-rules/{id} without expecting a response body", async () => {
-      apiService.send.mockResolvedValue(undefined);
-
-      await service.deleteAccessRule("org-1", "pol-1");
-
-      expect(apiService.send).toHaveBeenCalledWith(
-        "DELETE",
-        "/organizations/org-1/access-rules/pol-1",
-        null,
-        true,
-        false,
-      );
+      expect(accessRulesSdk.deleteAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
     });
   });
 

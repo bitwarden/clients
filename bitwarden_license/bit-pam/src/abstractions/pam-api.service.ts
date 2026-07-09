@@ -1,20 +1,18 @@
 import { Observable } from "rxjs";
 
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 
 import { AccessDecisionRequest } from "../services/requests/access-decision.request";
 import { AccessLeaseExtensionRequest } from "../services/requests/access-lease-extension.request";
 import { AccessLeaseRevokeRequest } from "../services/requests/access-lease-revoke.request";
 import { AccessRequestCreateRequest } from "../services/requests/access-request-create.request";
-import { AccessRuleRequest } from "../services/requests/access-rule.request";
 
+import { AccessRuleAddEditRequest, AccessRuleView } from "./access-rule";
 import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
 import { AccessLeaseResponse } from "./responses/access-lease.response";
 import { AccessPreCheckResponse } from "./responses/access-pre-check.response";
 import { AccessRequestDetailsResponse } from "./responses/access-request-details.response";
 import { AccessRequestResultResponse } from "./responses/access-request-result.response";
-import { AccessRuleResponse } from "./responses/access-rule.response";
 
 /**
  * Snapshot of a cipher's access state from the perspective of the current
@@ -121,16 +119,17 @@ export abstract class PamApiService {
    */
   abstract listAccessAuditTrail(organizationId: string): Promise<AccessAuditEventResponse[]>;
 
-  abstract listAccessRules(organizationId: string): Promise<ListResponse<AccessRuleResponse>>;
-  abstract getAccessRule(organizationId: string, id: string): Promise<AccessRuleResponse>;
+  /** Access-rule CRUD is served by the Rust SDK (`commercial().pam().access_rules()`), not HTTP. */
+  abstract listAccessRules(organizationId: string): Promise<AccessRuleView[]>;
+  abstract getAccessRule(organizationId: string, id: string): Promise<AccessRuleView>;
   abstract createAccessRule(
     organizationId: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse>;
+    request: AccessRuleAddEditRequest,
+  ): Promise<AccessRuleView>;
   abstract updateAccessRule(
     organizationId: string,
     id: string,
-    request: AccessRuleRequest,
-  ): Promise<AccessRuleResponse>;
+    request: AccessRuleAddEditRequest,
+  ): Promise<AccessRuleView>;
   abstract deleteAccessRule(organizationId: string, id: string): Promise<void>;
 }

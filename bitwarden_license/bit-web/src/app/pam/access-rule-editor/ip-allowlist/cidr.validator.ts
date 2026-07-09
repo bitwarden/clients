@@ -6,18 +6,27 @@ import {
   ValidatorFn,
 } from "@angular/forms";
 
-const IPV4_OCTET = "(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]\\d|\\d)";
-const IPV4_CIDR_RE = new RegExp(
-  `^${IPV4_OCTET}\\.${IPV4_OCTET}\\.${IPV4_OCTET}\\.${IPV4_OCTET}\\/(3[0-2]|[1-2]\\d|\\d)$`,
-);
+import { is_valid_cidr } from "@bitwarden/sdk-internal";
 
-// Permissive IPv6 CIDR regex — accepts any sequence of hex groups / colons followed by a
-// prefix length of 0–128.  Thoroughness is flagged as a TBD in PM-37273.
-const IPV6_CIDR_RE = /^[0-9a-fA-F:]+(?::[0-9a-fA-F]*)?\/(12[0-8]|1[01]\d|[1-9]\d|\d)$/;
-
-/** Returns `true` when `value` is a syntactically valid IPv4 or IPv6 CIDR range. */
+/**
+ * Returns `true` when `value` is a valid IPv4 or IPv6 CIDR range.
+ *
+ * Delegates to the Rust SDK (`is_valid_cidr`, backed by the `ipnet` crate) instead of the
+ * previous regex pair. The WASM module is loaded at app startup via `SdkLoadService`, so the
+ * free function is synchronously available here — see other direct SDK free-function call
+ * sites (e.g. `import_ssh_key` in `onepassword-1pux-importer.ts`) for the same convention.
+ *
+ * Behavior differences vs. the former regexes (see PM-37273):
+ * - Host bits set past the prefix are now rejected, e.g. `10.0.0.1/8` is now **invalid**
+ *   (the old strict IPv4 regex accepted it — it only validated octet/prefix shape, not that
+ *   the address was the network address for that prefix).
+ * - The prefix is required and must be explicit; the SDK parser has no bare-address fallback.
+ * - IPv6 is now fully parsed (real address validation, e.g. rejecting too many hex groups or
+ *   multiple `::` compressions) rather than matched against the old permissive
+ *   hex-and-colon regex, which accepted many strings that were not valid IPv6 addresses.
+ */
 export function isValidCidr(value: string): boolean {
-  return IPV4_CIDR_RE.test(value) || IPV6_CIDR_RE.test(value);
+  return is_valid_cidr(value);
 }
 
 /**
