@@ -1367,19 +1367,16 @@
   "additionalOptions": {
     "message": "Additional options"
   },
-  "enableFillAssist": {
-    "message": "Use Fill Assist"
-  },
   "fillAssistActiveNotice": {
     "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
