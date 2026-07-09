@@ -5,7 +5,6 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 import { OrganizationConnectionType } from "../admin-console/enums";
 import {
   CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
   CollectionResponse,
 } from "../admin-console/models/collections";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
@@ -276,12 +275,12 @@ export abstract class ApiService {
   abstract postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
 
