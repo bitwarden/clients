@@ -13,15 +13,15 @@ import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/o
 import { OrganizationInviteLinkValidateEmailDomainResponse } from "../models/responses/organization-invite-link-validate-email-domain.response";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
+/** The confirm result's failure kinds (every kind except the success `ok`). */
+type ConfirmFailureKind = Exclude<ConfirmOrganizationInviteLinkResult["kind"], "ok">;
+
 /**
  * Maps the confirm endpoint's stable RFC 7807 validation error `type` codes (see the server's
  * `ConfirmOrganizationInviteLinkErrors`) to the discrete client result kinds. Any code not listed
  * here falls through to `unexpected-error`.
  */
-const SERVER_ERROR_TYPE_TO_KIND: Record<
-  string,
-  Exclude<ConfirmOrganizationInviteLinkResult["kind"], "ok">
-> = {
+const SERVER_ERROR_TYPE_TO_KIND: Record<string, ConfirmFailureKind> = {
   invite_link_not_available: "invite-link-not-available",
   email_domain_not_allowed: "email-domain-not-allowed",
   provider_users_cannot_join: "provider-users-cannot-join",
@@ -149,7 +149,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       );
       return { kind: "ok" };
     } catch (e) {
-      return mapApiErrorToResult(e, {
+      return mapApiErrorToResult<ConfirmFailureKind>(e, {
         validationErrorTypes: SERVER_ERROR_TYPE_TO_KIND,
         unauthorized: "unauthorized",
         notFound: "invite-link-not-found",
