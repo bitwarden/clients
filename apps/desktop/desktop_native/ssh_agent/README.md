@@ -9,8 +9,7 @@ The agent currently supports the following high level functionalities:
 - Listing keys (ssh-add -L, to display the public key and it’s name)
 - Request signing (used when signing files, git commits, authenticating with a remote host)
 - Agent forwarding (ssh -A, allowing a remote host you’ve authenticated with to use your keys)
-- Supported key types (note that ECDSA is currently behind a feature flag):
-
+- Supported key types:
     - Ed25519
     - RSA SHA-256 and SHA-512
     - ECDSA
@@ -257,7 +256,7 @@ It has the following responsibilities:
 
 ## Vault lock state behavior
 
-The agent behaves differently when in the various [vault states](../lock-states.md). For
+The agent behaves differently when in the various [vault states](https://contributing.bitwarden.com/architecture/deep-dives/lock-states/). For
 simplicity, assume only one account is active on the client and that the feature is enabled in user
 settings.
 
