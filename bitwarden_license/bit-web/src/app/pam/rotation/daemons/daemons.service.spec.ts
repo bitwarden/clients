@@ -41,7 +41,9 @@ describe("DaemonsService", () => {
 
     pamApi = {
       listRotationDaemons: jest.fn().mockResolvedValue({ data: [] }),
-      revokeRotationDaemon: jest.fn().mockResolvedValue(undefined),
+      enableRotationDaemon: jest.fn().mockResolvedValue(undefined),
+      disableRotationDaemon: jest.fn().mockResolvedValue(undefined),
+      deleteRotationDaemon: jest.fn().mockResolvedValue(undefined),
       assignRotationDaemon: jest.fn().mockResolvedValue(undefined),
       unassignRotationDaemon: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<PamApiService>;
@@ -103,56 +105,96 @@ describe("DaemonsService", () => {
       expect(rows[0].assignmentNames).toEqual(["unknown-id"]);
     });
 
-    it("sets canRevoke and canAssign true for Enrolled daemons", async () => {
+    it("sets enabled and canAssign true for Enrolled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Enrolled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].canRevoke).toBe(true);
+      expect(rows[0].enabled).toBe(true);
       expect(rows[0].canAssign).toBe(true);
     });
 
-    it("sets canRevoke and canAssign false for Revoked daemons", async () => {
+    it("sets enabled and canAssign false for Revoked (disabled) daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Revoked })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].canRevoke).toBe(false);
+      expect(rows[0].enabled).toBe(false);
       expect(rows[0].canAssign).toBe(false);
     });
 
-    it("uses pamDaemonStatusEnrolled key for Enrolled daemons", async () => {
+    it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Enrolled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusEnrolled");
+      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusEnabled");
     });
 
-    it("uses pamDaemonStatusRevoked key for Revoked daemons", async () => {
+    it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
         data: [makeDaemon({ status: DaemonStatus.Revoked })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusRevoked");
+      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusDisabled");
     });
   });
 
-  describe("revoke", () => {
-    it("calls API and patches status to Revoked", async () => {
+  describe("setEnabled", () => {
+    it("disables via the API and patches status", async () => {
       const daemon = makeDaemon({ status: DaemonStatus.Enrolled });
       pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
-      await service.revoke(daemon);
+      await service.setEnabled(daemon, false);
 
       const rows = await firstValue(service.rows$);
-      expect(rows[0].statusLabelKey).toBe("pamDaemonStatusRevoked");
-      expect(pamApi.revokeRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+      expect(rows[0].enabled).toBe(false);
+      expect(pamApi.disableRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+    });
+
+    it("enables via the API and patches status", async () => {
+      const daemon = makeDaemon({ status: DaemonStatus.Revoked });
+      pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      await service.load(orgId);
+
+      await service.setEnabled(daemon, true);
+
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].enabled).toBe(true);
+      expect(pamApi.enableRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
+    });
+
+    it("rolls back on API failure", async () => {
+      const daemon = makeDaemon({ status: DaemonStatus.Enrolled });
+      pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
+      pamApi.disableRotationDaemon.mockRejectedValue(new Error("fail"));
+      await service.load(orgId);
+
+      await expect(service.setEnabled(daemon, false)).rejects.toThrow();
+
+      const rows = await firstValue(service.rows$);
+      expect(rows[0].enabled).toBe(true);
+    });
+  });
+
+  describe("delete", () => {
+    it("calls API and removes the daemon from local state", async () => {
+      const daemon = makeDaemon({ id: "daemon-1" });
+      pamApi.listRotationDaemons.mockResolvedValue({
+        data: [daemon, makeDaemon({ id: "daemon-2" })],
+      } as any);
+      await service.load(orgId);
+
+      await service.delete(daemon);
+
+      const rows = await firstValue(service.rows$);
+      expect(rows.map((r) => r.id)).toEqual(["daemon-2"]);
+      expect(pamApi.deleteRotationDaemon).toHaveBeenCalledWith(orgId, daemon.id);
     });
   });
 

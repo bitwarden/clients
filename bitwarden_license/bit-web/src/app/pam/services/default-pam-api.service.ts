@@ -290,10 +290,28 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
-  async revokeRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void> {
+  async enableRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void> {
     await this.send(
       "POST",
-      `/organizations/${organizationId}/rotation/daemons/${daemonId}/revoke`,
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}/enable`,
+      null,
+      false,
+    );
+  }
+
+  async disableRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void> {
+    await this.send(
+      "POST",
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}/disable`,
+      null,
+      false,
+    );
+  }
+
+  async deleteRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void> {
+    await this.send(
+      "DELETE",
+      `/organizations/${organizationId}/rotation/daemons/${daemonId}`,
       null,
       false,
     );

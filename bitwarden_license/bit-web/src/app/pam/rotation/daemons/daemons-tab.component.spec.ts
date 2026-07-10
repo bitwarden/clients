@@ -27,10 +27,10 @@ describe("DaemonsTabComponent", () => {
     return {
       id: "daemon-1",
       name: "Test Daemon",
-      statusLabelKey: "pamDaemonStatusEnrolled",
+      statusLabelKey: "pamDaemonStatusEnabled",
       isConnected: true,
       assignmentNames: [],
-      canRevoke: true,
+      enabled: true,
       canAssign: true,
       daemon: {
         id: "daemon-1",
@@ -51,7 +51,8 @@ describe("DaemonsTabComponent", () => {
       registerCompleted: jest.fn().mockResolvedValue(undefined),
       assign: jest.fn().mockResolvedValue(undefined),
       unassign: jest.fn().mockResolvedValue(undefined),
-      revoke: jest.fn().mockResolvedValue(undefined),
+      setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<DaemonsService>;
 
     targetSystemsService = {
@@ -138,28 +139,63 @@ describe("DaemonsTabComponent", () => {
     expect(component.dataSource.filter!(noMatchRow)).toBe(false);
   });
 
-  it("calls daemonsService.revoke after confirmation", async () => {
+  it("calls daemonsService.setEnabled(false) on disable after confirmation", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
     const row = makeDaemonRow();
 
     const component = fixture.componentInstance as unknown as {
-      revoke: (row: DaemonRow) => Promise<void>;
+      disable: (row: DaemonRow) => Promise<void>;
     };
-    await component.revoke(row);
+    await component.disable(row);
 
-    expect(daemonsService.revoke).toHaveBeenCalledWith(row.daemon);
+    expect(daemonsService.setEnabled).toHaveBeenCalledWith(row.daemon, false);
   });
 
-  it("does not call daemonsService.revoke when revoke confirmation is cancelled", async () => {
+  it("does not disable when confirmation is cancelled", async () => {
     (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
     const row = makeDaemonRow();
 
     const component = fixture.componentInstance as unknown as {
-      revoke: (row: DaemonRow) => Promise<void>;
+      disable: (row: DaemonRow) => Promise<void>;
     };
-    await component.revoke(row);
+    await component.disable(row);
 
-    expect(daemonsService.revoke).not.toHaveBeenCalled();
+    expect(daemonsService.setEnabled).not.toHaveBeenCalled();
+  });
+
+  it("calls daemonsService.setEnabled(true) on enable", async () => {
+    const row = makeDaemonRow({ enabled: false });
+
+    const component = fixture.componentInstance as unknown as {
+      enable: (row: DaemonRow) => Promise<void>;
+    };
+    await component.enable(row);
+
+    expect(daemonsService.setEnabled).toHaveBeenCalledWith(row.daemon, true);
+  });
+
+  it("calls daemonsService.delete after confirmation", async () => {
+    (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(true);
+    const row = makeDaemonRow();
+
+    const component = fixture.componentInstance as unknown as {
+      confirmDelete: (row: DaemonRow) => Promise<void>;
+    };
+    await component.confirmDelete(row);
+
+    expect(daemonsService.delete).toHaveBeenCalledWith(row.daemon);
+  });
+
+  it("does not delete when confirmation is cancelled", async () => {
+    (dialogService.openSimpleDialog as jest.Mock).mockResolvedValue(false);
+    const row = makeDaemonRow();
+
+    const component = fixture.componentInstance as unknown as {
+      confirmDelete: (row: DaemonRow) => Promise<void>;
+    };
+    await component.confirmDelete(row);
+
+    expect(daemonsService.delete).not.toHaveBeenCalled();
   });
 
   it("calls daemonsService.unassign after confirmation", async () => {

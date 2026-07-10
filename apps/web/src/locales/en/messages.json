@@ -16100,20 +16100,32 @@
   "pamDaemonUnassigned": {
     "message": "Target system removed."
   },
-  "pamDaemonRevoke": {
-    "message": "Revoke daemon"
+  "pamDaemonDisable": {
+    "message": "Disable"
   },
-  "pamDaemonRevokeConfirmTitle": {
-    "message": "Revoke daemon?"
+  "pamDaemonEnable": {
+    "message": "Enable"
   },
-  "pamDaemonRevokeConfirmContent": {
-    "message": "Revoking {0} is permanent and cannot be undone. This daemon held the organization key in memory. If you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs will be released automatically."
+  "pamDaemonDisableConfirmTitle": {
+    "message": "Disable daemon?"
   },
-  "pamDaemonRevokeConfirmAccept": {
-    "message": "Revoke"
+  "pamDaemonDisableConfirmContent": {
+    "message": "Disable {0}? It stops claiming new rotation jobs and any jobs it is currently running are released. You can re-enable it later."
   },
-  "pamDaemonRevoked": {
-    "message": "Daemon revoked."
+  "pamDaemonDisabled": {
+    "message": "Daemon disabled."
+  },
+  "pamDaemonEnabled": {
+    "message": "Daemon enabled."
+  },
+  "pamDaemonDeleteConfirmTitle": {
+    "message": "Delete daemon?"
+  },
+  "pamDaemonDeleteConfirmContent": {
+    "message": "Deleting {0} is permanent and invalidates its credentials. This daemon held the organization key in memory — if you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new daemon to resume rotation."
+  },
+  "pamDaemonDeleted": {
+    "message": "Daemon deleted."
   },
   "pamDaemonRegisterTitle": {
     "message": "Register daemon"
@@ -16145,11 +16157,11 @@
   "pamDaemonActivityEmpty": {
     "message": "No rotation activity yet."
   },
-  "pamDaemonStatusEnrolled": {
-    "message": "Enrolled"
+  "pamDaemonStatusEnabled": {
+    "message": "Enabled"
   },
-  "pamDaemonStatusRevoked": {
-    "message": "Revoked"
+  "pamDaemonStatusDisabled": {
+    "message": "Disabled"
   },
   "pamDaemonTokenTitle": {
     "message": "Daemon token"
@@ -16158,7 +16170,7 @@
     "message": "Save this token now"
   },
   "pamDaemonTokenWarningBody": {
-    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, revoke this daemon and register a new one."
+    "message": "This token is shown only once and cannot be retrieved later. Copy it and deliver it to the daemon operator out of band — paste it into the daemon configuration file. If the token is lost, delete this daemon and register a new one."
   },
   "pamDaemonTokenLabel": {
     "message": "Daemon token"

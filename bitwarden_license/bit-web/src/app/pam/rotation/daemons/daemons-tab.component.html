@@ -42,10 +42,10 @@
 
         <!-- Status badge -->
         <td bitCell>
-          @if (r.daemon.status === DaemonStatus.Enrolled) {
-            <span bitBadge variant="primary">{{ r.statusLabelKey | i18n }}</span>
+          @if (r.enabled) {
+            <span bitBadge variant="success">{{ r.statusLabelKey | i18n }}</span>
           } @else {
-            <span bitBadge variant="danger">{{ r.statusLabelKey | i18n }}</span>
+            <span bitBadge variant="secondary">{{ r.statusLabelKey | i18n }}</span>
           }
         </td>
 
@@ -102,12 +102,21 @@
                 </button>
               }
             }
-            @if (r.canRevoke) {
-              <button type="button" bitMenuItem (click)="revoke(r)">
-                <bit-icon name="bwi-close" class="tw-text-danger"></bit-icon>
-                <span class="tw-text-danger">{{ "pamDaemonRevoke" | i18n }}</span>
+            @if (r.enabled) {
+              <button type="button" bitMenuItem (click)="disable(r)">
+                <bit-icon name="bwi-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamDaemonDisable" | i18n }}
+              </button>
+            } @else {
+              <button type="button" bitMenuItem (click)="enable(r)">
+                <bit-icon name="bwi-check-circle" class="tw-text-muted"></bit-icon>
+                {{ "pamDaemonEnable" | i18n }}
               </button>
             }
+            <button type="button" bitMenuItem (click)="confirmDelete(r)">
+              <bit-icon name="bwi-trash" class="tw-text-danger"></bit-icon>
+              <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+            </button>
           </bit-menu>
         </td>
       </tr>

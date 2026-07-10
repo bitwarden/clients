@@ -168,8 +168,14 @@ export abstract class PamApiService {
     request: DaemonRegisterRequest,
   ): Promise<DaemonRegistrationResponse>;
 
-  /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/revoke */
-  abstract revokeRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void>;
+  /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/enable */
+  abstract enableRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void>;
+
+  /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/disable */
+  abstract disableRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void>;
+
+  /** DELETE /organizations/{orgId}/rotation/daemons/{daemonId} */
+  abstract deleteRotationDaemon(organizationId: OrganizationId, daemonId: string): Promise<void>;
 
   /** POST /organizations/{orgId}/rotation/daemons/{daemonId}/assignments */
   abstract assignRotationDaemon(

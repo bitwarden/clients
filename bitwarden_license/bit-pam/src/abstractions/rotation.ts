@@ -94,10 +94,11 @@ export function toTargetSystemStatus(value: unknown): TargetSystemStatus | undef
  * Lifecycle state of a rotation daemon. Mirrors the server's tinyint `Status` on `PamRotationDaemon`.
  * Allium spec: DaemonStatus.
  *
- * - `Enrolled` (0) — the daemon is registered and may claim rotation jobs.
- * - `Revoked` (1)  — the daemon's credentials have been invalidated; it cannot claim new jobs.
- *   Revocation is permanent; re-register a new daemon instead. The daemon held the plaintext org key —
- *   org-key rotation is the remediation for a suspected compromise.
+ * - `Enrolled` (0) — the daemon is enabled and may claim rotation jobs.
+ * - `Revoked` (1)  — the daemon is disabled; it cannot claim new jobs. Unlike the earlier
+ *   permanent revoke, this is **reversible**: re-enabling flips it back to `Enrolled`. To remove a
+ *   daemon entirely (invalidating its credentials), delete it instead. The daemon held the plaintext
+ *   org key — org-key rotation remains the remediation for a suspected compromise.
  */
 export const DaemonStatus = Object.freeze({
   Enrolled: 0,

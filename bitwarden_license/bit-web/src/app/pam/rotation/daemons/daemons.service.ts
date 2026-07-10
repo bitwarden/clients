@@ -15,14 +15,14 @@ import { TargetSystemsService } from "../target-systems/target-systems.service";
 export type DaemonRow = {
   id: string;
   name: string;
-  /** i18n key for the status badge label: pamDaemonStatusEnrolled | pamDaemonStatusRevoked. */
+  /** i18n key for the status badge label: pamDaemonStatusEnabled | pamDaemonStatusDisabled. */
   statusLabelKey: string;
   isConnected: boolean;
   /** Target system names for the assignment badges; falls back to the raw ID when not found. */
   assignmentNames: string[];
-  /** True when the daemon is Enrolled — only then can it be assigned or revoked. */
-  canRevoke: boolean;
-  /** True when the daemon is Enrolled — only then can it be assigned. */
+  /** True when the daemon is enabled (Enrolled) — drives Disable vs Enable and assign availability. */
+  enabled: boolean;
+  /** True when the daemon is enabled — only then can it be assigned a target. */
   canAssign: boolean;
   /** The raw response, kept for mutation operations. */
   daemon: RotationDaemonResponse;
@@ -71,20 +71,44 @@ export class DaemonsService {
   }
 
   /**
-   * Revoke a daemon permanently — patches local status to `Revoked`.
-   *
-   * Revocation is permanent. The daemon held the org key in memory.
-   * If compromise is suspected, rotate the organization key as a remediation.
-   * Running rotation jobs will be released automatically.
+   * Enable or disable a daemon, optimistically patching local status.
+   * Disabling stops it from claiming new jobs (running jobs are released); it is reversible via
+   * enable. Rolls back and re-throws on API failure.
    */
-  async revoke(daemon: RotationDaemonResponse): Promise<void> {
+  async setEnabled(daemon: RotationDaemonResponse, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
-    await this.pamApi.revokeRotationDaemon(orgId, daemon.id);
+    const prevDaemons = this._daemons$.value;
+    const nextStatus = enabled ? DaemonStatus.Enrolled : DaemonStatus.Revoked;
+
+    // Optimistic update
     this._daemons$.next(
-      this._daemons$.value.map((d) =>
-        d.id === daemon.id ? ({ ...d, status: DaemonStatus.Revoked } as RotationDaemonResponse) : d,
+      prevDaemons.map((d) =>
+        d.id === daemon.id ? ({ ...d, status: nextStatus } as RotationDaemonResponse) : d,
       ),
     );
+
+    try {
+      if (enabled) {
+        await this.pamApi.enableRotationDaemon(orgId, daemon.id);
+      } else {
+        await this.pamApi.disableRotationDaemon(orgId, daemon.id);
+      }
+    } catch (e) {
+      // Rollback
+      this._daemons$.next(prevDaemons);
+      throw e;
+    }
+  }
+
+  /**
+   * Delete a daemon permanently, removing it from local state once the server confirms.
+   * This invalidates the daemon's credentials; the daemon held the org key in memory, so if
+   * compromise is suspected, rotate the organization key as a remediation.
+   */
+  async delete(daemon: RotationDaemonResponse): Promise<void> {
+    const orgId = this.requireOrganizationId();
+    await this.pamApi.deleteRotationDaemon(orgId, daemon.id);
+    this._daemons$.next(this._daemons$.value.filter((d) => d.id !== daemon.id));
   }
 
   /**
@@ -170,11 +194,11 @@ export class DaemonsService {
       name: daemon.name,
       statusLabelKey:
         daemon.status === DaemonStatus.Enrolled
-          ? "pamDaemonStatusEnrolled"
-          : "pamDaemonStatusRevoked",
+          ? "pamDaemonStatusEnabled"
+          : "pamDaemonStatusDisabled",
       isConnected: daemon.isConnected,
       assignmentNames: daemon.assignments.map((id) => systemById.get(id)?.name ?? id),
-      canRevoke: daemon.status === DaemonStatus.Enrolled,
+      enabled: daemon.status === DaemonStatus.Enrolled,
       canAssign: daemon.status === DaemonStatus.Enrolled,
       daemon,
     }));

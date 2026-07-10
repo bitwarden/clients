@@ -913,15 +913,47 @@ describe("DefaultPamApiService", () => {
     });
   });
 
-  describe("revokeRotationDaemon", () => {
-    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/revoke without a response body", async () => {
+  describe("enableRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/enable without a response body", async () => {
       apiService.send.mockResolvedValue(undefined);
 
-      await service.revokeRotationDaemon(ORG_ID, "daemon-1");
+      await service.enableRotationDaemon(ORG_ID, "daemon-1");
 
       expect(apiService.send).toHaveBeenCalledWith(
         "POST",
-        "/organizations/org-1/rotation/daemons/daemon-1/revoke",
+        "/organizations/org-1/rotation/daemons/daemon-1/enable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("disableRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/disable without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.disableRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/daemons/daemon-1/disable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("deleteRotationDaemon", () => {
+    it("DELETEs /organizations/{orgId}/rotation/daemons/{id} without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/daemons/daemon-1",
         null,
         true,
         false,

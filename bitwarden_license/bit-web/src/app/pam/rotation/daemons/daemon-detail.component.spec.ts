@@ -9,7 +9,7 @@ import {
 } from "@bitwarden/bit-pam";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DaemonDetailComponent } from "./daemon-detail.component";
 
@@ -46,7 +46,11 @@ function makeListResponse(data: TargetSystemResponse[]): ListResponse<TargetSyst
   return { data, continuationToken: null } as unknown as ListResponse<TargetSystemResponse>;
 }
 
-async function setup(pamApi: ReturnType<typeof mock<PamApiService>>, daemonId = "daemon-1") {
+async function setup(
+  pamApi: ReturnType<typeof mock<PamApiService>>,
+  daemonId = "daemon-1",
+  dialogService: ReturnType<typeof mock<DialogService>> = mock<DialogService>(),
+) {
   TestBed.overrideComponent(DaemonDetailComponent, { set: { template: "", imports: [] } });
   await TestBed.configureTestingModule({
     imports: [DaemonDetailComponent],
@@ -55,6 +59,7 @@ async function setup(pamApi: ReturnType<typeof mock<PamApiService>>, daemonId = 
       { provide: PamApiService, useValue: pamApi },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
+      { provide: DialogService, useValue: dialogService },
       {
         provide: ActivatedRoute,
         useValue: { snapshot: { params: { organizationId: "org-1", daemonId } } },
@@ -94,6 +99,45 @@ describe("DaemonDetailComponent", () => {
 
     const comp = fixture.componentInstance as unknown as { assignmentNames: () => string[] };
     expect(comp.assignmentNames()).toEqual(["Prod Entra"]);
+  });
+
+  it("disables the daemon after confirmation and patches status", async () => {
+    pamApi.getRotationDaemon.mockResolvedValue(makeDaemon());
+    pamApi.disableRotationDaemon.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    await setup(pamApi, "daemon-1", dialog);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as {
+      disable: () => Promise<void>;
+      enabled: () => boolean;
+    };
+    await comp.disable();
+
+    expect(pamApi.disableRotationDaemon).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(comp.enabled()).toBe(false);
+  });
+
+  it("deletes the daemon after confirmation and navigates back", async () => {
+    pamApi.getRotationDaemon.mockResolvedValue(makeDaemon());
+    pamApi.deleteRotationDaemon.mockResolvedValue(undefined);
+    const dialog = mock<DialogService>();
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    await setup(pamApi, "daemon-1", dialog);
+    const router = TestBed.inject(Router);
+    const nav = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    fixture = TestBed.createComponent(DaemonDetailComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance as unknown as { deleteDaemon: () => Promise<void> };
+    await comp.deleteDaemon();
+
+    expect(pamApi.deleteRotationDaemon).toHaveBeenCalledWith("org-1", "daemon-1");
+    expect(nav).toHaveBeenCalled();
   });
 
   it("toasts and navigates back when the daemon is not found", async () => {

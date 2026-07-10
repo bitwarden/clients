@@ -37,7 +37,7 @@ export type DaemonTokenDialogParams = {
  * confirm) → Close button.
  *
  * There is no way to re-fetch the token after this dialog closes. If the
- * operator loses it, they must revoke the daemon and re-register.
+ * operator loses it, they must delete the daemon and re-register.
  */
 @Component({
   selector: "app-daemon-token-dialog",

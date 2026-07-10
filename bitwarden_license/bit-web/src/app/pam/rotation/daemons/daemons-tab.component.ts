@@ -149,11 +149,47 @@ export class DaemonsTabComponent {
     }
   };
 
-  protected readonly revoke = async (row: DaemonRow): Promise<void> => {
+  protected readonly disable = async (row: DaemonRow): Promise<void> => {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamDaemonRevokeConfirmTitle" },
-      content: { key: "pamDaemonRevokeConfirmContent", placeholders: [row.name] },
-      acceptButtonText: { key: "pamDaemonRevokeConfirmAccept" },
+      title: { key: "pamDaemonDisableConfirmTitle" },
+      content: { key: "pamDaemonDisableConfirmContent", placeholders: [row.name] },
+      acceptButtonText: { key: "pamDaemonDisable" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.daemonsService.setEnabled(row.daemon, false);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("pamDaemonDisabled"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  protected readonly enable = async (row: DaemonRow): Promise<void> => {
+    try {
+      await this.daemonsService.setEnabled(row.daemon, true);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("pamDaemonEnabled"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  protected readonly confirmDelete = async (row: DaemonRow): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamDaemonDeleteConfirmTitle" },
+      content: { key: "pamDaemonDeleteConfirmContent", placeholders: [row.name] },
+      acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
       type: "danger",
     });
@@ -161,11 +197,11 @@ export class DaemonsTabComponent {
       return;
     }
     try {
-      await this.daemonsService.revoke(row.daemon);
+      await this.daemonsService.delete(row.daemon);
       this.toastService.showToast({
         variant: "success",
         title: null,
-        message: this.i18nService.t("pamDaemonRevoked"),
+        message: this.i18nService.t("pamDaemonDeleted"),
       });
     } catch (e) {
       this.showError(e);

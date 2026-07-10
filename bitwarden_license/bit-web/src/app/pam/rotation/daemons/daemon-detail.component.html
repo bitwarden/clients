@@ -2,6 +2,38 @@
   <bit-breadcrumbs slot="breadcrumbs">
     <bit-breadcrumb [route]="['..']">{{ "pamRotationTabDaemons" | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
+  @if (daemon()) {
+    @if (enabled()) {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="disable"
+        id="daemon-detail_button_disable"
+      >
+        {{ "pamDaemonDisable" | i18n }}
+      </button>
+    } @else {
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="enable"
+        id="daemon-detail_button_enable"
+      >
+        {{ "pamDaemonEnable" | i18n }}
+      </button>
+    }
+    <button
+      type="button"
+      bitButton
+      buttonType="danger"
+      [bitAction]="deleteDaemon"
+      id="daemon-detail_button_delete"
+    >
+      {{ "delete" | i18n }}
+    </button>
+  }
 </bit-header>
 
 @if (loading()) {
@@ -17,9 +49,9 @@
         <div class="tw-mb-4">
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">{{ "status" | i18n }}</p>
           @if (d.status === DaemonStatus.Enrolled) {
-            <span bitBadge variant="primary">{{ "pamDaemonStatusEnrolled" | i18n }}</span>
+            <span bitBadge variant="success">{{ "pamDaemonStatusEnabled" | i18n }}</span>
           } @else {
-            <span bitBadge variant="danger">{{ "pamDaemonStatusRevoked" | i18n }}</span>
+            <span bitBadge variant="secondary">{{ "pamDaemonStatusDisabled" | i18n }}</span>
           }
         </div>
 
