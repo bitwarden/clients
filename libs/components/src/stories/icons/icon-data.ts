@@ -67,7 +67,7 @@ const bitwardenObjects = [
     usage: "Indicates a folder.",
   },
   {
-    id: "bwi-folder-shared",
+    id: "bwi-shared-folder",
     usage: "Indicates a shared folder.",
   },
   {

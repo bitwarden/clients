@@ -314,158 +314,158 @@
 }
 
 .bwi-folder:before {
-  content: "\f13b";
-}
-
-.bwi-folder-shared:before {
   content: "\f13c";
 }
 
 .bwi-generate:before {
-  content: "\f13a";
+  content: "\f13b";
 }
 
 .bwi-gift:before {
-  content: "\f139";
+  content: "\f13a";
 }
 
 .bwi-grid:before {
-  content: "\f138";
+  content: "\f139";
 }
 
 .bwi-groups:before {
-  content: "\f137";
+  content: "\f138";
 }
 
 .bwi-handshake:before {
-  content: "\f136";
+  content: "\f137";
 }
 
 .bwi-hashtag:before {
-  content: "\f135";
+  content: "\f136";
 }
 
 .bwi-help:before {
-  content: "\f134";
+  content: "\f135";
 }
 
 .bwi-identity:before {
-  content: "\f133";
+  content: "\f134";
 }
 
 .bwi-info:before {
-  content: "\f132";
+  content: "\f133";
 }
 
 .bwi-key:before {
-  content: "\f131";
+  content: "\f132";
 }
 
 .bwi-list:before {
-  content: "\f12f";
-}
-
-.bwi-list-alt:before {
   content: "\f130";
 }
 
+.bwi-list-alt:before {
+  content: "\f131";
+}
+
 .bwi-loading:before {
-  content: "\f12e";
+  content: "\f12f";
 }
 
 .bwi-lock:before {
-  content: "\f12c";
-}
-
-.bwi-lock-filled:before {
   content: "\f12d";
 }
 
+.bwi-lock-filled:before {
+  content: "\f12e";
+}
+
 .bwi-login:before {
-  content: "\f12b";
+  content: "\f12c";
 }
 
 .bwi-mail:before {
-  content: "\f12a";
+  content: "\f12b";
 }
 
 .bwi-mobile:before {
-  content: "\f129";
+  content: "\f12a";
 }
 
 .bwi-more-horizontal:before {
-  content: "\f128";
+  content: "\f129";
 }
 
 .bwi-more-vertical:before {
-  content: "\f127";
+  content: "\f128";
 }
 
 .bwi-msp:before {
-  content: "\f126";
+  content: "\f127";
 }
 
 .bwi-new-window:before {
-  content: "\f125";
+  content: "\f126";
 }
 
 .bwi-note:before {
-  content: "\f124";
+  content: "\f125";
 }
 
 .bwi-notifications:before {
-  content: "\f123";
+  content: "\f124";
 }
 
 .bwi-numbered-list:before {
-  content: "\f122";
+  content: "\f123";
 }
 
 .bwi-palette:before {
-  content: "\f121";
+  content: "\f122";
 }
 
 .bwi-passkey:before {
-  content: "\f120";
+  content: "\f121";
 }
 
 .bwi-passport:before {
-  content: "\f11f";
+  content: "\f120";
 }
 
 .bwi-paypal:before {
-  content: "\f11e";
+  content: "\f11f";
 }
 
 .bwi-receipt:before {
-  content: "\f11d";
+  content: "\f11e";
 }
 
 .bwi-redo:before {
-  content: "\f11c";
+  content: "\f11d";
 }
 
 .bwi-refresh:before {
-  content: "\f11b";
+  content: "\f11c";
 }
 
 .bwi-search:before {
-  content: "\f11a";
+  content: "\f11b";
 }
 
 .bwi-send:before {
-  content: "\f119";
+  content: "\f11a";
 }
 
 .bwi-settings:before {
-  content: "\f117";
-}
-
-.bwi-settings-filled:before {
   content: "\f118";
 }
 
+.bwi-settings-filled:before {
+  content: "\f119";
+}
+
 .bwi-share:before {
+  content: "\f117";
+}
+
+.bwi-shared-folder:before {
   content: "\f116";
 }
 
@@ -554,15 +554,15 @@
 }
 
 .bwi-bell:before {
-  content: "\f123";
+  content: "\f124";
 }
 
 .bwi-billing:before {
-  content: "\f11d";
+  content: "\f11e";
 }
 
 .bwi-brush:before {
-  content: "\f121";
+  content: "\f122";
 }
 
 .bwi-cli:before {
@@ -574,11 +574,11 @@
 }
 
 .bwi-cog:before {
-  content: "\f117";
+  content: "\f118";
 }
 
 .bwi-cog-f:before {
-  content: "\f118";
+  content: "\f119";
 }
 
 .bwi-down-solid:before {
@@ -590,15 +590,15 @@
 }
 
 .bwi-ellipsis-h:before {
-  content: "\f128";
+  content: "\f129";
 }
 
 .bwi-ellipsis-v:before {
-  content: "\f127";
+  content: "\f128";
 }
 
 .bwi-envelope:before {
-  content: "\f12a";
+  content: "\f12b";
 }
 
 .bwi-exclamation-triangle:before {
@@ -618,11 +618,11 @@
 }
 
 .bwi-globe:before {
-  content: "\f12b";
+  content: "\f12c";
 }
 
 .bwi-id-card:before {
-  content: "\f133";
+  content: "\f134";
 }
 
 .bwi-import:before {
@@ -630,7 +630,7 @@
 }
 
 .bwi-info-circle:before {
-  content: "\f132";
+  content: "\f133";
 }
 
 .bwi-lock-encrypted:before {
@@ -638,7 +638,7 @@
 }
 
 .bwi-lock-f:before {
-  content: "\f12d";
+  content: "\f12e";
 }
 
 .bwi-minus-circle:before {
@@ -666,7 +666,7 @@
 }
 
 .bwi-popout:before {
-  content: "\f125";
+  content: "\f126";
 }
 
 .bwi-premium:before {
@@ -674,7 +674,7 @@
 }
 
 .bwi-provider:before {
-  content: "\f136";
+  content: "\f137";
 }
 
 .bwi-puzzle:before {
@@ -682,7 +682,7 @@
 }
 
 .bwi-question-circle:before {
-  content: "\f134";
+  content: "\f135";
 }
 
 .bwi-shield:before {
@@ -690,7 +690,7 @@
 }
 
 .bwi-spinner:before {
-  content: "\f12e";
+  content: "\f12f";
 }
 
 .bwi-star-f:before {
@@ -698,7 +698,7 @@
 }
 
 .bwi-sticky-note:before {
-  content: "\f124";
+  content: "\f125";
 }
 
 .bwi-trash:before {
@@ -722,5 +722,5 @@
 }
 
 .bwi-users:before {
-  content: "\f137";
+  content: "\f138";
 }
