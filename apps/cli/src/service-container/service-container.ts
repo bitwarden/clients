@@ -123,6 +123,7 @@ import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -138,6 +139,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -335,6 +337,7 @@ export class ServiceContainer {
   configApiService: ConfigApiServiceAbstraction;
   configService: ConfigService;
   availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -629,6 +632,8 @@ export class ServiceContainer {
       this.environmentService,
       this.configService,
     );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
