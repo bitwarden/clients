@@ -11,6 +11,7 @@ import { FormsModule } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { FormFieldModule } from "../../form-field";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { SelectModule } from "../../select";
@@ -31,7 +32,7 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 @Component({
   selector: "bit-table-paginator",
   templateUrl: "./bit-table-paginator.component.html",
-  imports: [SelectModule, IconButtonModule, InputModule, FormsModule, I18nPipe],
+  imports: [SelectModule, IconButtonModule, InputModule, FormFieldModule, FormsModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block tw-border-0 tw-border-t tw-border-solid tw-border-border-base",

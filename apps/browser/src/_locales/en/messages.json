@@ -2649,6 +2649,15 @@
   "goToPage": {
     "message": "Go to page"
   },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
   "noMatchingItems": {
     "message": "No matching items"
   },

@@ -259,6 +259,34 @@ export const Required: Story = {
   }),
 };
 
+export const HiddenLabel: Story = {
+  render: (args) => ({
+    props: {
+      formObj: formObj,
+      ...args,
+    },
+    template: /*html*/ `
+      <!--
+        A visually-hidden (\`sr-only\`) label keeps the field accessible while
+        collapsing the label/field gap, so the field stays vertically centered
+        alongside sibling controls in a row.
+      -->
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <bit-form-field disableMargin class="tw-w-44">
+          <bit-label class="tw-sr-only">Rows per page</bit-label>
+          <bit-select>
+            <bit-option [value]="10" label="10 rows per page"></bit-option>
+            <bit-option [value]="25" label="25 rows per page"></bit-option>
+          </bit-select>
+        </bit-form-field>
+
+        <button type="button" bitIconButton="bwi-angle-left" size="small"></button>
+        <button type="button" bitIconButton="bwi-angle-right" size="small"></button>
+      </div>
+    `,
+  }),
+};
+
 export const Hint: Story = {
   render: (args) => ({
     props: {

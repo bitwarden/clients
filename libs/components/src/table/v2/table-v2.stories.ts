@@ -469,6 +469,7 @@ export default {
               previousPage: "Previous page",
               nextPage: "Next page",
               goToPage: "Go to page",
+              ofPageCount: (count) => `of ${count}`,
               selectPlaceholder: "-- Select --",
             }),
         },
