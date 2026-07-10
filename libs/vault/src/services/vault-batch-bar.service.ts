@@ -201,9 +201,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
       return false;
     }
-    return !selected.find(
-      (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-    );
+    return !selected.find((item) => item.cipher && item.cipher.archivedDate);
   });
 
   /** True when all selected ciphers can be unarchived. */
@@ -212,7 +210,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     if (selected.length === 0 || this.inTrash()) {
       return false;
     }
-    return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
+    return !selected.find((i) => !i.cipher?.archivedDate);
   });
 
   /** True when all selected ciphers can be restored from trash. */

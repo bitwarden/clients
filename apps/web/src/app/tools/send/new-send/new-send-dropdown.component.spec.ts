@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -57,6 +58,7 @@ describe("NewSendDropdownComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendFormService, useValue: mock<SendFormService>() },
         { provide: PolicyService, useValue: mockPolicyService },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: SendPolicyService,

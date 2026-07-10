@@ -24,8 +24,8 @@ const mockInviteLink: OrganizationInviteLink = Object.assign(
     code: "abc123",
     organizationId: "org-1",
     allowedDomains: ["example.com", "acme.org"],
-    encryptedInviteKey: "enc-key",
-    encryptedOrgKey: undefined,
+    invite: "enc-key",
+    supportsConfirmation: true,
     creationDate: "2025-01-15T10:30:00Z",
   },
 );
@@ -132,7 +132,7 @@ const makeRender =
               inviteLink$: () => inviteLink$.asObservable(),
               reconstructUrl: () => of(mockInviteLinkUrl),
               createInviteLink: upsertLink,
-              updateInviteLink: upsertLink,
+              updateAllowedDomains: upsertLink,
               refreshInviteLink: () => Promise.resolve(),
               delete: () => {
                 inviteLink$.next(undefined);

@@ -42,4 +42,12 @@ export abstract class ImportServiceAbstraction {
     selectedImportTarget?: FolderView | CollectionView,
     canAccessImportExport?: boolean,
   ) => Promise<SdkImportSummary>;
+
+  // Import an already-parsed ImportResult directly.
+  importImportResult: (
+    importResult: ImportResult,
+    organizationId?: string,
+    selectedImportTarget?: FolderView | CollectionView,
+    canAccessImportExport?: boolean,
+  ) => Promise<ImportResult>;
 }

@@ -1,3 +1,5 @@
+import { AutofillTargetingRuleType, FormPurposeCategory } from "@bitwarden/common/autofill/types";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
@@ -124,12 +126,19 @@ export default class AutofillField {
 
   showPasskeys?: boolean;
 
-  fieldQualifier?: AutofillFieldQualifierType;
+  fieldQualifier?: AutofillFieldQualifierType | AutofillTargetingRuleType;
 
   /**
    * Indicates this field was qualified by targeting rules rather than heuristics
    */
   targeted?: boolean;
+
+  /**
+   * The `category` of the targeting-rule form this field was resolved from
+   * (e.g. `account-login`). Only set for targeted fields; undefined for
+   * heuristically-gathered fields.
+   */
+  formCategory?: FormPurposeCategory;
 
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 

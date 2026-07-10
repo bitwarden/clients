@@ -72,8 +72,17 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { Importer } from "../importers/importer";
+import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
+import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { CredentialKind, ImportOption, ImportType, SdkImportCredentials } from "../models";
+import {
+  CredentialKind,
+  ImportOption,
+  ImportResult,
+  ImportType,
+  SdkImportCredentials,
+} from "../models";
 import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
@@ -88,6 +97,7 @@ import {
   ImportSuccessDialogData,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
+import { ImportKeeperComponent, defaultKeeperImportMethod } from "./keeper";
 import { ImportLastPassComponent } from "./lastpass";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -107,6 +117,7 @@ import { ImportLastPassComponent } from "./lastpass";
     ReactiveFormsModule,
     ImportChromeComponent,
     ImportLastPassComponent,
+    ImportKeeperComponent,
     RadioButtonModule,
     CardComponent,
     SectionHeaderComponent,
@@ -215,6 +226,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   private bitSubmit: BitSubmitDirective;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(ImportKeeperComponent)
+  private importKeeper?: ImportKeeperComponent;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
@@ -295,6 +311,33 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   protected get showLastPassOptions(): boolean {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
+  }
+
+  protected get isKeeperFormat(): boolean {
+    return this.format === "keeper";
+  }
+
+  protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
+    const subgroup = this.formGroup.get("keeperOptions");
+    // Default before import-keeper registers keeperOptions, or the @if below throws NG0100.
+    return subgroup?.get("method")?.value ?? defaultKeeperImportMethod(this.platformUtilsService);
+  }
+
+  // Factory only exposes "keeper"; csv/json variants are picked from the Method dropdown.
+  private resolveKeeperFileImporter(): Importer {
+    let importer: Importer;
+    switch (this.keeperMethod) {
+      case "csv":
+        importer = new KeeperCsvImporter();
+        break;
+      case "json":
+        importer = new KeeperJsonImporter();
+        break;
+      default:
+        throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);
+    }
+    importer.organizationId = this.organizationId;
+    return importer;
   }
 
   async ngOnInit() {
@@ -486,6 +529,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
+    // Keeper direct method runs its own login/import flow and emits the result
+    // via importCompleted. Csv/Json fall through to performImport() with an
+    // effective format of keepercsv/keeperjson.
+    if (this.isKeeperFormat && this.keeperMethod === "direct") {
+      await this.importKeeper?.submitDirect(this.organizationId);
+      return;
+    }
+
     await this.performImport();
   };
 
@@ -511,11 +562,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return await this.getFilePassword();
     };
 
-    const importer = this.importService.getImporter(
-      this.format,
-      promptForPassword_callback,
-      this.organizationId,
-    );
+    const importer = this.isKeeperFormat
+      ? this.resolveKeeperFileImporter()
+      : this.importService.getImporter(
+          this.format,
+          promptForPassword_callback,
+          this.organizationId,
+        );
 
     if (importer === null) {
       this.toastService.showToast({
@@ -537,14 +590,35 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    try {
-      const result = await this.importService.import(
+    await this.doImport(async () =>
+      this.importService.import(
         importer,
         importContents,
         this.organizationId,
         this.formGroup.controls.targetSelector.value,
         this.organization?.canAccessImport && this.isFromAC,
-      );
+      ),
+    );
+  }
+
+  protected async performDirectImport(result: ImportResult) {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    await this.doImport(async () =>
+      this.importService.importImportResult(
+        result,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      ),
+    );
+  }
+
+  private async doImport(importFunc: () => Promise<ImportResult>): Promise<void> {
+    try {
+      const result = await importFunc();
 
       //No errors, display success message
       const returnDestination = this.returnTo()
@@ -690,7 +764,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected setImportOptions() {
     this.featuredImportOptions = [...this.importService.featuredImportOptions];
 
-    this.importOptions = [...this.importService.regularImportOptions].sort((a, b) => {
+    // The unified `keeper` entry covers csv/json via the Method dropdown,
+    // so hide the standalone variants from the UI. They remain in the option
+    // list for non-UI consumers (CLI) and for backward compatibility.
+    const visibleRegularOptions = this.importService.regularImportOptions.filter(
+      (o) => o.id !== "keepercsv" && o.id !== "keeperjson",
+    );
+
+    this.importOptions = [...visibleRegularOptions].sort((a, b) => {
       if (a.name == null && b.name != null) {
         return -1;
       }
