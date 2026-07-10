@@ -10,9 +10,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  AsyncActionsModule,
   BadgeModule,
-  ButtonModule,
   DialogService,
   IconButtonModule,
   IconModule,
@@ -27,7 +25,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { AssignTargetDialogComponent } from "./assign-target-dialog.component";
-import { DaemonRegisterDialogComponent } from "./daemon-register-dialog.component";
 import { DaemonRow, DaemonsService } from "./daemons.service";
 
 @Component({
@@ -37,9 +34,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AsyncActionsModule,
     BadgeModule,
-    ButtonModule,
     IconButtonModule,
     IconModule,
     MenuModule,
@@ -96,22 +91,6 @@ export class DaemonsTabComponent {
   }
 
   protected readonly totalRows = computed(() => this.rows().length);
-
-  protected readonly openRegisterDialog = async (): Promise<void> => {
-    const orgId = this.organizationId();
-    const ref = DaemonRegisterDialogComponent.open(this.dialogService, {
-      data: { organizationId: orgId },
-    });
-    const result = await ref.closed.toPromise();
-    if (result) {
-      await this.daemonsService.registerCompleted(orgId);
-      this.toastService.showToast({
-        variant: "success",
-        title: null,
-        message: this.i18nService.t("pamDaemonRegistered"),
-      });
-    }
-  };
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
     const assigned = new Set(row.daemon.assignments);

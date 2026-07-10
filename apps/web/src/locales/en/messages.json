@@ -16001,6 +16001,9 @@
   "pamDaemonSearch": {
     "message": "Search daemons"
   },
+  "pamDaemonNew": {
+    "message": "New daemon"
+  },
   "pamDaemonRegister": {
     "message": "Register daemon"
   },

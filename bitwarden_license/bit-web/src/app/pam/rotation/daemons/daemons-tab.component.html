@@ -1,19 +1,9 @@
-<div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
+<div class="tw-mb-4">
   <bit-search
-    class="tw-grow tw-max-w-md"
+    class="tw-max-w-md"
     [placeholder]="'pamDaemonSearch' | i18n"
     [formControl]="searchControl"
   ></bit-search>
-
-  <button
-    type="button"
-    bitButton
-    buttonType="primary"
-    [bitAction]="openRegisterDialog"
-    id="daemons-tab_button_register"
-  >
-    {{ "pamDaemonRegister" | i18n }}
-  </button>
 </div>
 
 @if (loading()) {

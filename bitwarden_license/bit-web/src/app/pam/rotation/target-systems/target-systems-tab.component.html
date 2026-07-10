@@ -1,17 +1,3 @@
-<app-header [title]="'pamRotationTabTargetSystems' | i18n">
-  @if (!loading()) {
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      [bitAction]="openCreate"
-      id="target-systems-tab_button_new"
-    >
-      {{ "pamTargetSystemNew" | i18n }}
-    </button>
-  }
-</app-header>
-
 @if (!loading()) {
   @if (dataSource.data.length > 0 || searchControl.value) {
     <div class="tw-mb-4">

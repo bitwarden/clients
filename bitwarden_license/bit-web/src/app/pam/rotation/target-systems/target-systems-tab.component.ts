@@ -15,9 +15,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  AsyncActionsModule,
   BadgeModule,
-  ButtonModule,
   DialogService,
   IconButtonModule,
   IconModule,
@@ -28,7 +26,6 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { TargetSystemsService } from "./target-systems.service";
 
@@ -47,7 +44,8 @@ export type TargetSystemRow = {
  * Tab component for the target-systems list in the PAM Rotation shell.
  *
  * Shows a searchable table of all target systems, with row menus for Edit, Enable, and Disable.
- * Navigates to sibling routed pages for create/edit (outside the shell, which has no tab bar).
+ * Row edit navigates to the sibling routed page (outside the shell, which has no tab bar); the
+ * "New target system" create action lives in the shell header.
  */
 @Component({
   templateUrl: "./target-systems-tab.component.html",
@@ -55,10 +53,7 @@ export type TargetSystemRow = {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AsyncActionsModule,
     BadgeModule,
-    ButtonModule,
-    HeaderModule,
     IconButtonModule,
     IconModule,
     MenuModule,
@@ -111,10 +106,6 @@ export class TargetSystemsTabComponent {
         (row.kindLabel?.toLowerCase().includes(text) ?? false);
     });
   }
-
-  /** Navigate to the create page (sibling of the rotation shell). */
-  protected readonly openCreate = (): Promise<boolean> =>
-    this.router.navigate(["..", "target-systems", "new"], { relativeTo: this.route });
 
   /** Navigate to the edit page for a target system. */
   protected readonly openEdit = (system: TargetSystemResponse): Promise<boolean> =>
