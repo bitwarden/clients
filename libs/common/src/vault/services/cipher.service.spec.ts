@@ -193,9 +193,6 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(false);
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
@@ -218,9 +215,6 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(false);
 
       const uploadSpy = jest.spyOn(cipherFileUploadService, "upload").mockResolvedValue({} as any);
 
@@ -587,9 +581,6 @@ describe("Cipher Service", () => {
     let encryptedKey: EncString;
 
     beforeEach(() => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.CipherKeyEncryption)
-        .mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
 
       const keys = { userKey: originalUserKey } as CipherDecryptionKeys;

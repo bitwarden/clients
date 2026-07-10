@@ -4,10 +4,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
 
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   CalloutComponent,
   CheckboxModule,
@@ -17,25 +13,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category";
-
-export class ResetPasswordPolicyV2 extends BasePolicyEditDefinition {
-  name = "accountRecoveryPolicy";
-  description = "accountRecoveryPolicyDescV2";
-  type = PolicyType.ResetPassword;
-  category = PolicyCategory.Authentication;
-  priority = 20;
-  component = ResetPasswordPolicyV2Component;
-  showDescription = false;
-  showEnabledBadge = true;
-
-  display$(organization: Organization, configService: ConfigService) {
-    return configService
-      .getFeatureFlag$(FeatureFlag.PolicyDrawers)
-      .pipe(map((drawerEnabled) => drawerEnabled && organization.useResetPassword));
-  }
-}
+import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
 @Component({
   selector: "reset-password-policy-v2-edit",
