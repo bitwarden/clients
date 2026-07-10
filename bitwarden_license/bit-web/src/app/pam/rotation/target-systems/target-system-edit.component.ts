@@ -178,16 +178,32 @@ export class TargetSystemEditComponent {
     initialValue: this.createForm.controls.kind.value,
   });
 
-  /**
-   * Whether the Integration + password-policy cards should be shown — i.e. the method is
-   * Automatic (create: the live radio selection; edit: the existing system's method).
-   */
-  protected readonly showPolicyCard = computed(() => {
+  /** The method in play — the existing system's method (edit) or the live radio selection (create). */
+  private readonly method = computed<TargetSystemMethod | null>(() => {
     if (this.editing) {
-      return this.existing()?.method === TargetSystemMethod.Automatic;
+      return this.existing()?.method ?? null;
     }
-    return this.createMethod() === TargetSystemMethod.Automatic;
+    return this.createMethod();
   });
+
+  /** The Integration (kind) card is Automatic-only — Manual systems have no integration. */
+  protected readonly showIntegrationCard = computed(
+    () => this.method() === TargetSystemMethod.Automatic,
+  );
+
+  /**
+   * The password-policy card is shown for both methods: Automatic (the daemon enforces the rules)
+   * and Manual (the rules the operator follows when rotating the credential by hand).
+   */
+  protected readonly showPolicyCard = computed(
+    () =>
+      this.method() === TargetSystemMethod.Automatic || this.method() === TargetSystemMethod.Manual,
+  );
+
+  /** Session termination is Automatic-only (a daemon runs it); Manual systems never show it. */
+  protected readonly showSessionTermination = computed(
+    () => this.method() === TargetSystemMethod.Automatic,
+  );
 
   /** The integration kind in play — the existing system's kind (edit) or the live selection (create Automatic). */
   private readonly selectedKind = computed<TargetSystemKind | null>(() => {
@@ -301,7 +317,8 @@ export class TargetSystemEditComponent {
 
   private applySystem(system: TargetSystemResponse): void {
     this.nameForm.patchValue({ name: system.name });
-    if (system.method === TargetSystemMethod.Automatic && system.passwordPolicy != null) {
+    // A policy exists for both Automatic and Manual systems; pre-fill it for either.
+    if (system.passwordPolicy != null) {
       this.policyForm.patchValue({
         minLength: system.passwordPolicy.minLength,
         maxLength: system.passwordPolicy.maxLength,
@@ -324,26 +341,24 @@ export class TargetSystemEditComponent {
     this.policyForm.markAllAsTouched();
     const method = this.createForm.controls.method.value;
 
-    if (this.createForm.invalid) {
-      return;
-    }
-    if (method === TargetSystemMethod.Automatic && this.policyForm.invalid) {
+    // The password policy applies to both methods now, so it is always validated.
+    if (this.createForm.invalid || this.policyForm.invalid) {
       return;
     }
 
     const { name } = this.createForm.getRawValue();
+    const policy = this.policyForm.getRawValue();
+    const passwordPolicy: PasswordPolicy = {
+      minLength: policy.minLength,
+      maxLength: policy.maxLength,
+      includeUppercase: policy.includeUppercase,
+      includeLowercase: policy.includeLowercase,
+      includeDigits: policy.includeDigits,
+      includeSymbols: policy.includeSymbols,
+    };
 
     try {
       if (method === TargetSystemMethod.Automatic) {
-        const policy = this.policyForm.getRawValue();
-        const passwordPolicy: PasswordPolicy = {
-          minLength: policy.minLength,
-          maxLength: policy.maxLength,
-          includeUppercase: policy.includeUppercase,
-          includeLowercase: policy.includeLowercase,
-          includeDigits: policy.includeDigits,
-          includeSymbols: policy.includeSymbols,
-        };
         const kind = this.createForm.controls.kind.value;
         await this.pamApi.createTargetSystem(
           this.organizationId,
@@ -364,6 +379,7 @@ export class TargetSystemEditComponent {
           new TargetSystemCreateRequest({
             name,
             method: TargetSystemMethod.Manual,
+            passwordPolicy,
           }),
         );
       }
@@ -386,41 +402,43 @@ export class TargetSystemEditComponent {
     this.nameForm.markAllAsTouched();
     this.policyForm.markAllAsTouched();
 
-    const automatic = this.existing()?.method === TargetSystemMethod.Automatic;
-    if (this.nameForm.invalid || (automatic && this.policyForm.invalid)) {
+    // Both methods carry a password policy now, so it is always validated + saved.
+    if (this.nameForm.invalid || this.policyForm.invalid) {
       return;
     }
 
+    const isAutomatic = this.existing()?.method === TargetSystemMethod.Automatic;
     const { name } = this.nameForm.getRawValue();
     try {
-      let updated = await this.pamApi.renameTargetSystem(
+      await this.pamApi.renameTargetSystem(
         this.organizationId,
         this.targetSystemId!,
         new TargetSystemNameRequest({ name }),
       );
 
-      if (automatic) {
-        const policy = this.policyForm.getRawValue();
-        const passwordPolicy: PasswordPolicy = {
-          minLength: policy.minLength,
-          maxLength: policy.maxLength,
-          includeUppercase: policy.includeUppercase,
-          includeLowercase: policy.includeLowercase,
-          includeDigits: policy.includeDigits,
-          includeSymbols: policy.includeSymbols,
-        };
-        updated = await this.pamApi.updateTargetSystemPolicy(
-          this.organizationId,
-          this.targetSystemId!,
-          new TargetSystemPolicyRequest({
-            passwordPolicy,
-            // Native integrations always support session termination; only custom scripts opt in.
-            supportsSessionTermination: this.isNativeIntegration()
+      const policy = this.policyForm.getRawValue();
+      const passwordPolicy: PasswordPolicy = {
+        minLength: policy.minLength,
+        maxLength: policy.maxLength,
+        includeUppercase: policy.includeUppercase,
+        includeLowercase: policy.includeLowercase,
+        includeDigits: policy.includeDigits,
+        includeSymbols: policy.includeSymbols,
+      };
+      const updated = await this.pamApi.updateTargetSystemPolicy(
+        this.organizationId,
+        this.targetSystemId!,
+        new TargetSystemPolicyRequest({
+          passwordPolicy,
+          // Automatic: native integrations always support session termination, custom scripts opt in.
+          // Manual: no daemon session to terminate, so always false.
+          supportsSessionTermination: isAutomatic
+            ? this.isNativeIntegration()
               ? true
-              : policy.supportsSessionTermination,
-          }),
-        );
-      }
+              : policy.supportsSessionTermination
+            : false,
+        }),
+      );
 
       this.existing.set(updated);
       this.toastService.showToast({

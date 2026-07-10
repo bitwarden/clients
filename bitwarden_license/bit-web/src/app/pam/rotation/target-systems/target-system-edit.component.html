@@ -46,7 +46,7 @@
         </bit-card>
       </bit-section>
 
-      @if (showPolicyCard()) {
+      @if (showIntegrationCard()) {
         <bit-section [formGroup]="policyForm">
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemKindHeading" | i18n }}</h2>
@@ -66,12 +66,19 @@
             </bit-form-field>
           </bit-card>
         </bit-section>
+      }
 
+      @if (showPolicyCard()) {
         <bit-section [formGroup]="policyForm">
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
+            @if (!showSessionTermination()) {
+              <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
+                {{ "pamTargetSystemPolicyManualHint" | i18n }}
+              </p>
+            }
             <div class="tw-grid tw-grid-cols-2 tw-gap-4">
               <bit-form-field>
                 <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
@@ -135,31 +142,33 @@
               <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
             </bit-form-control>
 
-            <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts -->
-            @if (isNativeIntegration()) {
-              <div>
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
-                </p>
-                <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
-                  <bit-icon name="bwi-check"></bit-icon>
-                  {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
-                </span>
-                <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-                  {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
-                </p>
-              </div>
-            } @else {
-              <bit-form-control disableMargin>
-                <input
-                  type="checkbox"
-                  bitCheckbox
-                  formControlName="supportsSessionTermination"
-                  id="target-system-edit_checkbox_session-termination"
-                />
-                <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-                <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
-              </bit-form-control>
+            <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
+            @if (showSessionTermination()) {
+              @if (isNativeIntegration()) {
+                <div>
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
+                  </p>
+                  <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
+                    <bit-icon name="bwi-check"></bit-icon>
+                    {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
+                  </span>
+                  <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+                    {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
+                  </p>
+                </div>
+              } @else {
+                <bit-form-control disableMargin>
+                  <input
+                    type="checkbox"
+                    bitCheckbox
+                    formControlName="supportsSessionTermination"
+                    id="target-system-edit_checkbox_session-termination"
+                  />
+                  <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
+                  <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+                </bit-form-control>
+              }
             }
           </bit-card>
         </bit-section>
@@ -226,13 +235,18 @@
         </bit-card>
       </bit-section>
 
-      <!-- Policy card (Automatic only) -->
+      <!-- Policy card (Automatic + Manual) -->
       @if (showPolicyCard()) {
         <bit-section [formGroup]="policyForm">
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
           </bit-section-header>
           <bit-card>
+            @if (!showSessionTermination()) {
+              <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
+                {{ "pamTargetSystemPolicyManualHint" | i18n }}
+              </p>
+            }
             <div class="tw-grid tw-grid-cols-2 tw-gap-4">
               <bit-form-field>
                 <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
@@ -296,36 +310,38 @@
               <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
             </bit-form-control>
 
-            <!-- Session termination: intrinsic for native integrations, opt-in for custom scripts -->
-            @if (isNativeIntegration()) {
-              <div>
-                <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                  {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
-                </p>
-                <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
-                  <bit-icon name="bwi-check"></bit-icon>
-                  {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
-                </span>
-                <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-                  {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
-                </p>
-              </div>
-            } @else {
-              <bit-form-control disableMargin>
-                <input
-                  type="checkbox"
-                  bitCheckbox
-                  formControlName="supportsSessionTermination"
-                  id="target-system-edit_checkbox_session-termination"
-                />
-                <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-                <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
-              </bit-form-control>
+            <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
+            @if (showSessionTermination()) {
+              @if (isNativeIntegration()) {
+                <div>
+                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+                    {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
+                  </p>
+                  <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
+                    <bit-icon name="bwi-check"></bit-icon>
+                    {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
+                  </span>
+                  <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+                    {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
+                  </p>
+                </div>
+              } @else {
+                <bit-form-control disableMargin>
+                  <input
+                    type="checkbox"
+                    bitCheckbox
+                    formControlName="supportsSessionTermination"
+                    id="target-system-edit_checkbox_session-termination"
+                  />
+                  <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
+                  <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+                </bit-form-control>
 
-              @if (showTerminationWarning()) {
-                <bit-callout type="warning" class="tw-mt-4">
-                  {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
-                </bit-callout>
+                @if (showTerminationWarning()) {
+                  <bit-callout type="warning" class="tw-mt-4">
+                    {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
+                  </bit-callout>
+                }
               }
             }
           </bit-card>

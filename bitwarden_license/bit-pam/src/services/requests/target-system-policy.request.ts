@@ -2,7 +2,9 @@ import { PasswordPolicy } from "../../abstractions/rotation";
 
 /**
  * Body for `PUT /organizations/{orgId}/rotation/target-systems/{targetSystemId}/policy`.
- * Updates the password policy and session-termination support for an Automatic target system.
+ * Updates the password policy for a target system. `supportsSessionTermination` applies only to
+ * Automatic systems; for Manual systems it is sent as `false` and ignored by the server (a manual
+ * rotation has no daemon session to terminate).
  *
  * Note: `supportsSessionTermination` withdrawal may be rejected by the server when active
  * rotation configs rely on session termination. The UI should surface a warning callout before

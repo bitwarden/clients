@@ -211,6 +211,8 @@ describe("TargetSystemEditComponent — create mode", () => {
     const call = pamApi.createTargetSystem.mock.calls[0];
     expect(call).toBeDefined();
     expect(call![1].method).toBe(TargetSystemMethod.Manual);
+    // Manual systems now carry an editable password policy.
+    expect(call![1].passwordPolicy).toBeDefined();
   });
 
   it("does not submit when form is invalid (empty name)", async () => {
@@ -228,7 +230,11 @@ describe("TargetSystemEditComponent — create mode", () => {
     TestBed.resetTestingModule();
     const comp = await setupCreateWithTemplate("manual");
     expect(comp.createForm.getRawValue().method).toBe(TargetSystemMethod.Manual);
-    expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(false);
+    // No integration card for Manual, but the password-policy card is now shown.
+    expect((comp as unknown as { showIntegrationCard: () => boolean }).showIntegrationCard()).toBe(
+      false,
+    );
+    expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
 
   it("seeds Automatic + Custom script from the ?template=custom-script query param", async () => {
@@ -490,6 +496,50 @@ describe("TargetSystemEditComponent — edit mode", () => {
     comp.policyForm.patchValue({ supportsSessionTermination: true });
     fixture.detectChanges();
     expect(comp.showTerminationWarning()).toBe(false);
+  });
+
+  it("saves the password policy for a Manual system (no session termination)", async () => {
+    TestBed.resetTestingModule();
+    const pamApiManual = mock<PamApiService>();
+    const manual = makeSystem({
+      method: TargetSystemMethod.Manual,
+      kind: null,
+      supportsSessionTermination: null,
+    });
+    pamApiManual.listTargetSystems.mockResolvedValue(makeListResponse([manual]));
+    pamApiManual.renameTargetSystem.mockResolvedValue(manual);
+    pamApiManual.updateTargetSystemPolicy.mockResolvedValue(manual);
+    TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: PamApiService, useValue: pamApiManual },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { params: { organizationId: "org-123", targetSystemId: "sys-1" } },
+          },
+        },
+      ],
+    }).compileComponents();
+    const fx = TestBed.createComponent(TargetSystemEditComponent);
+    fx.detectChanges();
+    await fx.whenStable();
+    fx.detectChanges();
+
+    await (fx.componentInstance as unknown as { submitEdit: () => Promise<void> }).submitEdit();
+
+    expect(pamApiManual.updateTargetSystemPolicy).toHaveBeenCalledWith(
+      "org-123",
+      "sys-1",
+      expect.objectContaining({
+        passwordPolicy: expect.any(Object),
+        supportsSessionTermination: false,
+      }),
+    );
   });
 
   it("navigates back when not found", async () => {

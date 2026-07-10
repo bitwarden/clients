@@ -35,8 +35,9 @@ export class TargetSystemResponse extends BaseResponse {
    */
   status: TargetSystemStatus;
   /**
-   * Password policy constraints applied when generating a rotated credential.
-   * Null when the method is Manual or no policy has been configured.
+   * Password policy constraints applied when generating a rotated credential. For Automatic
+   * systems the daemon enforces them; for Manual systems they are the rules the operator follows
+   * when rotating by hand. Null only when no policy has been configured.
    */
   passwordPolicy: PasswordPolicy | null;
   /**

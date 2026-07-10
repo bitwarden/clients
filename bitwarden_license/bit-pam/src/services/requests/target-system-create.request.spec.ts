@@ -4,17 +4,30 @@ import { TargetSystemCreateRequest } from "./target-system-create.request";
 
 describe("TargetSystemCreateRequest", () => {
   describe("Manual method", () => {
-    it("serializes only name and method — no automatic-only fields", () => {
+    const manualPolicy = {
+      minLength: 16,
+      maxLength: 32,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+    };
+
+    it("serializes name, method, and passwordPolicy — no integration or session-termination fields", () => {
       const req = new TargetSystemCreateRequest({
         name: "SQL Prod",
         method: TargetSystemMethod.Manual,
+        passwordPolicy: manualPolicy,
       });
 
       const json = JSON.parse(JSON.stringify(req));
 
-      expect(json).toEqual({ name: "SQL Prod", method: TargetSystemMethod.Manual });
+      expect(json).toEqual({
+        name: "SQL Prod",
+        method: TargetSystemMethod.Manual,
+        passwordPolicy: manualPolicy,
+      });
       expect(json).not.toHaveProperty("kind");
-      expect(json).not.toHaveProperty("passwordPolicy");
       expect(json).not.toHaveProperty("supportsSessionTermination");
     });
 
@@ -22,6 +35,7 @@ describe("TargetSystemCreateRequest", () => {
       const req = new TargetSystemCreateRequest({
         name: "Manual target",
         method: TargetSystemMethod.Manual,
+        passwordPolicy: manualPolicy,
       });
 
       expect(req.method).toBe(1);

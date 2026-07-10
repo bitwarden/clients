@@ -15974,6 +15974,9 @@
   "pamTargetSystemKindLabel": {
     "message": "Integration type"
   },
+  "pamTargetSystemPolicyManualHint": {
+    "message": "These are the rules to follow when you rotate this credential by hand."
+  },
   "pamTargetSystemPolicyHeading": {
     "message": "Password policy"
   },
