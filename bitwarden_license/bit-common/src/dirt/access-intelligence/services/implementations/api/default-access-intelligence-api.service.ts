@@ -150,16 +150,13 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   uploadReportFile$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    file: File,
     reportFileId: string,
+    data: FormData,
   ): Observable<void> {
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-
     const response = this.apiService.send(
       "POST",
       `/reports/organizations/${orgId}/${reportId}/file?reportFileId=${reportFileId}`,
-      formData,
+      data,
       true,
       false,
     );
@@ -196,5 +193,28 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     );
 
     return from(response).pipe(map((response) => new AccessReportApi(response)));
+  }
+
+  downloadReportFileAzure$(url: string): Observable<{ blob: Blob; fileName: string }> {
+    return from(
+      this.apiService
+        .nativeFetch(new Request(url, { cache: "no-store" }))
+        .then(async (response) => {
+          if (response.status !== 200) {
+            throw new Error(`Failed to download report file: ${response.status}`);
+          }
+
+          const blob = await response.blob();
+          const contentDisposition = response.headers.get("Content-Disposition");
+
+          // azure file storage returns file names in content-disposition header, otherwise available in the last path segment of the URL
+          let fileName = contentDisposition?.match(/filename="?([^";\n]+)"?/i)?.[1]?.trim();
+          if (!fileName) {
+            fileName = new URL(url).pathname.split("/").pop() ?? "report";
+          }
+
+          return { blob, fileName };
+        }),
+    );
   }
 }

@@ -1,12 +1,11 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { assertNonNullish } from "@bitwarden/common/auth/utils";
-import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
-import { KdfRequest } from "../../models/request/kdf.request";
+import { assertNonNullish } from "../../auth/utils";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { UserId } from "../../types/guid";
 import { EncString } from "../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 import {
@@ -17,6 +16,7 @@ import {
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { ChangeKdfService } from "./change-kdf.service.abstraction";
+import { ChangeKdfRequest } from "./models/change-kdf.request";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(
@@ -33,7 +33,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     assertNonNullish(userId, "userId");
     const updateKdfResult = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
-        map((sdk) => {
+        map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
@@ -43,7 +43,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
           const updateKdfResponse = ref.value
             .crypto()
             .make_update_kdf(masterPassword, kdf.toSdkConfig());
-          return updateKdfResponse;
+          return await updateKdfResponse;
         }),
       ),
     );
@@ -58,8 +58,12 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       updateKdfResult.oldMasterPasswordAuthenticationData,
     );
 
-    const request = new KdfRequest(authenticationData, unlockData);
-    request.authenticateWith(oldAuthenticationData);
+    const request = new ChangeKdfRequest(
+      oldAuthenticationData.masterPasswordAuthenticationHash,
+      authenticationData,
+      unlockData,
+    );
+
     await this.changeKdfApiService.updateUserKdfParams(request);
 
     // Update the locally stored master key and hash, so that UV, etc. still works

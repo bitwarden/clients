@@ -2,6 +2,7 @@ import { TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -9,7 +10,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { SendPolicyService } from "@bitwarden/send-ui";
+
+import { SendPolicyService } from "..";
 
 const userId = "test-user-id" as UserId;
 
@@ -23,6 +25,7 @@ function makePolicy(data: Record<string, unknown> | null): Policy {
 describe("SendPolicyService", () => {
   const policyServiceMock = mock<PolicyService>();
   const configServiceMock = mock<ConfigService>();
+  const organizationServiceMock = mock<OrganizationService>();
 
   function setup(flagEnabled: boolean): SendPolicyService {
     configServiceMock.getFeatureFlag$.mockReturnValue(of(flagEnabled));
@@ -31,6 +34,7 @@ describe("SendPolicyService", () => {
         { provide: PolicyService, useValue: policyServiceMock },
         { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+        { provide: OrganizationService, useValue: organizationServiceMock },
         SendPolicyService,
       ],
     });

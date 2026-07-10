@@ -28,7 +28,7 @@ import {
   SendFormConfig,
 } from "@bitwarden/send-ui";
 
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -128,8 +128,13 @@ export class SendComponent {
       this.activeDrawerRef = activeDrawerRef;
     }
 
-    await lastValueFrom(this.activeDrawerRef.closed);
-    this.activeDrawerRef = null;
+    const result = await lastValueFrom(this.activeDrawerRef.closed);
+    // If we updated a Send, open the drawer back up with the updated Send now set as the original
+    if (result?.result === SendItemDialogResult.Updated && result?.send) {
+      await this.selectSend(result.send.id);
+    } else {
+      this.activeDrawerRef = null;
+    }
   }
 
   protected async onEditSend(send: SendView): Promise<void> {

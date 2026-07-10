@@ -1,0 +1,377 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'Autofill Triage'" [showBackButton]="false" />
+
+  @if (loading()) {
+    <div class="tw-flex tw-justify-center tw-p-8">
+      <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+    </div>
+  } @else if (!triageResult()) {
+    <bit-callout type="info" [title]="'No Triage Results'">
+      No triage results are available for this page. Please right-click on a form field and select
+      'Triage Autofill Issues' to analyze the page.
+    </bit-callout>
+  }
+
+  @if (triageResult(); as result) {
+    <!-- Summary Section -->
+    <bit-section>
+      <bit-item-group>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-globe tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.pageUrl }}
+            <span slot="secondary">URL</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-clock tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.analyzedAt | date: "medium" }}
+            <span slot="secondary">Analyzed</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i
+              class="bwi bwi-fw bwi-check-circle tw-text-muted"
+              slot="start"
+              aria-hidden="true"
+            ></i>
+            {{ eligibleCount() }} of {{ result.fields.length }} fields
+            <span slot="secondary">Eligible</span>
+          </bit-item-content>
+        </bit-item>
+        @if (result.targetElementRef) {
+          <bit-item>
+            <bit-item-content>
+              <i class="bwi bwi-fw bwi-filter tw-text-muted" slot="start" aria-hidden="true"></i>
+              {{ result.targetElementRef }}
+              <span slot="secondary">Target Element</span>
+            </bit-item-content>
+          </bit-item>
+        }
+      </bit-item-group>
+    </bit-section>
+
+    @if (result.pageContext) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">Page Information</h2>
+        </bit-section-header>
+        <bit-item-group>
+          <bit-item>
+            <bit-item-content>
+              <i class="bwi bwi-fw bwi-file-text tw-text-muted" slot="start" aria-hidden="true"></i>
+              {{ result.pageContext.title }}
+              <span slot="secondary">{{ "title" | i18n }}</span>
+            </bit-item-content>
+          </bit-item>
+          <bit-item>
+            <bit-item-content>
+              <i class="bwi bwi-fw bwi-list-alt tw-text-muted" slot="start" aria-hidden="true"></i>
+              {{ result.pageContext.totalForms }}
+              <span slot="secondary">Total Forms</span>
+            </bit-item-content>
+          </bit-item>
+          <bit-item>
+            <bit-item-content>
+              <i class="bwi bwi-fw bwi-list tw-text-muted" slot="start" aria-hidden="true"></i>
+              {{ result.pageContext.totalFields }}
+              <span slot="secondary">Total Fields</span>
+            </bit-item-content>
+          </bit-item>
+        </bit-item-group>
+      </bit-section>
+    }
+
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">Version Information</h2>
+      </bit-section-header>
+      <bit-item-group>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-puzzle tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.extensionVersion }}
+            <span slot="secondary">Extension Version</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-browser tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.browserInfo.name }} {{ result.browserInfo.version }}
+            <span slot="secondary">Browser</span>
+          </bit-item-content>
+        </bit-item>
+      </bit-item-group>
+    </bit-section>
+
+    <!-- Fields List -->
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">Fields</h2>
+      </bit-section-header>
+      <bit-item-group>
+        @for (field of result.fields; track $index) {
+          <bit-item>
+            <button bit-item-content type="button" (click)="toggleField($index)">
+              <bit-icon
+                slot="start"
+                [name]="isFieldExpanded()($index) ? 'bwi-angle-down' : 'bwi-angle-right'"
+              ></bit-icon>
+              {{ getFieldLabel(field) }}
+              <span
+                slot="default-trailing"
+                bitBadge
+                [variant]="field.eligible ? 'success' : 'warning'"
+                class="tw-flex tw-items-center tw-gap-1"
+              >
+                @if (field.eligible) {
+                  <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+                } @else {
+                  <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
+                }
+                <span>{{ field.qualifiedAs }}</span>
+              </span>
+            </button>
+          </bit-item>
+
+          <!-- Expandable Field Details -->
+          @if (isFieldExpanded()($index)) {
+            <div
+              class="tw-px-4 tw-pb-3 tw-pt-2 tw-border-b tw-border-secondary-300 tw-bg-background-alt tw-text-sm"
+            >
+              <!-- Field Attributes -->
+              <div class="tw-mb-3 tw-text-muted">
+                @if (field.htmlId) {
+                  <p><strong>ID:</strong> {{ field.htmlId }}</p>
+                }
+                @if (field.htmlName) {
+                  <p><strong>Name:</strong> {{ field.htmlName }}</p>
+                }
+                @if (field.htmlType) {
+                  <p><strong>Type:</strong> {{ field.htmlType }}</p>
+                }
+                @if (field.placeholder) {
+                  <p><strong>Placeholder:</strong> {{ field.placeholder }}</p>
+                }
+                @if (field.autocomplete) {
+                  <p><strong>Autocomplete:</strong> {{ field.autocomplete }}</p>
+                }
+                @if (field.ariaLabel) {
+                  <p><strong>ARIA Label:</strong> {{ field.ariaLabel }}</p>
+                }
+                @if (field.formIndex !== undefined) {
+                  <p><strong>Form Index:</strong> {{ field.formIndex }}</p>
+                }
+              </div>
+
+              <!-- Field State -->
+              <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                <h4 class="tw-font-semibold tw-mb-1">Field State</h4>
+                <div class="tw-flex tw-gap-2 tw-flex-wrap">
+                  <span bitBadge [variant]="field.viewable !== false ? 'success' : 'secondary'"
+                    >Viewable: {{ field.viewable !== false ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                  <span bitBadge [variant]="!field.readonly ? 'success' : 'warning'"
+                    >Readonly: {{ field.readonly ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                  <span bitBadge [variant]="!field.disabled ? 'success' : 'warning'"
+                    >{{ "disabled" | i18n }}:
+                    {{ field.disabled ? ("yes" | i18n) : ("no" | i18n) }}</span
+                  >
+                </div>
+              </div>
+
+              <!-- Element Metadata -->
+              @if (field.tagName || field.elementNumber !== undefined || field.htmlClass) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">Element Metadata</h4>
+                  @if (field.tagName) {
+                    <p><strong>Tag Name:</strong> {{ field.tagName }}</p>
+                  }
+                  @if (field.elementNumber !== undefined) {
+                    <p><strong>Element Position:</strong> #{{ field.elementNumber }}</p>
+                  }
+                  @if (field.htmlClass) {
+                    <p><strong>CSS Classes:</strong> {{ field.htmlClass }}</p>
+                  }
+                  @if (field.title) {
+                    <p>
+                      <strong>{{ "title" | i18n }}:</strong> {{ field.title }}
+                    </p>
+                  }
+                  @if (field.tabindex) {
+                    <p><strong>Tabindex:</strong> {{ field.tabindex }}</p>
+                  }
+                  @if (field.maxLength !== undefined) {
+                    <p><strong>Max Length:</strong> {{ field.maxLength }}</p>
+                  }
+                </div>
+              }
+
+              <!-- Label Context -->
+              @if (field.labelLeft || field.labelRight || field.labelTag || field.labelTop) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">Label Context</h4>
+                  @if (field.labelLeft) {
+                    <p><strong>Label Left:</strong> "{{ field.labelLeft }}"</p>
+                  }
+                  @if (field.labelRight) {
+                    <p><strong>Label Right:</strong> "{{ field.labelRight }}"</p>
+                  }
+                  @if (field.labelTag) {
+                    <p><strong>Label Tag:</strong> "{{ field.labelTag }}"</p>
+                  }
+                  @if (field.labelTop) {
+                    <p><strong>Label Top:</strong> "{{ field.labelTop }}"</p>
+                  }
+                </div>
+              }
+
+              <!-- Form Context -->
+              @if (field.formContext) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">Form Information</h4>
+                  @if (field.formContext.htmlId) {
+                    <p><strong>Form ID:</strong> {{ field.formContext.htmlId }}</p>
+                  }
+                  @if (field.formContext.htmlName) {
+                    <p><strong>Form Name:</strong> {{ field.formContext.htmlName }}</p>
+                  }
+                  @if (field.formContext.htmlAction) {
+                    <p><strong>Form Action:</strong> {{ field.formContext.htmlAction }}</p>
+                  }
+                  @if (field.formContext.htmlMethod) {
+                    <p><strong>Form Method:</strong> {{ field.formContext.htmlMethod }}</p>
+                  }
+                  <p><strong>Fields in Form:</strong> {{ field.formContext.fieldCount }}</p>
+                </div>
+              }
+
+              <!-- Value & State -->
+              @if (
+                field.valuePreview ||
+                field.checked !== undefined ||
+                (field.selectOptions && field.selectOptions.length > 0)
+              ) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">Value &amp; State</h4>
+                  @if (field.valuePreview) {
+                    <p>
+                      <strong>{{ "value" | i18n }}:</strong> {{ field.valuePreview }}
+                    </p>
+                  }
+                  @if (field.checked !== undefined) {
+                    <p>
+                      <strong>Checked:</strong>
+                      {{ field.checked ? ("yes" | i18n) : ("no" | i18n) }}
+                    </p>
+                  }
+                  @if (field.selectOptions && field.selectOptions.length > 0) {
+                    <p>
+                      <strong>Select Options:</strong>
+                      {{ field.selectOptions.length }} {{ "options" | i18n }}
+                    </p>
+                    <p class="tw-text-xs tw-pl-2">
+                      {{ field.selectOptions.slice(0, 3).join(", ")
+                      }}{{ field.selectOptions.length > 3 ? "..." : "" }}
+                    </p>
+                  }
+                </div>
+              }
+
+              <!-- Special Attributes -->
+              @if (
+                field.dataStripe ||
+                field.inlineMenuFillType ||
+                field.fieldQualifier ||
+                field.accountCreationFieldType ||
+                field.rel ||
+                field.showPasskeys ||
+                field.ariaHasPopup
+              ) {
+                <div class="tw-mb-3 tw-text-sm tw-text-muted">
+                  <h4 class="tw-font-semibold tw-mb-1">Special Attributes</h4>
+                  @if (field.dataStripe) {
+                    <p><strong>Data-Stripe:</strong> {{ field.dataStripe }}</p>
+                  }
+                  @if (field.inlineMenuFillType) {
+                    <p>
+                      <strong>Inline Menu Fill Type:</strong>
+                      {{ field.inlineMenuFillType }}
+                    </p>
+                  }
+                  @if (field.fieldQualifier) {
+                    <p><strong>Field Qualifier:</strong> {{ field.fieldQualifier }}</p>
+                  }
+                  @if (field.accountCreationFieldType) {
+                    <p>
+                      <strong>Account Creation Field Type:</strong>
+                      {{ field.accountCreationFieldType }}
+                    </p>
+                  }
+                  @if (field.rel) {
+                    <p><strong>Rel:</strong> {{ field.rel }}</p>
+                  }
+                  @if (field.showPasskeys) {
+                    <p><strong>Show Passkeys:</strong> {{ field.showPasskeys }}</p>
+                  }
+                  @if (field.ariaHasPopup) {
+                    <p><strong>ARIA Has-Popup:</strong> {{ field.ariaHasPopup }}</p>
+                  }
+                </div>
+              }
+
+              <!-- Conditions List -->
+              <div class="tw-mb-2">
+                <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Conditions</h3>
+                @for (condition of field.conditions; track condition.description) {
+                  <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1">
+                    <span class="tw-shrink-0">
+                      @if (condition.passed) {
+                        <bit-icon name="bwi-check" aria-hidden="true"></bit-icon>
+                      } @else {
+                        <bit-icon name="bwi-close" aria-hidden="true"></bit-icon>
+                      }
+                    </span>
+                    <span
+                      [class.tw-text-success-600]="condition.passed"
+                      [class.tw-text-secondary-600]="!condition.passed"
+                    >
+                      {{ condition.description }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+      </bit-item-group>
+    </bit-section>
+  }
+
+  @if (triageResult()) {
+    <popup-footer slot="footer">
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        startIcon="bwi-clone"
+        (click)="copyReport('text')"
+      >
+        Copy Report
+      </button>
+      <button
+        slot="end"
+        type="button"
+        bitButton
+        buttonType="secondary"
+        startIcon="bwi-clone"
+        (click)="copyReport('json')"
+      >
+        Copy JSON
+      </button>
+    </popup-footer>
+  }
+</popup-page>

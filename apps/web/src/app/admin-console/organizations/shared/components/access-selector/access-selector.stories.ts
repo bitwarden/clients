@@ -31,7 +31,7 @@ import { actionsData, itemsFactory } from "./storybook-utils";
  * particular group (showing all its members).
  */
 export default {
-  title: "Web/Organizations/Access Selector",
+  title: "Admin Console/Organizations/Access Selector",
   decorators: [
     moduleMetadata({
       imports: [

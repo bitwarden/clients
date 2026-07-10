@@ -84,12 +84,6 @@ export class SendCreatedComponent {
     return Math.max(0, Math.ceil((send.deletionDate.getTime() - now) / (1000 * 60 * 60)));
   }
 
-  async goToEditSend() {
-    await this.router.navigate([`/edit-send`], {
-      queryParams: { sendId: this.send.id, type: this.send.type },
-    });
-  }
-
   async goBack() {
     await this.router.navigate(["/tabs/send"]);
   }

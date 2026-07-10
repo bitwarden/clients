@@ -51,7 +51,7 @@ describe("DefaultMemberCipherMappingService", () => {
 
   // Tests
 
-  describe("mapCiphersToMembers", () => {
+  describe("mapCiphersToMembers$", () => {
     it("should map cipher to directly assigned users", async () => {
       const ciphers = [createCipher("cipher-1", ["collection-1"])];
       const members = [
@@ -62,7 +62,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
@@ -85,7 +85,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships = [createGroupMembership("group-1", ["user-1", "user-2"])];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
@@ -104,7 +104,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships = [createGroupMembership("group-1", ["user-2", "user-3"])];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual(
@@ -124,7 +124,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       // User should appear only once despite being in multiple collections
@@ -140,7 +140,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships = [createGroupMembership("group-1", ["user-1"])];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       // User should appear only once despite having both direct and group access
@@ -165,7 +165,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual(["user-1"]);
@@ -189,7 +189,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual(expect.arrayContaining(["user-1", "user-2"]));
@@ -205,7 +205,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual([]);
@@ -219,7 +219,7 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.mapping.get("cipher-1")).toEqual([]);
@@ -227,7 +227,7 @@ describe("DefaultMemberCipherMappingService", () => {
     });
 
     it("should handle empty inputs", async () => {
-      const result = await firstValueFrom(service.mapCiphersToMembers([], [], [], []));
+      const result = await firstValueFrom(service.mapCiphersToMembers$([], [], [], []));
 
       expect(result.mapping.size).toBe(0);
       expect(Object.keys(result.registry).length).toBe(0);
@@ -240,14 +240,17 @@ describe("DefaultMemberCipherMappingService", () => {
       const groupMemberships: GroupMembershipDetails[] = [];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       expect(result.registry["user-1"]?.userName).toBeUndefined();
     });
 
     it("should handle complex scenario with multiple groups and collections", async () => {
-      const ciphers = [createCipher("cipher-1", ["collection-1", "collection-2"])];
+      const ciphers = [
+        createCipher("cipher-1", ["collection-1"]),
+        createCipher("cipher-2", ["collection-2"]),
+      ];
       const members = [
         createMember("user-1", "Alice", "alice@example.com"),
         createMember("user-2", "Bob", "bob@example.com"),
@@ -266,7 +269,7 @@ describe("DefaultMemberCipherMappingService", () => {
       ];
 
       const result = await firstValueFrom(
-        service.mapCiphersToMembers(ciphers, members, collectionAccess, groupMemberships),
+        service.mapCiphersToMembers$(ciphers, members, collectionAccess, groupMemberships),
       );
 
       // Cipher should have access for all 4 users (deduplicated)
@@ -274,22 +277,23 @@ describe("DefaultMemberCipherMappingService", () => {
       // user-2: group-1 → collection-1
       // user-3: group-1 → collection-1, group-2 → collection-2
       // user-4: group-2 → collection-2
-      expect(result.mapping.get("cipher-1")).toEqual(
-        expect.arrayContaining(["user-1", "user-2", "user-3", "user-4"]),
-      );
-      expect(result.mapping.get("cipher-1")?.length).toBe(4);
+      expect(result.mapping.get("cipher-1")).toEqual(["user-1", "user-2", "user-3"]);
+      expect(result.mapping.get("cipher-1")?.length).toBe(3);
+      expect(result.mapping.get("cipher-2")).toEqual(["user-1", "user-3", "user-4"]);
+      expect(result.mapping.get("cipher-2")?.length).toBe(3);
+
       expect(Object.keys(result.registry).length).toBe(4);
     });
   });
 
-  describe("buildMemberRegistry", () => {
+  describe("buildMemberRegistry$", () => {
     it("should build registry from members", async () => {
       const members = [
         createMember("user-1", "Alice", "alice@example.com"),
         createMember("user-2", "Bob", "bob@example.com"),
       ];
 
-      const registry = await firstValueFrom(service.buildMemberRegistry(members));
+      const registry = await firstValueFrom(service.buildMemberRegistry$(members));
 
       expect(Object.keys(registry).length).toBe(2);
       expect(registry["user-1"]).toEqual({
@@ -305,7 +309,7 @@ describe("DefaultMemberCipherMappingService", () => {
     });
 
     it("should handle empty members array", async () => {
-      const registry = await firstValueFrom(service.buildMemberRegistry([]));
+      const registry = await firstValueFrom(service.buildMemberRegistry$([]));
 
       expect(Object.keys(registry).length).toBe(0);
     });
@@ -313,7 +317,7 @@ describe("DefaultMemberCipherMappingService", () => {
     it("should handle member with null name", async () => {
       const members = [createMember("user-1", null as any, "alice@example.com")];
 
-      const registry = await firstValueFrom(service.buildMemberRegistry(members));
+      const registry = await firstValueFrom(service.buildMemberRegistry$(members));
 
       expect(registry["user-1"]?.userName).toBeUndefined();
     });

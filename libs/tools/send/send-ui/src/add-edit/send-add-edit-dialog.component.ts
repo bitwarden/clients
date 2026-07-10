@@ -1,12 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, signal, viewChild } from "@angular/core";
+import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   DIALOG_DATA,
@@ -18,23 +22,21 @@ import {
   SearchModule,
   ToastService,
   DialogModule,
+  ButtonComponent,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SendFormComponent, SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
+import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
+import { SendPolicyService } from "../services/send-policy.service";
 
 export interface SendItemDialogParams {
   /**
    * The configuration object for the dialog and form.
    */
   formConfig: SendFormConfig;
-
-  /**
-   * If true, the "edit" button will be disabled in the dialog.
-   */
-  disableForm?: boolean;
 
   /**
    * A function that is called to determine whether the dialog is allowed
@@ -45,9 +47,11 @@ export interface SendItemDialogParams {
 
 /** A result of the Send add/edit dialog. */
 export const SendItemDialogResult = Object.freeze({
-  /** The send item was created or updated. */
-  Saved: "saved",
-  /** The send item was deleted. */
+  /** The Send item was created*/
+  Created: "created",
+  /** The Send item was updated */
+  Updated: "updated",
+  /** The Send item was deleted. */
   Deleted: "deleted",
 } as const);
 
@@ -74,17 +78,61 @@ export type SendItemDialogResult = {
     AsyncActionsModule,
     DialogModule,
     CipherFormGeneratorComponent,
+    CalloutComponent,
   ],
 })
 export class SendAddEditDialogComponent {
+  SendDisabledReason = SendDisabledReason;
+
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
+
   readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
-   * The header text for the component.
+   * The header text translation key for the component.
    */
-  headerText: string;
+  readonly headerText = computed(() => {
+    if (this.showGenerator()) {
+      return "passwordGenerator";
+    }
+    let sendAction: "view" | "edit" | "add" = "add";
+    if (!this.editing()) {
+      sendAction = "view";
+    } else if (this.config.mode === "edit" || this.config.mode === "partial-edit") {
+      sendAction = "edit";
+    }
+    const translation = {
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSendV2",
+        add: "newItemHeaderTextSendV2",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSendV2",
+        add: "newItemHeaderFileSendV2",
+      },
+    };
+    return translation[this.config.sendType][sendAction];
+  });
 
   /** The configuration for the Send form. */
   config: SendFormConfig;
+
+  /**
+   * Whether the form is disabled (e.g., the Send is disabled by policy).
+   * When true, the Save button is hidden.
+   */
+  disableForm = false;
+
+  /**
+   * Whether the Send is actively being edited
+   */
+  protected readonly editing = signal(false);
 
   /**
    * Whether the inline password generator is currently shown.
@@ -101,6 +149,16 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
+  /**
+   * Whether to show the "Make a copy" button or not
+   */
+  protected readonly showCopyButton = signal(false);
+
+  /**
+   * Whether to show the trash icon button on the far right of the footer
+   */
+  protected readonly showTrashIconButton = signal(false);
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -108,9 +166,44 @@ export class SendAddEditDialogComponent {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private dialogService: DialogService,
+    private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
-    this.config = params.formConfig;
-    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+    void this.init();
+  }
+
+  async init() {
+    this.config = this.params.formConfig;
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: "sendDisabledNonCompliantBannerMessage",
+          showMakeCopyButton: true,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    }
+    this.editing.set(this.config.mode === "add");
+    this.showCopyButton.set(
+      this.config.originalSend?.disabled && this.config.originalSend?.type === SendType.Text,
+    );
+    this.showTrashIconButton.set(
+      this.showCopyButton() || (!this.config.originalSend?.disabled && this.config?.mode !== "add"),
+    );
   }
 
   /**
@@ -167,14 +260,14 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    await this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
+    await this.dialogRef.close({ result: SendItemDialogResult.Created, send });
   }
 
   /**
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    await this.dialogRef.close({ result: SendItemDialogResult.Saved });
+    await this.dialogRef.close({ result: SendItemDialogResult.Updated, send });
   }
 
   /**
@@ -218,19 +311,26 @@ export class SendAddEditDialogComponent {
     await this.onSendDeleted();
   };
 
-  /**
-   * Gets the header text based on the mode and type.
-   * @param mode The mode of the send form.
-   * @param type The type of the send
-   * @returns The header text.
-   */
-  private getHeaderText(mode: SendFormMode, type: SendType) {
-    const isEditMode = mode === "edit" || mode === "partial-edit";
-    const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
-    };
-    return this.i18nService.t(translation[type]);
+  protected editSend() {
+    this.editing.set(true);
+  }
+
+  protected async cancelEditSend() {
+    if (this.config.mode === "add") {
+      // For "add" mode, just call close() — the closePredicate wired at open-time
+      // (promptForUnsavedEdits) will handle showing the discard dialog exactly once.
+      // Calling promptForUnsavedEdits manually here AND then close() would cause the
+      // discard dialog to appear twice (once here, once from the closePredicate).
+      void this.dialogRef.close();
+    } else {
+      // For "edit" mode we are not closing the dialog, just toggling back to view mode,
+      // so the closePredicate never runs — we must check for unsaved edits manually.
+      const proceed = await this.sendFormService.promptForUnsavedEdits();
+      if (!proceed) {
+        return;
+      }
+      this.editing.set(false);
+    }
   }
 
   /**
@@ -265,5 +365,34 @@ export class SendAddEditDialogComponent {
       data: params,
       closePredicate: params.closePredicate,
     });
+  }
+
+  async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
+      },
+    };
+    await this.init();
   }
 }

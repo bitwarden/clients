@@ -1,28 +1,61 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { coerceBooleanProperty } from "@angular/cdk/coercion";
-import { NgClass } from "@angular/common";
-import { Component, ElementRef, HostBinding, Input } from "@angular/core";
+import {
+  Component,
+  ElementRef,
+  Input,
+  input,
+  computed,
+  ChangeDetectionStrategy,
+} from "@angular/core";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "[bitMenuItem]",
   templateUrl: "menu-item.component.html",
-  imports: [NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class]": "classList()",
+    role: "menuitem",
+    tabindex: "-1",
+    "[attr.disabled]": "disabled || null",
+  },
 })
 export class MenuItemComponent implements FocusableOption {
-  @HostBinding("class") classList = [
+  readonly variant = input<"primary" | "danger">("primary");
+
+  protected readonly computedStyles = computed(() => {
+    switch (this.variant()) {
+      case "primary":
+        return [
+          "tw-text-fg-body",
+          "hover:tw-text-fg-heading",
+          "hover:tw-bg-bg-brand-softer",
+          "focus-visible:tw-text-fg-heading",
+          "focus-visible:tw-bg-bg-brand-softer",
+        ];
+      case "danger":
+        return [
+          "tw-text-fg-danger",
+          "hover:tw-text-fg-danger-strong",
+          "hover:tw-bg-bg-danger-soft",
+          "focus-visible:tw-text-fg-danger-strong",
+          "focus-visible:tw-bg-bg-danger-soft",
+        ];
+      default:
+        return [];
+    }
+  });
+
+  protected readonly classList = computed(() => [
     "tw-block",
     "tw-w-full",
-    "tw-py-1.5",
-    "tw-px-3",
-    "!tw-text-main",
+    "tw-p-2",
+    "tw-rounded-lg",
     "!tw-no-underline",
     "tw-cursor-pointer",
     "tw-border-none",
     "tw-bg-background",
     "tw-text-left",
-    "hover:tw-bg-hover-default",
     "focus-visible:tw-z-50",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
@@ -31,15 +64,14 @@ export class MenuItemComponent implements FocusableOption {
     "focus-visible:tw-ring-border-focus",
     "active:!tw-ring-0",
     "active:!tw-ring-offset-0",
-    "disabled:!tw-text-muted",
     "disabled:hover:tw-bg-background",
-    "disabled:tw-cursor-not-allowed",
-  ];
-  @HostBinding("attr.role") role = "menuitem";
-  @HostBinding("tabIndex") tabIndex = "-1";
-  @HostBinding("attr.disabled") get disabledAttr() {
-    return this.disabled || null; // native disabled attr must be null when false
-  }
+    "disabled:tw-cursor-default",
+    "disabled:!tw-text-fg-inactive",
+    "aria-disabled:hover:tw-bg-background",
+    "aria-disabled:tw-cursor-default",
+    "aria-disabled:!tw-text-fg-inactive",
+    ...this.computedStyles(),
+  ]);
 
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field
@@ -48,7 +80,7 @@ export class MenuItemComponent implements FocusableOption {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ transform: coerceBooleanProperty }) disabled?: boolean = false;
 
-  constructor(public elementRef: ElementRef<HTMLButtonElement>) {}
+  constructor(readonly elementRef: ElementRef<HTMLButtonElement>) {}
 
   focus() {
     this.elementRef.nativeElement.focus();

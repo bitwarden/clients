@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, shareReplay, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -7,6 +7,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -73,4 +80,91 @@ export class SendPolicyService {
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  readonly whoCanAccess$: Observable<WhoCanAccessType | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.whoCanAccess != null);
+              return (policy?.data?.whoCanAccess as WhoCanAccessType) ?? null;
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  readonly allowedDomains$: Observable<string[] | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.allowedDomains);
+              const raw = policy?.data?.allowedDomains as string;
+              if (!raw) {
+                return null;
+              }
+              return raw
+                .split(",")
+                .map((d: string) => d.trim().toLowerCase())
+                .filter((d: string) => d.length > 0);
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  // Returns whatever deletion date preset is mandated by policy and the ID of the organization whose policy set it
+  readonly deletionDatePolicyInfo$: Observable<{
+    deletionHours: SendDeletionDatePreset | null;
+    orgId: OrganizationId | null;
+  } | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.deletionHours != null);
+              const deletionHours = (policy?.data?.deletionHours as SendDeletionDatePreset) ?? null;
+              const orgId = policy?.organizationId ?? null;
+              return { deletionHours, orgId };
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Emits the SendTypes that are allowed by policy
+   */
+  readonly allowedSendTypes$: Observable<SendType[]> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) => {
+      // If the feature flag is off then all Send Types are allowed
+      if (!sendControlsEnabled) {
+        return of([SendType.Text, SendType.File]);
+      }
+      return this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+        map((policies) => {
+          const allowedSendTypes: SendType[] = policies.flatMap(
+            (p) => p.data.allowedSendTypes ?? [],
+          );
+          return [...new Set(allowedSendTypes)];
+        }),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  async sendDisabledReason(send: SendView | Send) {
+    if (!send.disabled) {
+      return SendDisabledReason.None;
+    }
+    const allowedSendTypes = await firstValueFrom(this.allowedSendTypes$);
+    if (allowedSendTypes && !allowedSendTypes.includes(send.type)) {
+      return SendDisabledReason.RestrictedType;
+    }
+    return SendDisabledReason.Other;
+  }
 }

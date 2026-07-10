@@ -17,9 +17,6 @@
       >
         {{ cipher().name }}
       </h2>
-      @if (showArchiveBadge()) {
-        <span bitBadge> {{ "archived" | i18n }} </span>
-      }
     </div>
     <ng-container>
       <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">
@@ -64,28 +61,29 @@
           </span>
         }
         @if (hasSmallScreen() && allItems().length > 2 && cipher().collectionIds.length > 1) {
-          <button
-            bitTypography="body2"
-            type="button"
-            bitLink
-            linkType="primary"
-            class="tw-mt-1.5"
-            (click)="toggleShowMore()"
-            *ngIf="!showAllDetails()"
-          >
-            {{ "showMore" | i18n }}
-          </button>
-          <button
-            bitTypography="body2"
-            type="button"
-            bitLink
-            linkType="primary"
-            class="tw-mt-1.5"
-            (click)="toggleShowMore()"
-            *ngIf="showAllDetails()"
-          >
-            {{ "showLess" | i18n }}
-          </button>
+          @if (!showAllDetails()) {
+            <button
+              bitTypography="body2"
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-mt-1.5"
+              (click)="toggleShowMore()"
+            >
+              {{ "showMore" | i18n }}
+            </button>
+          } @else {
+            <button
+              bitTypography="body2"
+              type="button"
+              bitLink
+              linkType="primary"
+              class="tw-mt-1.5"
+              (click)="toggleShowMore()"
+            >
+              {{ "showLess" | i18n }}
+            </button>
+          }
         }
       </div>
     </ng-container>

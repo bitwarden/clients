@@ -41,6 +41,18 @@ export abstract class TokenService {
   abstract clearTokens(userId?: UserId): Promise<void>;
 
   /**
+   * Ensures token storage is consistent with account state on app init.
+   * For each provided user id without an access token, clears all remaining tokens
+   * from all storage layers (disk and secure storage).
+   *
+   * A locked account always has an access token on disk, so this only affects
+   * accounts that have been logged out. Safe to call on every startup — a no-op
+   * when storage is already consistent.
+   * @param userIds - The user ids to check and clean up.
+   */
+  abstract cleanupTokenStorage(userIds: UserId[]): Promise<void>;
+
+  /**
    * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
    * and the user id read off the access token. The other storage location is always cleared to
    * enforce the invariant that only one location holds the token at a time.

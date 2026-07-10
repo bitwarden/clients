@@ -12,47 +12,51 @@
           (click)="toggleMatchDetection()"
           data-testid="toggle-match-detection-button"
         ></button>
-        <button
-          type="button"
-          bitIconButton="bwi-minus-circle"
-          buttonType="dangerGhost"
-          bitSuffix
-          [label]="'deleteWebsite' | i18n"
-          *ngIf="canRemove"
-          (click)="removeUri()"
-          data-testid="remove-uri-button"
-        ></button>
+        @if (canRemove) {
+          <button
+            type="button"
+            bitIconButton="bwi-minus-circle"
+            buttonType="dangerGhost"
+            bitSuffix
+            [label]="'deleteWebsite' | i18n"
+            (click)="removeUri()"
+            data-testid="remove-uri-button"
+          ></button>
+        }
       </bit-form-field>
-      <div class="tw-flex tw-items-center tw-ml-1.5" *ngIf="canReorder">
-        <button
-          role="application"
-          type="button"
-          bitIconButton="bwi-drag-and-drop"
-          class="!tw-py-0 !tw-px-1"
-          cdkDragHandle
-          [label]="'reorderToggleButton' | i18n: uriLabel"
-          (keydown)="handleKeydown($event)"
-          data-testid="reorder-toggle-button"
-        ></button>
-      </div>
+      @if (canReorder) {
+        <div class="tw-flex tw-items-center tw-ml-1.5">
+          <button
+            role="application"
+            type="button"
+            bitIconButton="bwi-drag-and-drop"
+            class="!tw-py-0 !tw-px-1"
+            cdkDragHandle
+            [label]="'reorderToggleButton' | i18n: uriLabel"
+            (keydown)="handleKeydown($event)"
+            data-testid="reorder-toggle-button"
+          ></button>
+        </div>
+      }
     </div>
-    <bit-form-field *ngIf="showMatchDetection" class="!tw-mb-5">
-      <bit-label>{{ "matchDetection" | i18n }}</bit-label>
-      <bit-select formControlName="matchDetection" #matchDetectionSelect>
-        <bit-option
-          *ngFor="let o of uriMatchOptions"
-          [label]="o.label"
-          [value]="o.value"
-          [disabled]="o.disabled"
-        ></bit-option>
-      </bit-select>
-      <bit-hint *ngIf="getMatchHints() as hints">
-        {{ hints[0] | i18n }}
-        <ng-container *ngIf="hints.length > 1">
-          <b>{{ "warningCapitalized" | i18n }}:</b>
-          {{ hints[1] | i18n }}
-        </ng-container>
-      </bit-hint>
-    </bit-form-field>
+    @if (showMatchDetection) {
+      <bit-form-field class="!tw-mb-5">
+        <bit-label>{{ "matchDetection" | i18n }}</bit-label>
+        <bit-select formControlName="matchDetection" #matchDetectionSelect>
+          @for (o of uriMatchOptions; track o.value) {
+            <bit-option [label]="o.label" [value]="o.value" [disabled]="o.disabled"></bit-option>
+          }
+        </bit-select>
+        @if (getMatchHints(); as hints) {
+          <bit-hint>
+            {{ hints[0] | i18n }}
+            @if (hints.length > 1) {
+              <b>{{ "warningCapitalized" | i18n }}:</b>
+              {{ hints[1] | i18n }}
+            }
+          </bit-hint>
+        }
+      </bit-form-field>
+    }
   </div>
 </ng-container>

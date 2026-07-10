@@ -220,22 +220,22 @@ describe("AccessReportView", () => {
     });
   });
 
-  describe("getAtRiskPasswordCountForMember", () => {
-    it("should count at-risk passwords for member across all applications", () => {
+  describe("getAtRiskApplicationCountForMember", () => {
+    it("should count at-risk applications the member is at-risk in", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
 
       view.reports = [
-        createReport("github.com", { u1: true }, { c1: true, c2: true }), // 2 at-risk
-        createReport("gitlab.com", { u1: true }, { c3: true, c4: false }), // 1 at-risk
-        createReport("bitbucket.com", { u1: false }, { c5: true }), // Not at-risk, should not count
+        createReport("github.com", { u1: true }, { c1: true, c2: true }), // at-risk app, member at-risk
+        createReport("gitlab.com", { u1: true }, { c3: true }), // at-risk app, member at-risk
+        createReport("bitbucket.com", { u1: false }, { c4: true }), // at-risk app, member NOT at-risk
       ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1");
+      const count = view.getAtRiskApplicationCountForMember("u1");
 
-      expect(count).toBe(3); // 2 from github + 1 from gitlab
+      expect(count).toBe(2); // github + gitlab, regardless of password counts
     });
 
     it("should return 0 when member is not at-risk in any application", () => {
@@ -245,69 +245,54 @@ describe("AccessReportView", () => {
       ]);
 
       view.reports = [
-        createReport("github.com", { u1: false }, { c1: true }), // Not at-risk
-        createReport("gitlab.com", { u1: false }, { c2: true }), // Not at-risk
+        createReport("github.com", { u1: false }, { c1: true }),
+        createReport("gitlab.com", { u1: false }, { c2: true }),
       ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1");
+      const count = view.getAtRiskApplicationCountForMember("u1");
 
       expect(count).toBe(0);
     });
 
-    it("should count passwords for specific application when applicationName provided", () => {
+    it("should count critical at-risk applications only when criticalOnly is set", () => {
+      const view = new AccessReportView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      // Member is at-risk in two critical apps (with many passwords) and one non-critical app.
+      view.reports = [
+        createReport("critical-1.com", { u1: true }, { c1: true, c2: true, c3: true }),
+        createReport("critical-2.com", { u1: true }, { c4: true }),
+        createReport("non-critical.com", { u1: true }, { c5: true }),
+      ];
+      view.applications = [
+        createApplication("critical-1.com", true),
+        createApplication("critical-2.com", true),
+        createApplication("non-critical.com", false),
+      ];
+
+      const count = view.getAtRiskApplicationCountForMember("u1", { criticalOnly: true });
+
+      expect(count).toBe(2); // counts applications, not passwords
+    });
+
+    it("should return 0 with criticalOnly when member is at-risk only in non-critical apps", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
 
       view.reports = [
-        createReport("github.com", { u1: true }, { c1: true, c2: true, c3: true }), // 3 at-risk
-        createReport("gitlab.com", { u1: true }, { c4: true }), // 1 at-risk
+        createReport("critical-app.com", { u1: false }, { c1: true }), // critical, member not at-risk
+        createReport("non-critical.com", { u1: true }, { c2: true }), // member at-risk, not critical
+      ];
+      view.applications = [
+        createApplication("critical-app.com", true),
+        createApplication("non-critical.com", false),
       ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
-
-      expect(count).toBe(3); // Only github.com
-    });
-
-    it("should return 0 when member not at-risk in specific application", () => {
-      const view = new AccessReportView();
-      view.memberRegistry = createMemberRegistry([
-        { id: "u1", name: "Alice", email: "alice@example.com" },
-      ]);
-
-      view.reports = [
-        createReport("github.com", { u1: false }, { c1: true, c2: true }), // Not at-risk
-        createReport("gitlab.com", { u1: true }, { c3: true }), // At-risk
-      ];
-
-      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
-
-      expect(count).toBe(0); // Not at-risk in github
-    });
-
-    it("should return 0 when application not found", () => {
-      const view = new AccessReportView();
-      view.memberRegistry = createMemberRegistry([
-        { id: "u1", name: "Alice", email: "alice@example.com" },
-      ]);
-
-      view.reports = [createReport("github.com", { u1: true }, { c1: true })];
-
-      const count = view.getAtRiskPasswordCountForMember("u1", "nonexistent.com");
-
-      expect(count).toBe(0);
-    });
-
-    it("should return 0 when member not in any application", () => {
-      const view = new AccessReportView();
-      view.memberRegistry = createMemberRegistry([
-        { id: "u1", name: "Alice", email: "alice@example.com" },
-      ]);
-
-      view.reports = [createReport("github.com", { u2: true }, { c1: true })];
-
-      const count = view.getAtRiskPasswordCountForMember("u1");
+      const count = view.getAtRiskApplicationCountForMember("u1", { criticalOnly: true });
 
       expect(count).toBe(0);
     });
@@ -327,15 +312,26 @@ describe("AccessReportView", () => {
       expect(app?.isCritical).toBe(true);
     });
 
-    it("should add new application if not in list", () => {
+    it("should create settings entry when app is in reports but not yet in applications", () => {
       const view = new AccessReportView();
       view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
 
       view.markApplicationsAsCritical(["github.com"]);
 
       expect(view.applications).toHaveLength(1);
       expect(view.applications[0].applicationName).toBe("github.com");
       expect(view.applications[0].isCritical).toBe(true);
+    });
+
+    it("should no-op when application name is not in reports (no ghost entry)", () => {
+      const view = new AccessReportView();
+      view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
+
+      view.markApplicationsAsCritical(["unknown.com"]);
+
+      expect(view.applications).toHaveLength(0);
     });
 
     it("should trigger summary recomputation once for multiple apps", () => {
@@ -415,6 +411,7 @@ describe("AccessReportView", () => {
     it("should mark existing application as reviewed with current date", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       const beforeDate = new Date();
       view.markApplicationAsReviewed("github.com");
@@ -429,6 +426,7 @@ describe("AccessReportView", () => {
     it("should mark application with specific date", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       const specificDate = new Date("2024-01-15");
       view.markApplicationAsReviewed("github.com", specificDate);
@@ -437,9 +435,10 @@ describe("AccessReportView", () => {
       expect(app?.reviewedDate).toEqual(specificDate);
     });
 
-    it("should add new application if not in list", () => {
+    it("should create settings entry when app is in reports but not yet in applications", () => {
       const view = new AccessReportView();
       view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
 
       view.markApplicationAsReviewed("github.com");
 
@@ -448,9 +447,20 @@ describe("AccessReportView", () => {
       expect(view.applications[0].reviewedDate).toBeDefined();
     });
 
+    it("should no-op when application name is not in reports (no ghost entry)", () => {
+      const view = new AccessReportView();
+      view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
+
+      view.markApplicationAsReviewed("unknown.com");
+
+      expect(view.applications).toHaveLength(0);
+    });
+
     it("should not trigger summary recomputation", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       // Manually set summary to verify it doesn't change
       view.summary.totalApplicationCount = 99;
@@ -465,7 +475,7 @@ describe("AccessReportView", () => {
   // ==================== Computation Methods ====================
 
   describe("recomputeSummary", () => {
-    it("should compute total counts correctly", () => {
+    it("should compute organization-wide member and application counts, including at-risk subsets", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
@@ -505,7 +515,7 @@ describe("AccessReportView", () => {
       expect(view.summary.totalAtRiskMemberCount).toBe(1); // u1 counted once
     });
 
-    it("should compute critical application counts", () => {
+    it("should compute critical application and member counts, including at-risk subsets", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
@@ -682,6 +692,80 @@ describe("AccessReportView", () => {
       expect(metrics.totalAtRiskPasswordCount).toBe(1);
       expect(metrics.totalCriticalPasswordCount).toBe(1); // Only github.com has passwords
       expect(metrics.totalCriticalAtRiskPasswordCount).toBe(1);
+    });
+  });
+
+  // ==================== Encryption Payload ====================
+
+  describe("toEncryptionPayload", () => {
+    it("should map reports to ApplicationHealthData with all fields", () => {
+      const view = new AccessReportView();
+      view.reports = [createReport("github.com", { u1: true, u2: false }, { c1: true, c2: false })];
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
+      view.applications = [createApplication("github.com", true)];
+
+      const payload = view.toEncryptionPayload();
+      const report = payload.reportData.reports[0];
+
+      expect(report.applicationName).toBe("github.com");
+      expect(report.memberRefs).toEqual({ u1: true, u2: false });
+      expect(report.cipherRefs).toEqual({ c1: true, c2: false });
+    });
+
+    it("should map memberRegistry entries to MemberRegistryEntryData", () => {
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+      view.applications = [];
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.reportData.memberRegistry["u1"]).toEqual(
+        expect.objectContaining({ id: "u1", userName: "Alice", email: "alice@example.com" }),
+      );
+    });
+
+    it("should pass summary directly as summaryData", () => {
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = {};
+      view.applications = [];
+      view.summary.totalApplicationCount = 5;
+      view.summary.totalMemberCount = 10;
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.summaryData).toBe(view.summary);
+    });
+
+    it("should map applications to AccessReportSettingsData with all fields", () => {
+      const reviewedDate = new Date("2024-06-01T12:00:00.000Z");
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = {};
+      view.applications = [createApplication("github.com", true, reviewedDate)];
+
+      const payload = view.toEncryptionPayload();
+      const appData = payload.applicationData[0];
+
+      expect(appData.applicationName).toBe("github.com");
+      expect(appData.isCritical).toBe(true);
+      expect(appData.reviewedDate).toBe(reviewedDate.toISOString());
+    });
+
+    it("should return empty arrays when view has no reports or applications", () => {
+      const view = new AccessReportView();
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.reportData.reports).toEqual([]);
+      expect(payload.reportData.memberRegistry).toEqual({});
+      expect(payload.applicationData).toEqual([]);
     });
   });
 

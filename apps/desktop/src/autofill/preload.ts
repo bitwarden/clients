@@ -10,24 +10,34 @@ import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
 import { AUTOTYPE_IPC_CHANNELS, SSH_AGENT_IPC_CHANNELS } from "./models/ipc-channels";
 
+type CompletionCallback<T> = {
+  (error: null, response: T): void;
+  (error: Error, response: null): void;
+};
 const sshAgent = {
   init: async (useV2: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
   },
-  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
-    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SET_KEYS, keys),
+  replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
   },
-  lock: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LOCK);
+  listRequestResponse: async (requestId: number, accepted: boolean) => {
+    await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LIST_KEYS_RESPONSE, { requestId, accepted });
   },
+  // V1, delete with PM-30758
+  lock: async () => {
+    return await ipcRenderer.invoke("sshagent.lock");
+  },
+  // V1, delete with PM-30758
   clearKeys: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS);
+    return await ipcRenderer.invoke("sshagent.clearkeys");
   },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
+  stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
 export default {
@@ -42,10 +52,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyRegistrationRequest,
-      completeCallback: (
-        error: Error | null,
-        response: autofill.PasskeyRegistrationResponse,
-      ) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyRegistrationResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -84,7 +91,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyAssertionRequest,
-      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(
@@ -122,7 +129,7 @@ export default {
       clientId: number,
       sequenceNumber: number,
       request: autofill.PasskeyAssertionWithoutUserInterfaceRequest,
-      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
+      completeCallback: CompletionCallback<autofill.PasskeyAssertionResponse>,
     ) => void,
   ) => {
     ipcRenderer.on(

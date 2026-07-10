@@ -28,6 +28,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
+import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
 import { Response } from "../models/response";
 import { CliUtils } from "../utils";
 
@@ -101,7 +102,11 @@ export class CreateCommand {
 
       const cipherView = CipherExport.toView(req);
 
-      if (cipherView.type === CipherType.BankAccount) {
+      if (
+        cipherView.type === CipherType.BankAccount ||
+        cipherView.type === CipherType.DriversLicense ||
+        cipherView.type === CipherType.Passport
+      ) {
         const newItemTypesEnabled = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
         );
@@ -260,7 +265,13 @@ export class CreateCommand {
       });
       const response = await this.apiService.postCollection(req.organizationId, request);
       const view = CollectionExport.toView(req, response.id);
-      const res = new OrganizationCollectionResponse(view, groups, users);
+      const serverGroups = response.groups.map(
+        (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+      );
+      const serverUsers = response.users.map(
+        (u) => new SelectionReadOnly(u.id, u.readOnly, u.hidePasswords, u.manage),
+      );
+      const res = new OrganizationCollectionResponse(view, serverGroups, serverUsers);
       return Response.success(res);
     } catch (e) {
       return Response.error(e);

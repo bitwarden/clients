@@ -1,40 +1,93 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, RevocationReasonType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Guid, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 
 export class OrganizationUserView {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: UserId;
   type: OrganizationUserType;
-  status: OrganizationUserStatusType;
+  revocationReason: RevocationReasonType;
+  readonly status: OrganizationUserStatusType;
   permissions: PermissionsApi;
-  resetPasswordEnrolled: boolean;
-  name: string;
+  resetPasswordEnrolled: boolean = false;
+  name: string | undefined;
   email: string;
   avatarColor: string;
-  twoFactorEnabled: boolean;
-  usesKeyConnector: boolean;
-  hasMasterPassword: boolean;
+  twoFactorEnabled: boolean = false;
+  usesKeyConnector: boolean = false;
+  hasMasterPassword: boolean = false;
   /**
    * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
    */
-  accessSecretsManager: boolean;
-  managedByOrganization: boolean;
+  accessSecretsManager: boolean = false;
+  claimedByOrganization: boolean = false;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
 
-  groupNames: string[] = [];
   collectionNames: string[] = [];
+  groupNames: string[] = [];
+
+  readonly canConfirm: boolean;
+  readonly canReinvite: boolean;
+  readonly canRestore: boolean;
+  readonly canRevoke: boolean;
+  readonly canRemove: boolean;
+  readonly canManageMember: boolean;
+
+  constructor(c: {
+    id: Guid;
+    userId: UserId;
+    email: string;
+    type: OrganizationUserType;
+    revocationReason: RevocationReasonType;
+    status: OrganizationUserStatusType;
+    permissions: PermissionsApi;
+    avatarColor: string;
+    name: string | undefined;
+    claimedByOrganization?: boolean;
+  }) {
+    this.id = c.id;
+    this.userId = c.userId;
+    this.email = c.email;
+    this.type = c.type;
+    this.revocationReason = c.revocationReason;
+    this.status = c.status;
+    this.permissions = c.permissions;
+    this.avatarColor = c.avatarColor;
+    this.name = c.name;
+    this.claimedByOrganization = c.claimedByOrganization ?? false;
+
+    this.canConfirm = this.status === OrganizationUserStatusType.Accepted;
+    this.canReinvite = this.status === OrganizationUserStatusType.Invited;
+    this.canRestore = this.status === OrganizationUserStatusType.Revoked;
+    this.canRevoke = this.status !== OrganizationUserStatusType.Revoked;
+    this.canRemove = !this.claimedByOrganization;
+    this.canManageMember = this.status !== OrganizationUserStatusType.Staged;
+  }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
-    const view = Object.assign(new OrganizationUserView(), response) as OrganizationUserView;
+    const view = new OrganizationUserView({
+      id: response.id as Guid,
+      userId: response.userId as UserId,
+      email: response.email,
+      type: response.type,
+      revocationReason: response.revocationReason,
+      status: response.status,
+      permissions: response.permissions,
+      avatarColor: response.avatarColor,
+      name: response.name,
+      claimedByOrganization: response.claimedByOrganization,
+    });
+
+    view.resetPasswordEnrolled = response.resetPasswordEnrolled;
+    view.twoFactorEnabled = response.twoFactorEnabled;
+    view.usesKeyConnector = response.usesKeyConnector;
+    view.hasMasterPassword = response.hasMasterPassword;
+    view.accessSecretsManager = response.accessSecretsManager;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));

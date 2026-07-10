@@ -4,7 +4,9 @@
   </span>
 
   <div bitDialogContent>
-    <p>{{ "subscribeEnterpriseSubtitle" | i18n: currentPlanName }}</p>
+    <p>
+      {{ "subscribeEnterpriseSubtitleSpecificTrialLength" | i18n: currentPlanName : trialLength }}
+    </p>
 
     <!-- Plan Features List -->
     <ng-container [ngSwitch]="currentPlan?.productTier">

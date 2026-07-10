@@ -1,5 +1,9 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core";
+import { Directive, ElementRef, computed, inject, input } from "@angular/core";
+
+/** Shared classes for the label content span inside a tab list item. */
+export const TAB_LABEL_CONTENT_CLASSES =
+  "tw-flex tw-items-center tw-gap-1.5 tw-h-6 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
 
 /**
  * Directive used for styling tab header items for both nav links (anchor tags)
@@ -7,22 +11,21 @@ import { Directive, ElementRef, HostBinding, Input, input } from "@angular/core"
  */
 @Directive({
   selector: "[bitTabListItem]",
+  host: {
+    "[attr.disabled]": "disabledInput() || null",
+    "[class]": "classList()",
+  },
 })
 export class TabListItemDirective implements FocusableOption {
   readonly active = input<boolean>();
-  // TODO: Skipped for signal migration because:
-  //  This input overrides a field from a superclass, while the superclass field
-  //  is not migrated.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() disabled = false;
+  readonly disabledInput = input(false, { alias: "disabled" });
 
-  @HostBinding("attr.disabled")
-  get disabledAttr() {
-    return this.disabled || null; // native disabled attr must be null when false
+  // Satisfies FocusableOption interface from CDK (cannot change external interface)
+  get disabled(): boolean {
+    return this.disabledInput();
   }
 
-  constructor(private elementRef: ElementRef) {}
+  readonly elementRef = inject(ElementRef);
 
   focus() {
     this.elementRef.nativeElement.focus();
@@ -32,67 +35,53 @@ export class TabListItemDirective implements FocusableOption {
     this.elementRef.nativeElement.click();
   }
 
-  @HostBinding("class")
-  get classList(): string[] {
-    return this.baseClassList
+  protected readonly classList = computed(() =>
+    this.baseClassList
       .concat(this.active() ? this.activeClassList : [])
-      .concat(this.disabled ? this.disabledClassList : [])
-      .concat(this.textColorClassList);
-  }
+      .concat(this.disabledInput() ? this.disabledClassList : [])
+      .concat(this.textColorClassList()),
+  );
 
   /**
    * Classes used for styling tab item text color.
    * Separate text color class list required to override bootstrap classes in Web.
    */
-  get textColorClassList(): string[] {
-    if (this.disabled) {
-      return ["!tw-text-secondary-300", "hover:!tw-text-secondary-300"];
+  protected readonly textColorClassList = computed(() => {
+    if (this.disabledInput()) {
+      return ["!tw-text-fg-inactive", "hover:!tw-text-fg-inactive"];
     }
     if (this.active()) {
-      return ["!tw-text-primary-600", "hover:!tw-text-primary-700"];
+      return ["!tw-text-fg-brand"];
     }
-    return ["!tw-text-main", "hover:!tw-text-main"];
-  }
+    return ["!tw-text-fg-body", "hover:!tw-text-fg-brand"];
+  });
 
-  get baseClassList(): string[] {
-    return [
-      "tw-block",
-      "tw-relative",
-      "tw-py-2",
-      "tw-px-4",
-      "tw-font-medium",
-      "tw-transition",
-      "tw-rounded-t-lg",
-      "tw-border-0",
-      "tw-border-x",
-      "tw-border-t-4",
-      "tw-border-transparent",
-      "tw-border-solid",
-      "tw-bg-transparent",
-      "hover:tw-underline",
-      "focus-visible:tw-z-10",
-      "focus-visible:tw-outline-none",
-      "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-primary-600",
-    ];
-  }
+  readonly baseClassList: string[] = [
+    "tw-block",
+    "tw-relative",
+    "tw-h-full",
+    "tw-max-w-fit",
+    "tw-whitespace-nowrap",
+    "tw-pb-3",
+    "tw-text-sm",
+    "tw-font-medium",
+    "tw-bg-transparent",
+    "tw-outline-none",
+    "tw-group/tab-list-item",
+    "tw-transition",
 
-  get disabledClassList(): string[] {
-    return ["!tw-no-underline", "tw-cursor-not-allowed"];
-  }
+    "after:tw-content-['']",
+    "after:tw-w-full",
+    "after:tw-h-[2px]",
+    "after:tw-bg-bg-brand",
+    "after:tw-absolute",
+    "after:-tw-bottom-px",
+    "after:tw-inset-x-0",
+    "after:tw-transition-opacity",
+    "after:tw-opacity-0",
+  ];
 
-  get activeClassList(): string[] {
-    return [
-      "tw--mb-px",
-      "tw-border-x-secondary-100",
-      "tw-border-t-primary-600",
-      "tw-border-b",
-      "tw-border-b-background",
-      "!tw-bg-background",
-      "hover:tw-no-underline",
-      "hover:tw-border-t-primary-700",
-      "focus-visible:tw-border-t-primary-700",
-      "focus-visible:!tw-text-primary-700",
-    ];
-  }
+  readonly disabledClassList: string[] = ["tw-cursor-default"];
+
+  readonly activeClassList: string[] = ["tw-font-semibold", "after:tw-opacity-100"];
 }

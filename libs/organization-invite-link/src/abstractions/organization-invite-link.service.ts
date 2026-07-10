@@ -2,40 +2,58 @@ import { Observable } from "rxjs";
 
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
+import { OrganizationInviteLink } from "../models/responses/organization-invite-link.response";
 
 export abstract class OrganizationInviteLinkService {
   /** Observable stream of the cached invite link for the given user */
-  abstract inviteLink$(userId: UserId): Observable<OrganizationInviteLinkResponseModel | undefined>;
+  abstract inviteLink$(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Observable<OrganizationInviteLink | undefined>;
 
   /**
-   * Create a new invite link for the organization.
-   * Emits the shareable URL once, then completes.
+   * Create a new invite link for the organization. Resolves once the SDK key generation,
+   * API call, and local state update have all succeeded.
    */
   abstract createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
-    domains: string[],
-  ): Promise<string>;
+    allowedDomains: string[],
+    supportsConfirmation: boolean,
+  ): Promise<void>;
 
   /**
-   * Refresh the invite link using cached allowed domains.
-   * Emits the shareable URL once, then completes.
+   * Update the allowed domains on an existing invite link.
    */
-  abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<string>;
+  abstract updateAllowedDomains(
+    userId: UserId,
+    orgId: OrganizationId,
+    allowedDomain: string[],
+  ): Promise<void>;
 
   /**
-   * Reconstruct the shareable URL from the server-stored invite link.
-   * Emits the URL (or undefined when none exists), then completes.
+   * Refresh the invite link via the server endpoint. Resolves once the SDK key generation,
+   * API call, and local state update have all succeeded.
    */
-  abstract reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string | undefined>;
+  abstract refreshInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    supportsConfirmation: boolean,
+  ): Promise<void>;
 
-  /** Persist an invite link response to local state */
-  abstract upsert(userId: UserId, data: OrganizationInviteLinkResponseModel): Promise<void>;
+  /**
+   * Reconstruct and returns an Observable containing the shareable URL for the provided
+   * organization's invite link.
+   */
+  abstract reconstructUrl(
+    userId: UserId,
+    orgId: OrganizationId,
+    inviteLink: OrganizationInviteLink,
+  ): Observable<string>;
+
+  /** Persist an invite link to local state */
+  abstract upsert(userId: UserId, data: OrganizationInviteLink): Promise<void>;
 
   /** Delete (revoke) the invite link via the API and clear local cached state */
   abstract delete(userId: UserId, orgId: OrganizationId): Promise<void>;
-
-  /** Clear local cached invite link state for the user without calling the API */
-  abstract clear(userId: UserId): Promise<void>;
 }

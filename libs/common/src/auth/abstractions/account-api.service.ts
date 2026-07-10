@@ -1,4 +1,3 @@
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "../models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
@@ -48,19 +47,9 @@ export abstract class AccountApiService {
    * @param request - The user's email verification token, the email, newly created user key, and new
    * asymmetric user key pair along with the KDF information, hashed MP and salt (in the form of the
    * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
-   *
-   * OLD DESCRIPTION FOR ORIGINAL API CONTRACT: (the rest of this JSDoc below can be removed in PM-28143)
-   *
-   * Completes the registration process.
-   *
-   * @param request - The request object containing the user's email verification token,
-   * the email, hashed MP, newly created user key, and new asymmetric user key pair along
-   * with the KDF information used during the process.
    * @returns A promise that resolves when the registration process is successfully completed.
    */
-  abstract registerFinish(
-    request: RegisterFinishRequest | RegisterFinishRequestWithAuthUnlockDataTypes,
-  ): Promise<void>;
+  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

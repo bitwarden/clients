@@ -10,7 +10,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -20,7 +19,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
 
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import
@@ -60,13 +59,6 @@ export default {
             getAllDecrypted: () => Promise.resolve([]),
           },
         },
-        // Can remove ConfigService from component and stories in PM-28143 (if it is no longer used)
-        {
-          provide: ConfigService,
-          useValue: {
-            getFeatureFlag: () => false, // default to false since flag does not effect UI
-          },
-        },
         {
           provide: KdfConfigService,
           useValue: {
@@ -84,13 +76,6 @@ export default {
           useValue: {
             launchUri: () => Promise.resolve(true),
             copyToClipboard: () => true,
-          },
-        },
-        {
-          provide: KeyService,
-          useValue: {
-            makeMasterKey: () => Promise.resolve("example-master-key"),
-            hashMasterKey: () => Promise.resolve("example-master-key-hash"),
           },
         },
         {

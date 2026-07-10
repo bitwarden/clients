@@ -110,10 +110,11 @@ export class OssServeConfigurator {
       this.serviceContainer.cliRestrictedItemTypesService,
       this.serviceContainer.policyService,
       this.serviceContainer.billingAccountProfileStateService,
+      this.serviceContainer.cipherAuthorizationService,
     );
     this.generateCommand = new GenerateCommand(
-      this.serviceContainer.credentialGeneratorService,
-      this.serviceContainer.generatorDependencyProvider,
+      this.serviceContainer.passwordGenerationService,
+      this.serviceContainer.tokenService,
       this.serviceContainer.accountService,
     );
     this.syncCommand = new SyncCommand(this.serviceContainer.syncService);
@@ -157,6 +158,8 @@ export class OssServeConfigurator {
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
+      this.serviceContainer.collectionService,
+      this.serviceContainer.organizationService,
     );
     this.lockCommand = new LockCommand(
       serviceContainer.lockService,
@@ -164,8 +167,6 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.keyService,
-      this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
       this.serviceContainer.environmentService,
@@ -173,9 +174,7 @@ export class OssServeConfigurator {
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
-      this.serviceContainer.masterPasswordUnlockService,
       this.serviceContainer.unlockService,
-      this.serviceContainer.configService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
@@ -184,6 +183,8 @@ export class OssServeConfigurator {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.policyService,
+      this.serviceContainer.configService,
     );
     this.sendDeleteCommand = new SendDeleteCommand(
       this.serviceContainer.sendService,

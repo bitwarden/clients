@@ -44,7 +44,7 @@ export const AUTOFILL_ATTRIBUTES = {
   AUTOCOMPLETE_TYPE: "autocompletetype",
   X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
   CHECKED: "checked",
-  CLASS: "class",
+  // CLASS intentionally omitted because it can cause a callback storm on dynamic pages.
   DATA_LABEL: "data-label",
   DATA_STRIPE: "data-stripe",
   DISABLED: "disabled",
@@ -78,6 +78,7 @@ export const AUTOFILL_CARD_ID = "autofill-card";
 export const AUTOFILL_ID = "autofill";
 export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
 export const AUTOFILL_IDENTITY_ID = "autofill-identity";
+export const AUTOFILL_TRIAGE_ID = "autofill-triage";
 export const COPY_IDENTIFIER_ID = "copy-identifier";
 export const COPY_PASSWORD_ID = "copy-password";
 export const COPY_USERNAME_ID = "copy-username";
@@ -109,6 +110,7 @@ export const AutofillOverlayVisibility = {
 
 export const BrowserClientVendors = {
   Chrome: "Chrome",
+  Firefox: "Firefox",
   Opera: "Opera",
   Edge: "Edge",
   Vivaldi: "Vivaldi",
@@ -117,6 +119,7 @@ export const BrowserClientVendors = {
 
 export const BrowserShortcutsUris = {
   Chrome: "chrome://extensions/shortcuts",
+  Firefox: "https://bitwarden.com/help/keyboard-shortcuts",
   Opera: "opera://extensions/shortcuts",
   Edge: "edge://extensions/shortcuts",
   Vivaldi: "vivaldi://extensions/shortcuts",
@@ -124,9 +127,10 @@ export const BrowserShortcutsUris = {
 } as const;
 
 export const DisablePasswordManagerUris = {
-  Chrome: "chrome://settings/autofill",
+  Chrome: "chrome://password-manager/settings",
+  Firefox: "https://bitwarden.com/help/disable-browser-autofill/",
   Opera: "opera://settings/autofill",
-  Edge: "edge://settings/passwords",
+  Edge: "edge://settings/autofill/passwords/settings",
   Vivaldi: "vivaldi://settings/autofill",
   Unknown: "https://bitwarden.com/help/disable-browser-autofill/",
 } as const;
@@ -150,6 +154,31 @@ export const CLEAR_NOTIFICATION_LOGIN_DATA_DURATION = 60 * 1000; // 1 minute
 export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
+
+// this list is derived from the `attachShadow` candidate elements list
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
+  new Set([
+    "ARTICLE",
+    "ASIDE",
+    "BLOCKQUOTE",
+    "BODY",
+    "DIV",
+    "FOOTER",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "HEADER",
+    "MAIN",
+    "NAV",
+    "P",
+    "SECTION",
+    "SPAN",
+  ]),
+);
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in

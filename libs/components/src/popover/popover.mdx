@@ -31,8 +31,6 @@ page.
 The popover should have even spacing above and below the content. If you are using element(s) inside
 the popover that have built-in bottom margin, please remove the bottom margin on the last element.
 
-<Canvas of={stories.OpenLongTitle} />
-
 ## Open on Page Load
 
 A Popover can be set to initially open on page load by setting `[popoverOpen]="true"` on the trigger
@@ -93,3 +91,25 @@ To test this out, open the Popopver in the example above and then slowly resize 
 horizontally to make it smaller. When the Popover no longer fits the `above-end` position, it will
 jump down below the trigger, using `below-center`, because that is the first position that fits
 based on the list of default positions.
+
+## Spotlight
+
+The `[spotlight]` input dims the page and highlights the trigger element, creating a guided tour
+effect.
+
+<Canvas of={stories.SpotlightTour} />
+
+### Multiple Spotlights
+
+Only one spotlight can be active at a time. Opening a second spotlight automatically closes the
+first.
+
+<Canvas of={stories.MultipleSpotlights} />
+
+### Block-level anchor requirement
+
+The spotlight overlay tracks the trigger element's size and position. The underlying
+`ResizeObserver` is
+[excluded from inline elements by the browser spec](https://www.w3.org/TR/resize-observer/#intro),
+so **the element you attach `[bitPopoverAnchorFor]` to must be block-level** for resize tracking to
+work correctly.

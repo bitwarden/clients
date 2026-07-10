@@ -5,12 +5,13 @@ import { filter, switchMap, take, map } from "rxjs/operators";
 import { PremiumUpsellService } from "@bitwarden/angular/vault";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
-import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { BILLING_DISK_LOCAL, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
@@ -20,7 +21,7 @@ import {
 
 // State key for tracking premium modal dismissal
 export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
-  BILLING_DISK,
+  BILLING_DISK_LOCAL,
   "premiumModalDismissed",
   {
     deserializer: (value: boolean) => value,
@@ -42,6 +43,7 @@ export class UnifiedUpgradePromptService {
     private stateProvider: StateProvider,
     private logService: LogService,
     private premiumUpsellService: PremiumUpsellService,
+    private configService: ConfigService,
   ) {}
 
   private shouldShowPrompt$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -74,6 +76,11 @@ export class UnifiedUpgradePromptService {
    * @returns A promise that resolves to the dialog result if shown, or null if not shown
    */
   async displayUpgradePromptConditionally(): Promise<UnifiedUpgradeDialogResult | null> {
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return null;
+    }
+
     const shouldShow = await firstValueFrom(this.shouldShowPrompt$);
 
     if (shouldShow) {

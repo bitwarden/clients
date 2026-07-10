@@ -16,12 +16,7 @@ import { OrganizationResellerRenewalWarning } from "../types";
     @let warning = warning$ | async;
 
     @if (warning) {
-      <bit-banner
-        id="reseller-warning-banner"
-        icon="bwi-billing"
-        bannerType="info"
-        [showClose]="false"
-      >
+      <bit-banner id="reseller-warning-banner" icon="bwi-billing" variant="primary">
         {{ warning.message }}
       </bit-banner>
     }

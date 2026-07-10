@@ -1,16 +1,15 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import Domain from "@bitwarden/common/platform/models/domain/domain-base";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
-import {
-  Collection as SdkCollection,
-  CollectionType as SdkCollectionType,
-} from "@bitwarden/sdk-internal";
+import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
+
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import Domain from "../../../platform/models/domain/domain-base";
+import { CollectionId, OrganizationId } from "../../../types/guid";
+import { OrgKey } from "../../../types/key";
 
 import { CollectionData } from "./collection.data";
+
+import { CollectionView } from ".";
 
 export const CollectionTypes = {
   SharedCollection: 0,
@@ -18,21 +17,6 @@ export const CollectionTypes = {
 } as const;
 
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
-
-/**
- * Exhaustive bidirectional maps between our numeric CollectionType and the SDK's string variant.
- * Typed with `satisfies Record<...>` so TypeScript will fail to compile if either side gains a
- * new member without a corresponding entry being added here.
- */
-export const sdkTypeToCollectionType = {
-  SharedCollection: CollectionTypes.SharedCollection,
-  DefaultUserCollection: CollectionTypes.DefaultUserCollection,
-} satisfies Record<SdkCollectionType, CollectionType>;
-
-export const collectionTypeToSdkType = {
-  [CollectionTypes.SharedCollection]: "SharedCollection",
-  [CollectionTypes.DefaultUserCollection]: "DefaultUserCollection",
-} satisfies Record<CollectionType, SdkCollectionType>;
 
 export class Collection extends Domain {
   id: CollectionId;
@@ -112,7 +96,7 @@ export class Collection extends Domain {
     collection.readOnly = sdkCollection.readOnly;
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
-    collection.type = sdkTypeToCollectionType[sdkCollection.type];
+    collection.type = sdkCollection.type;
     return collection;
   }
 
@@ -129,7 +113,7 @@ export class Collection extends Domain {
       readOnly: this.readOnly,
       manage: this.manage,
       defaultUserCollectionEmail: this.defaultUserCollectionEmail,
-      type: collectionTypeToSdkType[this.type],
+      type: this.type,
     };
   }
 

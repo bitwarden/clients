@@ -1,7 +1,8 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { newGuid } from "@bitwarden/guid";
+
+import { CollectionId, OrganizationId } from "../../types/guid";
+import { TreeNode } from "../../vault/models/domain/tree-node";
+import { CollectionView } from "../models/collections";
 
 import { getNestedCollectionTree, getFlatCollectionTree } from "./collection-utils";
 

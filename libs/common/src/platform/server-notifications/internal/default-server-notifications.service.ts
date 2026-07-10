@@ -16,19 +16,18 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
-import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { trackedMerge } from "@bitwarden/common/platform/misc";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
+import { AuthRequestAnsweringService } from "../../../auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import {
   LogOutNotification,
   NotificationResponse,
+  PremiumStatusChangedNotification,
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
@@ -40,6 +39,7 @@ import { ConfigService } from "../../abstractions/config/config.service";
 import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
 import { MessagingService } from "../../abstractions/messaging.service";
+import { trackedMerge } from "../../misc";
 import { supportSwitch } from "../../misc/support-status";
 import { ServerNotificationsService } from "../server-notifications.service";
 
@@ -71,8 +71,8 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly webPushConnectionService: WebPushConnectionService,
     private readonly authRequestAnsweringService: AuthRequestAnsweringService,
     private readonly configService: ConfigService,
-    private readonly policyService: InternalPolicyService,
     private autoConfirmService: AutomaticUserConfirmationService,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {
@@ -231,6 +231,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         const noLogoutOnKdfChange = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKdfChange),
         );
+        const noLogoutOnKeyUpgradeRotation = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.NoLogoutOnKeyUpgradeRotation),
+        );
         if (
           noLogoutOnKdfChange &&
           logOutNotification.reason === PushNotificationLogOutReasonType.KdfChange
@@ -238,6 +241,14 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           this.logService.info(
             "[Notifications Service] Skipping logout due to no logout KDF change",
           );
+        } else if (
+          noLogoutOnKeyUpgradeRotation &&
+          logOutNotification.reason === PushNotificationLogOutReasonType.KeyRotation
+        ) {
+          this.logService.info(
+            "[Notifications Service] Skipping logout due to no logout key rotation. Performing full sync.",
+          );
+          await this.syncService.fullSync(true);
         } else {
           await this.logoutCallback("logoutNotification", userId);
         }
@@ -293,7 +304,9 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         });
         break;
       case NotificationType.SyncPolicy:
-        await this.policyService.syncPolicy(PolicyData.fromPolicy(notification.payload.policy));
+        // TODO (PM-38875): this should compare against local data and only fetch the specific
+        // policy if required. For now just force a sync.
+        await this.syncService.fullSync(true);
         break;
       case NotificationType.AutoConfirmMember:
         await this.autoConfirmService.autoConfirmUser(
@@ -303,6 +316,20 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           notification.payload.organizationId,
         );
         break;
+      case NotificationType.PremiumStatusChanged: {
+        const premiumPayload = notification.payload as PremiumStatusChangedNotification;
+        const hasPremiumFromAnyOrganization = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(
+            premiumPayload.userId as UserId,
+          ),
+        );
+        await this.billingAccountProfileStateService.setHasPremium(
+          premiumPayload.premium,
+          hasPremiumFromAnyOrganization,
+          premiumPayload.userId as UserId,
+        );
+        break;
+      }
       default:
         break;
     }

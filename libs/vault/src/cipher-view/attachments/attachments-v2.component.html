@@ -3,18 +3,19 @@
     {{ "addAttachment" | i18n }}
   </span>
   <ng-container bitDialogContent>
-    <app-cipher-attachments
-      *ngIf="cipherId"
-      [cipherId]="cipherId"
-      [organizationId]="organizationId"
-      [admin]="admin"
-      [submitBtn]="submitBtn"
-      (onUploadStarted)="uploadStarted()"
-      (onUploadSuccess)="uploadSuccessful()"
-      (onUploadFailed)="uploadFailed()"
-      (onRemoveSuccess)="removalSuccessful()"
-      (onCloseButtonPress)="closeButtonPressed()"
-    ></app-cipher-attachments>
+    @if (cipherId) {
+      <app-cipher-attachments
+        [cipherId]="cipherId"
+        [organizationId]="organizationId"
+        [admin]="admin"
+        [submitBtn]="submitBtn"
+        (onUploadStarted)="uploadStarted()"
+        (onUploadSuccess)="uploadSuccessful()"
+        (onUploadFailed)="uploadFailed()"
+        (onRemoveSuccess)="removalSuccessful()"
+        (onCloseButtonPress)="closeButtonPressed()"
+      ></app-cipher-attachments>
+    }
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton type="submit" buttonType="primary" [attr.form]="attachmentFormId" #submitBtn>

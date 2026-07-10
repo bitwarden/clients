@@ -17,6 +17,8 @@ describe("CipherType", () => {
         4: "Identity",
         5: "SshKey",
         6: "BankAccount",
+        7: "DriversLicense",
+        8: "Passport",
       });
     });
   });

@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -226,6 +227,11 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   readonly hideTable = input(false);
 
   /**
+   * Test ID applied to the multi-select element for automation
+   */
+  readonly multiSelectTestId = input<string>();
+
+  /**
    * The initial permission that will be selected in the dialog, defaults to View.
    */
   protected readonly initialPermission = input<CollectionPermission>(CollectionPermission.View);
@@ -245,11 +251,13 @@ export class AccessSelectorComponent implements ControlValueAccessor {
 
     effect(() => {
       const val = this.items();
-      const selected = (
-        this.pendingValue() ??
-        this.selectionList.formArray.getRawValue() ??
-        []
-      ).concat(val.filter((m) => m.readonly));
+      const pending = this.pendingValue();
+      const selected = (pending ?? this.selectionList.formArray.getRawValue() ?? []).concat(
+        val.filter((m) => m.readonly),
+      );
+      if (pending != null) {
+        untracked(() => this.pendingValue.set(null));
+      }
       this.selectionList.populateItems(
         val.map((m) => {
           m.icon = m.icon ?? this.itemIcon(m); // Ensure an icon is set

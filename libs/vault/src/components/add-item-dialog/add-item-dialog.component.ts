@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from "@angular/core";
 
 import { DIALOG_DATA, DialogModule, DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -23,6 +23,11 @@ export type AddItemDialogData = {
 export class AddItemDialogComponent {
   protected readonly dialogRef = inject<DialogRef<AddItemDialogCloseResult>>(DialogRef);
   protected readonly data = inject<AddItemDialogData>(DIALOG_DATA);
+
+  private readonly grid = viewChild.required(AddItemGridComponent);
+  protected readonly dialogSize = computed(() =>
+    this.grid().items().length >= 6 ? "large" : "default",
+  );
 
   protected onItemSelected(closeResult: AddItemDialogCloseResult): void {
     void this.dialogRef.close(closeResult);

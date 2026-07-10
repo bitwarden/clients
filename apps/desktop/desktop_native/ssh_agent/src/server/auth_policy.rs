@@ -1,30 +1,37 @@
 //! `AuthPolicy` defines an interface for entities external to the
 //! ssh agent server to authorizing SSH agent operations.
 
+use super::protocol::SIGNamespace;
 use crate::{authorization::AuthError, crypto::PublicKey};
 
-/// Represents the parsed SSHSIG namespace.
-// <https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.sshsig>
-#[derive(Debug, Clone, PartialEq)]
-pub enum SIGNamespace {
-    Git,
-    File,
-    Unsupported,
+/// Session-bind context for an SSH sign request.
+#[derive(Debug, Clone)]
+pub struct SessionBindContext {
+    /// Whether this is an agent forwarding request.
+    pub is_forwarding: bool,
+    /// SHA-256 fingerprint of the remote host's public key.
+    pub host_fingerprint: String,
+}
+
+/// Connection-level context for an SSH sign request.
+#[derive(Debug, Clone)]
+pub struct ConnectionContext {
+    /// Name of the process making the request. Often unavailable in sandboxed environments.
+    pub process_name: Option<String>,
+    /// Session-bind context. `None` when no session-bind extension was received.
+    pub session_bind: Option<SessionBindContext>,
 }
 
 /// Request to sign data using an SSH key.
 #[derive(Debug, Clone)]
 pub struct SignRequest {
-    /// The public key identifying which key to use for signing
+    /// The public key identifying which key to use for signing.
     pub public_key: PublicKey,
-    /// Name of the process making the request. If the agent is running in sandboxed environments,
-    /// it may not have access to the process name.
-    pub process_name: Option<String>,
-    /// Whether this is an agent forwarding request
-    pub is_forwarding: bool,
     /// The parsed representation of the sign request's SIG namespace. For authentications to a
     /// server, this is `None`.
     pub namespace: Option<SIGNamespace>,
+    /// Connection-level context: peer process info and session-bind state.
+    pub connection: ConnectionContext,
 }
 
 /// Authorization request for SSH agent operations.

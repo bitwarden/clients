@@ -8,14 +8,13 @@ import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/adm
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
-import {
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
+import {
+  CollectionAccessDetailsResponse,
+  CollectionResponse,
+} from "../admin-console/models/collections";
 import { CollectionBulkDeleteRequest } from "../admin-console/models/request/collection-bulk-delete.request";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
@@ -78,9 +77,7 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -313,16 +310,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
-  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
-  postReinstatePremium(): Promise<any> {
-    return this.send("POST", "/accounts/reinstate-premium", null, true, false);
-  }
-
-  async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
-    const r = await this.send("POST", "/accounts/storage", request, true, true);
-    return new PaymentResponse(r);
-  }
-
   postAccountLicense(data: FormData): Promise<any> {
     return this.send("POST", "/accounts/license", data, true, false);
   }
@@ -345,10 +332,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any> {
     return this.send("POST", "/accounts/delete-recover-token", request, false, false);
-  }
-
-  postAccountKdf(request: KdfRequest): Promise<any> {
-    return this.send("POST", "/accounts/kdf", request, true, false);
   }
 
   async deleteSsoUser(organizationId: string): Promise<void> {
@@ -715,7 +698,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -730,7 +713,7 @@ export class ApiService implements ApiServiceAbstraction {
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse> {
+  ): Promise<CollectionAccessDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
@@ -1696,21 +1679,20 @@ export class ApiService implements ApiServiceAbstraction {
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
     const responseIsBlob =
       responseType != null && responseType.indexOf("application/octet-stream") !== -1;
-    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+    const responseIsSuccess =
+      response.status === HttpStatusCode.Ok || response.status === HttpStatusCode.Created;
+    if (hasResponse && responseIsSuccess && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
-    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+    } else if (hasResponse && responseIsSuccess && responseIsCsv) {
       return await response.text();
-    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+    } else if (hasResponse && responseIsSuccess && responseIsBlob) {
       const disposition = response.headers.get("Content-Disposition") ?? "";
       const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
       const fileName = match ? match[1].replace(/['"]/g, "") : "download";
       const blob = await response.blob();
       return { blob, fileName };
-    } else if (
-      response.status !== HttpStatusCode.Ok &&
-      response.status !== HttpStatusCode.NoContent
-    ) {
+    } else if (!responseIsSuccess && response.status !== HttpStatusCode.NoContent) {
       const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
       return Promise.reject(error);
     }

@@ -8,6 +8,7 @@ import { CipherType, FieldType, LinkedIdType } from "@bitwarden/common/vault/enu
 import { LinkedMetadata } from "@bitwarden/common/vault/linked-field-option.decorator";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -81,6 +82,13 @@ export class CustomFieldV2Component implements OnInit, OnChanges {
 
   get canViewPassword() {
     return this.cipher.viewPassword;
+  }
+
+  emptyFieldAriaLabel(field: FieldView): string | null {
+    if (field.value) {
+      return null;
+    }
+    return `${field.name}, ${this.i18nService.t("noValueEntered")}`;
   }
 
   toggleCharacterCount(index: number) {

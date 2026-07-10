@@ -87,8 +87,16 @@ describe("getDeviceLastActivityDateI18nKey", () => {
   });
 
   it("uses the current time by default (smoke test)", () => {
-    const date = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago, same calendar day
-    expect(getDeviceLastActivityDateI18nKey(date)).toBe("recentlyActiveToday");
+    // Pin the system clock so `new Date()` in the default parameter is deterministic.
+    // Without this, the test fails when CI runs in the first hour of the day: "1 hour ago"
+    // crosses midnight into the previous calendar day and returns "recentlyActivePast7Days".
+    jest.useFakeTimers({ now: new Date(2026, 2, 26, 14, 0, 0) });
+    try {
+      const date = new Date(2026, 2, 26, 13, 0, 0); // 1 hour before pinned now, same calendar day
+      expect(getDeviceLastActivityDateI18nKey(date)).toBe("recentlyActiveToday");
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   describe("timezone safety: day-counting uses local calendar dates, not UTC", () => {

@@ -17,7 +17,8 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { OrganizationId, UserId } from "../../types/guid";
+import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { OrganizationId } from "../../types/guid";
 import {
   OrganizationBound,
   SingleOrganizationDependency,
@@ -39,45 +40,27 @@ export class KeyServiceLegacyEncryptorProvider implements LegacyEncryptorProvide
   /** Instantiates the legacy encryptor provider.
    *  @param encryptService injected into encryptors to perform encryption
    *  @param keyService looks up keys for construction into an encryptor
+   *  @param sdkService provides SDK crypto client for user encryptors
    */
   constructor(
     private readonly encryptService: EncryptService,
     private readonly keyService: KeyService,
+    private readonly sdkService: SdkService,
   ) {}
 
   userEncryptor$(frameSize: number, dependencies: SingleUserDependency) {
     const packer = new PaddedDataPacker(frameSize);
-    const encryptor$ = dependencies.singleUserId$.pipe(
+    return dependencies.singleUserId$.pipe(
       errorOnChange(
         (userId) => userId,
         (expectedUserId, actualUserId) => ({ expectedUserId, actualUserId }),
       ),
-      connect((singleUserId$) => {
-        const singleUserId = new ReplaySubject<UserId>(1);
-        singleUserId$.subscribe(singleUserId);
+      map((userId) => {
+        const encryptor = new UserKeyEncryptor(userId, this.sdkService, packer);
 
-        return singleUserId.pipe(
-          switchMap((userId) =>
-            this.keyService.userKey$(userId).pipe(
-              // wait until the key becomes available
-              skipWhile((key) => !key),
-              // complete when the key becomes unavailable
-              takeWhile((key) => !!key),
-              map((key) => {
-                const encryptor = new UserKeyEncryptor(userId, this.encryptService, key, packer);
-
-                return { userId, encryptor } satisfies UserBound<"encryptor", UserEncryptor>;
-              }),
-              materialize(),
-            ),
-          ),
-          dematerialize(),
-          takeUntil(anyComplete(singleUserId)),
-        );
+        return { userId, encryptor } satisfies UserBound<"encryptor", UserEncryptor>;
       }),
     );
-
-    return encryptor$;
   }
 
   organizationEncryptor$(frameSize: number, dependencies: SingleOrganizationDependency) {

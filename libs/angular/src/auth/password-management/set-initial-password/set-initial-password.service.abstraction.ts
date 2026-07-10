@@ -42,6 +42,9 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated along with `setInitialPassword()` deprecation
+ */
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
@@ -62,15 +65,6 @@ export interface SetInitialPasswordTdeUserWithPermissionCredentials {
   orgSsoIdentifier: string;
   orgId: OrganizationId;
   resetPasswordAutoEnroll: boolean;
-}
-
-/**
- * @deprecated To be removed in PM-28143
- */
-export interface SetInitialPasswordTdeOffboardingCredentialsOld {
-  newMasterKey: MasterKey;
-  newServerMasterKeyHash: string;
-  newPasswordHint: string;
 }
 
 export interface SetInitialPasswordTdeOffboardingCredentials {
@@ -106,7 +100,7 @@ export interface InitializeJitPasswordCredentials {
  */
 export abstract class SetInitialPasswordService {
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    *
    * Sets an initial password for an existing authed user who is either:
    * - {@link SetInitialPasswordUserType.JIT_PROVISIONED_MP_ORG_USER}
@@ -132,21 +126,6 @@ export abstract class SetInitialPasswordService {
    */
   abstract setInitialPasswordTdeUserWithPermission: (
     credentials: SetInitialPasswordTdeUserWithPermissionCredentials,
-    userId: UserId,
-  ) => Promise<void>;
-
-  /**
-   * @deprecated To be removed in PM-28143
-   *
-   * Sets an initial password for a user who logs in after their org offboarded from
-   * trusted device encryption and is now a master-password-encryption org:
-   * - {@link SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER}
-   *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
-   * @param userId the account `userId`
-   */
-  abstract setInitialPasswordTdeOffboardingOld: (
-    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
     userId: UserId,
   ) => Promise<void>;
 

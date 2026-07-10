@@ -1,22 +1,17 @@
 import { Jsonify } from "type-fest";
 
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { View } from "@bitwarden/common/models/view/view";
-import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
-import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
-import {
-  Collection,
-  CollectionType,
-  CollectionTypes,
-  collectionTypeToSdkType,
-  sdkTypeToCollectionType,
-} from "./collection";
+import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { View } from "../../../models/view/view";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import { CollectionId, OrganizationId } from "../../../types/guid";
+import { OrgKey } from "../../../types/key";
+import { ITreeNodeObject } from "../../../vault/models/domain/tree-node";
+import { Organization } from "../domain/organization";
+
+import { Collection, CollectionType, CollectionTypes } from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 
 export const NestingDelimiter = "/";
@@ -204,7 +199,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = sdkView.manage;
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
-    view.type = sdkTypeToCollectionType[sdkView.type];
+    view.type = sdkView.type;
 
     return view;
   }
@@ -224,7 +219,7 @@ export class CollectionView implements View, ITreeNodeObject {
       hidePasswords: this.hidePasswords,
       readOnly: this.readOnly,
       manage: this.manage,
-      type: collectionTypeToSdkType[this.type],
+      type: this.type,
     };
   }
 
