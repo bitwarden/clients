@@ -1051,6 +1051,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.sdkService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

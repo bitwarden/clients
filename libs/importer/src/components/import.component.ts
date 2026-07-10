@@ -16,7 +16,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import * as JSZip from "jszip";
 import {
@@ -32,7 +32,7 @@ import { combineLatestWith, filter, map, switchMap, takeUntil } from "rxjs/opera
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { InputVerbatimDirective } from "@bitwarden/angular/directives/input-verbatim.directive";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -70,12 +70,19 @@ import {
   ToastService,
   LinkModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Importer } from "../importers/importer";
 import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
 import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { ImportOption, ImportResult, ImportType } from "../models";
+import {
+  CredentialKind,
+  ImportOption,
+  ImportResult,
+  ImportType,
+  SdkImportCredentials,
+} from "../models";
 import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
@@ -100,7 +107,7 @@ import { ImportLastPassComponent } from "./lastpass";
   templateUrl: "import.component.html",
   imports: [
     CommonModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
@@ -116,6 +123,7 @@ import { ImportLastPassComponent } from "./lastpass";
     SectionHeaderComponent,
     SectionComponent,
     LinkModule,
+    InputVerbatimDirective,
   ],
   providers: ImporterProviders,
 })
@@ -126,6 +134,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   importOptions: ImportOption[];
   format: ImportType = null;
   fileSelected: File;
+  keyFileSelected: File | null = null;
+  showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
@@ -204,6 +214,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
     file: [],
+    kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
@@ -361,6 +372,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         this.format = value;
+        this.updateKdbxControls(value);
       });
 
     await this.handlePolicies();
@@ -537,6 +549,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
+    if (this.importService.isSdkImporter(this.format)) {
+      await this.performSdkImport();
+      return;
+    }
+
     if (!(await this.validateImport())) {
       return;
     }
@@ -626,6 +643,102 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  /** Generic flow for any SDK-backed importer: read bytes, collect declared credentials, submit. */
+  private async performSdkImport() {
+    if (!(await this.validateImport())) {
+      return;
+    }
+
+    const fileBytes = await this.getSelectedFileBytes();
+    if (fileBytes == null || fileBytes.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
+      return;
+    }
+
+    const credentials = await this.collectSdkCredentials(
+      this.importService.credentialKindFor(this.format),
+    );
+    if (credentials == null) {
+      // Credentials dialog dismissed.
+      return;
+    }
+
+    try {
+      const summary = await this.importService.importWithSdk(
+        this.format,
+        fileBytes,
+        credentials,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+        this.organization?.canAccessImport && this.isFromAC,
+      );
+
+      const returnDestination = this.returnTo()
+        ? this.resolveReturnDestination(this.returnTo())
+        : undefined;
+      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+        data: {
+          sdkSummary: summary,
+          ...returnDestination,
+        },
+      });
+
+      await this.syncService.fullSync(true);
+      this.onSuccessfulImport.emit(this._organizationId);
+    } catch (e) {
+      const messageKey = this.importService.sdkErrorMessageKey(this.format, e);
+      this.dialogService.open<unknown, Error>(ImportErrorDialogComponent, {
+        data: messageKey != null ? new Error(this.i18nService.t(messageKey)) : (e as Error),
+      });
+      this.logService.error(e);
+    }
+  }
+
+  /** Collects the credentials an SDK importer declared, via the matching dialog. */
+  private async collectSdkCredentials(
+    kind: CredentialKind | undefined,
+  ): Promise<SdkImportCredentials | null> {
+    switch (kind) {
+      case CredentialKind.none:
+        return { kind: "none" };
+      case CredentialKind.password: {
+        const password = await this.getFilePassword();
+        return password == null ? null : { kind: "password", password };
+      }
+      case CredentialKind.passwordWithKeyFile: {
+        // KDBX collects the master password and optional key file inline in the main dialog.
+        const keyFile = this.keyFileSelected
+          ? new Uint8Array(await this.keyFileSelected.arrayBuffer())
+          : null;
+        return {
+          kind: "passwordWithKeyFile",
+          password: this.formGroup.controls.kdbxPassword.value,
+          keyFile,
+        };
+      }
+      default:
+        return null;
+    }
+  }
+
+  private async getSelectedFileBytes(): Promise<Uint8Array | null> {
+    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
+    const file = fileEl?.files?.[0] ?? this.fileSelected;
+    if (file == null) {
+      return null;
+    }
+    return new Uint8Array(await file.arrayBuffer());
+  }
+
+  /** File-picker `accept` hint for the selected SDK importer, if any. */
+  protected get acceptedFileTypes(): string | null {
+    return this.importService.sdkFileTypeHint(this.format) ?? null;
+  }
+
   getFormatInstructionTitle() {
     if (this.format == null) {
       return null;
@@ -678,6 +791,41 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   setSelectedFile(event: Event) {
     const fileInputEl = <HTMLInputElement>event.target;
     this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+  }
+
+  setKeyFile(event: Event) {
+    const fileInputEl = <HTMLInputElement>event.target;
+    this.keyFileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+  }
+
+  addKeyFile() {
+    this.showKeyFile = true;
+  }
+
+  /**
+   * Surfaces the existing `invalidMasterPassword` copy as the inline required-field error rather
+   * than the generic "input required" message (`bit-error` renders `message` for custom errors).
+   */
+  private readonly masterPasswordRequiredValidator: ValidatorFn = (control) =>
+    (control.value ?? "").length > 0
+      ? null
+      : { invalidMasterPassword: { message: this.i18nService.t("invalidMasterPassword") } };
+
+  /**
+   * KDBX collects its master password inline and requires it; switching away from KDBX clears the
+   * control and any selected key file so they don't leak into another format's import.
+   */
+  private updateKdbxControls(format: ImportType | null) {
+    const passwordControl = this.formGroup.controls.kdbxPassword;
+    if (format === "keepasskdbx") {
+      passwordControl.setValidators(this.masterPasswordRequiredValidator);
+    } else {
+      passwordControl.clearValidators();
+      passwordControl.setValue("");
+      this.keyFileSelected = null;
+      this.showKeyFile = false;
+    }
+    passwordControl.updateValueAndValidity();
   }
 
   private getFileContents(file: File): Promise<string> {
