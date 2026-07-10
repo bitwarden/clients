@@ -1112,6 +1112,22 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("deleteTargetSystem", () => {
+    it("DELETEs /organizations/{orgId}/rotation/target-systems/{id}", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteTargetSystem(ORG_ID, "ts-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/target-systems/ts-1",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
   describe("listRotationConfigs", () => {
     it("GETs /organizations/{orgId}/rotation/configs and wraps in ListResponse", async () => {
       apiService.send.mockResolvedValue({

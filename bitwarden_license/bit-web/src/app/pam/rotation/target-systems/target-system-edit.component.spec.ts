@@ -12,7 +12,7 @@ import {
 } from "@bitwarden/bit-pam";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { TargetSystemEditComponent } from "./target-system-edit.component";
 
@@ -64,6 +64,7 @@ async function setupCreate(pamApi: ReturnType<typeof mock<PamApiService>>) {
       { provide: PamApiService, useValue: pamApi },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
+      { provide: DialogService, useValue: mock<DialogService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -89,6 +90,7 @@ async function setupCreateWithTemplate(template: string): Promise<
       { provide: PamApiService, useValue: pamApi },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
+      { provide: DialogService, useValue: mock<DialogService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -116,6 +118,7 @@ async function setupEdit(pamApi: ReturnType<typeof mock<PamApiService>>) {
       { provide: PamApiService, useValue: pamApi },
       { provide: I18nService, useValue: i18nFake },
       { provide: ToastService, useValue: mock<ToastService>() },
+      { provide: DialogService, useValue: mock<DialogService>() },
       {
         provide: ActivatedRoute,
         useValue: {
@@ -353,6 +356,7 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
         { provide: PamApiService, useValue: pamApi },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { params: { organizationId: "org-123" }, queryParams: {} } },
@@ -498,6 +502,35 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(comp.showTerminationWarning()).toBe(false);
   });
 
+  it("deletes the target system after confirmation and navigates back", async () => {
+    const dialog = TestBed.inject(DialogService) as unknown as ReturnType<
+      typeof mock<DialogService>
+    >;
+    dialog.openSimpleDialog.mockResolvedValue(true);
+    pamApi.deleteTargetSystem.mockResolvedValue(undefined);
+    const nav = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+
+    await (
+      fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
+    ).deleteSystem();
+
+    expect(pamApi.deleteTargetSystem).toHaveBeenCalledWith("org-123", "sys-1");
+    expect(nav).toHaveBeenCalled();
+  });
+
+  it("does not delete when confirmation is cancelled", async () => {
+    const dialog = TestBed.inject(DialogService) as unknown as ReturnType<
+      typeof mock<DialogService>
+    >;
+    dialog.openSimpleDialog.mockResolvedValue(false);
+
+    await (
+      fixture.componentInstance as unknown as { deleteSystem: () => Promise<void> }
+    ).deleteSystem();
+
+    expect(pamApi.deleteTargetSystem).not.toHaveBeenCalled();
+  });
+
   it("saves the password policy for a Manual system (no session termination)", async () => {
     TestBed.resetTestingModule();
     const pamApiManual = mock<PamApiService>();
@@ -517,6 +550,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         { provide: PamApiService, useValue: pamApiManual },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -556,6 +590,7 @@ describe("TargetSystemEditComponent — edit mode", () => {
         { provide: PamApiService, useValue: pamApi2 },
         { provide: I18nService, useValue: i18nFake },
         { provide: ToastService, useValue: toastService2 },
+        { provide: DialogService, useValue: mock<DialogService>() },
         {
           provide: ActivatedRoute,
           useValue: {

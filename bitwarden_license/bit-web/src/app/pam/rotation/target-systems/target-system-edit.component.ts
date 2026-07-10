@@ -33,6 +33,7 @@ import {
   CalloutModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   HeaderComponent,
   IconModule,
@@ -130,6 +131,7 @@ export class TargetSystemEditComponent {
   private readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
   private readonly pamApi = inject(PamApiService);
+  private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
 
@@ -445,6 +447,34 @@ export class TargetSystemEditComponent {
         variant: "success",
         message: this.i18nService.t("pamTargetSystemSaved"),
       });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /** Edit mode: delete this target system after confirming, then return to the list. */
+  protected readonly deleteSystem = async (): Promise<void> => {
+    const system = this.existing();
+    if (system == null) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDeleteTitle" },
+      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.pamApi.deleteTargetSystem(this.organizationId, this.targetSystemId!);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
+      });
+      await this.navigateToList();
     } catch (e) {
       this.showError(e);
     }

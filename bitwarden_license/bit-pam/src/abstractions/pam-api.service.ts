@@ -215,6 +215,12 @@ export abstract class PamApiService {
     request: TargetSystemPolicyRequest,
   ): Promise<TargetSystemResponse>;
 
+  /** DELETE /organizations/{orgId}/rotation/target-systems/{targetSystemId} */
+  abstract deleteTargetSystem(
+    organizationId: OrganizationId,
+    targetSystemId: string,
+  ): Promise<void>;
+
   /** GET /organizations/{orgId}/rotation/configs */
   abstract listRotationConfigs(
     organizationId: OrganizationId,

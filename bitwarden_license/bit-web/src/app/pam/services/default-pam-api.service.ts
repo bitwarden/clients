@@ -384,6 +384,15 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
+  async deleteTargetSystem(organizationId: OrganizationId, targetSystemId: string): Promise<void> {
+    await this.send(
+      "DELETE",
+      `/organizations/${organizationId}/rotation/target-systems/${targetSystemId}`,
+      null,
+      false,
+    );
+  }
+
   async listRotationConfigs(
     organizationId: OrganizationId,
   ): Promise<ListResponse<RotationConfigResponse>> {

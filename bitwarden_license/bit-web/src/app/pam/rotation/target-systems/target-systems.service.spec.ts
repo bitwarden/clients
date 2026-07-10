@@ -162,4 +162,30 @@ describe("TargetSystemsService", () => {
       expect(systems[0].status).toBe(TargetSystemStatus.Disabled);
     });
   });
+
+  describe("delete", () => {
+    beforeEach(async () => {
+      pamApi.listTargetSystems.mockResolvedValue(
+        makeListResponse([makeSystem({ id: "sys-1" }), makeSystem({ id: "sys-2" })]),
+      );
+      await service.load(ORG_ID);
+    });
+
+    it("calls deleteTargetSystem and removes it from local state", async () => {
+      pamApi.deleteTargetSystem.mockResolvedValue(undefined);
+      await service.delete(makeSystem({ id: "sys-1" }));
+
+      expect(pamApi.deleteTargetSystem).toHaveBeenCalledWith(ORG_ID, "sys-1");
+      const systems = await firstValueFrom(service.systems$);
+      expect(systems.map((s) => s.id)).toEqual(["sys-2"]);
+    });
+
+    it("leaves local state unchanged when the API rejects", async () => {
+      pamApi.deleteTargetSystem.mockRejectedValue(new Error("in use"));
+      await expect(service.delete(makeSystem({ id: "sys-1" }))).rejects.toThrow("in use");
+
+      const systems = await firstValueFrom(service.systems$);
+      expect(systems.map((s) => s.id)).toEqual(["sys-1", "sys-2"]);
+    });
+  });
 });

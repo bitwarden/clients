@@ -15938,6 +15938,15 @@
   "pamTargetSystemEnableSuccess": {
     "message": "Target system enabled."
   },
+  "pamTargetSystemDeleteTitle": {
+    "message": "Delete target system?"
+  },
+  "pamTargetSystemDeleteContent": {
+    "message": "Deleting {0} is permanent. Any managed credentials that rotate against it must be removed first."
+  },
+  "pamTargetSystemDeleteSuccess": {
+    "message": "Target system deleted."
+  },
   "pamTargetSystemMethodAutomatic": {
     "message": "Automatic"
   },
@@ -16239,10 +16248,25 @@
     "message": "This removes rotation management for this credential. The cipher stays in your vault and the rotation history remains in the audit log."
   },
   "pamRotationConfigDeleteLockedTitle": {
-    "message": "Cannot delete while a rotation is in progress. Wait for it to complete or pause the rotation first."
+    "message": "Can't remove while a rotation is in progress. It clears when the current job finishes or times out."
   },
   "pamRotationConfigDeleteSuccess": {
     "message": "Managed credential removed."
+  },
+  "pamRotationConfigNeverRotated": {
+    "message": "Never"
+  },
+  "pamRotationConfigHistoryEmpty": {
+    "message": "No rotations have run yet."
+  },
+  "pamRotationConfigRemoveHeading": {
+    "message": "Remove rotation"
+  },
+  "pamRotationConfigRemove": {
+    "message": "Remove rotation configuration"
+  },
+  "pamRotationConfigRemoveLockedContent": {
+    "message": "A rotation job is currently in progress. You can remove the rotation configuration once the daemon finishes it — or once it times out. Pausing only stops new jobs; it does not cancel the one already running."
   },
   "pamRotationConfigCreateHeading": {
     "message": "Credential details"

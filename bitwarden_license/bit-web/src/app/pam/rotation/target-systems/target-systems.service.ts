@@ -79,6 +79,17 @@ export class TargetSystemsService {
     );
   }
 
+  /**
+   * Delete a target system, removing it from local state once the server confirms.
+   * Waits for the server (which rejects if rotation configs still reference it) before
+   * mutating local state, so a failed delete leaves the list unchanged.
+   */
+  async delete(system: TargetSystemResponse): Promise<void> {
+    const orgId = this.requireOrganizationId();
+    await this.pamApi.deleteTargetSystem(orgId, system.id);
+    this._systems$.next(this._systems$.value.filter((s) => s.id !== system.id));
+  }
+
   private requireOrganizationId(): OrganizationId {
     if (this.organizationId == null) {
       throw new Error("TargetSystemsService.load must run before mutating target systems.");

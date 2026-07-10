@@ -46,6 +46,7 @@ describe("TargetSystemsTabComponent", () => {
     activeAutomaticSystems$: BehaviorSubject<TargetSystemResponse[]>;
     load: jest.Mock;
     setEnabled: jest.Mock;
+    delete: jest.Mock;
   };
   let router: Router;
   let dialogService: ReturnType<typeof mock<DialogService>>;
@@ -59,6 +60,7 @@ describe("TargetSystemsTabComponent", () => {
       activeAutomaticSystems$: new BehaviorSubject<TargetSystemResponse[]>([]),
       load: jest.fn().mockResolvedValue(undefined),
       setEnabled: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
     };
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(false);
@@ -198,5 +200,36 @@ describe("TargetSystemsTabComponent", () => {
         expect.objectContaining({ variant: "success" }),
       );
     });
+  });
+
+  describe("delete action", () => {
+    it("calls delete after confirmation", fakeAsync(() => {
+      const sys = makeSystem({ id: "sys-1" });
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+
+      const comp = component as unknown as {
+        confirmDelete: (s: TargetSystemResponse) => Promise<void>;
+      };
+      void comp.confirmDelete(sys);
+      tick();
+
+      expect(targetSystemsService.delete).toHaveBeenCalledWith(sys);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+    }));
+
+    it("does not call delete when confirmation is cancelled", fakeAsync(() => {
+      const sys = makeSystem({ id: "sys-1" });
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      const comp = component as unknown as {
+        confirmDelete: (s: TargetSystemResponse) => Promise<void>;
+      };
+      void comp.confirmDelete(sys);
+      flushMicrotasks();
+
+      expect(targetSystemsService.delete).not.toHaveBeenCalled();
+    }));
   });
 });

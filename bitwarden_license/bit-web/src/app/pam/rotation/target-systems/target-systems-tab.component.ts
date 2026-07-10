@@ -163,6 +163,29 @@ export class TargetSystemsTabComponent {
     }
   };
 
+  /** Delete a target system after confirming with the operator. */
+  protected readonly confirmDelete = async (system: TargetSystemResponse): Promise<void> => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamTargetSystemDeleteTitle" },
+      content: { key: "pamTargetSystemDeleteContent", placeholders: [system.name] },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.targetSystemsService.delete(system);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamTargetSystemDeleteSuccess"),
+      });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
   private buildRows(systems: TargetSystemResponse[]): TargetSystemRow[] {
     return systems.map((system) => ({
       id: system.id,
