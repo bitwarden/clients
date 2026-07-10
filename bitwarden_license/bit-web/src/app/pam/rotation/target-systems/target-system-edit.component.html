@@ -202,6 +202,18 @@
          ================================================================ -->
 
     <div class="tw-max-w-4xl">
+      <!-- Setup guidance: how to connect this target system to a daemon + add a credential -->
+      <bit-callout type="info" [title]="'pamTargetSystemSetupGuidanceTitle' | i18n">
+        @if (existing()?.method === TargetSystemMethod.Automatic) {
+          <ol class="tw-mb-0 tw-ps-4">
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticDaemon" | i18n }}</li>
+            <li>{{ "pamTargetSystemSetupGuidanceAutomaticCredential" | i18n }}</li>
+          </ol>
+        } @else {
+          <p class="tw-mb-0">{{ "pamTargetSystemSetupGuidanceManual" | i18n }}</p>
+        }
+      </bit-callout>
+
       <!-- Name card -->
       <bit-section [formGroup]="nameForm">
         <bit-section-header>

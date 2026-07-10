@@ -16022,6 +16022,18 @@
   "pamTargetSystemSaved": {
     "message": "Target system saved."
   },
+  "pamTargetSystemSetupGuidanceTitle": {
+    "message": "Finish setting up rotation"
+  },
+  "pamTargetSystemSetupGuidanceAutomaticDaemon": {
+    "message": "On the Daemons tab, register a rotation daemon (or reuse an existing one) and assign this target system to it — the daemon performs the rotations."
+  },
+  "pamTargetSystemSetupGuidanceAutomaticCredential": {
+    "message": "On the Managed credentials tab, add a credential for this target system, then set the account to rotate and a schedule."
+  },
+  "pamTargetSystemSetupGuidanceManual": {
+    "message": "On the Managed credentials tab, add a credential for this target system. There is no daemon to connect — you rotate the credential by hand and record each rotation there."
+  },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
   },
