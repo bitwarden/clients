@@ -37,6 +37,7 @@ use std::{
 use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
 use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
+use secure_memory::*;
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 use tracing::{debug, warn};
@@ -60,10 +61,7 @@ use windows::{
 use windows_future::IAsyncOperation;
 
 use super::windows_focus::{focus_security_prompt, restore_focus};
-use crate::{
-    password::{self, PASSWORD_NOT_FOUND},
-    secure_memory::*,
-};
+use crate::password::{self, PASSWORD_NOT_FOUND};
 
 const AUTHENTICATE_AVAILABLE_CACHE_TTL: Duration = Duration::from_secs(30);
 const KEYCHAIN_SERVICE_NAME: &str = "BitwardenBiometricsV2";
@@ -83,7 +81,7 @@ struct WindowsHelloKeychainEntry {
 pub struct BiometricLockSystem {
     // The userkeys that are held in memory MUST be protected from memory dumping attacks, to
     // ensure locked vaults cannot be unlocked
-    secure_memory: Arc<Mutex<crate::secure_memory::dpapi::DpapiSecretKVStore>>,
+    secure_memory: Arc<Mutex<secure_memory::dpapi::DpapiSecretKVStore>>,
     // Cache whether a keychain entry exists for a user to avoid excessive keychain lookups
     // (Windows audit event 5379). Key = user_id, Value = true (entry exists) or false (no
     // entry). If user_id not in map = cache miss.
@@ -98,9 +96,7 @@ impl BiometricLockSystem {
     /// Creates a new instance of the Windows biometric lock system.
     pub fn new() -> Self {
         Self {
-            secure_memory: Arc::new(Mutex::new(
-                crate::secure_memory::dpapi::DpapiSecretKVStore::new(),
-            )),
+            secure_memory: Arc::new(Mutex::new(secure_memory::dpapi::DpapiSecretKVStore::new())),
             has_keychain_entry_cache: Arc::new(Mutex::new(HashMap::new())),
             authenticate_available_cache: Arc::new(Mutex::new(None)),
         }

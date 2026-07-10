@@ -29,7 +29,6 @@ cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-memsec = { workspace = true, features = ["alloc_ext"] }
 rand = { workspace = true }
 rsa = "=0.9.6"
 sha2 = "=0.10.9"
@@ -53,6 +52,7 @@ homedir = { workspace = true }
 libc = { workspace = true }
 linux-keyutils = { workspace = true }
 oo7 = { workspace = true }
+secure_memory = { path = "../secure_memory" }
 zbus = { workspace = true, optional = true }
 zbus_polkit = { workspace = true, optional = true }
 
@@ -69,6 +69,7 @@ chacha20poly1305 = { workspace = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
+secure_memory = { path = "../secure_memory" }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }

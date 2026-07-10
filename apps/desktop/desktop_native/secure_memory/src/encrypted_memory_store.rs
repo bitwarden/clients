@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use tracing::error;
 
-use crate::secure_memory::{
+use crate::{
     secure_key::{DecryptionError, EncryptedMemory, SecureMemoryEncryptionKey},
     SecureMemoryStore,
 };

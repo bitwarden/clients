@@ -1,0 +1,26 @@
+[package]
+name = "secure_memory"
+edition = { workspace = true }
+license = { workspace = true }
+version = { workspace = true }
+publish = { workspace = true }
+
+[dependencies]
+aes-gcm = { workspace = true }
+memsec = { workspace = true, features = ["alloc_ext"] }
+rand = { workspace = true }
+tracing = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+linux-keyutils = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_Security_Cryptography",
+] }
+
+[dev-dependencies]
+
+[lints]
+workspace = true

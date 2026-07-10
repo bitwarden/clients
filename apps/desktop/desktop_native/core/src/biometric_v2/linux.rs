@@ -14,12 +14,11 @@
 use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
+use secure_memory::{EncryptedMemoryStore, SecureMemoryStore as _};
 use tokio::sync::Mutex;
 use tracing::{debug, warn};
 use zbus::Connection;
 use zbus_polkit::policykit1::{AuthorityProxy, CheckAuthorizationFlags, Subject};
-
-use crate::secure_memory::{encrypted_memory_store::EncryptedMemoryStore, SecureMemoryStore as _};
 
 /// Biometric lock system using Polkit for authentication and secure memory to hold the key on
 /// Linux.
