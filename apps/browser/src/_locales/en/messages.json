@@ -6328,9 +6328,6 @@
   "unlockPinSet": {
     "message": "Unlock PIN set"
   },
-  "unlockWithBiometricSet": {
-    "message": "Unlock with biometrics set"
-  },
   "authenticating": {
     "message": "Authenticating"
   },

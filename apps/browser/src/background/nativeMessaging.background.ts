@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subscription, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
@@ -69,10 +69,14 @@ type SecureChannel = {
 };
 
 export class NativeMessagingBackground {
+  private readonly CONNECTION_RETRY_INTERVAL = 10_000;
+
   connected = false;
   private connecting: boolean = false;
   private port?: browser.runtime.Port | chrome.runtime.Port;
   private appId?: string;
+
+  private connectionRetrySubscription?: Subscription;
 
   private secureChannel?: SecureChannel;
 
@@ -97,13 +101,14 @@ export class NativeMessagingBackground {
         }
       });
     }
+
+    // Always try to keep a connection to the Bitwarden Desktop app alive so that there is no wait
+    // when biometrics are used. `connect` is a no-op when the native messaging permission is missing.
+    this.startConnecting();
   }
 
   async connect() {
     if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
-      this.logService.warning(
-        "[Native Messaging IPC] Native messaging permission is missing for biometrics",
-      );
       return;
     }
     if (this.connected || this.connecting) {
@@ -255,12 +260,7 @@ export class NativeMessagingBackground {
       });
 
       this.port.onDisconnect.addListener((p: any) => {
-        let error;
-        if (BrowserApi.isWebExtensionsApi) {
-          error = p.error.message;
-        } else {
-          error = chrome.runtime.lastError?.message;
-        }
+        const error = chrome?.runtime?.lastError?.message ?? p.error?.message ?? "unknown";
 
         this.secureChannel = undefined;
         this.connected = false;
@@ -272,6 +272,41 @@ export class NativeMessagingBackground {
         reject(new Error(reason));
       });
     });
+  }
+
+  /**
+   * Starts attempting to keep a connection to the Bitwarden Desktop app alive. If a connection is
+   * not established, it retries every 10 seconds. Calling this while the loop is already running is
+   * a no-op.
+   */
+  startConnecting() {
+    if (this.connectionRetrySubscription != null) {
+      return;
+    }
+
+    this.connectionRetrySubscription = timer(0, this.CONNECTION_RETRY_INTERVAL).subscribe(() => {
+      void this.tryConnect();
+    });
+  }
+
+  private async tryConnect() {
+    if (this.connected || this.connecting) {
+      return;
+    }
+
+    try {
+      await this.connect();
+    } catch {
+      // The desktop app may not be running yet; the loop will retry on the next interval.
+    }
+  }
+
+  /**
+   * Stops the reconnection loop started by {@link startConnecting}.
+   */
+  stopConnecting() {
+    this.connectionRetrySubscription?.unsubscribe();
+    this.connectionRetrySubscription = undefined;
   }
 
   async callCommand(message: Message): Promise<any> {
