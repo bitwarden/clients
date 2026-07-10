@@ -15942,7 +15942,13 @@
     "message": "Delete target system?"
   },
   "pamTargetSystemDeleteContent": {
-    "message": "Deleting {0} is permanent. Any managed credentials that rotate against it must be removed first."
+    "message": "Deleting $NAME$ is permanent. Any managed credentials that rotate against it must be removed first.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   },
   "pamTargetSystemDeleteSuccess": {
     "message": "Target system deleted."
@@ -16089,13 +16095,25 @@
     "message": "Target system assigned."
   },
   "pamDaemonUnassign": {
-    "message": "Remove {0}"
+    "message": "Remove $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   },
   "pamDaemonUnassignConfirmTitle": {
     "message": "Remove assignment?"
   },
   "pamDaemonUnassignConfirmContent": {
-    "message": "Remove {0} from this daemon? Active rotation jobs claimed by this daemon will continue to completion."
+    "message": "Remove $NAME$ from this daemon? Active rotation jobs claimed by this daemon will continue to completion.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Production database"
+      }
+    }
   },
   "pamDaemonUnassigned": {
     "message": "Target system removed."
@@ -16110,7 +16128,13 @@
     "message": "Disable daemon?"
   },
   "pamDaemonDisableConfirmContent": {
-    "message": "Disable {0}? It stops claiming new rotation jobs and any jobs it is currently running are released. You can re-enable it later."
+    "message": "Disable $NAME$? It stops claiming new rotation jobs and any jobs it is currently running are released. You can re-enable it later.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
   },
   "pamDaemonDisabled": {
     "message": "Daemon disabled."
@@ -16122,7 +16146,13 @@
     "message": "Delete daemon?"
   },
   "pamDaemonDeleteConfirmContent": {
-    "message": "Deleting {0} is permanent and invalidates its credentials. This daemon held the organization key in memory — if you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new daemon to resume rotation."
+    "message": "Deleting $NAME$ is permanent and invalidates its credentials. This daemon held the organization key in memory — if you suspect a compromise, rotate the organization key as a remediation. Running rotation jobs are released. Register a new daemon to resume rotation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "On-prem production server"
+      }
+    }
   },
   "pamDaemonDeleted": {
     "message": "Daemon deleted."
