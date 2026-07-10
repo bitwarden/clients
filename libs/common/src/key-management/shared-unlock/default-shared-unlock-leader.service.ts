@@ -1,5 +1,8 @@
+import { firstValueFrom, Observable, Subject } from "rxjs";
+
 // eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
+import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
@@ -21,6 +24,8 @@ import { pollForUnlockEvents } from "./unlock-state-poll";
 
 export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderService {
   private leader: SharedUnlockLeader | null = null;
+  private _externalUnlock$ = new Subject<UserId>();
+  readonly externalUnlock$: Observable<UserId> = this._externalUnlock$.asObservable();
 
   constructor(
     private ipcService: IpcService,
@@ -43,7 +48,8 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
-      this.sharedUnlockSettingsService,
+      (userId) => this.enabled(userId),
+      (userId) => this._externalUnlock$.next(userId),
     );
 
     this.leader = SharedUnlockLeader.try_new(this.ipcService.client, sharedUnlockDriver);
@@ -69,7 +75,13 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
-    return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
+    if (this.platformUtilsService.getClientType() === ClientType.Browser) {
+      return await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(userId),
+      );
+    } else {
+      return true;
+    }
   }
 
   private async onUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {

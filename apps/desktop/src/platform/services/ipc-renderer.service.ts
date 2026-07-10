@@ -74,11 +74,9 @@ export class IpcRendererService extends IpcService {
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
-      if (this.platformUtilsService.isDev()) {
-        await ipcRegisterDiscoverHandler(this.client, {
-          version: await this.platformUtilsService.getApplicationVersion(),
-        });
-      }
+      await ipcRegisterDiscoverHandler(this.client, {
+        version: await this.platformUtilsService.getApplicationVersion(),
+      });
     } catch (e) {
       this.logService.error("[IPC] Initialization failed", e);
     }

@@ -8,6 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-config.api";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   Environment,
@@ -46,13 +47,14 @@ describe("ScimV2Component", () => {
   function mockConnection(
     enabled: boolean,
     id: string | null = "connection-id",
+    inviteUsersAfterProvisioning: boolean | null = null,
   ): OrganizationConnectionResponse<ScimConfigApi> {
     if (!enabled && id === null) {
       return null as unknown as OrganizationConnectionResponse<ScimConfigApi>;
     }
     return {
       id,
-      config: { enabled },
+      config: { enabled, inviteUsersAfterProvisioning },
     } as OrganizationConnectionResponse<ScimConfigApi>;
   }
 
@@ -134,6 +136,24 @@ describe("ScimV2Component", () => {
       expect(ta(component).loading()).toBe(false);
     }));
 
+    it("sets inviteUsersAfterProvisioning to false when the connection config disables it", fakeAsync(() => {
+      initComponent(mockConnection(true, "connection-id", false));
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
+    }));
+
+    it("defaults inviteUsersAfterProvisioning to true when the connection config omits it", fakeAsync(() => {
+      initComponent(mockConnection(true));
+
+      void component.load();
+      tick();
+
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(true);
+    }));
+
     it("does not open dialog on load", fakeAsync(() => {
       initComponent(mockConnection(true));
 
@@ -142,6 +162,23 @@ describe("ScimV2Component", () => {
 
       expect(openSpy).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("staged status feature flag", () => {
+    it("disables the invite toggle when the flag is off", () => {
+      initComponent();
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.StagedStatus);
+      expect(ta(component).stagedStatusEnabled()).toBe(false);
+    });
+
+    it("enables the invite toggle when the flag is on", () => {
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+
+      initComponent();
+
+      expect(ta(component).stagedStatusEnabled()).toBe(true);
+    });
   });
 
   describe("loadApiKey", () => {
@@ -347,6 +384,42 @@ describe("ScimV2Component", () => {
         variant: "success",
         message: "scimSettingsSaved",
       });
+    }));
+
+    it("submits inviteUsersAfterProvisioning true by default", fakeAsync(() => {
+      ta(component).existingConnectionId.set("connection-id");
+      apiService.updateOrganizationConnection.mockResolvedValue(mockConnection(true));
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.updateOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: true }),
+        }),
+        ScimConfigApi,
+        "connection-id",
+      );
+    }));
+
+    it("submits the toggled inviteUsersAfterProvisioning value", fakeAsync(() => {
+      ta(component).existingConnectionId.set("connection-id");
+      ta(component).inviteUsersAfterProvisioning.setValue(false);
+      apiService.updateOrganizationConnection.mockResolvedValue(
+        mockConnection(true, "connection-id", false),
+      );
+
+      void ta(component).submit();
+      tick();
+
+      expect(apiService.updateOrganizationConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          config: expect.objectContaining({ inviteUsersAfterProvisioning: false }),
+        }),
+        ScimConfigApi,
+        "connection-id",
+      );
+      expect(ta(component).inviteUsersAfterProvisioning.value).toBe(false);
     }));
   });
 });

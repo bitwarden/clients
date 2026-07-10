@@ -14,8 +14,8 @@ export abstract class OrganizationInviteLinkApiService {
     request: OrganizationInviteLinkCreateRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
 
-  /** Update the allowed domains for the given organization's invite link */
-  abstract update(
+  /** Update the allowed domains on an existing invite link */
+  abstract updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;

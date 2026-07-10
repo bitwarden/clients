@@ -3340,15 +3340,15 @@ describe("OverlayBackground", () => {
           },
         });
 
-        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
-        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
+        const buttonPosition = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
 
-        expect(menuPostion).toEqual({
+        expect(menuPosition).toEqual({
           width: "49px",
           top: "366px",
           left: "1271px",
         });
-        expect(buttonPostion).toEqual({
+        expect(buttonPosition).toEqual({
           width: "34px",
           height: "34px",
           top: "317px",
@@ -3425,14 +3425,14 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "isTotpFieldForCurrentField").mockReturnValue(true);
         jest.spyOn(overlayBackground as any, "getTotpFields").mockReturnValue(totpFields);
 
-        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
-        const menuPostion = overlayBackground["getInlineMenuListPosition"](subframe);
-        expect(menuPostion).toEqual({
+        const buttonPosition = overlayBackground["getInlineMenuButtonPosition"](subframe);
+        const menuPosition = overlayBackground["getInlineMenuListPosition"](subframe);
+        expect(menuPosition).toEqual({
           width: "1164px",
           top: "366px",
           left: "1042px",
         });
-        expect(buttonPostion).toEqual({
+        expect(buttonPosition).toEqual({
           width: "34px",
           height: "34px",
           top: "292px",
