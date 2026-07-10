@@ -188,32 +188,29 @@ export class TargetSystemEditComponent {
     return this.createMethod();
   });
 
-  /** The Integration (kind) card is Automatic-only — Manual systems have no integration. */
-  protected readonly showIntegrationCard = computed(
-    () => this.method() === TargetSystemMethod.Automatic,
-  );
+  /**
+   * The method in play is Automatic. Gates the integration (kind) card and the session-termination
+   * control — both are Automatic-only (Manual systems have no integration and no daemon session).
+   */
+  protected readonly isAutomatic = computed(() => this.method() === TargetSystemMethod.Automatic);
+
+  /** The method in play is Manual — gates the "rotate by hand" password-rules hint. */
+  protected readonly isManual = computed(() => this.method() === TargetSystemMethod.Manual);
 
   /**
    * The password-policy card is shown for both methods: Automatic (the daemon enforces the rules)
    * and Manual (the rules the operator follows when rotating the credential by hand).
    */
-  protected readonly showPolicyCard = computed(
-    () =>
-      this.method() === TargetSystemMethod.Automatic || this.method() === TargetSystemMethod.Manual,
-  );
-
-  /** Session termination is Automatic-only (a daemon runs it); Manual systems never show it. */
-  protected readonly showSessionTermination = computed(
-    () => this.method() === TargetSystemMethod.Automatic,
-  );
+  protected readonly showPolicyCard = computed(() => this.isAutomatic() || this.isManual());
 
   /** The integration kind in play — the existing system's kind (edit) or the live selection (create Automatic). */
-  private readonly selectedKind = computed<TargetSystemKind | null>(() => {
-    if (this.editing) {
-      return this.existing()?.kind ?? null;
-    }
-    return this.createMethod() === TargetSystemMethod.Automatic ? this.createKind() : null;
-  });
+  private readonly selectedKind = computed<TargetSystemKind | null>(() =>
+    this.isAutomatic()
+      ? this.editing
+        ? (this.existing()?.kind ?? null)
+        : this.createKind()
+      : null,
+  );
 
   /**
    * Native integrations (Entra, Mssql — anything other than a custom script) always terminate
@@ -224,11 +221,6 @@ export class TargetSystemEditComponent {
     const kind = this.selectedKind();
     return kind != null && kind !== TargetSystemKind.CustomScript;
   });
-
-  /** Only custom scripts expose the editable session-termination checkbox. */
-  protected readonly showSessionTerminationCheckbox = computed(
-    () => this.showPolicyCard() && this.selectedKind() === TargetSystemKind.CustomScript,
-  );
 
   /**
    * Whether to show the session-termination withdrawal warning (only in edit mode,
@@ -337,6 +329,27 @@ export class TargetSystemEditComponent {
   // Submit handlers
   // -----------------------------------------------------------------------
 
+  /** Build a PasswordPolicy from the current policy-form values. */
+  private buildPasswordPolicy(): PasswordPolicy {
+    const policy = this.policyForm.getRawValue();
+    return {
+      minLength: policy.minLength,
+      maxLength: policy.maxLength,
+      includeUppercase: policy.includeUppercase,
+      includeLowercase: policy.includeLowercase,
+      includeDigits: policy.includeDigits,
+      includeSymbols: policy.includeSymbols,
+    };
+  }
+
+  /**
+   * Effective session-termination support for an Automatic system: native integrations always
+   * support it; custom scripts follow the checkbox. Callers gate this on the method being Automatic.
+   */
+  private resolvedSessionTermination(): boolean {
+    return this.isNativeIntegration() || this.policyForm.controls.supportsSessionTermination.value;
+  }
+
   /** Create mode: single submit creates the target system. */
   protected readonly submitCreate = async (): Promise<void> => {
     this.createForm.markAllAsTouched();
@@ -349,15 +362,7 @@ export class TargetSystemEditComponent {
     }
 
     const { name } = this.createForm.getRawValue();
-    const policy = this.policyForm.getRawValue();
-    const passwordPolicy: PasswordPolicy = {
-      minLength: policy.minLength,
-      maxLength: policy.maxLength,
-      includeUppercase: policy.includeUppercase,
-      includeLowercase: policy.includeLowercase,
-      includeDigits: policy.includeDigits,
-      includeSymbols: policy.includeSymbols,
-    };
+    const passwordPolicy = this.buildPasswordPolicy();
 
     try {
       if (method === TargetSystemMethod.Automatic) {
@@ -369,10 +374,7 @@ export class TargetSystemEditComponent {
             method: TargetSystemMethod.Automatic,
             kind,
             passwordPolicy,
-            // Native integrations always support session termination; only custom scripts opt in.
-            supportsSessionTermination: this.isNativeIntegration()
-              ? true
-              : policy.supportsSessionTermination,
+            supportsSessionTermination: this.resolvedSessionTermination(),
           }),
         );
       } else {
@@ -409,7 +411,6 @@ export class TargetSystemEditComponent {
       return;
     }
 
-    const isAutomatic = this.existing()?.method === TargetSystemMethod.Automatic;
     const { name } = this.nameForm.getRawValue();
     try {
       await this.pamApi.renameTargetSystem(
@@ -418,27 +419,13 @@ export class TargetSystemEditComponent {
         new TargetSystemNameRequest({ name }),
       );
 
-      const policy = this.policyForm.getRawValue();
-      const passwordPolicy: PasswordPolicy = {
-        minLength: policy.minLength,
-        maxLength: policy.maxLength,
-        includeUppercase: policy.includeUppercase,
-        includeLowercase: policy.includeLowercase,
-        includeDigits: policy.includeDigits,
-        includeSymbols: policy.includeSymbols,
-      };
       const updated = await this.pamApi.updateTargetSystemPolicy(
         this.organizationId,
         this.targetSystemId!,
         new TargetSystemPolicyRequest({
-          passwordPolicy,
-          // Automatic: native integrations always support session termination, custom scripts opt in.
-          // Manual: no daemon session to terminate, so always false.
-          supportsSessionTermination: isAutomatic
-            ? this.isNativeIntegration()
-              ? true
-              : policy.supportsSessionTermination
-            : false,
+          passwordPolicy: this.buildPasswordPolicy(),
+          // Automatic follows native/custom-script rules; Manual has no daemon session to terminate.
+          supportsSessionTermination: this.isAutomatic() && this.resolvedSessionTermination(),
         }),
       );
 

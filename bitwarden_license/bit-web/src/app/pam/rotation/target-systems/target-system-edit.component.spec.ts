@@ -233,10 +233,8 @@ describe("TargetSystemEditComponent — create mode", () => {
     TestBed.resetTestingModule();
     const comp = await setupCreateWithTemplate("manual");
     expect(comp.createForm.getRawValue().method).toBe(TargetSystemMethod.Manual);
-    // No integration card for Manual, but the password-policy card is now shown.
-    expect((comp as unknown as { showIntegrationCard: () => boolean }).showIntegrationCard()).toBe(
-      false,
-    );
+    // No integration card for Manual (not Automatic), but the password-policy card is now shown.
+    expect((comp as unknown as { isAutomatic: () => boolean }).isAutomatic()).toBe(false);
     expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
 

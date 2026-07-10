@@ -4,6 +4,123 @@
   </bit-breadcrumbs>
 </bit-header>
 
+<!--
+  Shared password-policy card, used by both create and edit modes. The manual hint, the
+  session-termination control, and the withdrawal warning are all self-gating (the warning is only
+  ever true in edit mode), so one template serves both.
+-->
+<ng-template #policyCard>
+  <bit-section [formGroup]="policyForm">
+    <bit-section-header>
+      <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
+    </bit-section-header>
+    <bit-card>
+      @if (isManual()) {
+        <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
+          {{ "pamTargetSystemPolicyManualHint" | i18n }}
+        </p>
+      }
+      <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+        <bit-form-field>
+          <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="number"
+            id="target-system-edit_input_min-length"
+            formControlName="minLength"
+            min="1"
+          />
+        </bit-form-field>
+        <bit-form-field>
+          <bit-label>{{ "pamTargetSystemPolicyMaxLength" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="number"
+            id="target-system-edit_input_max-length"
+            formControlName="maxLength"
+            min="1"
+          />
+        </bit-form-field>
+      </div>
+      @if (policyForm.errors?.["minExceedsMax"] && policyForm.touched) {
+        <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
+      }
+
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="includeUppercase"
+          id="target-system-edit_checkbox_uppercase"
+        />
+        <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="includeLowercase"
+          id="target-system-edit_checkbox_lowercase"
+        />
+        <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="includeDigits"
+          id="target-system-edit_checkbox_digits"
+        />
+        <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
+      </bit-form-control>
+      <bit-form-control>
+        <input
+          type="checkbox"
+          bitCheckbox
+          formControlName="includeSymbols"
+          id="target-system-edit_checkbox_symbols"
+        />
+        <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
+      </bit-form-control>
+
+      <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
+      @if (isAutomatic()) {
+        @if (isNativeIntegration()) {
+          <div>
+            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+              {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
+            </p>
+            <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
+              <bit-icon name="bwi-check"></bit-icon>
+              {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
+            </span>
+            <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
+              {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
+            </p>
+          </div>
+        } @else {
+          <bit-form-control disableMargin>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="supportsSessionTermination"
+              id="target-system-edit_checkbox_session-termination"
+            />
+            <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
+            <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
+          </bit-form-control>
+
+          @if (showTerminationWarning()) {
+            <bit-callout type="warning" class="tw-mt-4">
+              {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
+            </bit-callout>
+          }
+        }
+      }
+    </bit-card>
+  </bit-section>
+</ng-template>
+
 @if (loading()) {
   <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>
 } @else {
@@ -46,7 +163,7 @@
         </bit-card>
       </bit-section>
 
-      @if (showIntegrationCard()) {
+      @if (isAutomatic()) {
         <bit-section [formGroup]="policyForm">
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemKindHeading" | i18n }}</h2>
@@ -69,109 +186,7 @@
       }
 
       @if (showPolicyCard()) {
-        <bit-section [formGroup]="policyForm">
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
-            @if (!showSessionTermination()) {
-              <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
-                {{ "pamTargetSystemPolicyManualHint" | i18n }}
-              </p>
-            }
-            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-              <bit-form-field>
-                <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="number"
-                  id="target-system-edit_input_min-length"
-                  formControlName="minLength"
-                  min="1"
-                />
-              </bit-form-field>
-              <bit-form-field>
-                <bit-label>{{ "pamTargetSystemPolicyMaxLength" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="number"
-                  id="target-system-edit_input_max-length"
-                  formControlName="maxLength"
-                  min="1"
-                />
-              </bit-form-field>
-            </div>
-            @if (policyForm.errors?.["minExceedsMax"] && policyForm.touched) {
-              <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
-            }
-
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeUppercase"
-                id="target-system-edit_checkbox_uppercase"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeLowercase"
-                id="target-system-edit_checkbox_lowercase"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeDigits"
-                id="target-system-edit_checkbox_digits"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeSymbols"
-                id="target-system-edit_checkbox_symbols"
-              />
-              <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
-            </bit-form-control>
-
-            <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
-            @if (showSessionTermination()) {
-              @if (isNativeIntegration()) {
-                <div>
-                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                    {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
-                  </p>
-                  <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
-                    <bit-icon name="bwi-check"></bit-icon>
-                    {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
-                  </span>
-                  <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-                    {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
-                  </p>
-                </div>
-              } @else {
-                <bit-form-control disableMargin>
-                  <input
-                    type="checkbox"
-                    bitCheckbox
-                    formControlName="supportsSessionTermination"
-                    id="target-system-edit_checkbox_session-termination"
-                  />
-                  <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-                  <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
-                </bit-form-control>
-              }
-            }
-          </bit-card>
-        </bit-section>
+        <ng-container *ngTemplateOutlet="policyCard"></ng-container>
       }
 
       <div class="tw-flex tw-gap-2">
@@ -249,115 +264,7 @@
 
       <!-- Policy card (Automatic + Manual) -->
       @if (showPolicyCard()) {
-        <bit-section [formGroup]="policyForm">
-          <bit-section-header>
-            <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
-          </bit-section-header>
-          <bit-card>
-            @if (!showSessionTermination()) {
-              <p bitTypography="body2" class="tw-mt-0 tw-text-muted">
-                {{ "pamTargetSystemPolicyManualHint" | i18n }}
-              </p>
-            }
-            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-              <bit-form-field>
-                <bit-label>{{ "pamTargetSystemPolicyMinLength" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="number"
-                  id="target-system-edit_input_min-length"
-                  formControlName="minLength"
-                  min="1"
-                />
-              </bit-form-field>
-              <bit-form-field>
-                <bit-label>{{ "pamTargetSystemPolicyMaxLength" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="number"
-                  id="target-system-edit_input_max-length"
-                  formControlName="maxLength"
-                  min="1"
-                />
-              </bit-form-field>
-            </div>
-            @if (policyForm.errors?.["minExceedsMax"] && policyForm.touched) {
-              <bit-error>{{ "pamTargetSystemPolicyMinExceedsMax" | i18n }}</bit-error>
-            }
-
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeUppercase"
-                id="target-system-edit_checkbox_uppercase"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyUppercase" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeLowercase"
-                id="target-system-edit_checkbox_lowercase"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyLowercase" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeDigits"
-                id="target-system-edit_checkbox_digits"
-              />
-              <bit-label>{{ "pamTargetSystemPolicyDigits" | i18n }}</bit-label>
-            </bit-form-control>
-            <bit-form-control>
-              <input
-                type="checkbox"
-                bitCheckbox
-                formControlName="includeSymbols"
-                id="target-system-edit_checkbox_symbols"
-              />
-              <bit-label>{{ "pamTargetSystemPolicySymbols" | i18n }}</bit-label>
-            </bit-form-control>
-
-            <!-- Session termination (Automatic only): intrinsic for native integrations, opt-in for custom scripts -->
-            @if (showSessionTermination()) {
-              @if (isNativeIntegration()) {
-                <div>
-                  <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
-                    {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
-                  </p>
-                  <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
-                    <bit-icon name="bwi-check"></bit-icon>
-                    {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
-                  </span>
-                  <p bitTypography="helper" class="tw-mb-0 tw-mt-1 tw-text-muted">
-                    {{ "pamTargetSystemSessionTerminationNativeHint" | i18n }}
-                  </p>
-                </div>
-              } @else {
-                <bit-form-control disableMargin>
-                  <input
-                    type="checkbox"
-                    bitCheckbox
-                    formControlName="supportsSessionTermination"
-                    id="target-system-edit_checkbox_session-termination"
-                  />
-                  <bit-label>{{ "pamTargetSystemSupportsSessionTermination" | i18n }}</bit-label>
-                  <bit-hint>{{ "pamTargetSystemSupportsSessionTerminationHint" | i18n }}</bit-hint>
-                </bit-form-control>
-
-                @if (showTerminationWarning()) {
-                  <bit-callout type="warning" class="tw-mt-4">
-                    {{ "pamTargetSystemTerminationWithdrawalWarning" | i18n }}
-                  </bit-callout>
-                }
-              }
-            }
-          </bit-card>
-        </bit-section>
+        <ng-container *ngTemplateOutlet="policyCard"></ng-container>
       }
 
       <div class="tw-flex tw-gap-2">
