@@ -23,6 +23,7 @@ import {
   CalloutModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   HeaderComponent,
   IconModule,
@@ -91,6 +92,7 @@ export class RotationConfigEditComponent {
   private readonly pamApi = inject(PamApiService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly orgCiphersService = inject(OrgCiphersService);
+  private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
 
@@ -306,6 +308,38 @@ export class RotationConfigEditComponent {
         variant: "success",
         message: this.i18nService.t("pamRotationConfigAccountUpdated"),
       });
+    } catch (e) {
+      this.showError(e);
+    }
+  };
+
+  /**
+   * Remove the rotation configuration (not the credential itself). Blocked while a rotation job is
+   * in progress — the server rejects it, and we also disable the action in the template. The cipher
+   * stays in the vault; only rotation management is removed.
+   */
+  protected readonly removeRotation = async (): Promise<void> => {
+    const config = this.existingConfig();
+    if (config == null || config.hasActiveJob) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamRotationConfigDeleteConfirmTitle" },
+      content: { key: "pamRotationConfigDeleteConfirmContent" },
+      acceptButtonText: { key: "remove" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await this.pamApi.deleteRotationConfig(this.organizationId, this.configId!);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamRotationConfigDeleteSuccess"),
+      });
+      await this.navigateBack();
     } catch (e) {
       this.showError(e);
     }

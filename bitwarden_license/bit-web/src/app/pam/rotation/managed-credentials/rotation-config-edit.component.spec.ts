@@ -13,7 +13,7 @@ import {
 } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrgCiphersService } from "../org-ciphers.service";
 import { TargetSystemsService } from "../target-systems/target-systems.service";
@@ -77,6 +77,7 @@ function setup(options: SetupOptions = {}) {
       | "createRotationConfig"
       | "updateRotationConfigSettings"
       | "updateRotationConfigAccount"
+      | "deleteRotationConfig"
     >
   > = {
     listRotationConfigs: jest.fn().mockResolvedValue({ data: [], continuationToken: null }),
@@ -94,7 +95,10 @@ function setup(options: SetupOptions = {}) {
     updateRotationConfigAccount: jest
       .fn()
       .mockResolvedValue(new RotationConfigResponse(makeConfigDetailsRaw())),
+    deleteRotationConfig: jest.fn().mockResolvedValue(undefined),
   };
+
+  const dialogService = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
   const targetSystemsService = {
     systems$: new BehaviorSubject([target]),
@@ -139,6 +143,7 @@ function setup(options: SetupOptions = {}) {
       { provide: TargetSystemsService, useValue: targetSystemsService },
       { provide: OrgCiphersService, useValue: orgCiphersService },
       { provide: ToastService, useValue: toastService },
+      { provide: DialogService, useValue: dialogService },
       { provide: I18nService, useValue: i18nFake },
     ],
   });
@@ -147,7 +152,15 @@ function setup(options: SetupOptions = {}) {
   const component = fixture.componentInstance as any;
   fixture.detectChanges();
 
-  return { fixture, component, pamApi, targetSystemsService, orgCiphersService, toastService };
+  return {
+    fixture,
+    component,
+    pamApi,
+    targetSystemsService,
+    orgCiphersService,
+    toastService,
+    dialogService,
+  };
 }
 
 describe("RotationConfigEditComponent — CREATE mode", () => {
@@ -284,6 +297,7 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
         { provide: TargetSystemsService, useValue: targetSystemsStub },
         { provide: OrgCiphersService, useValue: orgCiphersService },
         { provide: ToastService, useValue: toastService },
+        { provide: DialogService, useValue: { openSimpleDialog: jest.fn() } },
         { provide: I18nService, useValue: i18nFake },
       ],
     });
@@ -295,5 +309,41 @@ describe("RotationConfigEditComponent — EDIT mode", () => {
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error" }),
     );
+  });
+
+  it("removes the rotation config after confirmation", async () => {
+    const { component, fixture, pamApi, dialogService } = setup({ configId: "cfg-1" });
+    await fixture.whenStable();
+    dialogService.openSimpleDialog.mockResolvedValue(true);
+
+    await component.removeRotation();
+
+    expect(pamApi.deleteRotationConfig).toHaveBeenCalledWith("org-1", "cfg-1");
+  });
+
+  it("does not remove the rotation config when confirmation is cancelled", async () => {
+    const { component, fixture, pamApi, dialogService } = setup({ configId: "cfg-1" });
+    await fixture.whenStable();
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+
+    await component.removeRotation();
+
+    expect(pamApi.deleteRotationConfig).not.toHaveBeenCalled();
+  });
+
+  it("does not remove the rotation config while a job is in progress", async () => {
+    const existingConfig = new RotationConfigDetailsResponse(
+      makeConfigDetailsRaw({ HasActiveJob: true }),
+    );
+    const { component, fixture, pamApi, dialogService } = setup({
+      configId: "cfg-1",
+      existingConfig,
+    });
+    await fixture.whenStable();
+
+    await component.removeRotation();
+
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+    expect(pamApi.deleteRotationConfig).not.toHaveBeenCalled();
   });
 });
