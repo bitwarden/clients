@@ -2187,6 +2187,9 @@
   "done": {
     "message": "Done"
   },
+  "filter": {
+    "message": "Filter"
+  },
   "filtersSelected": {
     "message": "$COUNT$ selected",
     "placeholders": {
