@@ -29,12 +29,10 @@ export type RunCommandParams<C extends AutofillCommandDefinition> = {
 
 export type RunCommandResult<C extends AutofillCommandDefinition> = C["output"];
 
-type Listener<Request> = (
-  error: Error | null,
-  clientId: number,
-  sequenceNumber: number,
-  request: Request,
-) => void;
+type Listener<Request> = {
+  (error: null, clientId: number, sequenceNumber: number, request: Request): void;
+  (error: Error, clientId: number, sequenceNumber: number, request: null): void;
+};
 type CompletionCallback<Response> = (
   clientId: number,
   sequenceNumber: number,
@@ -150,11 +148,11 @@ export class DesktopAutofillMain {
     fromRendererChannel?: AutofillIpcDefinitionMap[K]["outgoing"],
     completeCallback?: CompletionCallback<AutofillIpcResponse<K>>,
   ): Listener<AutofillIpcRequest<K>> {
-    const callback = (
-      error: Error | null,
-      clientId: number,
-      sequenceNumber: number,
-      request: AutofillIpcRequest<K>,
+    const callback: Listener<AutofillIpcRequest<K>> = (
+      error,
+      clientId,
+      sequenceNumber,
+      request,
     ) => {
       if (error) {
         this.logService.error("[NativeAutofillMain]", `${toRendererChannel}:`, error);

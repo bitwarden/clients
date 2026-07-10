@@ -34,29 +34,33 @@ pub mod autofill {
     #[napi(object, object_to_js = false)]
     pub struct AutofillIpcCallbacks {
         /// Function to execute when a passkey registration request is received.
-        #[napi(
-            ts_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
-        )]
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
         pub registration_callback:
             ThreadsafeFunction<FnArgs<(u32, u32, PasskeyRegistrationRequest)>>,
 
         /// Function to execute when a passkey assertion request is received.
-        #[napi(
-            ts_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
-        )]
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
         pub assertion_callback: ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionRequest)>>,
 
         /// Function to execute when a passkey assertion request is received and the UI must not be shown.
-        #[napi(
-            ts_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
-        )]
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
         pub assertion_without_user_interface_callback:
             ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>>,
 
         /// Function to execute when a notification of the autofill provider's status is received.
-        #[napi(
-            ts_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
-        )]
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
         pub native_status_callback: ThreadsafeFunction<FnArgs<(u32, u32, NativeStatus)>>,
     }
 
