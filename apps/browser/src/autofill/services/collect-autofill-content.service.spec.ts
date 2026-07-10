@@ -3668,6 +3668,73 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("mutation-loop branch handling", () => {
+    beforeEach(() => {
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+    });
+
+    it("skips an attribute mutation whose attributeName is null", () => {
+      const target = document.createElement("input");
+      document.body.appendChild(target);
+      const mutation: MutationRecord = {
+        type: "attributes",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].has(target)).toBe(false);
+    });
+
+    it("ignores a mutation whose type is neither attributes nor childList", () => {
+      const characterData: MutationRecord = {
+        type: "characterData",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.createTextNode("text"),
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([characterData]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
+      expect(collectAutofillContentService["pendingTopLayerTargets"].size).toBe(0);
+    });
+
+    it("tracks an added top-layer candidate (<dialog>) as a pending target", () => {
+      const container = document.createElement("div");
+      const dialog = document.createElement("dialog");
+      container.appendChild(dialog);
+      document.body.appendChild(container);
+      const mutation: MutationRecord = {
+        type: "childList",
+        addedNodes: container.childNodes,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+  });
+
   describe("childList gate is wired into mutation handling", () => {
     const childListMutationFor = (...added: Node[]): MutationRecord => {
       const container = document.createElement("div");

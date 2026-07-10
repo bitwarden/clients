@@ -364,6 +364,14 @@ describe("DomQueryService", () => {
     });
   });
 
+  describe("getShadowRoot", () => {
+    it("returns null for a non-element node", () => {
+      const textNode = document.createTextNode("not an element");
+
+      expect(domQueryService["getShadowRoot"](textNode)).toBeNull();
+    });
+  });
+
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
