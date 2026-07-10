@@ -1,12 +1,12 @@
 import { Observable } from "rxjs";
 
-import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
+import { UploadOptions } from "../../platform/abstractions/file-upload/file-upload.service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
@@ -30,6 +30,17 @@ export type EncryptionContext = {
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
   abstract cipherViews$(userId: UserId): Observable<CipherView[]>;
+  /**
+   * Observable that emits the decrypted {@link CipherView} for a single cipher, or `undefined`
+   * when no cipher with the given id exists in the user's vault.
+   *
+   * Encapsulates the common pattern of subscribing to {@link cipherViews$} and finding a single
+   * cipher by id. The observable re-emits whenever the user's ciphers change.
+   *
+   * @param userId The id of the user whose vault should be searched.
+   * @param cipherId The id of the cipher to retrieve.
+   */
+  abstract cipherView$(userId: UserId, cipherId: CipherId): Observable<CipherView | undefined>;
   abstract cipherListViews$(userId: UserId): Observable<CipherListView[] | CipherView[]>;
   abstract ciphers$(userId: UserId): Observable<Record<CipherId, CipherData>>;
   abstract localData$(userId: UserId): Observable<Record<CipherId, LocalData>>;

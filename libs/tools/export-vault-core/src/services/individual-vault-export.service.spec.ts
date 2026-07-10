@@ -4,7 +4,6 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -12,6 +11,7 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { BuildTestObject, GetUniqueString } from "@bitwarden/common/spec";
 import { CipherId, emptyGuid, UserId } from "@bitwarden/common/types/guid";
@@ -40,6 +40,7 @@ import {
   KeyService,
   KdfType,
 } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {
   BitwardenJsonExport,
@@ -166,7 +167,6 @@ function expectEqualFolders(folders: Folder[], jsonResult: string) {
 
 describe("VaultExportService", () => {
   let exportService: IndividualVaultExportService;
-  let cryptoFunctionService: MockProxy<CryptoFunctionService>;
   let cipherService: MockProxy<CipherService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let folderService: MockProxy<FolderService>;
@@ -182,7 +182,6 @@ describe("VaultExportService", () => {
   const userId = emptyGuid as UserId;
 
   beforeEach(() => {
-    cryptoFunctionService = mock<CryptoFunctionService>();
     cipherService = mock<CipherService>();
     keyGenerationService = mock<KeyGenerationService>();
     folderService = mock<FolderService>();
@@ -191,6 +190,12 @@ describe("VaultExportService", () => {
     kdfConfigService = mock<KdfConfigService>();
     apiService = mock<ApiService>();
     logService = mock<LogService>();
+
+    Object.defineProperty(SdkLoadService, "Ready", {
+      value: Promise.resolve(),
+      configurable: true,
+    });
+    jest.spyOn(SdkRandomNumberClient.prototype, "gen_bytes").mockReturnValue(new Uint8Array(16));
 
     keyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
@@ -224,7 +229,6 @@ describe("VaultExportService", () => {
       keyGenerationService,
       keyService,
       encryptService,
-      cryptoFunctionService,
       kdfConfigService,
       apiService,
       restrictedItemTypesService as RestrictedItemTypesService,
@@ -426,13 +430,14 @@ describe("VaultExportService", () => {
       expect(blobResult.skippedAttachmentCount).toBeUndefined();
     });
 
-    it("contains attachments with folders", async () => {
+    it("contains attachments under folders with cipher name in their name", async () => {
       const cipherData = new CipherData();
       cipherData.id = "mock-id";
       const cipherRecord: Record<CipherId, CipherData> = {
         ["mock-id" as CipherId]: cipherData,
       };
       const cipherView = new CipherView(new Cipher(cipherData));
+      cipherView.name = "mock-cipher-name";
       const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
       attachmentView.fileName = "mock-file-name";
       cipherView.attachments = [attachmentView];
@@ -453,10 +458,135 @@ describe("VaultExportService", () => {
       expect(exportedVault.type).toBe("application/zip");
       const exportZip = exportedVault as ExportedVaultAsBlob;
       const zip = await JSZip.loadAsync(exportZip.data);
-      const attachment = await zip.file("attachments/mock-id/mock-file-name")?.async("blob");
+      const attachment = await zip
+        .file("attachments/mock-cipher-name/mock-file-name")
+        ?.async("blob");
       expect(attachment).toBeDefined();
     });
+
+    it("contains attachments inside folders with unique names if cipher names are duplicated", async () => {
+      const cipherData1 = new CipherData();
+      cipherData1.id = "mock-id-1";
+      const cipherData2 = new CipherData();
+      cipherData2.id = "mock-id-2";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id-1" as CipherId]: cipherData1,
+        ["mock-id-2" as CipherId]: cipherData2,
+      };
+      const cipherView1 = new CipherView(new Cipher(cipherData1));
+      cipherView1.name = "mock-cipher-name";
+      const cipherView2 = new CipherView(new Cipher(cipherData2));
+      cipherView2.name = "mock-cipher-name";
+      const attachmentView1 = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView1.fileName = "mock-file-name.json";
+      const attachmentView2 = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView2.fileName = "mock-file-name.json";
+      cipherView1.attachments = [attachmentView1];
+      cipherView2.attachments = [attachmentView2];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView1, cipherView2]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const exportedVault = await exportService.getExport(userId, "zip");
+
+      expect(exportedVault.type).toBe("application/zip");
+      const exportZip = exportedVault as ExportedVaultAsBlob;
+      const zip = await JSZip.loadAsync(exportZip.data);
+      const attachment1 = await zip
+        .file("attachments/mock-cipher-name/mock-file-name.json")
+        ?.async("blob");
+      expect(attachment1).toBeDefined();
+      const attachment2 = await zip
+        .file("attachments/mock-cipher-name_1/mock-file-name.json")
+        ?.async("blob");
+      expect(attachment2).toBeDefined();
+    });
+
+    it("contains attachments with unique names if attachment names are duplicated on a cipher", async () => {
+      const cipherData1 = new CipherData();
+      cipherData1.id = "mock-id-1";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id-1" as CipherId]: cipherData1,
+      };
+      const cipherView1 = new CipherView(new Cipher(cipherData1));
+      cipherView1.name = "mock-cipher-name";
+      const attachmentView1 = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView1.fileName = "mock-file-name.txt";
+      const attachmentView2 = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView2.fileName = "mock-file-name.txt";
+      cipherView1.attachments = [attachmentView1, attachmentView2];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView1]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const exportedVault = await exportService.getExport(userId, "zip");
+
+      expect(exportedVault.type).toBe("application/zip");
+      const exportZip = exportedVault as ExportedVaultAsBlob;
+      const zip = await JSZip.loadAsync(exportZip.data);
+      const attachment1 = await zip
+        .file("attachments/mock-cipher-name/mock-file-name.txt")
+        ?.async("blob");
+      expect(attachment1).toBeDefined();
+      const attachment2 = await zip
+        .file("attachments/mock-cipher-name/mock-file-name_1.txt")
+        ?.async("blob");
+      expect(attachment2).toBeDefined();
+    });
   });
+
+  it.each(["//", "\\\\", ">>", "<<", "::", '""', "||", "??", "**"])(
+    "should replace disallowed characters in attachment filenames with an underscore",
+    async (badString) => {
+      const cipherData = new CipherData();
+      cipherData.id = "mock-id-1";
+      const cipherRecord: Record<CipherId, CipherData> = {
+        ["mock-id-1" as CipherId]: cipherData,
+      };
+      const cipherView = new CipherView(new Cipher(cipherData));
+      cipherView.name = "mock-cipher-name";
+      const attachmentView = new AttachmentView(new Attachment(new AttachmentData()));
+      attachmentView.fileName = "mock-file-na" + badString + "me.txt";
+      cipherView.attachments = [attachmentView];
+      cipherService.ciphers$.mockReturnValue(of(cipherRecord));
+      cipherService.getAllDecrypted.mockResolvedValue([cipherView]);
+      folderService.getAllDecryptedFromState.mockResolvedValue([]);
+      cipherService.getDecryptedAttachmentBuffer.mockResolvedValue(new Uint8Array(255));
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          status: 200,
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(255)),
+        }),
+      ) as any;
+      global.Request = jest.fn(() => {}) as any;
+
+      const exportedVault = await exportService.getExport(userId, "zip");
+
+      expect(exportedVault.type).toBe("application/zip");
+      const exportZip = exportedVault as ExportedVaultAsBlob;
+      const zip = await JSZip.loadAsync(exportZip.data);
+      const attachment = await zip
+        .file("attachments/mock-cipher-name/mock-file-na_me.txt")
+        ?.async("blob");
+      expect(attachment).toBeDefined();
+    },
+  );
 
   describe("password protected export", () => {
     let exportedVault: ExportedVault;
