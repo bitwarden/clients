@@ -317,3 +317,43 @@ export const InactiveFormControlCard: Story = {
     `,
   }),
 };
+
+export const FormControlCardGroupGrid: Story = {
+  render: () => ({
+    props: {
+      formObj: new FormGroup({
+        radio: new FormControl(0),
+      }),
+    },
+    template: /* HTML */ `
+      <form [formGroup]="formObj">
+        <bit-form-control-group grid formControlName="radio">
+          <bit-label>Select an option</bit-label>
+
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="0" />
+            <bit-label>Option A</bit-label>
+            <bit-hint>The first available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="1" />
+            <bit-label>Option B</bit-label>
+            <bit-hint>The second available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="2" />
+            <bit-label>Option C</bit-label>
+            <bit-hint>The third available option</bit-hint>
+          </bit-form-control-card>
+          <bit-form-control-card>
+            <input type="radio" bitRadio [value]="3" />
+            <bit-label>Option D</bit-label>
+            <bit-hint>The fourth available option</bit-hint>
+          </bit-form-control-card>
+
+          <bit-hint>Choose one of the options above.</bit-hint>
+        </bit-form-control-group>
+      </form>
+    `,
+  }),
+};

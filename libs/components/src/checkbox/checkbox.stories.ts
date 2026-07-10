@@ -361,6 +361,49 @@ export const FormControlCardGroup: Story = {
   },
 };
 
+export const FormControlCardGroupGrid: Story = {
+  render: () => {
+    const formObj = new FormGroup({
+      features: new FormControl<string[]>([], Validators.required),
+    });
+    return {
+      props: { formObj },
+      template: /* HTML */ `
+        <form [formGroup]="formObj">
+          <bit-form-control-group formControlName="features" grid>
+            <bit-label>Checkbox group</bit-label>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
+              <bit-label>Feature A</bit-label>
+              <bit-hint>Enables Feature A for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
+              <bit-label>Feature B</bit-label>
+              <bit-hint>Enables Feature B for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
+              <bit-label>Feature C</bit-label>
+              <bit-hint>Enables Feature C for your account</bit-hint>
+            </bit-form-control-card>
+
+            <bit-form-control-card icon="bwi-envelope">
+              <input type="checkbox" bitCheckbox [value]="'featureD'" />
+              <bit-label>Feature D</bit-label>
+              <bit-hint>Enables Feature D for your account</bit-hint>
+            </bit-form-control-card>
+            <bit-hint>Choose which features to enable.</bit-hint>
+          </bit-form-control-group>
+        </form>
+      `,
+    };
+  },
+};
+
 export const FormControlCardGroupWithValidation: Story = {
   render: () => {
     const formObj = new FormGroup({
