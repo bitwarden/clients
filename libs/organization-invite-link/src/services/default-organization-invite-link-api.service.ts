@@ -78,7 +78,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
-  async update(
+  async updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel> {
