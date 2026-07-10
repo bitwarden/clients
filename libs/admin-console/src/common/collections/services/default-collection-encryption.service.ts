@@ -58,7 +58,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     collections: Collection[],
     userId: UserId,
   ): Promise<[CollectionView[], Collection[]]> {
-    return firstValueFrom(
+    const startTime = performance.now();
+
+    const result = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -87,6 +89,20 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         }),
       ),
     );
+
+    this.logService.measure(
+      startTime,
+      "Admin Console",
+      "DefaultCollectionEncryptionService",
+      "decryptManyWithFailures (original, one at a time)",
+      [
+        ["Items", collections.length],
+        ["Successes", result[0].length],
+        ["Failures", result[1].length],
+      ],
+    );
+
+    return result;
   }
 
   /**
@@ -99,7 +115,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     collections: Collection[],
     userId: UserId,
   ): Promise<[CollectionView[], Collection[]]> {
-    return firstValueFrom(
+    const startTime = performance.now();
+
+    const result = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           if (!sdk) {
@@ -155,5 +173,19 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         }),
       ),
     );
+
+    this.logService.measure(
+      startTime,
+      "Admin Console",
+      "DefaultCollectionEncryptionService",
+      "decryptManyWithFailures (bulk, decrypt_list_with_failures)",
+      [
+        ["Items", collections.length],
+        ["Successes", result[0].length],
+        ["Failures", result[1].length],
+      ],
+    );
+
+    return result;
   }
 }

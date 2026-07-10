@@ -74,6 +74,9 @@ describe("DefaultCollectionEncryptionService", () => {
     warning: jest.fn(),
     info: jest.fn(),
     debug: jest.fn(),
+    write: jest.fn(),
+    measure: jest.fn(),
+    mark: jest.fn(),
   } as unknown as LogService;
   const sdkService = { userClient$: jest.fn() } as unknown as SdkService;
   const configService = { getFeatureFlag: jest.fn() } as unknown as ConfigService;

@@ -375,6 +375,9 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CollectionService,
       OrganizationService,
+      SdkService,
+      ConfigService,
+      LogService,
     ],
   }),
   safeProvider({

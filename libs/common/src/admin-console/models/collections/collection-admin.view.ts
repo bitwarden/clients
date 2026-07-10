@@ -1,5 +1,9 @@
+import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
+
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
+import { CollectionId } from "../../../types/guid";
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
 
@@ -146,6 +150,69 @@ export class CollectionAdminView extends CollectionView {
     view.users = collection.users
       ? collection.users.map((g) => new CollectionAccessSelectionView(g))
       : [];
+
+    return view;
+  }
+
+  /**
+   * Creates a CollectionAdminView from the SDK CollectionView returned by SDK decrypt operations.
+   *
+   * The `source` parameter provides the admin-only fields (`groups`, `users`, `unmanaged`,
+   * `assigned`) that the SDK's CollectionView type does not carry, since those are specific to
+   * the Admin Console's collection-access-details representation, not the SDK's crypto model.
+   */
+  static fromSdkCollectionViewWithAccessDetails(
+    sdkView: SdkCollectionView,
+    source: CollectionAccessDetailsResponse,
+  ): CollectionAdminView {
+    const view = new CollectionAdminView({
+      id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : (source.id as CollectionId),
+      organizationId: source.organizationId,
+      name: sdkView.name,
+    });
+
+    view.externalId = sdkView.externalId;
+    view.hidePasswords = sdkView.hidePasswords;
+    view.readOnly = sdkView.readOnly;
+    view.manage = sdkView.manage;
+    view.type = sdkView.type;
+    view.defaultUserCollectionEmail = source.defaultUserCollectionEmail;
+
+    view.assigned = source.assigned;
+    view.unmanaged = source.unmanaged;
+    view.groups = source.groups
+      ? source.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+    view.users = source.users ? source.users.map((g) => new CollectionAccessSelectionView(g)) : [];
+
+    return view;
+  }
+
+  /**
+   * Creates a placeholder CollectionAdminView for a collection that failed to decrypt via the
+   * SDK bulk path (`decrypt_list_with_failures`). Unlike the personal-vault decryption path, the
+   * Admin Console must never silently drop a collection that fails to decrypt, since admins still
+   * need to see, manage, and delete it. Mirrors the fallback behavior of
+   * {@link fromCollectionAccessDetails}'s catch branch.
+   */
+  static fromCollectionAccessDetailsDecryptionFailure(
+    source: CollectionAccessDetailsResponse,
+  ): CollectionAdminView {
+    const view = new CollectionAdminView({ ...source, name: "[error: cannot decrypt]" });
+
+    view.assigned = source.assigned;
+    view.readOnly = source.readOnly;
+    view.hidePasswords = source.hidePasswords;
+    view.manage = source.manage;
+    view.unmanaged = source.unmanaged;
+    view.type = source.type;
+    view.externalId = source.externalId;
+    view.defaultUserCollectionEmail = source.defaultUserCollectionEmail;
+
+    view.groups = source.groups
+      ? source.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+    view.users = source.users ? source.users.map((g) => new CollectionAccessSelectionView(g)) : [];
 
     return view;
   }
