@@ -31,6 +31,8 @@ pub mod autofill {
         server: desktop_core::ipc::server::Server,
     }
 
+    // TODO(PM-40230): Investigate if we can define the response types on these
+    // callbacks directly.
     #[napi(object, object_to_js = false)]
     pub struct AutofillIpcCallbacks {
         /// Function to execute when a passkey registration request is received.
