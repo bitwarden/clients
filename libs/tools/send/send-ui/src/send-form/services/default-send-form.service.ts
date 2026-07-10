@@ -123,13 +123,16 @@ export class DefaultSendFormService implements SendFormService {
     }
 
     try {
+      const plaintextPassword = this._updatedSendView().password;
       const sendData = await this.sendService.encrypt(
         this._updatedSendView(),
         this.file,
-        this._updatedSendView().password,
+        plaintextPassword,
         null,
       );
-      const newSend = await this.sendApiService.save(sendData);
+      // Forward the plaintext (null when preserving an existing password) so the SDK path can
+      // derive the send password over the key it generates; the legacy path ignores it.
+      const newSend = await this.sendApiService.save(sendData, plaintextPassword);
       const sendView = await this.decryptSend(newSend);
       this._originalSendView.set(null);
       this._updatedSendView.set(null);

@@ -54,28 +54,36 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
    * data. Patches the input with server-assigned id/accessId on create so callers reading
    * those after `save()` continue to work.
    *
-   * Two cases the SDK cannot currently handle are routed to legacy by
-   * `SendApiServiceSelector` and rejected here as a guard for direct callers:
+   * New file sends cannot be handled by the SDK and are routed to legacy by
+   * `SendApiServiceSelector`; this method rejects them as a guard for direct callers:
+   * `SendService.encrypt` produces a pre-encrypted buffer under a client-derived key,
+   * while the SDK's `create_file_send` generates its own key.
    *
-   * - **New file sends.** `SendService.encrypt` produces a pre-encrypted buffer under a
-   *   client-derived key; the SDK's `create_file_send` generates its own key.
-   * - **Password-protected sends.** `Send.password` is already the PBKDF2-derived
-   *   `keyB64`, but the SDK's `SendAuthType::auth_data`
-   *   (`bitwarden-send/src/send.rs:160-163`) re-applies PBKDF2 to whatever string sits in
-   *   `auth.password`, double-hashing the value. No skip-hash variant exists on the
-   *   public request types.
+   * Password-protected sends route through the SDK. On create or password-change the caller
+   * forwards the plaintext `password`, which `buildSendAuth` hands to the SDK's high-level
+   * `password` auth variant so the SDK derives the proof-of-knowledge over the key it
+   * generates (keeping password and key consistent). On an edit that preserves the existing
+   * password the caller has no plaintext; the SDK reuses the existing send key on edit, so
+   * `buildSendAuth` forwards the existing `keyB64` verbatim via the `hashedPassword` variant.
+   * The plaintext password and the `keyB64` are Protected Data and are never logged.
    */
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  async save(sendData: [Send, EncArrayBuffer], plaintextPassword?: string): Promise<Send> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const [send] = sendData;
     if (send.id == null && send.type === SendType.File) {
       throw new Error("SendSdkApiService.save: file send creation requires SendApiService.");
     }
-    if (send.authType === AuthType.Password) {
-      throw new Error("SendSdkApiService.save: password-protected sends require SendApiService.");
-    }
     const sendView = await send.decrypt(userId);
-    const sdkView = await this.mutateSend(sendView, userId);
+    // On a password-preserving edit the caller passes no plaintext, and the freshly-encrypted
+    // `send` carries no `keyB64` (SendService.encrypt only derives one when given a plaintext).
+    // The existing proof-of-knowledge lives on the stored send, so recover it from state to
+    // forward verbatim. Only needed for a password-protected edit: absent on create (no existing
+    // send) and unused for non-password sends or when a plaintext is given.
+    const existingPassword =
+      send.id != null && send.authType === AuthType.Password && plaintextPassword == null
+        ? (await this.sendService.getFromState(send.id))?.password
+        : undefined;
+    const sdkView = await this.mutateSend(sendView, userId, plaintextPassword, existingPassword);
 
     // Patch server-assigned identifiers onto the input for callers that read them after
     // save (matches the legacy SendApiService contract). The server always returns id
@@ -228,7 +236,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new SendFileDownloadDataResponse(data);
   }
 
-  private async mutateSend(sendView: SendView, userId: UserId): Promise<SdkSendView> {
+  private async mutateSend(
+    sendView: SendView,
+    userId: UserId,
+    plaintextPassword?: string,
+    existingPassword?: string,
+  ): Promise<SdkSendView> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         switchMap(async (sdk) => {
@@ -238,11 +251,11 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           using ref = sdk.take();
           const sendsClient = ref.value.sends();
           if (sendView.id == null) {
-            return await sendsClient.create(this.buildSendAddRequest(sendView));
+            return await sendsClient.create(this.buildSendAddRequest(sendView, plaintextPassword));
           }
           return await sendsClient.edit(
             asUuid<SdkSendId>(sendView.id),
-            this.buildSendEditRequest(sendView),
+            this.buildSendEditRequest(sendView, plaintextPassword, existingPassword),
           );
         }),
         catchError((error: unknown) => {
@@ -263,7 +276,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new Send(data);
   }
 
-  private buildSendAddRequest(sendView: SendView): SendAddRequest {
+  private buildSendAddRequest(sendView: SendView, plaintextPassword?: string): SendAddRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
@@ -273,11 +286,17 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       hideEmail: sendView.hideEmail,
       deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
-      auth: this.buildSendAuth(sendView),
+      // A create always has a plaintext password when password-protected; there is no
+      // existing key to preserve.
+      auth: this.buildSendAuth(sendView, plaintextPassword, undefined),
     };
   }
 
-  private buildSendEditRequest(sendView: SendView): SendEditRequest {
+  private buildSendEditRequest(
+    sendView: SendView,
+    plaintextPassword?: string,
+    existingPassword?: string,
+  ): SendEditRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
@@ -287,7 +306,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
       hideEmail: sendView.hideEmail,
       deletionDate: this.requireDeletionDate(sendView).toISOString(),
       expirationDate: sendView.expirationDate?.toISOString() ?? undefined,
-      auth: this.buildSendAuth(sendView),
+      auth: this.buildSendAuth(sendView, plaintextPassword, existingPassword),
     };
   }
 
@@ -325,17 +344,39 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     };
   }
 
-  // `AuthType.Password` is unreachable here: SendApiServiceSelector and the guard in
-  // `save()` both route password-protected sends to the legacy service because the SDK
-  // re-applies PBKDF2 to `auth.password`. When the SDK gains a skip-hash/preserve
-  // variant, the routing changes and a `case AuthType.Password` branch comes back.
-  private buildSendAuth(sendView: SendView): SendAuthType {
+  /**
+   * Builds the SDK auth for a save.
+   *
+   * For a password-protected send:
+   * - When a plaintext password is supplied (create, or an edit that sets/changes the password),
+   *   emit the high-level `password` variant. The SDK derives the proof-of-knowledge with PBKDF2
+   *   over the key it generates, keeping password and key consistent by construction.
+   * - Otherwise (an edit that preserves the existing password) emit `hashedPassword` with the
+   *   existing `keyB64`. The SDK reuses the existing send key on edit, so the already-derived
+   *   proof stays valid; forwarding it verbatim skips re-derivation.
+   *
+   * The plaintext password and the `keyB64` are Protected Data — this method must never log
+   * them or place them in error messages.
+   */
+  private buildSendAuth(
+    sendView: SendView,
+    plaintextPassword?: string,
+    existingPassword?: string,
+  ): SendAuthType {
     switch (sendView.authType) {
       case AuthType.Email:
         if (sendView.emails == null || sendView.emails.length === 0) {
           throw new Error("Email-protected send is missing recipient emails.");
         }
         return { type: "emails", emails: sendView.emails };
+      case AuthType.Password:
+        if (plaintextPassword != null) {
+          return { type: "password", password: plaintextPassword };
+        }
+        if (existingPassword != null) {
+          return { type: "hashedPassword", keyB64: existingPassword };
+        }
+        throw new Error("Password-protected send is missing its password.");
       case AuthType.None:
       default:
         return { type: "none" };
