@@ -11,10 +11,7 @@ import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
-// Shadow sub-observers mirror the top-level observer's attributeFilter, so
-// attribute churn inside shadow roots (style/transform/aria-* at frame rate) no
-// longer floods the callback. Same attr set the light-DOM observer uses — coverage
-// inside shadow roots matches light DOM, not narrower.
+// Mirrors the light-DOM observer's attributeFilter so shadow-root attribute churn can't flood the callback.
 const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 
 type ScanVerdict =
@@ -164,9 +161,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     return { branch: "narrow", foundNewRoot: false };
   };
 
-  /** Top-most batch elements (drops any whose ancestor is also present). O(N·depth)
-   *  ancestor walk replacing an O(N²) pairwise contains scan; identical result, and
-   *  parentElement matches contains()'s non-piercing behavior at shadow boundaries. */
+  /** Drops batch elements whose ancestor is also present; parentElement walk (not contains) keeps non-piercing behavior at shadow boundaries. */
   private suppressDescendantsInBatch = (elements: Element[]): Element[] => {
     if (elements.length < 2) {
       return elements;
@@ -397,9 +392,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
 
-  // Registration-layer scoping: field-bearing roots get the full field-scoped
-  // observer; field-less roots get a shallow childList watch (no subtree), so their
-  // tile/buffer churn isn't delivered but a directly-injected form still promotes them.
+  // Field-less roots get a shallow childList watch (not subtree) so an injected form still promotes them, without delivering tile/buffer churn.
   private observeShadowRoot(
     mutationObserver: MutationObserver,
     shadowRoot: ShadowRoot,
@@ -622,8 +615,7 @@ export class DomQueryService implements DomQueryServiceInterface {
         if (nodeShadowRoot) {
           this.knownShadowRoots.add(nodeShadowRoot);
 
-          // Descend first: this root's field presence is the accumulator delta.
-          // Over-approximation (nested root's fields count too) only over-observes.
+          // Descend before measuring the field-presence delta; over-counting nested fields only over-observes.
           const fieldsBefore = treeWalkerQueryResults.length;
           this.buildTreeWalkerNodesQueryResults(
             nodeShadowRoot,
