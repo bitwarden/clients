@@ -240,6 +240,67 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
   });
 
+  it("forces supportsSessionTermination=true for a native integration", async () => {
+    pamApi.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Prod Entra",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.Entra,
+    });
+    // Leave the checkbox control false — native integrations must still report supported.
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: false,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const call = pamApi.createTargetSystem.mock.calls[0];
+    expect(call![1].supportsSessionTermination).toBe(true);
+  });
+
+  it("honors the checkbox for a custom script", async () => {
+    pamApi.createTargetSystem.mockResolvedValue(makeSystem());
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    const comp = fixture.componentInstance as unknown as {
+      createForm: { patchValue: (v: unknown) => void };
+      policyForm: { patchValue: (v: unknown) => void };
+      submitCreate: () => Promise<void>;
+    };
+    comp.createForm.patchValue({
+      name: "Legacy DB",
+      method: TargetSystemMethod.Automatic,
+      kind: TargetSystemKind.CustomScript,
+    });
+    comp.policyForm.patchValue({
+      minLength: 14,
+      maxLength: 64,
+      includeUppercase: true,
+      includeLowercase: true,
+      includeDigits: true,
+      includeSymbols: true,
+      supportsSessionTermination: false,
+    });
+    fixture.detectChanges();
+    await comp.submitCreate();
+
+    const call = pamApi.createTargetSystem.mock.calls[0];
+    expect(call![1].supportsSessionTermination).toBe(false);
+  });
+
   it("shows error toast on API failure", async () => {
     pamApi.createTargetSystem.mockRejectedValue(new Error("network fail"));
     jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -323,6 +384,28 @@ describe("TargetSystemEditComponent — create mode (rendered)", () => {
 
     patchMethod(TargetSystemMethod.Automatic);
     expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
+  });
+
+  function patchKind(kind: TargetSystemKind): void {
+    (
+      fixture.componentInstance as unknown as {
+        createForm: { controls: { kind: { setValue: (v: TargetSystemKind) => void } } };
+      }
+    ).createForm.controls.kind.setValue(kind);
+    fixture.detectChanges();
+  }
+
+  it("hides the session-termination checkbox for native integrations", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    // Defaults to Automatic + Entra (native) → static "Supported", no checkbox.
+    patchKind(TargetSystemKind.Entra);
+    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeNull();
+  });
+
+  it("shows the session-termination checkbox only for custom scripts", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    patchKind(TargetSystemKind.CustomScript);
+    expect(el.querySelector("#target-system-edit_checkbox_session-termination")).toBeTruthy();
   });
 });
 

@@ -173,6 +173,11 @@ export class TargetSystemEditComponent {
     initialValue: this.createForm.controls.method.value,
   });
 
+  /** Live create-mode kind selection — drives the session-termination presentation reactively. */
+  private readonly createKind = toSignal(this.createForm.controls.kind.valueChanges, {
+    initialValue: this.createForm.controls.kind.value,
+  });
+
   /**
    * Whether the Integration + password-policy cards should be shown — i.e. the method is
    * Automatic (create: the live radio selection; edit: the existing system's method).
@@ -183,6 +188,29 @@ export class TargetSystemEditComponent {
     }
     return this.createMethod() === TargetSystemMethod.Automatic;
   });
+
+  /** The integration kind in play — the existing system's kind (edit) or the live selection (create Automatic). */
+  private readonly selectedKind = computed<TargetSystemKind | null>(() => {
+    if (this.editing) {
+      return this.existing()?.kind ?? null;
+    }
+    return this.createMethod() === TargetSystemMethod.Automatic ? this.createKind() : null;
+  });
+
+  /**
+   * Native integrations (Entra, Mssql — anything other than a custom script) always terminate
+   * active sessions after rotation; the capability is intrinsic, so the form shows a static
+   * "Supported" indicator rather than an editable checkbox.
+   */
+  protected readonly isNativeIntegration = computed(() => {
+    const kind = this.selectedKind();
+    return kind != null && kind !== TargetSystemKind.CustomScript;
+  });
+
+  /** Only custom scripts expose the editable session-termination checkbox. */
+  protected readonly showSessionTerminationCheckbox = computed(
+    () => this.showPolicyCard() && this.selectedKind() === TargetSystemKind.CustomScript,
+  );
 
   /**
    * Whether to show the session-termination withdrawal warning (only in edit mode,
@@ -324,7 +352,10 @@ export class TargetSystemEditComponent {
             method: TargetSystemMethod.Automatic,
             kind,
             passwordPolicy,
-            supportsSessionTermination: policy.supportsSessionTermination,
+            // Native integrations always support session termination; only custom scripts opt in.
+            supportsSessionTermination: this.isNativeIntegration()
+              ? true
+              : policy.supportsSessionTermination,
           }),
         );
       } else {
@@ -383,7 +414,10 @@ export class TargetSystemEditComponent {
           this.targetSystemId!,
           new TargetSystemPolicyRequest({
             passwordPolicy,
-            supportsSessionTermination: policy.supportsSessionTermination,
+            // Native integrations always support session termination; only custom scripts opt in.
+            supportsSessionTermination: this.isNativeIntegration()
+              ? true
+              : policy.supportsSessionTermination,
           }),
         );
       }

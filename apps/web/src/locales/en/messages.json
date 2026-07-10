@@ -16004,6 +16004,12 @@
   "pamTargetSystemSupportsSessionTerminationHint": {
     "message": "When enabled, the daemon will terminate active sessions after a credential is rotated."
   },
+  "pamTargetSystemSessionTerminationSupported": {
+    "message": "Supported"
+  },
+  "pamTargetSystemSessionTerminationNativeHint": {
+    "message": "Native integrations always terminate active sessions after a credential is rotated."
+  },
   "pamTargetSystemTerminationWithdrawalWarning": {
     "message": "Warning: the server will reject removing session termination support while any rotation config on this target still relies on it. Update those configs first."
   },
