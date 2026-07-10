@@ -7,7 +7,7 @@ describe("RotationDaemonResponse", () => {
     const raw = {
       Id: "daemon-uuid-1234",
       Name: "On-Prem Daemon 1",
-      Status: DaemonStatus.Enrolled,
+      Status: DaemonStatus.Enabled,
       IsConnected: true,
       AssignedTargetSystemIds: ["ts-uuid-aaaa", "ts-uuid-bbbb"],
     };
@@ -26,8 +26,8 @@ describe("RotationDaemonResponse", () => {
       expect(response.name).toBe("On-Prem Daemon 1");
     });
 
-    it("parses status as DaemonStatus.Enrolled", () => {
-      expect(response.status).toBe(DaemonStatus.Enrolled);
+    it("parses status as DaemonStatus.Enabled", () => {
+      expect(response.status).toBe(DaemonStatus.Enabled);
     });
 
     it("parses isConnected as true", () => {
@@ -43,7 +43,7 @@ describe("RotationDaemonResponse", () => {
     const raw: Record<string, unknown> = {
       Id: "daemon-uuid-5678",
       Name: "Revoked Daemon",
-      Status: DaemonStatus.Revoked,
+      Status: DaemonStatus.Disabled,
       IsConnected: false,
       AssignedTargetSystemIds: [],
     };
@@ -54,8 +54,8 @@ describe("RotationDaemonResponse", () => {
       response = new RotationDaemonResponse(raw);
     });
 
-    it("parses status as DaemonStatus.Revoked", () => {
-      expect(response.status).toBe(DaemonStatus.Revoked);
+    it("parses status as DaemonStatus.Disabled", () => {
+      expect(response.status).toBe(DaemonStatus.Disabled);
     });
 
     it("parses isConnected as false", () => {
@@ -71,7 +71,7 @@ describe("RotationDaemonResponse", () => {
     const raw = {
       Id: "daemon-uuid-9999",
       Name: "Minimal Daemon",
-      Status: DaemonStatus.Enrolled,
+      Status: DaemonStatus.Enabled,
       // IsConnected and AssignedTargetSystemIds absent
     };
 
@@ -94,7 +94,7 @@ describe("RotationDaemonResponse", () => {
     const raw = {
       Id: "daemon-uuid-coerce",
       Name: "Daemon With Numeric Ids",
-      Status: DaemonStatus.Enrolled,
+      Status: DaemonStatus.Enabled,
       IsConnected: false,
       AssignedTargetSystemIds: [123, 456],
     };

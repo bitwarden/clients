@@ -20,7 +20,7 @@ export type DaemonRow = {
   isConnected: boolean;
   /** Target system names for the assignment badges; falls back to the raw ID when not found. */
   assignmentNames: string[];
-  /** True when the daemon is enabled (Enrolled) — drives Disable vs Enable and assign availability. */
+  /** True when the daemon is enabled — drives Disable vs Enable and assign availability. */
   enabled: boolean;
   /** True when the daemon is enabled — only then can it be assigned a target. */
   canAssign: boolean;
@@ -33,7 +33,7 @@ export type DaemonRow = {
  *
  * Provided at the rotation-shell route together with `TargetSystemsService`.
  * Owns the daemon list, projects rows with name resolution, and handles all
- * daemon mutations (revoke, assign, unassign) with optimistic local patching.
+ * daemon mutations (enable/disable, delete, assign, unassign) with optimistic local patching.
  */
 @Injectable()
 export class DaemonsService {
@@ -78,7 +78,7 @@ export class DaemonsService {
   async setEnabled(daemon: RotationDaemonResponse, enabled: boolean): Promise<void> {
     const orgId = this.requireOrganizationId();
     const prevDaemons = this._daemons$.value;
-    const nextStatus = enabled ? DaemonStatus.Enrolled : DaemonStatus.Revoked;
+    const nextStatus = enabled ? DaemonStatus.Enabled : DaemonStatus.Disabled;
 
     // Optimistic update
     this._daemons$.next(
@@ -193,13 +193,13 @@ export class DaemonsService {
       id: daemon.id,
       name: daemon.name,
       statusLabelKey:
-        daemon.status === DaemonStatus.Enrolled
+        daemon.status === DaemonStatus.Enabled
           ? "pamDaemonStatusEnabled"
           : "pamDaemonStatusDisabled",
       isConnected: daemon.isConnected,
       assignmentNames: daemon.assignments.map((id) => systemById.get(id)?.name ?? id),
-      enabled: daemon.status === DaemonStatus.Enrolled,
-      canAssign: daemon.status === DaemonStatus.Enrolled,
+      enabled: daemon.status === DaemonStatus.Enabled,
+      canAssign: daemon.status === DaemonStatus.Enabled,
       daemon,
     }));
   }

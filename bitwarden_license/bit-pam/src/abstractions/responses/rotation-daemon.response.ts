@@ -21,7 +21,7 @@ export class RotationDaemonResponse extends BaseResponse {
   name: string;
   /**
    * Lifecycle state of this daemon.
-   * 0 = Enrolled (active, can be assigned); 1 = Revoked (permanently disabled).
+   * 0 = Enabled (can claim jobs and be assigned); 1 = Disabled (reversible; cannot claim new jobs).
    */
   status: DaemonStatus;
   /**

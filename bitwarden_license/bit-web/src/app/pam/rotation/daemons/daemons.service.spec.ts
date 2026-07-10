@@ -19,7 +19,7 @@ function makeDaemon(overrides: Partial<RotationDaemonResponse> = {}): RotationDa
   return {
     id: "daemon-1",
     name: "My Daemon",
-    status: DaemonStatus.Enrolled,
+    status: DaemonStatus.Enabled,
     isConnected: true,
     assignments: [],
     ...overrides,
@@ -105,9 +105,9 @@ describe("DaemonsService", () => {
       expect(rows[0].assignmentNames).toEqual(["unknown-id"]);
     });
 
-    it("sets enabled and canAssign true for Enrolled daemons", async () => {
+    it("sets enabled and canAssign true for enabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Enrolled })],
+        data: [makeDaemon({ status: DaemonStatus.Enabled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
@@ -115,9 +115,9 @@ describe("DaemonsService", () => {
       expect(rows[0].canAssign).toBe(true);
     });
 
-    it("sets enabled and canAssign false for Revoked (disabled) daemons", async () => {
+    it("sets enabled and canAssign false for disabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Revoked })],
+        data: [makeDaemon({ status: DaemonStatus.Disabled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
@@ -127,7 +127,7 @@ describe("DaemonsService", () => {
 
     it("uses pamDaemonStatusEnabled key for enabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Enrolled })],
+        data: [makeDaemon({ status: DaemonStatus.Enabled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
@@ -136,7 +136,7 @@ describe("DaemonsService", () => {
 
     it("uses pamDaemonStatusDisabled key for disabled daemons", async () => {
       pamApi.listRotationDaemons.mockResolvedValue({
-        data: [makeDaemon({ status: DaemonStatus.Revoked })],
+        data: [makeDaemon({ status: DaemonStatus.Disabled })],
       } as any);
       await service.load(orgId);
       const rows = await firstValue(service.rows$);
@@ -146,7 +146,7 @@ describe("DaemonsService", () => {
 
   describe("setEnabled", () => {
     it("disables via the API and patches status", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Enrolled });
+      const daemon = makeDaemon({ status: DaemonStatus.Enabled });
       pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
@@ -158,7 +158,7 @@ describe("DaemonsService", () => {
     });
 
     it("enables via the API and patches status", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Revoked });
+      const daemon = makeDaemon({ status: DaemonStatus.Disabled });
       pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
       await service.load(orgId);
 
@@ -170,7 +170,7 @@ describe("DaemonsService", () => {
     });
 
     it("rolls back on API failure", async () => {
-      const daemon = makeDaemon({ status: DaemonStatus.Enrolled });
+      const daemon = makeDaemon({ status: DaemonStatus.Enabled });
       pamApi.listRotationDaemons.mockResolvedValue({ data: [daemon] } as any);
       pamApi.disableRotationDaemon.mockRejectedValue(new Error("fail"));
       await service.load(orgId);

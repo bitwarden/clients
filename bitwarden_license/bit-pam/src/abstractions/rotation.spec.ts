@@ -150,8 +150,8 @@ describe("TargetSystemStatus", () => {
 describe("DaemonStatus", () => {
   describe("isDaemonStatus", () => {
     it("returns true for valid members", () => {
-      expect(isDaemonStatus(DaemonStatus.Enrolled)).toBe(true);
-      expect(isDaemonStatus(DaemonStatus.Revoked)).toBe(true);
+      expect(isDaemonStatus(DaemonStatus.Enabled)).toBe(true);
+      expect(isDaemonStatus(DaemonStatus.Disabled)).toBe(true);
     });
 
     it("returns false for an invalid number", () => {
@@ -165,12 +165,12 @@ describe("DaemonStatus", () => {
 
   describe("toDaemonStatus", () => {
     it("returns the value for a valid member", () => {
-      expect(toDaemonStatus(0)).toBe(DaemonStatus.Enrolled);
-      expect(toDaemonStatus(1)).toBe(DaemonStatus.Revoked);
+      expect(toDaemonStatus(0)).toBe(DaemonStatus.Enabled);
+      expect(toDaemonStatus(1)).toBe(DaemonStatus.Disabled);
     });
 
     it("returns the value when given a numeric string", () => {
-      expect(toDaemonStatus("1")).toBe(DaemonStatus.Revoked);
+      expect(toDaemonStatus("1")).toBe(DaemonStatus.Disabled);
     });
 
     it("returns undefined for an invalid number", () => {

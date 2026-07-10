@@ -48,7 +48,7 @@
       <bit-card>
         <div class="tw-mb-4">
           <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">{{ "status" | i18n }}</p>
-          @if (d.status === DaemonStatus.Enrolled) {
+          @if (d.status === DaemonStatus.Enabled) {
             <span bitBadge variant="success">{{ "pamDaemonStatusEnabled" | i18n }}</span>
           } @else {
             <span bitBadge variant="secondary">{{ "pamDaemonStatusDisabled" | i18n }}</span>

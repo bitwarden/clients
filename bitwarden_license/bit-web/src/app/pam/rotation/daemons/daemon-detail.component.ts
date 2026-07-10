@@ -89,8 +89,8 @@ export class DaemonDetailComponent {
 
   protected readonly titleText = computed(() => this.daemon()?.name ?? "");
 
-  /** True when the daemon is enabled (Enrolled) — drives Disable vs Enable in the header. */
-  protected readonly enabled = computed(() => this.daemon()?.status === DaemonStatus.Enrolled);
+  /** True when the daemon is enabled — drives Disable vs Enable in the header. */
+  protected readonly enabled = computed(() => this.daemon()?.status === DaemonStatus.Enabled);
 
   constructor() {
     void this.initialize();
@@ -114,7 +114,7 @@ export class DaemonDetailComponent {
     }
     try {
       await this.pamApi.disableRotationDaemon(this.organizationId, daemon.id);
-      this.patchStatus(DaemonStatus.Revoked);
+      this.patchStatus(DaemonStatus.Disabled);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonDisabled"),
@@ -132,7 +132,7 @@ export class DaemonDetailComponent {
     }
     try {
       await this.pamApi.enableRotationDaemon(this.organizationId, daemon.id);
-      this.patchStatus(DaemonStatus.Enrolled);
+      this.patchStatus(DaemonStatus.Enabled);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("pamDaemonEnabled"),
@@ -202,17 +202,13 @@ export class DaemonDetailComponent {
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 
-  /** Patch the loaded daemon's status locally, preserving its prototype (and jobs) for the template. */
+  /** Patch the loaded daemon's status locally (new reference for OnPush; jobs + fields carried over). */
   private patchStatus(status: DaemonStatus): void {
     const daemon = this.daemon();
     if (daemon == null) {
       return;
     }
-    this.daemon.set(
-      Object.assign(Object.create(Object.getPrototypeOf(daemon)), daemon, {
-        status,
-      }) as RotationDaemonDetailsResponse,
-    );
+    this.daemon.set({ ...daemon, status } as RotationDaemonDetailsResponse);
   }
 
   private showError(e: unknown): void {
