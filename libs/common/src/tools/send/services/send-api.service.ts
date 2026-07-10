@@ -132,7 +132,11 @@ export class SendApiService implements SendApiServiceAbstraction {
     return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
   }
 
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  // `plaintextPassword` is part of the shared `SendApiService` contract for the SDK path, which
+  // derives the send password over the key it generates. The legacy path derives it in
+  // `SendService.encrypt` before `save` and carries the result on `Send.password`, so it ignores
+  // the plaintext here — behavior is unchanged.
+  async save(sendData: [Send, EncArrayBuffer], _plaintextPassword?: string): Promise<Send> {
     const response = await this.upload(sendData);
 
     const data = new SendData(response);

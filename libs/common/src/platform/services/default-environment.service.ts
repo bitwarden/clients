@@ -114,6 +114,21 @@ export const PRODUCTION_REGIONS: RegionConfig[] = [
       send: "https://vault.bitwarden.eu",
     },
   },
+  {
+    key: Region.Gov,
+    domain: "bitwarden-gov.com",
+    urls: {
+      base: null,
+      api: "https://api.bitwarden-gov.com",
+      identity: "https://identity.bitwarden-gov.com",
+      icons: "https://icons.bitwarden-gov.com",
+      webVault: "https://vault.bitwarden-gov.com",
+      notifications: "https://notifications.bitwarden-gov.com",
+      events: "https://events.bitwarden-gov.com",
+      scim: "https://scim.bitwarden-gov.com",
+      send: "https://send.bitwarden-gov.com",
+    },
+  },
 ];
 
 /**
