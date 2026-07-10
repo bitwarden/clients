@@ -1,0 +1,14 @@
+<!--
+  The body's padding lives on the scrolling element itself, so content is padded
+  but the scrollbar sits at the true edge. `bit-header` bleeds out of this
+  `px-8 pt-6` with negative margins to go full-bleed, then re-pads — so this
+  padding is also the contract it relies on.
+
+  Not a `<main>` yet: `bit-layout` still renders the page's `<main>` landmark, and
+  two would be invalid. Promote this to `<main>` once every page uses `bit-page`
+  and `bit-layout` drops its own. Fixed `header`/`footer` slots will return here
+  when a consumer needs them.
+-->
+<div class="tw-flex tw-min-h-0 tw-flex-1 tw-flex-col tw-overflow-y-auto tw-px-8 tw-pt-6 tw-pb-8">
+  <ng-content></ng-content>
+</div>
