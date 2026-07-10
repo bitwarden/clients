@@ -52,7 +52,7 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
   name = "manageSend";
-  description = "sendControlsPolicyDescV3";
+  description = "sendControlsPolicyDescV4";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
