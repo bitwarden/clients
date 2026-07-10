@@ -16535,6 +16535,15 @@
   "pamAuditKindDaemonRevoked": {
     "message": "Daemon revoked"
   },
+  "pamAuditKindDaemonDisabled": {
+    "message": "Daemon disabled"
+  },
+  "pamAuditKindDaemonEnabled": {
+    "message": "Daemon enabled"
+  },
+  "pamAuditKindDaemonDeleted": {
+    "message": "Daemon deleted"
+  },
   "pamAuditKindDaemonAssigned": {
     "message": "Daemon assigned to target"
   },

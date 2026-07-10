@@ -155,7 +155,7 @@ describe("toAuditRow", () => {
     expect(result.searchText).toContain("on-prem-agent-1");
   });
 
-  it("resolves label keys for all 26 rotation event kinds", () => {
+  it("resolves label keys for all mapped rotation event kinds", () => {
     const rotationKinds: Array<[AccessAuditEventKind, string]> = [
       [AccessAuditEventKind.RotationConfigCreated, "pamAuditKindRotationConfigCreated"],
       [AccessAuditEventKind.RotationSettingsUpdated, "pamAuditKindRotationSettingsUpdated"],
@@ -176,6 +176,9 @@ describe("toAuditRow", () => {
       [AccessAuditEventKind.ManualRotationRecorded, "pamAuditKindManualRotationRecorded"],
       [AccessAuditEventKind.DaemonRegistered, "pamAuditKindDaemonRegistered"],
       [AccessAuditEventKind.DaemonRevoked, "pamAuditKindDaemonRevoked"],
+      [AccessAuditEventKind.DaemonDisabled, "pamAuditKindDaemonDisabled"],
+      [AccessAuditEventKind.DaemonEnabled, "pamAuditKindDaemonEnabled"],
+      [AccessAuditEventKind.DaemonDeleted, "pamAuditKindDaemonDeleted"],
       [AccessAuditEventKind.DaemonAssigned, "pamAuditKindDaemonAssigned"],
       [AccessAuditEventKind.DaemonUnassigned, "pamAuditKindDaemonUnassigned"],
       [AccessAuditEventKind.TargetRegistered, "pamAuditKindTargetRegistered"],

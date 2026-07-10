@@ -44,7 +44,12 @@ export const AccessAuditEventKind = Object.freeze({
   ManualRotationRecorded: "manualRotationRecorded",
   // Rotation fleet / target — defined so the contract is stable as deferred kinds come online.
   DaemonRegistered: "daemonRegistered",
+  // Legacy: the revoke action was replaced by the reversible disable/enable pair plus a permanent delete. Retained so
+  // historical audit rows still resolve a label.
   DaemonRevoked: "daemonRevoked",
+  DaemonDisabled: "daemonDisabled",
+  DaemonEnabled: "daemonEnabled",
+  DaemonDeleted: "daemonDeleted",
   DaemonAssigned: "daemonAssigned",
   DaemonUnassigned: "daemonUnassigned",
   TargetRegistered: "targetRegistered",

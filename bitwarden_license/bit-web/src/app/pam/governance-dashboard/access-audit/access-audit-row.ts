@@ -126,6 +126,12 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
       return "pamAuditKindDaemonRegistered";
     case AccessAuditEventKind.DaemonRevoked:
       return "pamAuditKindDaemonRevoked";
+    case AccessAuditEventKind.DaemonDisabled:
+      return "pamAuditKindDaemonDisabled";
+    case AccessAuditEventKind.DaemonEnabled:
+      return "pamAuditKindDaemonEnabled";
+    case AccessAuditEventKind.DaemonDeleted:
+      return "pamAuditKindDaemonDeleted";
     case AccessAuditEventKind.DaemonAssigned:
       return "pamAuditKindDaemonAssigned";
     case AccessAuditEventKind.DaemonUnassigned:
