@@ -23,6 +23,7 @@ import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -38,6 +39,7 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
+import { SSOLocalhostCallbackService } from "./auth/services/sso-localhost-callback.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -66,7 +68,6 @@ import { ElectronLogMainService } from "./platform/services/electron-log.main.se
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IpcMainService } from "./platform/services/ipc.main.service";
-import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
@@ -79,6 +80,7 @@ export class Main {
   memoryStorageForStateProviders: SerializedMemoryStorageService;
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
+  govModeService: DefaultGovModeService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
@@ -212,6 +214,8 @@ export class Main {
       accountService,
       process.env.ADDITIONAL_REGIONS as unknown as RegionConfig[],
     );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.migrationRunner = new MigrationRunner(
       this.storageService,
@@ -402,12 +406,18 @@ export class Main {
           firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
         ]);
 
-        try {
-          // Re-register the native messaging host integrations on startup, in case they are not present
-          if (ddgIntegrationEnabled) {
+        if (ddgIntegrationEnabled) {
+          try {
             await this.nativeMessagingMain.generateDdgManifests();
+          } catch (err) {
+            this.logService.error(
+              "Error while generating DuckDuckGo native messaging manifests:",
+              err,
+            );
           }
+        }
 
+        try {
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {

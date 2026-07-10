@@ -156,6 +156,7 @@ import {
   DefaultAnimationControlService,
 } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -164,6 +165,7 @@ import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } fro
 import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -195,6 +197,8 @@ import { ConfigApiService } from "@bitwarden/common/platform/services/config/con
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -497,6 +501,8 @@ export default class MainBackground {
   mainContextMenuHandler: MainContextMenuHandler;
   cipherContextMenuHandler: CipherContextMenuHandler;
   configService: ConfigService;
+  availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   configApiService: ConfigApiServiceAbstraction;
   devicesApiService: DevicesApiServiceAbstraction;
   devicesService: DevicesServiceAbstraction;
@@ -910,6 +916,13 @@ export default class MainBackground {
       this.authService,
     );
 
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
+    );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
+
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
       this.apiService,
       this.organizationUserService,
@@ -971,7 +984,6 @@ export default class MainBackground {
       this.tokenService,
       this.logService,
       this.organizationService,
-      this.keyGenerationService,
       logoutCallback,
       this.stateProvider,
       this.configService,
@@ -1025,7 +1037,6 @@ export default class MainBackground {
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.keyService,
       this.encryptService,
@@ -1325,6 +1336,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.sdkService,
     );
 
     this.individualVaultExportService = new IndividualVaultExportService(
@@ -1333,7 +1345,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
@@ -1348,7 +1359,6 @@ export default class MainBackground {
       this.keyGenerationService,
       this.keyService,
       this.encryptService,
-      this.cryptoFunctionService,
       this.collectionService,
       this.kdfConfigService,
       this.restrictedItemTypesService,

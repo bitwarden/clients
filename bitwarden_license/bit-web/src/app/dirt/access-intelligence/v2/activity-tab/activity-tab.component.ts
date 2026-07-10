@@ -1,13 +1,4 @@
-import { NgClass } from "@angular/common";
-import {
-  Component,
-  inject,
-  ChangeDetectionStrategy,
-  computed,
-  effect,
-  input,
-  signal,
-} from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy, computed, effect, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { lastValueFrom } from "rxjs";
 
@@ -16,8 +7,6 @@ import {
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService, PopoverModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -54,7 +43,6 @@ import { PasswordChangeMetricV2Component } from "./password-change-metric-v2/pas
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./activity-tab.component.html",
   imports: [
-    NgClass,
     I18nPipe,
     ReportLoadingComponent,
     ActivityCardComponent,
@@ -69,7 +57,6 @@ export class ActivityTabComponent {
   private readonly drawerStateService = inject(DrawerStateService);
   private readonly dialogService = inject(DialogService);
   private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
-  private readonly configService = inject(ConfigService);
   private readonly riskOverTimeService = inject(RiskOverTimeService);
 
   readonly organizationId = input.required<OrganizationId>();
@@ -81,13 +68,6 @@ export class ActivityTabComponent {
     initialValue: false,
   });
 
-  protected readonly extendPasswordChangeWidget = signal(false);
-
-  protected readonly trendChartEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceTrendChart),
-    { initialValue: false },
-  );
-
   protected readonly riskOverTimeData = toSignal(this.riskOverTimeService.riskOverTimeData$);
   protected readonly isRiskOverTimeLoading = toSignal(this.riskOverTimeService.isLoading$, {
     initialValue: false,
@@ -97,12 +77,11 @@ export class ActivityTabComponent {
   });
 
   constructor() {
-    // Initialize the trend chart when the feature flag and organization id are available
-    // and re-initialize if the organization id changes (e.g., user switches orgs)
+    // Initialize the trend chart when the organization id is available and
+    // re-initialize if the organization id changes (e.g., user switches orgs)
     effect(() => {
-      const flag = this.trendChartEnabled();
       const orgId = this.organizationId();
-      if (flag && orgId) {
+      if (orgId) {
         this.riskOverTimeService.initialize(
           orgId,
           DEFAULT_TIME_PERIOD,
@@ -219,14 +198,6 @@ export class ActivityTabComponent {
       DrawerType.CriticalAtRiskApps,
       "activityTabAtRiskApplications",
     );
-  };
-
-  /**
-   * Callback for PasswordChangeMetricV2Component to control layout.
-   * When the password widget has a progress bar, it should span 2 columns.
-   */
-  protected readonly setExtendPasswordWidget = (hasProgressBar: boolean) => {
-    this.extendPasswordChangeWidget.set(hasProgressBar);
   };
 
   protected readonly onTimespanChanged = (timeframe: TimePeriod) => {
