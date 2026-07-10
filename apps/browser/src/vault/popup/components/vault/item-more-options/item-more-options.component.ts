@@ -30,6 +30,7 @@ import {
   ItemModule,
   MenuModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -53,6 +54,7 @@ import {
     JslibModule,
     RouterModule,
     PremiumBadgeComponent,
+    IconModule,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },

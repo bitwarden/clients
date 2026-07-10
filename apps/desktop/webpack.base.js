@@ -50,7 +50,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building ${params.configName} Desktop App`);
 
-  const envConfig = configurator.load(NODE_ENV);
+  const envConfig = configurator.load(NODE_ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const commonConfig = {

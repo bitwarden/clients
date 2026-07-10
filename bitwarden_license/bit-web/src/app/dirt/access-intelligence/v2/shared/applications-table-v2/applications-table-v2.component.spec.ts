@@ -86,7 +86,6 @@ describe("ApplicationsTableV2Component", () => {
               select: "Select",
               options: "Options",
               unmarkAsCritical: "Unmark as critical",
-              all: "All",
             }),
         },
       ],

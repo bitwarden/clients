@@ -31,6 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -68,6 +69,7 @@ import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -119,6 +121,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
+    allowSharingUnlockStateWithDesktop: false,
+    allowSharingUnlockStateWithWeb: false,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -130,7 +134,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
+  protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
+
+  // Native messaging with the desktop app is unavailable on Safari.
+  protected readonly showSharedUnlockWithDesktop: boolean;
+  // Firefox does not support sharing unlock state with the web vault.
+  protected readonly showSharedUnlockWithWeb: boolean;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
@@ -159,6 +169,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private validationService: ValidationService,
     private logService: LogService,
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
+    private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
@@ -166,6 +177,12 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
+    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SharedUnlockPart2,
+    );
+
+    this.showSharedUnlockWithDesktop = !this.platformUtilsService.isSafari();
+    this.showSharedUnlockWithWeb = !this.platformUtilsService.isFirefox();
   }
 
   async ngOnInit() {
@@ -188,12 +205,18 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     const initialValues = {
       pin: await this.pinService.isPinSet(activeAccount.id),
       pinLockWithMasterPassword:
-        (await this.pinService.getPinLockType(activeAccount.id)) == "EPHEMERAL",
+        (await this.pinService.getPinLockType(activeAccount.id)) == "AfterFirstUnlock",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(activeAccount.id),
       enableAutoBiometricsPrompt: await firstValueFrom(
-        this.biometricStateService.promptAutomatically$,
+        this.biometricStateService.promptAutomatically$(activeAccount.id),
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
+      allowSharingUnlockStateWithDesktop: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(activeAccount.id),
+      ),
+      allowSharingUnlockStateWithWeb: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$(activeAccount.id),
+      ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
     this.loading.set(false);
@@ -206,6 +229,14 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.disable({ emitEvent: false });
           } else {
             this.form.controls.biometric.enable({ emitEvent: false });
+          }
+
+          // Biometrics status shouldn't be checked if permissions are needed.
+          const needsPermissionPrompt =
+            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+            !this.platformUtilsService.isSafari();
+          if (needsPermissionPrompt) {
+            return;
           }
 
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
@@ -253,7 +284,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
           const pin = await this.pinService.getPin(userId);
-          await this.pinService.setPin(pin, value ? "EPHEMERAL" : "PERSISTENT", userId);
+          await this.pinService.setPin(
+            pin,
+            value ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+            userId,
+          );
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
@@ -279,7 +314,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     this.form.controls.enableAutoBiometricsPrompt.valueChanges
       .pipe(
         concatMap(async (enabled) => {
-          await this.biometricStateService.setPromptAutomatically(enabled);
+          await this.biometricStateService.setPromptAutomatically(enabled, activeAccount.id);
         }),
         takeUntil(this.destroy$),
       )
@@ -290,6 +325,24 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (enabled) => {
           const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
           await this.phishingDetectionSettingsService.setEnabled(userId, enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.allowSharingUnlockStateWithDesktop.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockStateWithDesktop(enabled);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    this.form.controls.allowSharingUnlockStateWithWeb.valueChanges
+      .pipe(
+        concatMap(async (enabled) => {
+          await this.updateAllowSharingUnlockStateWithWeb(enabled);
         }),
         takeUntil(this.destroy$),
       )
@@ -318,7 +371,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       );
       const userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
-      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "EPHEMERAL";
+      const requireReprompt = (await this.pinService.getPinLockType(userId)) == "AfterFirstUnlock";
       this.form.controls.pinLockWithMasterPassword.setValue(requireReprompt, { emitEvent: false });
       if (userHasPinSet) {
         this.toastService.showToast({
@@ -335,14 +388,48 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async updateBiometric(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (enabled) {
+      let granted;
       try {
-        const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+        granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
+      } catch (e) {
+        // eslint-disable-next-line
+        console.error(e);
+
+        if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
+          await this.dialogService.openSimpleDialog({
+            title: { key: "nativeMessaginPermissionSidebarTitle" },
+            content: { key: "nativeMessaginPermissionSidebarDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+            type: "info",
+          });
+
+          this.form.controls.biometric.setValue(false);
+          return;
+        }
+      }
+
+      if (!granted) {
+        await this.dialogService.openSimpleDialog({
+          title: { key: "nativeMessaginPermissionErrorTitle" },
+          content: { key: "nativeMessaginPermissionErrorDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "danger",
+        });
+
+        this.form.controls.biometric.setValue(false);
+        return;
+      }
+
+      try {
         await this.keyService.refreshAdditionalKeys(userId);
 
         const successful = await this.trySetupBiometrics();
         this.form.controls.biometric.setValue(successful);
-        await this.biometricStateService.setBiometricUnlockEnabled(successful);
+        await this.biometricStateService.setBiometricUnlockEnabled(successful, userId);
         if (!successful) {
           await this.biometricStateService.setFingerprintValidated(false);
           return;
@@ -357,7 +444,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.validationService.showError(error);
       }
     } else {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
       await this.biometricStateService.setFingerprintValidated(false);
     }
   }
@@ -451,9 +538,27 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     return setupResult;
   }
 
+  async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
+  }
+
+  async updateAllowSharingUnlockStateWithWeb(enabled: boolean) {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb(enabled, userId);
+    if (!enabled && !this.form.controls.allowSharingUnlockStateWithDesktop.value) {
+      await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
+  }
+
   async updateAutoBiometricsPrompt() {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.biometricStateService.setPromptAutomatically(
       this.form.value.enableAutoBiometricsPrompt,
+      userId,
     );
   }
 

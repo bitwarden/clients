@@ -142,7 +142,8 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             const request: AccessReportSettingsUpdateRequest = {
               applicationData: data.applications,
               summaryData: data.summary,
-              metrics: metrics,
+              reportMetrics: metrics,
+              contentEncryptionKey: data.contentEncryptionKey,
             };
 
             return this.accessIntelligenceApiService.updateReportSettings$(

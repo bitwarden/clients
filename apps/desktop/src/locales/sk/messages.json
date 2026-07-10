@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "Na úpravu tejto položky nemáte oprávnenie"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Vitajte späť"
   },
   "moveToOrgDesc": {
@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Prílohy"
   },
+  "attachmentsNeedFix": {
+    "message": "Táto položka má staré prílohy, ktoré je potrebné opraviť."
+  },
   "viewItem": {
     "message": "Zobraziť položku"
+  },
+  "viewCollectionWithName": {
+    "message": "Zobraziť zbierku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Zobraziť prihlásenie",
@@ -154,6 +166,10 @@
     "message": "Zobraziť poznámku",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Zobraziť zabezpečenú poznámku",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
@@ -170,6 +186,42 @@
     "message": "Zobraziť pas",
     "description": "Header for view passport item type"
   },
+  "addItemHeaderLogin": {
+    "message": "Pridať prihlasovacie údaje",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Pridať kartu",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Pridať identitu",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Pridať poznámku",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Pridať zabezpečenú poznámku",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Pridať kľúč SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Pridať bankový účet",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Pridať vodičský preukaz",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Pridať pas",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -185,6 +237,10 @@
   "newItemHeaderNote": {
     "message": "Nová poznámka",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "Nová zabezpečená poznámka",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "Nový kľúč SSH",
@@ -215,6 +271,26 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
+    "message": "Upraviť poznámku",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Upraviť zabezpečenú poznámku",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Upraviť prihlasovacie údaje",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Upraviť kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Upraviť identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
     "message": "Upraviť poznámku",
     "description": "Header for edit note item type"
   },
@@ -310,6 +386,29 @@
     "message": "Naozaj chcete natrvalo odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Zobraziť prihlasovacie údaje",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Zobraziť kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Zobraziť identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Zobraziť poznámku",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Vytvoriť",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Pridať zbierku"
+  },
   "new": {
     "message": "Nové",
     "description": "for adding new items"
@@ -328,6 +427,15 @@
   },
   "editItem": {
     "message": "Upraviť položku"
+  },
+  "editItemWithName": {
+    "message": "Upraviť položku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "E-mailová adresa"
@@ -479,7 +587,7 @@
     "message": "Zadajte heslo pre kľúč SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Zadať heslo"
+    "message": "Zadajte heslo"
   },
   "sshAgentUnlockRequired": {
     "message": "Prosím, odomknite svoj trezor, aby ste mohli schváliť žiadosť o kľúč SSH."
@@ -797,6 +905,45 @@
   "deleteItem": {
     "message": "Odstrániť položku"
   },
+  "deleteItemsCount": {
+    "message": "Odstrániť položky: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Táto položka bude presunutá do koša. Po 30 dňoch v koši bude natrvalo odstránená."
+  },
+  "deleteItemsDesc": {
+    "message": "Tieto položky budú odoslané do koša. Po 30 dňoch budú natrvalo odstránené."
+  },
+  "deleteItemPermanently": {
+    "message": "Odstrániť položku natrvalo"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Odstrániť položky natrvalo: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Túto položku už nebude možné obnoviť."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Tieto položky už nebude možné obnoviť."
+  },
+  "deleteSelection": {
+    "message": "Odstrániť výber"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Vybrané položky a zbierky budú natrvalo odstránené."
+  },
   "deleteFolder": {
     "message": "Odstrániť priečinok"
   },
@@ -881,6 +1028,15 @@
         "example": "Login Item"
       }
     }
+  },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
   },
   "length": {
     "message": "Dĺžka"
@@ -1055,7 +1211,7 @@
   "logIn": {
     "message": "Prihlásiť sa"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Prihlásenie do Bitwardenu"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1163,9 +1319,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
-  },
-  "getMasterPasswordHint": {
-    "message": "Získať nápoveď k hlavnému heslu"
   },
   "emailRequired": {
     "message": "E-mailová adresa je povinná."
@@ -1389,6 +1542,9 @@
   },
   "iconsUrl": {
     "message": "URL servera ikon"
+  },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
   },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
@@ -1677,53 +1833,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
-  "enableMinToTray": {
-    "message": "Minimalizovať do systémovej lišty"
+  "runInBackground": {
+    "message": "Ponechať Bitwarden bežať na pozadí"
   },
-  "enableMinToTrayDesc": {
-    "message": "Namiesto minimalizácie okna zobraziť ikonu v systémovej lište."
+  "runInBackgroundDesc": {
+    "message": "Po zatvorení okna je Bitwarden dostupný z panela úloh. Odporúča sa pri používaní agenta SSH alebo integrácie s prehliadačom."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimalizovať do lišty"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Namiesto minimalizácie okna zobraziť ikonu na paneli úloh."
-  },
-  "enableCloseToTray": {
-    "message": "Zatvoriť do systémovej lišty"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Namiesto zatvorenia okna zobraziť ikonu v systémovej lište."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Zavrieť na panel úloh"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Namiesto zatvorenia okna zobraziť ikonu na paneli úloh."
-  },
-  "enableTray": {
-    "message": "Povoliť ikonu na paneli úloh"
-  },
-  "enableTrayDesc": {
-    "message": "Vždy zobraziť ikonu na systémovej lište."
+  "runInBackgroundDescMac": {
+    "message": "Po zatvorení okna je Bitwarden dostupný z lišty. Odporúča sa pri používaní agenta SSH alebo integrácie s prehliadačom."
   },
   "openAtLogin": {
     "message": "Automaticky spustiť po prihlásení"
   },
   "openAtLoginDesc": {
     "message": "Po prihlásení automaticky spustí aplikáciu Bitwarden Desktop."
-  },
-  "alwaysShowDock": {
-    "message": "Vždy zobraziť v docku"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Zobraziť Bitwarden v Docku aj keď je minimalizovaný na panel úloh."
-  },
-  "confirmTrayTitle": {
-    "message": "Potvrdiť skrývanie systémovej lišty"
-  },
-  "confirmTrayDesc": {
-    "message": "Vypnutím tohto nastavenia vypnete aj ostatné nastavenia súvisiace so systémovou lištou."
   },
   "language": {
     "message": "Jazyk"
@@ -1959,6 +2082,10 @@
   "selected": {
     "message": "Vybrané"
   },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
     "message": "Hromadné operácie"
   },
@@ -2117,15 +2244,15 @@
   "exit": {
     "message": "Ukončiť"
   },
-  "showHide": {
-    "message": "Zobraziť / Skryť",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Zobraziť",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Skryť do systémovej lišty"
   },
   "alwaysOnTop": {
-    "message": "Vždy na vrchu",
+    "message": "Vždy navrchu",
     "description": "Application window should always stay on top of other windows"
   },
   "dateUpdated": {
@@ -2323,12 +2450,6 @@
   "preferences": {
     "message": "Predvoľby"
   },
-  "enableMenuBar": {
-    "message": "Povoliť ikonu na paneli úloh"
-  },
-  "enableMenuBarDesc": {
-    "message": "Vždy zobraziť ikonu na paneli úloh."
-  },
   "hideToMenuBar": {
     "message": "Skryť do lišty"
   },
@@ -2425,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Archivovaná položka bola obnovená"
   },
+  "archivedItemsRestored": {
+    "message": "Archivované položky boli obnovené"
+  },
   "restoredItem": {
     "message": "Položka bola obnovená"
   },
+  "restoredItems": {
+    "message": "Položky boli obnovené"
+  },
   "permanentlyDelete": {
     "message": "Natrvalo odstrániť"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Položky boli natrvalo odstránené"
+  },
+  "deletedItems": {
+    "message": "Položky boli presunuté do koša"
+  },
+  "deletedCollections": {
+    "message": "Odstránené zbierky"
+  },
+  "collectionDeleted": {
+    "message": "Zbierka bola odstránená"
+  },
+  "collectionsDeleted": {
+    "message": "Zbierky boli odstránené"
+  },
+  "movedItems": {
+    "message": "Položky boli presunuté"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Odhlásenie bude vyžadovať online prihlásenie po vypršaní časového limitu. Naozaj chcete použiť toto nastavenie?"
@@ -2573,8 +2718,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Dostávať aktualizácie od Bitwardenu do e-mailovej schránky."
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -2659,6 +2804,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
+  },
+  "hint": {
+    "message": "Nápoveď"
   },
   "hintEqualsPassword": {
     "message": "Nápoveď k heslu nemôže byť rovnaká ako heslo."
@@ -2779,6 +2927,10 @@
   },
   "createSend": {
     "message": "Nový Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Vytvoriť Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -3434,9 +3586,6 @@
     "message": "Trezor",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "Prihlásenie pomocou hlavného hesla"
-  },
   "rememberEmail": {
     "message": "Zapamätať si e-mail"
   },
@@ -3881,6 +4030,9 @@
   },
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
+  },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
   },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
@@ -4652,9 +4804,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do $ORG$. Už ju nebudete vlastniť.",
     "placeholders": {
@@ -4664,8 +4813,39 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybranú organizáciu. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na $ORG$. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
+  },
+  "itemAssignedToCollections": {
+    "message": "Položka bola priradená do zbierok"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Položky boli priradené do zbierok"
   },
   "nothingSelected": {
     "message": "Nič ste nevybrali."
@@ -4810,6 +4990,47 @@
   "unArchiveAndSave": {
     "message": "Zrušiť archiváciu a uložiť"
   },
+  "archiveItemsPlural": {
+    "message": "Archivovať položky: $NUM$",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archivovať $NUM$ položku",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Po archivácii budú tieto položky vylúčené z výsledkov vyhľadávania a návrhov automatického vypĺňania."
+  },
+  "bulkArchiveItems": {
+    "message": "Položky archivované"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky boli odobrané z archívu"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Vyberte priečinok, do ktorého chcete pridať vybrané položky ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Vyberte priečinok"
+  },
   "restartPremium": {
     "message": "Reštartovať Prémium"
   },
@@ -4946,6 +5167,9 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relácie je ovládaný desktopovou aplikáciou"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
@@ -5110,6 +5334,14 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "domainNotAllowed": {
+    "message": "Zahrnúť iba nasledujúce domény: $DOMAINS$. Skontrolujte to a skúste to znova",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "Viac"
   },
@@ -5133,6 +5365,9 @@
   },
   "bankAccount": {
     "message": "Bankový účet"
+  },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
   },
   "bankName": {
     "message": "Názov banky"
@@ -5237,21 +5472,20 @@
   "newBankAccountNudgeBody": {
     "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
   },
+  "discardEditsTitle": {
+    "message": "Zahodiť úpravy"
+  },
+  "discardEditsConfirmation": {
+    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené."
+  },
   "discardEdits": {
     "message": "Zahodiť úpravy"
   },
-  "discardEditsMessage": {
-    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené"
-  },
-  "backToEditing": {
-    "message": "Späť na úpravy"
+  "keepEditing": {
+    "message": "Pokračovať v úpravách"
   },
   "sendHasUnsavedEdits": {
     "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5286,6 +5520,21 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nie je v súlade s pravidlami Sendu vašej organizácie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvoriť kópiu"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
@@ -5331,5 +5580,39 @@
   },
   "licenseClass": {
     "message": "Skupina vodičského preukazu"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
+  },
+  "addToFolder": {
+    "message": "Pridať do priečinka"
+  },
+  "deleteCollection": {
+    "message": "Odstrániť zbierku"
+  },
+  "deleteCollectionsCount": {
+    "message": "Odstrániť zbierky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Táto zbierka bude natrvalo odstránená."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Tieto zbierky budú natrvalo odstránené."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

@@ -51,11 +51,9 @@
             </ng-container>
           }
           @if (showLeaveOrgOption) {
-            <button type="button" bitMenuItem (click)="leave(organization)">
-              <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-sign-out" aria-hidden="true"></i>
-                {{ "leave" | i18n }}
-              </span>
+            <button type="button" variant="danger" bitMenuItem (click)="leave(organization)">
+              <bit-icon fixedWidth name="bwi-sign-out" slot="start" />
+              {{ "leave" | i18n }}
             </button>
           }
         </div>

@@ -5,6 +5,7 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
+  OrganizationUserNotificationPolicy,
   PasswordGeneratorPolicy,
   RemoveUnlockWithPinPolicy,
   RequireSsoPolicy,
@@ -37,4 +38,5 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new DesktopAutotypeDefaultSettingPolicy(),
   new UriMatchDefaultPolicy(),
   new AutoConfirmPolicy(),
+  new OrganizationUserNotificationPolicy(),
 ];

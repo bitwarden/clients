@@ -4,10 +4,12 @@
     @if (!loading()) {
       <span class="tw-text-sm tw-normal-case tw-text-muted">{{ params.name }}</span>
     }
-    @if (isRevoked()) {
-      <span bitBadge variant="secondary">{{ "revoked" | i18n }}</span>
-    }
   </span>
+  @if (isRevoked()) {
+    <span bitDialogHeaderEnd class="tw-mr-4">
+      <span bitBadge variant="subtle">{{ "revoked" | i18n }}</span>
+    </span>
+  }
   <div bitDialogContent>
     @if (loading()) {
       <i
@@ -20,7 +22,7 @@
     @if (!loading() && organization$ | async; as organization) {
       <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="tabIndex.set($event)">
         <bit-tab [label]="'role' | i18n">
-          <bit-radio-group formControlName="type">
+          <bit-radio-group formControlName="type" [block]="true">
             <bit-label>
               {{ "memberRole" | i18n }}
               <a
@@ -153,14 +155,14 @@
           @if (externalId() != null) {
             <bit-form-field>
               <bit-label>{{ "externalId" | i18n }}</bit-label>
-              <input bitInput type="text" formControlName="externalId" />
+              <input bitInput type="text" formControlName="externalId" readonly />
               <bit-hint>{{ "externalIdDesc" | i18n }}</bit-hint>
             </bit-form-field>
           }
           @if (ssoExternalId() != null) {
             <bit-form-field>
               <bit-label>{{ "ssoExternalId" | i18n }}</bit-label>
-              <input bitInput type="text" formControlName="ssoExternalId" />
+              <input bitInput type="text" formControlName="ssoExternalId" readonly />
               <bit-hint>{{ "ssoExternalIdDesc" | i18n }}</bit-hint>
             </bit-form-field>
           }
@@ -260,7 +262,7 @@
           {{ "revoke" | i18n }}
         </button>
       }
-      @if (!params.managedByOrganization) {
+      @if (!params.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"
@@ -272,7 +274,7 @@
           {{ "remove" | i18n }}
         </button>
       }
-      @if (params.managedByOrganization) {
+      @if (params.claimedByOrganization) {
         <button
           type="button"
           buttonType="danger"

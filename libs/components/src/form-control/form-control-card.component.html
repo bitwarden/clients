@@ -1,0 +1,61 @@
+@let control = base.formControl();
+<div class="tw-flex tw-flex-col tw-gap-2">
+  <div
+    class="tw-flex tw-items-center tw-relative tw-isolate tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent tw-transition-colors"
+    [class]="
+      control.disabled
+        ? ''
+        : 'has-[label:hover]:tw-border-border-brand-soft has-[input:checked]:tw-bg-bg-brand-softer has-[input:checked]:hover:tw-bg-bg-brand-soft'
+    "
+  >
+    <label
+      [for]="base.inputId()"
+      [attr.aria-labelledby]="labelId"
+      class="tw-absolute tw-inset-0 tw-rounded-xl"
+      [class]="control.disabled ? 'tw-cursor-default' : 'tw-cursor-pointer'"
+    ></label>
+
+    <div
+      class="tw-flex tw-items-center tw-gap-4 tw-relative tw-pointer-events-none [&_a]:tw-pointer-events-auto [&_button]:tw-pointer-events-auto"
+    >
+      @if (icon(); as icon) {
+        <!-- this positioning style to account for tile staying top aligned when text wraps -->
+        <bit-icon-tile
+          [variant]="control.disabled ? 'subtle' : 'primary'"
+          class="tw-self-start tw-relative tw-top-[1px]"
+          [icon]="icon"
+        ></bit-icon-tile>
+      }
+
+      <span
+        class="tw-inline-flex tw-flex-col"
+        [class.tw-text-fg-inactive]="control.disabled"
+        [class]="control.disabled ? '[&_bit-hint]:!tw-text-fg-inactive' : ''"
+        [class.tw-text-fg-heading]="!control.disabled"
+      >
+        <span
+          [id]="labelId"
+          bitTypography="body2"
+          class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
+        >
+          <ng-content select="bit-label"></ng-content>
+          @if (control.required) {
+            <sup aria-hidden class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+            <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
+          }
+        </span>
+        <ng-content select="bit-hint"></ng-content>
+      </span>
+    </div>
+    <div
+      class="tw-relative tw-pointer-events-none tw-flex [&_a]:tw-pointer-events-auto [&_button]:tw-pointer-events-auto"
+    >
+      <ng-content></ng-content>
+    </div>
+  </div>
+  <div [id]="errorId" class="tw-text-fg-danger tw-text-xs tw-ms-0.5" [hidden]="!control.hasError">
+    @if (control.hasError) {
+      <bit-icon name="bwi-error"></bit-icon> {{ base.displayError }}
+    }
+  </div>
+</div>

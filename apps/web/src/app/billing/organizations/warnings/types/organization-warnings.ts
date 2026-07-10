@@ -12,10 +12,17 @@ export type OrganizationResellerRenewalWarning = {
   message: string;
 };
 
+export type OrganizationScheduledPriceIncreaseWarning = {
+  seatPrice: number;
+  effectiveDate: Date;
+  cadence: "monthly" | "annually";
+};
+
 export class OrganizationWarningsResponse extends BaseResponse {
   freeTrial?: FreeTrialWarningResponse;
   inactiveSubscription?: InactiveSubscriptionWarningResponse;
   resellerRenewal?: ResellerRenewalWarningResponse;
+  scheduledPriceIncrease?: ScheduledPriceIncreaseWarningResponse;
   taxId?: TaxIdWarningResponse;
 
   constructor(response: any) {
@@ -33,6 +40,12 @@ export class OrganizationWarningsResponse extends BaseResponse {
     const resellerWarning = this.getResponseProperty("ResellerRenewal");
     if (resellerWarning) {
       this.resellerRenewal = new ResellerRenewalWarningResponse(resellerWarning);
+    }
+    const scheduledPriceIncreaseWarning = this.getResponseProperty("ScheduledPriceIncrease");
+    if (scheduledPriceIncreaseWarning) {
+      this.scheduledPriceIncrease = new ScheduledPriceIncreaseWarningResponse(
+        scheduledPriceIncreaseWarning,
+      );
     }
     const taxIdWarning = this.getResponseProperty("TaxId");
     if (taxIdWarning) {
@@ -110,5 +123,18 @@ class PastDueRenewal extends BaseResponse {
   constructor(response: any) {
     super(response);
     this.suspensionDate = new Date(this.getResponseProperty("SuspensionDate"));
+  }
+}
+
+class ScheduledPriceIncreaseWarningResponse extends BaseResponse {
+  seatPrice: number;
+  effectiveDate: Date;
+  cadence: "monthly" | "annually";
+
+  constructor(response: any) {
+    super(response);
+    this.seatPrice = this.getResponseProperty("SeatPrice");
+    this.effectiveDate = new Date(this.getResponseProperty("EffectiveDate"));
+    this.cadence = this.getResponseProperty("Cadence");
   }
 }

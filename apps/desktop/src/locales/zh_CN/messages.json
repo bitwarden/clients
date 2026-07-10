@@ -126,7 +126,7 @@
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "欢迎回来"
   },
   "moveToOrgDesc": {
@@ -135,8 +135,20 @@
   "attachments": {
     "message": "附件"
   },
+  "attachmentsNeedFix": {
+    "message": "此项目包含需要修复的旧文件附件。"
+  },
   "viewItem": {
     "message": "查看项目"
+  },
+  "viewCollectionWithName": {
+    "message": "查看集合 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "查看登录",
@@ -154,6 +166,10 @@
     "message": "查看笔记",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "查看安全笔记",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
     "description": "Header for view SSH key item type"
@@ -170,6 +186,42 @@
     "message": "查看护照",
     "description": "Header for view passport item type"
   },
+  "addItemHeaderLogin": {
+    "message": "添加登录",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "添加支付卡",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "添加身份",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "添加笔记",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "添加安全笔记",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "添加 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "添加银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "添加驾驶证",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "添加护照",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -185,6 +237,10 @@
   "newItemHeaderNote": {
     "message": "新增笔记",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "新增安全笔记",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
@@ -215,6 +271,26 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "编辑安全笔记",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
     "message": "编辑笔记",
     "description": "Header for edit note item type"
   },
@@ -310,6 +386,29 @@
     "message": "确定要永久删除此 Send 吗？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "创建",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "添加集合"
+  },
   "new": {
     "message": "新增",
     "description": "for adding new items"
@@ -328,6 +427,15 @@
   },
   "editItem": {
     "message": "编辑项目"
+  },
+  "editItemWithName": {
+    "message": "编辑项目 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "电子邮箱地址"
@@ -361,7 +469,7 @@
     "message": "切换可见性"
   },
   "toggleCollapse": {
-    "message": "切换折叠",
+    "message": "展开/折叠",
     "description": "Toggling an expand/collapse state."
   },
   "cardholderName": {
@@ -428,7 +536,7 @@
     "message": "复制签发机构 / 部门"
   },
   "licenseNumber": {
-    "message": "许可证号码"
+    "message": "驾驶证号码"
   },
   "email": {
     "message": "电子邮箱"
@@ -797,6 +905,45 @@
   "deleteItem": {
     "message": "删除项目"
   },
+  "deleteItemsCount": {
+    "message": "删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "此项目将被发送到回收站。30 天后，它将被永久删除。"
+  },
+  "deleteItemsDesc": {
+    "message": "这些项目将被发送到回收站。30 天后，它们将被永久删除。"
+  },
+  "deleteItemPermanently": {
+    "message": "永久删除项目"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "永久删除 $COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "您将无法恢复此项目。"
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "您将无法恢复这些项目。"
+  },
+  "deleteSelection": {
+    "message": "删除所选"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "所选项目和集合将被永久删除。"
+  },
   "deleteFolder": {
     "message": "删除文件夹"
   },
@@ -882,6 +1029,15 @@
       }
     }
   },
+  "copyPrivateKey": {
+    "message": "复制私钥"
+  },
+  "copyPublicKey": {
+    "message": "复制公钥"
+  },
+  "copyFingerprint": {
+    "message": "复制指纹"
+  },
   "length": {
     "message": "长度"
   },
@@ -955,7 +1111,7 @@
     "message": "数字最少个数"
   },
   "minSpecial": {
-    "message": "符号最少个数",
+    "message": "特殊字符最少个数",
     "description": "Minimum Special Characters"
   },
   "ambiguous": {
@@ -1055,7 +1211,7 @@
   "logIn": {
     "message": "登录"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "登录到 Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1074,10 +1230,10 @@
     "message": "使用设备登录"
   },
   "useSingleSignOn": {
-    "message": "使用单点登录"
+    "message": "使用单点登录 (SSO)"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "您的组织要求单点登录。"
+    "message": "您的组织要求单点登录 (SSO)。"
   },
   "submit": {
     "message": "提交"
@@ -1163,9 +1319,6 @@
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "输入您的账户电子邮箱地址，您的密码提示将发送给您"
-  },
-  "getMasterPasswordHint": {
-    "message": "获取主密码提示"
   },
   "emailRequired": {
     "message": "必须填写电子邮箱地址。"
@@ -1389,6 +1542,9 @@
   },
   "iconsUrl": {
     "message": "图标服务器 URL"
+  },
+  "sendUrl": {
+    "message": "Send 服务器 URL"
   },
   "environmentSaved": {
     "message": "环境 URL 已保存"
@@ -1677,53 +1833,20 @@
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并获取更改密码的 URL"
   },
-  "enableMinToTray": {
-    "message": "最小化到托盘图标"
+  "runInBackground": {
+    "message": "保持 Bitwarden 在后台运行"
   },
-  "enableMinToTrayDesc": {
-    "message": "最小化窗口后，在系统托盘中显示图标。"
+  "runInBackgroundDesc": {
+    "message": "关闭窗口后，仍可通过系统托盘访问 Bitwarden。使用 SSH 代理或浏览器集成时，建议开启此选项。"
   },
-  "enableMinToMenuBar": {
-    "message": "最小化到菜单栏"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "最小化窗口后，改为在菜单栏中显示图标。"
-  },
-  "enableCloseToTray": {
-    "message": "关闭到托盘图标"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "关闭窗口后，在系统托盘中显示图标。"
-  },
-  "enableCloseToMenuBar": {
-    "message": "关闭到菜单栏"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "关闭窗口后，改为在菜单栏中显示图标。"
-  },
-  "enableTray": {
-    "message": "显示托盘图标"
-  },
-  "enableTrayDesc": {
-    "message": "始终在系统托盘中显示图标。"
+  "runInBackgroundDescMac": {
+    "message": "关闭窗口后，仍可通过菜单栏访问 Bitwarden。使用 SSH 代理或浏览器集成时，建议开启此选项。"
   },
   "openAtLogin": {
     "message": "登录时自动启动"
   },
   "openAtLoginDesc": {
     "message": "登录时自动启动 Bitwarden 桌面应用程序。"
-  },
-  "alwaysShowDock": {
-    "message": "始终在 Dock 中显示"
-  },
-  "alwaysShowDockDesc": {
-    "message": "即使已最小化到菜单栏，仍在 Dock 中显示 Bitwarden 图标。"
-  },
-  "confirmTrayTitle": {
-    "message": "确认隐藏到托盘"
-  },
-  "confirmTrayDesc": {
-    "message": "停用此设置也将停用其他与托盘相关的设置。"
   },
   "language": {
     "message": "语言"
@@ -1959,6 +2082,10 @@
   "selected": {
     "message": "已选择"
   },
+  "selectedLowercase": {
+    "message": "已选择",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
   "bulkActionsBar": {
     "message": "批量操作"
   },
@@ -2054,7 +2181,7 @@
     "message": "窗口"
   },
   "checkPassword": {
-    "message": "检查密码是否已经被公开。"
+    "message": "检查密码是否已暴露。"
   },
   "passwordExposed": {
     "message": "此密码在数据泄露中已被暴露 $VALUE$ 次。请立即修改。",
@@ -2117,9 +2244,9 @@
   "exit": {
     "message": "退出"
   },
-  "showHide": {
-    "message": "显示 / 隐藏",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "显示",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "隐藏到托盘"
@@ -2190,7 +2317,7 @@
     "message": "无法导入支付卡项目类型"
   },
   "restrictCardTypeImportDesc": {
-    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
     "message": "「文件密码」与「确认文件密码」不一致。"
@@ -2323,12 +2450,6 @@
   "preferences": {
     "message": "偏好设置"
   },
-  "enableMenuBar": {
-    "message": "显示菜单栏图标"
-  },
-  "enableMenuBarDesc": {
-    "message": "始终显示菜单栏图标。"
-  },
   "hideToMenuBar": {
     "message": "隐藏到菜单栏"
   },
@@ -2425,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "归档项目已恢复"
   },
+  "archivedItemsRestored": {
+    "message": "归档项目已恢复"
+  },
   "restoredItem": {
+    "message": "项目已恢复"
+  },
+  "restoredItems": {
     "message": "项目已恢复"
   },
   "permanentlyDelete": {
     "message": "永久删除"
+  },
+  "permanentlyDeletedItems": {
+    "message": "项目已永久删除"
+  },
+  "deletedItems": {
+    "message": "项目已发送到回收站"
+  },
+  "deletedCollections": {
+    "message": "删除了集合"
+  },
+  "collectionDeleted": {
+    "message": "集合已删除"
+  },
+  "collectionsDeleted": {
+    "message": "集合已删除"
+  },
+  "movedItems": {
+    "message": "项目已移动"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "超时后注销账户将解除对密码库的所有访问权限，并需要进行在线身份验证。确定要使用此设置吗？"
@@ -2438,7 +2583,7 @@
     "message": "超时动作确认"
   },
   "enterpriseSingleSignOn": {
-    "message": "企业单点登录"
+    "message": "企业单点登录 (SSO)"
   },
   "setMasterPassword": {
     "message": "设置主密码"
@@ -2573,8 +2718,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求主密码满足以下要求："
   },
-  "receiveMarketingEmailsV2": {
-    "message": "获取来自 Bitwarden 的建议、公告和调研电子邮件。"
+  "receiveMarketingEmails": {
+    "message": "通过电子邮件接收 Bitwarden 的最新动态。"
   },
   "unsubscribe": {
     "message": "取消订阅"
@@ -2660,6 +2805,9 @@
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "您的新密码不能与当前密码相同。"
   },
+  "hint": {
+    "message": "提示"
+  },
   "hintEqualsPassword": {
     "message": "您的密码提示不能与您的密码相同。"
   },
@@ -2687,10 +2835,10 @@
     "description": "'Sends' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeFile": {
-    "message": "文件"
+    "message": "文件 Send"
   },
   "sendTypeText": {
-    "message": "文本"
+    "message": "文本 Send"
   },
   "searchSends": {
     "message": "搜索 Send",
@@ -2779,6 +2927,10 @@
   },
   "createSend": {
     "message": "新增 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -2874,13 +3026,13 @@
     "message": "您必须验证电子邮箱才能使用此功能。"
   },
   "passwordPrompt": {
-    "message": "主密码重新提示"
+    "message": "主密码二次验证"
   },
   "passwordConfirmation": {
     "message": "确认主密码"
   },
   "passwordConfirmationDesc": {
-    "message": "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。"
+    "message": "此操作受到保护。要继续，请重新输入主密码以验证您的身份。"
   },
   "masterPasswordSuccessfullySet": {
     "message": "主密码设置成功"
@@ -2907,7 +3059,7 @@
     "message": "您的主密码不符合此组织的要求。更改您的主密码以继续。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。请设置一个主密码以访问您的密码库。"
   },
   "tryAgain": {
     "message": "重试"
@@ -3434,9 +3586,6 @@
     "message": "密码库",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
   },
-  "loginWithMasterPassword": {
-    "message": "使用主密码登录"
-  },
   "rememberEmail": {
     "message": "记住电子邮箱"
   },
@@ -3630,10 +3779,10 @@
     "message": "已暴露的主密码"
   },
   "exposedMasterPasswordDesc": {
-    "message": "密码在数据泄露中被发现。请使用一个唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
+    "message": "在数据泄露中发现密码。请使用唯一的密码以保护您的账户。确定要使用已暴露的密码吗？"
   },
   "weakAndExposedMasterPassword": {
-    "message": "主密码弱且曾经暴露"
+    "message": "弱且已暴露的主密码"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
@@ -3645,7 +3794,7 @@
     "message": "已登录！"
   },
   "important": {
-    "message": "重要事项："
+    "message": "重要："
   },
   "accessing": {
     "message": "正在访问"
@@ -3882,6 +4031,9 @@
   "multipleInputEmails": {
     "message": "一个或多个电子邮箱无效"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "电子邮件收件人列表不能超过 2,500 个字符。请移除一个或多个收件人后继续。"
+  },
   "inputTrimValidator": {
     "message": "输入不能只包含空格。",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -3926,7 +4078,7 @@
     "message": "子菜单"
   },
   "toggleSideNavigation": {
-    "message": "切换侧边导航"
+    "message": "切换侧边导航栏"
   },
   "skipToContent": {
     "message": "跳转到内容"
@@ -4329,7 +4481,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "上次编辑"
+    "message": "最后编辑于"
   },
   "upload": {
     "message": "上传"
@@ -4652,9 +4804,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 个项目将永久转移到 $ORG$ 。您将不再拥有该项目。",
     "placeholders": {
@@ -4664,8 +4813,39 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到 $ORG$ 。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "itemAssignedToCollections": {
+    "message": "已分配至集合的项目"
+  },
+  "itemsAssignedToCollections": {
+    "message": "已分配至集合的项目"
   },
   "nothingSelected": {
     "message": "您没有选择任何内容。"
@@ -4747,7 +4927,7 @@
     "message": "无效的快捷键"
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "面包屑导航",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -4805,10 +4985,51 @@
     "message": "归档项目"
   },
   "archiveItemDialogContent": {
-    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "归档后，此项目将被排除在搜索结果和自动填充建议之外。"
   },
   "unArchiveAndSave": {
     "message": "取消归档并保存"
+  },
+  "archiveItemsPlural": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "归档后，这些项目将被排除在搜索结果和自动填充建议之外。"
+  },
+  "bulkArchiveItems": {
+    "message": "项目已归档"
+  },
+  "bulkUnarchiveItems": {
+    "message": "项目已取消归档"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "选择一个您想要将这 $COUNT$ 个所选项目添加到的文件夹。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "选择文件夹"
   },
   "restartPremium": {
     "message": "重启高级版"
@@ -4946,6 +5167,9 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "设置一个解锁方式以更改您的超时动作"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "会话超时由桌面 App 控制"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ 未安装。从中导入密码之前，请先安装 $BROWSER$。",
@@ -5110,6 +5334,14 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "domainNotAllowed": {
+    "message": "仅允许以下域名：$DOMAINS$。请检查然后重试",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
   "more": {
     "message": "更多"
   },
@@ -5129,10 +5361,13 @@
     "message": "请输入有效的年份。"
   },
   "searchDriversLicense": {
-    "message": "搜索许可证"
+    "message": "搜索驾驶证"
   },
   "bankAccount": {
     "message": "银行账户"
+  },
+  "bankAccountDetails": {
+    "message": "银行账户详细信息"
   },
   "bankName": {
     "message": "银行名称"
@@ -5237,21 +5472,20 @@
   "newBankAccountNudgeBody": {
     "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
   },
+  "discardEditsTitle": {
+    "message": "放弃编辑"
+  },
+  "discardEditsConfirmation": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
+  },
   "discardEdits": {
     "message": "放弃编辑"
   },
-  "discardEditsMessage": {
-    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
-  },
-  "backToEditing": {
-    "message": "返回继续编辑"
+  "keepEditing": {
+    "message": "继续编辑"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "saveSendEditsFailed": {
-    "message": "保存 Send 的编辑内容失败",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewTextSendHeader": {
@@ -5274,7 +5508,7 @@
     "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
   "sideNavigation": {
-    "message": "侧边导航"
+    "message": "侧边导航栏"
   },
   "skipLink": {
     "message": "跳过链接"
@@ -5286,6 +5520,21 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "不符合您组织的 Send 策略",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "创建副本"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
@@ -5330,6 +5579,40 @@
     "message": "签发机构 / 部门"
   },
   "licenseClass": {
-    "message": "许可证等级"
+    "message": "驾驶证等级"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
+  },
+  "addToFolder": {
+    "message": "添加到文件夹"
+  },
+  "deleteCollection": {
+    "message": "删除集合"
+  },
+  "deleteCollectionsCount": {
+    "message": "删除 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "此集合将被永久删除。"
+  },
+  "deleteCollectionsDesc": {
+    "message": "这些集合将被永久删除。"
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

@@ -154,4 +154,5 @@ export type NotificationBackgroundExtensionMessageHandlers = {
   bgGetExcludedDomains: () => Promise<NeverDomains>;
   bgGetActiveUserServerConfig: () => Promise<ServerConfig | null>;
   getWebVaultUrlForNotification: () => Promise<string>;
+  showLoginSavedNotification: ({ message }: BackgroundMessageParam) => Promise<void>;
 };

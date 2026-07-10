@@ -2,7 +2,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -10,13 +10,8 @@ import {
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
@@ -25,7 +20,6 @@ import {
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
@@ -78,7 +72,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   orgId = "";
   orgLabel = "";
   billingSubLabel = "";
-  enforcedPolicyOptions?: MasterPasswordPolicyOptions;
 
   /** User's email address associated with the trial */
   email = "";
@@ -102,13 +95,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     protected router: Router,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private logService: LogService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyService: PolicyService,
     private i18nService: I18nService,
     private routerService: RouterService,
     private organizationBillingService: OrganizationBillingService,
-    private organizationInviteService: OrganizationInviteService,
     private toastService: ToastService,
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
@@ -171,40 +160,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
     });
-
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    let policies: Policy[] | undefined | null = null;
-
-    if (
-      invite != null &&
-      invite.organizationId &&
-      invite.token &&
-      invite.email &&
-      invite.organizationUserId
-    ) {
-      try {
-        policies = await this.policyApiService.getPoliciesByToken(
-          invite.organizationId,
-          invite.token,
-          invite.email,
-          invite.organizationUserId,
-        );
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-
-    if (policies !== null) {
-      this.accountService.activeAccount$
-        .pipe(
-          getUserId,
-          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
-          takeUntil(this.destroy$),
-        )
-        .subscribe((enforcedPasswordPolicyOptions) => {
-          this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
-        });
-    }
 
     this.orgInfoFormGroup.controls.name.valueChanges
       .pipe(takeUntil(this.destroy$))

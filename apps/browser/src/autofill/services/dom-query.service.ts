@@ -28,6 +28,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   // Stale entries (roots whose hosts left the DOM) are harmless — querying them
   // returns an empty NodeList. Cleared on `resetObservedShadowRoots` (navigation).
   private knownShadowRoots = new Set<ShadowRoot>();
+  private isOwnedShadowHost: (host: Element) => boolean = () => false;
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -122,8 +123,14 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
     return mutations.some((mutation) => {
       const root = (mutation.target as Node).getRootNode();
-      return root instanceof ShadowRoot;
+      // Ignore our own injected shadow hosts — observing them churns on the menu's own styling.
+      return root instanceof ShadowRoot && !this.isOwnedShadowHost(root.host);
     });
+  };
+
+  /** Identity predicate for the extension's own injected shadow hosts, excluded from scanning/observation. */
+  setOwnedShadowHostPredicate = (predicate: (host: Element) => boolean): void => {
+    this.isOwnedShadowHost = predicate;
   };
 
   /** @returns true if an unobserved root is reachable; flips the latch on first post-init() find. */
@@ -511,6 +518,10 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   private getShadowRoot(node: Node): ShadowRoot | null {
     if (!nodeIsElement(node)) {
+      return null;
+    }
+
+    if (this.isOwnedShadowHost(node)) {
       return null;
     }
 

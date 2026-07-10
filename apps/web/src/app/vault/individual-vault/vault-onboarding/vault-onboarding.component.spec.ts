@@ -1,12 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { RouterTestingModule } from "@angular/router/testing";
+import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,7 +12,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { VaultOnboardingService as VaultOnboardingServiceAbstraction } from "./services/abstraction/vault-onboarding.service";
@@ -26,23 +22,27 @@ describe("VaultOnboardingComponent", () => {
   let fixture: ComponentFixture<VaultOnboardingComponent>;
   let mockPlatformUtilsService: Partial<PlatformUtilsService>;
   let mockApiService: Partial<ApiService>;
-  let mockPolicyService: MockProxy<PolicyService>;
   let mockI18nService: MockProxy<I18nService>;
   let mockVaultOnboardingService: MockProxy<VaultOnboardingServiceAbstraction>;
-  let setInstallExtLinkSpy: any;
-  let individualVaultPolicyCheckSpy: any;
+  let setInstallExtLinkSpy: jest.SpyInstance;
   let mockConfigService: MockProxy<ConfigService>;
   const mockAccountService: FakeAccountService = mockAccountServiceWith(Utils.newGuid() as UserId);
   let mockStateProvider: Partial<StateProvider>;
 
-  beforeEach(() => {
-    mockPolicyService = mock<PolicyService>();
+  beforeEach(async () => {
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockApiService = {
       getProfile: jest.fn(),
     };
     mockVaultOnboardingService = mock<VaultOnboardingServiceAbstraction>();
+    mockVaultOnboardingService.vaultOnboardingState$.mockReturnValue(
+      of({
+        createAccount: true,
+        importData: false,
+        installExtension: false,
+      }),
+    );
     mockConfigService = mock<ConfigService>();
     mockStateProvider = {
       getActive: jest.fn().mockReturnValue(
@@ -54,38 +54,30 @@ describe("VaultOnboardingComponent", () => {
       ),
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    TestBed.configureTestingModule({
-      declarations: [],
-      imports: [RouterTestingModule],
+    await TestBed.configureTestingModule({
       providers: [
+        provideRouter([]),
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
-        { provide: PolicyService, useValue: mockPolicyService },
-        { provide: VaultOnboardingServiceAbstraction, useValue: mockVaultOnboardingService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ApiService, useValue: mockApiService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: StateProvider, useValue: mockStateProvider },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(VaultOnboardingComponent, {
+        set: {
+          providers: [
+            { provide: VaultOnboardingServiceAbstraction, useValue: mockVaultOnboardingService },
+          ],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(VaultOnboardingComponent);
     component = fixture.componentInstance;
     setInstallExtLinkSpy = jest.spyOn(component, "setInstallExtLink");
-    individualVaultPolicyCheckSpy = jest
-      .spyOn(component, "individualVaultPolicyCheck")
-      .mockReturnValue(undefined);
-    jest.spyOn(component, "checkCreationDate").mockReturnValue(null);
+    jest.spyOn(component, "checkCreationDate").mockResolvedValue(undefined);
     jest.spyOn(window, "postMessage").mockImplementation(jest.fn());
-    (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
-      .fn()
-      .mockImplementation(() => {
-        return of({
-          createAccount: true,
-          importData: false,
-          installExtension: false,
-        });
-      });
   });
 
   it("should create", () => {
@@ -97,23 +89,18 @@ describe("VaultOnboardingComponent", () => {
       await component.ngOnInit();
       expect(setInstallExtLinkSpy).toHaveBeenCalled();
     });
-
-    it("should call individualVaultPolicyCheck", async () => {
-      await component.ngOnInit();
-      expect(individualVaultPolicyCheckSpy).toHaveBeenCalled();
-    });
   });
 
   describe("show and hide onboarding component", () => {
     it("should set showOnboarding to true", async () => {
       await component.ngOnInit();
-      expect((component as any).showOnboarding).toBe(true);
+      expect((component as any).showOnboarding()).toBe(true);
     });
 
     it("should set showOnboarding to false if dismiss is clicked", async () => {
       await component.ngOnInit();
-      (component as any).hideOnboarding();
-      expect((component as any).showOnboarding).toBe(false);
+      await (component as any).hideOnboarding();
+      expect((component as any).showOnboarding()).toBe(false);
     });
   });
 
@@ -121,36 +108,23 @@ describe("VaultOnboardingComponent", () => {
     it("should set extensionUrl to Chrome Web Store when isChrome is true", async () => {
       jest.spyOn((component as any).platformUtilsService, "isChrome").mockReturnValue(true);
       const expected =
-        "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb";
+        "https://chromewebstore.google.com/detail/bitwarden-password-manager/nngceckbapebfimnlniiiahkandclblb";
       await component.ngOnInit();
-      expect(component.extensionUrl).toEqual(expected);
+      expect(component.extensionUrl()).toEqual(expected);
     });
 
     it("should set extensionUrl to Firefox Store when isFirefox is true", async () => {
       jest.spyOn((component as any).platformUtilsService, "isFirefox").mockReturnValue(true);
       const expected = "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/";
       await component.ngOnInit();
-      expect(component.extensionUrl).toEqual(expected);
+      expect(component.extensionUrl()).toEqual(expected);
     });
 
     it("should set extensionUrl when isSafari is true", async () => {
       jest.spyOn((component as any).platformUtilsService, "isSafari").mockReturnValue(true);
       const expected = "https://apps.apple.com/us/app/bitwarden/id1352778147?mt=12";
       await component.ngOnInit();
-      expect(component.extensionUrl).toEqual(expected);
-    });
-  });
-
-  describe("individualVaultPolicyCheck", () => {
-    it("should set isIndividualPolicyVault to true", () => {
-      individualVaultPolicyCheckSpy.mockRestore();
-      const spy = jest
-        .spyOn((component as any).policyService, "policyAppliesToUser$")
-        .mockReturnValue(of(true));
-
-      component.individualVaultPolicyCheck();
-      fixture.detectChanges();
-      expect(spy).toHaveBeenCalled();
+      expect(component.extensionUrl()).toEqual(expected);
     });
   });
 
@@ -162,7 +136,7 @@ describe("VaultOnboardingComponent", () => {
       });
       const getMessagesSpy = jest.spyOn(component, "getMessages");
 
-      (component as any).showOnboarding = true;
+      (component as any).showOnboarding.set(true);
       component.checkForBrowserExtension();
       messageEventSubject.next(messageEvent);
 
@@ -179,18 +153,9 @@ describe("VaultOnboardingComponent", () => {
         .spyOn((component as any).vaultOnboardingService, "setVaultOnboardingTasks")
         .mockReturnValue(Promise.resolve());
 
-      (component as any).vaultOnboardingService.vaultOnboardingState$ = jest
-        .fn()
-        .mockImplementation(() => {
-          return of({
-            createAccount: true,
-            importData: false,
-            installExtension: false,
-          });
-        });
       const eventData = { data: { command: VaultMessages.HasBwInstalled } };
 
-      (component as any).showOnboarding = true;
+      (component as any).showOnboarding.set(true);
 
       await component.ngOnInit();
       await component.getMessages(eventData);
@@ -213,24 +178,14 @@ describe("VaultOnboardingComponent", () => {
           });
         });
 
-      (component as any).showOnboarding = true;
+      (component as any).showOnboarding.set(true);
       (component as any).onboardingTasks$ = (
         component as any
       ).vaultOnboardingService.vaultOnboardingState$();
 
       await component.getMessages({ data: { command: VaultMessages.HasBwInstalled } });
 
-      expect((component as any).showOnboarding).toBe(false);
-    });
-  });
-
-  describe("emitToAddCipher", () => {
-    it("always emits the `CipherType.Login` type when called", () => {
-      const emitSpy = jest.spyOn(component.onAddCipher, "emit");
-
-      component.emitToAddCipher();
-
-      expect(emitSpy).toHaveBeenCalledWith(CipherType.Login);
+      expect((component as any).showOnboarding()).toBe(false);
     });
   });
 });

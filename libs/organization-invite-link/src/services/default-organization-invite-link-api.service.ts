@@ -1,6 +1,7 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
+import { OrganizationInviteLinkAcceptRequest } from "../models/requests/organization-invite-link-accept.request";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
@@ -51,7 +52,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
-  async update(
+  async updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel> {
@@ -97,5 +98,15 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       true,
     );
     return new OrganizationInviteLinkStatusResponseModel(r);
+  }
+
+  async accept(request: OrganizationInviteLinkAcceptRequest): Promise<void> {
+    await this.apiService.send(
+      "POST",
+      "/organizations/users/invite-link/accept",
+      request,
+      true,
+      false,
+    );
   }
 }

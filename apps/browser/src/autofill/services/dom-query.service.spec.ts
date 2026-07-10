@@ -370,6 +370,62 @@ describe("DomQueryService", () => {
     });
   });
 
+  describe("setOwnedShadowHostPredicate (excludes the extension's own injected UI by identity)", () => {
+    beforeEach(() => {
+      document.body.innerHTML = "";
+      domQueryService["knownShadowRoots"].clear();
+      domQueryService["pageContainsShadowDom"] = true;
+    });
+
+    it("does not detect an owned shadow host's root", () => {
+      const host = document.createElement("div");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      expect(domQueryService.checkForNewShadowRoots([host])).toBe(false);
+    });
+
+    it("detects a different host of the same tag — matched by identity, not tag name", () => {
+      const owned = document.createElement("div");
+      owned.attachShadow({ mode: "open" });
+      const pageHost = document.createElement("div");
+      pageHost.attachShadow({ mode: "open" });
+      document.body.append(owned, pageHost);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
+
+      expect(domQueryService.checkForNewShadowRoots([pageHost])).toBe(true);
+    });
+
+    it("ignores mutations inside an owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+    });
+
+    it("still flags mutations inside a non-owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate(() => false);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+    });
+  });
+
+  describe("getShadowRoot", () => {
+    it("returns null for a non-element node", () => {
+      const textNode = document.createTextNode("not an element");
+
+      expect(domQueryService["getShadowRoot"](textNode)).toBeNull();
+    });
+  });
+
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
@@ -794,6 +850,98 @@ describe("DomQueryService", () => {
           "iframe#outer-iframe >>> iframe#inner-iframe >>> input#nested-iframe-input",
         ),
       ).toBe(input);
+    });
+  });
+
+  describe("findIframeCrossing", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for selectors without an iframe boundary", () => {
+      expect(domQueryService.findIframeCrossing("#username")).toBeNull();
+    });
+
+    it("returns null when no element matches the iframe segment", () => {
+      expect(domQueryService.findIframeCrossing("iframe#nonexistent >>> #username")).toBeNull();
+    });
+
+    it("returns the iframe element and inner selector for a single-hop boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login-iframe";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#login-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.contentDocument is null (cross-origin)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const result = domQueryService.findIframeCrossing("iframe#cross-origin-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.src is empty (srcdoc / about:blank)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "srcdoc-iframe";
+      // No src or srcdoc set — leaves iframe.src as empty string
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#srcdoc-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.iframeElement.src).toBe("");
+    });
+
+    it("preserves the remaining selector for multi-hop chains", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "iframe#outer >>> iframe#inner >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("iframe#inner >>> #username");
+    });
+
+    it("walks shadow boundaries before reaching the iframe", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const iframe = document.createElement("iframe");
+      iframe.id = "inside-shadow";
+      shadowRoot.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "#shadow-host >>> iframe#inside-shadow >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns null when a pre-iframe segment cannot traverse (no shadow root, no iframe)", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.findIframeCrossing("#plain-div >>> iframe#inner >>> #x")).toBeNull();
     });
   });
 });

@@ -732,8 +732,9 @@ describe("Risk Insights Type Guards", () => {
     it("should validate valid V2 report data", () => {
       expect(() => validateAccessReportPayload(validV2Data)).not.toThrow();
       const result = validateAccessReportPayload(validV2Data);
-      expect(result.reports).toHaveLength(1);
-      expect(Object.keys(result.memberRegistry)).toHaveLength(2);
+      expect(result.data.reports).toHaveLength(1);
+      expect(Object.keys(result.data.memberRegistry)).toHaveLength(2);
+      expect(result.errors).toHaveLength(0);
     });
 
     it("should validate V2 data with empty reports and registry", () => {
@@ -753,30 +754,49 @@ describe("Risk Insights Type Guards", () => {
       );
     });
 
-    it("should throw for invalid reports array", () => {
+    it("should throw for non-array reports (structural failure)", () => {
       const invalidReports = { ...validV2Data, reports: "not an array" };
       expect(() => validateAccessReportPayload(invalidReports)).toThrow(
-        /reports array failed validation/,
+        /reports expected array, received non-array/,
       );
     });
 
-    it("should throw for missing memberRegistry", () => {
+    it("should throw for missing memberRegistry (structural failure)", () => {
       const noRegistry: unknown = { version: 2, reports: [] };
       expect(() => validateAccessReportPayload(noRegistry)).toThrow(
-        /memberRegistry failed validation/,
+        /memberRegistry expected object, received non-object/,
       );
     });
 
-    it("should throw for invalid memberRegistry entry", () => {
+    it("should drop a bad reports[] element and accumulate one error", () => {
+      const badReportElement = {
+        ...validV2Data,
+        reports: [
+          { applicationName: "" }, // empty name + missing fields — invalid
+          validV2Data.reports[0], // valid
+        ],
+      };
+      expect(() => validateAccessReportPayload(badReportElement)).not.toThrow();
+      const result = validateAccessReportPayload(badReportElement);
+      expect(result.data.reports).toHaveLength(1);
+      expect(result.data.reports[0].applicationName).toBe("github.com");
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/reports\[0\]/);
+    });
+
+    it("should drop a bad memberRegistry entry and accumulate one error", () => {
       const invalidEntry = {
         ...validV2Data,
         memberRegistry: {
-          u1: { id: "u1", userName: "Alice" }, // missing email
+          u1: { id: "u1", userName: "Alice", email: "alice@example.com" }, // valid
+          u2: { id: "u2", userName: "Bob" }, // missing email — invalid
         },
       };
-      expect(() => validateAccessReportPayload(invalidEntry)).toThrow(
-        /memberRegistry failed validation/,
-      );
+      expect(() => validateAccessReportPayload(invalidEntry)).not.toThrow();
+      const result = validateAccessReportPayload(invalidEntry);
+      expect(Object.keys(result.data.memberRegistry)).toEqual(["u1"]);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/memberRegistry\["u2"\]/);
     });
 
     it("should normalize empty userName to undefined for backwards compatibility", () => {
@@ -788,7 +808,8 @@ describe("Risk Insights Type Guards", () => {
         },
       };
       const result = validateAccessReportPayload(dataWithEmptyUserName);
-      expect(result.memberRegistry["u1"].userName).toBeUndefined();
+      expect(result.data.memberRegistry["u1"].userName).toBeUndefined();
+      expect(result.errors).toHaveLength(0);
     });
   });
 
@@ -847,46 +868,61 @@ describe("Risk Insights Type Guards", () => {
 
       expect(() => validateAccessReportSettingsDataArray(validData)).not.toThrow();
       const result = validateAccessReportSettingsDataArray(validData);
-      expect(result).toHaveLength(2);
-      expect(result[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
-      expect(result[1].reviewedDate).toBeUndefined();
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
+      expect(result.data[1].reviewedDate).toBeUndefined();
+      expect(result.errors).toHaveLength(0);
     });
 
     it("should accept missing reviewedDate (undefined)", () => {
       const validData = [{ applicationName: "app.com", isCritical: false }];
       const result = validateAccessReportSettingsDataArray(validData);
-      expect(result[0].reviewedDate).toBeUndefined();
+      expect(result.data[0].reviewedDate).toBeUndefined();
     });
 
-    it("should throw for non-array input", () => {
+    it("should throw for non-array input (structural failure)", () => {
       expect(() => validateAccessReportSettingsDataArray("not an array")).toThrow(
         "Invalid application data: expected array of AccessReportSettingsData, received non-array",
       );
     });
 
-    it("should throw for array with invalid elements", () => {
-      const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid AccessReportSettingsData element\(s\)/,
-      );
+    it("should drop an element with empty applicationName and accumulate one error", () => {
+      const invalidData = [
+        { applicationName: "", isCritical: true }, // empty name — rejected by isBoundedString
+        { applicationName: "app.com", isCritical: false }, // valid
+      ];
+      expect(() => validateAccessReportSettingsDataArray(invalidData)).not.toThrow();
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].applicationName).toBe("app.com");
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
     });
 
-    it("should throw for null reviewedDate", () => {
+    it("should drop an element missing isCritical and accumulate one error", () => {
+      const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
+    });
+
+    it("should drop an element with null reviewedDate", () => {
       const invalidData: unknown = [
         { applicationName: "app.com", isCritical: true, reviewedDate: null },
       ];
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data/,
-      );
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
     });
 
-    it("should throw for invalid date string in reviewedDate", () => {
+    it("should drop an element with an invalid date string in reviewedDate", () => {
       const invalidData = [
         { applicationName: "app.com", isCritical: true, reviewedDate: "not-a-date" },
       ];
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data/,
-      );
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
     });
   });
 
@@ -958,16 +994,11 @@ describe("Risk Insights Type Guards", () => {
           },
         };
 
-        let caught: Error | null = null;
-        try {
-          validateAccessReportPayload(invalidPayload);
-        } catch (e) {
-          caught = e as Error;
-        }
-
-        expect(caught).not.toBeNull();
-        expect(caught!.message).toContain('"u1"');
-        expect(caught!.message).toContain("email");
+        const result = validateAccessReportPayload(invalidPayload);
+        expect(result.data.memberRegistry).toEqual({});
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toContain('"u1"');
+        expect(result.errors[0]).toContain("email");
       });
     });
   });
