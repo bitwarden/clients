@@ -93,30 +93,29 @@ export class DesktopAutofillMain {
     );
 
     // Register IPC listeners and response callbacks
-    const registrationListener = this.makeListener(
+    const registrationCallback = this.makeListener(
       AutofillIpcChannelIncoming.PasskeyRegistration,
       AutofillIpcChannelOutgoing.PasskeyRegistration,
       AutofillIpcServer.prototype.completeRegistration,
     );
-    const assertionListener = this.makeListener(
+    const assertionCallback = this.makeListener(
       AutofillIpcChannelIncoming.PasskeyAssertion,
       AutofillIpcChannelOutgoing.PasskeyAssertion,
       AutofillIpcServer.prototype.completeAssertion,
     );
-    const assertionWithoutUserInterfaceListener = this.makeListener(
+    const assertionWithoutUserInterfaceCallback = this.makeListener(
       AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
       AutofillIpcChannelOutgoing.PasskeyAssertion,
       AutofillIpcServer.prototype.completeAssertion,
     );
-    const nativeStatusListener = this.makeListener(AutofillIpcChannelIncoming.NativeStatus);
+    const nativeStatusCallback = this.makeListener(AutofillIpcChannelIncoming.NativeStatus);
 
-    this.ipcServer = await AutofillIpcServer.listen(
-      "af",
-      registrationListener,
-      assertionListener,
-      assertionWithoutUserInterfaceListener,
-      nativeStatusListener,
-    );
+    this.ipcServer = await AutofillIpcServer.listen("af", {
+      registrationCallback,
+      assertionCallback,
+      assertionWithoutUserInterfaceCallback,
+      nativeStatusCallback,
+    });
 
     ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {
       this.listenerReady = true;
