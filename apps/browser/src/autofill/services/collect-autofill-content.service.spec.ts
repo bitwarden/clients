@@ -12,6 +12,7 @@ import {
   FormFieldElement,
   FormElementWithAttribute,
 } from "../types";
+import * as autofillUtils from "../utils";
 
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -24,6 +25,8 @@ jest.mock("../utils", () => {
   return {
     ...utils,
     debounce: jest.fn((fn) => fn),
+    // Call-through spy so scheduling tests can assert on it without changing behavior.
+    requestIdleCallbackPolyfill: jest.fn((cb, opts) => utils.requestIdleCallbackPolyfill(cb, opts)),
   };
 });
 
@@ -3751,6 +3754,401 @@ describe("CollectAutofillContentService", () => {
       const pending = collectAutofillContentService["pendingAttributeMutations"];
       expect(pending.size).toBe(1);
       expect(Array.from(pending.get(target)!).sort()).toEqual(["id", "value"]);
+    });
+  });
+
+  describe("mutation-loop branch handling", () => {
+    beforeEach(() => {
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+    });
+
+    it("skips an attribute mutation whose attributeName is null", () => {
+      const target = document.createElement("input");
+      document.body.appendChild(target);
+      const mutation: MutationRecord = {
+        type: "attributes",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].has(target)).toBe(false);
+    });
+
+    it("ignores a mutation whose type is neither attributes nor childList", () => {
+      const characterData: MutationRecord = {
+        type: "characterData",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.createTextNode("text"),
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([characterData]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
+      expect(collectAutofillContentService["pendingTopLayerTargets"].size).toBe(0);
+    });
+
+    it("tracks an added top-layer candidate (<dialog>) as a pending target", () => {
+      const container = document.createElement("div");
+      const dialog = document.createElement("dialog");
+      container.appendChild(dialog);
+      document.body.appendChild(container);
+      const mutation: MutationRecord = {
+        type: "childList",
+        addedNodes: container.childNodes,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+  });
+
+  describe("childList gate is wired into mutation handling", () => {
+    const childListMutationFor = (...added: Node[]): MutationRecord => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      added.forEach((n) => container.appendChild(n));
+      return {
+        type: "childList",
+        addedNodes: container.childNodes,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        target: document.body,
+      };
+    };
+
+    beforeEach(() => {
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingChildListUpdate"] = false;
+    });
+
+    it("does not flip pendingChildListUpdate for a cosmetic childList mutation", () => {
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
+    });
+
+    it("flips pendingChildListUpdate when the childList mutation contains a form field", () => {
+      const input = Object.assign(document.createElement("input"), { type: "text" });
+      const relevant = childListMutationFor(input);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
+
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(true);
+    });
+
+    it("does not schedule a drain for a cosmetic-only batch (no idle-callback tax)", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+    });
+
+    it("schedules a drain when the batch contributes a relevant field", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const input = Object.assign(document.createElement("input"), { type: "text" });
+      const relevant = childListMutationFor(input);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
+
+      expect(idle).toHaveBeenCalledWith(
+        collectAutofillContentService["processMutations"],
+        expect.objectContaining({ timeout: 500 }),
+      );
+    });
+
+    it("still purges detached nodes on a cosmetic wake that schedules no drain", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const fieldPurge = jest.spyOn(
+        collectAutofillContentService as any,
+        "purgeDetachedFieldMetadata",
+      );
+      const shadowPurge = jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+      expect(fieldPurge).toHaveBeenCalled();
+      expect(shadowPurge).toHaveBeenCalled();
+    });
+  });
+
+  describe("mutationAddsOrRemovesFormField (relevance gate)", () => {
+    // Containers we append to body for real NodeList construction; torn down after each test.
+    const createdContainers: HTMLElement[] = [];
+
+    const makeContainer = (): HTMLElement => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      createdContainers.push(container);
+      return container;
+    };
+
+    const buildMutation = (
+      addedNodes: NodeList,
+      removedNodes: NodeList = document.querySelectorAll("nothing-matches-this-selector"),
+    ): MutationRecord => ({
+      type: "childList",
+      addedNodes,
+      removedNodes,
+      attributeName: null,
+      attributeNamespace: null,
+      nextSibling: null,
+      oldValue: null,
+      previousSibling: null,
+      target: document.body,
+    });
+
+    afterEach(() => {
+      while (createdContainers.length) {
+        const container = createdContainers.pop()!;
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+      }
+    });
+
+    const expectGate = (mutation: MutationRecord, admit: boolean) =>
+      expect(collectAutofillContentService["mutationAddsOrRemovesFormField"](mutation)).toBe(admit);
+
+    const mutationForChild = (child: Node): MutationRecord => {
+      const container = makeContainer();
+      container.appendChild(child);
+      return buildMutation(container.childNodes);
+    };
+
+    const mutationForInput = (configure: (input: HTMLInputElement) => void): MutationRecord => {
+      const input = document.createElement("input");
+      configure(input);
+      return mutationForChild(input);
+    };
+
+    describe("admits via formFieldQueryString match on the node itself", () => {
+      it("admits <select>", () =>
+        expectGate(mutationForChild(document.createElement("select")), true));
+      it("admits <textarea>", () =>
+        expectGate(mutationForChild(document.createElement("textarea")), true));
+
+      it("admits <span data-bwautofill>", () => {
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "");
+        expectGate(mutationForChild(span), true);
+      });
+
+      it("admits a type-less <input> (no type attribute satisfies every :not([type=X]) clause)", () => {
+        const input = document.createElement("input");
+        expect(input.getAttribute("type")).toBeNull();
+        expectGate(mutationForChild(input), true);
+      });
+
+      it.each(["text", "email", "password", "number", "tel"])('admits <input type="%s">', (type) =>
+        expectGate(
+          mutationForInput((i) => (i.type = type)),
+          true,
+        ),
+      );
+    });
+
+    describe("rejects bare elements with no autofill descendants", () => {
+      it("rejects <div>", () => expectGate(mutationForChild(document.createElement("div")), false));
+      it("rejects <p>", () => expectGate(mutationForChild(document.createElement("p")), false));
+      it("rejects <span> without data-bwautofill", () =>
+        expectGate(mutationForChild(document.createElement("span")), false));
+
+      // Consolidation deliberately drops the FORM-tag fast-path: empty forms have no fields,
+      // and any later child-append mutation trips the gate via the descendant query.
+      it("rejects an empty <form>", () =>
+        expectGate(mutationForChild(document.createElement("form")), false));
+    });
+
+    describe("rejects inputs whose type is in ignoredInputTypes", () => {
+      // Structural — never autofill targets.
+      it.each(["hidden", "submit", "reset", "button", "image", "file"])(
+        'rejects <input type="%s">',
+        (type) =>
+          expectGate(
+            mutationForInput((i) => (i.type = type)),
+            false,
+          ),
+      );
+
+      // Format-restricted text types. Consolidation widened these from admit to reject:
+      // the gate now uses the same exclusion set as collection, so the rebuild it used to
+      // schedule for these would have produced zero new fields anyway.
+      it.each(["search", "url", "date", "time", "datetime-local", "week", "color", "range"])(
+        'rejects <input type="%s">',
+        (type) =>
+          expectGate(
+            mutationForInput((i) => (i.type = type)),
+            false,
+          ),
+      );
+    });
+
+    describe("rejects nodes carrying data-bwignore", () => {
+      // Consolidating onto formFieldQueryString means data-bwignore-marked elements no longer
+      // trip the gate. Safe because they'd be filtered out during collection anyway.
+      it('rejects <input type="text" data-bwignore>', () =>
+        expectGate(
+          mutationForInput((i) => {
+            i.type = "text";
+            i.setAttribute("data-bwignore", "");
+          }),
+          false,
+        ));
+
+      it("rejects <select data-bwignore>", () => {
+        const select = document.createElement("select");
+        select.setAttribute("data-bwignore", "");
+        expectGate(mutationForChild(select), false);
+      });
+
+      it("rejects <textarea data-bwignore>", () => {
+        const textarea = document.createElement("textarea");
+        textarea.setAttribute("data-bwignore", "");
+        expectGate(mutationForChild(textarea), false);
+      });
+
+      it("rejects a <div> wrapping only a data-bwignore field (descendant inherits exclusion)", () => {
+        const wrapper = document.createElement("div");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.setAttribute("data-bwignore", "");
+        wrapper.appendChild(input);
+        expectGate(mutationForChild(wrapper), false);
+      });
+    });
+
+    describe("admits via descendant match", () => {
+      it("admits a <div> wrapping a text input", () => {
+        const wrapper = document.createElement("div");
+        const input = document.createElement("input");
+        input.type = "text";
+        wrapper.appendChild(input);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <div> containing both a hidden and a text input (text input matches)", () => {
+        const wrapper = document.createElement("div");
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        const text = document.createElement("input");
+        text.type = "text";
+        wrapper.append(hidden, text);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <div> wrapping a <span data-bwautofill>", () => {
+        const wrapper = document.createElement("div");
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "");
+        wrapper.appendChild(span);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <form> containing a text input (via descendant, not the FORM tag itself)", () => {
+        const form = document.createElement("form");
+        const input = document.createElement("input");
+        input.type = "text";
+        form.appendChild(input);
+        expectGate(mutationForChild(form), true);
+      });
+
+      it("rejects a <form> whose only descendant is an excluded input", () => {
+        const form = document.createElement("form");
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        form.appendChild(hidden);
+        expectGate(mutationForChild(form), false);
+      });
+    });
+
+    describe("processes removedNodes identically to addedNodes", () => {
+      const emptyNodeList = (): NodeList =>
+        document.querySelectorAll("nothing-matches-this-selector");
+
+      it("admits when a text input appears only in removedNodes", () => {
+        const container = makeContainer();
+        const input = document.createElement("input");
+        input.type = "text";
+        container.appendChild(input);
+        expectGate(buildMutation(emptyNodeList(), container.childNodes), true);
+      });
+
+      it("rejects when only an empty <form> appears in removedNodes", () => {
+        const container = makeContainer();
+        container.appendChild(document.createElement("form"));
+        expectGate(buildMutation(emptyNodeList(), container.childNodes), false);
+      });
+    });
+  });
+
+  describe("nodeListContainsFormField", () => {
+    it("skips non-element nodes (text, comment) and returns false when no element is relevant", () => {
+      const container = document.createElement("div");
+      container.append(
+        document.createTextNode("hello"),
+        document.createComment("a comment"),
+        document.createElement("p"),
+      );
+      document.body.appendChild(container);
+
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        false,
+      );
+      document.body.removeChild(container);
+    });
+
+    it("returns false for an empty NodeList", () => {
+      const empty = document.querySelectorAll("nothing-matches-this-selector");
+      expect(collectAutofillContentService["nodeListContainsFormField"](empty)).toBe(false);
+    });
+
+    it("short-circuits on the first relevant node and returns true", () => {
+      const container = document.createElement("div");
+      const irrelevant = document.createElement("p");
+      const input = document.createElement("input");
+      input.type = "text";
+      container.append(irrelevant, input);
+      document.body.appendChild(container);
+
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        true,
+      );
+      document.body.removeChild(container);
     });
   });
 });

@@ -316,6 +316,62 @@ describe("DomQueryService", () => {
     });
   });
 
+  describe("setOwnedShadowHostPredicate (excludes the extension's own injected UI by identity)", () => {
+    beforeEach(() => {
+      document.body.innerHTML = "";
+      domQueryService["knownShadowRoots"].clear();
+      domQueryService["pageContainsShadowDom"] = true;
+    });
+
+    it("does not detect an owned shadow host's root", () => {
+      const host = document.createElement("div");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      expect(domQueryService.checkForNewShadowRoots([host])).toBe(false);
+    });
+
+    it("detects a different host of the same tag — matched by identity, not tag name", () => {
+      const owned = document.createElement("div");
+      owned.attachShadow({ mode: "open" });
+      const pageHost = document.createElement("div");
+      pageHost.attachShadow({ mode: "open" });
+      document.body.append(owned, pageHost);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
+
+      expect(domQueryService.checkForNewShadowRoots([pageHost])).toBe(true);
+    });
+
+    it("ignores mutations inside an owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+    });
+
+    it("still flags mutations inside a non-owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate(() => false);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+    });
+  });
+
+  describe("getShadowRoot", () => {
+    it("returns null for a non-element node", () => {
+      const textNode = document.createTextNode("not an element");
+
+      expect(domQueryService["getShadowRoot"](textNode)).toBeNull();
+    });
+  });
+
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
       document.body.innerHTML = "";
