@@ -350,11 +350,10 @@ describe("NativeMessagingBackground", () => {
         await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
 
-      it("rejects with an empty message when no error is present", async () => {
+      it("rejects with 'desktopIntegrationDisabled' even when no explicit error is present", async () => {
         disconnectListener({ error: { message: undefined } });
 
-        const err = await connectPromise.catch((e: Error) => e);
-        expect(err instanceof Error ? err.message : "").toBe("");
+        await expect(connectPromise).rejects.toThrow("desktopIntegrationDisabled");
       });
     });
   });

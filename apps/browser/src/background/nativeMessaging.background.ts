@@ -255,12 +255,7 @@ export class NativeMessagingBackground {
       });
 
       this.port.onDisconnect.addListener((p: any) => {
-        let error;
-        if (BrowserApi.isWebExtensionsApi) {
-          error = p.error.message;
-        } else {
-          error = chrome.runtime.lastError?.message;
-        }
+        const error = chrome?.runtime?.lastError?.message ?? p.error?.message ?? "unknown";
 
         this.secureChannel = undefined;
         this.connected = false;
