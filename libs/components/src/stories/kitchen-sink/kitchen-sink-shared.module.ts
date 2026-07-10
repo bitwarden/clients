@@ -20,7 +20,7 @@ import { HeaderComponent } from "../../header";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { AutofocusDirective, InputModule } from "../../input";
-import { LayoutComponent, PageComponent } from "../../layout";
+import { LayoutComponent } from "../../layout";
 import { LinkModule } from "../../link";
 import { MenuModule } from "../../menu";
 import { NavigationModule } from "../../navigation";
@@ -61,7 +61,6 @@ import { TypographyModule } from "../../typography";
     SvgModule,
     InputModule,
     LayoutComponent,
-    PageComponent,
     LinkModule,
     MenuModule,
     NavigationModule,
@@ -102,7 +101,6 @@ import { TypographyModule } from "../../typography";
     SvgModule,
     InputModule,
     LayoutComponent,
-    PageComponent,
     LinkModule,
     MenuModule,
     NavigationModule,
