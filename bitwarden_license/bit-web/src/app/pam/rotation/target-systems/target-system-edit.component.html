@@ -87,10 +87,13 @@
       @if (isAutomatic()) {
         @if (isNativeIntegration()) {
           <div>
-            <p bitTypography="helper" class="tw-mb-1 tw-font-semibold">
+            <p bitTypography="body2" class="tw-mb-1 tw-font-semibold">
               {{ "pamTargetSystemSupportsSessionTermination" | i18n }}
             </p>
-            <span class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success">
+            <span
+              bitTypography="body2"
+              class="tw-inline-flex tw-items-center tw-gap-1 tw-text-success"
+            >
               <bit-icon name="bwi-check"></bit-icon>
               {{ "pamTargetSystemSessionTerminationSupported" | i18n }}
             </span>
