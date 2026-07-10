@@ -28,6 +28,36 @@ export class ErrorResponse extends BaseResponse {
     this.statusCode = status;
   }
 
+  /**
+   * The stable, localizable validation errors from an RFC 7807 problem-details body.
+   *
+   * Newer server endpoints surface 400 failures as
+   * `{ errors: { "<property>": [{ type, detail }] } }` (server `BitwardenValidationProblem`),
+   * distinct from the legacy `validationErrors` (`{ "<property>": string[] }`) shape.
+   * Returns a flat list of `{ type, detail }` across all properties, or `[]` when absent.
+   */
+  getValidationProblemErrors(): { type: string; detail: string }[] {
+    const errors = this.getResponseProperty("Errors"); // case-insensitive -> matches `errors`
+    if (errors == null || typeof errors !== "object") {
+      return [];
+    }
+    const result: { type: string; detail: string }[] = [];
+    for (const key in errors) {
+      if (!Object.prototype.hasOwnProperty.call(errors, key) || !Array.isArray(errors[key])) {
+        continue;
+      }
+      for (const entry of errors[key]) {
+        if (entry != null && typeof entry.type === "string") {
+          result.push({
+            type: entry.type,
+            detail: typeof entry.detail === "string" ? entry.detail : "",
+          });
+        }
+      }
+    }
+    return result;
+  }
+
   getSingleMessage(): string {
     if (this.validationErrors == null) {
       return this.message;
