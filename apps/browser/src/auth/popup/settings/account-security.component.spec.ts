@@ -442,26 +442,89 @@ describe("AccountSecurityComponent", () => {
   });
 
   describe("updateAllowSharingUnlockStateWithDesktop", () => {
+    let permissionsGrantedSpy: jest.SpyInstance;
+    let openDialogSpy: jest.SpyInstance;
+    let popoutSpy: jest.SpyInstance;
+    let closePopoutSpy: jest.SpyInstance;
+
     beforeEach(() => {
       policyService.policiesByType$.mockReturnValue(of([null]));
+      permissionsGrantedSpy = jest.spyOn(BrowserApi, "permissionsGranted");
+      openDialogSpy = jest.spyOn(NativeMessagingPermissionDialogComponent, "open");
+      popoutSpy = jest
+        .spyOn(BrowserPopupUtils, "openCurrentPagePopout")
+        .mockResolvedValue(undefined);
+      closePopoutSpy = jest
+        .spyOn(BrowserPopupUtils, "closeCurrentPopupOrPopout")
+        .mockResolvedValue(undefined);
     });
 
-    it("persists the setting when enabled", async () => {
+    it("persists the setting without prompting when the permission is already granted", async () => {
+      permissionsGrantedSpy.mockResolvedValue(true);
+
       await component.ngOnInit();
       await component.updateAllowSharingUnlockStateWithDesktop(true);
 
+      expect(openDialogSpy).not.toHaveBeenCalled();
+      expect(popoutSpy).not.toHaveBeenCalled();
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
       ).toHaveBeenCalledWith(true, mockUserId);
     });
 
     it("persists the setting when disabled", async () => {
+      permissionsGrantedSpy.mockResolvedValue(true);
+
       await component.ngOnInit();
       await component.updateAllowSharingUnlockStateWithDesktop(false);
 
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
       ).toHaveBeenCalledWith(false, mockUserId);
+    });
+
+    it("pops out to request the permission when not granted and not in a popout", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(popoutSpy).toHaveBeenCalled();
+      expect(openDialogSpy).not.toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("persists and reloads when the permission dialog grants the permission in a popout", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      openDialogSpy.mockReturnValue({ closed: of(true) } as unknown as DialogRef<boolean>);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(openDialogSpy).toHaveBeenCalled();
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
+      expect(component.messagingService.send).toHaveBeenCalledWith("reloadExtension");
+      expect(closePopoutSpy).toHaveBeenCalled();
+    });
+
+    it("reverts the toggle when the permission dialog does not grant the permission", async () => {
+      permissionsGrantedSpy.mockResolvedValue(false);
+      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+      openDialogSpy.mockReturnValue({ closed: of(false) } as unknown as DialogRef<boolean>);
+
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(component.form.controls.allowSharingUnlockStateWithDesktop.value).toBe(false);
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).not.toHaveBeenCalled();
     });
   });
 });

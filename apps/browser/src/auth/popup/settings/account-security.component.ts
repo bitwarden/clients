@@ -292,8 +292,28 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
+    await this.promptForDesktopSharingPermissionIfNeeded();
     // Note: This will be removed after shared unlock is rolled out
     await this.promptForBiometricPermissionIfNeeded();
+  }
+
+  /**
+   * When the Account Security page was popped out specifically to enable desktop unlock sharing
+   * (signalled by the `autoRequestDesktopSharing` query param), continue the flow that was started
+   * in the popup. Enabling the form control triggers `updateAllowSharingUnlockStateWithDesktop`,
+   * which — now running in the popout — presents the permission dialog and requests the
+   * `nativeMessaging` permission.
+   */
+  private async promptForDesktopSharingPermissionIfNeeded() {
+    if (
+      !BrowserPopupUtils.inPopout(window) ||
+      this.route.snapshot.queryParamMap.get("autoRequestDesktopSharing") !== "true" ||
+      (await BrowserApi.permissionsGranted(["nativeMessaging"]))
+    ) {
+      return;
+    }
+
+    this.form.controls.allowSharingUnlockStateWithDesktop.setValue(true);
   }
 
   /**
@@ -402,10 +422,45 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   }
 
   async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {
+    const hadPermission = await BrowserApi.permissionsGranted(["nativeMessaging"]);
+    if (enabled && !hadPermission) {
+      if (!BrowserPopupUtils.inPopout(window)) {
+        // Requesting the permission outside a popout would close the window (granting reloads the
+        // extension), so pop out to a stable window. The popped-out window presents the dialog and
+        // requests the permission. With hash routing, Angular reads query params from after the
+        // hash route.
+        const url = new URL(window.location.href);
+        url.hash += (url.hash.includes("?") ? "&" : "?") + "autoRequestDesktopSharing=true";
+        await BrowserPopupUtils.openCurrentPagePopout(window, url.href);
+        return;
+      }
+
+      // In the popout, the dialog explains what enabling desktop sharing entails and requests the
+      // nativeMessaging permission. It closes with `true` when the permission was granted.
+      const granted = await firstValueFrom(
+        NativeMessagingPermissionDialogComponent.open(this.dialogService, {
+          type: NativeMessagingPermissionDialogType.SharedUnlock,
+        }).closed,
+      );
+      if (!granted) {
+        this.form.controls.allowSharingUnlockStateWithDesktop.setValue(false, { emitEvent: false });
+        return;
+      }
+    }
+
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop(enabled, userId);
     if (!enabled && !this.form.controls.allowSharingUnlockStateWithWeb.value) {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
+    }
+
+    if (enabled && !hadPermission) {
+      // The nativeMessaging permission was just granted. The extension must reload to register
+      // the native messaging host. State is saved above so it survives the reload. The background
+      // performs the reload once all popups/popouts have closed; this popout won't receive its own
+      // broadcast, so close it explicitly to unblock that reload.
+      this.messagingService.send("reloadExtension");
+      await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
     }
   }
 
