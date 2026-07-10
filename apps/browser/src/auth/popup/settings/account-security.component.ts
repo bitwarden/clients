@@ -100,7 +100,6 @@ import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
 })
 export class AccountSecurityComponent implements OnInit, OnDestroy {
   showMasterPasswordOnClientRestartOption = true;
-  biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
   protected readonly loading = signal(true);
