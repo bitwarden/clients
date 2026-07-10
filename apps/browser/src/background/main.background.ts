@@ -1833,8 +1833,6 @@ export default class MainBackground {
       if (authStatus === AuthenticationStatus.LoggedOut) {
         const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
         await this.switchAccount(nextUpAccount?.id);
-      } else {
-        this.biometricsService.startPolling(active.id);
       }
     }
 
@@ -1936,14 +1934,12 @@ export default class MainBackground {
       await switchPromise;
 
       if (userId == null) {
-        this.biometricsService.stopPolling();
         await this.refreshMenu();
         await this.updateOverlayCiphers();
         this.messagingService.send("goHome");
         return;
       }
 
-      this.biometricsService.startPolling(userId);
       nextAccountStatus = await this.authService.getAuthStatus(userId);
 
       await this.systemService.clearPendingClipboard();
