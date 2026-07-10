@@ -1,7 +1,7 @@
 use linux_keyutils::{KeyRing, KeyRingIdentifier};
 
 use super::{crypto::KEY_SIZE, SecureKeyContainer};
-use crate::secure_memory::secure_key::crypto::MemoryEncryptionKey;
+use crate::secure_key::crypto::MemoryEncryptionKey;
 
 /// The keys are bound to the process keyring.
 const KEY_RING_IDENTIFIER: KeyRingIdentifier = KeyRingIdentifier::Process;

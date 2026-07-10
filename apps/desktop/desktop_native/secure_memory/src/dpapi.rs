@@ -5,7 +5,7 @@ use windows::Win32::Security::Cryptography::{
     CRYPTPROTECTMEMORY_SAME_PROCESS,
 };
 
-use crate::secure_memory::{DecryptionError, SecureMemoryStore};
+use crate::{DecryptionError, SecureMemoryStore};
 
 /// https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata
 /// The DPAPI store encrypts data using the Windows Data Protection API (DPAPI). The key is bound
@@ -13,12 +13,18 @@ use crate::secure_memory::{DecryptionError, SecureMemoryStore};
 ///
 /// Note: Admin processes can still decrypt this memory:
 /// https://blog.slowerzs.net/posts/cryptdecryptmemory/
-pub(crate) struct DpapiSecretKVStore {
+pub struct DpapiSecretKVStore {
     map: HashMap<String, Vec<u8>>,
 }
 
+impl Default for DpapiSecretKVStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DpapiSecretKVStore {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         DpapiSecretKVStore {
             map: HashMap::new(),
         }
