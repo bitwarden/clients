@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
  *
  * @example
  * ```html
- * <bit-filter-chip key="type" placeholderText="Type">…</bit-filter-chip>
+ * <bit-filter-menu key="type" placeholderText="Type">…</bit-filter-menu>
  * <bit-filter-divider></bit-filter-divider>
  * <bit-filter-toggle key="favorite" label="Favorites"></bit-filter-toggle>
  * ```

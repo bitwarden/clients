@@ -36,7 +36,7 @@
     below md so the chips stay instantiated to back the dialog and the chips below.
   -->
   <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" [class.tw-hidden]="!isLargeScreen()">
-    <ng-content select="bit-filter-chip, bit-filter-toggle, bit-filter-divider"></ng-content>
+    <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
     @if (table) {
       <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-muted">
         {{ "itemCount" | i18n: itemCount() }}

@@ -12,7 +12,7 @@ import { FilterOptionComponent } from "./filter-option.component";
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /**
- * A labelled group of options within a `bit-filter-chip` menu (e.g. one org's
+ * A labelled group of options within a `bit-filter-menu` menu (e.g. one org's
  * collections). Like `bit-filter-option`, it's **declarative**: it holds the label,
  * collapse state, and its child options; the chip renders the header (with a
  * selected-count berry and, when `collapsible`, a toggle) and the option rows. Its

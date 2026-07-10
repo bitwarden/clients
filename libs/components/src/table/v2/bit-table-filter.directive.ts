@@ -6,7 +6,7 @@ import { FILTER_HOST } from "./filter-host";
 
 /**
  * Bridges a filter control to a filter host. Put `bitTableFilter` on a
- * `bit-filter-chip` / `bit-filter-toggle` projected into a `bit-table-v2`: the
+ * `bit-filter-menu` / `bit-filter-toggle` projected into a `bit-table-v2`: the
  * directive reads the chip's {@link FILTER_CONTROL} (its key and aggregated value)
  * and registers it with the table's {@link FILTER_HOST}, so the chip's value lands
  * in the table's `filterValues` object and the applied-filter count.

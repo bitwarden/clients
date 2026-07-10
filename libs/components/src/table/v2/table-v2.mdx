@@ -272,7 +272,7 @@ programmatically — for example, to persist and restore it:
 
 ## Filtering
 
-Filtering works like a reactive form. Filter controls — `bit-filter-chip`, `bit-filter-toggle`, and
+Filtering works like a reactive form. Filter controls — `bit-filter-menu`, `bit-filter-toggle`, and
 a `bit-search` — go in the toolbar, each with a `key`. The table collects their values into
 **`table.filterValues()`** (a `{ key: value }` object). You supply one **`[filter]`** function
 `(row, values)`, and the table derives everything from it: the visible rows, the select-all scope,
@@ -292,9 +292,9 @@ filter = (row: Member, f: Filters) =>
 ```html
 <bit-table-v2 [tableDef]="table" [filter]="filter" [filters]="{ type: 'login' }">
   <bit-table-toolbar>
-    <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+    <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
-    </bit-filter-chip>
+    </bit-filter-menu>
     <bit-filter-toggle
       key="favorites"
       label="Favorites"
@@ -343,7 +343,7 @@ projected `<bit-search>` is adopted as the `search` filter (see [Search](#search
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
     <button slot="end" bitButton buttonType="primary">New</button>
-    <bit-filter-chip key="type" placeholderText="Type" bitTableFilter>...</bit-filter-chip>
+    <bit-filter-menu key="type" placeholderText="Type" bitTableFilter>...</bit-filter-menu>
     <bit-filter-divider></bit-filter-divider>
     <bit-filter-toggle
       key="favorites"

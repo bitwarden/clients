@@ -1,4 +1,4 @@
-export { FilterChipComponent } from "./filter-chip.component";
+export { FilterMenuComponent } from "./filter-menu.component";
 export { FilterToggleComponent } from "./filter-toggle.component";
 export { FilterOptionComponent } from "./filter-option.component";
 export { FilterSectionComponent } from "./filter-section.component";

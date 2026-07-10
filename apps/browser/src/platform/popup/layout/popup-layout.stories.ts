@@ -516,25 +516,25 @@ type TableVaultFilters = {
           <bit-table-toolbar>
             <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
 
-            <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+            <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
               @for (option of typeOptions(); track option.value) {
                 <bit-filter-option [value]="option.value" [count]="option.count">
                   {{ option.label }}
                 </bit-filter-option>
               }
-            </bit-filter-chip>
+            </bit-filter-menu>
 
             <bit-filter-divider></bit-filter-divider>
 
-            <bit-filter-chip key="vault" placeholderText="Vault" multiple bitTableFilter>
+            <bit-filter-menu key="vault" placeholderText="Vault" multiple bitTableFilter>
               @for (option of vaultOptions(); track option.value) {
                 <bit-filter-option [value]="option.value" [count]="option.count">
                   {{ option.label }}
                 </bit-filter-option>
               }
-            </bit-filter-chip>
+            </bit-filter-menu>
 
-            <bit-filter-chip key="collection" placeholderText="Collections" multiple bitTableFilter>
+            <bit-filter-menu key="collection" placeholderText="Collections" multiple bitTableFilter>
               @for (org of collectionOrgs(); track org.name) {
                 <bit-filter-section [label]="org.name" collapsible>
                   @for (collection of org.collections; track collection.id) {
@@ -544,7 +544,7 @@ type TableVaultFilters = {
                   }
                 </bit-filter-section>
               }
-            </bit-filter-chip>
+            </bit-filter-menu>
 
             <bit-filter-toggle
               key="favorite"

@@ -20,7 +20,7 @@ export interface FilterControl {
 export const FILTER_CONTROL = new InjectionToken<FilterControl>("FilterControl");
 
 /**
- * The selection surface a `bit-filter-chip` provides to its projected
+ * The selection surface a `bit-filter-menu` provides to its projected
  * `bit-filter-option`s — single- or multi-select, the current selection, a
  * toggle, and the in-menu search term (options self-hide when it doesn't match).
  */
@@ -35,11 +35,11 @@ export interface FilterGroup {
   toggle(value: unknown): void;
 }
 
-/** Provided by `bit-filter-chip`; injected by `bit-filter-option`. */
+/** Provided by `bit-filter-menu`; injected by `bit-filter-option`. */
 export const FILTER_GROUP = new InjectionToken<FilterGroup>("FilterGroup");
 
 /**
- * How a filter (`bit-filter-chip` / `bit-filter-toggle`) presents itself in the
+ * How a filter (`bit-filter-menu` / `bit-filter-toggle`) presents itself in the
  * responsive filter dialog — the small-screen view where the chip row collapses
  * into a single trigger and each filter becomes a row that drills into its
  * options. The dialog reads these off the projected filters; the desktop chip row
@@ -69,7 +69,7 @@ export interface FilterPresenter {
 export const FILTER_PRESENTER = new InjectionToken<FilterPresenter>("FilterPresenter");
 
 /**
- * A top-level entry projected into a `bit-filter-chip` — a `bit-filter-option` or a
+ * A top-level entry projected into a `bit-filter-menu` — a `bit-filter-option` or a
  * `bit-filter-section`. The chip queries these (in document order) to render the menu
  * rows itself, branching on `kind`. Options and sections are declarative: they hold
  * data, the chip draws the UI, so the same rows re-render cleanly in the popover and
@@ -79,5 +79,5 @@ export interface FilterEntry {
   readonly kind: "option" | "section";
 }
 
-/** Provided by `bit-filter-option` and `bit-filter-section`; injected by `bit-filter-chip`. */
+/** Provided by `bit-filter-option` and `bit-filter-section`; injected by `bit-filter-menu`. */
 export const FILTER_ENTRY = new InjectionToken<FilterEntry>("FilterEntry");

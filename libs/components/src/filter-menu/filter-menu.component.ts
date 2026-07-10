@@ -63,14 +63,14 @@ const CLEAR_FILTER = Symbol("clear-filter");
  *
  * @example
  * ```html
- * <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+ * <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
  *   <bit-filter-option [value]="'login'">Login</bit-filter-option>
- * </bit-filter-chip>
+ * </bit-filter-menu>
  * ```
  */
 @Component({
-  selector: "bit-filter-chip",
-  templateUrl: "./filter-chip.component.html",
+  selector: "bit-filter-menu",
+  templateUrl: "./filter-menu.component.html",
   imports: [
     BerryComponent,
     ChipContentComponent,
@@ -86,15 +86,15 @@ const CLEAR_FILTER = Symbol("clear-filter");
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-    { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterChipComponent) },
-    { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterChipComponent) },
-    { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterChipComponent) },
+    { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterMenuComponent) },
+    { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterMenuComponent) },
+    { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterMenuComponent) },
   ],
   hostDirectives: [
     { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth", "maxWidthClass"] },
   ],
 })
-export class FilterChipComponent implements FilterGroup, FilterControl, FilterPresenter {
+export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter {
   /** The chip's key — the property its value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
 

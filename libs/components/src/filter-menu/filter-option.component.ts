@@ -11,7 +11,7 @@ import {
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /**
- * A selectable option inside a `bit-filter-chip`. It's **declarative**: it holds the
+ * A selectable option inside a `bit-filter-menu`. It's **declarative**: it holds the
  * `value`, optional `count`, and `disabled` state, and captures its projected label
  * text — it renders no visible UI of its own. The chip draws the actual row (indicator,
  * label, count) and handles selection, so the same options render independently in the

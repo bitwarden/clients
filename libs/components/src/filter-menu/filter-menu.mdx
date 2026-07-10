@@ -6,7 +6,7 @@ import * as stories from "./filter-menu.stories";
 
 # Filter Menu
 
-A composable family of filter chips for narrowing a list or table. A `bit-filter-chip` is a chip
+A composable family of filter chips for narrowing a list or table. A `bit-filter-menu` is a chip
 trigger with a popover menu of options (optionally grouped by sections). A `bit-filter-toggle` is a
 single on/off chip with no menu.
 
@@ -22,20 +22,20 @@ a `bit-table-v2`, add the `bitTableFilter` directive and the chip's value lands 
 A chip is single-select by default; add `multiple` for a checkbox-style multi-select.
 
 ```html
-<bit-filter-chip key="type" placeholderText="Type" nullLabel="All">
+<bit-filter-menu key="type" placeholderText="Type" nullLabel="All">
   <bit-filter-option [value]="'login'" [count]="12">Login</bit-filter-option>
   <bit-filter-option [value]="'card'" [count]="3">Card</bit-filter-option>
-</bit-filter-chip>
+</bit-filter-menu>
 
-<bit-filter-chip key="vault" placeholderText="Vault" multiple>
+<bit-filter-menu key="vault" placeholderText="Vault" multiple>
   <bit-filter-option [value]="'mine'" [count]="20">My vault</bit-filter-option>
   <bit-filter-option [value]="'acme'" [count]="11">Acme corporation</bit-filter-option>
-</bit-filter-chip>
+</bit-filter-menu>
 ```
 
 | Component            | Purpose                                                                                           |
 | -------------------- | ------------------------------------------------------------------------------------------------- |
-| `bit-filter-chip`    | Chip trigger + popover; owns the selection (`multiple` for multi).                                |
+| `bit-filter-menu`    | Chip trigger + popover; owns the selection (`multiple` for multi).                                |
 | `bit-filter-toggle`  | Single on/off chip (no menu); boolean value; icon fills active.                                   |
 | `bit-filter-option`  | A selectable row with a radio/checkbox indicator and a `count`.                                   |
 | `bit-filter-section` | A labelled, optionally collapsible group of options; shows a count berry of its selected options. |
@@ -67,7 +67,7 @@ matchers and no per-chip state — see
 [Table V2 › Filtering](?path=/docs/component-library-table-v2--docs).
 
 ```html
-<bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+<bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
   <bit-filter-option [value]="'login'">Login</bit-filter-option>
-</bit-filter-chip>
+</bit-filter-menu>
 ```

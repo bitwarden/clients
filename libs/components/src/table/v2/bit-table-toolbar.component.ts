@@ -23,7 +23,7 @@ import { BitTableV2Component } from "./table-v2.component";
 
 /**
  * Toolbar for `bit-table-v2`, rendered inside the table chrome above the header
- * row. Project a `<bit-search>` (its own slot), filter chips (`bit-filter-chip` /
+ * row. Project a `<bit-search>` (its own slot), filter chips (`bit-filter-menu` /
  * `bit-filter-toggle`), and arbitrary controls via `slot="end"`.
  *
  * Filter chips register their values with the table directly via the

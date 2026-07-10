@@ -197,9 +197,9 @@ filter = (row: User, f: Filters) =>
 <bit-table-v2 [tableDef]="table" [filter]="filter">
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" placeholder="Search"></bit-search>
-    <bit-filter-chip key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
+    <bit-filter-menu key="type" placeholderText="Type" nullLabel="All" bitTableFilter>
       <bit-filter-option [value]="'login'">Login</bit-filter-option>
-    </bit-filter-chip>
+    </bit-filter-menu>
     <bit-filter-toggle key="favorites" label="Favorites" icon="bwi-star" bitTableFilter />
   </bit-table-toolbar>
   …columns…
