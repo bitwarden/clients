@@ -647,6 +647,14 @@
   --color-nav-border-secondary-focus: var(--color-white);
 }
 
+/* Render browser-drawn form control UI (date picker, spin buttons, select dropdowns) dark so it
+ * stays visible on dark backgrounds. Author-set styles still win. */
+.theme_dark input,
+.theme_dark textarea,
+.theme_dark select {
+  color-scheme: dark;
+}
+
 @layer components {
   /**
   * tw-break-words does not work with table cells:
