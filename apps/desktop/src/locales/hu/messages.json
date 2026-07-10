@@ -135,8 +135,20 @@
   "attachments": {
     "message": "Mellékletek"
   },
+  "attachmentsNeedFix": {
+    "message": "Ennek az elemnek régi fájl mellékletei vannak, amelyeket javítani kell."
+  },
   "viewItem": {
     "message": "Elem megtekintése"
+  },
+  "viewCollectionWithName": {
+    "message": "Gyűjtemény megtekintése - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Bejelentkezés megtekintése",
@@ -173,6 +185,42 @@
   "viewItemHeaderPassport": {
     "message": "Útlevél megtekintése",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Bejelentkezés hozzáadása",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kártya hozzáadása",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Személyazonossság hozzáadása",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Jegyzet hozzáadása",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet hozzáadása",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH kulcs hozzáadása",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bankszámla hozzáadása",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Licensz hozzáadása",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Útlevél hozzáadása",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
@@ -229,6 +277,22 @@
   "editItemHeaderSecureNote": {
     "message": "Biztonságos jegyzet szerkesztése",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "SSH kulcs szerkesztése",
@@ -322,6 +386,29 @@
     "message": "Biztosan véglegesen törlésre kerüljön ez a Send elem?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Létrehozás",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Gyűjtemény hozzáadása"
+  },
   "new": {
     "message": "Új",
     "description": "for adding new items"
@@ -340,6 +427,15 @@
   },
   "editItem": {
     "message": "Elem szerkesztése"
+  },
+  "editItemWithName": {
+    "message": "Elem szerkesztése - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "Email cím"
@@ -808,6 +904,45 @@
   },
   "deleteItem": {
     "message": "Elem törlése"
+  },
+  "deleteItemsCount": {
+    "message": "$COUNT$ elem törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Ez az elem a lomtárba kerül. 30 nap után véglegesen törlődik."
+  },
+  "deleteItemsDesc": {
+    "message": "Ezek az elemek a lomtárba kerülnek. 30 nap után véglegesen törlésre kerülnek."
+  },
+  "deleteItemPermanently": {
+    "message": "Elem végleges törlése"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "$COUNT$ elem végleges törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Ez az elem nem állítható vissza."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Ezeket az elemeket nem lehet visszaállítani."
+  },
+  "deleteSelection": {
+    "message": "Kijelöltek törlése"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "A kiválasztott elemek és gyűjtemények végleges törlésre kerülnek."
   },
   "deleteFolder": {
     "message": "Mappa törlése"
@@ -2411,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Az archivált elem visszaállításra került."
   },
+  "archivedItemsRestored": {
+    "message": "Az archivált elemek visszaállításra kerültek."
+  },
   "restoredItem": {
     "message": "Visszaállított elem"
   },
+  "restoredItems": {
+    "message": "Az elemek visszaállításra kerültek."
+  },
   "permanentlyDelete": {
     "message": "Végleges törlés"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Az elemek véglegesen törlésre kerültek."
+  },
+  "deletedItems": {
+    "message": "Az elemek a lomtárba kerültek."
+  },
+  "deletedCollections": {
+    "message": "A gyűjtemények a törlésre kerültek."
+  },
+  "collectionDeleted": {
+    "message": "A gyűjtemény törlésre került."
+  },
+  "collectionsDeleted": {
+    "message": "A gyűjtemények törlésre kerültek."
+  },
+  "movedItems": {
+    "message": "Az elemek áthelyezésre kerültek."
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Kijelentkezve az összes széf elérés eltávolításra kerül és webes hitelesítésre van szükség az időkifutás után. Biztosan szeretnénk használni ezt a beállítást?"
@@ -2768,6 +2927,10 @@
   },
   "createSend": {
     "message": "Új Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send elem hozzáadása",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4641,14 +4804,36 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 véglegesen átkerül $ORG$ szervezeti egységbe. A továbbiakban nem leszünk a tulajdonosa ennek az elemnek.",
     "placeholders": {
       "org": {
         "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 elem véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elem tulajdonosa."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott szervezethez. A továbbiakban nem leszünk az elemek tulajdonosa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül $ORG$ szervezeti egységbe. A továbbiakban nem leszünk a tulajdonosa ezeknek az elemeknek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
         "example": "Organization name"
       }
     }
@@ -4804,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Archiválás visszavonása és mentés"
+  },
+  "archiveItemsPlural": {
+    "message": "$NUM$ elem archiválása",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "$NUM$ elem archiválása",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Az archiválás után ezek az elemek kizárásra kerülnek a keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
+  "bulkArchiveItems": {
+    "message": "Az elemek archiválásra kerültek."
+  },
+  "bulkUnarchiveItems": {
+    "message": "Az elemek visszavételre kerültek az archivumból."
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Célmappa kiválasztás $COUNT$ kijelölt elem hozzáadásához.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Mappa kiválasztása"
   },
   "restartPremium": {
     "message": "Prémium előfizetés újraindítása"
@@ -5357,5 +5583,36 @@
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
+  },
+  "addToFolder": {
+    "message": "Hozzáadás mappához"
+  },
+  "deleteCollection": {
+    "message": "Gyűjtemény törlése"
+  },
+  "deleteCollectionsCount": {
+    "message": "$COUNT$ gyűjtemény törlése",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "A gyűjtemény véglegesen törlésre kerül."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Ezek a gyűjtemények végleges törlésre kerülnek."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

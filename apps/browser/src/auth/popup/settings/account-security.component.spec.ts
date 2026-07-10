@@ -170,8 +170,10 @@ describe("AccountSecurityComponent", () => {
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
-    sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(true));
-    sharedUnlockSettingsService.setAllowSharingUnlockState.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.allowSharingUnlockStateWithWeb$.mockReturnValue(of(false));
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop.mockResolvedValue(undefined);
+    sharedUnlockSettingsService.setAllowSharingUnlockStateWithWeb.mockResolvedValue(undefined);
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 
@@ -199,38 +201,6 @@ describe("AccountSecurityComponent", () => {
     await component.ngOnInit();
 
     await expect(firstValueFrom(component.pinEnabled$)).resolves.toBe(true);
-  });
-
-  describe("shared unlock description", () => {
-    it("uses the Safari-specific description key on Safari", () => {
-      platformUtilsService.isSafari.mockReturnValue(true);
-      platformUtilsService.isFirefox.mockReturnValue(false);
-
-      const safariFixture = TestBed.createComponent(AccountSecurityComponent);
-      const safariComponent = safariFixture.componentInstance;
-
-      expect(safariComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescriptionSafari");
-    });
-
-    it("uses the Firefox-specific description key on Firefox", () => {
-      platformUtilsService.isSafari.mockReturnValue(false);
-      platformUtilsService.isFirefox.mockReturnValue(true);
-
-      const firefoxFixture = TestBed.createComponent(AccountSecurityComponent);
-      const firefoxComponent = firefoxFixture.componentInstance;
-
-      expect(firefoxComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescriptionFirefox");
-    });
-
-    it("uses the generic description key on non-Safari and non-Firefox browsers", () => {
-      platformUtilsService.isSafari.mockReturnValue(false);
-      platformUtilsService.isFirefox.mockReturnValue(false);
-
-      const defaultFixture = TestBed.createComponent(AccountSecurityComponent);
-      const defaultComponent = defaultFixture.componentInstance;
-
-      expect(defaultComponent.sharedUnlockDescriptionKey).toBe("sharedUnlockDescription");
-    });
   });
 
   it("pin enabled when RemoveUnlockWithPin policy is disabled", async () => {
@@ -513,6 +483,30 @@ describe("AccountSecurityComponent", () => {
         expect(component.form.controls.biometric.value).toBe(false);
         expect(trySetupBiometricsSpy).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("updateAllowSharingUnlockStateWithDesktop", () => {
+    beforeEach(() => {
+      policyService.policiesByType$.mockReturnValue(of([null]));
+    });
+
+    it("persists the setting when enabled", async () => {
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(true);
+
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(true, mockUserId);
+    });
+
+    it("persists the setting when disabled", async () => {
+      await component.ngOnInit();
+      await component.updateAllowSharingUnlockStateWithDesktop(false);
+
+      expect(
+        sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
+      ).toHaveBeenCalledWith(false, mockUserId);
     });
   });
 

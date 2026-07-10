@@ -82,7 +82,7 @@ export class DefaultChangePasswordService implements ChangePasswordService {
       userKey,
     );
 
-    const request = PasswordRequest.newConstructor(
+    const request = new PasswordRequest(
       currentAuthenticationData.masterPasswordAuthenticationHash,
       newAuthenticationData,
       newUnlockData,
