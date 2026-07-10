@@ -49,6 +49,7 @@ export {
 } from "./abstractions/responses/rotation-config-details.response";
 export { RotationConfigResponse } from "./abstractions/responses/rotation-config.response";
 export { RotationDaemonResponse } from "./abstractions/responses/rotation-daemon.response";
+export { RotationDaemonDetailsResponse } from "./abstractions/responses/rotation-daemon-details.response";
 export { TargetSystemResponse } from "./abstractions/responses/target-system.response";
 
 // Rotation const objects, types, and PasswordPolicy

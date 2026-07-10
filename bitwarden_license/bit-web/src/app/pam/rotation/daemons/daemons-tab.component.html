@@ -28,7 +28,16 @@
       <tr bitRow *ngFor="let r of rows$ | async">
         <!-- Name -->
         <td bitCell>
-          <span class="tw-font-semibold">{{ r.name }}</span>
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-font-semibold"
+            (click)="openDetail(r)"
+            id="daemons-tab_button_detail-{{ r.id }}"
+          >
+            {{ r.name }}
+          </button>
         </td>
 
         <!-- Status badge -->

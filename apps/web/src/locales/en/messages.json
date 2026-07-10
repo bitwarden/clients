@@ -16130,6 +16130,21 @@
   "pamDaemonNoResults": {
     "message": "No daemons match your search."
   },
+  "pamDaemonDetailTitle": {
+    "message": "Daemon"
+  },
+  "pamDaemonNotFound": {
+    "message": "Daemon not found."
+  },
+  "pamDaemonDetailsHeading": {
+    "message": "Details"
+  },
+  "pamDaemonActivityHeading": {
+    "message": "Recent activity"
+  },
+  "pamDaemonActivityEmpty": {
+    "message": "No rotation activity yet."
+  },
   "pamDaemonStatusEnrolled": {
     "message": "Enrolled"
   },

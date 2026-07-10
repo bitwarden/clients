@@ -27,6 +27,7 @@ import { AccessRuleResponse } from "./responses/access-rule.response";
 import { DaemonRegistrationResponse } from "./responses/daemon-registration.response";
 import { RotationConfigDetailsResponse } from "./responses/rotation-config-details.response";
 import { RotationConfigResponse } from "./responses/rotation-config.response";
+import { RotationDaemonDetailsResponse } from "./responses/rotation-daemon-details.response";
 import { RotationDaemonResponse } from "./responses/rotation-daemon.response";
 import { TargetSystemResponse } from "./responses/target-system.response";
 
@@ -154,6 +155,12 @@ export abstract class PamApiService {
   abstract listRotationDaemons(
     organizationId: OrganizationId,
   ): Promise<ListResponse<RotationDaemonResponse>>;
+
+  /** GET /organizations/{orgId}/rotation/daemons/{daemonId} */
+  abstract getRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+  ): Promise<RotationDaemonDetailsResponse>;
 
   /** POST /organizations/{orgId}/rotation/daemons */
   abstract registerRotationDaemon(

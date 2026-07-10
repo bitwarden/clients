@@ -24,6 +24,7 @@ import {
   RotationConfigDetailsResponse,
   RotationConfigResponse,
   RotationConfigSettingsRequest,
+  RotationDaemonDetailsResponse,
   RotationDaemonResponse,
   TargetSystemCreateRequest,
   TargetSystemNameRequest,
@@ -264,6 +265,20 @@ export class DefaultPamApiService implements PamApiService {
       true,
     );
     return new ListResponse(r, RotationDaemonResponse);
+  }
+
+  async getRotationDaemon(
+    organizationId: OrganizationId,
+    daemonId: string,
+  ): Promise<RotationDaemonDetailsResponse> {
+    return new RotationDaemonDetailsResponse(
+      await this.send(
+        "GET",
+        `/organizations/${organizationId}/rotation/daemons/${daemonId}`,
+        null,
+        true,
+      ),
+    );
   }
 
   async registerRotationDaemon(

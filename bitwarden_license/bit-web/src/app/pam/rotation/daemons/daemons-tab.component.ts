@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
 import { DaemonStatus, RotationDaemonResponse, TargetSystemResponse } from "@bitwarden/bit-pam";
@@ -14,6 +14,7 @@ import {
   DialogService,
   IconButtonModule,
   IconModule,
+  LinkModule,
   MenuModule,
   SearchModule,
   TableDataSource,
@@ -37,6 +38,7 @@ import { DaemonRow, DaemonsService } from "./daemons.service";
     BadgeModule,
     IconButtonModule,
     IconModule,
+    LinkModule,
     MenuModule,
     SearchModule,
     TableModule,
@@ -48,6 +50,7 @@ export class DaemonsTabComponent {
   protected readonly DaemonStatus = DaemonStatus;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly daemonsService = inject(DaemonsService);
   private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
@@ -91,6 +94,10 @@ export class DaemonsTabComponent {
   }
 
   protected readonly totalRows = computed(() => this.rows().length);
+
+  /** Navigate to the daemon detail page (sibling of the shell). */
+  protected readonly openDetail = (row: DaemonRow): Promise<boolean> =>
+    this.router.navigate(["..", "daemons", row.id], { relativeTo: this.route });
 
   protected readonly openAssignDialog = async (row: DaemonRow): Promise<void> => {
     const assigned = new Set(row.daemon.assignments);

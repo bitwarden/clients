@@ -824,7 +824,7 @@ describe("DefaultPamApiService", () => {
             Name: "My Daemon",
             Status: 0,
             IsConnected: true,
-            Assignments: ["ts-1"],
+            AssignedTargetSystemIds: ["ts-1"],
           },
         ],
         ContinuationToken: null,
@@ -845,6 +845,41 @@ describe("DefaultPamApiService", () => {
       expect(result.data[0].status).toBe(0);
       expect(result.data[0].isConnected).toBe(true);
       expect(result.data[0].assignments).toEqual(["ts-1"]);
+    });
+  });
+
+  describe("getRotationDaemon", () => {
+    it("GETs /organizations/{orgId}/rotation/daemons/{id} and parses jobs", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "daemon-1",
+        Name: "My Daemon",
+        Status: 0,
+        IsConnected: true,
+        AssignedTargetSystemIds: ["ts-1"],
+        Jobs: [
+          {
+            Id: "job-1",
+            Source: 0,
+            Status: 2,
+            CreatedAt: "2026-07-01T00:00:00Z",
+            Attempts: [],
+          },
+        ],
+      });
+
+      const result = await service.getRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/daemons/daemon-1",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("daemon-1");
+      expect(result.assignments).toEqual(["ts-1"]);
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0].id).toBe("job-1");
     });
   });
 

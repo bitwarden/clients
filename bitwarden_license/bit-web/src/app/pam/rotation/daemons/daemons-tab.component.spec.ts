@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router, provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -72,6 +72,7 @@ describe("DaemonsTabComponent", () => {
     await TestBed.configureTestingModule({
       imports: [DaemonsTabComponent],
       providers: [
+        provideRouter([]),
         { provide: DaemonsService, useValue: daemonsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: DialogService, useValue: dialogService },
@@ -92,6 +93,22 @@ describe("DaemonsTabComponent", () => {
 
   it("calls daemonsService.load on init", async () => {
     expect(daemonsService.load).toHaveBeenCalledWith("org-1");
+  });
+
+  it("navigates to the daemon detail page on openDetail", async () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    const row = makeDaemonRow({ id: "daemon-9" });
+
+    const component = fixture.componentInstance as unknown as {
+      openDetail: (row: DaemonRow) => Promise<boolean>;
+    };
+    await component.openDetail(row);
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "daemons", "daemon-9"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
   });
 
   it("sets the dataSource.data from the rows signal", () => {
