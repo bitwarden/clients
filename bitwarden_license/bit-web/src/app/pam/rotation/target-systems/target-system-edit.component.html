@@ -173,12 +173,12 @@
     </form>
   } @else {
     <!-- ================================================================
-         EDIT MODE — two independent save forms: name + (automatic) policy
+         EDIT MODE — one Save action persists name + (automatic) policy
          ================================================================ -->
 
-    <!-- Name card -->
-    <form [formGroup]="nameForm" [bitSubmit]="submitName" class="tw-max-w-4xl">
-      <bit-section>
+    <div class="tw-max-w-4xl">
+      <!-- Name card -->
+      <bit-section [formGroup]="nameForm">
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamTargetSystemGeneralInfoHeading" | i18n }}</h2>
         </bit-section-header>
@@ -210,32 +210,9 @@
         </bit-card>
       </bit-section>
 
-      <div class="tw-flex tw-gap-2 tw-mb-6">
-        <button
-          type="submit"
-          bitButton
-          buttonType="primary"
-          bitFormButton
-          id="target-system-edit_button_save-name"
-        >
-          {{ "save" | i18n }}
-        </button>
-        <button
-          type="button"
-          bitButton
-          buttonType="secondary"
-          (click)="cancel()"
-          id="target-system-edit_button_cancel"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-      </div>
-    </form>
-
-    <!-- Policy card (Automatic only) -->
-    @if (showPolicyCard()) {
-      <form [formGroup]="policyForm" [bitSubmit]="submitPolicy" class="tw-max-w-4xl">
-        <bit-section>
+      <!-- Policy card (Automatic only) -->
+      @if (showPolicyCard()) {
+        <bit-section [formGroup]="policyForm">
           <bit-section-header>
             <h2 bitTypography="h5">{{ "pamTargetSystemPolicyHeading" | i18n }}</h2>
           </bit-section-header>
@@ -321,19 +298,28 @@
             }
           </bit-card>
         </bit-section>
+      }
 
-        <div class="tw-flex tw-gap-2">
-          <button
-            type="submit"
-            bitButton
-            buttonType="primary"
-            bitFormButton
-            id="target-system-edit_button_save-policy"
-          >
-            {{ "save" | i18n }}
-          </button>
-        </div>
-      </form>
-    }
+      <div class="tw-flex tw-gap-2">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="submitEdit"
+          id="target-system-edit_button_save"
+        >
+          {{ "save" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          (click)="cancel()"
+          id="target-system-edit_button_cancel"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </div>
+    </div>
   }
 }

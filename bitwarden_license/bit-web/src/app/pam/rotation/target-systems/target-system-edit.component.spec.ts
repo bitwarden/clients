@@ -362,34 +362,22 @@ describe("TargetSystemEditComponent — edit mode", () => {
     expect(nameForm.getRawValue().name).toBe("Prod Entra");
   });
 
-  it("calls renameTargetSystem on submitName", async () => {
+  it("persists name and policy together on submitEdit (Automatic)", async () => {
     pamApi.renameTargetSystem.mockResolvedValue(makeSystem({ name: "Renamed" }));
+    pamApi.updateTargetSystemPolicy.mockResolvedValue(makeSystem());
 
     const comp = fixture.componentInstance as unknown as {
       nameForm: { patchValue: (v: unknown) => void };
-      submitName: () => Promise<void>;
+      submitEdit: () => Promise<void>;
     };
     comp.nameForm.patchValue({ name: "Renamed" });
-    await comp.submitName();
+    await comp.submitEdit();
 
     expect(pamApi.renameTargetSystem).toHaveBeenCalledWith(
       "org-123",
       "sys-1",
       expect.objectContaining({ name: "Renamed" }),
     );
-    expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "success" }),
-    );
-  });
-
-  it("calls updateTargetSystemPolicy on submitPolicy", async () => {
-    pamApi.updateTargetSystemPolicy.mockResolvedValue(makeSystem());
-
-    const comp = fixture.componentInstance as unknown as {
-      submitPolicy: () => Promise<void>;
-    };
-    await comp.submitPolicy();
-
     expect(pamApi.updateTargetSystemPolicy).toHaveBeenCalledWith(
       "org-123",
       "sys-1",

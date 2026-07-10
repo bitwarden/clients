@@ -98,10 +98,9 @@ function buildPolicyGroup(fb: FormBuilder): PolicyGroup {
  * kind select, password policy, session-termination checkbox.
  *
  * Edit mode (targetSystemId param present): method/kind are display-only (immutable once
- * created). Two independent save actions:
- *  - Name card → PUT name
- *  - Policy card (Automatic only) → PUT policy (with withdrawal warning for
- *    supportsSessionTermination when unchecking)
+ * created). A single Save action persists the name and — for Automatic systems — the
+ * password policy together (with a withdrawal warning for supportsSessionTermination when
+ * unchecking).
  */
 @Component({
   templateUrl: "./target-system-edit.component.html",
@@ -347,57 +346,52 @@ export class TargetSystemEditComponent {
     }
   };
 
-  /** Edit mode: save just the name. */
-  protected readonly submitName = async (): Promise<void> => {
+  /**
+   * Edit mode: single save action. Persists the name and — for Automatic systems —
+   * the password policy in one operation, so the page shows a single Save button
+   * rather than one per card.
+   */
+  protected readonly submitEdit = async (): Promise<void> => {
     this.nameForm.markAllAsTouched();
-    if (this.nameForm.invalid) {
+    this.policyForm.markAllAsTouched();
+
+    const automatic = this.existing()?.method === TargetSystemMethod.Automatic;
+    if (this.nameForm.invalid || (automatic && this.policyForm.invalid)) {
       return;
     }
+
     const { name } = this.nameForm.getRawValue();
     try {
-      const updated = await this.pamApi.renameTargetSystem(
+      let updated = await this.pamApi.renameTargetSystem(
         this.organizationId,
         this.targetSystemId!,
         new TargetSystemNameRequest({ name }),
       );
-      this.existing.set(updated);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamTargetSystemNameSaved"),
-      });
-    } catch (e) {
-      this.showError(e);
-    }
-  };
 
-  /** Edit mode: save the password policy (Automatic only). */
-  protected readonly submitPolicy = async (): Promise<void> => {
-    this.policyForm.markAllAsTouched();
-    if (this.policyForm.invalid) {
-      return;
-    }
-    const policy = this.policyForm.getRawValue();
-    const passwordPolicy: PasswordPolicy = {
-      minLength: policy.minLength,
-      maxLength: policy.maxLength,
-      includeUppercase: policy.includeUppercase,
-      includeLowercase: policy.includeLowercase,
-      includeDigits: policy.includeDigits,
-      includeSymbols: policy.includeSymbols,
-    };
-    try {
-      const updated = await this.pamApi.updateTargetSystemPolicy(
-        this.organizationId,
-        this.targetSystemId!,
-        new TargetSystemPolicyRequest({
-          passwordPolicy,
-          supportsSessionTermination: policy.supportsSessionTermination,
-        }),
-      );
+      if (automatic) {
+        const policy = this.policyForm.getRawValue();
+        const passwordPolicy: PasswordPolicy = {
+          minLength: policy.minLength,
+          maxLength: policy.maxLength,
+          includeUppercase: policy.includeUppercase,
+          includeLowercase: policy.includeLowercase,
+          includeDigits: policy.includeDigits,
+          includeSymbols: policy.includeSymbols,
+        };
+        updated = await this.pamApi.updateTargetSystemPolicy(
+          this.organizationId,
+          this.targetSystemId!,
+          new TargetSystemPolicyRequest({
+            passwordPolicy,
+            supportsSessionTermination: policy.supportsSessionTermination,
+          }),
+        );
+      }
+
       this.existing.set(updated);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamTargetSystemPolicySaved"),
+        message: this.i18nService.t("pamTargetSystemSaved"),
       });
     } catch (e) {
       this.showError(e);

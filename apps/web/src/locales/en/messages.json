@@ -16010,11 +16010,8 @@
   "pamTargetSystemCreated": {
     "message": "Target system created."
   },
-  "pamTargetSystemNameSaved": {
-    "message": "Name saved."
-  },
-  "pamTargetSystemPolicySaved": {
-    "message": "Password policy saved."
+  "pamTargetSystemSaved": {
+    "message": "Target system saved."
   },
   "pamTargetSystemNotFound": {
     "message": "Target system not found."
