@@ -114,6 +114,19 @@ describe("SearchService", () => {
 
       expect(result).toEqual([ciphers[0]]);
     });
+
+    it("matches ciphers by notes", async () => {
+      const cipherWithNotes = createCipherView("cipher-1", "My Login");
+      cipherWithNotes.notes = "recovery code: abc123";
+      const cipherWithoutNotes = createCipherView("cipher-2", "Other Login");
+
+      const result = await service.searchCiphers(userId, null, "recovery", [
+        cipherWithNotes,
+        cipherWithoutNotes,
+      ]);
+
+      expect(result).toEqual([cipherWithNotes]);
+    });
   });
 
   describe("searchCiphersBasic", () => {

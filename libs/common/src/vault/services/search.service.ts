@@ -156,6 +156,11 @@ export class SearchService implements SearchServiceAbstraction {
         ) {
           return true;
         }
+
+        const notes = CipherViewLikeUtils.getNotes(c);
+        if (notes && normalizeSearchQuery(notes.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
         return false;
       });
     });
