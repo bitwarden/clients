@@ -1,6 +1,6 @@
 import { IframeAllowCacheBackground } from "./iframe-allow-cache.background";
 import { PermissionsPolicyHeaderCacheBackground } from "./permissions-policy-header-cache.background";
-import { PermissionsPolicyParser } from "./permissions-policy-parser";
+import { NoOpPermissionsPolicyParser, PermissionsPolicyParser } from "./permissions-policy-parser";
 import {
   ParsedPermissionsPolicy,
   PermissionsPolicyDirective,
@@ -78,6 +78,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation(null),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -90,6 +91,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation(new Error("boom")),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -102,6 +104,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation([frame(TOP_FRAME_ID, TOP_URL)]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -114,6 +117,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation([frame(TOP_FRAME_ID, "not a url")]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -123,11 +127,12 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
   });
 
   describe("top-level frame", () => {
-    it("permits the feature when no header was cached (no-op parser default)", async () => {
+    it("permits the feature when no header was cached (no-op parser)", async () => {
       const helper = new WebAuthnPermissionsPolicyBackground(
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation([frame(TOP_FRAME_ID, TOP_URL)]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -165,6 +170,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation([topFrame, childFrame]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -324,14 +330,15 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
     });
   });
 
-  describe("no-op parser default", () => {
-    it("with no parser supplied, all declared/allow inputs parse to empty policies", async () => {
-      // Top-level frame, header present, no parser → resolver sees empty
+  describe("no-op parser (resolver-only behavior)", () => {
+    it("all declared/allow inputs parse to empty policies", async () => {
+      // Top-level frame, header present, no-op parser → resolver sees empty
       // declared policy, falls back to spec default (wildcard) → allowed.
       const helper = new WebAuthnPermissionsPolicyBackground(
         makeHeaderCache({ [`${TAB}:${TOP_FRAME_ID}`]: "publickey-credentials-get=()" }),
         makeIframeAllowCache(),
         makeWebNavigation([frame(TOP_FRAME_ID, TOP_URL)]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(
@@ -339,12 +346,13 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
       ).resolves.toBe(true);
     });
 
-    it("with no parser supplied, cross-origin iframe without `allow=` is still denied (VULN-398 closed via container default)", async () => {
+    it("cross-origin iframe without `allow=` is still denied (VULN-398 closed via container default)", async () => {
       const childFrame = frame(CHILD_FRAME_ID, CHILD_URL, TOP_FRAME_ID);
       const helper = new WebAuthnPermissionsPolicyBackground(
         makeHeaderCache(),
         makeIframeAllowCache(),
         makeWebNavigation([frame(TOP_FRAME_ID, TOP_URL), childFrame]),
+        new NoOpPermissionsPolicyParser(),
       );
 
       await expect(

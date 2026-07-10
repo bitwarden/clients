@@ -1,7 +1,7 @@
 import { FrameNode, isWebAuthnFeatureAllowedForFrame } from "./frame-policy-resolver";
 import { IframeAllowCacheBackground } from "./iframe-allow-cache.background";
 import { PermissionsPolicyHeaderCacheBackground } from "./permissions-policy-header-cache.background";
-import { NoOpPermissionsPolicyParser, PermissionsPolicyParser } from "./permissions-policy-parser";
+import { PermissionsPolicyParser } from "./permissions-policy-parser";
 import { resolveSelfInPolicy } from "./permissions-policy-semantics";
 import { ParsedPermissionsPolicy } from "./types";
 
@@ -18,16 +18,18 @@ import { ParsedPermissionsPolicy } from "./types";
  *   - The parser (header / `allow=` syntax → structured shape).
  *   - The resolver (frame-chain delegation algorithm).
  *
- * The parser is injected; today it defaults to a no-op stub. When the real
- * parser lands (per the discussion in PM-38940), it becomes a single-file
- * swap of the dependency.
+ * The parser is injected and required. Production callers construct this
+ * class through `PermissionsPolicyBackground`, which passes a
+ * `DefaultPermissionsPolicyParser`. Tests that want to exercise resolver
+ * behavior without parser side effects pass `NoOpPermissionsPolicyParser`
+ * explicitly.
  */
 export class WebAuthnPermissionsPolicyBackground {
   constructor(
     private readonly headerCache: PermissionsPolicyHeaderCacheBackground,
     private readonly iframeAllowCache: IframeAllowCacheBackground,
     private readonly webNavigation: typeof chrome.webNavigation,
-    private readonly parser: PermissionsPolicyParser = new NoOpPermissionsPolicyParser(),
+    private readonly parser: PermissionsPolicyParser,
   ) {}
 
   /**
