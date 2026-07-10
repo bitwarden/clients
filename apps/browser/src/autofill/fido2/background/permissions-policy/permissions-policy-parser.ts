@@ -1,6 +1,6 @@
 import { parseAllowAttribute } from "./allow-attribute-parser";
 import { parseHeader } from "./header-parser";
-import { ParsedPermissionsPolicy } from "./types";
+import { ParsedPermissionsPolicy, ResolvedPermissionsPolicy } from "./types";
 
 /**
  * Parser interface for turning raw Permissions Policy strings into the
@@ -41,13 +41,15 @@ export interface PermissionsPolicyParser {
   /**
    * Parses an iframe `allow=` attribute. The parser resolves the `'src'`
    * keyword to `iframeOrigin` and the `'self'` keyword to `parentOrigin`
-   * (i.e. the iframe element's origin) before storing.
+   * (i.e. the iframe element's origin) before storing — the returned policy
+   * is guaranteed to contain no `{ type: "self" }` items, which is why the
+   * return type is `ResolvedPermissionsPolicy`.
    */
   parseAllowAttribute(
     rawAttributeValue: string,
     iframeOrigin: string,
     parentOrigin: string,
-  ): ParsedPermissionsPolicy;
+  ): ResolvedPermissionsPolicy;
 }
 
 /**
@@ -70,7 +72,7 @@ export class NoOpPermissionsPolicyParser implements PermissionsPolicyParser {
     return new Map();
   }
 
-  parseAllowAttribute(): ParsedPermissionsPolicy {
+  parseAllowAttribute(): ResolvedPermissionsPolicy {
     return new Map();
   }
 }
@@ -89,7 +91,7 @@ export class DefaultPermissionsPolicyParser implements PermissionsPolicyParser {
     rawAttributeValue: string,
     iframeOrigin: string,
     parentOrigin: string,
-  ): ParsedPermissionsPolicy {
+  ): ResolvedPermissionsPolicy {
     return parseAllowAttribute(rawAttributeValue, iframeOrigin, parentOrigin);
   }
 }

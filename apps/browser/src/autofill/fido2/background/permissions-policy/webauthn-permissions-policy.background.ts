@@ -3,7 +3,7 @@ import { IframeAllowCacheBackground } from "./iframe-allow-cache.background";
 import { PermissionsPolicyHeaderCacheBackground } from "./permissions-policy-header-cache.background";
 import { PermissionsPolicyParser } from "./permissions-policy-parser";
 import { resolveSelfInPolicy } from "./permissions-policy-semantics";
-import { ParsedPermissionsPolicy } from "./types";
+import { ResolvedPermissionsPolicy } from "./types";
 
 /**
  * Background-side entry point for the WebAuthn Permissions Policy gate.
@@ -126,7 +126,7 @@ export class WebAuthnPermissionsPolicyBackground {
     tabId: number,
     frameId: number,
     frameOrigin: string,
-  ): ParsedPermissionsPolicy {
+  ): ResolvedPermissionsPolicy {
     const raw = this.headerCache.getRawHeader(tabId, frameId);
     if (raw == null) {
       return new Map();
@@ -142,7 +142,7 @@ export class WebAuthnPermissionsPolicyBackground {
     frame: chrome.webNavigation.GetAllFrameResultDetails,
     parentOrigin: string,
     iframeOrigin: string,
-  ): ParsedPermissionsPolicy {
+  ): ResolvedPermissionsPolicy {
     const rawAttribute = this.iframeAllowCache.getAllowForChildFrame(
       tabId,
       frame.parentFrameId,

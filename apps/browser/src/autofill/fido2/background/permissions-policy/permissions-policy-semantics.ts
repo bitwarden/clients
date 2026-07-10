@@ -1,4 +1,4 @@
-import { AllowlistItem, ParsedPermissionsPolicy, PermissionsPolicyDirective } from "./types";
+import { ParsedPermissionsPolicy, ResolvedAllowlistItem, ResolvedPermissionsPolicy } from "./types";
 
 /**
  * Default allowlist for `publickey-credentials-*` features when no directive is
@@ -15,7 +15,7 @@ import { AllowlistItem, ParsedPermissionsPolicy, PermissionsPolicyDirective } fr
  * comes from, and it's enforced by the frame-chain delegation algorithm rather
  * than by this default.
  */
-const DEFAULT_ALLOWLIST_FOR_WEBAUTHN: readonly AllowlistItem[] = Object.freeze([
+const DEFAULT_ALLOWLIST_FOR_WEBAUTHN: readonly ResolvedAllowlistItem[] = Object.freeze([
   { type: "wildcard" } as const,
 ]);
 
@@ -36,7 +36,7 @@ const DEFAULT_ALLOWLIST_FOR_WEBAUTHN: readonly AllowlistItem[] = Object.freeze([
  *                         (which is also what `self` in the policy refers to).
  */
 export function isFeatureAllowedByPolicy(
-  policy: ParsedPermissionsPolicy,
+  policy: ResolvedPermissionsPolicy,
   feature: string,
   requestingOrigin: string,
 ): boolean {
@@ -51,10 +51,10 @@ export function isFeatureAllowedByPolicy(
  * running the match step.
  */
 export function getEffectiveAllowlist(
-  policy: ParsedPermissionsPolicy,
+  policy: ResolvedPermissionsPolicy,
   feature: string,
-): readonly AllowlistItem[] {
-  const directive: PermissionsPolicyDirective | undefined = policy.get(feature);
+): readonly ResolvedAllowlistItem[] {
+  const directive = policy.get(feature);
   if (directive == null) {
     return DEFAULT_ALLOWLIST_FOR_WEBAUTHN;
   }
@@ -95,10 +95,13 @@ export function getEffectiveAllowlist(
 export function resolveSelfInPolicy(
   policy: ParsedPermissionsPolicy,
   ownerOrigin: string,
-): ParsedPermissionsPolicy {
-  const result = new Map<string, PermissionsPolicyDirective>();
+): ResolvedPermissionsPolicy {
+  const result = new Map<
+    string,
+    { readonly feature: string; readonly allowlist: readonly ResolvedAllowlistItem[] }
+  >();
   for (const [feature, directive] of policy) {
-    const resolved: AllowlistItem[] = directive.allowlist.map((item) =>
+    const resolved: ResolvedAllowlistItem[] = directive.allowlist.map((item) =>
       item.type === "self" ? { type: "origin", value: ownerOrigin } : item,
     );
     result.set(feature, { feature, allowlist: resolved });
@@ -107,7 +110,7 @@ export function resolveSelfInPolicy(
 }
 
 export function allowlistMatches(
-  allowlist: readonly AllowlistItem[],
+  allowlist: readonly ResolvedAllowlistItem[],
   requestingOrigin: string,
 ): boolean {
   if (allowlist.length === 0) {
@@ -115,9 +118,6 @@ export function allowlistMatches(
   }
   for (const item of allowlist) {
     if (item.type === "wildcard") {
-      return true;
-    }
-    if (item.type === "self") {
       return true;
     }
     if (item.type === "origin" && item.value === requestingOrigin) {

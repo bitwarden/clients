@@ -5,15 +5,28 @@ import {
   resolveSelfInPolicy,
 } from "./permissions-policy-semantics";
 import {
-  AllowlistItem,
+  ParsedPermissionsPolicy,
   PermissionsPolicyDirective,
+  ResolvedAllowlistItem,
+  ResolvedPermissionsPolicy,
   WebAuthnPermissionsPolicyFeature,
 } from "./types";
 
 const REQUESTING_ORIGIN = "https://example.com";
 const OTHER_ORIGIN = "https://other.example";
 
-function policyOf(...directives: PermissionsPolicyDirective[]) {
+// Builds a resolved policy — the shape consumed by isFeatureAllowedByPolicy,
+// getEffectiveAllowlist, and allowlistMatches. The type system disallows
+// `{ type: "self" }` items here; those are the parser's job to resolve.
+function policyOf(
+  ...directives: PermissionsPolicyDirective<ResolvedAllowlistItem>[]
+): ResolvedPermissionsPolicy {
+  return new Map(directives.map((d) => [d.feature, d]));
+}
+
+// Builds an unresolved policy — the shape consumed by resolveSelfInPolicy.
+// This is where `{ type: "self" }` items are still allowed as inputs.
+function unresolvedPolicyOf(...directives: PermissionsPolicyDirective[]): ParsedPermissionsPolicy {
   return new Map(directives.map((d) => [d.feature, d]));
 }
 
@@ -76,19 +89,6 @@ describe("isFeatureAllowedByPolicy", () => {
     });
   });
 
-  describe("directive with self allowlist", () => {
-    it("permits the requesting origin (which is also the policy-defining document)", () => {
-      const policy = policyOf({
-        feature: WebAuthnPermissionsPolicyFeature.Get,
-        allowlist: [{ type: "self" }],
-      });
-
-      expect(
-        isFeatureAllowedByPolicy(policy, WebAuthnPermissionsPolicyFeature.Get, REQUESTING_ORIGIN),
-      ).toBe(true);
-    });
-  });
-
   describe("directive with explicit origin allowlist", () => {
     it("permits the requesting origin when it matches", () => {
       const policy = policyOf({
@@ -117,7 +117,10 @@ describe("isFeatureAllowedByPolicy", () => {
     it("permits when any one item matches", () => {
       const policy = policyOf({
         feature: WebAuthnPermissionsPolicyFeature.Get,
-        allowlist: [{ type: "origin", value: OTHER_ORIGIN }, { type: "self" }],
+        allowlist: [
+          { type: "origin", value: OTHER_ORIGIN },
+          { type: "origin", value: REQUESTING_ORIGIN },
+        ],
       });
 
       expect(
@@ -143,7 +146,10 @@ describe("isFeatureAllowedByPolicy", () => {
 
 describe("getEffectiveAllowlist", () => {
   it("returns the directive's allowlist when present", () => {
-    const allowlist: AllowlistItem[] = [{ type: "self" }, { type: "origin", value: OTHER_ORIGIN }];
+    const allowlist: ResolvedAllowlistItem[] = [
+      { type: "wildcard" },
+      { type: "origin", value: OTHER_ORIGIN },
+    ];
     const policy = policyOf({
       feature: WebAuthnPermissionsPolicyFeature.Create,
       allowlist,
@@ -181,10 +187,6 @@ describe("allowlistMatches", () => {
     expect(allowlistMatches([{ type: "wildcard" }], REQUESTING_ORIGIN)).toBe(true);
   });
 
-  it("permits on a self token", () => {
-    expect(allowlistMatches([{ type: "self" }], REQUESTING_ORIGIN)).toBe(true);
-  });
-
   it("permits on an exact-origin match", () => {
     expect(
       allowlistMatches([{ type: "origin", value: REQUESTING_ORIGIN }], REQUESTING_ORIGIN),
@@ -212,7 +214,7 @@ describe("resolveSelfInPolicy", () => {
   const OWNER_ORIGIN = "https://owner.example";
 
   it("replaces `{ type: 'self' }` items with the owner origin", () => {
-    const policy = policyOf({
+    const policy = unresolvedPolicyOf({
       feature: WebAuthnPermissionsPolicyFeature.Get,
       allowlist: [{ type: "self" }],
     });
@@ -225,7 +227,7 @@ describe("resolveSelfInPolicy", () => {
   });
 
   it("leaves wildcard items untouched", () => {
-    const policy = policyOf({
+    const policy = unresolvedPolicyOf({
       feature: WebAuthnPermissionsPolicyFeature.Get,
       allowlist: [{ type: "wildcard" }],
     });
@@ -239,7 +241,7 @@ describe("resolveSelfInPolicy", () => {
 
   it("leaves explicit origin items untouched", () => {
     const other = "https://other.example";
-    const policy = policyOf({
+    const policy = unresolvedPolicyOf({
       feature: WebAuthnPermissionsPolicyFeature.Get,
       allowlist: [{ type: "origin", value: other }],
     });
@@ -253,7 +255,7 @@ describe("resolveSelfInPolicy", () => {
 
   it("resolves mixed allowlists item-by-item", () => {
     const other = "https://other.example";
-    const policy = policyOf({
+    const policy = unresolvedPolicyOf({
       feature: WebAuthnPermissionsPolicyFeature.Get,
       allowlist: [
         { type: "self" },
@@ -274,6 +276,6 @@ describe("resolveSelfInPolicy", () => {
   });
 
   it("returns an empty policy for empty input", () => {
-    expect(resolveSelfInPolicy(policyOf(), OWNER_ORIGIN).size).toBe(0);
+    expect(resolveSelfInPolicy(unresolvedPolicyOf(), OWNER_ORIGIN).size).toBe(0);
   });
 });

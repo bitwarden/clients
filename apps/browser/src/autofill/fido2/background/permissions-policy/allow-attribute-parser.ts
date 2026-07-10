@@ -1,4 +1,8 @@
-import { AllowlistItem, ParsedPermissionsPolicy, PermissionsPolicyDirective } from "./types";
+import {
+  PermissionsPolicyDirective,
+  ResolvedAllowlistItem,
+  ResolvedPermissionsPolicy,
+} from "./types";
 
 /**
  * Parses an iframe `allow=` attribute into the structured form the resolver
@@ -37,8 +41,8 @@ export function parseAllowAttribute(
   rawAttributeValue: string,
   iframeOrigin: string,
   parentOrigin: string,
-): ParsedPermissionsPolicy {
-  const result = new Map<string, PermissionsPolicyDirective>();
+): ResolvedPermissionsPolicy {
+  const result = new Map<string, PermissionsPolicyDirective<ResolvedAllowlistItem>>();
 
   if (rawAttributeValue == null || rawAttributeValue.length === 0) {
     return result;
@@ -59,7 +63,7 @@ function parseDirective(
   rawDirective: string,
   iframeOrigin: string,
   parentOrigin: string,
-): PermissionsPolicyDirective | null {
+): PermissionsPolicyDirective<ResolvedAllowlistItem> | null {
   const trimmed = rawDirective.trim();
   if (trimmed.length === 0) {
     return null;
@@ -86,7 +90,7 @@ function parseDirective(
     return { feature, allowlist: [] };
   }
 
-  const allowlist: AllowlistItem[] = [];
+  const allowlist: ResolvedAllowlistItem[] = [];
   for (const item of items) {
     const parsed = parseAllowlistItem(item, iframeOrigin, parentOrigin);
     if (parsed != null) {
@@ -101,7 +105,7 @@ function parseAllowlistItem(
   token: string,
   iframeOrigin: string,
   parentOrigin: string,
-): AllowlistItem | null {
+): ResolvedAllowlistItem | null {
   if (token === "*") {
     return { type: "wildcard" };
   }

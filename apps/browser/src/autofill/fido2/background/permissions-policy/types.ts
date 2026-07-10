@@ -23,13 +23,28 @@ export type AllowlistItem =
   | { readonly type: "origin"; readonly value: string };
 
 /**
+ * Allowlist items after `self`-resolution has been applied. Everything
+ * downstream of parsing (the semantics layer, the resolver, the frame-policy
+ * evaluator) consumes this narrower shape so the compiler catches any code
+ * path that would let an unresolved `self` token cross a frame boundary —
+ * the invariant that closed the ancestor-recursion bypass.
+ */
+export type ResolvedAllowlistItem = Exclude<AllowlistItem, { readonly type: "self" }>;
+
+/**
  * A single Permissions Policy directive: a feature name and the allowlist that
  * applies to it. An empty `allowlist` means the feature is disallowed everywhere
  * (the `()` form, e.g. `publickey-credentials-create=()`).
+ *
+ * Parameterized by item type so directives can flow through the pipeline with
+ * their `self`-resolution state preserved in the type system:
+ *   - `PermissionsPolicyDirective` — raw parser output; may contain `self`.
+ *   - `PermissionsPolicyDirective<ResolvedAllowlistItem>` — after resolution;
+ *     no `self` items.
  */
-export type PermissionsPolicyDirective = {
+export type PermissionsPolicyDirective<Item extends AllowlistItem = AllowlistItem> = {
   readonly feature: string;
-  readonly allowlist: readonly AllowlistItem[];
+  readonly allowlist: readonly Item[];
 };
 
 /**
@@ -37,8 +52,22 @@ export type PermissionsPolicyDirective = {
  * same feature appears multiple times across combined headers, the parser is
  * expected to apply the spec's "later wins" rule; consumers can rely on at most
  * one directive per feature here.
+ *
+ * Parser output — may contain `{ type: "self" }` items. Must pass through
+ * `resolveSelfInPolicy` before reaching the resolver.
  */
 export type ParsedPermissionsPolicy = ReadonlyMap<string, PermissionsPolicyDirective>;
+
+/**
+ * A Permissions Policy whose `self` tokens have been resolved to explicit
+ * origins. This is the shape the delegation algorithm and the semantics
+ * layer consume — the type system enforces that consumers can't accidentally
+ * evaluate `self` against a descendant's origin.
+ */
+export type ResolvedPermissionsPolicy = ReadonlyMap<
+  string,
+  PermissionsPolicyDirective<ResolvedAllowlistItem>
+>;
 
 /**
  * Features the FIDO2 gate cares about, by their Permissions Policy spec names.

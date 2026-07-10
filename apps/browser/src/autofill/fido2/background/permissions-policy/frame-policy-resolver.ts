@@ -1,5 +1,5 @@
 import { allowlistMatches, isFeatureAllowedByPolicy } from "./permissions-policy-semantics";
-import { ParsedPermissionsPolicy } from "./types";
+import { ResolvedPermissionsPolicy } from "./types";
 
 /**
  * Frame-chain delegation algorithm for the Permissions Policy.
@@ -45,8 +45,8 @@ import { ParsedPermissionsPolicy } from "./types";
  */
 export type FrameNode = {
   readonly origin: string;
-  readonly declared: ParsedPermissionsPolicy;
-  readonly container: ParsedPermissionsPolicy;
+  readonly declared: ResolvedPermissionsPolicy;
+  readonly container: ResolvedPermissionsPolicy;
   readonly parent: FrameNode | null;
 };
 

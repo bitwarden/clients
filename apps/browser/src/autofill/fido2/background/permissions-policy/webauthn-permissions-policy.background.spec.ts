@@ -4,6 +4,8 @@ import { NoOpPermissionsPolicyParser, PermissionsPolicyParser } from "./permissi
 import {
   ParsedPermissionsPolicy,
   PermissionsPolicyDirective,
+  ResolvedAllowlistItem,
+  ResolvedPermissionsPolicy,
   WebAuthnPermissionsPolicyFeature,
 } from "./types";
 import { WebAuthnPermissionsPolicyBackground } from "./webauthn-permissions-policy.background";
@@ -16,7 +18,18 @@ const CHILD_URL = "https://child.example/";
 const TOP_ORIGIN = "https://parent.example";
 const CHILD_ORIGIN = "https://child.example";
 
+// Unresolved policy — may contain `{ type: "self" }` items. Use for
+// `parseHeader` outputs, which are what `resolveSelfInPolicy` consumes.
 function policyOf(...directives: PermissionsPolicyDirective[]): ParsedPermissionsPolicy {
+  return new Map(directives.map((d) => [d.feature, d]));
+}
+
+// Resolved policy — no `{ type: "self" }` items. Use for
+// `parseAllowAttribute` outputs (which the parser resolves at parse time)
+// and for any input to the resolver.
+function resolvedPolicyOf(
+  ...directives: PermissionsPolicyDirective<ResolvedAllowlistItem>[]
+): ResolvedPermissionsPolicy {
   return new Map(directives.map((d) => [d.feature, d]));
 }
 
@@ -32,7 +45,7 @@ function frame(frameId: number, url: string, parentFrameId: number = -1): FrameD
  */
 function makeTestParser(
   headers: Record<string, ParsedPermissionsPolicy> = {},
-  attributes: Record<string, ParsedPermissionsPolicy> = {},
+  attributes: Record<string, ResolvedPermissionsPolicy> = {},
 ): PermissionsPolicyParser {
   return {
     parseHeader: (raw) => headers[raw] ?? new Map(),
@@ -183,7 +196,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
       const parser = makeTestParser(
         {},
         {
-          [rawAllow]: policyOf({
+          [rawAllow]: resolvedPolicyOf({
             feature: WebAuthnPermissionsPolicyFeature.Get,
             allowlist: [{ type: "origin", value: CHILD_ORIGIN }],
           }),
@@ -214,7 +227,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
           }),
         },
         {
-          [rawAllow]: policyOf({
+          [rawAllow]: resolvedPolicyOf({
             feature: WebAuthnPermissionsPolicyFeature.Get,
             allowlist: [{ type: "origin", value: CHILD_ORIGIN }],
           }),
@@ -239,7 +252,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
       const parser = makeTestParser(
         {},
         {
-          [rawAllow]: policyOf({
+          [rawAllow]: resolvedPolicyOf({
             feature: WebAuthnPermissionsPolicyFeature.Get,
             allowlist: [{ type: "origin", value: CHILD_ORIGIN }],
           }),
@@ -292,7 +305,7 @@ describe("WebAuthnPermissionsPolicyBackground", () => {
             : new Map(),
         parseAllowAttribute: (raw) =>
           raw === wildcardAllow
-            ? policyOf({
+            ? resolvedPolicyOf({
                 feature: WebAuthnPermissionsPolicyFeature.Get,
                 allowlist: [{ type: "wildcard" }],
               })

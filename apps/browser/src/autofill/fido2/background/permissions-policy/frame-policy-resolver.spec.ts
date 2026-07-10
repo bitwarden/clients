@@ -1,7 +1,8 @@
 import { FrameNode, isWebAuthnFeatureAllowedForFrame } from "./frame-policy-resolver";
 import {
-  ParsedPermissionsPolicy,
   PermissionsPolicyDirective,
+  ResolvedAllowlistItem,
+  ResolvedPermissionsPolicy,
   WebAuthnPermissionsPolicyFeature,
 } from "./types";
 
@@ -9,18 +10,20 @@ const TOP_ORIGIN = "https://parent.example";
 const CHILD_ORIGIN = "https://child.example";
 const OTHER_ORIGIN = "https://other.example";
 
-function policyOf(...directives: PermissionsPolicyDirective[]): ParsedPermissionsPolicy {
+function policyOf(
+  ...directives: PermissionsPolicyDirective<ResolvedAllowlistItem>[]
+): ResolvedPermissionsPolicy {
   return new Map(directives.map((d) => [d.feature, d]));
 }
 
-function topFrame(declared: ParsedPermissionsPolicy = policyOf()): FrameNode {
+function topFrame(declared: ResolvedPermissionsPolicy = policyOf()): FrameNode {
   return { origin: TOP_ORIGIN, declared, container: policyOf(), parent: null };
 }
 
 function childFrameOf(
   parent: FrameNode,
-  declared: ParsedPermissionsPolicy = policyOf(),
-  container: ParsedPermissionsPolicy = policyOf(),
+  declared: ResolvedPermissionsPolicy = policyOf(),
+  container: ResolvedPermissionsPolicy = policyOf(),
   origin = CHILD_ORIGIN,
 ): FrameNode {
   return { origin, declared, container, parent };
