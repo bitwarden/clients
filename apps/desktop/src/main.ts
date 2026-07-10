@@ -402,12 +402,18 @@ export class Main {
           firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
         ]);
 
-        try {
-          // Re-register the native messaging host integrations on startup, in case they are not present
-          if (ddgIntegrationEnabled) {
+        if (ddgIntegrationEnabled) {
+          try {
             await this.nativeMessagingMain.generateDdgManifests();
+          } catch (err) {
+            this.logService.error(
+              "Error while generating DuckDuckGo native messaging manifests:",
+              err,
+            );
           }
+        }
 
+        try {
           await this.nativeMessagingMain.generateManifests();
           await this.nativeMessagingMain.listen();
         } catch (err) {
