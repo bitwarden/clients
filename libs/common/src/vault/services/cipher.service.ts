@@ -10,7 +10,6 @@ import {
   switchMap,
   tap,
 } from "rxjs";
-import { SemVer } from "semver";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -53,21 +52,8 @@ import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
-import { Attachment } from "../models/domain/attachment";
-import { BankAccount } from "../models/domain/bank-account";
-import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
-import { DriversLicense } from "../models/domain/drivers-license";
-import { Fido2Credential } from "../models/domain/fido2-credential";
-import { Field } from "../models/domain/field";
-import { Identity } from "../models/domain/identity";
-import { Login } from "../models/domain/login";
-import { LoginUri } from "../models/domain/login-uri";
-import { Passport } from "../models/domain/passport";
-import { Password } from "../models/domain/password";
-import { SecureNote } from "../models/domain/secure-note";
 import { SortedCiphersCache } from "../models/domain/sorted-ciphers-cache";
-import { SshKey } from "../models/domain/ssh-key";
 import { CipherBulkDeleteRequest } from "../models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../models/request/cipher-bulk-move.request";
 import { CipherBulkRestoreRequest } from "../models/request/cipher-bulk-restore.request";
@@ -83,7 +69,6 @@ import { CipherResponse } from "../models/response/cipher.response";
 import { DeleteAttachmentResponse } from "../models/response/delete-attachment.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
-import { FieldView } from "../models/view/field.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
@@ -95,8 +80,6 @@ import {
   FAILED_DECRYPTED_CIPHERS,
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
-
-const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
@@ -308,98 +291,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
     return await this.cipherEncryptionService.encryptMany(models, userId);
-  }
-
-  async encryptAttachments(
-    attachmentsModel: AttachmentView[],
-    key: SymmetricCryptoKey,
-  ): Promise<Attachment[]> {
-    if (attachmentsModel == null || attachmentsModel.length === 0) {
-      return null;
-    }
-
-    const promises: Promise<any>[] = [];
-    const encAttachments: Attachment[] = [];
-    attachmentsModel.forEach(async (model) => {
-      const attachment = new Attachment();
-      attachment.id = model.id;
-      attachment.size = model.size;
-      attachment.sizeName = model.sizeName;
-      attachment.url = model.url;
-      const promise = this.encryptObjProperty(model, attachment, { fileName: null }, key).then(
-        async () => {
-          if (model.key != null) {
-            attachment.key = await this.encryptService.wrapSymmetricKey(model.key, key);
-          }
-          encAttachments.push(attachment);
-        },
-      );
-      promises.push(promise);
-    });
-
-    await Promise.all(promises);
-    return encAttachments;
-  }
-
-  async encryptFields(fieldsModel: FieldView[], key: SymmetricCryptoKey): Promise<Field[]> {
-    if (!fieldsModel || !fieldsModel.length) {
-      return null;
-    }
-
-    const self = this;
-    const encFields: Field[] = [];
-    await fieldsModel.reduce(async (promise, field) => {
-      await promise;
-      const encField = await self.encryptField(field, key);
-      encFields.push(encField);
-    }, Promise.resolve());
-
-    return encFields;
-  }
-
-  async encryptField(fieldModel: FieldView, key: SymmetricCryptoKey): Promise<Field> {
-    const field = new Field();
-    field.type = fieldModel.type;
-    field.linkedId = fieldModel.linkedId;
-    // normalize boolean type field values
-    if (fieldModel.type === FieldType.Boolean && fieldModel.value !== "true") {
-      fieldModel.value = "false";
-    }
-
-    await this.encryptObjProperty(fieldModel, field, { name: null, value: null }, key);
-
-    return field;
-  }
-
-  async encryptPasswordHistories(
-    phModels: PasswordHistoryView[],
-    key: SymmetricCryptoKey,
-  ): Promise<Password[]> {
-    if (!phModels || !phModels.length) {
-      return null;
-    }
-
-    const self = this;
-    const encPhs: Password[] = [];
-    await phModels.reduce(async (promise, ph) => {
-      await promise;
-      const encPh = await self.encryptPasswordHistory(ph, key);
-      encPhs.push(encPh);
-    }, Promise.resolve());
-
-    return encPhs;
-  }
-
-  async encryptPasswordHistory(
-    phModel: PasswordHistoryView,
-    key: SymmetricCryptoKey,
-  ): Promise<Password> {
-    const ph = new Password();
-    ph.lastUsedDate = phModel.lastUsedDate;
-
-    await this.encryptObjProperty(phModel, ph, { password: null }, key);
-
-    return ph;
   }
 
   async get(id: string, userId: UserId): Promise<Cipher> {
@@ -2142,194 +2033,6 @@ export class CipherService implements CipherServiceAbstraction {
     await Promise.all(promises);
   }
 
-  private async encryptCipherData(cipher: Cipher, model: CipherView, key: SymmetricCryptoKey) {
-    switch (cipher.type) {
-      case CipherType.Login:
-        cipher.login = new Login();
-        cipher.login.passwordRevisionDate = model.login.passwordRevisionDate;
-        cipher.login.autofillOnPageLoad = model.login.autofillOnPageLoad;
-        await this.encryptObjProperty(
-          model.login,
-          cipher.login,
-          { username: null, password: null, totp: null },
-          key,
-        );
-
-        if (model.login.uris != null) {
-          cipher.login.uris = [];
-          model.login.uris = model.login.uris.filter((u) => u.uri != null && u.uri !== "");
-          for (let i = 0; i < model.login.uris.length; i++) {
-            const loginUri = new LoginUri();
-            loginUri.match = model.login.uris[i].match;
-            await this.encryptObjProperty(model.login.uris[i], loginUri, { uri: null }, key);
-            const uriHash = await this.encryptService.hash(model.login.uris[i].uri, "sha256");
-            loginUri.uriChecksum = await this.encryptService.encryptString(uriHash, key);
-            cipher.login.uris.push(loginUri);
-          }
-        }
-
-        if (model.login.fido2Credentials != null) {
-          cipher.login.fido2Credentials = await Promise.all(
-            model.login.fido2Credentials.map(async (viewKey) => {
-              const domainKey = new Fido2Credential();
-              await this.encryptObjProperty(
-                viewKey,
-                domainKey,
-                {
-                  credentialId: null,
-                  keyType: null,
-                  keyAlgorithm: null,
-                  keyCurve: null,
-                  keyValue: null,
-                  rpId: null,
-                  rpName: null,
-                  userHandle: null,
-                  userName: null,
-                  userDisplayName: null,
-                  origin: null,
-                },
-                key,
-              );
-              domainKey.counter = await this.encryptService.encryptString(
-                String(viewKey.counter),
-                key,
-              );
-              domainKey.discoverable = await this.encryptService.encryptString(
-                String(viewKey.discoverable),
-                key,
-              );
-              domainKey.creationDate = viewKey.creationDate;
-              return domainKey;
-            }),
-          );
-        }
-        return;
-      case CipherType.SecureNote:
-        cipher.secureNote = new SecureNote();
-        cipher.secureNote.type = model.secureNote.type;
-        return;
-      case CipherType.Card:
-        cipher.card = new Card();
-        await this.encryptObjProperty(
-          model.card,
-          cipher.card,
-          {
-            cardholderName: null,
-            brand: null,
-            number: null,
-            expMonth: null,
-            expYear: null,
-            code: null,
-          },
-          key,
-        );
-        return;
-      case CipherType.Identity:
-        cipher.identity = new Identity();
-        await this.encryptObjProperty(
-          model.identity,
-          cipher.identity,
-          {
-            title: null,
-            firstName: null,
-            middleName: null,
-            lastName: null,
-            address1: null,
-            address2: null,
-            address3: null,
-            city: null,
-            state: null,
-            postalCode: null,
-            country: null,
-            company: null,
-            email: null,
-            phone: null,
-            ssn: null,
-            username: null,
-            passportNumber: null,
-            licenseNumber: null,
-          },
-          key,
-        );
-        return;
-      case CipherType.SshKey:
-        cipher.sshKey = new SshKey();
-        await this.encryptObjProperty(
-          model.sshKey,
-          cipher.sshKey,
-          { privateKey: null, publicKey: null, keyFingerprint: null },
-          key,
-        );
-        return;
-      case CipherType.BankAccount:
-        cipher.bankAccount = new BankAccount();
-        await this.encryptObjProperty(
-          model.bankAccount,
-          cipher.bankAccount,
-          {
-            bankName: null,
-            nameOnAccount: null,
-            accountType: null,
-            accountNumber: null,
-            routingNumber: null,
-            branchNumber: null,
-            pin: null,
-            swiftCode: null,
-            iban: null,
-            bankContactPhone: null,
-          },
-          key,
-        );
-        return;
-      case CipherType.DriversLicense:
-        cipher.driversLicense = new DriversLicense();
-        await this.encryptObjProperty(
-          model.driversLicense,
-          cipher.driversLicense,
-          {
-            firstName: null,
-            middleName: null,
-            lastName: null,
-            dateOfBirth: null,
-            licenseNumber: null,
-            issuingCountry: null,
-            issuingState: null,
-            issueDate: null,
-            expirationDate: null,
-            issuingAuthority: null,
-            licenseClass: null,
-          },
-          key,
-        );
-        return;
-      case CipherType.Passport:
-        cipher.passport = new Passport();
-        await this.encryptObjProperty(
-          model.passport,
-          cipher.passport,
-          {
-            surname: null,
-            givenName: null,
-            dateOfBirth: null,
-            sex: null,
-            birthPlace: null,
-            nationality: null,
-            issuingCountry: null,
-            passportNumber: null,
-            passportType: null,
-            nationalIdentificationNumber: null,
-            issuingAuthority: null,
-            issueDate: null,
-            expirationDate: null,
-          },
-          key,
-        );
-        return;
-      default:
-        throw new Error("Unknown cipher type.");
-    }
-  }
-
   private async getAutofillOnPageLoadDefault() {
     return await firstValueFrom(this.autofillSettingsService.autofillOnPageLoadDefault$);
   }
@@ -2398,73 +2101,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   private clearSortedCiphers() {
     this.sortedCiphersCache.clear();
-  }
-
-  /**
-   * Encrypts a cipher object.
-   * @param model The cipher view model.
-   * @param cipher The cipher object.
-   * @param key The encryption key to encrypt with. This can be the org key, user key or cipher key, but must never be null
-   */
-  private async encryptCipher(
-    model: CipherView,
-    cipher: Cipher,
-    key: SymmetricCryptoKey,
-  ): Promise<Cipher> {
-    if (key == null) {
-      throw new Error(
-        "Key to encrypt cipher must not be null. Use the org key, user key or cipher key.",
-      );
-    }
-
-    await Promise.all([
-      this.encryptObjProperty(model, cipher, { name: null, notes: null }, key),
-      this.encryptCipherData(cipher, model, key),
-      this.encryptFields(model.fields, key).then((fields) => {
-        cipher.fields = fields;
-      }),
-      this.encryptPasswordHistories(model.passwordHistory, key).then((ph) => {
-        cipher.passwordHistory = ph;
-      }),
-      this.encryptAttachments(model.attachments, key).then((attachments) => {
-        cipher.attachments = attachments;
-      }),
-    ]);
-    return cipher;
-  }
-
-  private async encryptCipherWithCipherKey(
-    model: CipherView,
-    cipher: Cipher,
-    keyForCipherKeyEncryption: SymmetricCryptoKey,
-    keyForCipherKeyDecryption: SymmetricCryptoKey,
-  ): Promise<Cipher> {
-    // First, we get the key for cipher key encryption, in its decrypted form
-    let decryptedCipherKey: SymmetricCryptoKey;
-    if (cipher.key == null) {
-      decryptedCipherKey = await this.keyService.makeCipherKey();
-    } else {
-      decryptedCipherKey = await this.encryptService.unwrapSymmetricKey(
-        cipher.key,
-        keyForCipherKeyDecryption,
-      );
-    }
-
-    // Then, we have to encrypt the cipher key with the proper key.
-    cipher.key = await this.encryptService.wrapSymmetricKey(
-      decryptedCipherKey,
-      keyForCipherKeyEncryption,
-    );
-
-    // Finally, we can encrypt the cipher with the decrypted cipher key.
-    return this.encryptCipher(model, cipher, decryptedCipherKey);
-  }
-
-  private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
-    const meetsServerVersion = await firstValueFrom(
-      this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
-    );
-    return meetsServerVersion;
   }
 
   /**
