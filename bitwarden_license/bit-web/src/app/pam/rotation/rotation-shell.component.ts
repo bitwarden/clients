@@ -3,7 +3,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule, ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter, map } from "rxjs";
 
-import { TargetSystemResponse } from "@bitwarden/bit-pam";
+import { RotationConfigResponse, TargetSystemResponse } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -79,6 +79,16 @@ export class RotationShellComponent {
     initialValue: 0,
   });
 
+  /**
+   * Whether any managed credentials exist. The "New managed credential" header button is hidden
+   * when none do, since the tab shows an empty state that owns that action (or directs the user to
+   * set up a target system first).
+   */
+  private readonly configs = toSignal(this.configsService.configs$, {
+    initialValue: [] as RotationConfigResponse[],
+  });
+  protected readonly hasConfigs = computed(() => this.configs().length > 0);
+
   constructor() {
     // Load the configs service whenever the org changes. The effect also re-runs
     // when the user navigates back from a form page (component remounts).
@@ -86,6 +96,10 @@ export class RotationShellComponent {
       void this.configsService.load(this.organizationId());
     });
   }
+
+  /** Navigate to the managed-credential create page (sibling of the shell). */
+  protected readonly createManagedCredential = (): Promise<boolean> =>
+    this.router.navigate(["managed-credentials", "new"], { relativeTo: this.route });
 
   /** Navigate to the target-system create page (sibling of the shell). */
   protected readonly createTargetSystem = (): Promise<boolean> =>

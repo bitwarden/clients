@@ -26,6 +26,7 @@ class ResizeObserverStub {
 describe("RotationShellComponent", () => {
   let fixture: ComponentFixture<RotationShellComponent>;
   let awaitingManualCount$: BehaviorSubject<number>;
+  let configs$: BehaviorSubject<unknown[]>;
   let loadMock: jest.Mock;
   let daemonsService: { registerCompleted: jest.Mock };
   let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
@@ -36,6 +37,7 @@ describe("RotationShellComponent", () => {
 
   beforeEach(async () => {
     awaitingManualCount$ = new BehaviorSubject<number>(0);
+    configs$ = new BehaviorSubject<unknown[]>([]);
     loadMock = jest.fn().mockResolvedValue(undefined);
     daemonsService = { registerCompleted: jest.fn().mockResolvedValue(undefined) };
     targetSystemsService = { systems$: new BehaviorSubject<unknown[]>([]) };
@@ -57,7 +59,7 @@ describe("RotationShellComponent", () => {
         },
         {
           provide: RotationConfigsService,
-          useValue: { awaitingManualCount$, load: loadMock },
+          useValue: { awaitingManualCount$, configs$, load: loadMock },
         },
         { provide: DaemonsService, useValue: daemonsService },
         { provide: TargetSystemsService, useValue: targetSystemsService },
@@ -101,6 +103,32 @@ describe("RotationShellComponent", () => {
       fixture.componentInstance as unknown as { awaitingManualCount: () => number }
     ).awaitingManualCount();
     expect(count).toBe(3);
+  });
+
+  it("exposes hasConfigs from the configs stream", async () => {
+    await init();
+    const shell = fixture.componentInstance as unknown as { hasConfigs: () => boolean };
+    expect(shell.hasConfigs()).toBe(false);
+
+    configs$.next([{ id: "config-1" }]);
+    fixture.detectChanges();
+
+    expect(shell.hasConfigs()).toBe(true);
+  });
+
+  it("navigates to the managed-credential create page on createManagedCredential", async () => {
+    await init();
+    const router = TestBed.inject(Router);
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    await (
+      fixture.componentInstance as unknown as { createManagedCredential: () => Promise<boolean> }
+    ).createManagedCredential();
+
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["managed-credentials", "new"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
   });
 
   it("navigates to the target-system create page on createTargetSystem", async () => {
@@ -163,6 +191,7 @@ describe("RotationShellComponent (real router)", () => {
     {
       path: "rotation",
       children: [
+        { path: "managed-credentials/new", component: StubComponent },
         { path: "target-systems/new", component: StubComponent },
         {
           path: "",
@@ -188,7 +217,11 @@ describe("RotationShellComponent (real router)", () => {
         provideRouter(routes),
         {
           provide: RotationConfigsService,
-          useValue: { awaitingManualCount$: new BehaviorSubject(0), load: jest.fn() },
+          useValue: {
+            awaitingManualCount$: new BehaviorSubject(0),
+            configs$: new BehaviorSubject<unknown[]>([]),
+            load: jest.fn(),
+          },
         },
         { provide: DaemonsService, useValue: { registerCompleted: jest.fn() } },
         {
@@ -227,5 +260,16 @@ describe("RotationShellComponent (real router)", () => {
     await shell.createTargetSystem();
 
     expect(router.url).toBe("/rotation/target-systems/new");
+  });
+
+  it("navigates from the shell to the sibling managed-credential create page", async () => {
+    const shell = (await harness.navigateByUrl(
+      "/rotation/managed-credentials",
+      RotationShellComponent,
+    )) as unknown as { createManagedCredential: () => Promise<boolean> };
+
+    await shell.createManagedCredential();
+
+    expect(router.url).toBe("/rotation/managed-credentials/new");
   });
 });
