@@ -1676,7 +1676,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private isShadowRootCandidate(node: Node): node is Element {
-    if (!(node instanceof Element)) {
+    // `nodeType === 1` instead of `instanceof Element` — works across realms
+    // (hosts adopted from an iframe keep the iframe's `Element` constructor).
+    if (!nodeIsElement(node)) {
       return false;
     }
     if (node.shadowRoot) {

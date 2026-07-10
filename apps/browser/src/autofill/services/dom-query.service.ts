@@ -393,7 +393,9 @@ export class DomQueryService implements DomQueryServiceInterface {
       return false;
     }
     // Host check — `querySelectorAll("*")` excludes the scope element.
-    if (subtree instanceof Element) {
+    // `nodeType === 1` instead of `instanceof Element` — works across realms
+    // (hosts adopted from an iframe keep the iframe's `Element` constructor).
+    if (nodeIsElement(subtree)) {
       const root = this.getShadowRoot(subtree);
       if (root) {
         if (!this.knownShadowRoots.has(root)) {
