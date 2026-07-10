@@ -74,6 +74,38 @@ async function setupCreate(pamApi: ReturnType<typeof mock<PamApiService>>) {
   }).compileComponents();
 }
 
+/** Build create mode with a ?template query param and return the initialized component. */
+async function setupCreateWithTemplate(template: string): Promise<
+  TargetSystemEditComponent & {
+    createForm: { getRawValue: () => { method: TargetSystemMethod; kind: TargetSystemKind } };
+  }
+> {
+  const pamApi = mock<PamApiService>();
+  TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
+  await TestBed.configureTestingModule({
+    imports: [TargetSystemEditComponent, NoopAnimationsModule],
+    providers: [
+      provideRouter([]),
+      { provide: PamApiService, useValue: pamApi },
+      { provide: I18nService, useValue: i18nFake },
+      { provide: ToastService, useValue: mock<ToastService>() },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          snapshot: { params: { organizationId: "org-123" }, queryParams: { template } },
+        },
+      },
+    ],
+  }).compileComponents();
+  const fixture = TestBed.createComponent(TargetSystemEditComponent);
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
+  return fixture.componentInstance as unknown as TargetSystemEditComponent & {
+    createForm: { getRawValue: () => { method: TargetSystemMethod; kind: TargetSystemKind } };
+  };
+}
+
 /** Build a configured TestBed for edit mode (with targetSystemId). */
 async function setupEdit(pamApi: ReturnType<typeof mock<PamApiService>>) {
   TestBed.overrideComponent(TargetSystemEditComponent, { set: { template: "" } });
@@ -192,6 +224,22 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(pamApi.createTargetSystem).not.toHaveBeenCalled();
   });
 
+  it("seeds Manual method from the ?template=manual query param", async () => {
+    TestBed.resetTestingModule();
+    const comp = await setupCreateWithTemplate("manual");
+    expect(comp.createForm.getRawValue().method).toBe(TargetSystemMethod.Manual);
+    expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(false);
+  });
+
+  it("seeds Automatic + Custom script from the ?template=custom-script query param", async () => {
+    TestBed.resetTestingModule();
+    const comp = await setupCreateWithTemplate("custom-script");
+    const value = comp.createForm.getRawValue();
+    expect(value.method).toBe(TargetSystemMethod.Automatic);
+    expect(value.kind).toBe(TargetSystemKind.CustomScript);
+    expect((comp as unknown as { showPolicyCard: () => boolean }).showPolicyCard()).toBe(true);
+  });
+
   it("shows error toast on API failure", async () => {
     pamApi.createTargetSystem.mockRejectedValue(new Error("network fail"));
     jest.spyOn(router, "navigate").mockResolvedValue(true);
@@ -221,6 +269,60 @@ describe("TargetSystemEditComponent — create mode", () => {
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error" }),
     );
+  });
+});
+
+// Mounts the real template (no override) so the radio group + reactive Integration/policy
+// cards are exercised end-to-end — things a template-stubbed spec cannot catch.
+describe("TargetSystemEditComponent — create mode (rendered)", () => {
+  let fixture: ComponentFixture<TargetSystemEditComponent>;
+
+  beforeEach(async () => {
+    const pamApi = mock<PamApiService>();
+    await TestBed.configureTestingModule({
+      imports: [TargetSystemEditComponent, NoopAnimationsModule],
+      providers: [
+        provideRouter([]),
+        { provide: PamApiService, useValue: pamApi },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: ToastService, useValue: mock<ToastService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { organizationId: "org-123" }, queryParams: {} } },
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(TargetSystemEditComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  });
+
+  function patchMethod(method: TargetSystemMethod): void {
+    (
+      fixture.componentInstance as unknown as {
+        createForm: { controls: { method: { setValue: (v: TargetSystemMethod) => void } } };
+      }
+    ).createForm.controls.method.setValue(method);
+    fixture.detectChanges();
+  }
+
+  it("renders both method radio buttons", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector("#target-system-edit_radio_automatic")).toBeTruthy();
+    expect(el.querySelector("#target-system-edit_radio_manual")).toBeTruthy();
+  });
+
+  it("shows the Integration (kind) select only for the Automatic method", () => {
+    const el = fixture.nativeElement as HTMLElement;
+    // Defaults to Automatic → kind select present.
+    expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
+
+    patchMethod(TargetSystemMethod.Manual);
+    expect(el.querySelector("#target-system-edit_select_kind")).toBeNull();
+
+    patchMethod(TargetSystemMethod.Automatic);
+    expect(el.querySelector("#target-system-edit_select_kind")).toBeTruthy();
   });
 });
 

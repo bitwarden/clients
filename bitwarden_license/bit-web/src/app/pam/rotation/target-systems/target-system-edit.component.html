@@ -28,25 +28,21 @@
             />
           </bit-form-field>
 
-          <fieldset class="tw-mb-4">
-            <legend bitTypography="body1" class="tw-mb-2 tw-font-semibold">
-              {{ "pamTargetSystemMethodLabel" | i18n }}
-            </legend>
-            <bit-radio-group formControlName="method" class="tw-flex tw-gap-4">
-              <bit-radio-button
-                id="target-system-edit_radio_automatic"
-                [value]="TargetSystemMethod.Automatic"
-              >
-                <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
-              </bit-radio-button>
-              <bit-radio-button
-                id="target-system-edit_radio_manual"
-                [value]="TargetSystemMethod.Manual"
-              >
-                <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
-              </bit-radio-button>
-            </bit-radio-group>
-          </fieldset>
+          <bit-radio-group formControlName="method">
+            <bit-label>{{ "pamTargetSystemMethodLabel" | i18n }}</bit-label>
+            <bit-radio-button
+              id="target-system-edit_radio_automatic"
+              [value]="TargetSystemMethod.Automatic"
+            >
+              <bit-label>{{ "pamTargetSystemMethodAutomatic" | i18n }}</bit-label>
+            </bit-radio-button>
+            <bit-radio-button
+              id="target-system-edit_radio_manual"
+              [value]="TargetSystemMethod.Manual"
+            >
+              <bit-label>{{ "pamTargetSystemMethodManual" | i18n }}</bit-label>
+            </bit-radio-button>
+          </bit-radio-group>
         </bit-card>
       </bit-section>
 

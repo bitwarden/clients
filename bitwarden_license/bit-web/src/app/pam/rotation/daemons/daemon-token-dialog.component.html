@@ -10,29 +10,27 @@
 
     <bit-form-field class="tw-mb-0">
       <bit-label>{{ "pamDaemonTokenLabel" | i18n }}</bit-label>
-      <textarea
+      <input
         bitInput
-        rows="4"
+        type="text"
         readonly
         class="tw-font-mono tw-text-sm"
-        id="daemon-token-dialog_textarea_token"
-        >{{ params.token }}</textarea
-      >
+        id="daemon-token-dialog_input_token"
+        [value]="params.token"
+      />
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        bitSuffix
+        [label]="'pamDaemonTokenCopy' | i18n"
+        (click)="copyToken()"
+        id="daemon-token-dialog_button_copy"
+      ></button>
       <bit-hint>{{ "pamDaemonTokenHint" | i18n }}</bit-hint>
     </bit-form-field>
   </ng-container>
 
   <ng-container bitDialogFooter>
-    <button
-      type="button"
-      bitButton
-      buttonType="primary"
-      startIcon="bwi-clone"
-      (click)="copyToken()"
-      id="daemon-token-dialog_button_copy"
-    >
-      {{ "pamDaemonTokenCopy" | i18n }}
-    </button>
     <button
       type="button"
       bitButton

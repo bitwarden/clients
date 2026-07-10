@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
   FormBuilder,
@@ -168,15 +169,20 @@ export class TargetSystemEditComponent {
   /** Automatic-only policy sub-form (separate group so it can be conditionally validated). */
   protected readonly policyForm = buildPolicyGroup(this.formBuilder);
 
+  /** Live create-mode method selection — drives the Integration/policy cards reactively. */
+  private readonly createMethod = toSignal(this.createForm.controls.method.valueChanges, {
+    initialValue: this.createForm.controls.method.value,
+  });
+
   /**
-   * Whether the policy card should be shown (create: method=Automatic; edit: always Automatic if
-   * editing an Automatic system).
+   * Whether the Integration + password-policy cards should be shown — i.e. the method is
+   * Automatic (create: the live radio selection; edit: the existing system's method).
    */
   protected readonly showPolicyCard = computed(() => {
     if (this.editing) {
       return this.existing()?.method === TargetSystemMethod.Automatic;
     }
-    return this.createForm.controls.method.value === TargetSystemMethod.Automatic;
+    return this.createMethod() === TargetSystemMethod.Automatic;
   });
 
   /**
@@ -211,9 +217,35 @@ export class TargetSystemEditComponent {
     try {
       if (this.editing) {
         await this.loadSystem();
+      } else {
+        this.applyTemplate(this.route.snapshot.queryParams?.["template"] as string | undefined);
       }
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  /**
+   * Seed the create form from a starter template chosen on the empty state
+   * (Manual / Entra / Custom script). Unknown/absent values keep the defaults.
+   */
+  private applyTemplate(template: string | undefined): void {
+    switch (template) {
+      case "manual":
+        this.createForm.patchValue({ method: TargetSystemMethod.Manual });
+        break;
+      case "entra":
+        this.createForm.patchValue({
+          method: TargetSystemMethod.Automatic,
+          kind: TargetSystemKind.Entra,
+        });
+        break;
+      case "custom-script":
+        this.createForm.patchValue({
+          method: TargetSystemMethod.Automatic,
+          kind: TargetSystemKind.CustomScript,
+        });
+        break;
     }
   }
 

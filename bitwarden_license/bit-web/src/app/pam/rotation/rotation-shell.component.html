@@ -1,15 +1,17 @@
 <app-header [title]="'pamRotationTitle' | i18n">
   @switch (activeTab()) {
     @case ("target-systems") {
-      <button
-        type="button"
-        bitButton
-        buttonType="primary"
-        [bitAction]="createTargetSystem"
-        id="rotation-shell_button_new-target-system"
-      >
-        {{ "pamTargetSystemNew" | i18n }}
-      </button>
+      @if (hasTargetSystems()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="createTargetSystem"
+          id="rotation-shell_button_new-target-system"
+        >
+          {{ "pamTargetSystemNew" | i18n }}
+        </button>
+      }
     }
     @case ("daemons") {
       <button

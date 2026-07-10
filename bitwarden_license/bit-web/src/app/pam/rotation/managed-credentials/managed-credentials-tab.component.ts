@@ -5,7 +5,7 @@ import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
 
-import { TargetSystemMethod } from "@bitwarden/bit-pam";
+import { TargetSystemMethod, TargetSystemResponse } from "@bitwarden/bit-pam";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -23,6 +23,8 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { TargetSystemsService } from "../target-systems/target-systems.service";
 
 import { RotationConfigRow } from "./rotation-config-row";
 import { RotationConfigsService } from "./rotation-configs.service";
@@ -56,6 +58,7 @@ export class ManagedCredentialsTabComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);
+  private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -65,6 +68,15 @@ export class ManagedCredentialsTabComponent {
   private readonly rows = toSignal(this.configsService.rows$, {
     initialValue: [] as RotationConfigRow[],
   });
+
+  /**
+   * Whether any target systems exist. A rotation config always references a target system, so
+   * with none the tab directs the user to set one up first instead of offering to create a config.
+   */
+  private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
+    initialValue: [] as TargetSystemResponse[],
+  });
+  protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
   protected readonly dataSource = new TableDataSource<RotationConfigRow>();
 
@@ -81,7 +93,11 @@ export class ManagedCredentialsTabComponent {
 
   constructor() {
     effect(() => {
-      void this.configsService.load(this.organizationId());
+      const organizationId = this.organizationId();
+      void this.configsService.load(organizationId);
+      // Also load target systems so the empty state can tell whether the user must set one up
+      // first (the shell-scoped instance may be empty if this tab is visited before the others).
+      void this.targetSystemsService.load(organizationId);
     });
 
     effect(() => {
@@ -108,6 +124,10 @@ export class ManagedCredentialsTabComponent {
 
   protected readonly openCreate = (): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", "new"], { relativeTo: this.route });
+
+  /** Navigate to the sibling Target systems tab (shown when none exist yet). */
+  protected readonly goToTargetSystems = (): Promise<boolean> =>
+    this.router.navigate(["..", "target-systems"], { relativeTo: this.route });
 
   protected readonly openEdit = (row: RotationConfigRow): Promise<boolean> =>
     this.router.navigate(["..", "managed-credentials", row.id], { relativeTo: this.route });

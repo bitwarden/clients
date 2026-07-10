@@ -74,24 +74,24 @@ export class DaemonRegisterDialogComponent {
       return;
     }
 
+    const name = this.form.controls.name.value;
+
     try {
-      const { token, daemon } = await this.registrationService.register(
-        this.params.organizationId,
-        this.form.controls.name.value,
-      );
+      const { token } = await this.registrationService.register(this.params.organizationId, name);
 
       // Close the register dialog first, then open the token dialog.
       void this.dialogRef.close({ registered: true });
 
+      // Show the operator-entered name (not the daemon's GUID) as the dialog subtitle.
       DaemonTokenDialogComponent.open(this.dialogService, {
-        data: { daemonName: daemon.id, token },
+        data: { daemonName: name, token },
       });
     } catch (e) {
       const message =
         e instanceof ErrorResponse
           ? (e.message ?? this.i18nService.t("unexpectedError"))
           : this.i18nService.t("unexpectedError");
-      this.toastService.showToast({ variant: "error", title: null, message });
+      this.toastService.showToast({ variant: "error", message });
     }
   };
 

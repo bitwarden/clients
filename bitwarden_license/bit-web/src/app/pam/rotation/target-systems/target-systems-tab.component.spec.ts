@@ -99,6 +99,26 @@ describe("TargetSystemsTabComponent", () => {
     expect(targetSystemsService.load).toHaveBeenCalledWith("org-123");
   });
 
+  it("navigates to the create page on openCreate", async () => {
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    await (component as unknown as { openCreate: () => Promise<boolean> }).openCreate();
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "target-systems", "new"],
+      expect.objectContaining({ relativeTo: expect.anything() }),
+    );
+  });
+
+  it("navigates to the create page with a template query param on openFromTemplate", async () => {
+    const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);
+    await (
+      component as unknown as { openFromTemplate: (k: string) => Promise<boolean> }
+    ).openFromTemplate("entra");
+    expect(navigateSpy).toHaveBeenCalledWith(
+      ["..", "target-systems", "new"],
+      expect.objectContaining({ queryParams: { template: "entra" } }),
+    );
+  });
+
   it("navigates to edit page on openEdit", async () => {
     const sys = makeSystem({ id: "sys-edit" });
     const navigateSpy = jest.spyOn(router, "navigate").mockResolvedValue(true);

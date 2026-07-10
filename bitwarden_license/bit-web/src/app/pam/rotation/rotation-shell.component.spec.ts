@@ -13,6 +13,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
 import { RotationShellComponent } from "./rotation-shell.component";
+import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 // JSDOM has no ResizeObserver; the tab nav bar's overflow list constructs one.
 class ResizeObserverStub {
@@ -27,6 +28,7 @@ describe("RotationShellComponent", () => {
   let awaitingManualCount$: BehaviorSubject<number>;
   let loadMock: jest.Mock;
   let daemonsService: { registerCompleted: jest.Mock };
+  let targetSystemsService: { systems$: BehaviorSubject<unknown[]> };
   let dialogService: ReturnType<typeof mock<DialogService>>;
   let toastService: ReturnType<typeof mock<ToastService>>;
 
@@ -36,6 +38,7 @@ describe("RotationShellComponent", () => {
     awaitingManualCount$ = new BehaviorSubject<number>(0);
     loadMock = jest.fn().mockResolvedValue(undefined);
     daemonsService = { registerCompleted: jest.fn().mockResolvedValue(undefined) };
+    targetSystemsService = { systems$: new BehaviorSubject<unknown[]>([]) };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
 
@@ -57,6 +60,7 @@ describe("RotationShellComponent", () => {
           useValue: { awaitingManualCount$, load: loadMock },
         },
         { provide: DaemonsService, useValue: daemonsService },
+        { provide: TargetSystemsService, useValue: targetSystemsService },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: I18nService, useValue: i18nService },
@@ -187,6 +191,10 @@ describe("RotationShellComponent (real router)", () => {
           useValue: { awaitingManualCount$: new BehaviorSubject(0), load: jest.fn() },
         },
         { provide: DaemonsService, useValue: { registerCompleted: jest.fn() } },
+        {
+          provide: TargetSystemsService,
+          useValue: { systems$: new BehaviorSubject<unknown[]>([]) },
+        },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: { t: (key: string) => key } },

@@ -49,12 +49,13 @@ describe("DaemonTokenDialogComponent", () => {
     fixture.detectChanges();
   });
 
-  it("renders the token in a readonly textarea", () => {
-    const textarea = fixture.nativeElement.querySelector(
-      "#daemon-token-dialog_textarea_token",
-    ) as HTMLTextAreaElement;
-    expect(textarea).toBeTruthy();
-    expect(textarea.textContent?.trim()).toBe(params.token);
+  it("renders the token in a readonly input", () => {
+    const input = fixture.nativeElement.querySelector(
+      "#daemon-token-dialog_input_token",
+    ) as HTMLInputElement;
+    expect(input).toBeTruthy();
+    expect(input.readOnly).toBe(true);
+    expect(input.value).toBe(params.token);
   });
 
   it("copies the token to clipboard on copyToken", () => {
@@ -69,9 +70,9 @@ describe("DaemonTokenDialogComponent", () => {
     );
   });
 
-  it("closes the dialog after copying", () => {
+  it("does not close the dialog after copying", () => {
     (component as any).copyToken();
-    expect(dialogRef.close).toHaveBeenCalled();
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
   it("closes the dialog on close()", () => {

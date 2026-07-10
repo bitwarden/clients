@@ -110,7 +110,10 @@ describe("DaemonRegisterDialogComponent", () => {
     expect(openSpy).toHaveBeenCalledWith(
       DaemonTokenDialogComponent,
       expect.objectContaining({
-        data: expect.objectContaining({ token: fakeRegistration.token }),
+        data: expect.objectContaining({
+          token: fakeRegistration.token,
+          daemonName: "Good Daemon",
+        }),
       }),
     );
   });

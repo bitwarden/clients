@@ -92,7 +92,10 @@
       </ng-template>
     </bit-table>
   } @else {
-    <p class="tw-text-muted">{{ "pamTargetSystemEmptyState" | i18n }}</p>
+    <pam-target-systems-empty-state
+      (create)="openCreate()"
+      (useTemplate)="openFromTemplate($event)"
+    />
   }
 } @else {
   <bit-icon name="bwi-spinner" class="bwi-spin tw-text-muted"></bit-icon>

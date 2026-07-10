@@ -11,6 +11,7 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -31,8 +32,9 @@ export type DaemonTokenDialogParams = {
 /**
  * Read-only copy-once dialog for the daemon registration token.
  *
- * Mirrors the SM `AccessTokenDialogComponent` UX: warning callout → token
- * textarea → Copy button (copies + shows a toast + closes dialog).
+ * Warning callout → single-line read-only token field with an inline copy
+ * button (copies + shows a toast; leaves the dialog open so the operator can
+ * confirm) → Close button.
  *
  * There is no way to re-fetch the token after this dialog closes. If the
  * operator loses it, they must revoke the daemon and re-register.
@@ -41,7 +43,7 @@ export type DaemonTokenDialogParams = {
   selector: "app-daemon-token-dialog",
   templateUrl: "./daemon-token-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, CalloutModule, DialogModule, FormFieldModule, I18nPipe],
+  imports: [ButtonModule, CalloutModule, DialogModule, FormFieldModule, IconButtonModule, I18nPipe],
 })
 export class DaemonTokenDialogComponent {
   protected readonly params = inject<DaemonTokenDialogParams>(DIALOG_DATA);
@@ -54,10 +56,8 @@ export class DaemonTokenDialogComponent {
     this.platformUtilsService.copyToClipboard(this.params.token);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("pamDaemonTokenCopied"),
     });
-    void this.dialogRef.close();
   }
 
   protected close(): void {

@@ -27,6 +27,10 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  TargetSystemsEmptyStateComponent,
+  TargetSystemTemplateKey,
+} from "./target-systems-empty-state.component";
 import { TargetSystemsService } from "./target-systems.service";
 
 /** A flattened, presentation-ready view of a {@link TargetSystemResponse}. */
@@ -59,6 +63,7 @@ export type TargetSystemRow = {
     MenuModule,
     SearchModule,
     TableModule,
+    TargetSystemsEmptyStateComponent,
     I18nPipe,
   ],
 })
@@ -106,6 +111,17 @@ export class TargetSystemsTabComponent {
         (row.kindLabel?.toLowerCase().includes(text) ?? false);
     });
   }
+
+  /** Navigate to the create page (sibling of the shell), shown from the empty state. */
+  protected readonly openCreate = (): Promise<boolean> =>
+    this.router.navigate(["..", "target-systems", "new"], { relativeTo: this.route });
+
+  /** Navigate to the create page seeded from a starter template. */
+  protected readonly openFromTemplate = (key: TargetSystemTemplateKey): Promise<boolean> =>
+    this.router.navigate(["..", "target-systems", "new"], {
+      relativeTo: this.route,
+      queryParams: { template: key },
+    });
 
   /** Navigate to the edit page for a target system. */
   protected readonly openEdit = (system: TargetSystemResponse): Promise<boolean> =>

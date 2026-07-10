@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule, ActivatedRoute, NavigationEnd, Router } from "@angular/router";
 import { filter, map } from "rxjs";
 
+import { TargetSystemResponse } from "@bitwarden/bit-pam";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -18,6 +19,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 import { DaemonRegisterDialogComponent } from "./daemons/daemon-register-dialog.component";
 import { DaemonsService } from "./daemons/daemons.service";
 import { RotationConfigsService } from "./managed-credentials/rotation-configs.service";
+import { TargetSystemsService } from "./target-systems/target-systems.service";
 
 /**
  * Rotation feature shell: renders the page header and the three routed tabs
@@ -43,6 +45,7 @@ export class RotationShellComponent {
   private readonly router = inject(Router);
   private readonly configsService = inject(RotationConfigsService);
   private readonly daemonsService = inject(DaemonsService);
+  private readonly targetSystemsService = inject(TargetSystemsService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -61,6 +64,15 @@ export class RotationShellComponent {
     ),
     { initialValue: this.route.snapshot.firstChild?.routeConfig?.path ?? null },
   );
+
+  /**
+   * Whether any target systems exist. The "New target system" header button is hidden when none
+   * exist, since the tab shows a create/template empty state that owns that action instead.
+   */
+  private readonly targetSystems = toSignal(this.targetSystemsService.systems$, {
+    initialValue: [] as TargetSystemResponse[],
+  });
+  protected readonly hasTargetSystems = computed(() => this.targetSystems().length > 0);
 
   /** Number of configs awaiting a manual rotation confirmation — drives the tab berry. */
   protected readonly awaitingManualCount = toSignal(this.configsService.awaitingManualCount$, {

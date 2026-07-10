@@ -15893,6 +15893,27 @@
   "pamTargetSystemEmptyState": {
     "message": "No target systems have been configured yet."
   },
+  "pamNoTargetSystemsYetTitle": {
+    "message": "No target systems yet"
+  },
+  "pamNoTargetSystemsYetDescription": {
+    "message": "Add the system whose credentials Bitwarden should rotate."
+  },
+  "pamTargetSystemsStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamTargetSystemUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTargetSystemTemplateManualSummary": {
+    "message": "You rotate the credential yourself; Bitwarden tracks the schedule and logs each rotation."
+  },
+  "pamTargetSystemTemplateEntraSummary": {
+    "message": "Bitwarden automatically rotates a Microsoft Entra ID application secret."
+  },
+  "pamTargetSystemTemplateCustomScriptSummary": {
+    "message": "Bitwarden automatically rotates the credential by running your script on a registered daemon."
+  },
   "pamTargetSystemNoResults": {
     "message": "No target systems match your search."
   },
@@ -16117,6 +16138,12 @@
   },
   "pamRotationConfigEmptyState": {
     "message": "No managed credentials configured."
+  },
+  "pamRotationConfigNoTargetSystems": {
+    "message": "Set up a target system before you can rotate credentials. A target system defines where a credential lives and how Bitwarden rotates it."
+  },
+  "pamRotationConfigSetUpTargetSystem": {
+    "message": "Set up a target system"
   },
   "pamRotationConfigNoResults": {
     "message": "No results match your search."
