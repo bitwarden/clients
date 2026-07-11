@@ -35,6 +35,13 @@ the inline menu's cipher list so the overlay reflects what was filled.
 
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
 
+Fills are serialized per frame. A frame handles one collect-and-fill at a time: an opportunity — or a
+user-initiated fill — that arrives for a frame already filling waits its turn rather than running
+concurrently. Page-load and user-initiated fills share one dispatcher, so this ordering holds across
+both. Serializing collect→fill this way keeps two fills from racing on a single frame — a race that
+could fill twice, or, if the page navigated between collecting its details and dispatching the fill,
+place a credential chosen for the old page onto the new one.
+
 ## Fill targeting
 
 A page-load fill targets **the frame that produced the transition**, resolved live, by id, at the

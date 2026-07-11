@@ -1,21 +1,29 @@
-import { BehaviorSubject, firstValueFrom, Subject } from "rxjs";
-import { filter, map, mergeMap, pairwise, scan, startWith, take, takeUntil } from "rxjs/operators";
+import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
+import {
+  filter,
+  map,
+  mergeMap,
+  pairwise,
+  scan,
+  share,
+  startWith,
+  take,
+  takeUntil,
+} from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import {
-  AutofillerCommand,
-  AutofillLifecycleCommand,
-  AutofillMessageCommand,
-} from "../enums/autofill-message.enums";
+import { AutofillerCommand, AutofillLifecycleCommand } from "../enums/autofill-message.enums";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { assertSynchronousScope } from "../rx";
 
-import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
+import {
+  AutofillLifecycleService,
+  PageTransitionResolved,
+} from "./abstractions/autofill-lifecycle.service";
 
 type PortEvent =
   | { type: "connect"; port: chrome.runtime.Port }
@@ -56,14 +64,66 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
 
   /**
    * Page transitions reported by page-lifecycle monitors (e.g. the autofiller).
-   * Each is buffered against `monitoringState` and resolved into a page-details
-   * collection once its frame is monitoring.
+   * Each is buffered against `monitoringState` and resolved as an opportunity on
+   * `pageTransitionResolved$` once its frame is monitoring.
    */
   private readonly pageTransition$ = new Subject<{
     tab: chrome.tabs.Tab;
     tabId: number;
     frameId: number | undefined;
   }>();
+
+  /**
+   * Removed tab ids, fed from `chrome.tabs.onRemoved` in `init()`. `tabRemoved$`
+   * is the filtered view of this; there is no separate structure to keep in sync.
+   */
+  private readonly tabRemovedSubject$ = new Subject<number>();
+
+  /**
+   * Page transitions reconciled against monitoring — the buffer's output,
+   * multicast to the autofill side as fill *opportunities* (the *Resolved*
+   * state). Each reported transition is held until its frame is monitoring, then
+   * emitted once; a transition whose frame is retired before monitoring starts is
+   * dropped. `share({ resetOnRefCountZero: true })` keeps the buffering machinery
+   * cold until a consumer subscribes and returns it to cold when the last one
+   * drops — page transitions matter only while something consumes them.
+   */
+  readonly pageTransitionResolved$: Observable<PageTransitionResolved> = this.pageTransition$.pipe(
+    // keeps every (tab, frame) independent so simultaneous reloads each buffer on their own
+    mergeMap((transition) => {
+      const key = this.monitorFrameKey(transition.tabId, transition.frameId);
+      return this.monitoringState.pipe(
+        filter((state) => state.get(key) === true),
+        map(() => transition),
+        // resolve on the first monitoring frame...
+        take(1),
+        // ...or drop the transition when the frame is retired before monitoring starts,
+        // so the buffer never accumulates subscriptions for frames that are gone.
+        takeUntil(
+          this.monitorLifecycle$.pipe(
+            filter(
+              (lifecycle) =>
+                !lifecycle.active &&
+                this.monitorFrameKey(lifecycle.tabId, lifecycle.frameId) === key,
+            ),
+          ),
+        ),
+      );
+    }),
+    map(({ tab, tabId, frameId }) => ({ tab, tabId, frameId })),
+    share({ resetOnRefCountZero: true }),
+  );
+
+  /**
+   * Fires when the given tab is removed. Tab removal is a lifecycle concern; a
+   * consumer keying reactive work by tab ends that work on this signal so it
+   * cannot outlive the tab.
+   */
+  readonly tabRemoved$ = (tabId: number): Observable<void> =>
+    this.tabRemovedSubject$.pipe(
+      filter((removedTabId) => removedTabId === tabId),
+      map((): void => undefined),
+    );
 
   /**
    * Report error if a future change introduces async behaviors to `this.connectedPorts`.
@@ -81,7 +141,6 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
 
   constructor(
     private authService: AuthService,
-    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private logService: LogService,
   ) {}
 
@@ -92,6 +151,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    */
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
+    BrowserApi.addListener(chrome.tabs.onRemoved, this.handleTabRemoved);
 
     // Fold port events into the live port set. The accumulator is mutated in
     // place (no per-event allocation); reads go through `connectedPorts.value`.
@@ -133,33 +193,6 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
         this.assertSynchronousMonitoringState.exit,
       )
       .subscribe(this.monitoringState);
-
-    // Buffer each reported transition until its frame is monitoring.
-    this.pageTransition$
-      .pipe(
-        // keeps every (tab, frame) independent so simultaneous reloads each buffer on their own
-        mergeMap((transition) => {
-          const key = this.monitorFrameKey(transition.tabId, transition.frameId);
-          return this.monitoringState.pipe(
-            filter((state) => state.get(key) === true),
-            map(() => transition),
-            // resolve on the first monitoring frame...
-            take(1),
-            // ...or drop the transition when the frame is retired before monitoring starts,
-            // so the buffer never accumulates subscriptions for frames that are gone.
-            takeUntil(
-              this.monitorLifecycle$.pipe(
-                filter(
-                  (lifecycle) =>
-                    !lifecycle.active &&
-                    this.monitorFrameKey(lifecycle.tabId, lifecycle.frameId) === key,
-                ),
-              ),
-            ),
-          );
-        }),
-      )
-      .subscribe((transition) => void this.issuePageTransitionCollection(transition));
 
     this.authService.activeAccountStatus$
       .pipe(startWith(undefined), pairwise())
@@ -372,31 +405,12 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   }
 
   /**
-   * Resolves a buffered page transition into a page-details collection. The
-   * frame is monitoring by this point (the buffer guarantees it), so the
-   * collection's response is honored. The `autofillOnPageLoad` setting is
-   * re-checked here so it stays authoritative at evaluation time rather than
-   * only at injection time.
+   * Records a removed tab so `tabRemoved$` consumers can end per-tab work.
+   * Sourced from `chrome.tabs.onRemoved`, which also fires per-tab when a window
+   * closes. Step 7 is expected to additionally translate `windows.onRemoved` into
+   * this signal, via the per-window active-tab map it introduces.
    */
-  private async issuePageTransitionCollection(transition: {
-    tab: chrome.tabs.Tab;
-    frameId: number | undefined;
-  }) {
-    const autofillOnPageLoad = await firstValueFrom(
-      this.autofillSettingsService.autofillOnPageLoad$,
-    );
-    if (!autofillOnPageLoad) {
-      return;
-    }
-
-    BrowserApi.tabSendMessage(
-      transition.tab,
-      {
-        command: AutofillMessageCommand.collectPageDetails,
-        tab: transition.tab,
-        sender: "autofiller",
-      },
-      transition.frameId !== undefined ? { frameId: transition.frameId } : undefined,
-    ).catch((error) => this.logService.error(error));
-  }
+  private handleTabRemoved = (tabId: number) => {
+    this.tabRemovedSubject$.next(tabId);
+  };
 }

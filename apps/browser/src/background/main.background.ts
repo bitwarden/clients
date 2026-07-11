@@ -339,6 +339,7 @@ import {
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
+import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
@@ -451,6 +452,7 @@ export default class MainBackground {
   totpService: TotpServiceAbstraction;
   autofillLifecycleService: AutofillLifecycleService;
   autofillService: AutofillServiceAbstraction;
+  autofillOrchestrator: AutofillOrchestrator;
   containerService: ContainerService;
   auditService: AuditServiceAbstraction;
   authService: AuthServiceAbstraction;
@@ -1275,7 +1277,6 @@ export default class MainBackground {
     );
     this.autofillLifecycleService = new DefaultAutofillLifecycleService(
       this.authService,
-      this.autofillSettingsService,
       this.logService,
     );
     this.autofillService = new AutofillService(
@@ -1294,6 +1295,15 @@ export default class MainBackground {
       messageListener,
       this.animationControlService,
       this.autofillLifecycleService,
+    );
+    this.autofillOrchestrator = new AutofillOrchestrator(
+      this.autofillLifecycleService,
+      this.autofillService,
+      this.autofillSettingsService,
+      this.accountService,
+      this.platformUtilsService,
+      () => this.updateOverlayCiphers(),
+      this.logService,
     );
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1535,6 +1545,7 @@ export default class MainBackground {
       this.browserInitialInstallService,
       this.autofillLifecycleService,
       this.defaultPasswordManagerPromptStateAccessor,
+      this.autofillOrchestrator,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.keyService,
@@ -1813,6 +1824,7 @@ export default class MainBackground {
     // injection, so the onConnect listener is registered before any frame
     // connects.
     this.autofillLifecycleService.init();
+    this.autofillOrchestrator.init();
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.overlayNotificationsBackground.init();

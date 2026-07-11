@@ -1,3 +1,5 @@
+import { EMPTY } from "rxjs";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
@@ -20,6 +22,11 @@ import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.serv
  */
 export class NoopAutofillLifecycleService implements AutofillLifecycleService {
   constructor(private logService: LogService) {}
+
+  // Inert streams, not tripwires: an unused observable is harmless, and the
+  // popup never subscribes to them. Only the invoked methods below warn.
+  readonly pageTransitionResolved$ = EMPTY;
+  readonly tabRemoved$ = () => EMPTY;
 
   init() {
     this.warnInvoked("init");

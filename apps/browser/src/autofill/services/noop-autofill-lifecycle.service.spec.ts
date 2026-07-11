@@ -36,6 +36,29 @@ describe("NoopAutofillLifecycleService", () => {
     );
   });
 
+  // The observable members are inert, not tripwires: they must be valid, empty
+  // streams that emit nothing and never warn, since the popup binds them but is
+  // free to subscribe.
+  it("exposes inert streams that emit nothing and do not warn", () => {
+    const emissions: unknown[] = [];
+    let pageTransitionCompleted = false;
+    let tabRemovedCompleted = false;
+
+    service.pageTransitionResolved$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (pageTransitionCompleted = true),
+    });
+    service.tabRemoved$(1).subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (tabRemovedCompleted = true),
+    });
+
+    expect(emissions).toEqual([]);
+    expect(pageTransitionCompleted).toBe(true);
+    expect(tabRemovedCompleted).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
+  });
+
   it("withholds the tab and frame entirely so no tab data reaches the log", async () => {
     const tab = createChromeTabMock({ id: 8675309, url: "https://secret.example/abc" });
 

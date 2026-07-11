@@ -1,30 +1,24 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subscription } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import {
-  AutofillerCommand,
-  AutofillLifecycleCommand,
-  AutofillMessageCommand,
-} from "../enums/autofill-message.enums";
+import { AutofillerCommand, AutofillLifecycleCommand } from "../enums/autofill-message.enums";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { createChromeTabMock } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
 
+import { PageTransitionResolved } from "./abstractions/autofill-lifecycle.service";
 import { DefaultAutofillLifecycleService } from "./autofill-lifecycle.service";
 
 describe("DefaultAutofillLifecycleService", () => {
   let service: DefaultAutofillLifecycleService;
   let authService: MockProxy<AuthService>;
-  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   const logService = mock<LogService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
-  let autofillOnPageLoadMock$: BehaviorSubject<boolean>;
   let tabSendMessageSpy: jest.SpyInstance;
 
   const makePort = (frameId: number | undefined, name: string = AutofillPort.InjectedScript) => {
@@ -45,14 +39,11 @@ describe("DefaultAutofillLifecycleService", () => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
-    autofillOnPageLoadMock$ = new BehaviorSubject(true);
-    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
-    autofillSettingsService.autofillOnPageLoad$ = autofillOnPageLoadMock$;
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation();
     tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
 
-    service = new DefaultAutofillLifecycleService(authService, autofillSettingsService, logService);
+    service = new DefaultAutofillLifecycleService(authService, logService);
   });
 
   afterEach(() => {
@@ -67,6 +58,15 @@ describe("DefaultAutofillLifecycleService", () => {
       expect(BrowserApi.addListener).toHaveBeenCalledWith(
         chrome.runtime.onConnect,
         service["handleInjectedScriptPortConnection"],
+      );
+    });
+
+    it("registers a tabs onRemoved listener", () => {
+      service.init();
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.tabs.onRemoved,
+        service["handleTabRemoved"],
       );
     });
   });
@@ -184,11 +184,7 @@ describe("DefaultAutofillLifecycleService", () => {
     const bootInto = (status: AuthenticationStatus) => {
       activeAccountStatusMock$ = new BehaviorSubject(status);
       authService.activeAccountStatus$ = activeAccountStatusMock$;
-      service = new DefaultAutofillLifecycleService(
-        authService,
-        autofillSettingsService,
-        logService,
-      );
+      service = new DefaultAutofillLifecycleService(authService, logService);
       service.init();
       connectPort(makePort(0));
     };
@@ -265,14 +261,31 @@ describe("DefaultAutofillLifecycleService", () => {
     });
   });
 
+  describe("tabRemoved$", () => {
+    beforeEach(() => service.init());
+
+    it("emits for the removed tab id and not for others", () => {
+      const removedFirst: number[] = [];
+      const removedSecond: number[] = [];
+      const first = service.tabRemoved$(1).subscribe(() => removedFirst.push(1));
+      const second = service.tabRemoved$(2).subscribe(() => removedSecond.push(2));
+
+      // The onRemoved handler is registered via BrowserApi.addListener (mocked),
+      // so drive it directly, as the browser event would.
+      service["handleTabRemoved"](1);
+
+      expect(removedFirst).toEqual([1]);
+      expect(removedSecond).toEqual([]);
+
+      first.unsubscribe();
+      second.unsubscribe();
+    });
+  });
+
   describe("page transition buffering", () => {
     let tab: chrome.tabs.Tab;
-
-    const collectMessage = {
-      command: AutofillMessageCommand.collectPageDetails,
-      tab: expect.objectContaining({ id: 1 }),
-      sender: "autofiller",
-    };
+    let resolved: PageTransitionResolved[];
+    let subscription: Subscription;
 
     const addPort = (frameId: number | undefined) => {
       const port = makePort(frameId);
@@ -283,27 +296,33 @@ describe("DefaultAutofillLifecycleService", () => {
     beforeEach(() => {
       service.init();
       tab = createChromeTabMock({ id: 1 });
-      tabSendMessageSpy.mockClear();
+      resolved = [];
+      // A subscriber both observes the seam and keeps the shared buffer hot.
+      subscription = service.pageTransitionResolved$.subscribe((opportunity) =>
+        resolved.push(opportunity),
+      );
     });
 
-    it("issues a collection immediately when the frame is already monitoring", async () => {
+    afterEach(() => subscription?.unsubscribe());
+
+    it("resolves an opportunity immediately when the frame is already monitoring", async () => {
       markMonitoring(1, 0, true);
 
       service.reportPageTransition(tab, 0);
       await flushPromises();
 
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(tab, collectMessage, { frameId: 0 });
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
     });
 
-    it("buffers a transition until its frame starts monitoring, then issues the collection", async () => {
+    it("buffers a transition until its frame starts monitoring, then resolves it", async () => {
       service.reportPageTransition(tab, 0);
       await flushPromises();
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([]);
 
       markMonitoring(1, 0, true);
       await flushPromises();
 
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(tab, collectMessage, { frameId: 0 });
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
     });
 
     it("drops a buffered transition when its frame disconnects, and a later start does not resurrect it", async () => {
@@ -311,7 +330,7 @@ describe("DefaultAutofillLifecycleService", () => {
 
       service.reportPageTransition(tab, 0);
       await flushPromises();
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([]);
 
       service["handleInjectScriptPortOnDisconnect"](port);
 
@@ -319,26 +338,16 @@ describe("DefaultAutofillLifecycleService", () => {
       markMonitoring(1, 0, true);
       await flushPromises();
 
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([]);
     });
 
-    it("issues a collection with no frameId option when the transition omits the frame", async () => {
+    it("resolves with no frameId when the transition omits the frame", async () => {
       markMonitoring(1, undefined, true);
 
       service.reportPageTransition(tab, undefined);
       await flushPromises();
 
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(tab, collectMessage, undefined);
-    });
-
-    it("does not issue a collection when autofillOnPageLoad is disabled", async () => {
-      autofillOnPageLoadMock$.next(false);
-      markMonitoring(1, 0, true);
-
-      service.reportPageTransition(tab, 0);
-      await flushPromises();
-
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: undefined }]);
     });
 
     it("resolves each (tab, frame) independently", async () => {
@@ -351,8 +360,7 @@ describe("DefaultAutofillLifecycleService", () => {
       markMonitoring(1, 0, true);
       await flushPromises();
 
-      expect(tabSendMessageSpy).toHaveBeenCalledTimes(1);
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(tab, collectMessage, { frameId: 0 });
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
     });
 
     it("ignores a reported transition without a tab id", async () => {
@@ -362,7 +370,7 @@ describe("DefaultAutofillLifecycleService", () => {
       service.reportPageTransition(tabWithoutId, 0);
       await flushPromises();
 
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([]);
     });
 
     it("retires a frame from monitoring once its last port disconnects", async () => {
@@ -371,23 +379,23 @@ describe("DefaultAutofillLifecycleService", () => {
 
       service["handleInjectScriptPortOnDisconnect"](port);
 
-      // The frame is no longer monitoring, so a fresh transition is not issued.
+      // The frame is no longer monitoring, so a fresh transition stays buffered.
       service.reportPageTransition(tab, 0);
       await flushPromises();
-      expect(tabSendMessageSpy).not.toHaveBeenCalled();
+      expect(resolved).toEqual([]);
     });
 
     it("keeps a frame monitoring while another port for the same (tab, frame) remains", async () => {
       addPort(0);
-      const autofillerPort = addPort(0);
+      const siblingPort = addPort(0);
       markMonitoring(1, 0, true);
 
-      service["handleInjectScriptPortOnDisconnect"](autofillerPort);
+      service["handleInjectScriptPortOnDisconnect"](siblingPort);
 
-      // A sibling port remains, so the frame stays monitoring and a transition issues.
+      // A sibling port remains, so the frame stays monitoring and the transition resolves.
       service.reportPageTransition(tab, 0);
       await flushPromises();
-      expect(tabSendMessageSpy).toHaveBeenCalledWith(tab, collectMessage, { frameId: 0 });
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
     });
   });
 });

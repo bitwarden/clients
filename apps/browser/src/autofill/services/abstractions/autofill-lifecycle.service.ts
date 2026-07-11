@@ -1,3 +1,19 @@
+import { Observable } from "rxjs";
+
+/**
+ * A page transition reconciled against monitoring — the *Resolved* state of the
+ * buffering state machine (see `lifecycle.design.md`). It names a fill
+ * *opportunity*, not a warranted fill; the autofill side alone decides what to
+ * make of it. `tabId` is definite: `reportPageTransition` drops undefined-id
+ * tabs at the entry guard, so a resolved opportunity never carries an undefined
+ * tab id.
+ */
+export type PageTransitionResolved = {
+  tab: chrome.tabs.Tab;
+  tabId: number;
+  frameId: number | undefined;
+};
+
 /**
  * Owns the autofill monitoring lifecycle in the background: tracking which
  * injected frames are live, commanding them to start and stop monitoring as
@@ -12,10 +28,20 @@ export abstract class AutofillLifecycleService {
   abstract init: () => void;
   /**
    * Records a page transition reported by a page-lifecycle monitor. The
-   * transition is buffered until its frame is monitoring, then resolved into a
-   * page-details collection — or dropped if the frame is retired first.
+   * transition is buffered until its frame is monitoring, at which point
+   * `pageTransitionResolved$` emits, unless the frame is retired first.
    */
   abstract reportPageTransition: (tab: chrome.tabs.Tab, frameId: number | undefined) => void;
+  /**
+   * Emits once for each page transition reconciled against monitoring.
+   */
+  abstract pageTransitionResolved$: Observable<PageTransitionResolved>;
+  /**
+   * Fires when a tab is removed. Tab removal is a lifecycle concern; consumers
+   * that key work by tab (e.g. per-tab reactive groups) end that work on this
+   * signal so it cannot outlive the tab.
+   */
+  abstract tabRemoved$: (tabId: number) => Observable<void>;
   /**
    * Begins monitoring a freshly-injected frame: commands it to start when an
    * account is logged in. Called by the injection path once a frame's scripts
