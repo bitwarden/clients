@@ -24,6 +24,39 @@ export const AccessAuditEventKind = Object.freeze({
   LeasingKillSwitchTriggered: "leasingKillSwitchTriggered",
   LeasingFreezeEnabled: "leasingFreezeEnabled",
   LeasingFreezeLifted: "leasingFreezeLifted",
+  // Rotation lifecycle — defined so the contract is stable as deferred kinds come online.
+  RotationConfigCreated: "rotationConfigCreated",
+  RotationSettingsUpdated: "rotationSettingsUpdated",
+  RotationAccountUpdated: "rotationAccountUpdated",
+  RotationPaused: "rotationPaused",
+  RotationResumed: "rotationResumed",
+  RotationConfigDeleted: "rotationConfigDeleted",
+  RotationOffered: "rotationOffered",
+  RotationDispatched: "rotationDispatched",
+  RotationSucceeded: "rotationSucceeded",
+  RotationAttemptFailed: "rotationAttemptFailed",
+  RotationFailed: "rotationFailed",
+  RotationReleased: "rotationReleased",
+  RotationTimedOut: "rotationTimedOut",
+  RotationWriteRejected: "rotationWriteRejected",
+  RotationReportRejected: "rotationReportRejected",
+  ManualRotationDue: "manualRotationDue",
+  ManualRotationRecorded: "manualRotationRecorded",
+  // Rotation fleet / target — defined so the contract is stable as deferred kinds come online.
+  DaemonRegistered: "daemonRegistered",
+  // Legacy: the revoke action was replaced by the reversible disable/enable pair plus a permanent delete. Retained so
+  // historical audit rows still resolve a label.
+  DaemonRevoked: "daemonRevoked",
+  DaemonDisabled: "daemonDisabled",
+  DaemonEnabled: "daemonEnabled",
+  DaemonDeleted: "daemonDeleted",
+  DaemonAssigned: "daemonAssigned",
+  DaemonUnassigned: "daemonUnassigned",
+  TargetRegistered: "targetRegistered",
+  TargetDisabled: "targetDisabled",
+  TargetEnabled: "targetEnabled",
+  TargetRenamed: "targetRenamed",
+  TargetPolicyUpdated: "targetPolicyUpdated",
 } as const);
 export type AccessAuditEventKind = (typeof AccessAuditEventKind)[keyof typeof AccessAuditEventKind];
 
@@ -65,6 +98,35 @@ export class AccessAuditEventResponse extends BaseResponse {
   /** True when the action's outcome never landed (only the write-ahead attempt was recorded) — an in-doubt entry. */
   incomplete: boolean;
 
+  // --- Rotation fields (populated for rotation-lifecycle and fleet/target event kinds) ---
+
+  /** The rotation target-system id, when the event is about a target system or a config bound to one. */
+  targetSystemId: string | null;
+  /** The rotation target-system display name snapshotted at write time; plaintext org configuration. */
+  targetSystemName: string | null;
+  /** The rotation daemon id, when the event is about a daemon or its assignments. */
+  daemonId: string | null;
+  /** The rotation daemon display name snapshotted at write time; plaintext org configuration. */
+  daemonName: string | null;
+  /** The rotation config id, when the event is about a managed credential's rotation config. */
+  rotationConfigId: string | null;
+  /** The rotation job id that the event is scoped to, when relevant. */
+  rotationJobId: string | null;
+  /**
+   * The source that triggered the rotation job, when the event is a job lifecycle event.
+   * Numeric tinyint: Scheduled = 0, OnDemand = 1, AccessEnd = 2.
+   * Kept as a plain number here to avoid coupling to the rotation const objects (ADR-0025);
+   * callers may cast to `RotationSource` from `@bitwarden/bit-pam` if needed.
+   */
+  rotationSource: number | null;
+  /**
+   * The target-system sync state recorded for a rotation attempt outcome.
+   * Numeric tinyint: TargetUnchanged = 0, TargetUpdated = 1, Indeterminate = 2.
+   * Kept as a plain number here to avoid coupling to the rotation const objects (ADR-0025);
+   * callers may cast to `RotationSyncState` from `@bitwarden/bit-pam` if needed.
+   */
+  syncState: number | null;
+
   constructor(response: unknown) {
     super(response);
     this.kind = this.getResponseProperty("Kind");
@@ -89,5 +151,13 @@ export class AccessAuditEventResponse extends BaseResponse {
     this.ruleName = this.getResponseProperty("RuleName") ?? null;
     this.automated = this.getResponseProperty("Automated");
     this.incomplete = this.getResponseProperty("Incomplete") ?? false;
+    this.targetSystemId = this.getResponseProperty("TargetSystemId") ?? null;
+    this.targetSystemName = this.getResponseProperty("TargetSystemName") ?? null;
+    this.daemonId = this.getResponseProperty("DaemonId") ?? null;
+    this.daemonName = this.getResponseProperty("DaemonName") ?? null;
+    this.rotationConfigId = this.getResponseProperty("RotationConfigId") ?? null;
+    this.rotationJobId = this.getResponseProperty("RotationJobId") ?? null;
+    this.rotationSource = this.getResponseProperty("RotationSource") ?? null;
+    this.syncState = this.getResponseProperty("SyncState") ?? null;
   }
 }

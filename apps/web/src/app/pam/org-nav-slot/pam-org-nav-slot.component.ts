@@ -28,7 +28,10 @@ import { PamInboxBadgeService } from "../pam-inbox-badge.service";
 export class PamOrgNavSlotComponent {
   readonly organization = input.required<Organization>();
 
-  protected readonly pamEnabled$ = inject(ConfigService).getFeatureFlag$(FeatureFlag.Pam);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly pamEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+  protected readonly rotationEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.PamRotation);
   protected readonly pamInboxBadgeCount = toSignal(
     inject(PamInboxBadgeService, { optional: true })?.count$ ?? of(0),
     { initialValue: 0 },

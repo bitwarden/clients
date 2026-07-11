@@ -1,0 +1,174 @@
+import { Injectable, inject } from "@angular/core";
+import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
+
+import { PamApiService, RotationConfigResponse } from "@bitwarden/bit-pam";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
+import { OrgCiphersService } from "../org-ciphers.service";
+import { TargetSystemsService } from "../target-systems/target-systems.service";
+
+import { RotationConfigRow, buildRotationConfigRow } from "./rotation-config-row";
+
+/**
+ * Page-scoped data service for the managed-credentials tab.
+ *
+ * Provided at the rotation shell route so all rotation tabs share one loaded instance.
+ * Owns the rotation config list, joins target systems and cipher names, and performs
+ * mutations with optimistic local patching (rollback + rethrow on error).
+ */
+@Injectable()
+export class RotationConfigsService {
+  private readonly pamApi = inject(PamApiService);
+  private readonly targetSystems = inject(TargetSystemsService);
+  private readonly orgCiphers = inject(OrgCiphersService);
+
+  /** Set by {@link load}; the org all subsequent mutations target. */
+  private organizationId: OrganizationId | null = null;
+
+  private readonly _configs$ = new BehaviorSubject<RotationConfigResponse[]>([]);
+  private readonly _loading$ = new BehaviorSubject<boolean>(true);
+
+  readonly configs$: Observable<RotationConfigResponse[]> = this._configs$.asObservable();
+  readonly loading$: Observable<boolean> = this._loading$.asObservable();
+
+  /** Count of configs currently awaiting a manual rotation from the operator. */
+  readonly awaitingManualCount$: Observable<number> = this._configs$.pipe(
+    map((configs) => configs.filter((c) => c.awaitingManualRotation).length),
+  );
+
+  /**
+   * Rotation configs projected into presentation rows, joined with resolved target
+   * systems and cipher names. Updates whenever any of the three sources changes.
+   */
+  readonly rows$: Observable<RotationConfigRow[]> = combineLatest([
+    this._configs$,
+    this.targetSystems.systemById$,
+    this.orgCiphers.cipherNameById$,
+  ]).pipe(
+    map(([configs, systemById, cipherNameById]) =>
+      configs.map((config) =>
+        buildRotationConfigRow(
+          config,
+          systemById.get(config.targetSystemId),
+          cipherNameById.get(config.cipherId),
+        ),
+      ),
+    ),
+  );
+
+  /**
+   * Load the org's rotation configs and kick off sibling loads for target systems and
+   * org ciphers in parallel. All three fetches must complete before the loading spinner
+   * clears — the rows depend on all three.
+   */
+  async load(organizationId: OrganizationId): Promise<void> {
+    this.organizationId = organizationId;
+    this._loading$.next(true);
+    try {
+      const [configsResponse] = await Promise.all([
+        this.pamApi.listRotationConfigs(organizationId),
+        this.targetSystems.load(organizationId),
+        this.orgCiphers.load(organizationId),
+      ]);
+      this._configs$.next(configsResponse.data);
+    } finally {
+      this._loading$.next(false);
+    }
+  }
+
+  /**
+   * Pause a rotation config (set enabled = false).
+   * Optimistically patches local state; rolls back + rethrows on API failure.
+   */
+  async pause(config: RotationConfigResponse): Promise<void> {
+    this.patchConfig(config.id, { enabled: false });
+    try {
+      await this.pamApi.pauseRotationConfig(this.requireOrganizationId(), config.id);
+    } catch (e) {
+      this.patchConfig(config.id, { enabled: true });
+      throw e;
+    }
+  }
+
+  /**
+   * Resume a rotation config (set enabled = true).
+   * Optimistically patches local state; rolls back + rethrows on API failure.
+   */
+  async resume(config: RotationConfigResponse): Promise<void> {
+    this.patchConfig(config.id, { enabled: true });
+    try {
+      await this.pamApi.resumeRotationConfig(this.requireOrganizationId(), config.id);
+    } catch (e) {
+      this.patchConfig(config.id, { enabled: false });
+      throw e;
+    }
+  }
+
+  /**
+   * Dispatch an on-demand rotation for a config.
+   * Optimistically sets hasActiveJob = true so the row reflects the in-progress state
+   * immediately. Does not roll back on error — the list will re-reflect truth on next load.
+   */
+  async rotateNow(config: RotationConfigResponse): Promise<void> {
+    await this.pamApi.rotateNow(this.requireOrganizationId(), config.id);
+    this.patchConfig(config.id, { hasActiveJob: true });
+  }
+
+  /**
+   * Record that a manual rotation was performed out-of-band.
+   * Optimistically clears awaitingManualRotation and sets lastRotationAt to now.
+   * Rolls back + rethrows on API failure.
+   */
+  async recordManual(config: RotationConfigResponse): Promise<void> {
+    const previousAwaitingManual = config.awaitingManualRotation;
+    const previousLastRotationAt = config.lastRotationAt;
+    this.patchConfig(config.id, {
+      awaitingManualRotation: false,
+      lastRotationAt: new Date().toISOString(),
+    });
+    try {
+      await this.pamApi.recordManualRotation(this.requireOrganizationId(), config.id);
+    } catch (e) {
+      this.patchConfig(config.id, {
+        awaitingManualRotation: previousAwaitingManual,
+        lastRotationAt: previousLastRotationAt,
+      });
+      throw e;
+    }
+  }
+
+  /**
+   * Delete a rotation config, removing it from local state.
+   * Does not optimistically patch — waits for the server to confirm before removing.
+   * Rolls back is implicit: if the API throws, _configs$ is unchanged.
+   */
+  async delete(config: RotationConfigResponse): Promise<void> {
+    await this.pamApi.deleteRotationConfig(this.requireOrganizationId(), config.id);
+    this._configs$.next(this._configs$.value.filter((c) => c.id !== config.id));
+  }
+
+  private requireOrganizationId(): OrganizationId {
+    if (this.organizationId == null) {
+      throw new Error("RotationConfigsService.load must run before mutating configs.");
+    }
+    return this.organizationId;
+  }
+
+  /**
+   * Apply a partial patch to the config with the given id in the local stream.
+   * Creates a new object (preserves reference-equality semantics for OnPush).
+   */
+  private patchConfig(id: string, patch: Partial<RotationConfigResponse>): void {
+    this._configs$.next(
+      this._configs$.value.map((c) =>
+        c.id === id
+          ? (Object.assign(
+              Object.create(Object.getPrototypeOf(c)),
+              c,
+              patch,
+            ) as RotationConfigResponse)
+          : c,
+      ),
+    );
+  }
+}

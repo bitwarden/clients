@@ -41,8 +41,9 @@ After modifying code, run:
 
 - `npm run lint:fix` — applies ESLint fixes
 - `npm run prettier` — formats with Prettier
-- `npm run test:types` — type-checks the workspace
+- `npm run test:types` — type-checks the workspace. **Does NOT type-check Angular templates.**
 - `npm test` — runs Jest. Scope with `npm test -- <path-or-pattern>` when changes are localized.
+- **After changing Angular components or templates**: only the Angular compiler (`strictTemplates`) checks templates — plain `tsc` passes with template errors still present (invalid icon names, unknown elements from missing `imports`, NG8xxx diagnostics). Run `npx ngc -p <app tsconfig> --noEmit` (e.g. `npx ngc -p bitwarden_license/bit-web/tsconfig.json --noEmit` for commercial web) or build the affected app (`npm run build:oss:dev` / `build:bit:dev` from `apps/web`). Fix every diagnostic that cites "Error occurs in the template". Note that runtime DI errors (`NG0201`, e.g. a directive missing its required host or an unprovided page-scoped service) are invisible to ALL static checks and to specs that override templates — render or click through new surfaces before reporting done.
 
 If any of these fail, fix the underlying issue before reporting the task complete. Do not skip hooks or bypass failures.
 

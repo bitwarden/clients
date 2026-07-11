@@ -118,6 +118,7 @@ export enum FeatureFlag {
 
   /* PAM */
   Pam = "pm-37044-pam-v-0",
+  PamRotation = "pm-39040-pam-rotation",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -245,6 +246,10 @@ export const DefaultFeatureFlagValue = {
   // round-trips through the mock PAM API without requiring a LaunchDarkly
   // override. Revert to FALSE before merging upstream.
   [FeatureFlag.Pam]: TRUE,
+  // DEMO ONLY: defaulted TRUE in this worktree so the Rotation nav item and
+  // routes are visible without a LaunchDarkly override.
+  // Revert to FALSE before merging upstream.
+  [FeatureFlag.PamRotation]: TRUE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

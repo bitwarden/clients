@@ -98,6 +98,26 @@ Use built-in `@if` / `@for` / `@switch` — not `*ngIf` / `*ngFor` / `*ngSwitch`
 }
 ```
 
+**Exception — `bit-table` body templates.** The table body row loop keeps the legacy pattern; do NOT convert it to `@for` (the `let-rows$` context is untyped, so `@for` fails under `strictTemplates`):
+
+```html
+<ng-template body let-rows$>
+  <tr bitRow *ngFor="let r of rows$ | async">
+    …
+  </tr>
+</ng-template>
+```
+
+The component must import `CommonModule` — without it the `*ngFor` silently never renders (the build emits only an NG8103 warning).
+
+### Async Actions
+
+`[bitAction]` requires a `ButtonLikeAbstraction` host — only `bitButton` / `bitIconButton` provide it. On a `bitMenuItem` it compiles but throws `NG0201` at runtime. Menu items use `(click)="method(row)"` with methods that self-handle errors (try/catch + error toast).
+
+### Form Fields
+
+`<bit-form-field>` has a **required** content query for a `BitFormFieldControl` child (`bitInput` on an input/select/textarea, or `bit-select`). Wrapping anything else — a checkbox, a custom composite CVA — compiles but throws `NG0951` at runtime. Checkboxes go in `<bit-form-control>`; composite CVA components that render their own `bit-form-field`s internally are embedded bare (see the ip-allowlist editor in access-rule-edit).
+
 ### Class & Style Bindings
 
 Prefer native `[class.x]` / `[style.x]` over `ngClass` / `ngStyle`. For many classes/styles, compose with `computed()`.

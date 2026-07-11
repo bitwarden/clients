@@ -11,11 +11,25 @@ import {
   AccessLeaseRevokeRequest,
   AccessRequestCreateRequest,
   AccessRuleRequest,
+  DaemonAssignmentRequest,
+  DaemonRegisterRequest,
+  RotationConfigAccountRequest,
+  RotationConfigCreateRequest,
+  RotationConfigSettingsRequest,
+  TargetSystemCreateRequest,
+  TargetSystemMethod,
+  TargetSystemKind,
+  TargetSystemNameRequest,
+  TargetSystemPolicyRequest,
 } from "@bitwarden/bit-pam";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { DefaultPamApiService } from "./default-pam-api.service";
+
+const ORG_ID = "org-1" as OrganizationId;
 
 const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -796,6 +810,730 @@ describe("DefaultPamApiService", () => {
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe("lease-9");
       expect(result[0].status).toBe("revoked");
+    });
+  });
+
+  // ─── Rotation (Admin Console) ──────────────────────────────────────────────
+
+  describe("listRotationDaemons", () => {
+    it("GETs /organizations/{orgId}/rotation/daemons and wraps in ListResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "daemon-1",
+            Name: "My Daemon",
+            Status: 0,
+            IsConnected: true,
+            AssignedTargetSystemIds: ["ts-1"],
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listRotationDaemons(ORG_ID);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/daemons",
+        null,
+        true,
+        true,
+      );
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe("daemon-1");
+      expect(result.data[0].name).toBe("My Daemon");
+      expect(result.data[0].status).toBe(0);
+      expect(result.data[0].isConnected).toBe(true);
+      expect(result.data[0].assignments).toEqual(["ts-1"]);
+    });
+  });
+
+  describe("getRotationDaemon", () => {
+    it("GETs /organizations/{orgId}/rotation/daemons/{id} and parses jobs", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "daemon-1",
+        Name: "My Daemon",
+        Status: 0,
+        IsConnected: true,
+        AssignedTargetSystemIds: ["ts-1"],
+        Jobs: [
+          {
+            Id: "job-1",
+            Source: 0,
+            Status: 2,
+            CreatedAt: "2026-07-01T00:00:00Z",
+            Attempts: [],
+          },
+        ],
+      });
+
+      const result = await service.getRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/daemons/daemon-1",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("daemon-1");
+      expect(result.assignments).toEqual(["ts-1"]);
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0].id).toBe("job-1");
+    });
+  });
+
+  describe("registerRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons with request body and returns DaemonRegistrationResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "daemon-2",
+        ApiKeyId: "key-1",
+        ClientSecret: "secret-abc",
+      });
+      const encPayload = mock<EncString>();
+      const encKey = mock<EncString>();
+      const req = new DaemonRegisterRequest({
+        name: "Prod Daemon",
+        encryptedPayload: encPayload,
+        key: encKey,
+      });
+
+      const result = await service.registerRotationDaemon(ORG_ID, req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/daemons",
+        req,
+        true,
+        true,
+      );
+      expect(result.id).toBe("daemon-2");
+      expect(result.apiKeyId).toBe("key-1");
+      expect(result.clientSecret).toBe("secret-abc");
+    });
+  });
+
+  describe("enableRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/enable without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.enableRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/daemons/daemon-1/enable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("disableRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/disable without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.disableRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/daemons/daemon-1/disable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("deleteRotationDaemon", () => {
+    it("DELETEs /organizations/{orgId}/rotation/daemons/{id} without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteRotationDaemon(ORG_ID, "daemon-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/daemons/daemon-1",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("assignRotationDaemon", () => {
+    it("POSTs /organizations/{orgId}/rotation/daemons/{id}/assignments with request body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+      const req = new DaemonAssignmentRequest({ targetSystemId: "ts-1" });
+
+      await service.assignRotationDaemon(ORG_ID, "daemon-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/daemons/daemon-1/assignments",
+        req,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("unassignRotationDaemon", () => {
+    it("DELETEs /organizations/{orgId}/rotation/daemons/{id}/assignments/{targetSystemId}", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.unassignRotationDaemon(ORG_ID, "daemon-1", "ts-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/daemons/daemon-1/assignments/ts-1",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("listTargetSystems", () => {
+    it("GETs /organizations/{orgId}/rotation/target-systems and wraps in ListResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "ts-1",
+            Name: "Entra Prod",
+            Method: 0,
+            Kind: 0,
+            Status: 0,
+            PasswordPolicy: {
+              minLength: 12,
+              maxLength: 64,
+              includeUppercase: true,
+              includeLowercase: true,
+              includeDigits: true,
+              includeSymbols: false,
+            },
+            SupportsSessionTermination: true,
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listTargetSystems(ORG_ID);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/target-systems",
+        null,
+        true,
+        true,
+      );
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe("ts-1");
+      expect(result.data[0].method).toBe(TargetSystemMethod.Automatic);
+      expect(result.data[0].kind).toBe(TargetSystemKind.Entra);
+      expect(result.data[0].status).toBe(0);
+      expect(result.data[0].passwordPolicy?.minLength).toBe(12);
+      expect(result.data[0].supportsSessionTermination).toBe(true);
+    });
+  });
+
+  describe("createTargetSystem", () => {
+    it("POSTs /organizations/{orgId}/rotation/target-systems and returns TargetSystemResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "ts-2",
+        Name: "MSSQL Dev",
+        Method: 0,
+        Kind: 1,
+        Status: 0,
+        PasswordPolicy: null,
+        SupportsSessionTermination: false,
+      });
+      const req = new TargetSystemCreateRequest({
+        name: "MSSQL Dev",
+        method: TargetSystemMethod.Automatic,
+        kind: TargetSystemKind.Mssql,
+        passwordPolicy: {
+          minLength: 8,
+          maxLength: 32,
+          includeUppercase: true,
+          includeLowercase: true,
+          includeDigits: true,
+          includeSymbols: false,
+        },
+        supportsSessionTermination: false,
+      });
+
+      const result = await service.createTargetSystem(ORG_ID, req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/target-systems",
+        req,
+        true,
+        true,
+      );
+      expect(result.id).toBe("ts-2");
+      expect(result.name).toBe("MSSQL Dev");
+    });
+  });
+
+  describe("enableTargetSystem", () => {
+    it("POSTs /organizations/{orgId}/rotation/target-systems/{id}/enable without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.enableTargetSystem(ORG_ID, "ts-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/target-systems/ts-1/enable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("disableTargetSystem", () => {
+    it("POSTs /organizations/{orgId}/rotation/target-systems/{id}/disable without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.disableTargetSystem(ORG_ID, "ts-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/target-systems/ts-1/disable",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("renameTargetSystem", () => {
+    it("PUTs /organizations/{orgId}/rotation/target-systems/{id}/name and returns TargetSystemResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "ts-1",
+        Name: "Entra Prod (renamed)",
+        Method: 0,
+        Kind: 0,
+        Status: 0,
+        PasswordPolicy: null,
+        SupportsSessionTermination: null,
+      });
+      const req = new TargetSystemNameRequest({ name: "Entra Prod (renamed)" });
+
+      const result = await service.renameTargetSystem(ORG_ID, "ts-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-1/rotation/target-systems/ts-1/name",
+        req,
+        true,
+        true,
+      );
+      expect(result.name).toBe("Entra Prod (renamed)");
+    });
+  });
+
+  describe("updateTargetSystemPolicy", () => {
+    it("PUTs /organizations/{orgId}/rotation/target-systems/{id}/policy and returns TargetSystemResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "ts-1",
+        Name: "Entra Prod",
+        Method: 0,
+        Kind: 0,
+        Status: 0,
+        PasswordPolicy: {
+          minLength: 16,
+          maxLength: 128,
+          includeUppercase: true,
+          includeLowercase: true,
+          includeDigits: true,
+          includeSymbols: true,
+        },
+        SupportsSessionTermination: true,
+      });
+      const req = new TargetSystemPolicyRequest({
+        passwordPolicy: {
+          minLength: 16,
+          maxLength: 128,
+          includeUppercase: true,
+          includeLowercase: true,
+          includeDigits: true,
+          includeSymbols: true,
+        },
+        supportsSessionTermination: true,
+      });
+
+      const result = await service.updateTargetSystemPolicy(ORG_ID, "ts-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-1/rotation/target-systems/ts-1/policy",
+        req,
+        true,
+        true,
+      );
+      expect(result.passwordPolicy?.minLength).toBe(16);
+      expect(result.supportsSessionTermination).toBe(true);
+    });
+  });
+
+  describe("deleteTargetSystem", () => {
+    it("DELETEs /organizations/{orgId}/rotation/target-systems/{id}", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteTargetSystem(ORG_ID, "ts-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/target-systems/ts-1",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("listRotationConfigs", () => {
+    it("GETs /organizations/{orgId}/rotation/configs and wraps in ListResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          {
+            Id: "cfg-1",
+            CipherId: "cipher-1",
+            TargetSystemId: "ts-1",
+            TargetSystemName: "Entra Prod",
+            TargetSystemMethod: 0,
+            AccountIdentity: "svc@contoso.com",
+            TerminateSessions: true,
+            ScheduleCron: "0 0 0 * * ?",
+            RotateOnAccessEnd: false,
+            Enabled: true,
+            LastRotationAt: null,
+            NextRotationAt: "2026-07-08T00:00:00Z",
+            HasActiveJob: false,
+            AwaitingManualRotation: false,
+          },
+        ],
+        ContinuationToken: null,
+      });
+
+      const result = await service.listRotationConfigs(ORG_ID);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/configs",
+        null,
+        true,
+        true,
+      );
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe("cfg-1");
+      expect(result.data[0].cipherId).toBe("cipher-1");
+      expect(result.data[0].scheduleCron).toBe("0 0 0 * * ?");
+      expect(result.data[0].enabled).toBe(true);
+      expect(result.data[0].hasActiveJob).toBe(false);
+    });
+  });
+
+  describe("createRotationConfig", () => {
+    it("POSTs /organizations/{orgId}/rotation/configs and returns RotationConfigResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "cfg-2",
+        CipherId: "cipher-2",
+        TargetSystemId: "ts-1",
+        TargetSystemName: "Entra Prod",
+        TargetSystemMethod: 0,
+        AccountIdentity: "admin@contoso.com",
+        TerminateSessions: false,
+        ScheduleCron: null,
+        RotateOnAccessEnd: true,
+        Enabled: true,
+        LastRotationAt: null,
+        NextRotationAt: null,
+        HasActiveJob: false,
+        AwaitingManualRotation: false,
+      });
+      const req = new RotationConfigCreateRequest({
+        cipherId: "cipher-2",
+        targetSystemId: "ts-1",
+        accountIdentity: "admin@contoso.com",
+        terminateSessions: false,
+        scheduleCron: null,
+        rotateOnAccessEnd: true,
+      });
+
+      const result = await service.createRotationConfig(ORG_ID, req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/configs",
+        req,
+        true,
+        true,
+      );
+      expect(result.id).toBe("cfg-2");
+      expect(result.rotateOnAccessEnd).toBe(true);
+      expect(result.scheduleCron).toBeNull();
+    });
+  });
+
+  describe("getRotationConfig", () => {
+    it("GETs /organizations/{orgId}/rotation/configs/{id} and returns RotationConfigDetailsResponse with jobs", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "cfg-1",
+        CipherId: "cipher-1",
+        TargetSystemId: "ts-1",
+        TargetSystemName: "Entra Prod",
+        TargetSystemMethod: 0,
+        AccountIdentity: "svc@contoso.com",
+        TerminateSessions: false,
+        ScheduleCron: "0 0 0 * * ?",
+        RotateOnAccessEnd: false,
+        Enabled: true,
+        LastRotationAt: "2026-07-07T00:00:00Z",
+        NextRotationAt: "2026-07-08T00:00:00Z",
+        HasActiveJob: false,
+        AwaitingManualRotation: false,
+        Jobs: [
+          {
+            Id: "job-1",
+            Source: 1,
+            Status: 2,
+            CreatedAt: "2026-07-07T00:00:00Z",
+            Attempts: [
+              {
+                Id: "attempt-1",
+                Status: 1,
+                FailureReason: null,
+                SyncState: 1,
+                SessionTermination: 0,
+                StartedAt: "2026-07-07T00:00:01Z",
+                EndedAt: "2026-07-07T00:00:05Z",
+              },
+            ],
+          },
+        ],
+      });
+
+      const result = await service.getRotationConfig(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/rotation/configs/cfg-1",
+        null,
+        true,
+        true,
+      );
+      expect(result.id).toBe("cfg-1");
+      expect(result.jobs).toHaveLength(1);
+      expect(result.jobs[0].id).toBe("job-1");
+      expect(result.jobs[0].source).toBe(1);
+      expect(result.jobs[0].status).toBe(2);
+      expect(result.jobs[0].attempts).toHaveLength(1);
+      expect(result.jobs[0].attempts[0].id).toBe("attempt-1");
+      expect(result.jobs[0].attempts[0].syncState).toBe(1);
+    });
+  });
+
+  describe("updateRotationConfigSettings", () => {
+    it("PUTs /organizations/{orgId}/rotation/configs/{id}/settings and returns RotationConfigResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "cfg-1",
+        CipherId: "cipher-1",
+        TargetSystemId: "ts-1",
+        TargetSystemName: "Entra Prod",
+        TargetSystemMethod: 0,
+        AccountIdentity: "svc@contoso.com",
+        TerminateSessions: false,
+        ScheduleCron: "0 0 */6 * * ?",
+        RotateOnAccessEnd: true,
+        Enabled: true,
+        LastRotationAt: null,
+        NextRotationAt: null,
+        HasActiveJob: false,
+        AwaitingManualRotation: false,
+      });
+      const req = new RotationConfigSettingsRequest({
+        scheduleCron: "0 0 */6 * * ?",
+        rotateOnAccessEnd: true,
+      });
+
+      const result = await service.updateRotationConfigSettings(ORG_ID, "cfg-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-1/rotation/configs/cfg-1/settings",
+        req,
+        true,
+        true,
+      );
+      expect(result.scheduleCron).toBe("0 0 */6 * * ?");
+      expect(result.rotateOnAccessEnd).toBe(true);
+    });
+  });
+
+  describe("updateRotationConfigAccount", () => {
+    it("PUTs /organizations/{orgId}/rotation/configs/{id}/account and returns RotationConfigResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "cfg-1",
+        CipherId: "cipher-1",
+        TargetSystemId: "ts-1",
+        TargetSystemName: "Entra Prod",
+        TargetSystemMethod: 0,
+        AccountIdentity: "newsvc@contoso.com",
+        TerminateSessions: true,
+        ScheduleCron: null,
+        RotateOnAccessEnd: false,
+        Enabled: true,
+        LastRotationAt: null,
+        NextRotationAt: null,
+        HasActiveJob: false,
+        AwaitingManualRotation: false,
+      });
+      const req = new RotationConfigAccountRequest({
+        accountIdentity: "newsvc@contoso.com",
+        terminateSessions: true,
+      });
+
+      const result = await service.updateRotationConfigAccount(ORG_ID, "cfg-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "PUT",
+        "/organizations/org-1/rotation/configs/cfg-1/account",
+        req,
+        true,
+        true,
+      );
+      expect(result.accountIdentity).toBe("newsvc@contoso.com");
+      expect(result.terminateSessions).toBe(true);
+    });
+  });
+
+  describe("pauseRotationConfig", () => {
+    it("POSTs /organizations/{orgId}/rotation/configs/{id}/pause without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.pauseRotationConfig(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/configs/cfg-1/pause",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("resumeRotationConfig", () => {
+    it("POSTs /organizations/{orgId}/rotation/configs/{id}/resume without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.resumeRotationConfig(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/configs/cfg-1/resume",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("rotateNow", () => {
+    it("POSTs /organizations/{orgId}/rotation/configs/{id}/rotate without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.rotateNow(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/configs/cfg-1/rotate",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("recordManualRotation", () => {
+    it("POSTs /organizations/{orgId}/rotation/configs/{id}/record-manual without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.recordManualRotation(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/organizations/org-1/rotation/configs/cfg-1/record-manual",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("deleteRotationConfig", () => {
+    it("DELETEs /organizations/{orgId}/rotation/configs/{id} without a response body", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      await service.deleteRotationConfig(ORG_ID, "cfg-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "DELETE",
+        "/organizations/org-1/rotation/configs/cfg-1",
+        null,
+        true,
+        false,
+      );
+    });
+  });
+
+  describe("rotation mutations do not pump mutations$", () => {
+    it("rotateNow does not emit on mutations$", async () => {
+      apiService.send.mockResolvedValue(undefined);
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await service.rotateNow(ORG_ID, "cfg-1");
+
+      expect(mutations).not.toHaveBeenCalled();
+      sub.unsubscribe();
+    });
+
+    it("pauseRotationConfig does not emit on mutations$", async () => {
+      apiService.send.mockResolvedValue(undefined);
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await service.pauseRotationConfig(ORG_ID, "cfg-1");
+
+      expect(mutations).not.toHaveBeenCalled();
+      sub.unsubscribe();
+    });
+
+    it("registerRotationDaemon does not emit on mutations$", async () => {
+      apiService.send.mockResolvedValue({
+        Id: "daemon-x",
+        ApiKeyId: "key-x",
+        ClientSecret: "secret-x",
+      });
+      const encPayload = mock<EncString>();
+      const encKey = mock<EncString>();
+      const req = new DaemonRegisterRequest({
+        name: "Test",
+        encryptedPayload: encPayload,
+        key: encKey,
+      });
+      const mutations = jest.fn();
+      const sub = service.mutations$.subscribe(mutations);
+
+      await service.registerRotationDaemon(ORG_ID, req);
+
+      expect(mutations).not.toHaveBeenCalled();
+      sub.unsubscribe();
     });
   });
 });

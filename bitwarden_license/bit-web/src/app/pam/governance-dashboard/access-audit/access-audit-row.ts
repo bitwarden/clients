@@ -31,6 +31,20 @@ export type AuditRow = {
   requestId: string | null;
   /** Lowercased haystack for the free-text filter: actor, requester, item, and detail. */
   searchText: string;
+  /** The rotation target-system display name, for rotation lifecycle and target fleet events; null otherwise. */
+  targetSystemName: string | null;
+  /** The rotation daemon display name, for daemon fleet events; null otherwise. */
+  daemonName: string | null;
+  /**
+   * The source that triggered the rotation job (Scheduled=0, OnDemand=1, AccessEnd=2), for job lifecycle events.
+   * Kept as a plain number to avoid coupling to the rotation const objects (ADR-0025); null when not applicable.
+   */
+  rotationSource: number | null;
+  /**
+   * The target-system sync state for a rotation attempt outcome (TargetUnchanged=0, TargetUpdated=1, Indeterminate=2).
+   * Kept as a plain number to avoid coupling to the rotation const objects (ADR-0025); null when not applicable.
+   */
+  syncState: number | null;
 };
 
 /** The i18n key for an event kind's label. */
@@ -74,6 +88,64 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
       return "pamAuditKindLeasingFreezeEnabled";
     case AccessAuditEventKind.LeasingFreezeLifted:
       return "pamAuditKindLeasingFreezeLifted";
+    case AccessAuditEventKind.RotationConfigCreated:
+      return "pamAuditKindRotationConfigCreated";
+    case AccessAuditEventKind.RotationSettingsUpdated:
+      return "pamAuditKindRotationSettingsUpdated";
+    case AccessAuditEventKind.RotationAccountUpdated:
+      return "pamAuditKindRotationAccountUpdated";
+    case AccessAuditEventKind.RotationPaused:
+      return "pamAuditKindRotationPaused";
+    case AccessAuditEventKind.RotationResumed:
+      return "pamAuditKindRotationResumed";
+    case AccessAuditEventKind.RotationConfigDeleted:
+      return "pamAuditKindRotationConfigDeleted";
+    case AccessAuditEventKind.RotationOffered:
+      return "pamAuditKindRotationOffered";
+    case AccessAuditEventKind.RotationDispatched:
+      return "pamAuditKindRotationDispatched";
+    case AccessAuditEventKind.RotationSucceeded:
+      return "pamAuditKindRotationSucceeded";
+    case AccessAuditEventKind.RotationAttemptFailed:
+      return "pamAuditKindRotationAttemptFailed";
+    case AccessAuditEventKind.RotationFailed:
+      return "pamAuditKindRotationFailed";
+    case AccessAuditEventKind.RotationReleased:
+      return "pamAuditKindRotationReleased";
+    case AccessAuditEventKind.RotationTimedOut:
+      return "pamAuditKindRotationTimedOut";
+    case AccessAuditEventKind.RotationWriteRejected:
+      return "pamAuditKindRotationWriteRejected";
+    case AccessAuditEventKind.RotationReportRejected:
+      return "pamAuditKindRotationReportRejected";
+    case AccessAuditEventKind.ManualRotationDue:
+      return "pamAuditKindManualRotationDue";
+    case AccessAuditEventKind.ManualRotationRecorded:
+      return "pamAuditKindManualRotationRecorded";
+    case AccessAuditEventKind.DaemonRegistered:
+      return "pamAuditKindDaemonRegistered";
+    case AccessAuditEventKind.DaemonRevoked:
+      return "pamAuditKindDaemonRevoked";
+    case AccessAuditEventKind.DaemonDisabled:
+      return "pamAuditKindDaemonDisabled";
+    case AccessAuditEventKind.DaemonEnabled:
+      return "pamAuditKindDaemonEnabled";
+    case AccessAuditEventKind.DaemonDeleted:
+      return "pamAuditKindDaemonDeleted";
+    case AccessAuditEventKind.DaemonAssigned:
+      return "pamAuditKindDaemonAssigned";
+    case AccessAuditEventKind.DaemonUnassigned:
+      return "pamAuditKindDaemonUnassigned";
+    case AccessAuditEventKind.TargetRegistered:
+      return "pamAuditKindTargetRegistered";
+    case AccessAuditEventKind.TargetDisabled:
+      return "pamAuditKindTargetDisabled";
+    case AccessAuditEventKind.TargetEnabled:
+      return "pamAuditKindTargetEnabled";
+    case AccessAuditEventKind.TargetRenamed:
+      return "pamAuditKindTargetRenamed";
+    case AccessAuditEventKind.TargetPolicyUpdated:
+      return "pamAuditKindTargetPolicyUpdated";
     default:
       return "pamAuditKindUnknown";
   }
@@ -98,6 +170,8 @@ export function toAuditRow(
     (event.cipherId != null ? cipherNameById.get(event.cipherId) : undefined) ?? null;
   const collectionName =
     (event.collectionId != null ? collectionNameById.get(event.collectionId) : undefined) ?? null;
+  const targetSystemName = event.targetSystemName ?? null;
+  const daemonName = event.daemonName ?? null;
   return {
     occurredAt: new Date(event.occurredAt),
     kind: event.kind,
@@ -111,7 +185,20 @@ export function toAuditRow(
     automated: event.automated,
     inDoubt: event.incomplete,
     requestId: event.requestId,
-    searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
+    targetSystemName,
+    daemonName,
+    rotationSource: event.rotationSource,
+    syncState: event.syncState,
+    searchText: [
+      actor,
+      requester,
+      cipherName,
+      collectionName,
+      event.ruleName,
+      event.detail,
+      targetSystemName,
+      daemonName,
+    ]
       .filter((value): value is string => value != null)
       .join(" ")
       .toLowerCase(),

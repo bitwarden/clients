@@ -91,4 +91,112 @@ describe("toAuditRow", () => {
 
     expect(result.inDoubt).toBe(true);
   });
+
+  it("resolves the label key for a rotation lifecycle kind", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.RotationSucceeded,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: true,
+      TargetSystemId: "ts-1",
+      TargetSystemName: "Prod MSSQL",
+      RotationConfigId: "cfg-1",
+      RotationJobId: "job-1",
+      RotationSource: 0,
+      SyncState: 1,
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.kindLabelKey).toBe("pamAuditKindRotationSucceeded");
+    expect(result.targetSystemName).toBe("Prod MSSQL");
+    expect(result.daemonName).toBeNull();
+    expect(result.rotationSource).toBe(0);
+    expect(result.syncState).toBe(1);
+    // targetSystemName is included in the free-text search haystack.
+    expect(result.searchText).toContain("prod mssql");
+  });
+
+  it("subject falls back to targetSystemName when cipher and rule names are absent", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.RotationPaused,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      ActorName: "admin",
+      TargetSystemName: "Entra Prod",
+      RotationConfigId: "cfg-2",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.cipherName).toBeNull();
+    expect(result.ruleName).toBeNull();
+    expect(result.targetSystemName).toBe("Entra Prod");
+    expect(result.searchText).toContain("entra prod");
+  });
+
+  it("subject falls back to daemonName for a daemon fleet event", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.DaemonRegistered,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      ActorName: "admin",
+      DaemonId: "daemon-1",
+      DaemonName: "on-prem-agent-1",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.kindLabelKey).toBe("pamAuditKindDaemonRegistered");
+    expect(result.daemonName).toBe("on-prem-agent-1");
+    expect(result.targetSystemName).toBeNull();
+    expect(result.searchText).toContain("on-prem-agent-1");
+  });
+
+  it("resolves label keys for all mapped rotation event kinds", () => {
+    const rotationKinds: Array<[AccessAuditEventKind, string]> = [
+      [AccessAuditEventKind.RotationConfigCreated, "pamAuditKindRotationConfigCreated"],
+      [AccessAuditEventKind.RotationSettingsUpdated, "pamAuditKindRotationSettingsUpdated"],
+      [AccessAuditEventKind.RotationAccountUpdated, "pamAuditKindRotationAccountUpdated"],
+      [AccessAuditEventKind.RotationPaused, "pamAuditKindRotationPaused"],
+      [AccessAuditEventKind.RotationResumed, "pamAuditKindRotationResumed"],
+      [AccessAuditEventKind.RotationConfigDeleted, "pamAuditKindRotationConfigDeleted"],
+      [AccessAuditEventKind.RotationOffered, "pamAuditKindRotationOffered"],
+      [AccessAuditEventKind.RotationDispatched, "pamAuditKindRotationDispatched"],
+      [AccessAuditEventKind.RotationSucceeded, "pamAuditKindRotationSucceeded"],
+      [AccessAuditEventKind.RotationAttemptFailed, "pamAuditKindRotationAttemptFailed"],
+      [AccessAuditEventKind.RotationFailed, "pamAuditKindRotationFailed"],
+      [AccessAuditEventKind.RotationReleased, "pamAuditKindRotationReleased"],
+      [AccessAuditEventKind.RotationTimedOut, "pamAuditKindRotationTimedOut"],
+      [AccessAuditEventKind.RotationWriteRejected, "pamAuditKindRotationWriteRejected"],
+      [AccessAuditEventKind.RotationReportRejected, "pamAuditKindRotationReportRejected"],
+      [AccessAuditEventKind.ManualRotationDue, "pamAuditKindManualRotationDue"],
+      [AccessAuditEventKind.ManualRotationRecorded, "pamAuditKindManualRotationRecorded"],
+      [AccessAuditEventKind.DaemonRegistered, "pamAuditKindDaemonRegistered"],
+      [AccessAuditEventKind.DaemonRevoked, "pamAuditKindDaemonRevoked"],
+      [AccessAuditEventKind.DaemonDisabled, "pamAuditKindDaemonDisabled"],
+      [AccessAuditEventKind.DaemonEnabled, "pamAuditKindDaemonEnabled"],
+      [AccessAuditEventKind.DaemonDeleted, "pamAuditKindDaemonDeleted"],
+      [AccessAuditEventKind.DaemonAssigned, "pamAuditKindDaemonAssigned"],
+      [AccessAuditEventKind.DaemonUnassigned, "pamAuditKindDaemonUnassigned"],
+      [AccessAuditEventKind.TargetRegistered, "pamAuditKindTargetRegistered"],
+      [AccessAuditEventKind.TargetDisabled, "pamAuditKindTargetDisabled"],
+      [AccessAuditEventKind.TargetEnabled, "pamAuditKindTargetEnabled"],
+      [AccessAuditEventKind.TargetRenamed, "pamAuditKindTargetRenamed"],
+      [AccessAuditEventKind.TargetPolicyUpdated, "pamAuditKindTargetPolicyUpdated"],
+    ];
+
+    for (const [kind, expectedKey] of rotationKinds) {
+      const event = new AccessAuditEventResponse({
+        Kind: kind,
+        OccurredAt: "2026-06-30T12:00:00Z",
+        OrganizationId: "org-1",
+        Automated: true,
+      });
+      const result = toAuditRow(event, new Map(), new Map());
+      expect(result.kindLabelKey).toBe(expectedKey);
+    }
+  });
 });

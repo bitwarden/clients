@@ -83,6 +83,8 @@
                   <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
                 } @else if (row.ruleName) {
                   {{ row.ruleName }}
+                } @else if (row.targetSystemName ?? row.daemonName) {
+                  {{ row.targetSystemName ?? row.daemonName }}
                 } @else {
                   <span class="tw-text-muted">—</span>
                 }
