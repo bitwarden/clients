@@ -16,6 +16,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import { AutofillLifecycleService } from "../services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 
@@ -160,17 +161,33 @@ export class AutofillOrchestrator {
     try {
       switch (request.kind) {
         case "pageLoad": {
-          // Collect then fill inside the serialized step, so this frame's
-          // collect→fill is atomic (see autofill.design.md, "Fills are serialized
-          // per frame").
-          // FIXME (Step 6): this collects across every frame of the tab and
-          // ignores request.frameId; scope it to the reported frame when fill
-          // targeting is tightened (design doc: "collect the frame's page details").
+          // Re-resolve the target tab live by id and require its URL to still match the
+          // transition; abandon if the tab is gone or has navigated. Filling from the carried
+          // snapshot would target the wrong page after a navigation (see autofill.design.md,
+          // "Fill targeting").
+          const liveTab = await BrowserApi.getTab(request.tabId).catch((): null => null);
+          if (liveTab?.url == null || liveTab.url !== request.tab.url) {
+            return;
+          }
+
+          // FIXME (PM-39579): the tab gate replaces this. Until then, keep filling only the active
+          // tab, since resolving the target by id would otherwise fill a background tab.
+          const activeTab = await BrowserApi.getTabFromCurrentWindow();
+          if (activeTab?.id !== request.tabId) {
+            return;
+          }
+
+          // Collect and fill inside the serialized step so this frame's collect→fill is atomic
+          // (autofill.design.md, "Fills are serialized per frame"). Scope to the reported frame;
+          // an undefined frameId collects the whole tab.
           const pageDetails = await firstValueFrom(
-            this.autofillService.collectPageDetailsFromTab$(request.tab),
+            this.autofillService.collectPageDetailsFromTab$(liveTab, request.frameId),
           );
           await this.recordActiveAccountActivity();
-          const totp = await this.autofillService.doAutoFillActiveTab(pageDetails, false);
+          // doAutoFillOnTab throws on empty details; short-circuit to preserve the null outcome.
+          const totp = pageDetails[0]?.details?.fields?.length
+            ? await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false)
+            : null;
           this.copyTotp(totp);
           await this.updateOverlayCiphers();
           break;

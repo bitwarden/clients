@@ -12,6 +12,12 @@ reconciles the page, account, extension, and tab lifecycles and, when a page tra
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
 Autofill decides _whether and how to fill_.
 
+One rule spans every fill: autofill fills only the **committed** tab — the one the user is working in
+(see the [tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never an inactive one. The
+lifecycle carries this for page loads, surfacing an opportunity only once a tab is committed and
+holding it while the tab is away; a user-initiated fill acts on the active tab the user just used.
+Either way a fill lands where the user is looking, never on a background tab.
+
 ## Autofill on page load
 
 Autofill on page load is the response to a resolved page transition. When the lifecycle surfaces the

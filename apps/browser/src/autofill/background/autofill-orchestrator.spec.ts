@@ -7,6 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import {
   AutofillLifecycleService,
   PageTransitionResolved,
@@ -63,6 +64,17 @@ describe("AutofillOrchestrator", () => {
     autofillService = mock<AutofillService>();
     autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
     autofillService.doAutoFillActiveTab.mockResolvedValue(null);
+    autofillService.doAutoFillOnTab.mockResolvedValue(null);
+
+    // Page-load fills re-resolve the target tab by id and require its URL to still match the
+    // transition. By default the live tab matches (same id, same default url) and is the active
+    // tab, so page-load fills proceed; individual tests override to exercise the abandon paths.
+    jest
+      .spyOn(BrowserApi, "getTab")
+      .mockImplementation(async (id: number) => createChromeTabMock({ id }));
+    jest
+      .spyOn(BrowserApi, "getTabFromCurrentWindow")
+      .mockResolvedValue(createChromeTabMock({ id: 1 }));
 
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.autofillOnPageLoad$ = autofillOnPageLoad$;
@@ -90,18 +102,33 @@ describe("AutofillOrchestrator", () => {
   afterEach(() => jest.clearAllMocks());
 
   describe("page-load fills", () => {
-    it("collects, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
-      const pd = pageDetail(1, 0);
+    it("resolves the target by id, collects the reported frame, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
+      // The transition and the live tab share this url so the fill-time match succeeds; a non-zero
+      // frameId guards against the collect scoping to a hardcoded 0.
+      const url = "https://login.example.com/session";
+      const pd = createPageDetailMock({ frameId: 3, tab: createChromeTabMock({ id: 1, url }) });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFillActiveTab.mockResolvedValue("999999");
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
+      autofillService.doAutoFillOnTab.mockResolvedValue("999999");
 
       emitPageTransition(pd);
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab);
+      expect(BrowserApi.getTab).toHaveBeenCalledWith(1);
+      // Collect is scoped to the reported frame and targets the live tab, not the seam snapshot.
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1, url }),
+        3,
+      );
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
-      // fromCommand is false for page-load fills.
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledWith([pd], false);
+      // fromCommand is false for page-load fills; the fill targets the live tab and never falls
+      // back to the active-tab path.
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(
+        [pd],
+        expect.objectContaining({ id: 1, url }),
+        false,
+      );
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("999999");
       expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
 
@@ -112,14 +139,76 @@ describe("AutofillOrchestrator", () => {
         accountService.setAccountActivity.mock.invocationCallOrder[0],
       );
       expect(accountService.setAccountActivity.mock.invocationCallOrder[0]).toBeLessThan(
-        autofillService.doAutoFillActiveTab.mock.invocationCallOrder[0],
+        autofillService.doAutoFillOnTab.mock.invocationCallOrder[0],
       );
-      expect(autofillService.doAutoFillActiveTab.mock.invocationCallOrder[0]).toBeLessThan(
+      expect(autofillService.doAutoFillOnTab.mock.invocationCallOrder[0]).toBeLessThan(
         platformUtilsService.copyToClipboard.mock.invocationCallOrder[0],
       );
       expect(platformUtilsService.copyToClipboard.mock.invocationCallOrder[0]).toBeLessThan(
         updateOverlayCiphers.mock.invocationCallOrder[0],
       );
+    });
+
+    it("records activity and refreshes the overlay but does not fill when the frame has no fields", async () => {
+      // An empty collection short-circuits before doAutoFillOnTab (which throws on empty details),
+      // while the surrounding side effects still run.
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+    });
+
+    it("abandons the fill when the tab id no longer resolves", async () => {
+      jest.spyOn(BrowserApi, "getTab").mockResolvedValue(null as unknown as chrome.tabs.Tab);
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(updateOverlayCiphers).not.toHaveBeenCalled();
+    });
+
+    it("abandons the fill when resolving the tab rejects", async () => {
+      jest.spyOn(BrowserApi, "getTab").mockRejectedValue(new Error("no tab"));
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(logService.error).not.toHaveBeenCalled();
+    });
+
+    it("abandons the fill when the resolved tab has navigated", async () => {
+      jest
+        .spyOn(BrowserApi, "getTab")
+        .mockResolvedValue(createChromeTabMock({ id: 1, url: "https://elsewhere.example" }));
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+    });
+
+    // FIXME (PM-39579): remove with the temporary active-tab guard once the tab gate lands.
+    it("abandons the page-load fill when the tab is not the active tab", async () => {
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 2 }));
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
     });
 
     it("skips the fill entirely when autofill-on-page-load is disabled", async () => {
@@ -128,15 +217,16 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
+      expect(BrowserApi.getTab).not.toHaveBeenCalled();
       expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
       expect(accountService.setAccountActivity).not.toHaveBeenCalled();
     });
 
     it("does not copy to the clipboard when the fill returns no TOTP", async () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
-      autofillService.doAutoFillActiveTab.mockResolvedValue(null);
+      autofillService.doAutoFillOnTab.mockResolvedValue(null);
 
       emitPageTransition(pd);
       await flushPromises();
@@ -233,23 +323,23 @@ describe("AutofillOrchestrator", () => {
       const pd = pageDetail(1, 0);
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       const pageLoadFill = deferred();
-      autofillService.doAutoFillActiveTab.mockReturnValueOnce(pageLoadFill.promise);
+      autofillService.doAutoFillOnTab.mockReturnValueOnce(pageLoadFill.promise);
 
-      // A page-load fill starts and blocks in flight.
+      // A page-load fill (doAutoFillOnTab) starts and blocks in flight.
       emitPageTransition(pd);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(1);
 
-      // A keyboard fill for the same (tab, frame) queues behind it rather than racing —
-      // the two flavors share one serialized entry point.
+      // A keyboard fill (doAutoFillActiveTab) for the same (tab, frame) queues behind it rather
+      // than racing — the two flavors share one serialized entry point.
       autofillOrchestrator.autofillActiveTabFromCommand(pd);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
 
       // Once the page-load fill completes, the queued keyboard fill runs.
       pageLoadFill.resolve(null);
       await flushPromises();
-      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(2);
+      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
   });
 
