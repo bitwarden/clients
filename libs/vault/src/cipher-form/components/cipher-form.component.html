@@ -28,10 +28,7 @@
     }
 
     @if (config.cipherType === CipherType.SshKey) {
-      <vault-sshkey-section
-        [disabled]="config.mode === 'partial-edit'"
-        [originalCipherView]="originalCipherView"
-      ></vault-sshkey-section>
+      <vault-sshkey-section [originalCipherView]="originalCipherView"></vault-sshkey-section>
     }
 
     @if (config.cipherType === CipherType.BankAccount) {
@@ -39,6 +36,20 @@
         [disabled]="config.mode === 'partial-edit'"
         [originalCipherView]="originalCipherView"
       ></vault-bank-account-section>
+    }
+
+    @if (config.cipherType === CipherType.DriversLicense) {
+      <vault-drivers-license-section
+        [disabled]="config.mode === 'partial-edit'"
+        [originalCipherView]="originalCipherView"
+      ></vault-drivers-license-section>
+    }
+
+    @if (config.cipherType === CipherType.Passport) {
+      <vault-passport-section
+        [disabled]="config.mode === 'partial-edit'"
+        [originalCipherView]="originalCipherView"
+      ></vault-passport-section>
     }
 
     <vault-additional-options-section

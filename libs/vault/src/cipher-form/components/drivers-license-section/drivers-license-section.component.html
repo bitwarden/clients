@@ -1,0 +1,76 @@
+<section [formGroup]="driversLicenseForm" class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">
+      {{ "driversLicenseDetails" | i18n }}
+    </h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "firstName" | i18n }}</bit-label>
+      <input id="firstName" bitInput formControlName="firstName" type="text" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "middleName" | i18n }}</bit-label>
+      <input id="middleName" bitInput formControlName="middleName" type="text" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "lastName" | i18n }}</bit-label>
+      <input id="lastName" bitInput formControlName="lastName" type="text" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "licenseNumber" | i18n }}</bit-label>
+      <input
+        id="licenseNumber"
+        bitInput
+        formControlName="licenseNumber"
+        type="password"
+        class="tw-font-mono"
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <vault-date-field-group
+      formControlName="dateOfBirth"
+      [monthLabel]="'birthMonth' | i18n"
+      [dayLabel]="'birthDay' | i18n"
+      [yearLabel]="'birthYear' | i18n"
+    />
+
+    <bit-form-field>
+      <bit-label>{{ "issuingCountry" | i18n }}</bit-label>
+      <input id="issuingCountry" bitInput formControlName="issuingCountry" type="text" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "issuingState" | i18n }}</bit-label>
+      <input id="issuingState" bitInput formControlName="issuingState" type="text" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
+      <input id="issuingAuthority" bitInput formControlName="issuingAuthority" type="text" />
+    </bit-form-field>
+
+    <vault-date-field-group
+      formControlName="issueDate"
+      [monthLabel]="'issueMonth' | i18n"
+      [dayLabel]="'issueDay' | i18n"
+      [yearLabel]="'issueYear' | i18n"
+    />
+
+    <vault-date-field-group
+      formControlName="expirationDate"
+      [monthLabel]="'expirationMonth' | i18n"
+      [dayLabel]="'expirationDay' | i18n"
+      [yearLabel]="'expirationYear' | i18n"
+    />
+
+    <bit-form-field disableMargin>
+      <bit-label>{{ "licenseClass" | i18n }}</bit-label>
+      <input id="licenseClass" bitInput formControlName="licenseClass" type="text" />
+    </bit-form-field>
+  </bit-card>
+</section>

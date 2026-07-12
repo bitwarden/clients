@@ -24,8 +24,8 @@ export class ItemComponent {
    */
   protected readonly focusVisibleWithin = signal(false);
   @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
-    this.focusVisibleWithin.set(target.matches("[data-fvw-target]:focus-visible"));
+  onFocusIn(target: EventTarget) {
+    this.focusVisibleWithin.set((target as HTMLElement).matches("[data-fvw-target]:focus-visible"));
   }
   @HostListener("focusout")
   onFocusOut() {

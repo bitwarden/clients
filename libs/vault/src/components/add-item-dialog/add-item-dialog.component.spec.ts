@@ -109,6 +109,11 @@ describe("AddItemDialogComponent", () => {
     });
 
     it('is "default" when the grid has fewer than 6 items', () => {
+      restricted$.next([
+        { cipherType: CipherType.Card, allowViewOrgIds: [] },
+        { cipherType: CipherType.DriversLicense, allowViewOrgIds: [] },
+        { cipherType: CipherType.Passport, allowViewOrgIds: [] },
+      ]);
       createComponent({
         canCreateFolder: false,
         canCreateCollection: false,
@@ -127,7 +132,11 @@ describe("AddItemDialogComponent", () => {
 
       expect(fixture.componentInstance["dialogSize"]()).toBe("large");
 
-      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] } as any]);
+      restricted$.next([
+        { cipherType: CipherType.Card, allowViewOrgIds: [] },
+        { cipherType: CipherType.DriversLicense, allowViewOrgIds: [] },
+        { cipherType: CipherType.Passport, allowViewOrgIds: [] },
+      ]);
       fixture.detectChanges();
 
       expect(fixture.componentInstance["dialogSize"]()).toBe("default");

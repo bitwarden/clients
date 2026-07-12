@@ -1,25 +1,15 @@
-<!--
-  # Table of Contents
-
-    This file contains a single consolidated template for all visual clients.
-
-  # UI States
-
-    The template has two UI states, defined by the `LoginUiState` enum:
-      EMAIL_ENTRY: displays the email input field + continue button
-      MASTER_PASSWORD_ENTRY: displays the master password input field + login button
--->
-
 <form [bitSubmit]="submit" [formGroup]="formGroup">
   <div [ngClass]="{ 'tw-hidden': loginUiState !== LoginUiState.EMAIL_ENTRY }">
     <!-- Email Address input -->
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
+        id="email"
         type="email"
         formControlName="email"
         bitInput
         appAutofocus
+        data-testid="login-email-input"
         (input)="onEmailInput($event)"
         (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
@@ -30,6 +20,7 @@
       <input
         type="checkbox"
         formControlName="rememberEmail"
+        data-testid="login-remember-email"
         (input)="onRememberEmailInput($event)"
         bitCheckbox
       />
@@ -43,6 +34,7 @@
         bitButton
         block
         buttonType="primary"
+        data-testid="login-continue-button"
         (click)="continuePressed()"
         [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
         [addTooltipToDescribedby]="ssoRequired"
@@ -60,6 +52,7 @@
           bitButton
           block
           buttonType="secondary"
+          data-testid="login-with-passkey-button"
           (click)="handleLoginWithPasskeyClick()"
           [bitTooltip]="ssoRequired ? ('yourOrganizationRequiresSingleSignOn' | i18n) : ''"
           [addTooltipToDescribedby]="ssoRequired"
@@ -76,6 +69,7 @@
         bitButton
         block
         [buttonType]="ssoRequired ? 'primary' : 'secondary'"
+        data-testid="login-sso-button"
         (click)="handleSsoClick()"
       >
         <bit-icon name="bwi-provider" class="tw-mr-1"></bit-icon>
@@ -88,19 +82,34 @@
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <input
+        id="masterPassword"
+        type="password"
+        autocomplete="current-password"
+        formControlName="masterPassword"
+        bitInput
+        data-testid="login-master-password-input"
+        #masterPasswordInputRef
+      />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
     <!-- Link to Password Hint page - doesn't use bit-hint so that it doesn't get hidden on input validation errors -->
     <a bitLink routerLink="/hint" (click)="goToHint()" class="tw-inline-block tw-mb-4">
-      {{ "getMasterPasswordHint" | i18n }}
+      {{ "hint" | i18n }}
     </a>
 
     <div class="tw-grid tw-gap-3">
       <!-- Submit button to Login with Master Password -->
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ "loginWithMasterPassword" | i18n }}
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        block
+        buttonType="primary"
+        data-testid="login-submit-button"
+      >
+        {{ "logIn" | i18n }}
       </button>
 
       <!-- Button to Login with Device -->
@@ -112,6 +121,7 @@
           bitButton
           block
           buttonType="secondary"
+          data-testid="login-with-device-button"
           (click)="startAuthRequestLogin()"
         >
           <bit-icon name="bwi-mobile"></bit-icon>
@@ -121,7 +131,14 @@
 
       <!-- Back button -->
       <ng-container *ngIf="shouldShowBackButton()">
-        <button type="button" bitButton block buttonType="secondary" (click)="backButtonClicked()">
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          data-testid="login-back-button"
+          (click)="backButtonClicked()"
+        >
           {{ "back" | i18n }}
         </button>
       </ng-container>

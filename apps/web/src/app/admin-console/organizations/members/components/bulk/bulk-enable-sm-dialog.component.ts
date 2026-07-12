@@ -1,17 +1,21 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
+import { UserTypePipe } from "@bitwarden/angular/pipes/user-type.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
-  DialogRef,
+  AsyncActionsModule,
+  AvatarModule,
+  ButtonModule,
   DIALOG_DATA,
+  DialogModule,
+  DialogRef,
   DialogService,
-  TableDataSource,
+  TableModule,
   ToastService,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { OrganizationUserView } from "../../../core";
 
@@ -20,36 +24,42 @@ export type BulkEnableSecretsManagerDialogData = {
   users: OrganizationUserView[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: `bulk-enable-sm-dialog.component.html`,
   selector: "member-bulk-enable-sm-dialog",
-  standalone: false,
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncActionsModule,
+    AvatarModule,
+    ButtonModule,
+    DialogModule,
+    I18nPipe,
+    TableModule,
+    UserNamePipe,
+    UserTypePipe,
+  ],
 })
-export class BulkEnableSecretsManagerDialogComponent implements OnInit {
-  protected dataSource = new TableDataSource<OrganizationUserView>();
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) private data: BulkEnableSecretsManagerDialogData,
-    private organizationUserApiService: OrganizationUserApiService,
-    private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService,
-    private toastService: ToastService,
-  ) {}
+export class BulkEnableSecretsManagerDialogComponent {
+  protected readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<BulkEnableSecretsManagerDialogData>(DIALOG_DATA);
+  private readonly organizationUserApiService = inject(OrganizationUserApiService);
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
 
-  ngOnInit(): void {
-    this.dataSource.data = this.data.users;
+  protected readonly users = signal<OrganizationUserView[]>([]);
+
+  constructor() {
+    this.users.set(this.data.users);
   }
 
-  submit = async () => {
+  readonly submit = async () => {
     await this.organizationUserApiService.putOrganizationUserBulkEnableSecretsManager(
       this.data.orgId,
-      this.dataSource.data.map((u) => u.id),
+      this.users().map((u) => u.id),
     );
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("activatedAccessToSecretsManager"),
     });
     await this.dialogRef.close();

@@ -1,3 +1,4 @@
+import { AutofillerCommand, AutofillMessageCommand } from "../enums/autofill-message.enums";
 import { setupExtensionDisconnectAction } from "../utils";
 
 if (document.readyState === "loading") {
@@ -18,6 +19,10 @@ function loadAutofiller() {
   const handleExtensionMessage = (message: any) => {
     if (message.command === "fillForm" && pageHref === message.url) {
       filledThisHref = true;
+      return;
+    }
+    if (message.command === AutofillerCommand.disable) {
+      handleExtensionDisconnect();
     }
   };
 
@@ -44,8 +49,10 @@ function loadAutofiller() {
       }
 
       pageHref = window.location.href;
+      // Report the page transition as a fact. The background buffers it
+      // against monitoring state and decides whether it warrants a fill.
       const msg: any = {
-        command: "bgCollectPageDetails",
+        command: AutofillMessageCommand.pageTransitionDetected,
         sender: "autofiller",
       };
 

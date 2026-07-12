@@ -29,7 +29,7 @@
     "message": "Log ind med adgangsnøgle"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Lås op med adgangsnøgle"
   },
   "useSingleSignOn": {
     "message": "Brug Single Sign-On"
@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "Your organization requires single sign-on."
   },
-  "welcomeBack": {
-    "message": "Velkommen tilbage"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "Indstil en stærk adgangskode"
@@ -167,6 +167,18 @@
   "copyPassportNumber": {
     "message": "Kopiér pasnummer"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "copyFirstName": {
+    "message": "Kopiér fornavn"
+  },
+  "copyMiddleName": {
+    "message": "Kopiér mellemnavn"
+  },
+  "copyLastName": {
+    "message": "Kopiér efternavn"
+  },
   "copyLicenseNumber": {
     "message": "Kopier licensnummer"
   },
@@ -195,15 +207,20 @@
     "message": "Kopiér notater"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Kopiér",
     "description": "Copy to clipboard"
   },
   "fill": {
     "message": "Udfyld",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Autoudfyld"
+  "autofillNoun": {
+    "message": "Autoudfyld",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Autoudfyld",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Autoudfyld login"
@@ -272,8 +289,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Angiv kontoens e-mailadresse og få et adgangskodetip fremsendt"
   },
-  "getMasterPasswordHint": {
-    "message": "Få hovedadgangskodetip"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "Forsæt"
@@ -375,6 +392,9 @@
   },
   "save": {
     "message": "Gem"
+  },
+  "saveAndFill": {
+    "message": "Save and fill"
   },
   "move": {
     "message": "Flyt"
@@ -708,6 +728,22 @@
   "rateExtension": {
     "message": "Bedøm udvidelsen"
   },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
+  },
   "browserNotSupportClipboard": {
     "message": "Din webbrowser understøtter ikke udklipsholder kopiering. Kopiér det manuelt i stedet."
   },
@@ -809,7 +845,7 @@
     "message": "Når systemet låses"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Når systemet er inaktivt"
   },
   "onSleep": {
     "message": "On system sleep"
@@ -942,17 +978,17 @@
   "logIn": {
     "message": "Log ind"
   },
-  "logInToBitwarden": {
-    "message": "Log ind på Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
-    "message": "Enter the code sent to your email"
+    "message": "Angiv koden sendt til din e-mail"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
     "message": "Enter the code from your authenticator app"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Tryk på din YubiKey for at godkende"
   },
   "duoTwoFactorRequiredPageSubtitle": {
     "message": "Duo two-step login is required for your account. Follow the steps below to finish logging in."
@@ -961,7 +997,7 @@
     "message": "Follow the steps below to finish logging in."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Følg nedenstående trin for at afslutte login med din sikkerhedsnøgle."
   },
   "restartRegistration": {
     "message": "Genstart registrering"
@@ -985,7 +1021,7 @@
     "message": "Nej"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Enhver med linket"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
@@ -1312,6 +1348,15 @@
   },
   "enableFillAssist": {
     "message": "Use fill assist"
+  },
+  "turnOnFillAssist": {
+    "message": "Turn on fill assist"
+  },
+  "enableFillAssistDescription": {
+    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  },
+  "aboutFillAssist": {
+    "message": "About fill assist"
   },
   "enableContextMenuItem": {
     "message": "Vis indstillinger i kontekstmenuen"
@@ -1669,8 +1714,8 @@
   "passkeyAuthenticationFailed": {
     "message": "Passkey authentication failed"
   },
-  "useADifferentLogInMethod": {
-    "message": "Use a different log in method"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
@@ -1766,6 +1811,9 @@
   "iconsUrl": {
     "message": "Ikonserver URL"
   },
+  "sendUrl": {
+    "message": "Send server URL"
+  },
   "environmentSaved": {
     "message": "Miljøets URLs er blevet gemt."
   },
@@ -1799,6 +1847,18 @@
   },
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "loginNeverMatchTitle": {
+    "message": "Login doesn't match"
+  },
+  "loginNeverMatchDesc": {
+    "message": "This site doesn't match your saved login details. Verify you're on a trusted site before autofilling."
+  },
+  "uriMatchRule": {
+    "message": "URI match rule"
+  },
+  "neverMatch": {
+    "message": "Never match"
   },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
@@ -1976,11 +2036,32 @@
   "brand": {
     "message": "Type"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "Udløbsmåned"
   },
   "expirationYear": {
     "message": "Udløbsår"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "monthly": {
     "message": "month"
@@ -2075,6 +2156,51 @@
   "passportNumber": {
     "message": "Pasnummer"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "Licensnummer"
   },
@@ -2135,6 +2261,9 @@
   "bankAccount": {
     "message": "Bank account"
   },
+  "bankAccountDetails": {
+    "message": "Bank account details"
+  },
   "typeNote": {
     "message": "Note"
   },
@@ -2165,6 +2294,33 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2180,6 +2336,10 @@
   "newItemHeaderNote": {
     "message": "New Note",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
@@ -2197,12 +2357,12 @@
     "message": "New passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2221,6 +2381,10 @@
     "message": "Edit Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -2229,7 +2393,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -2237,12 +2401,12 @@
     "message": "Edit passport",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2261,6 +2425,10 @@
     "message": "View Note",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
@@ -2269,7 +2437,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -2334,6 +2502,35 @@
   "clear": {
     "message": "Ryd",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selected": {
+    "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
   },
   "checkPassword": {
     "message": "Undersøg om adgangskoden er blevet afsløret."
@@ -2710,8 +2907,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Din nye hovedadgangskode opfylder ikke politikkravene."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Få råd, bekendtgørelser og forskningsmuligheder fra Bitwarden i indbakken."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Afmeld"
@@ -2823,18 +3020,6 @@
   },
   "biometricsFailedDesc": {
     "message": "Biometri kan ikke gennemføres. Overvej at bruge en hovedadgangskode eller at logge ud. Fortsætter problemet, kontakt Bitwarden-supporten."
-  },
-  "nativeMessaginPermissionErrorTitle": {
-    "message": "Tilladelse ikke givet"
-  },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "Uden tilladelse til at kommunikere med Bitwarden skrivebordsapplikationen kan vi ikke levere biometri i browserudvidelsen. Prøv igen."
-  },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Fejl ved anmodning om tilladelse"
-  },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Denne handling kan ikke udføres i sidebjælken, prøv handlingen igen i popup tilstand eller i et nyt vindue."
   },
   "personalOwnershipSubmitError": {
     "message": "På grund af en virksomhedspolitik er du begrænset fra at gemme elementer i din personlige boks. Skift ejerskabsindstillingen til en organisation, og vælg blandt de tilgængelige samlinger."
@@ -3460,33 +3645,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Eksporterer personlig boks"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Kun individuelle Boksemner tilknyttet $EMAIL$ eksporteres. Organisationsboksemner medtages ikke. Kun Boksemneinformation uden tilhørende vedhæftninger eksporteres.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Eksport af organisationsboks"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Kun organisationsboksen tilknyttet $ORGANIZATION$ eksporteres. Emner i individuelle bokse eller andre organisationer medtages ikke.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3796,9 +3966,6 @@
         "example": "Jun 15, 2015"
       }
     }
-  },
-  "loginWithMasterPassword": {
-    "message": "Log ind med hovedadgangskode"
   },
   "newAroundHere": {
     "message": "Ny her?"
@@ -4246,6 +4413,9 @@
   "multipleInputEmails": {
     "message": "1 eller flere e-mails er ugyldige"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "Input må ikke indeholde kun mellemrum.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4311,12 +4481,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Autoudfyldning ved sideindlæsning sat til standardindstillingen.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Cannot autofill"
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Default matching is set to 'Exact Match'. The current website does not exactly match the saved login details for this item."
   },
   "okay": {
     "message": "Okay"
@@ -4577,6 +4741,18 @@
   "exportError": {
     "message": "An error occurred while exporting your vault data"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "typePasskey": {
     "message": "Adgangsnøgle"
   },
@@ -4827,6 +5003,20 @@
     "message": "Lad Bitwarden håndtere adgangskoder som standard",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "Kan ikke indstille Bitwarden som standard adgangskodehåndtering",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4838,6 +5028,22 @@
   "makeDefault": {
     "message": "Gør til standard",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "Legitimationsoplysninger er gemt!",
@@ -4990,6 +5196,10 @@
         "example": "Login Item"
       }
     }
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noValuesToCopy": {
     "message": "Ingen værdier at kopiere"
@@ -5508,6 +5718,12 @@
   },
   "successfullyAssignedCollections": {
     "message": "Samlinger hermed tildelt"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "Ingenting er valgt."
@@ -6090,6 +6306,10 @@
   "next": {
     "message": "Next"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -6353,6 +6573,36 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "sharedUnlock": {
+    "message": "Shared unlock"
+  },
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  },
+  "sharedUnlockDescriptionSafari": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  },
+  "sharedUnlockDescriptionFirefox": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankName": {
     "message": "Bank name"
   },
@@ -6390,6 +6640,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -6401,6 +6654,15 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -6423,14 +6685,34 @@
   "bankAccountTypeOther": {
     "message": "Other"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
-  },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "more": {
+    "message": "More"
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -6446,11 +6728,36 @@
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
   }
 }

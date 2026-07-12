@@ -4,6 +4,7 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -22,6 +23,7 @@ import { DefaultAccessIntelligenceDataService } from "./default-access-intellige
 
 describe("DefaultAccessIntelligenceDataService", () => {
   let service: DefaultAccessIntelligenceDataService;
+  let apiService: jest.Mocked<ApiService>;
   let cipherService: jest.Mocked<CipherService>;
   let organizationUserApiService: jest.Mocked<OrganizationUserApiService>;
   let reportGenerationService: jest.Mocked<ReportGenerationService>;
@@ -36,8 +38,12 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   beforeEach(() => {
     // Create mocks
+    apiService = {
+      getManyCollectionsWithAccessDetails: jest.fn().mockResolvedValue({ data: [] }),
+    } as any;
+
     cipherService = {
-      getAllFromApiForOrganization: jest.fn(),
+      getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
     } as any;
 
     organizationUserApiService = {
@@ -61,6 +67,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     } as any;
 
     service = new DefaultAccessIntelligenceDataService(
+      apiService,
       cipherService,
       organizationUserApiService,
       reportGenerationService,
@@ -130,6 +137,19 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Report Generation", () => {
     beforeEach(() => {
+      apiService.getManyCollectionsWithAccessDetails.mockResolvedValue({
+        data: [
+          {
+            id: "collection-1",
+            name: "test",
+            organizationId: "org-1",
+            groups: [],
+            users: [],
+            hidePasswords: false,
+          },
+        ],
+        continuationToken: "",
+      } as any);
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({
         data: [
@@ -162,7 +182,6 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
-        includeCollections: true,
         includeGroups: true,
       });
       expect(reportGenerationService.generateReport$).toHaveBeenCalled();
@@ -435,6 +454,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Organization Switching", () => {
     it("should reset state when switching organizations", async () => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
       reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
@@ -509,6 +529,15 @@ describe("DefaultAccessIntelligenceDataService", () => {
         } as OrganizationUserUserDetailsResponse,
       ];
 
+      apiService.getManyCollectionsWithAccessDetails.mockResolvedValue({
+        data: [
+          {
+            id: "col-1",
+            users: [{ id: "user-1" }, { id: "user-2" }],
+            groups: [{ id: "group-1" }],
+          },
+        ],
+      } as any);
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: apiUsers } as any);
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
@@ -525,16 +554,16 @@ describe("DefaultAccessIntelligenceDataService", () => {
           { id: "user-1", name: "Alice", email: "alice@example.com" },
           { id: "user-2", name: "Bob", email: "bob@example.com" },
         ]),
-        expect.arrayContaining([
+        [
           {
             collectionId: "col-1",
-            users: expect.any(Set),
-            groups: expect.any(Set),
+            users: new Set(["user-1", "user-2"]),
+            groups: new Set(["group-1"]),
           },
-        ]),
+        ],
         expect.arrayContaining([
-          { groupId: "group-1", users: expect.any(Set) },
-          { groupId: "group-2", users: expect.any(Set) },
+          { groupId: "group-1", users: new Set(["user-1"]) },
+          { groupId: "group-2", users: new Set(["user-2"]) },
         ]),
         expect.anything(),
       );

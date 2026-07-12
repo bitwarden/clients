@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, map, timeout } from "rxjs";
 
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
+
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
 import { CipherId } from "../../../types/guid";
@@ -25,6 +27,7 @@ import {
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "../../abstractions/log.service";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -140,7 +143,7 @@ export class Fido2AuthenticatorService<
 
       if (cipherId === undefined) {
         this.logService?.warning(
-          `[Fido2Authenticator] Aborting because user confirmation was not recieved.`,
+          `[Fido2Authenticator] Aborting because user confirmation was not received.`,
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
@@ -396,7 +399,7 @@ export class Fido2AuthenticatorService<
     return credentials.map((c) => c.login.fido2Credentials[0]);
   }
 
-  /** Finds existing crendetials and returns the `cipherId` for each one */
+  /** Finds existing credentials and returns the `cipherId` for each one */
   private async findExcludedCredentials(
     credentials: PublicKeyCredentialDescriptor[],
   ): Promise<string[]> {
@@ -485,9 +488,11 @@ async function createKeyView(
     throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.Unknown);
   }
 
+  await SdkLoadService.Ready; // Required for SdkRandomNumberClient
+
   const pkcs8Key = new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyValue));
   const fido2Credential = new Fido2CredentialView();
-  fido2Credential.credentialId = Utils.newGuid();
+  fido2Credential.credentialId = new SdkRandomNumberClient().gen_uuid();
   fido2Credential.keyType = "public-key";
   fido2Credential.keyAlgorithm = "ECDSA";
   fido2Credential.keyCurve = "P-256";

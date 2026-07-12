@@ -11,7 +11,7 @@ import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 export class BitSuffixDirective implements OnInit {
   private iconButtonComponent = inject(BitIconButtonComponent, { optional: true });
 
-  readonly classList = this.iconButtonComponent ? [] : ["tw-text-muted"];
+  readonly classList = this.iconButtonComponent ? [] : ["tw-text-fg-body"];
 
   ngOnInit() {
     if (this.iconButtonComponent) {

@@ -13,7 +13,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SvgModule } from "@bitwarden/components";
+import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
@@ -47,6 +47,7 @@ export class UserLayoutComponent implements OnInit {
   protected subscriptionRoute$: Observable<string | null>;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+  protected readonly sideNavService = inject(SideNavService);
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",

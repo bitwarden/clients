@@ -15,6 +15,16 @@
           aria-readonly="true"
           data-testid="cardholder-name"
         />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [appCopyClick]="card.cardholderName"
+          showToast
+          [valueLabel]="'cardholderName' | i18n"
+          [label]="'copyCardholderName' | i18n"
+          data-testid="copy-cardholder-name"
+        ></button>
       </bit-form-field>
     }
     @if (card.number) {

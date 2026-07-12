@@ -1,6 +1,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -28,26 +29,6 @@ export abstract class ChangePasswordService {
   ): Promise<void>;
 
   /**
-   * @deprecated To be removed in PM-28143
-   *
-   * Creates a new user key and re-encrypts all required data with it.
-   * - does so by calling the underlying method on the `UserKeyRotationService`
-   * - implemented in Web only
-   *
-   * @param currentPassword the current password
-   * @param newPassword the new password
-   * @param user the user account
-   * @param newPasswordHint the new password hint
-   * @throws if called from a non-Web client
-   */
-  abstract rotateUserKeyMasterPasswordAndEncryptedData(
-    currentPassword: string,
-    newPassword: string,
-    user: Account,
-    newPasswordHint: string,
-  ): Promise<void>;
-
-  /**
    * Changes the user's password by building a `PasswordRequest` object that gets POSTed to the server.
    *
    * @param passwordInputResult credentials object received from the `InputPasswordComponent`
@@ -55,18 +36,6 @@ export abstract class ChangePasswordService {
    * @throws if required values are not found on the `PasswordInputResult`
    * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
    * @throws if there is an error during the API call
-   *
-   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
-   *
-   * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
-   * - Specifically, this method uses credentials from the `passwordInputResult` to:
-   *   1. Decrypt the user key with the `currentMasterKey`
-   *   2. Re-encrypt that user key with the `newMasterKey`, resulting in a `newMasterKeyEncryptedUserKey`
-   *   3. Build a `PasswordRequest` object that gets POSTed to `"/accounts/password"`
-   *
-   * @param passwordInputResult credentials object received from the `InputPasswordComponent`
-   * @param userId the `userId`
-   * @throws if the `userId`, `currentMasterKey`, or `currentServerMasterKeyHash` is not found
    */
   abstract changePassword(passwordInputResult: PasswordInputResult, userId: UserId): Promise<void>;
 
@@ -83,17 +52,6 @@ export abstract class ChangePasswordService {
    * @throws if required values are not found on the `PasswordInputResult`
    * @throws an `InvalidCurrentPasswordError` if `proofOfDecryption` fails (i.e. if the current password is incorrect)
    * @throws if there is an error during the API call
-   *
-   * OLD DESCRIPTION FOR UNFLAGGED LOGIC: (the rest of this JSDoc below can be removed in PM-28143)
-   *
-   * Changes the user's password and re-encrypts the user key with the `newMasterKey`.
-   * - Specifically, this method uses credentials from the `passwordInputResult` to:
-   *   1. Decrypt the user key with the `currentMasterKey`
-   *   2. Re-encrypt that user key with the `newMasterKey`, resulting in a `newMasterKeyEncryptedUserKey`
-   *   3. Build a `PasswordRequest` object that gets PUTed to `"/accounts/update-temp-password"` so that the
-   *        ForcePasswordReset gets set to false.
-   * @param passwordInputResult
-   * @param userId
    */
   abstract changePasswordForAccountRecovery(
     passwordInputResult: PasswordInputResult,
@@ -116,4 +74,16 @@ export abstract class ChangePasswordService {
    * Optional method that indicates if we should navigate to the root page of the app after a password change.
    */
   abstract shouldNavigateToRoot(): boolean;
+
+  /**
+   * Resolves the master-password policy options that must be enforced for this user's
+   * password change. Combines policies for orgs the user has joined (Accepted/Confirmed
+   * members, sourced from synced state) with any in-flight organization invite the user
+   * has not yet accepted (fetched via the invite token).
+   * @param userId the active user's `userId`
+   * @returns the combined MP requirements, or undefined when no policy applies.
+   */
+  abstract resolveMasterPasswordPolicyOptions(
+    userId: UserId,
+  ): Promise<MasterPasswordPolicyOptions | undefined>;
 }

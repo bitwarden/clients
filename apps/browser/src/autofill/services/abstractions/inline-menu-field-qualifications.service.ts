@@ -38,4 +38,5 @@ export interface InlineMenuFieldQualificationService {
   isElementLoginSubmitButton(element: Element): boolean;
   isElementChangePasswordSubmitButton(element: Element): boolean;
   isTotpField(field: AutofillField): boolean;
+  hasCurrentPasswordAutocomplete(field: AutofillField): boolean;
 }

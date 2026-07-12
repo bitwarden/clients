@@ -57,6 +57,7 @@ type ExistingSendConfig = BaseSendFormConfig & {
  */
 type CreateNewSendConfig = BaseSendFormConfig & {
   mode: "add";
+  presetSendFields?: Partial<SendView>;
 };
 
 type CombinedAddEditConfig = ExistingSendConfig | CreateNewSendConfig;

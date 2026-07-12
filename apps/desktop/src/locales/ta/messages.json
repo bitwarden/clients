@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -108,8 +126,8 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "welcomeBack": {
-    "message": "மீண்டும் வருக"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Welcome back"
   },
   "moveToOrgDesc": {
     "message": "இந்த பொருளை நீங்கள் எந்த அமைப்புக்கு நகர்த்த விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும். ஒரு அமைப்புக்கு நகர்த்துவது அந்தப் பொருளின் உரிமையை அந்த அமைப்புக்கு மாற்றும். நீங்கள் இந்த பொருளை நகர்த்தியவுடன் அதன் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்."
@@ -117,8 +135,20 @@
   "attachments": {
     "message": "இணைப்புகள்"
   },
+  "attachmentsNeedFix": {
+    "message": "This item has old file attachments that need to be fixed."
+  },
   "viewItem": {
     "message": "பொருளைக் காண்க"
+  },
+  "viewCollectionWithName": {
+    "message": "View collection - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "View Login",
@@ -136,6 +166,10 @@
     "message": "View Note",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
@@ -144,13 +178,49 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "View passport",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "New Login",
@@ -167,6 +237,10 @@
   "newItemHeaderNote": {
     "message": "New Note",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "New SSH key",
@@ -200,6 +274,26 @@
     "message": "Edit Note",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
@@ -208,7 +302,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -272,25 +366,48 @@
   "sendTypeTextToShare": {
     "message": "Text to share"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
     "message": "Are you sure you want to permanently delete this Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
   },
   "new": {
     "message": "New",
@@ -310,6 +427,15 @@
   },
   "editItem": {
     "message": "பொருளைத் திருத்து"
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "மின்னஞ்சல் முகவரி"
@@ -372,6 +498,42 @@
   },
   "passportNumber": {
     "message": "கடவுச்சீட்டு எண்"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National identification number"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
   },
   "licenseNumber": {
     "message": "உரிமம் எண்"
@@ -743,6 +905,45 @@
   "deleteItem": {
     "message": "பொருளை அழி"
   },
+  "deleteItemsCount": {
+    "message": "Delete $COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+  },
+  "deleteItemsDesc": {
+    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+  },
+  "deleteItemPermanently": {
+    "message": "Delete item permanently"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Delete $COUNT$ items permanently",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "You will not be able to recover this item."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "You will not be able to recover these items."
+  },
+  "deleteSelection": {
+    "message": "Delete selection"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "The selected items and collections will be permanently deleted."
+  },
   "deleteFolder": {
     "message": "கோப்புறையை அழி"
   },
@@ -827,6 +1028,15 @@
         "example": "Login Item"
       }
     }
+  },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
   },
   "length": {
     "message": "நீளம்"
@@ -1001,8 +1211,8 @@
   "logIn": {
     "message": "உள்நுழை"
   },
-  "logInToBitwarden": {
-    "message": "Bitwarden க்கு உள்நுழை"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in to Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "உங்கள் மின்னஞ்சலுக்கு அனுப்பப்பட்ட குறியீட்டை உள்ளிடவும்"
@@ -1110,9 +1320,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "உங்கள் கணக்கு மின்னஞ்சல் முகவரியை உள்ளிடவும், உங்கள் கடவுச்சொல் குறிப்பு உங்களுக்கு அனுப்பப்படும்"
   },
-  "getMasterPasswordHint": {
-    "message": "முதன்மை கடவுச்சொல் குறிப்பைப் பெறவும்"
-  },
   "emailRequired": {
     "message": "மின்னஞ்சல் முகவரி தேவை."
   },
@@ -1170,6 +1377,10 @@
   },
   "noItemsInList": {
     "message": "பட்டியலிட உருப்படிகள் எதுவும் இல்லை."
+  },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "உங்கள் மின்னஞ்சலுக்கு ஒரு சரிபார்ப்புக் குறியீட்டை அனுப்பவும்"
@@ -1331,6 +1542,9 @@
   },
   "iconsUrl": {
     "message": "சின்னங்கள் சேவையக URL"
+  },
+  "sendUrl": {
+    "message": "Send server URL"
   },
   "environmentSaved": {
     "message": "சூழல் URL-கள் சேமிக்கப்பட்டன"
@@ -1619,53 +1833,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Show website icons and retrieve change password URLs"
   },
-  "enableMinToTray": {
-    "message": "ட்ராய் ஐகானுக்கு சுருக்கவும்"
+  "runInBackground": {
+    "message": "Keep Bitwarden running in the background"
   },
-  "enableMinToTrayDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDesc": {
+    "message": "When you close the window, Bitwarden is accessible from the tray. Recommended when using the SSH agent or browser integration."
   },
-  "enableMinToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கவும்"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "சாளரத்தைச் சுருக்கும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToTray": {
-    "message": "ட்ராய் ஐகானுக்கு மூடவும்"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக கணினி ட்ராயில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableCloseToMenuBar": {
-    "message": "பட்டிப் பட்டியக்கு மூடவும்"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "சாளரத்தை மூடும்போது, அதற்குப் பதிலாக பட்டிப் பட்டியில் ஒரு ஐகானைக் காட்டவும்."
-  },
-  "enableTray": {
-    "message": "ட்ராய் ஐகானைக் காட்டு"
-  },
-  "enableTrayDesc": {
-    "message": "கணினி ட்ராயில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
+  "runInBackgroundDescMac": {
+    "message": "When you close the window, Bitwarden is accessible from the menu bar. Recommended when using the SSH agent or browser integration."
   },
   "openAtLogin": {
     "message": "உள்நுழைவில் தானாகவே தொடங்கவும்"
   },
   "openAtLoginDesc": {
     "message": "Bitwarden டெஸ்க்டாப் செயலியை உள்நுழையும்போது தானாகவே தொடங்கவும்."
-  },
-  "alwaysShowDock": {
-    "message": "டாக்கில் எப்போதும் காட்டவும்"
-  },
-  "alwaysShowDockDesc": {
-    "message": "பட்டிப் பட்டியக்கு சுருக்கும்போதும் டாக்கில் Bitwarden ஐகானைக் காட்டவும்."
-  },
-  "confirmTrayTitle": {
-    "message": "ட்ராய்-ஐ மறைப்பதை உறுதிப்படுத்தவும்"
-  },
-  "confirmTrayDesc": {
-    "message": "இந்த அமைப்பை முடக்குவது மற்ற அனைத்து ட்ராய் தொடர்பான அமைப்புகளையும் முடக்கும்."
   },
   "language": {
     "message": "மொழி"
@@ -1754,6 +1935,10 @@
   "copyNumber": {
     "message": "எண்ணை நகலெடுக்கவும்",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "மின்னஞ்சலை நகலெடுக்கவும்"
@@ -1894,6 +2079,35 @@
   "selectAll": {
     "message": "அனைத்தையும் தேர்ந்தெடு"
   },
+  "selected": {
+    "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
+  "bulkActionsBar": {
+    "message": "Bulk actions"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Selection cleared"
+  },
+  "additionalActions": {
+    "message": "Additional actions"
+  },
   "zoomIn": {
     "message": "பெரிதாக்கு"
   },
@@ -2030,9 +2244,9 @@
   "exit": {
     "message": "வெளியேறு"
   },
-  "showHide": {
-    "message": "காட்டு / மறை",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Show",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "ட்ராய்-க்கு மறை"
@@ -2215,6 +2429,12 @@
   "deleteAccountWarning": {
     "message": "உங்கள் கணக்கை நீக்குவது நிரந்தரமானது. அதை செயல்தவிர்க்க முடியாது."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "You are the owner of at least one organization. Deleting your account will also delete any organizations you are the sole owner of."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
+  },
   "cannotDeleteAccount": {
     "message": "கணக்கை நீக்க முடியாது"
   },
@@ -2229,12 +2449,6 @@
   },
   "preferences": {
     "message": "விருப்பத்தேர்வுகள்"
-  },
-  "enableMenuBar": {
-    "message": "பட்டிப் பட்டி ஐகானைக் காட்டு"
-  },
-  "enableMenuBarDesc": {
-    "message": "பட்டிப் பட்டியில் எப்போதும் ஒரு ஐகானைக் காட்டவும்."
   },
   "hideToMenuBar": {
     "message": "பட்டிப் பட்டியக்கு மறை"
@@ -2332,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Archived item restored"
   },
+  "archivedItemsRestored": {
+    "message": "Archived items restored"
+  },
   "restoredItem": {
     "message": "உருப்படி மீட்டெடுக்கப்பட்டது"
   },
+  "restoredItems": {
+    "message": "Items restored"
+  },
   "permanentlyDelete": {
     "message": "நிரந்தரமாக நீக்கு"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Items permanently deleted"
+  },
+  "deletedItems": {
+    "message": "Items sent to trash"
+  },
+  "deletedCollections": {
+    "message": "Deleted collections"
+  },
+  "collectionDeleted": {
+    "message": "Collection deleted"
+  },
+  "collectionsDeleted": {
+    "message": "Collections deleted"
+  },
+  "movedItems": {
+    "message": "Items moved"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "வெளியேறுவது உங்கள் பெட்டகத்திற்கான அனைத்து அணுகலையும் நீக்கும் மற்றும் காலாவதி காலத்திற்குப் பிறகு ஆன்லைன் அங்கீகாரம் தேவைப்படும். நீங்கள் இந்த அமைப்பைப் பயன்படுத்த விரும்புகிறீர்களா?"
@@ -2480,8 +2718,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "One or more organization policies require the master password to meet the following requirements:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "உங்கள் இன்பாக்ஸில் Bitwarden-இலிருந்து ஆலோசனை, அறிவிப்புகள் மற்றும் ஆராய்ச்சி வாய்ப்புகளைப் பெறவும்."
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "சந்தாவை நீக்கு"
@@ -2525,15 +2763,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது Microsoft Store பதிப்பில் ஆதரிக்கப்படவில்லை."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "துரதிர்ஷ்டவசமாக உலாவி ஒருங்கிணைப்பு தற்போது லினக்ஸ் பதிப்பில் ஆதரிக்கப்படவில்லை."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "உலாவி ஒருங்கிணைப்பிற்கு சரிபார்ப்பு தேவை"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "உங்கள் டெஸ்க்டாப் மற்றும் உலாவிக்கு இடையே ஒரு இணைப்பை உருவாக்கும்போது, கைரேகை சொற்றொடர் உறுதிப்படுத்தல் தேவைப்படுவதன் மூலம் கூடுதல் பாதுகாப்பு அடுக்கைச் சேர்க்கவும். ஒவ்வொரு முறையும் ஒரு இணைப்பு உருவாக்கப்படும் போது இதற்கு பயனர் செயல் மற்றும் சரிபார்ப்பு தேவைப்படும்."
-  },
   "enableHardwareAcceleration": {
     "message": "வன்பொருள் முடுக்கத்தைப் பயன்படுத்தவும்"
   },
@@ -2542,12 +2771,6 @@
   },
   "approve": {
     "message": "அனுமதி"
-  },
-  "verifyBrowserTitle": {
-    "message": "உலாவி இணைப்பை சரிபார்க்கவும்"
-  },
-  "verifyBrowserDesc": {
-    "message": "காட்டப்பட்ட கைரேகை உலாவி நீட்டிப்பில் காட்டப்பட்ட கைரேகைக்கு ஒத்ததாக இருப்பதை உறுதிப்படுத்தவும்."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ Bitwarden-உடன் இணைக்க விரும்புகிறது",
@@ -2581,6 +2804,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "உங்கள் புதிய கடவுச்சொல் உங்கள் தற்போதைய கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
+  },
+  "hint": {
+    "message": "Hint"
   },
   "hintEqualsPassword": {
     "message": "உங்கள் கடவுச்சொல் குறிப்பு உங்கள் கடவுச்சொல்லுக்கு சமமாக இருக்க முடியாது."
@@ -2703,6 +2929,10 @@
     "message": "புதிய Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createSendV2": {
+    "message": "Create Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendTextDesc": {
     "message": "நீங்கள் அனுப்ப விரும்பும் உரை."
   },
@@ -2780,8 +3010,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "பாதுகாப்பு விசை இடைவினையிலிருந்து எதிர்பார்க்கப்படுகிறது..."
   },
-  "hideEmail": {
-    "message": "எனது மின்னஞ்சல் முகவரியை பெறுநர்களிடமிருந்து மறைக்கவும்."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "ஒன்று அல்லது அதற்கு மேற்பட்ட நிறுவனக் கொள்கைகள் உங்கள் Send விருப்பங்களை பாதிக்கின்றன."
@@ -3025,33 +3255,18 @@
   "exportingPersonalVaultTitle": {
     "message": "தனிப்பட்ட வால்ட்டை ஏற்றுமதி செய்கிறது"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட வால்ட் உருப்படிகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது. வால்ட் உருப்படி தகவல் மட்டுமே ஏற்றுமதி செய்யப்படும், மேலும் அதனுடன் இணைக்கப்பட்ட கோப்புகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட வால்ட் உருப்படிகள் மற்றும் இணைப்புகள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன வால்ட் உருப்படிகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "நிறுவன வால்ட்டை ஏற்றுமதி செய்கிறது"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ உடன் தொடர்புடைய நிறுவன வால்ட் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட வால்ட்கள் அல்லது பிற நிறுவனங்களில் உள்ள உருப்படிகள் சேர்க்கப்படாது.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3370,9 +3585,6 @@
   "vault": {
     "message": "வால்ட்",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "முதன்மை கடவுச்சொல்லுடன் உள்நுழைக"
   },
   "rememberEmail": {
     "message": "மின்னஞ்சலை நினைவில் கொள்க"
@@ -3819,6 +4031,9 @@
   "multipleInputEmails": {
     "message": "1 அல்லது அதற்கு மேற்பட்ட மின்னஞ்சல்கள் செல்லாதவை"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "உள்ளிட்டத்தில் வெறும் வெற்று இடங்கள் மட்டும் இருக்கக்கூடாது.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4010,6 +4225,18 @@
   "exportError": {
     "message": "An error occurred while exporting your vault data"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "பன்-காரணி அங்கீகாரம் ரத்துசெய்யப்பட்டது"
   },
@@ -4122,6 +4349,22 @@
   },
   "troubleshooting": {
     "message": "சிக்கலைத் தீர்த்தல்"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "ஹார்டுவேர் வேகப்படுத்துதலை முடக்கிவிட்டு மறுதொடக்கம் செய்"
@@ -4561,9 +4804,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "1 உருப்படி நிரந்தரமாகத் தேர்ந்தெடுக்கப்பட்ட அமைப்புக்கு மாற்றப்படும். இந்த உருப்படியின் உரிமையாளர் நீங்கள் இனி இருக்க மாட்டீர்கள்."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "1 உருப்படி நிரந்தரமாக $ORG$-க்கு மாற்றப்படும். இந்த உருப்படியின் உரிமையாளர் நீங்கள் இனி இருக்க மாட்டீர்கள்.",
     "placeholders": {
@@ -4573,8 +4813,39 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "1 உருப்படி நிரந்தரமாகத் தேர்ந்தெடுக்கப்பட்ட அமைப்புக்கு மாற்றப்படும். இந்த உருப்படியின் உரிமையாளர் நீங்கள் இனி இருக்க மாட்டீர்கள்."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "தொகுப்புகள் வெற்றிகரமாக ஒதுக்கப்பட்டன"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "நீங்கள் எதையும் தேர்ந்தெடுக்கவில்லை."
@@ -4655,6 +4926,10 @@
   "invalidShortcut": {
     "message": "Invalid shortcut"
   },
+  "breadcrumbs": {
+    "message": "Breadcrumbs",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "மேலும் பிரெட்க்ரம்புகள்",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4714,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Unarchive and save"
+  },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archive $NUM$ item",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+  },
+  "bulkArchiveItems": {
+    "message": "Items archived"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Items unarchived"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Select folder"
   },
   "restartPremium": {
     "message": "Restart Premium"
@@ -4805,6 +5121,9 @@
   "sessionTimeoutHeader": {
     "message": "Session timeout"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
   },
@@ -4848,6 +5167,33 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Session timeout is controlled by the desktop app"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -4988,8 +5334,40 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "more": {
+    "message": "More"
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankAccount": {
     "message": "Bank account"
+  },
+  "bankAccountDetails": {
+    "message": "Bank account details"
   },
   "bankName": {
     "message": "Bank name"
@@ -5028,6 +5406,9 @@
   "searchBankAccount": {
     "message": "Search bank account"
   },
+  "searchPassport": {
+    "message": "Search passports"
+  },
   "copyAccountNumber": {
     "message": "Copy account number"
   },
@@ -5039,6 +5420,30 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyNameOnAccount": {
+    "message": "Copy name on account"
+  },
+  "copyBranchNumber": {
+    "message": "Copy branch number"
+  },
+  "copySwiftCode": {
+    "message": "Copy SWIFT code"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5067,22 +5472,37 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
   "discardEdits": {
     "message": "Discard edits"
   },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+  "keepEditing": {
+    "message": "Keep editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
@@ -5100,5 +5520,99 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "addToFolder": {
+    "message": "Add to folder"
+  },
+  "deleteCollection": {
+    "message": "Delete collection"
+  },
+  "deleteCollectionsCount": {
+    "message": "Delete $COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "This collection will be permanently deleted."
+  },
+  "deleteCollectionsDesc": {
+    "message": "These collections will be permanently deleted."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

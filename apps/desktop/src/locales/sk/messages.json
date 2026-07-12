@@ -56,11 +56,29 @@
   "typeBankAccountSubtitle": {
     "message": "Bankové údaje"
   },
+  "typePassport": {
+    "message": "Pas"
+  },
+  "passportDetails": {
+    "message": "Podrobnosti o pase"
+  },
+  "passportAdded": {
+    "message": "Pas bol pridaný"
+  },
+  "typePassportSubtitle": {
+    "message": "Cestovný doklad"
+  },
   "folderSubtitle": {
     "message": "Usporiadajte si položky"
   },
   "collectionSubtitle": {
     "message": "Usporiadajte zdieľané položky"
+  },
+  "typeDriversLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Vodičský preukaz alebo občiansky preukaz"
   },
   "chooseItemToAdd": {
     "message": "Vyberte položku, ktorú chcete pridať"
@@ -108,7 +126,7 @@
   "noEditPermissions": {
     "message": "Na úpravu tejto položky nemáte oprávnenie"
   },
-  "welcomeBack": {
+  "loginPageMasterPasswordEntryScreenTitle": {
     "message": "Vitajte späť"
   },
   "moveToOrgDesc": {
@@ -117,8 +135,20 @@
   "attachments": {
     "message": "Prílohy"
   },
+  "attachmentsNeedFix": {
+    "message": "Táto položka má staré prílohy, ktoré je potrebné opraviť."
+  },
   "viewItem": {
     "message": "Zobraziť položku"
+  },
+  "viewCollectionWithName": {
+    "message": "Zobraziť zbierku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Collection1"
+      }
+    }
   },
   "viewItemHeaderLogin": {
     "message": "Zobraziť prihlásenie",
@@ -136,6 +166,10 @@
     "message": "Zobraziť poznámku",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Zobraziť zabezpečenú poznámku",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
@@ -144,13 +178,49 @@
     "message": "Zobraziť bankový účet",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "Zobraziť vodičský preukaz",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "Zobraziť pas",
     "description": "Header for view passport item type"
+  },
+  "addItemHeaderLogin": {
+    "message": "Pridať prihlasovacie údaje",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Pridať kartu",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Pridať identitu",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Pridať poznámku",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Pridať zabezpečenú poznámku",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Pridať kľúč SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Pridať bankový účet",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Pridať vodičský preukaz",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Pridať pas",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
@@ -167,6 +237,10 @@
   "newItemHeaderNote": {
     "message": "Nová poznámka",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "Nová zabezpečená poznámka",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "Nový kľúč SSH",
@@ -200,6 +274,26 @@
     "message": "Upraviť poznámku",
     "description": "Header for edit note item type"
   },
+  "editItemHeaderSecureNote": {
+    "message": "Upraviť zabezpečenú poznámku",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Upraviť prihlasovacie údaje",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Upraviť kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Upraviť identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Upraviť poznámku",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "Upraviť kľúč SSH",
     "description": "Header for edit SSH key item type"
@@ -208,8 +302,8 @@
     "message": "Upraviť bankový účet",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Nový vodičský preukaz",
+  "editItemHeaderLicense": {
+    "message": "Upraviť vodičský preukaz",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -272,25 +366,48 @@
   "sendTypeTextToShare": {
     "message": "Text, ktorý chcete zdieľať"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Nový text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nový súborový Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Nový súbor",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Upraviť textový Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Upraviť text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Upraviť súborový Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Upraviť súbor",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť tento Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Zobraziť prihlasovacie údaje",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Zobraziť kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Zobraziť identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Zobraziť poznámku",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Vytvoriť",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Pridať zbierku"
   },
   "new": {
     "message": "Nové",
@@ -310,6 +427,15 @@
   },
   "editItem": {
     "message": "Upraviť položku"
+  },
+  "editItemWithName": {
+    "message": "Upraviť položku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
   },
   "emailAddress": {
     "message": "E-mailová adresa"
@@ -373,6 +499,42 @@
   "passportNumber": {
     "message": "Číslo pasu"
   },
+  "sex": {
+    "message": "Pohlavie"
+  },
+  "copySex": {
+    "message": "Kopírovať pohlavie"
+  },
+  "birthPlace": {
+    "message": "Miesto narodenia"
+  },
+  "copyBirthPlace": {
+    "message": "Kopírovať miesto narodenia"
+  },
+  "nationality": {
+    "message": "Národnosť"
+  },
+  "copyNationality": {
+    "message": "Kopírovať národnosť"
+  },
+  "copyIssuingCountry": {
+    "message": "Kopírovať vydávajúcu krajinu"
+  },
+  "passportType": {
+    "message": "Typ pasu"
+  },
+  "copyPassportType": {
+    "message": "Kopírovať typ pasu"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Kopírovať rodné číslo"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Rodné číslo"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kopírovať  vydávajúci orgán/úrad"
+  },
   "licenseNumber": {
     "message": "Číslo vodičského preukazu"
   },
@@ -425,7 +587,7 @@
     "message": "Zadajte heslo pre kľúč SSH."
   },
   "enterSshKeyPassword": {
-    "message": "Zadať heslo"
+    "message": "Zadajte heslo"
   },
   "sshAgentUnlockRequired": {
     "message": "Prosím, odomknite svoj trezor, aby ste mohli schváliť žiadosť o kľúč SSH."
@@ -743,6 +905,45 @@
   "deleteItem": {
     "message": "Odstrániť položku"
   },
+  "deleteItemsCount": {
+    "message": "Odstrániť položky: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemDesc": {
+    "message": "Táto položka bude presunutá do koša. Po 30 dňoch v koši bude natrvalo odstránená."
+  },
+  "deleteItemsDesc": {
+    "message": "Tieto položky budú odoslané do koša. Po 30 dňoch budú natrvalo odstránené."
+  },
+  "deleteItemPermanently": {
+    "message": "Odstrániť položku natrvalo"
+  },
+  "deleteItemsPermanentlyCount": {
+    "message": "Odstrániť položky natrvalo: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteItemPermanentlyDesc": {
+    "message": "Túto položku už nebude možné obnoviť."
+  },
+  "deleteItemsPermanentlyDesc": {
+    "message": "Tieto položky už nebude možné obnoviť."
+  },
+  "deleteSelection": {
+    "message": "Odstrániť výber"
+  },
+  "deleteItemsAndCollectionsDesc": {
+    "message": "Vybrané položky a zbierky budú natrvalo odstránené."
+  },
   "deleteFolder": {
     "message": "Odstrániť priečinok"
   },
@@ -827,6 +1028,15 @@
         "example": "Login Item"
       }
     }
+  },
+  "copyPrivateKey": {
+    "message": "Kopírovať súkromný kľúč"
+  },
+  "copyPublicKey": {
+    "message": "Kopírovať verejný kľúč"
+  },
+  "copyFingerprint": {
+    "message": "Kopírovať odtlačok"
   },
   "length": {
     "message": "Dĺžka"
@@ -1001,7 +1211,7 @@
   "logIn": {
     "message": "Prihlásiť sa"
   },
-  "logInToBitwarden": {
+  "loginPageEmailEntryScreenTitle": {
     "message": "Prihlásenie do Bitwardenu"
   },
   "enterTheCodeSentToYourEmail": {
@@ -1110,9 +1320,6 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Zadajte e-mailovú adresu účtu a zašleme vám nápoveď k heslu"
   },
-  "getMasterPasswordHint": {
-    "message": "Získať nápoveď k hlavnému heslu"
-  },
   "emailRequired": {
     "message": "E-mailová adresa je povinná."
   },
@@ -1170,6 +1377,10 @@
   },
   "noItemsInList": {
     "message": "Neexistujú žiadne položky na zobrazenie."
+  },
+  "noValueEntered": {
+    "message": "Hodnota nie je zadaná",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "sendVerificationCode": {
     "message": "Poslať overovací kód na váš e-mail"
@@ -1331,6 +1542,9 @@
   },
   "iconsUrl": {
     "message": "URL servera ikon"
+  },
+  "sendUrl": {
+    "message": "URL adresa pre Send"
   },
   "environmentSaved": {
     "message": "URL adresy prostredia boli uložené"
@@ -1619,53 +1833,20 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
-  "enableMinToTray": {
-    "message": "Minimalizovať do systémovej lišty"
+  "runInBackground": {
+    "message": "Ponechať Bitwarden bežať na pozadí"
   },
-  "enableMinToTrayDesc": {
-    "message": "Namiesto minimalizácie okna zobraziť ikonu v systémovej lište."
+  "runInBackgroundDesc": {
+    "message": "Po zatvorení okna je Bitwarden dostupný z panela úloh. Odporúča sa pri používaní agenta SSH alebo integrácie s prehliadačom."
   },
-  "enableMinToMenuBar": {
-    "message": "Minimalizovať do lišty"
-  },
-  "enableMinToMenuBarDesc": {
-    "message": "Namiesto minimalizácie okna zobraziť ikonu na paneli úloh."
-  },
-  "enableCloseToTray": {
-    "message": "Zatvoriť do systémovej lišty"
-  },
-  "enableCloseToTrayDesc": {
-    "message": "Namiesto zatvorenia okna zobraziť ikonu v systémovej lište."
-  },
-  "enableCloseToMenuBar": {
-    "message": "Zavrieť na panel úloh"
-  },
-  "enableCloseToMenuBarDesc": {
-    "message": "Namiesto zatvorenia okna zobraziť ikonu na paneli úloh."
-  },
-  "enableTray": {
-    "message": "Povoliť ikonu na paneli úloh"
-  },
-  "enableTrayDesc": {
-    "message": "Vždy zobraziť ikonu na systémovej lište."
+  "runInBackgroundDescMac": {
+    "message": "Po zatvorení okna je Bitwarden dostupný z lišty. Odporúča sa pri používaní agenta SSH alebo integrácie s prehliadačom."
   },
   "openAtLogin": {
     "message": "Automaticky spustiť po prihlásení"
   },
   "openAtLoginDesc": {
     "message": "Po prihlásení automaticky spustí aplikáciu Bitwarden Desktop."
-  },
-  "alwaysShowDock": {
-    "message": "Vždy zobraziť v docku"
-  },
-  "alwaysShowDockDesc": {
-    "message": "Zobraziť Bitwarden v Docku aj keď je minimalizovaný na panel úloh."
-  },
-  "confirmTrayTitle": {
-    "message": "Potvrdiť skrývanie systémovej lišty"
-  },
-  "confirmTrayDesc": {
-    "message": "Vypnutím tohto nastavenia vypnete aj ostatné nastavenia súvisiace so systémovou lištou."
   },
   "language": {
     "message": "Jazyk"
@@ -1754,6 +1935,10 @@
   "copyNumber": {
     "message": "Kopírovať číslo",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Kopírovať meno",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "Kopírovať e-mail"
@@ -1894,6 +2079,35 @@
   "selectAll": {
     "message": "Vybrať Všetko"
   },
+  "selected": {
+    "message": "Vybrané"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
+  "bulkActionsBar": {
+    "message": "Hromadné operácie"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "Vybrané položky: $COUNT$. Panel hromadných operácií je teraz k dispozícii v spodnej časti obrazovky. Stlačte $SHORTCUTBINDING$, aby ste presunuli fokus na panel hromadných operácií.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "Výber bol zrušený"
+  },
+  "additionalActions": {
+    "message": "Ďalšie akcie"
+  },
   "zoomIn": {
     "message": "Priblížiť"
   },
@@ -2030,15 +2244,15 @@
   "exit": {
     "message": "Ukončiť"
   },
-  "showHide": {
-    "message": "Zobraziť / Skryť",
-    "description": "Text for a button that toggles the visibility of the window. Shows the window when it is hidden or hides the window if it is currently open."
+  "show": {
+    "message": "Zobraziť",
+    "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
     "message": "Skryť do systémovej lišty"
   },
   "alwaysOnTop": {
-    "message": "Vždy na vrchu",
+    "message": "Vždy navrchu",
     "description": "Application window should always stay on top of other windows"
   },
   "dateUpdated": {
@@ -2215,6 +2429,12 @@
   "deleteAccountWarning": {
     "message": "Odstránenie účtu je trvalé. Operáciu nie je možné vrátiť späť."
   },
+  "deleteAccountOrganizationOwnerWarning": {
+    "message": "Ste vlastníkom aspoň jednej organizácie. Vymazaním vášho účtu sa odstránia aj všetky organizácie, ktorých ste jediným vlastníkom."
+  },
+  "cannotDeleteAccountOrganizationOwnerDesc": {
+    "message": "Svoj účet nemôžete odstrániť, pokiaľ ste vlastníkom organizácie. Najprv preneste vlastníctvo alebo odstráňte organizáciu."
+  },
   "cannotDeleteAccount": {
     "message": "Účet nie je možné odstrániť"
   },
@@ -2229,12 +2449,6 @@
   },
   "preferences": {
     "message": "Predvoľby"
-  },
-  "enableMenuBar": {
-    "message": "Povoliť ikonu na paneli úloh"
-  },
-  "enableMenuBarDesc": {
-    "message": "Vždy zobraziť ikonu na paneli úloh."
   },
   "hideToMenuBar": {
     "message": "Skryť do lišty"
@@ -2332,11 +2546,35 @@
   "archivedItemRestored": {
     "message": "Archivovaná položka bola obnovená"
   },
+  "archivedItemsRestored": {
+    "message": "Archivované položky boli obnovené"
+  },
   "restoredItem": {
     "message": "Položka bola obnovená"
   },
+  "restoredItems": {
+    "message": "Položky boli obnovené"
+  },
   "permanentlyDelete": {
     "message": "Natrvalo odstrániť"
+  },
+  "permanentlyDeletedItems": {
+    "message": "Položky boli natrvalo odstránené"
+  },
+  "deletedItems": {
+    "message": "Položky boli presunuté do koša"
+  },
+  "deletedCollections": {
+    "message": "Odstránené zbierky"
+  },
+  "collectionDeleted": {
+    "message": "Zbierka bola odstránená"
+  },
+  "collectionsDeleted": {
+    "message": "Zbierky boli odstránené"
+  },
+  "movedItems": {
+    "message": "Položky boli presunuté"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Odhlásenie bude vyžadovať online prihlásenie po vypršaní časového limitu. Naozaj chcete použiť toto nastavenie?"
@@ -2480,8 +2718,8 @@
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
     "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden."
+  "receiveMarketingEmails": {
+    "message": "Dostávať aktualizácie od Bitwardenu do e-mailovej schránky."
   },
   "unsubscribe": {
     "message": "Odhlásiť sa z odberu"
@@ -2525,15 +2763,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Bohužiaľ, integrácia v prehliadači zatiaľ nie je podporovaná, ak je aplikácia nainštalovaná cez Microsoft Store."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Bohužiaľ, integrácia prehliadača nie je v súčasnosti podporovaná vo verzii pre Linux."
-  },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Vyžadovať overenie pre integráciu v prehliadači"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Povoliť dodatočné zabezpečenie tým, že bude potrebné overenie odtlačku pri prepájaní desktopovej aplikácie a prehliadača. Ak je toto nastavenie zapnuté, pri každom pripojení bude od používateľa požadované overenie."
-  },
   "enableHardwareAcceleration": {
     "message": "Použiť hardvérové zrýchlenie"
   },
@@ -2542,12 +2771,6 @@
   },
   "approve": {
     "message": "Schváliť"
-  },
-  "verifyBrowserTitle": {
-    "message": "Overiť pripojenie prehliadača"
-  },
-  "verifyBrowserDesc": {
-    "message": "Uistite sa, že zobrazený odtlačok prsta je identický s odtlačkom prsta zobrazeným v rozšírení prehliadača."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ sa chce pripojiť k Bitwardenu",
@@ -2581,6 +2804,9 @@
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
     "message": "Nové heslo nemôže byť rovnaké ako súčasné heslo."
+  },
+  "hint": {
+    "message": "Nápoveď"
   },
   "hintEqualsPassword": {
     "message": "Nápoveď k heslu nemôže byť rovnaká ako heslo."
@@ -2703,6 +2929,10 @@
     "message": "Nový Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createSendV2": {
+    "message": "Vytvoriť Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sendTextDesc": {
     "message": "Text, ktorý chcete odoslať."
   },
@@ -2780,7 +3010,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Skryť moju e-mailovú adresu pred príjemcami."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3255,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportovanie osobného trezora"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportovanie trezora organizácie"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exportované budú iba položky trezora organizácie spojené s $ORGANIZATION$. Položky osobného trezora a položky z iných organizácií nebudú zahrnuté.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky vo vašom osobnom trezore."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky spojené s trezorom $ORGANIZATION$. Položky v osobných trezoroch sa exportovať nebudú.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3370,9 +3585,6 @@
   "vault": {
     "message": "Trezor",
     "description": "'Vault' is a noun and refers to the Bitwarden Vault feature."
-  },
-  "loginWithMasterPassword": {
-    "message": "Prihlásenie pomocou hlavného hesla"
   },
   "rememberEmail": {
     "message": "Zapamätať si e-mail"
@@ -3819,6 +4031,9 @@
   "multipleInputEmails": {
     "message": "1 alebo viac e-mailov je neplatných"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Zoznam príjemcov e-mailu nesmie presiahnuť 2 500 znakov. Ak chcete pokračovať, odstráňte jedného alebo viacerých príjemcov."
+  },
   "inputTrimValidator": {
     "message": "Vstup nesmie obsahovať iba prázdne znaky.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4010,6 +4225,18 @@
   "exportError": {
     "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"
   },
@@ -4122,6 +4349,22 @@
   },
   "troubleshooting": {
     "message": "Riešenie problémov"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Stiahnuť diagnostickú správu"
+  },
+  "experiencingAnIssue": {
+    "message": "Máte nejaký problém?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Stiahnite si diagnostickú správu, a potom ju zdieľajte s"
+  },
+  "bitwardenSupport": {
+    "message": "podporou Bitwardenu",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Stiahnuť"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Zakázať hardvérové zrýchlenie a reštartovať"
@@ -4561,9 +4804,6 @@
       }
     }
   },
-  "personalItemTransferWarningSingular": {
-    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
-  },
   "personalItemWithOrgTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do $ORG$. Už ju nebudete vlastniť.",
     "placeholders": {
@@ -4573,8 +4813,39 @@
       }
     }
   },
+  "personalItemTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybranú organizáciu. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na $ORG$. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
+  },
+  "itemAssignedToCollections": {
+    "message": "Položka bola priradená do zbierok"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Položky boli priradené do zbierok"
   },
   "nothingSelected": {
     "message": "Nič ste nevybrali."
@@ -4655,6 +4926,10 @@
   "invalidShortcut": {
     "message": "Neplatná klávesová skratka"
   },
+  "breadcrumbs": {
+    "message": "Omrvinková navigácia",
+    "description": "Accessible label for the breadcrumb navigation landmark."
+  },
   "moreBreadcrumbs": {
     "message": "Viac",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
@@ -4714,6 +4989,47 @@
   },
   "unArchiveAndSave": {
     "message": "Zrušiť archiváciu a uložiť"
+  },
+  "archiveItemsPlural": {
+    "message": "Archivovať položky: $NUM$",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemsSingular": {
+    "message": "Archivovať $NUM$ položku",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Po archivácii budú tieto položky vylúčené z výsledkov vyhľadávania a návrhov automatického vypĺňania."
+  },
+  "bulkArchiveItems": {
+    "message": "Položky archivované"
+  },
+  "bulkUnarchiveItems": {
+    "message": "Položky boli odobrané z archívu"
+  },
+  "moveSelectedItemsDesc": {
+    "message": "Vyberte priečinok, do ktorého chcete pridať vybrané položky ($COUNT$).",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "selectFolder": {
+    "message": "Vyberte priečinok"
   },
   "restartPremium": {
     "message": "Reštartovať Prémium"
@@ -4805,6 +5121,9 @@
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
   },
+  "browserAccessDenied": {
+    "message": "Buď bol zvolený neplatný priečinok prehliadača, alebo bol prístup zamietnutý"
+  },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
   },
@@ -4848,6 +5167,33 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Časový limit relácie je ovládaný desktopovou aplikáciou"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Vyberte priečinok s údajmi $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Očakávané umiestnenie:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Povoliť prístup"
   },
   "upgrade": {
     "message": "Upgradovať"
@@ -4910,7 +5256,7 @@
     "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "Hotovo $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -4988,8 +5334,40 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "domainNotAllowed": {
+    "message": "Zahrnúť iba nasledujúce domény: $DOMAINS$. Skontrolujte to a skúste to znova",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "more": {
+    "message": "Viac"
+  },
+  "enterMonth": {
+    "message": "Zadajte mesiac."
+  },
+  "enterDay": {
+    "message": "Zadajte deň."
+  },
+  "enterYear": {
+    "message": "Zadajte rok."
+  },
+  "invalidDay": {
+    "message": "Zadajte platný deň."
+  },
+  "invalidYear": {
+    "message": "Zadajte platný rok."
+  },
+  "searchDriversLicense": {
+    "message": "Vyhľadať vodičské preukazy"
+  },
   "bankAccount": {
     "message": "Bankový účet"
+  },
+  "bankAccountDetails": {
+    "message": "Podrobnosti o bankovom účte"
   },
   "bankName": {
     "message": "Názov banky"
@@ -5028,6 +5406,9 @@
   "searchBankAccount": {
     "message": "Vyhľadať bankový účet"
   },
+  "searchPassport": {
+    "message": "Vyhľadať pasy"
+  },
   "copyAccountNumber": {
     "message": "Kopírovať číslo účtu"
   },
@@ -5040,14 +5421,38 @@
   "copyIban": {
     "message": "Kopírovať IBAN"
   },
+  "copyNameOnAccount": {
+    "message": "Kopírovať meno na účte"
+  },
+  "copyBranchNumber": {
+    "message": "Kopírovať číslo pobočky"
+  },
+  "copySwiftCode": {
+    "message": "Kopírovať SWIFT kód"
+  },
+  "copyFirstName": {
+    "message": "Kopírovať krstné meno"
+  },
+  "copyMiddleName": {
+    "message": "Kopírovať stredné meno"
+  },
+  "copyLastName": {
+    "message": "Kopírovať priezvisko"
+  },
+  "copyLicenseNumber": {
+    "message": "Kopírovať číslo vodičského preukazu"
+  },
+  "copyPassportNumber": {
+    "message": "Kopírovať číslo pasu"
+  },
   "bankAccountTypeChecking": {
-    "message": "Kontroluje sa"
+    "message": "Bežný účet"
   },
   "bankAccountTypeSavings": {
-    "message": "Ukladá sa"
+    "message": "Sporiaci účet"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Depozitný certifikát"
+    "message": "Termínovaný účet"
   },
   "bankAccountTypeLineOfCredit": {
     "message": "Úverový rámec"
@@ -5067,22 +5472,37 @@
   "newBankAccountNudgeBody": {
     "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
   },
+  "discardEditsTitle": {
+    "message": "Zahodiť úpravy"
+  },
+  "discardEditsConfirmation": {
+    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené."
+  },
   "discardEdits": {
     "message": "Zahodiť úpravy"
   },
-  "discardEditsMessage": {
-    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené"
-  },
-  "backToEditing": {
-    "message": "Späť na úpravy"
+  "keepEditing": {
+    "message": "Pokračovať v úpravách"
   },
   "sendHasUnsavedEdits": {
     "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "saveSendEditsFailed": {
-    "message": "Uloženie úprav Sendu zlyhalo",
+  "viewTextSendHeader": {
+    "message": "Zobraziť text"
+  },
+  "viewFileSendHeader": {
+    "message": "Zobraziť súbor"
+  },
+  "sendCreated": {
+    "message": "Send bol vytvorený",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Vstup musí byť číselný"
+  },
+  "integerInputError": {
+    "message": "Vstup musí byť celé číslo"
   },
   "hideEmailPolicyInEffect": {
     "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
@@ -5100,5 +5520,99 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nie je v súlade s pravidlami Sendu vašej organizácie",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillExpireOnDeletionDate": {
+    "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Vytvoriť kópiu"
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Do sekcie Moje položky nemôžete importovať položky, ktoré sú súčasťou viacerých zbierok"
+  },
+  "driversLicenseDetails": {
+    "message": "Podrobnosti o vodičskom preukaze"
+  },
+  "dateOfBirth": {
+    "message": "Dátum narodenia"
+  },
+  "birthMonth": {
+    "message": "Mesiac narodenia"
+  },
+  "birthDay": {
+    "message": "Deň narodenia"
+  },
+  "birthYear": {
+    "message": "Rok narodenia"
+  },
+  "issuingCountry": {
+    "message": "Vydávajúca krajina"
+  },
+  "issuingState": {
+    "message": "Vydávajúci štát/provincia"
+  },
+  "issueDate": {
+    "message": "Dátum vydania"
+  },
+  "issueMonth": {
+    "message": "Mesiac vydania"
+  },
+  "issueDay": {
+    "message": "Deň vydania"
+  },
+  "issueYear": {
+    "message": "Rok vydania"
+  },
+  "expirationDay": {
+    "message": "Deň exspirácie"
+  },
+  "issuingAuthority": {
+    "message": "Vydávajúci orgán"
+  },
+  "licenseClass": {
+    "message": "Skupina vodičského preukazu"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
+  },
+  "addToFolder": {
+    "message": "Pridať do priečinka"
+  },
+  "deleteCollection": {
+    "message": "Odstrániť zbierku"
+  },
+  "deleteCollectionsCount": {
+    "message": "Odstrániť zbierky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteCollectionDesc": {
+    "message": "Táto zbierka bude natrvalo odstránená."
+  },
+  "deleteCollectionsDesc": {
+    "message": "Tieto zbierky budú natrvalo odstránené."
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: New notification",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }

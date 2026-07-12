@@ -7,6 +7,7 @@ import { filter } from "rxjs/operators";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/popup/services/browser-premium-upgrade-prompt.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -31,12 +32,12 @@ import {
   ItemModule,
   MenuModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 import { SendFormConfigService } from "@bitwarden/send-ui";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { PendingSendDraftService } from "../../../../../tools/popup/send-v2/services/pending-send-draft.service";
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
 import {
@@ -57,6 +58,7 @@ import {
     JslibModule,
     RouterModule,
     PremiumBadgeComponent,
+    IconModule,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },

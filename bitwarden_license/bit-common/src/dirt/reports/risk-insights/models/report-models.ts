@@ -108,6 +108,7 @@ export const ReportStatus = Object.freeze({
   Loading: 2,
   Complete: 3,
   Error: 4,
+  LoadError: 5,
 } as const);
 
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];

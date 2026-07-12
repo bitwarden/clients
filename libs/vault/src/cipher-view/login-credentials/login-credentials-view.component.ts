@@ -30,7 +30,6 @@ import {
   TypographyModule,
   LinkModule,
   IconButtonModule,
-  BadgeModule,
   ColorPasswordModule,
 } from "@bitwarden/components";
 
@@ -54,7 +53,6 @@ type TotpCodeValues = {
     TypographyModule,
     FormFieldModule,
     IconButtonModule,
-    BadgeModule,
     ColorPasswordModule,
     BitTotpCountdownComponent,
     ReadOnlyCipherCardComponent,

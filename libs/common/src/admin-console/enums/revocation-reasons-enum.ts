@@ -7,10 +7,10 @@ export const RevocationReasonType = Object.freeze({
 } as const);
 
 export const RevocationReasonMessageMap: Record<RevocationReasonType, string> = {
-  "0": "revocationReasonUnknown",
+  "0": "revocationReasonNotLogged",
   "1": "revocationReasonManual",
   "2": "revocationReasonTwoFactorNonCompliance",
-  "3": "userDeclinedTransfer",
+  "3": "revocationReasonDeclinedItemTransfer",
   "4": "revocationReasonSingleOrganizationNonCompliance",
 };
 

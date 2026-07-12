@@ -31,6 +31,7 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  IconModule,
 } from "@bitwarden/components";
 import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
 
@@ -53,6 +54,7 @@ import { PipesModule } from "../pipes/pipes.module";
     JslibModule,
     NewCipherMenuComponent,
     CoachmarkComponent,
+    IconModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
