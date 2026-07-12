@@ -104,14 +104,19 @@ export class SearchService implements SearchServiceAbstraction {
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
     query = normalizeSearchQuery(query.trim().toLowerCase());
     return ciphers.filter((c) => {
-      if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
+      if (c.name != null && normalizeSearchQuery(c.name.toLowerCase()).indexOf(query) > -1) {
         return true;
       }
       if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
         return true;
       }
       const subtitle = CipherViewLikeUtils.subtitle(c);
-      if (subtitle != null && subtitle.toLowerCase().indexOf(query) > -1) {
+      if (subtitle != null && normalizeSearchQuery(subtitle.toLowerCase()).indexOf(query) > -1) {
+        return true;
+      }
+
+      const notes = CipherViewLikeUtils.getNotes(c);
+      if (notes != null && normalizeSearchQuery(notes.toLowerCase()).indexOf(query) > -1) {
         return true;
       }
 
@@ -121,7 +126,8 @@ export class SearchService implements SearchServiceAbstraction {
         login &&
         login.uris?.length &&
         login.uris?.some(
-          (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().indexOf(query) > -1,
+          (loginUri) =>
+            loginUri?.uri && normalizeSearchQuery(loginUri.uri.toLowerCase()).indexOf(query) > -1,
         )
       ) {
         return true;
@@ -140,7 +146,7 @@ export class SearchService implements SearchServiceAbstraction {
     const sendsMatched: SendView[] = [];
     const lowPriorityMatched: SendView[] = [];
     sends.forEach((s) => {
-      if (s.name != null && s.name.toLowerCase().indexOf(query) > -1) {
+      if (s.name != null && normalizeSearchQuery(s.name.toLowerCase()).indexOf(query) > -1) {
         sendsMatched.push(s);
       } else if (
         query.length >= 8 &&
@@ -149,11 +155,20 @@ export class SearchService implements SearchServiceAbstraction {
           (s.file?.id != null && s.file.id.startsWith(query)))
       ) {
         lowPriorityMatched.push(s);
-      } else if (s.notes != null && s.notes.toLowerCase().indexOf(query) > -1) {
+      } else if (
+        s.notes != null &&
+        normalizeSearchQuery(s.notes.toLowerCase()).indexOf(query) > -1
+      ) {
         lowPriorityMatched.push(s);
-      } else if (s.text?.text != null && s.text.text.toLowerCase().indexOf(query) > -1) {
+      } else if (
+        s.text?.text != null &&
+        normalizeSearchQuery(s.text.text.toLowerCase()).indexOf(query) > -1
+      ) {
         lowPriorityMatched.push(s);
-      } else if (s.file?.fileName != null && s.file.fileName.toLowerCase().indexOf(query) > -1) {
+      } else if (
+        s.file?.fileName != null &&
+        normalizeSearchQuery(s.file.fileName.toLowerCase()).indexOf(query) > -1
+      ) {
         lowPriorityMatched.push(s);
       }
     });
