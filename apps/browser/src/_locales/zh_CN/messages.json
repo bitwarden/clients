@@ -557,7 +557,7 @@
     "message": "数字最少个数"
   },
   "minSpecial": {
-    "message": "符号最少个数"
+    "message": "特殊字符最少个数"
   },
   "avoidAmbiguous": {
     "message": "避免易混淆的字符",
@@ -603,7 +603,7 @@
     "message": "归档项目"
   },
   "archiveItemDialogContent": {
-    "message": "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "归档后，此项目将被排除在搜索结果和自动填充建议之外。"
   },
   "archived": {
     "message": "已归档"
@@ -613,6 +613,23 @@
   },
   "upgradeToUseArchive": {
     "message": "需要高级版成员资格才能使用归档功能。"
+  },
+  "archiveItemsPlural": {
+    "message": "归档 $NUM$ 个项目",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "归档项目",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "归档后，这些项目将被排除在搜索结果和自动填充建议之外。"
   },
   "itemRestored": {
     "message": "项目已恢复"
@@ -1200,7 +1217,7 @@
     "message": "保存"
   },
   "notificationViewAria": {
-    "message": "在新窗口中查看 $ITEMNAME$",
+    "message": "查看 $ITEMNAME$（在新窗口中打开）",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1550,6 +1567,12 @@
   },
   "file": {
     "message": "文件"
+  },
+  "photo": {
+    "message": "Photo"
+  },
+  "unknown": {
+    "message": "Unknown"
   },
   "fileToShare": {
     "message": "要分享的文件"
@@ -2115,7 +2138,7 @@
     "message": "例如"
   },
   "title": {
-    "message": "称呼"
+    "message": "称谓"
   },
   "mr": {
     "message": "先生"
@@ -2321,6 +2344,42 @@
   "licenseClass": {
     "message": "驾驶证类别"
   },
+  "addItemHeaderLogin": {
+    "message": "添加登录",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "添加支付卡",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "添加身份",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "添加笔记",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "添加安全笔记",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "添加 SSH 密钥",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "添加银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "添加驾驶证",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "添加护照",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -2338,7 +2397,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "新建安全笔记",
+    "message": "新增安全笔记",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2384,6 +2443,22 @@
   "editItemHeaderSecureNote": {
     "message": "编辑安全笔记",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "编辑登录",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "编辑支付卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "编辑身份",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "编辑笔记",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "编辑 SSH 密钥",
@@ -3021,6 +3096,18 @@
   "biometricsFailedDesc": {
     "message": "生物识别无法完成，请尝试使用主密码或注销。如果仍无法解决，请联系 Bitwarden 支持。"
   },
+  "nativeMessaginPermissionErrorTitle": {
+    "message": "未提供权限"
+  },
+  "nativeMessaginPermissionErrorDesc": {
+    "message": "没有与 Bitwarden 桌面应用程序通信的权限，我们无法在浏览器扩展中提供生物识别。请重试。"
+  },
+  "nativeMessaginPermissionSidebarTitle": {
+    "message": "权限请求错误"
+  },
+  "nativeMessaginPermissionSidebarDesc": {
+    "message": "此操作不能在侧边栏中完成，请在弹出窗口或弹出对话框中重试。"
+  },
   "personalOwnershipSubmitError": {
     "message": "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。"
   },
@@ -3034,7 +3121,7 @@
     "message": "无法导入支付卡项目类型"
   },
   "restrictCardTypeImportDesc": {
-    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入密码库。"
+    "message": "由 1 个或多个组织设置的策略阻止您将支付卡导入您的密码库。"
   },
   "domainsTitle": {
     "message": "域名",
@@ -3139,6 +3226,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "审查并更改 $COUNT$ 个存在风险的密码",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "审查 1 个存在风险的密码"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "审查 $COUNT$ 个存在风险的密码",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3341,6 +3440,10 @@
     "message": "自定义"
   },
   "createSend": {
+    "message": "创建 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
     "message": "创建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -4671,6 +4774,51 @@
   "importNothingError": {
     "message": "没有导入任何内容。"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
   "importEncKeyError": {
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
   },
@@ -4837,6 +4985,9 @@
   "multifactorAuthenticationFailed": {
     "message": "多重身份验证失败"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "包含共享的文件夹"
   },
@@ -4888,6 +5039,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "switchAccount": {
     "message": "切换账户"
@@ -5004,11 +5344,11 @@
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "defaultPasswordManagerCalloutTitle": {
-    "message": "使您的自动填充体验更好",
+    "message": "提升您的自动填充体验",
     "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
   },
   "defaultPasswordManagerCalloutDesc": {
-    "message": "系统会请求您授予 $BROWSER$ 浏览器权限，将 Bitwarden 设置为您的默认密码管理器。",
+    "message": "您将被请求授予 $BROWSER$ 浏览器权限，以将 Bitwarden 设为默认密码管理器。",
     "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
     "placeholders": {
       "browser": {
@@ -5032,11 +5372,26 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "将 Bitwarden 设置为默认密码管理器",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "关闭浏览器自动填充设置以避免冲突。",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "管理浏览器设置",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "根据浏览器提示授予 Bitwarden 更改您的设置的权限。"
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "我们将停用您浏览器的内置密码管理器，以便您可以享受安全的登录体验。"
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "将 Bitwarden 设置为浏览器的默认密码管理器"
   },
   "allow": {
     "message": "允许",
@@ -5299,6 +5654,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "查看登录",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "查看支付卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "查看身份",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "查看笔记",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "创建",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "添加集合"
+  },
   "new": {
     "message": "新增"
   },
@@ -5483,11 +5861,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "网址已添加"
   },
   "addWebsite": {
     "message": "添加网站"
+  },
+  "addWebsiteOrApp": {
+    "message": "添加网站或 App"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "删除网站"
@@ -5718,6 +6115,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
+  },
+  "itemMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemMovedToCollections": {
+    "message": "项目已移动到集合"
+  },
+  "itemsMovedToCollection": {
+    "message": "项目已移动到集合"
+  },
+  "itemsMovedToCollections": {
+    "message": "项目已移动到集合"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -6576,14 +6985,29 @@
   "sharedUnlock": {
     "message": "共享解锁"
   },
-  "sharedUnlockDescription": {
-    "message": "保持您的 Bitwarden App 同步。启用后，此机器上的所有 App 将共享解锁状态。要在不同浏览器之间同步，需要使用桌面 App。"
+  "sharedUnlockWithDesktop": {
+    "message": "与桌面端共享解锁"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Safari 中的 Bitwarden 网页密码库共享。"
+  "sharedUnlockWithDesktopDescription": {
+    "message": "启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "保持您的 Bitwarden App 同步。启用后，解锁状态将与 Bitwarden 桌面 App 共享。"
+  "sharedUnlockWithWeb": {
+    "message": "使用网页密码库共享解锁"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "启用后，解锁状态将与 Bitwarden 网页密码库共享。"
+  },
+  "newPermissionNeeded": {
+    "message": "需要新权限"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "要使用共享解锁，Bitwarden 需要与桌面应用程序通信的权限。继续操作后，浏览器将向您请求授权。"
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden 将锁定并重新加载。在您批准后，扩展将重新加载并锁定您的密码库。"
+  },
+  "biometricPermissionDesc": {
+    "message": "要使用生物识别解锁，Bitwarden 需要与桌面应用程序通信的权限。继续操作后，浏览器将向您请求授权。"
   },
   "enterMonth": {
     "message": "输入月份。"
@@ -6747,17 +7171,37 @@
     "message": "要编辑此 Send，请创建副本。如果此 Send 可以在设置的删除日期过期，则无需任何操作",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "此 Send 将在设置的删除日期自动过期",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "makeACopy": {
     "message": "创建副本"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "您的组织不允许文本 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "您的组织不允许文件 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "此 Send 将在设置的删除日期自动过期",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "您不能将属于多个集合的项目导入到「我的项目」"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ 已设置此删除日期",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   }
 }

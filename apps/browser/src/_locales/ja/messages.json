@@ -614,6 +614,23 @@
   "upgradeToUseArchive": {
     "message": "アーカイブを使用するにはプレミアムメンバーシップが必要です。"
   },
+  "archiveItemsPlural": {
+    "message": "$NUM$ 個のアイテムをアーカイブ",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "アイテムをアーカイブ",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "アーカイブすると、これらのアイテムは検索結果と自動入力の候補から除外されます。"
+  },
   "itemRestored": {
     "message": "アイテムをリストアしました"
   },
@@ -1551,6 +1568,12 @@
   "file": {
     "message": "ファイル"
   },
+  "photo": {
+    "message": "写真"
+  },
+  "unknown": {
+    "message": "不明"
+  },
   "fileToShare": {
     "message": "共有するファイル"
   },
@@ -2321,6 +2344,42 @@
   "licenseClass": {
     "message": "免許種別"
   },
+  "addItemHeaderLogin": {
+    "message": "ログイン情報を追加",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "カードを追加",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "ID を追加",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "メモを追加",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "セキュアメモを追加",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH 鍵を追加",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "銀行口座を追加",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "免許証を追加",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "パスポートを追加",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2384,6 +2443,22 @@
   "editItemHeaderSecureNote": {
     "message": "セキュアメモを編集",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "ログイン情報の編集",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "カードの編集",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "ID の編集",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "メモの編集",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "SSH キーを編集",
@@ -3021,6 +3096,18 @@
   "biometricsFailedDesc": {
     "message": "生体認証を完了できません。マスターパスワードを使うかログアウトしてください。それでも直らない場合は、Bitwarden サポートまでお問い合わせください。"
   },
+  "nativeMessaginPermissionErrorTitle": {
+    "message": "権限が提供されていません"
+  },
+  "nativeMessaginPermissionErrorDesc": {
+    "message": "Bitwarden デスクトップアプリとの通信権限がなければ、ブラウザー拡張機能で生体認証を利用できません。もう一度やり直してください。"
+  },
+  "nativeMessaginPermissionSidebarTitle": {
+    "message": "権限リクエストエラー"
+  },
+  "nativeMessaginPermissionSidebarDesc": {
+    "message": "この操作はサイドバーでは行えません。ポップアップまたはポップアウトでやり直してください。"
+  },
   "personalOwnershipSubmitError": {
     "message": "組織のポリシーにより、個人の保管庫へのアイテムの保存が制限されています。 所有権を組織に変更し、利用可能なコレクションから選択してください。"
   },
@@ -3139,6 +3226,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "$COUNT$ 件の危険なパスワードを確認・変更する",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "リスクのあるパスワード1件を確認"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "リスクのあるパスワード$COUNT$件を確認",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3342,6 +3441,10 @@
   },
   "createSend": {
     "message": "新しい Send を作成",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send を作成",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -4671,6 +4774,51 @@
   "importNothingError": {
     "message": "何もインポートされませんでした。"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ 個のアイテムはスキップされます",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "以下のアイテムは読み込めないためインポートに含まれません："
+  },
+  "contact": {
+    "message": "お問い合わせ"
+  },
+  "membership": {
+    "message": "メンバーシップ"
+  },
+  "passport": {
+    "message": "パスポート"
+  },
+  "driverLicense": {
+    "message": "運転免許証"
+  },
+  "ssnCard": {
+    "message": "ID カード"
+  },
+  "birthCertificate": {
+    "message": "出生証明書"
+  },
+  "databaseCredentials": {
+    "message": "データベース資格情報"
+  },
+  "serverCredentials": {
+    "message": "サーバー資格情報"
+  },
+  "softwareLicense": {
+    "message": "ソフトウェアライセンス"
+  },
+  "healthInsurance": {
+    "message": "健康保険"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi 資格情報"
+  },
   "importEncKeyError": {
     "message": "エクスポートされたファイルの復号でエラーが発生しました。暗号化キーが、データをエクスポートするために使用された暗号化キーと一致しません。"
   },
@@ -4837,6 +4985,9 @@
   "multifactorAuthenticationFailed": {
     "message": "多要素認証に失敗しました"
   },
+  "keeperConnectionError": {
+    "message": "Keeper との通信中に問題が発生しました。もう一度インポートしてください。"
+  },
   "includeSharedFolders": {
     "message": "共有フォルダーを含める"
   },
@@ -4888,6 +5039,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass アカウントに関連付けられた YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
+  },
+  "keeperEmail": {
+    "message": "Keeper メール"
+  },
+  "keeperEmailHint": {
+    "message": "Keeper にログインする際に使用するメールアドレスを入力してください"
+  },
+  "dataCenterLocation": {
+    "message": "データセンターの場所"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper マスターパスワード"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Keeper マスターパスワードを入力してください"
+  },
+  "twoFactorCodePrompt": {
+    "message": "2段階認証方法のコードを入力してください"
+  },
+  "totpCodePrompt": {
+    "message": "認証アプリのコードを入力してください"
+  },
+  "smsCodePrompt": {
+    "message": "テキストメッセージで送信されたコードを入力してください"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Keeper DNA アプリのコードを入力してください"
+  },
+  "adminApproval": {
+    "message": "管理者の承認"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "管理者に承認リクエストを送信しました"
+  },
+  "method": {
+    "message": "方法"
+  },
+  "directImporter": {
+    "message": "直接インポート"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO 認証が必要です"
+  },
+  "keeperSsoDesc": {
+    "message": "Keeper アカウントは SSO 認証が必要です。開かれたブラウザウィンドウでサインインを完了し、ページに表示されているトークンを貼り付けてください。"
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "開かれたブラウザタブでサインインを完了してください。トークンは自動的にキャプチャされます。"
+  },
+  "ssoToken": {
+    "message": "SSO トークン"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper 認証が必要です"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper デバイスの承認が必要です"
+  },
+  "selectApprovalMethod": {
+    "message": "承認方法"
+  },
+  "deviceApprovalNeeded": {
+    "message": "デバイスの承認が必要です"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "以下の方法を選択してこのデバイスを承認してください"
+  },
+  "keeperPush": {
+    "message": "Keeper プッシュ通知"
+  },
+  "twoFactorMethod": {
+    "message": "2段階認証"
+  },
+  "emailVerification": {
+    "message": "メールアドレス認証"
+  },
+  "approvalEmailDesc": {
+    "message": "メールアドレスを確認し、認証コードを以下に入力してください"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper プッシュ通知が承認されたデバイスに送信されました"
+  },
+  "keeperPushSent": {
+    "message": "Keeper プッシュ通知が送信されました"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "承認リクエストはキャンセルされます"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "本当に退出しますか？管理者の承認リクエストはキャンセルされます。"
+  },
+  "cancelRequest": {
+    "message": "リクエストをキャンセルする"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper 2段階認証が必要です"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "switchAccount": {
     "message": "アカウントの切り替え"
@@ -5032,11 +5372,26 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "Bitwarden をブラウザのデフォルトパスワードマネージャーにする"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Bitwarden をデフォルトのパスワードマネージャーにする",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "競合を避けるためにブラウザの自動入力設定をオフにしてください。",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "ブラウザの設定を管理する",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "ブラウザプロンプトから、Bitwarden に設定を変更する許可を与えてください。"
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "ブラウザの内蔵パスワードマネージャーをオフにして、安全なログイン体験ができるようにします。"
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Bitwarden をブラウザのデフォルトパスワードマネージャーにしました"
   },
   "allow": {
     "message": "許可",
@@ -5299,6 +5654,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "ログイン情報を表示",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "カードを表示",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "ID を表示",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "メモを表示",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "作成",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "コレクションを追加"
+  },
   "new": {
     "message": "新規作成"
   },
@@ -5483,11 +5861,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "アプリ (URI)"
+  },
+  "appUriCount": {
+    "message": "アプリ (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "ウェブサイトを追加しました"
   },
   "addWebsite": {
     "message": "ウェブサイトを追加"
+  },
+  "addWebsiteOrApp": {
+    "message": "ウェブサイトまたはアプリを追加"
+  },
+  "app": {
+    "message": "アプリ"
   },
   "deleteWebsite": {
     "message": "ウェブサイトを削除"
@@ -5718,6 +6115,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "コレクションの割り当てに成功しました"
+  },
+  "itemMovedToCollection": {
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemMovedToCollections": {
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemsMovedToCollection": {
+    "message": "アイテムをコレクションに移動しました"
+  },
+  "itemsMovedToCollections": {
+    "message": "アイテムをコレクションに移動しました"
   },
   "itemAssignedToCollections": {
     "message": "コレクションに割り当てられたアイテム"
@@ -6576,14 +6985,29 @@
   "sharedUnlock": {
     "message": "共有ロック解除"
   },
-  "sharedUnlockDescription": {
-    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態はこのデバイスのすべてのアプリで共有されます。 異なるブラウザ間で同期するためにデスクトップアプリが必要です。"
+  "sharedUnlockWithDesktop": {
+    "message": "デスクトップでロック解除を共有"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態は Safari の Bitwarden ウェブ保管庫で共有されます。"
+  "sharedUnlockWithDesktopDescription": {
+    "message": "有効にすると、ロック解除状態は Bitwarden デスクトップアプリで共有されます。"
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Bitwarden アプリを同期させてください。有効にすると、ロック解除状態は Bitwarden デスクトップアプリで共有されます。"
+  "sharedUnlockWithWeb": {
+    "message": "ウェブ保管庫でロック解除を共有"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "有効にすると、ロック解除状態は Bitwarden ウェブ保管庫で共有されます。"
+  },
+  "newPermissionNeeded": {
+    "message": "新しい権限が必要です"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "共有ロック解除を使用するには、Bitwarden はデスクトップアプリと通信する権限が必要です。続行するとブラウザが承認を求めます。"
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden はロックされ再読み込みされます。承認すると拡張機能が再読み込みされ、保管庫がロックされます。"
+  },
+  "biometricPermissionDesc": {
+    "message": "生体認証ロック解除を使用するには、Bitwarden はデスクトップアプリと通信する権限が必要です。続行するとブラウザが承認を求めます。"
   },
   "enterMonth": {
     "message": "月を入力してください。"
@@ -6747,17 +7171,37 @@
     "message": "この Send を編集するには、コピーを作成してください。この Send が設定された削除日時に期限切れになる可能性がある場合は、アクションは必要ありません",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "この Send は、設定された削除日時に自動的に期限切れになります",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "makeACopy": {
     "message": "コピーを作成"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "テキストの Send はあなたの組織では許可されていません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "ファイルの Send はあなたの組織では許可されていません",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "この Send は設定された削除日時に自動的に期限切れになります",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "複数のコレクションに含まれるアイテムは、マイアイテムにインポートできません"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "アイテムを保存できません。アイテムを保存するには組織に確認する必要があります。"
+  },
+  "duplicateAttachmentNameError": {
+    "message": "アイテムは同じファイル名の複数の添付ファイルを持つことはできません"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ がこの削除日を設定しました",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   }
 }

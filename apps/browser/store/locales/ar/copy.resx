@@ -170,7 +170,7 @@ Bitwarden يحمي أكثر من مجرد كلمات المرور
     <value>في المنزل، في العمل، أو في أثناء التنقل، يقوم Bitwarden بتأمين جميع كلمات المرور، مفاتيح المرور والمعلومات الحساسة بسهولة.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>مزامنة خزانتك والوصول إليها من عدة أجهزة</value>
+    <value>مزامنة خزنتك والوصول إليها من عدة أجهزة</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>إدارة جميع تسجيلات الدخول وكلمات المرور الخاصة بك من خزنة آمنة</value>
