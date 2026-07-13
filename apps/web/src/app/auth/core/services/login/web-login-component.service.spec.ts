@@ -8,8 +8,10 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -109,9 +111,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns undefined", async () => {
+    it("returns undefined if getOrgPoliciesForInvite returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
@@ -128,7 +130,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
