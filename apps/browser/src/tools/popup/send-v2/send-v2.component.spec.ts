@@ -118,7 +118,13 @@ describe("SendV2Component", () => {
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
-        { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        {
+          provide: SendPolicyService,
+          useValue: {
+            disableSend$: of(false),
+            allowedSendTypes$: of([SendType.Text, SendType.File]),
+          },
+        },
       ],
     }).compileComponents();
 

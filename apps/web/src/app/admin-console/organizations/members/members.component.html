@@ -32,17 +32,24 @@
     }
   </app-header>
 
-  <div class="tw-mb-4 tw-flex tw-flex-col tw-space-y-4">
+  <div class="tw-mb-4">
     @if (showUserManagementControls()) {
       <bit-toggle-group
         [selected]="statusToggle | async"
         (selectedChange)="statusToggle.next($event)"
-        [attr.aria-label]="'memberStatusFilter' | i18n"
+        [label]="'memberStatusFilter' | i18n"
       >
         <bit-toggle [value]="undefined">
           {{ "all" | i18n }}
           <bit-berry [value]="dataSource.activeUserCount"></bit-berry>
         </bit-toggle>
+
+        @if (dataSource.stagedUserCount > 0) {
+          <bit-toggle [value]="userStatusType.Staged">
+            {{ "staged" | i18n }}
+            <bit-berry [value]="dataSource.stagedUserCount"></bit-berry>
+          </bit-toggle>
+        }
 
         <bit-toggle [value]="userStatusType.Invited">
           {{ "invited" | i18n }}
@@ -224,6 +231,19 @@
                         <button type="button" bitLink>
                           {{ u.name ?? u.email }}
                         </button>
+                        @if (u.status === userStatusType.Staged) {
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="'stagedMemberTooltip' | i18n"
+                            tooltipPosition="below-center"
+                          >
+                            {{ "staged" | i18n }}
+                          </span>
+                        }
                         @if (u.status === userStatusType.Invited) {
                           <span bitBadge class="tw-text-xs" variant="secondary">
                             {{ "invited" | i18n }}
@@ -270,6 +290,20 @@
                     <div class="tw-flex tw-flex-col">
                       <div class="tw-flex tw-flex-row tw-gap-2">
                         <span>{{ u.name ?? u.email }}</span>
+                        @if (u.status === userStatusType.Staged) {
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="'stagedMemberTooltip' | i18n"
+                            [addTooltipToDescribedby]="true"
+                            tooltipPosition="below-center"
+                          >
+                            {{ "staged" | i18n }}
+                          </span>
+                        }
                         @if (u.status === userStatusType.Invited) {
                           <span bitBadge class="tw-text-xs" variant="secondary">
                             {{ "invited" | i18n }}
@@ -382,7 +416,7 @@
 
                 <bit-menu #rowMenu>
                   @if (showUserManagementControls()) {
-                    @if (u.status === userStatusType.Invited) {
+                    @if (u.canReinvite) {
                       <button
                         type="button"
                         bitMenuItem
@@ -392,7 +426,7 @@
                         {{ "resendInvitation" | i18n }}
                       </button>
                     }
-                    @if (u.status === userStatusType.Accepted) {
+                    @if (u.canConfirm) {
                       <button
                         type="button"
                         bitMenuItem
@@ -403,36 +437,36 @@
                         </span>
                       </button>
                     }
-                    @if (
-                      u.status === userStatusType.Accepted || u.status === userStatusType.Invited
-                    ) {
+                    @if (u.canConfirm || u.canReinvite) {
                       <bit-menu-divider></bit-menu-divider>
                     }
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
-                    >
-                      <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
-                    </button>
-                    @if (organization.useGroups) {
+                    @if (u.canManageMember) {
                       <button
                         type="button"
                         bitMenuItem
-                        (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Role)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
+                        <i aria-hidden="true" class="bwi bwi-user"></i> {{ "memberRole" | i18n }}
                       </button>
+                      @if (organization.useGroups) {
+                        <button
+                          type="button"
+                          bitMenuItem
+                          (click)="isProcessing ? null : edit(u, organization, memberTab.Groups)"
+                        >
+                          <i aria-hidden="true" class="bwi bwi-users"></i> {{ "groups" | i18n }}
+                        </button>
+                      }
+                      <button
+                        type="button"
+                        bitMenuItem
+                        (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
+                      >
+                        <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
+                        {{ "collections" | i18n }}
+                      </button>
+                      <bit-menu-divider></bit-menu-divider>
                     }
-                    <button
-                      type="button"
-                      bitMenuItem
-                      (click)="isProcessing ? null : edit(u, organization, memberTab.Collections)"
-                    >
-                      <i aria-hidden="true" class="bwi bwi-collection-shared"></i>
-                      {{ "collections" | i18n }}
-                    </button>
-                    <bit-menu-divider></bit-menu-divider>
                     @if (organization.useEvents && u.status === userStatusType.Confirmed) {
                       <button
                         type="button"
@@ -457,7 +491,7 @@
                   }
 
                   @if (showUserManagementControls()) {
-                    @if (u.status === userStatusType.Revoked) {
+                    @if (u.canRestore) {
                       <button
                         type="button"
                         bitMenuItem
@@ -467,7 +501,7 @@
                         {{ "restoreAccess" | i18n }}
                       </button>
                     }
-                    @if (u.status !== userStatusType.Revoked) {
+                    @if (u.canRevoke) {
                       <button
                         type="button"
                         bitMenuItem
@@ -477,7 +511,7 @@
                         {{ "revokeAccess" | i18n }}
                       </button>
                     }
-                    @if (!u.claimedByOrganization) {
+                    @if (u.canRemove) {
                       <button
                         type="button"
                         bitMenuItem

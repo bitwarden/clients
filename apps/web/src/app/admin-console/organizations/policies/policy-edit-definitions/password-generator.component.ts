@@ -13,6 +13,8 @@ import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
+import { PasswordGeneratorPolicyV2Component } from "./password-generator-v2.component";
+
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
@@ -20,6 +22,11 @@ export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 10;
   component = PasswordGeneratorPolicyComponent;
+  v2 = {
+    component: PasswordGeneratorPolicyV2Component,
+    description: "passwordGeneratorPolicyDescV2",
+    showDescription: false,
+  };
 }
 
 @Component({

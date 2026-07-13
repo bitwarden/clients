@@ -29,6 +29,92 @@
     "provider": "generic",
     "url": "https://artifacts.bitwarden.com/desktop"
   },
+  "mac": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "category": "public.app-category.productivity",
+    "darkModeSupport": true,
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "entitlements": "resources/entitlements.mac.plist",
+    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "extendInfo": {
+      "ITSAppUsesNonExemptEncryption": false,
+      "CFBundleLocalizations": [
+        "en",
+        "cs",
+        "da",
+        "de",
+        "es",
+        "et",
+        "fi",
+        "fr",
+        "hr",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "nb",
+        "nl",
+        "pl",
+        "pt-BR",
+        "pt-PT",
+        "ro",
+        "ru",
+        "sk",
+        "sv",
+        "tr",
+        "uk",
+        "vi",
+        "zh-Hans",
+        "zh-Hant"
+      ],
+      "CFBundleDevelopmentRegion": "en"
+    },
+    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy.inherit"
+      }
+    ],
+    "signIgnore": [
+      "MacOS/desktop_proxy",
+      "MacOS/desktop_proxy.inherit",
+      "Contents/Plugins/autofill-extension.appex",
+      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+    ],
+    "target": ["dmg", "zip"],
+    "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
+  },
+  "dmg": {
+    "icon": "dmg.icns",
+    "background": "resources/background.png",
+    "sign": false,
+    "contents": [
+      {
+        "x": 150,
+        "y": 185,
+        "type": "file"
+      },
+      {
+        "x": 390,
+        "y": 180,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "window": {
+      "width": 540,
+      "height": 380
+    },
+    "artifactName": "Bitwarden-${version}-${arch}.${ext}"
+  },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
