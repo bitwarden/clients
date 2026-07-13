@@ -1,6 +1,3 @@
-import { BehaviorSubject, combineLatest, EMPTY, timer } from "rxjs";
-import { filter, concatMap, switchMap } from "rxjs/operators";
-
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
 import { fromTsUserId } from "@bitwarden/common/key-management/utils";
@@ -30,10 +27,6 @@ import { NativeMessagingBackground } from "../../background/nativeMessaging.back
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
-  BACKGROUND_POLLING_INTERVAL = 30_000;
-
-  private activePollingUser$ = new BehaviorSubject<UserId | null>(null);
-
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private configService: () => ConfigService,
@@ -45,40 +38,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private ipcService: () => IpcService,
   ) {
     super();
-    // Always connect to the native messaging background if biometrics are enabled, not just when it is used
-    // so that there is no wait when used.
-    this.activePollingUser$
-      .pipe(
-        switchMap((userId) => {
-          if (userId == null) {
-            return EMPTY;
-          }
-          return combineLatest([
-            timer(0, this.BACKGROUND_POLLING_INTERVAL),
-            this.biometricStateService.biometricUnlockEnabled$(userId),
-          ]).pipe(
-            filter(([_, enabled]) => enabled),
-            filter(() => !this.nativeMessagingBackground().connected),
-            concatMap(async () => {
-              try {
-                await this.nativeMessagingBackground().connect();
-                await this.getBiometricsStatus();
-              } catch {
-                // Ignore
-              }
-            }),
-          );
-        }),
-      )
-      .subscribe();
-  }
-
-  startPolling(userId: UserId): void {
-    this.activePollingUser$.next(userId);
-  }
-
-  stopPolling(): void {
-    this.activePollingUser$.next(null);
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
@@ -90,9 +49,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       }
     }
 
-    try {
-      await this.ensureConnected();
+    if (!this.nativeMessagingBackground().connected) {
+      return false;
+    }
 
+    try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.AuthenticateWithBiometrics,
       });
@@ -166,9 +127,11 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       }
     }
 
-    try {
-      await this.ensureConnected();
+    if (!this.nativeMessagingBackground().connected) {
+      return null;
+    }
 
+    try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.UnlockWithBiometricsForUser,
         userId: userId,
@@ -211,7 +174,9 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     try {
-      await this.ensureConnected();
+      if (!this.nativeMessagingBackground().connected) {
+        return BiometricsStatus.DesktopDisconnected;
+      }
 
       return (
         await this.nativeMessagingBackground().callCommand({
@@ -223,15 +188,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
-    }
-  }
-
-  // the first time we call, this might use an outdated version of the protocol, so we drop the response
-  private async ensureConnected() {
-    if (!this.nativeMessagingBackground().connected) {
-      await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.GetBiometricsStatus,
-      });
     }
   }
 

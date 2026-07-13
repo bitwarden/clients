@@ -444,41 +444,8 @@ export class LockComponent implements OnInit, OnDestroy {
         await this.setUserKeyAndContinue(userKey);
       }
     } catch (e) {
-      // Cancelling is a valid action.
-      if (e instanceof Error && e.message === "canceled") {
-        return;
-      }
-
-      this.logService.error("[LockComponent] Failed to unlock via biometrics.", e);
-
-      let biometricTranslatedErrorDesc;
-
-      if (this.clientType === "browser") {
-        const biometricErrorDescTranslationKey = this.lockComponentService.getBiometricsError(e);
-
-        if (biometricErrorDescTranslationKey) {
-          biometricTranslatedErrorDesc = this.i18nService.t(biometricErrorDescTranslationKey);
-        }
-      }
-
-      // if no translation key found, show generic error message
-      if (!biometricTranslatedErrorDesc) {
-        biometricTranslatedErrorDesc = this.i18nService.t("unexpectedError");
-      }
-
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "error" },
-        content: biometricTranslatedErrorDesc,
-        acceptButtonText: { key: "tryAgain" },
-        type: "danger",
-      });
-
-      if (confirmed) {
-        // try again
-        this.unlockingViaBiometrics = false;
-        await this.unlockViaBiometrics();
-        return;
-      }
+      // Biometrics may fail if the user does not accept or if the desktop app is disconnected.
+      this.logService.info("[LockComponent] Failed to unlock via biometrics.", e);
     } finally {
       this.unlockingViaBiometrics = false;
     }
