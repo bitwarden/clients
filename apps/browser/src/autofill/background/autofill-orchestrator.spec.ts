@@ -32,11 +32,15 @@ describe("AutofillOrchestrator", () => {
   let tabRemovedSubject$: Subject<number>;
   let autofillOnPageLoad$: BehaviorSubject<boolean>;
 
+  // createChromeTabMock's default url; the live tab and reported frame url share it by default so
+  // the fill-time match succeeds unless a test overrides one side.
+  const DEFAULT_URL = "https://jest-testing-website.com";
+
   const pageDetail = (tabId: number | undefined, frameId: number): PageDetail =>
     createPageDetailMock({ frameId, tab: createChromeTabMock({ id: tabId }) });
 
-  const emitPageTransition = (pd: PageDetail) =>
-    pageTransitionResolved$.next({ tab: pd.tab, tabId: pd.tab.id!, frameId: pd.frameId });
+  const emitPageTransition = (pd: PageDetail, frameUrl: string = pd.tab.url ?? DEFAULT_URL) =>
+    pageTransitionResolved$.next({ tab: pd.tab, tabId: pd.tab.id!, frameId: pd.frameId, frameUrl });
 
   const removeTab = (tabId: number) => tabRemovedSubject$.next(tabId);
 
@@ -45,6 +49,16 @@ describe("AutofillOrchestrator", () => {
     let resolve!: (value: string | null) => void;
     const promise = new Promise<string | null>((r) => (resolve = r));
     return { promise, resolve };
+  };
+
+  // Every abandon path bails before the collect→fill step, so none of the fill's work or side
+  // effects run. Asserting collect was not called is the load-bearing signal for a security fix:
+  // it proves the guard fired, not that a downstream short-circuit happened to skip the fill.
+  const expectAbandoned = () => {
+    expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
+    expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+    expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    expect(updateOverlayCiphers).not.toHaveBeenCalled();
   };
 
   beforeEach(() => {
@@ -75,6 +89,11 @@ describe("AutofillOrchestrator", () => {
     jest
       .spyOn(BrowserApi, "getTabFromCurrentWindow")
       .mockResolvedValue(createChromeTabMock({ id: 1 }));
+    // Sub-frame fills validate against the frame's live url; default it to the shared url so a
+    // sub-frame transition matches unless a test says otherwise.
+    jest
+      .spyOn(BrowserApi, "getFrameDetails")
+      .mockResolvedValue(mock<chrome.webNavigation.GetFrameResultDetails>({ url: DEFAULT_URL }));
 
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.autofillOnPageLoad$ = autofillOnPageLoad$;
@@ -102,11 +121,10 @@ describe("AutofillOrchestrator", () => {
   afterEach(() => jest.clearAllMocks());
 
   describe("page-load fills", () => {
-    it("resolves the target by id, collects the reported frame, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
-      // The transition and the live tab share this url so the fill-time match succeeds; a non-zero
-      // frameId guards against the collect scoping to a hardcoded 0.
+    it("resolves the target by id, validates the frame url, collects the reported frame, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
+      // The top frame's live url (the tab's) matches the reported frame url, so the fill proceeds.
       const url = "https://login.example.com/session";
-      const pd = createPageDetailMock({ frameId: 3, tab: createChromeTabMock({ id: 1, url }) });
+      const pd = createPageDetailMock({ frameId: 0, tab: createChromeTabMock({ id: 1, url }) });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
       autofillService.doAutoFillOnTab.mockResolvedValue("999999");
@@ -118,7 +136,7 @@ describe("AutofillOrchestrator", () => {
       // Collect is scoped to the reported frame and targets the live tab, not the seam snapshot.
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
         expect.objectContaining({ id: 1, url }),
-        3,
+        0,
       );
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
       // fromCommand is false for page-load fills; the fill targets the live tab and never falls
@@ -149,6 +167,63 @@ describe("AutofillOrchestrator", () => {
       );
     });
 
+    it("validates a sub-frame against its live frame url and scopes the collect to it", async () => {
+      // A sub-frame's url is not the tab's, so it is validated via getFrameDetails; a non-zero
+      // frameId also guards the collect against scoping to a hardcoded 0.
+      const frameUrl = "https://idp.example.com/sso";
+      const pd = pageDetail(1, 3);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+      jest
+        .spyOn(BrowserApi, "getFrameDetails")
+        .mockResolvedValue(mock<chrome.webNavigation.GetFrameResultDetails>({ url: frameUrl }));
+
+      emitPageTransition(pd, frameUrl);
+      await flushPromises();
+
+      expect(BrowserApi.getFrameDetails).toHaveBeenCalledWith({ tabId: 1, frameId: 3 });
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 1 }),
+        3,
+      );
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalled();
+    });
+
+    it("abandons the fill when the reported sub-frame has navigated", async () => {
+      const pd = pageDetail(1, 3);
+      jest
+        .spyOn(BrowserApi, "getFrameDetails")
+        .mockResolvedValue(
+          mock<chrome.webNavigation.GetFrameResultDetails>({ url: "https://idp.example.com/sso" }),
+        );
+
+      emitPageTransition(pd, "https://idp.example.com/login");
+      await flushPromises();
+
+      expectAbandoned();
+    });
+
+    it("abandons the fill when the reported sub-frame no longer resolves", async () => {
+      const pd = pageDetail(1, 3);
+      jest
+        .spyOn(BrowserApi, "getFrameDetails")
+        .mockResolvedValue(null as unknown as chrome.webNavigation.GetFrameResultDetails);
+
+      emitPageTransition(pd, "https://idp.example.com/sso");
+      await flushPromises();
+
+      expectAbandoned();
+    });
+
+    it("abandons the fill when resolving the reported sub-frame rejects", async () => {
+      const pd = pageDetail(1, 3);
+      jest.spyOn(BrowserApi, "getFrameDetails").mockRejectedValue(new Error("no frame"));
+
+      emitPageTransition(pd, "https://idp.example.com/sso");
+      await flushPromises();
+
+      expectAbandoned();
+    });
+
     it("records activity and refreshes the overlay but does not fill when the frame has no fields", async () => {
       // An empty collection short-circuits before doAutoFillOnTab (which throws on empty details),
       // while the surrounding side effects still run.
@@ -169,10 +244,7 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
-      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
-      expect(updateOverlayCiphers).not.toHaveBeenCalled();
+      expectAbandoned();
     });
 
     it("abandons the fill when resolving the tab rejects", async () => {
@@ -181,8 +253,8 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expectAbandoned();
+      // The swallowed rejection must not surface as a logged error.
       expect(logService.error).not.toHaveBeenCalled();
     });
 
@@ -194,8 +266,7 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expectAbandoned();
     });
 
     // FIXME (PM-39579): remove with the temporary active-tab guard once the tab gate lands.
@@ -207,8 +278,7 @@ describe("AutofillOrchestrator", () => {
       emitPageTransition(pageDetail(1, 0));
       await flushPromises();
 
-      expect(autofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
-      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expectAbandoned();
     });
 
     it("skips the fill entirely when autofill-on-page-load is disabled", async () => {

@@ -24,7 +24,10 @@ describe("NoopAutofillLifecycleService", () => {
   // doing nothing, and must name the member so the offending path is findable.
   it.each([
     ["init", () => service.init()],
-    ["reportPageTransition", () => service.reportPageTransition(createChromeTabMock(), 0)],
+    [
+      "reportPageTransition",
+      () => service.reportPageTransition(createChromeTabMock(), 0, "https://example.test"),
+    ],
     ["startMonitoringFrame", () => service.startMonitoringFrame(createChromeTabMock(), 0)],
     ["retireAllFrames", () => service.retireAllFrames()],
   ])("warns when %s is invoked", async (method, invoke) => {

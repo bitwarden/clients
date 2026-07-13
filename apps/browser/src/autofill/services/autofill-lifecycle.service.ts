@@ -67,11 +67,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    * Each is buffered against `monitoringState` and resolved as an opportunity on
    * `pageTransitionResolved$` once its frame is monitoring.
    */
-  private readonly pageTransition$ = new Subject<{
-    tab: chrome.tabs.Tab;
-    tabId: number;
-    frameId: number | undefined;
-  }>();
+  private readonly pageTransition$ = new Subject<PageTransitionResolved>();
 
   /**
    * Removed tab ids, fed from `chrome.tabs.onRemoved` in `init()`. `tabRemoved$`
@@ -110,7 +106,6 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
         ),
       );
     }),
-    map(({ tab, tabId, frameId }) => ({ tab, tabId, frameId })),
     share({ resetOnRefCountZero: true }),
   );
 
@@ -201,14 +196,21 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
       );
   }
 
-  reportPageTransition(tab: chrome.tabs.Tab, frameId: number | undefined) {
+  reportPageTransition(
+    tab: chrome.tabs.Tab,
+    frameId: number | undefined,
+    frameUrl: string | undefined,
+  ) {
     const tabId = tab?.id;
-    if (!tabId) {
+    // A transition without a tab id or a URL is not a valid page transition; drop it so the payload
+    // carries a definite tabId and url downstream.
+    if (!tabId || !frameUrl) {
       return;
     }
-    // Carry the narrowed tabId in the payload so the buffer keys off a definite
-    // number — the guard's narrowing of `tab.id` does not survive the stream.
-    this.pageTransition$.next({ tab, tabId, frameId });
+
+    // prevent shared rx consumers from mutating a shared message
+    const transition = Object.freeze({ tab, tabId, frameId, frameUrl });
+    this.pageTransition$.next(transition);
   }
 
   /**

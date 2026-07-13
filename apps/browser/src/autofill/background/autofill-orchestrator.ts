@@ -28,7 +28,15 @@ import { AutofillService, PageDetail } from "../services/abstractions/autofill.s
  * already sent (these paths report exactly one frame's details).
  */
 type FillRequest =
-  | { kind: "pageLoad"; tab: chrome.tabs.Tab; tabId: number; frameId: number | undefined }
+  | {
+      kind: "pageLoad";
+      tab: chrome.tabs.Tab;
+      tabId: number;
+      frameId: number | undefined;
+      // The reporting frame's URL, from the message sender. Validated against the frame's live URL
+      // at dispatch so a navigated frame is not filled with a cipher chosen for the old page.
+      frameUrl: string;
+    }
   | {
       kind: "command";
       tab: chrome.tabs.Tab;
@@ -49,19 +57,14 @@ type FillRequest =
  * The single owner of runtime-message-driven autofill dispatch: page-load fills
  * (consumed from the lifecycle's `pageTransitionResolved$` opportunity) and the
  * user-initiated keyboard-shortcut, card, and identity fills the background
- * forwards from `collectPageDetailsResponse`. It heals the split-brain the
- * lifecycle service and `runtime.background.ts` used to share (see
- * `autofill.design.md`): the lifecycle reconciles a transition into an
- * opportunity; this class decides whether and how to fill, and owns the fill's
- * side effects.
+ * forwards from `collectPageDetailsResponse`.
  *
  * Every fill routes through one per-`(tab, frame)` serialized entry point, so a
  * page-load opportunity and a user-initiated fill on the same frame cannot
- * interleave. That makes each frame's collect→fill atomic and prevents the
- * concurrent double-fill / wrong-origin race the stateless two-hop could not (it
- * had no per-frame state to serialize on). See the "Fills are serialized per
- * frame" note in `autofill.design.md`. Per-tab groups are ended when the tab is
- * removed, so the grouping does not leak.
+ * interleave. That makes each frame's collect→fill atomic and prevents a
+ * concurrent double-fill / wrong-origin race — two fills racing on one frame. See
+ * the "Fills are serialized per frame" note in `autofill.design.md`. Per-tab
+ * groups end when the tab is removed, so the grouping does not leak.
  */
 export class AutofillOrchestrator {
   /** Serialized-core input; public methods and the page-load subscription feed it. */
@@ -112,8 +115,8 @@ export class AutofillOrchestrator {
         filter(([, autofillOnPageLoad]) => autofillOnPageLoad),
         map(([opportunity]) => opportunity),
       )
-      .subscribe(({ tab, tabId, frameId }) =>
-        this.fillRequest$.next({ kind: "pageLoad", tab, tabId, frameId }),
+      .subscribe(({ tab, tabId, frameId, frameUrl }) =>
+        this.fillRequest$.next({ kind: "pageLoad", tab, tabId, frameId, frameUrl }),
       );
   }
 
@@ -161,12 +164,10 @@ export class AutofillOrchestrator {
     try {
       switch (request.kind) {
         case "pageLoad": {
-          // Re-resolve the target tab live by id and require its URL to still match the
-          // transition; abandon if the tab is gone or has navigated. Filling from the carried
-          // snapshot would target the wrong page after a navigation (see autofill.design.md,
-          // "Fill targeting").
-          const liveTab = await BrowserApi.getTab(request.tabId).catch((): null => null);
-          if (liveTab?.url == null || liveTab.url !== request.tab.url) {
+          // Re-resolve the target tab live and confirm the reported frame has not navigated;
+          // abandon otherwise (see autofill.design.md, "Fill targeting").
+          const liveTab = await this.resolveFreshTarget(request);
+          if (liveTab == null) {
             return;
           }
 
@@ -211,6 +212,29 @@ export class AutofillOrchestrator {
     } catch (error) {
       this.logService.error(error);
     }
+  }
+
+  /**
+   * Re-resolves the reported frame's tab live by id and confirms the frame still shows the URL it
+   * reported. Returns the live tab when the fill may proceed, or null to abandon — the tab is gone,
+   * the frame is gone, or the frame has navigated. A sub-frame's URL is not the tab's, so its own
+   * live URL is resolved; the top frame's is the tab's. Never derives the target from the carried
+   * snapshot (see autofill.design.md, "Fill targeting").
+   */
+  private async resolveFreshTarget(
+    request: Extract<FillRequest, { kind: "pageLoad" }>,
+  ): Promise<chrome.tabs.Tab | null> {
+    const liveTab = await BrowserApi.getTab(request.tabId).catch((): null => null);
+    if (liveTab == null) {
+      return null;
+    }
+    const liveFrameUrl =
+      request.frameId == null || request.frameId === 0
+        ? liveTab.url
+        : await BrowserApi.getFrameDetails({ tabId: request.tabId, frameId: request.frameId })
+            .then((frame) => frame?.url)
+            .catch((): undefined => undefined);
+    return liveFrameUrl === request.frameUrl ? liveTab : null;
   }
 
   private async recordActiveAccountActivity() {

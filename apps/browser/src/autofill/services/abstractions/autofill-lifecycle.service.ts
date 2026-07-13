@@ -7,12 +7,19 @@ import { Observable } from "rxjs";
  * make of it. `tabId` is definite: `reportPageTransition` drops undefined-id
  * tabs at the entry guard, so a resolved opportunity never carries an undefined
  * tab id.
+ *
+ * `frameUrl` is the reporting frame's URL as the browser reported it (the
+ * message sender's URL, not a page-supplied value). The autofill side validates
+ * it against the frame's live URL at fill time, so it must come from an
+ * authoritative source. It is definite: a transition without a URL is not a valid
+ * page transition and is dropped at the entry guard, like one without a tab id.
  */
-export type PageTransitionResolved = {
+export type PageTransitionResolved = Readonly<{
   tab: chrome.tabs.Tab;
   tabId: number;
   frameId: number | undefined;
-};
+  frameUrl: string;
+}>;
 
 /**
  * Owns the autofill monitoring lifecycle in the background: tracking which
@@ -30,8 +37,17 @@ export abstract class AutofillLifecycleService {
    * Records a page transition reported by a page-lifecycle monitor. The
    * transition is buffered until its frame is monitoring, at which point
    * `pageTransitionResolved$` emits, unless the frame is retired first.
+   *
+   * `url` is the reporting frame's URL from the message sender (browser-supplied,
+   * not the message body), carried through to the resolved opportunity so the
+   * fill can validate the frame has not navigated. A transition without a URL is
+   * not valid and is dropped, like one without a tab id.
    */
-  abstract reportPageTransition: (tab: chrome.tabs.Tab, frameId: number | undefined) => void;
+  abstract reportPageTransition: (
+    tab: chrome.tabs.Tab,
+    frameId: number | undefined,
+    url: string | undefined,
+  ) => void;
   /**
    * Emits once for each page transition reconciled against monitoring.
    */

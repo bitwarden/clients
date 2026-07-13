@@ -283,6 +283,7 @@ describe("DefaultAutofillLifecycleService", () => {
   });
 
   describe("page transition buffering", () => {
+    const url = "https://example.test/page";
     let tab: chrome.tabs.Tab;
     let resolved: PageTransitionResolved[];
     let subscription: Subscription;
@@ -308,27 +309,27 @@ describe("DefaultAutofillLifecycleService", () => {
     it("resolves an opportunity immediately when the frame is already monitoring", async () => {
       markMonitoring(1, 0, true);
 
-      service.reportPageTransition(tab, 0);
+      service.reportPageTransition(tab, 0, url);
       await flushPromises();
 
-      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0, frameUrl: url }]);
     });
 
     it("buffers a transition until its frame starts monitoring, then resolves it", async () => {
-      service.reportPageTransition(tab, 0);
+      service.reportPageTransition(tab, 0, url);
       await flushPromises();
       expect(resolved).toEqual([]);
 
       markMonitoring(1, 0, true);
       await flushPromises();
 
-      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0, frameUrl: url }]);
     });
 
     it("drops a buffered transition when its frame disconnects, and a later start does not resurrect it", async () => {
       const port = addPort(0);
 
-      service.reportPageTransition(tab, 0);
+      service.reportPageTransition(tab, 0, url);
       await flushPromises();
       expect(resolved).toEqual([]);
 
@@ -344,30 +345,39 @@ describe("DefaultAutofillLifecycleService", () => {
     it("resolves with no frameId when the transition omits the frame", async () => {
       markMonitoring(1, undefined, true);
 
-      service.reportPageTransition(tab, undefined);
+      service.reportPageTransition(tab, undefined, url);
       await flushPromises();
 
-      expect(resolved).toEqual([{ tab, tabId: 1, frameId: undefined }]);
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: undefined, frameUrl: url }]);
     });
 
     it("resolves each (tab, frame) independently", async () => {
       const otherTab = createChromeTabMock({ id: 2 });
-      service.reportPageTransition(tab, 0);
-      service.reportPageTransition(otherTab, 0);
+      service.reportPageTransition(tab, 0, url);
+      service.reportPageTransition(otherTab, 0, url);
       await flushPromises();
 
       // Only the first frame begins monitoring.
       markMonitoring(1, 0, true);
       await flushPromises();
 
-      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0, frameUrl: url }]);
     });
 
     it("ignores a reported transition without a tab id", async () => {
       const tabWithoutId = createChromeTabMock({ id: undefined });
       markMonitoring(1, 0, true);
 
-      service.reportPageTransition(tabWithoutId, 0);
+      service.reportPageTransition(tabWithoutId, 0, url);
+      await flushPromises();
+
+      expect(resolved).toEqual([]);
+    });
+
+    it("ignores a reported transition without a url", async () => {
+      markMonitoring(1, 0, true);
+
+      service.reportPageTransition(tab, 0, undefined);
       await flushPromises();
 
       expect(resolved).toEqual([]);
@@ -380,7 +390,7 @@ describe("DefaultAutofillLifecycleService", () => {
       service["handleInjectScriptPortOnDisconnect"](port);
 
       // The frame is no longer monitoring, so a fresh transition stays buffered.
-      service.reportPageTransition(tab, 0);
+      service.reportPageTransition(tab, 0, url);
       await flushPromises();
       expect(resolved).toEqual([]);
     });
@@ -393,9 +403,9 @@ describe("DefaultAutofillLifecycleService", () => {
       service["handleInjectScriptPortOnDisconnect"](siblingPort);
 
       // A sibling port remains, so the frame stays monitoring and the transition resolves.
-      service.reportPageTransition(tab, 0);
+      service.reportPageTransition(tab, 0, url);
       await flushPromises();
-      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0 }]);
+      expect(resolved).toEqual([{ tab, tabId: 1, frameId: 0, frameUrl: url }]);
     });
   });
 });

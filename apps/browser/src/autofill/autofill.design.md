@@ -55,14 +55,14 @@ moment of the fill. It must not use a snapshot carried from when the transition 
 
 The distinction is a security boundary. A transition can be paused (see the
 [tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)): held while its tab is away and resolved
-later, when the tab is committed again. Between report and fill, the tab may have navigated. Filling
+later, when the tab is committed again. Between report and fill, the frame may have navigated. Filling
 from the transition's stale snapshot would put a cipher chosen for the _old_ page into whatever page
-now occupies that tab — a credential handed to the wrong origin.
+now occupies that frame — a credential handed to the wrong origin.
 
-So the fill re-resolves the target tab by id and confirms its URL still matches the transition. If
-the tab is gone, or has navigated, the fill is abandoned rather than redirected. Targeting the tab by
-its live identity, and validating it, is what keeps a paused-then-resumed transition from filling the
-wrong page.
+So the fill re-resolves the target tab by id and confirms the reporting frame still shows the URL it
+reported with the transition message. If the tab or frame is gone, or the frame has navigated, the fill
+is abandoned rather than redirected. Targeting the frame by its live identity and validating its origin
+keeps a paused-then-resumed transition from filling the wrong page.
 
 This applies to the page-load path specifically. Fills the user triggers directly — a keyboard
 shortcut, or choosing a card or identity — legitimately target the active tab, because the user just

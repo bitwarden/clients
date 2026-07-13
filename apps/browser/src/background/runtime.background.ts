@@ -151,7 +151,7 @@ export default class RuntimeBackground {
         // A page-lifecycle monitor reports a transition as a fact. The service
         // buffers it against monitoring state and `AutofillOrchestrator` decides whether
         // it warrants a collection.
-        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId);
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId, sender.url);
         break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
