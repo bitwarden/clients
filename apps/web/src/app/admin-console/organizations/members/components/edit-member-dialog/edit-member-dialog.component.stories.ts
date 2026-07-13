@@ -11,10 +11,12 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
+import { BillingConstraintService } from "../../../../../billing/members/billing-constraint/billing-constraint.service";
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
@@ -119,6 +121,16 @@ const mockMemberActionsService = {
   deleteUser: () => Promise.resolve({ success: true }),
 };
 
+const mockOrganizationMetadataService = {
+  getOrganizationMetadata$: () => of(null),
+  refreshMetadataCache: () => {},
+};
+
+const mockBillingConstraintService = {
+  checkSeatLimit: () => ({ canAddUsers: true }),
+  seatLimitReached: () => Promise.resolve(false),
+};
+
 const mockDeleteManagedMemberWarningService = {
   warningAcknowledged: () => of(false),
   showWarning: () => Promise.resolve(true),
@@ -144,6 +156,14 @@ const sharedDecorators = [
       {
         provide: DeleteManagedMemberWarningService,
         useValue: mockDeleteManagedMemberWarningService,
+      },
+      {
+        provide: OrganizationMetadataServiceAbstraction,
+        useValue: mockOrganizationMetadataService,
+      },
+      {
+        provide: BillingConstraintService,
+        useValue: mockBillingConstraintService,
       },
     ],
   }),
