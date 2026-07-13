@@ -172,7 +172,6 @@ export abstract class BaseProgram {
     } else {
       const command = new UnlockCommand(
         this.serviceContainer.accountService,
-        this.serviceContainer.cryptoFunctionService,
         this.serviceContainer.logService,
         this.serviceContainer.keyConnectorService,
         this.serviceContainer.environmentService,

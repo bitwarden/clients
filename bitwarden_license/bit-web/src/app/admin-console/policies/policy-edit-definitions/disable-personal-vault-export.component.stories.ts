@@ -8,10 +8,8 @@ import {
 import { DisablePersonalVaultExportPolicy } from "./disable-personal-vault-export.component";
 
 export default {
-  ...policyDrawerMeta(
-    "Admin Console/Organizations/Policies/Disable Personal Vault Export",
-    new DisablePersonalVaultExportPolicy(),
-  ),
+  ...policyDrawerMeta(new DisablePersonalVaultExportPolicy()),
+  title: "Admin Console/Organizations/Policies/Disable Personal Vault Export",
 };
 
 type Story = StoryObj<PolicyDrawerStoryArgs>;

@@ -70,7 +70,11 @@ describe("EditCommand", () => {
     accountService.activeAccount$ = of(activeAccount as any);
     keyService.orgKeys$.mockReturnValue(of({ [validOrgId]: mockOrgKey }));
     encryptService.encryptString.mockResolvedValue(mockEncString);
-    apiService.putCollection.mockResolvedValue({ id: validCollectionId } as any);
+    apiService.putCollection.mockResolvedValue({
+      id: validCollectionId,
+      groups: [],
+      users: [],
+    } as any);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
     command = new EditCommand(
@@ -256,6 +260,26 @@ describe("EditCommand", () => {
       );
       expect(result.success).toBe(false);
       expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.putCollection.mockResolvedValue({
+        id: validCollectionId,
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command["editOrganizationCollection"](
+        validCollectionId,
+        makeRequest({ groups: requestGroups }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
     });
   });
 });
