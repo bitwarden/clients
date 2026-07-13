@@ -14,7 +14,7 @@
     [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
     [style]="
       variant() === 'secondary'
-        ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
+        ? '--color-nav-bg-brand: var(--color-nav-bg-admin); --color-nav-bg-brand-soft: var(--color-nav-bg-admin-soft); --color-nav-bg-brand-hover: var(--color-nav-bg-admin-hover);'
         : ''
     "
     (keydown)="handleKeyDown($event)"

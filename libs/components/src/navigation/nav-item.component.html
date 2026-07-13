@@ -8,11 +8,7 @@
       [style.padding-inline-start]="navItemIndentationPadding()"
       class="tw-relative tw-rounded-xl tw-h-10 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
       [class]="fvwStyles()"
-      [style]="
-        showActiveStyles()
-          ? '--color-nav-bg-primary: var(--color-nav-bg-primary-strong); --color-nav-bg-secondary: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-primary-hover-strong); --color-nav-bg-secondary-hover: var(--color-nav-bg-secondary-hover-strong);'
-          : ''
-      "
+      [style]="showActiveStyles() ? '--color-nav-bg-brand: var(--color-nav-bg-brand-soft);' : ''"
       data-testid="nav-item-container"
       data-spotlight-target
     >
