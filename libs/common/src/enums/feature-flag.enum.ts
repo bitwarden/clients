@@ -16,6 +16,7 @@ export enum FeatureFlag {
   PolicyDrawers = "pm-34804-policy-drawers",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
   StagedStatus = "pm-34423-staged-status",
+  PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
   /* Auth */
   SafariAccountSwitching = "pm-5594-safari-account-switching",
@@ -136,6 +137,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
+  [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

@@ -10473,6 +10473,18 @@
   "memberRole": {
     "message": "Member role"
   },
+  "moreActions": {
+    "message": "More actions"
+  },
+  "emailUpdateOnSave": {
+    "message": "Email will update on save"
+  },
+  "createdDate": {
+    "message": "Created date"
+  },
+  "grantAccessToSecretsManager": {
+    "message": "Grant access to secrets manager"
+  },
   "moreSettings": {
     "message": "More settings"
   },
