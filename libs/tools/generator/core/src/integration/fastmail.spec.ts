@@ -126,17 +126,17 @@ describe("Fastmail forwarder", () => {
         expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("");
       });
       it("creates a request body with website as email prefix when prefix is enabled", () => {
-        context.website.mockReturnValue("example.com");
         context.prefixEnabled.mockReturnValue(true);
-        const request = { accountId: "accountId", website: "example.com" };
+        context.prefix.mockReturnValue("example");
+        const request = { accountId: "accountId", website: "https://example.com" };
         const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
         const methodCall = result.methodCalls[0][1];
         expect(methodCall.accountId).toEqual("accountId");
-        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("example_com");
+        expect(methodCall.create["new-masked-email"].emailPrefix).toEqual("example");
       });
       it("creates a request body with empty email prefix when prefix is enabled but website is empty", () => {
-        context.website.mockReturnValue("");
         context.prefixEnabled.mockReturnValue(true);
+        context.prefix.mockReturnValue("");
         const request = { accountId: "accountId", website: "" };
         const result = Fastmail.forwarder.createForwardingEmail.body(request, context);
         const methodCall = result.methodCalls[0][1];

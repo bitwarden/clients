@@ -119,20 +119,21 @@ export class IntegrationContext<Settings extends object> {
     return description.slice(0, options?.maxLength);
   }
 
-  /** transform a domain into a valid prefifx
+  /** transform a domain into a valid prefix
    * for example, "example.com" becomes "example", "foo.example.com" becomes "foo_example"
    * @param request supplies information about the state of the extension site
    * @returns prefix derived from the website URL or an empty string if a website isn't available
-   * */
+   */
   prefix(request: IntegrationRequest) {
-    const hostname = Utils.getHostname(this.website(request)) ?? "";
+    const rawWebsite = this.website(request);
+    const hostname = Utils.getHostname(rawWebsite) ?? "";
     if (hostname === "") {
       return "";
     }
 
     const parts = hostname.split(".");
     if (parts.length <= 1) {
-      return Utils.getUrl(this.website(request)) != null ? hostname : "";
+      return Utils.getUrl(rawWebsite) != null ? hostname : "";
     }
 
     // For second-level domains (example.com), return just the domain name

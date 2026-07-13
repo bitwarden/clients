@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   GENERATOR_DISK,
   GENERATOR_MEMORY,
@@ -72,13 +71,7 @@ const createForwardingEmail = Object.freeze({
                 state: "enabled",
                 description: "",
                 forDomain: context.website(request),
-                emailPrefix: context.prefixEnabled()
-                  ? (Utils.getDomain(context.website(request)) ?? "")
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "_")
-                      .replace(/_+/g, "_")
-                      .substring(0, 64)
-                  : "",
+                emailPrefix: context.prefixEnabled() ? context.prefix(request) : "",
               },
             },
           },
