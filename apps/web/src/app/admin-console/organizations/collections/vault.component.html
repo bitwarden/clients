@@ -52,6 +52,7 @@
     >
       @if (showAddAccessToggle() && activeFilter().selectedCollectionNode) {
         <bit-toggle-group
+          class="tw-self-start"
           [selected]="collectionService.addAccessStatus$ | async"
           (selectedChange)="addAccessToggle($event)"
           [label]="'addAccessFilter' | i18n"
