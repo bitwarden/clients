@@ -18,6 +18,8 @@ import {
 
 import { BrowserApi } from "../browser/browser-api";
 
+import { WebIpcTransport } from "./transports";
+
 // The interval at which the browser extension in the background tries to reconnect to the desktop app.
 const RECONNECTION_INTERVAL_MS = 10_000;
 // The timeout for the discover message sent to the desktop app when trying to connect. If the desktop app does not respond to the discover message within this time, the connection attempt is considered failed and will be retried after the reconnection interval.
@@ -27,6 +29,7 @@ export class IpcBackgroundService extends IpcService {
   private communicationBackend?: IpcCommunicationBackend;
   private nativeMessagingPort?: browser.runtime.Port | chrome.runtime.Port;
   private reconnectTimer?: ReturnType<typeof setTimeout>;
+  private webTransport?: WebIpcTransport;
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -39,43 +42,17 @@ export class IpcBackgroundService extends IpcService {
     try {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
+
+      const receive = (message: IncomingMessage) => this.communicationBackend?.receive(message);
+
       this.communicationBackend = new IpcCommunicationBackend({
         send: async (message: OutgoingMessage): Promise<void> => {
-          if (typeof message.destination === "object" && "Web" in message.destination) {
-            // Verify the document hasn't changed (e.g., user navigated away) before delivering.
-            // If the browser doesn't support documentId on getFrame, skip the check and send anyway.
-            try {
-              const frame = await chrome.webNavigation.getFrame({
-                tabId: message.destination.Web.tab_id,
-                frameId: 0,
-              });
-              if (
-                frame?.documentId != null &&
-                frame.documentId !== message.destination.Web.document_id
-              ) {
-                this.logService.warning("[IPC] Dropping message to Web tab: document has changed");
-                return;
-              }
-            } catch {
-              // Tab may have been closed, or API not available. Drop the message.
-              this.logService.warning(
-                "[IPC] Dropping message to Web tab: tab no longer accessible",
-              );
-              return;
-            }
-
-            await BrowserApi.tabSendMessage(
-              { id: message.destination.Web.tab_id } as chrome.tabs.Tab,
-              {
-                type: "bitwarden-ipc-message",
-                message: {
-                  destination: message.destination,
-                  payload: [...message.payload],
-                  topic: message.topic,
-                },
-              } satisfies IpcMessage,
-              { frameId: 0 },
-            );
+          if (
+            typeof message.destination === "object" &&
+            "Web" in message.destination &&
+            this.webTransport != null
+          ) {
+            await this.webTransport!.send(message);
             return;
           }
 
@@ -99,42 +76,10 @@ export class IpcBackgroundService extends IpcService {
         },
       });
 
-      BrowserApi.messageListener("platform.ipc", (message, sender) => {
-        if (
-          !isIpcMessage(message) ||
-          typeof message.message.destination !== "object" ||
-          !("BrowserBackground" in message.message.destination)
-        ) {
-          return;
-        }
-
-        if (sender.tab?.id === undefined || sender.tab.id === chrome.tabs.TAB_ID_NONE) {
-          // Ignore messages from non-tab sources
-          return;
-        }
-
-        if (sender.documentId === undefined) {
-          this.logService.warning(
-            "[IPC] Received message from tab without documentId (unsupported browser version)",
-          );
-          return;
-        }
-
-        this.communicationBackend?.receive(
-          new IncomingMessage(
-            new Uint8Array(message.message.payload),
-            message.message.destination,
-            {
-              Web: {
-                tab_id: sender.tab.id,
-                document_id: sender.documentId,
-                origin: sender.origin ?? "",
-              },
-            },
-            message.message.topic,
-          ),
-        );
-      });
+      if (!this.platformUtilsService.isFirefox()) {
+        this.webTransport = new WebIpcTransport(this.logService, receive);
+        this.webTransport.init();
+      }
 
       await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
