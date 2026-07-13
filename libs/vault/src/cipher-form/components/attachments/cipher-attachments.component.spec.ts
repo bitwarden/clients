@@ -274,10 +274,12 @@ describe("CipherAttachmentsComponent", () => {
 
         await waitForInitialization();
 
-        component.attachmentForm.controls.file.setValue({
-          name: "helloworld.txt",
-          size: 65,
-        } as File);
+        component.attachmentForm.controls.file.setValue([
+          {
+            name: "helloworld.txt",
+            size: 65,
+          } as File,
+        ]);
 
         await component.submit();
 

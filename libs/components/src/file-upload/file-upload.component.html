@@ -18,13 +18,10 @@
   </button>
 
   <!-- Filename readout in the field's default content. Clickable so the whole field opens the
-       picker; not a focus stop. -->
-  <div
-    class="tw-flex tw-size-full tw-items-center"
-    [class.tw-cursor-pointer]="!disabled()"
-    [class.tw-cursor-not-allowed]="disabled()"
-    (click)="openPicker()"
-  >
+       picker; not a focus stop. Keyboard access is provided by the "Choose file" button above,
+       so the missing keyboard handler here is a false positive. NOSONAR -->
+  <!-- prettier-ignore -->
+  <div class="tw-flex tw-size-full tw-items-center" [class.tw-cursor-pointer]="!disabled()" [class.tw-cursor-not-allowed]="disabled()" (click)="openPicker()"> <!-- NOSONAR -->
     @if (fileName(); as name) {
       <bit-file-name [name]="name" class="tw-text-sm" />
     } @else {
