@@ -71,13 +71,13 @@ import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
 import { EventRequest, EventResponse } from "../dirt/event-logs";
+import { addEventParameters } from "../dirt/event-logs/services/event-query-params.util";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -333,10 +333,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any> {
     return this.send("POST", "/accounts/delete-recover-token", request, false, false);
-  }
-
-  postAccountKdf(request: KdfRequest): Promise<any> {
-    return this.send("POST", "/accounts/kdf", request, true, false);
   }
 
   async deleteSsoUser(organizationId: string): Promise<void> {
@@ -1019,7 +1015,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getEvents(start: string, end: string, token: string): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/events", start, end, token),
+      addEventParameters("/events", start, end, token),
       null,
       true,
       true,
@@ -1035,7 +1031,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/ciphers/" + id + "/events", start, end, token),
+      addEventParameters("/ciphers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1052,7 +1048,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/secrets/" + id + "/events",
         start,
         end,
@@ -1074,7 +1070,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/service-account/" + id + "/events",
         start,
         end,
@@ -1096,7 +1092,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organization/" + orgId + "/projects/" + id + "/events",
         start,
         end,
@@ -1117,7 +1113,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/organizations/" + id + "/events", start, end, token),
+      addEventParameters("/organizations/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1134,7 +1130,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/organizations/" + organizationId + "/users/" + id + "/events",
         start,
         end,
@@ -1155,7 +1151,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters("/providers/" + id + "/events", start, end, token),
+      addEventParameters("/providers/" + id + "/events", start, end, token),
       null,
       true,
       true,
@@ -1172,7 +1168,7 @@ export class ApiService implements ApiServiceAbstraction {
   ): Promise<ListResponse<EventResponse>> {
     const r = await this.send(
       "GET",
-      this.addEventParameters(
+      addEventParameters(
         "/providers/" + providerId + "/users/" + id + "/events",
         start,
         end,
@@ -1881,21 +1877,6 @@ export class ApiService implements ApiServiceAbstraction {
       return "include";
     }
     return undefined;
-  }
-
-  private addEventParameters(base: string, start: string, end: string, token: string) {
-    if (start != null) {
-      base += "?start=" + start;
-    }
-    if (end != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "end=" + end;
-    }
-    if (token != null) {
-      base += base.indexOf("?") > -1 ? "&" : "?";
-      base += "continuationToken=" + token;
-    }
-    return base;
   }
 
   private isJsonResponse(response: Response): boolean {

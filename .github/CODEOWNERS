@@ -13,7 +13,7 @@
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
-apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/secure_memory @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
@@ -192,7 +192,10 @@ apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-desktop-nat
 apps/desktop/desktop_native/win_webauthn @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/macos/autofill-extension @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/desktop-autofill.preload.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/main/main-desktop-autofill* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/autofill-* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-autofill.service.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-fido2* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 
@@ -230,7 +233,7 @@ libs/node @bitwarden/team-key-management-dev
 
 apps/desktop/desktop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/desktop_native/core/src/biometric_v2/ @bitwarden/team-key-management-dev
-apps/desktop/desktop_native/core/src/secure_memory/ @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/secure_memory/ @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts @bitwarden/team-key-management-dev

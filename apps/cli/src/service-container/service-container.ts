@@ -116,12 +116,14 @@ import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   EnvironmentService,
   RegionConfig,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -135,7 +137,9 @@ import { AppIdService } from "@bitwarden/common/platform/services/app-id.service
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -332,6 +336,8 @@ export class ServiceContainer {
   authRequestApiService: AuthRequestApiServiceAbstraction;
   configApiService: ConfigApiServiceAbstraction;
   configService: ConfigService;
+  availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -621,6 +627,13 @@ export class ServiceContainer {
       this.stateProvider,
       this.authService,
     );
+
+    this.availableRegionsService = new DefaultAvailableRegionsService(
+      this.environmentService,
+      this.configService,
+    );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.domainSettingsService = new DefaultDomainSettingsService(
       this.stateProvider,
@@ -1043,6 +1056,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.sdkService,
     );
 
     this.individualExportService = new IndividualVaultExportService(

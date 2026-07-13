@@ -4,10 +4,6 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
 
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CheckboxModule,
@@ -20,23 +16,7 @@ import {
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
-import { PolicyCategory } from "../pipes/policy-category";
-
-export class PasswordGeneratorPolicyV2 extends BasePolicyEditDefinition {
-  name = "passwordGenerator";
-  description = "passwordGeneratorPolicyDescV2";
-  type = PolicyType.PasswordGenerator;
-  category = PolicyCategory.VaultManagement;
-  priority = 10;
-  component = PasswordGeneratorPolicyV2Component;
-  showDescription = false;
-  showEnabledBadge = true;
-
-  display$(_organization: Organization, configService: ConfigService) {
-    return configService.getFeatureFlag$(FeatureFlag.PolicyDrawers);
-  }
-}
+import { BasePolicyEditComponent } from "../base-policy-edit.component";
 
 const PASSWORD_POLICY_VALUE = "password";
 const PASSPHRASE_POLICY_VALUE = "passphrase";
