@@ -1,6 +1,5 @@
-import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../platform/state";
-
-import { OrganizationInvite } from "./organization-invite";
+import { KeyDefinition, ORGANIZATION_INVITE_DISK } from "../../../../platform/state";
+import { OrganizationInvite } from "../../models/organization-invite";
 
 // We're storing the organization invite for 2 reasons:
 // 1. If the org requires a MP policy check, we need to keep track that the user has already been redirected when they return.
