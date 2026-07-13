@@ -1,6 +1,6 @@
 name: Auto Bump Desktop Version
 
-# Triggered by the completion of version-auto-bump.yml (the desktop-v** tag-push signal).
+# Triggered by the completion of version-auto-bump-desktop-signal.yml (the desktop-v** tag-push signal).
 # workflow_run executes on the default branch, so this run's head_branch is `main` — which
 # is what bitwarden/deploy's update-repository requires to accept the source artifact.
 on:
