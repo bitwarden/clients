@@ -38,12 +38,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill } from "@bitwarden/desktop-napi";
 
-import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
+import { AutofillStatusCommand } from "../models/autofill-status.command";
 import {
-  NativeAutofillFido2Credential,
-  NativeAutofillPasswordCredential,
-  NativeAutofillSyncCommand,
-} from "../../platform/main/autofill/sync.command";
+  AutofillFido2Credential,
+  AutofillPasswordCredential,
+  AutofillSyncCommand,
+} from "../models/autofill-sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
 
@@ -145,8 +145,8 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    let fido2Credentials: NativeAutofillFido2Credential[] = [];
-    let passwordCredentials: NativeAutofillPasswordCredential[] = [];
+    let fido2Credentials: AutofillFido2Credential[] = [];
+    let passwordCredentials: AutofillPasswordCredential[] = [];
 
     if (status.value.support.password) {
       passwordCredentials = cipherViews
@@ -183,7 +183,7 @@ export class DesktopAutofillService implements OnDestroy {
       passwordCredentials,
     });
 
-    const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({
+    const syncResult = await ipc.autofill.desktopAutofill.runCommand<AutofillSyncCommand>({
       namespace: "autofill",
       command: "sync",
       params: {
@@ -201,7 +201,7 @@ export class DesktopAutofillService implements OnDestroy {
   /** Get autofill status from OS */
   private status() {
     // TODO: Investigate why this type needs to be explicitly set
-    return ipc.autofill.runCommand<NativeAutofillStatusCommand>({
+    return ipc.autofill.desktopAutofill.runCommand<AutofillStatusCommand>({
       namespace: "autofill",
       command: "status",
       params: {},
@@ -213,43 +213,48 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   listenIpc() {
-    ipc.autofill.listenPasskeyRegistration(async (clientId, sequenceNumber, request, callback) => {
-      if (!this.isEnabled) {
-        this.logService.debug(
-          `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-        );
-        callback(new Error("Native credential sync feature flag is disabled"), null);
-        return;
-      }
-
-      this.registrationRequest = request;
-
-      this.logService.debug("listenPasskeyRegistration", clientId, sequenceNumber, request);
-      this.logService.debug("listenPasskeyRegistration2", this.convertRegistrationRequest(request));
-
-      const controller = new AbortController();
-
-      try {
-        const response = await this.fido2AuthenticatorService.makeCredential(
-          this.convertRegistrationRequest(request),
-          { windowXy: normalizePosition(request.clientWindow.position) },
-          controller,
-        );
-
-        callback(null, this.convertRegistrationResponse(request, response));
-      } catch (error) {
-        this.logService.error("listenPasskeyRegistration error", error);
-        if (error instanceof Error) {
-          callback(error, null);
-        } else if (typeof error === "string") {
-          callback(new Error(error), null);
-        } else {
-          callback(new Error(JSON.stringify(error)), null);
+    ipc.autofill.desktopAutofill.listenPasskeyRegistration(
+      async (clientId, sequenceNumber, request, callback) => {
+        if (!this.isEnabled) {
+          this.logService.debug(
+            `listenPasskeyRegistration: Native credential sync feature flag (${this.featureFlag}) is disabled`,
+          );
+          callback(new Error("Native credential sync feature flag is disabled"), null);
+          return;
         }
-      }
-    });
 
-    ipc.autofill.listenPasskeyAssertionWithoutUserInterface(
+        this.registrationRequest = request;
+
+        this.logService.debug("listenPasskeyRegistration", clientId, sequenceNumber, request);
+        this.logService.debug(
+          "listenPasskeyRegistration2",
+          this.convertRegistrationRequest(request),
+        );
+
+        const controller = new AbortController();
+
+        try {
+          const response = await this.fido2AuthenticatorService.makeCredential(
+            this.convertRegistrationRequest(request),
+            { windowXy: normalizePosition(request.clientWindow.position) },
+            controller,
+          );
+
+          callback(null, this.convertRegistrationResponse(request, response));
+        } catch (error) {
+          this.logService.error("listenPasskeyRegistration error", error);
+          if (error instanceof Error) {
+            callback(error, null);
+          } else if (typeof error === "string") {
+            callback(new Error(error), null);
+          } else {
+            callback(new Error(JSON.stringify(error)), null);
+          }
+        }
+      },
+    );
+
+    ipc.autofill.desktopAutofill.listenPasskeyAssertionWithoutUserInterface(
       async (clientId, sequenceNumber, request, callback) => {
         if (!this.isEnabled) {
           this.logService.debug(
@@ -291,40 +296,42 @@ export class DesktopAutofillService implements OnDestroy {
       },
     );
 
-    ipc.autofill.listenPasskeyAssertion(async (clientId, sequenceNumber, request, callback) => {
-      if (!this.isEnabled) {
-        this.logService.debug(
-          `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
-        );
-        callback(new Error("Native credential sync feature flag is disabled"), null);
-        return;
-      }
-
-      this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
-
-      const controller = new AbortController();
-      try {
-        const response = await this.fido2AuthenticatorService.getAssertion(
-          this.convertAssertionRequest(request),
-          { windowXy: normalizePosition(request.clientWindow.position) },
-          controller,
-        );
-
-        callback(null, this.convertAssertionResponse(request, response));
-      } catch (error) {
-        this.logService.error("listenPasskeyAssertion error", error);
-        if (error instanceof Error) {
-          callback(error, null);
-        } else if (typeof error === "string") {
-          callback(new Error(error), null);
-        } else {
-          callback(new Error(JSON.stringify(error)), null);
+    ipc.autofill.desktopAutofill.listenPasskeyAssertion(
+      async (clientId, sequenceNumber, request, callback) => {
+        if (!this.isEnabled) {
+          this.logService.debug(
+            `listenPasskeyAssertion: Native credential sync feature flag (${this.featureFlag}) is disabled`,
+          );
+          callback(new Error("Native credential sync feature flag is disabled"), null);
+          return;
         }
-      }
-    });
+
+        this.logService.debug("listenPasskeyAssertion", clientId, sequenceNumber, request);
+
+        const controller = new AbortController();
+        try {
+          const response = await this.fido2AuthenticatorService.getAssertion(
+            this.convertAssertionRequest(request),
+            { windowXy: normalizePosition(request.clientWindow.position) },
+            controller,
+          );
+
+          callback(null, this.convertAssertionResponse(request, response));
+        } catch (error) {
+          this.logService.error("listenPasskeyAssertion error", error);
+          if (error instanceof Error) {
+            callback(error, null);
+          } else if (typeof error === "string") {
+            callback(new Error(error), null);
+          } else {
+            callback(new Error(JSON.stringify(error)), null);
+          }
+        }
+      },
+    );
 
     // Listen for native status messages
-    ipc.autofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
+    ipc.autofill.desktopAutofill.listenNativeStatus(async (clientId, sequenceNumber, status) => {
       if (!this.isEnabled) {
         this.logService.debug(
           `listenNativeStatus: Native credential sync feature flag (${this.featureFlag}) is disabled`,
@@ -339,7 +346,7 @@ export class DesktopAutofillService implements OnDestroy {
       }
     });
 
-    ipc.autofill.listenerReady();
+    ipc.autofill.desktopAutofill.listenerReady();
   }
 
   private convertRegistrationRequest(
