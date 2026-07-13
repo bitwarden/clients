@@ -50,7 +50,8 @@ pub mod autofill {
                 }")]
         pub assertion_callback: ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionRequest)>>,
 
-        /// Function to execute when a passkey assertion request is received and the UI must not be shown.
+        /// Function to execute when a passkey assertion request is received and the UI must not be
+        /// shown.
         #[napi(ts_type = "{ \
             (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
             (error: Error, clientId: number, sequenceNumber: number, message: null): void; \

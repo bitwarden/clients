@@ -187,7 +187,10 @@ export declare namespace autofill {
   registrationCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   /** Function to execute when a passkey assertion request is received. */
   assertionCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
-  /** Function to execute when a passkey assertion request is received and the UI must not be shown. */
+  /**
+   * Function to execute when a passkey assertion request is received and the UI must not be
+   * shown.
+   */
   assertionWithoutUserInterfaceCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   /** Function to execute when a notification of the autofill provider's status is received. */
   nativeStatusCallback: { (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
