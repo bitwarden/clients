@@ -132,7 +132,7 @@ export class IntegrationContext<Settings extends object> {
 
     const parts = hostname.split(".");
     if (parts.length <= 1) {
-      return hostname;
+      return Utils.getUrl(this.website(request)) != null ? hostname : "";
     }
 
     // For second-level domains (example.com), return just the domain name
