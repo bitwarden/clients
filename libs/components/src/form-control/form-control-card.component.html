@@ -25,6 +25,11 @@
           class="tw-self-start tw-relative tw-top-[1px]"
           [icon]="icon"
         ></bit-icon-tile>
+      } @else {
+        <!-- wrapper keeps a projected leading element top-aligned when text wraps; hidden when empty -->
+        <div class="tw-self-start tw-relative empty:tw-hidden">
+          <ng-content select="[slot=start]"></ng-content>
+        </div>
       }
 
       <span

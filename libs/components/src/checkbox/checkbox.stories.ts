@@ -9,6 +9,7 @@ import {
 } from "@angular/forms";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { LockIcon } from "@bitwarden/assets/svg";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BadgeModule } from "../badge";
@@ -16,6 +17,7 @@ import { FormControlModule } from "../form-control";
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 import { FormFieldModule } from "../form-field";
+import { SvgComponent } from "../svg/svg.component";
 import { TableModule } from "../table";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -74,6 +76,7 @@ export default {
         CheckboxModule,
         TableModule,
         BadgeModule,
+        SvgComponent,
       ],
       providers: [
         {
@@ -296,6 +299,30 @@ export const FormControlCard: Story = {
             <input type="checkbox" bitCheckbox formControlName="checkbox" />
             <bit-label>Enable feature</bit-label>
             <bit-hint>Enabling this feature will allow you to do cool things.</bit-hint>
+          </bit-form-control-card>
+        </form>
+      `,
+    };
+  },
+};
+
+export const FormControlCardCustomSlot: Story = {
+  render: () => {
+    const formBuilder = new FormBuilder();
+    return {
+      props: {
+        formObj: formBuilder.group({
+          checkbox: [false],
+        }),
+        lockIcon: LockIcon,
+      },
+      template: /*html*/ `
+        <form [formGroup]="formObj">
+          <bit-form-control-card>
+            <bit-svg slot="start" [content]="lockIcon" aria-hidden="true" class="tw-w-9 tw-text-fg-brand"></bit-svg>
+            <input type="checkbox" bitCheckbox formControlName="checkbox" />
+            <bit-label>Enable feature</bit-label>
+            <bit-hint>Projected via slot="start" — any element works here.</bit-hint>
           </bit-form-control-card>
         </form>
       `,
