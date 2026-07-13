@@ -13,25 +13,31 @@
           "properties": {
             "major": {
               "description": "The major version of the schema this data adheres to.",
-              "type": "integer"
+              "type": "integer",
+              "const": 0
             },
             "minor": {
               "description": "The minor version of the schema this data adheres to.",
-              "type": "integer"
+              "type": "integer",
+              "const": 1
             },
             "patch": {
               "description": "The patch version of the schema this data adheres to.",
-              "type": "integer"
+              "type": "integer",
+              "const": 0
             }
           },
-          "required": ["major", "minor", "patch"]
+          "required": ["major", "minor", "patch"],
+          "additionalProperties": false
         },
         "creationDate": {
-          "description": "The creation date of the pairing, stored as a unix timestamp.",
-          "type": "integer"
+          "description": "The creation date of the pairing, stored as a unix timestamp in seconds since the epoch.",
+          "type": "integer",
+          "minimum": 0
         }
       },
-      "required": ["schemaVersion", "creationDate"]
+      "required": ["schemaVersion", "creationDate"],
+      "additionalProperties": false
     },
     "appData": {
       "type": "object",
@@ -45,7 +51,8 @@
           "type": "string"
         }
       },
-      "required": ["name", "path"]
+      "required": ["name", "path"],
+      "additionalProperties": false
     },
     "clientData": {
       "type": "object",
@@ -55,12 +62,14 @@
           "enum": ["windows-msix", "windows-exe"]
         }
       },
-      "required": ["packagingType"]
+      "required": ["packagingType"],
+      "additionalProperties": false
     }
   },
   "required": [
     "metadata",
     "appData",
     "clientData"
-  ]
+  ],
+  "additionalProperties": false
 }
