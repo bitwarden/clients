@@ -1,6 +1,15 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+// `isEncryptionSettingsError` is backed by WASM, which the test harness only simulates
+// loading. Stub it with the documented structural contract (name === "EncryptionSettingsError")
+// so the logout/lock race handling in DefaultSdkService can be exercised without real WASM.
+jest.mock("@bitwarden/sdk-internal", () => ({
+  ...jest.requireActual("@bitwarden/sdk-internal"),
+  isEncryptionSettingsError: (error: unknown) =>
+    (error as { name?: string })?.name === "EncryptionSettingsError",
+}));
+
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -206,6 +215,36 @@ describe("DefaultSdkService", () => {
           expect(mockClient.free).toHaveBeenCalledTimes(1);
           expect(sdkClientFactory.createSdkClient).toHaveBeenCalledTimes(2);
           expect(userClientTracker.emissions[1]).toBeDefined();
+        });
+
+        it("emits a locked client instead of erroring when the user key is cleared mid-init", async () => {
+          // Simulate the race: userKey is non-null in the combineLatest snapshot, but the
+          // SDK's async re-read of client-managed state finds it already cleared.
+          (mockClient.crypto().initialize_user_crypto as unknown as jest.Mock).mockRejectedValue(
+            Object.assign(new Error("Unable to retrieve user-key from state"), {
+              name: "EncryptionSettingsError",
+              variant: "UserKeyStateRetrievalFailed",
+            }),
+          );
+
+          const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
+          await userClientTracker.pauseUntilReceived(1, 200);
+
+          // A locked client is emitted (not an error, not undefined).
+          expect(sdkClientFactory.createSdkClient).toHaveBeenCalled();
+          expect(userClientTracker.emissions[0].take().value).toBe(mockClient);
+        });
+
+        it("propagates crypto init errors other than UserKeyStateRetrievalFailed", async () => {
+          // A genuine crypto failure must not be swallowed / masked as a locked client.
+          (mockClient.crypto().initialize_user_crypto as unknown as jest.Mock).mockRejectedValue(
+            Object.assign(new Error("boom"), {
+              name: "EncryptionSettingsError",
+              variant: "Crypto",
+            }),
+          );
+
+          await expect(firstValueFrom(service.userClient$(userId))).rejects.toThrow("boom");
         });
 
         it("completes the subscription and frees the internal SDK client when the environment is unset (logout)", async () => {

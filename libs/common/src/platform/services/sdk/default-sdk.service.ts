@@ -32,6 +32,7 @@ import {
   WrappedAccountCryptographicState,
   Kdf,
   V2UpgradeToken,
+  isEncryptionSettingsError,
 } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -234,15 +235,29 @@ export class DefaultSdkService implements SdkService {
                 return client;
               }
 
-              await this.initializeClientCrypto(
-                userId,
-                client,
-                account,
-                kdfParams.toSdkConfig(),
-                accountCryptographicState,
-                orgKeys,
-                v2UpgradeToken,
-              );
+              try {
+                await this.initializeClientCrypto(
+                  userId,
+                  client,
+                  account,
+                  kdfParams.toSdkConfig(),
+                  accountCryptographicState,
+                  orgKeys,
+                  v2UpgradeToken,
+                );
+              } catch (error) {
+                // PM-40236: Treat UserKeyStateRetrievalFailed exactly like the
+                // null-userKey case above — return the locked client. Any other
+                // init failure is a real error and must propagate.
+                if (
+                  isEncryptionSettingsError(error) &&
+                  error.variant === "UserKeyStateRetrievalFailed"
+                ) {
+                  return client;
+                }
+
+                throw error;
+              }
 
               return client;
             };
