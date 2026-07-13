@@ -10,7 +10,6 @@ use std::{
 };
 
 use autofill_provider::{ConnectionStatus, WindowHandleQueryResponse};
-use base64::engine::{general_purpose::STANDARD, Engine as _};
 use win_webauthn::plugin::{
     Clsid, PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
     PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
