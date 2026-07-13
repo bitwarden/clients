@@ -832,7 +832,12 @@ export class ServiceContainer {
       this.apiService,
       this.environmentService,
     );
-    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+    this.passwordPreloginService = new DefaultPasswordPreloginService(
+      passwordPreloginApiService,
+      this.sdkService,
+      this.environmentService,
+      this.configService,
+    );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
       this.globalStateProvider,
