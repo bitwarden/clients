@@ -69,7 +69,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
       request,
     );
 
-    await this.updateLocalCollections(response, collection, userId);
+    await this.updateLocalCollections(response, userId);
 
     return response;
   }
@@ -86,7 +86,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     const response = await this.apiService.postCollection(collection.organizationId, request);
     collection.id = response.id;
 
-    await this.updateLocalCollections(response, collection, userId);
+    await this.updateLocalCollections(response, userId);
 
     return response;
   }
@@ -95,14 +95,10 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     await this.apiService.deleteCollection(organizationId, collectionId);
   }
 
-  private async updateLocalCollections(
-    response: CollectionDetailsResponse,
-    collection: CollectionAdminView,
-    userId: UserId,
-  ) {
+  private async updateLocalCollections(response: CollectionAccessDetailsResponse, userId: UserId) {
     response.assigned
       ? await this.collectionService.upsert(new CollectionData(response), userId)
-      : await this.collectionService.delete([collection.id as CollectionId], userId);
+      : await this.collectionService.delete([response.id as CollectionId], userId);
   }
 
   async bulkAssignAccess(

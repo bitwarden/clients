@@ -6,8 +6,8 @@
   [checked]="selected()"
   (change)="handleInputChange()"
 />
-<label [for]="id" [class]="labelClasses" [title]="labelTitle()">
-  <span class="tw-line-clamp-2 tw-break-words" #labelContent>
+<label [attr.aria-label]="labelTitle()" [for]="id" [class]="labelClasses">
+  <span class="tw-whitespace-nowrap" #labelContent>
     <ng-content></ng-content>
   </span>
   <span class="tw-shrink-0 [&_bit-berry]:tw-flex" [hidden]="!hasBerry()">

@@ -1986,6 +1986,37 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
+  describe("isElementInlineMenu", () => {
+    it("delegates to the inline menu content service", () => {
+      const element = document.createElement("div");
+      inlineMenuContentService.isElementInlineMenu.mockReturnValue(true);
+
+      const result = autofillOverlayContentService.isElementInlineMenu(element);
+
+      expect(result).toBe(true);
+      expect(inlineMenuContentService.isElementInlineMenu).toHaveBeenCalledWith(element);
+    });
+
+    it("returns false when the inline menu content service reports a non-match", () => {
+      const element = document.createElement("div");
+      inlineMenuContentService.isElementInlineMenu.mockReturnValue(false);
+
+      expect(autofillOverlayContentService.isElementInlineMenu(element)).toBe(false);
+    });
+
+    it("returns false if inline menu content service is not available", () => {
+      const serviceWithoutInlineMenu = new AutofillOverlayContentService(
+        domQueryService,
+        domElementVisibilityService,
+        inlineMenuFieldQualificationService,
+      );
+
+      expect(serviceWithoutInlineMenu.isElementInlineMenu(document.createElement("div"))).toBe(
+        false,
+      );
+    });
+  });
+
   describe("getUnownedTopLayerItems", () => {
     it("returns unowned top layer items from the inline menu content service", () => {
       const mockElements = document.querySelectorAll("div");
