@@ -88,12 +88,10 @@ export class IntegrationContext<Settings extends object> {
    */
   website(
     request: IntegrationRequest,
-    options?: { extractHostname?: boolean; extractOrigin?: boolean; maxLength?: number },
+    options?: { extractHostname?: boolean; maxLength?: number },
   ) {
     let url = request.website ?? "";
-    if (options?.extractOrigin) {
-      url = Utils.getUrl(url)?.origin ?? url;
-    } else if (options?.extractHostname) {
+    if (options?.extractHostname) {
       url = Utils.getHost(url) ?? url;
     }
     return url.slice(0, options?.maxLength);
