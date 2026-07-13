@@ -291,6 +291,12 @@ export class MembersComponent {
   }
 
   async restore(user: OrganizationUserView, organization: Organization) {
+    const billingMetadata = await firstValueFrom(this.billingMetadata$);
+    const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+    if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+      return;
+    }
+
     const result = await this.memberActionsService.restoreUser(organization, user.id);
     const sideEffect = async () => await this.load(organization);
     await this.handleMemberActionResult(result, "restoredUserId", user, sideEffect);
@@ -382,6 +388,14 @@ export class MembersComponent {
   }
 
   async bulkRevokeOrRestore(isRevoking: boolean, organization: Organization) {
+    if (!isRevoking) {
+      const billingMetadata = await firstValueFrom(this.billingMetadata$);
+      const seatLimitResult = this.billingConstraint.checkSeatLimit(organization, billingMetadata);
+      if (await this.billingConstraint.seatLimitReached(seatLimitResult, organization, "restore")) {
+        return;
+      }
+    }
+
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkRestoreRevokeDialog(organization, users, isRevoking);
     await this.load(organization);

@@ -23,8 +23,11 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
+import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
@@ -112,6 +115,8 @@ async function createComponent(
     memberActionsService: MockProxy<MemberActionsService>;
     deleteManagedMemberWarningService: MockProxy<DeleteManagedMemberWarningService>;
     dialogService: MockProxy<DialogService>;
+    billingConstraint: MockProxy<BillingConstraintService>;
+    organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
   };
 }> {
   const accountService = mock<AccountService>();
@@ -125,6 +130,8 @@ async function createComponent(
   const memberActionsService = mock<MemberActionsService>();
   const deleteManagedMemberWarningService = mock<DeleteManagedMemberWarningService>();
   const dialogService = mock<DialogService>();
+  const billingConstraint = mock<BillingConstraintService>();
+  const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
   organizationService.organizations$ = jest
@@ -134,6 +141,10 @@ async function createComponent(
   userAdminService.get = jest.fn().mockResolvedValue(overrides.userDetails ?? buildUserDetails());
   userAdminService.saveV2 = jest.fn().mockResolvedValue(undefined);
   i18nService.t = jest.fn().mockReturnValue("translated");
+  organizationMetadataService.getOrganizationMetadata$ = jest
+    .fn()
+    .mockReturnValue(of({ organizationOccupiedSeats: 0 } as OrganizationBillingMetadataResponse));
+  billingConstraint.seatLimitReached.mockResolvedValue(false);
 
   await TestBed.configureTestingModule({
     imports: [EditMemberDialogComponent],
@@ -150,6 +161,8 @@ async function createComponent(
       { provide: MemberActionsService, useValue: memberActionsService },
       { provide: DeleteManagedMemberWarningService, useValue: deleteManagedMemberWarningService },
       { provide: DialogService, useValue: dialogService },
+      { provide: BillingConstraintService, useValue: billingConstraint },
+      { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
     ],
   }).compileComponents();
 
@@ -171,6 +184,8 @@ async function createComponent(
       memberActionsService,
       deleteManagedMemberWarningService,
       dialogService,
+      billingConstraint,
+      organizationMetadataService,
     },
   };
 }
@@ -282,6 +297,55 @@ describe("EditMemberDialogComponent", () => {
       await component.submit();
 
       expect(mocks.dialogRef.close).toHaveBeenCalledWith(MemberDialogResult.Saved);
+    });
+  });
+
+  describe("restore", () => {
+    it("checks the seat limit and restores the user when there is no seat limit issue", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams());
+      mocks.memberActionsService.restoreUser.mockResolvedValue({ success: true });
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.restore();
+
+      expect(mocks.organizationMetadataService.getOrganizationMetadata$).toHaveBeenCalledWith(
+        ORG_ID,
+      );
+      expect(mocks.billingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ORG_ID }),
+        expect.objectContaining({ organizationOccupiedSeats: 0 }),
+      );
+      expect(mocks.billingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        expect.objectContaining({ id: ORG_ID }),
+        "restore",
+      );
+      expect(mocks.memberActionsService.restoreUser).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ORG_ID }),
+        USER_ID,
+      );
+      expect(mocks.toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(mocks.dialogRef.close).toHaveBeenCalledWith(MemberDialogResult.Restored);
+    });
+
+    it("does not restore the user when the seat limit is reached", async () => {
+      const { fixture, component, mocks } = await createComponent(defaultParams());
+      mocks.billingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      await component.restore();
+
+      expect(mocks.memberActionsService.restoreUser).not.toHaveBeenCalled();
+      expect(mocks.toastService.showToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect(mocks.dialogRef.close).not.toHaveBeenCalledWith(MemberDialogResult.Restored);
     });
   });
 });
