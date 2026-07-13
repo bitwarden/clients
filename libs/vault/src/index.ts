@@ -37,7 +37,7 @@ export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
 export * from "./components/vault-items-transfer";
-export { VaultItem } from "./components/vault-item";
+export { VaultItem, compareVaultItems } from "./components/vault-item";
 export { VaultOrganizationUserNotificationsComponent } from "./components/vault-organization-user-notifications/vault-organization-user-notifications.component";
 export {
   VaultOrganizationUserNotificationsService,
