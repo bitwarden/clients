@@ -1,6 +1,10 @@
 import { BaseResponse } from "../../../models/response/base.response";
 
-export class TwoFactorYubiKeyResponse extends BaseResponse {
+/**
+ * YubiKey provider details. Embedded by the per-action
+ * `TwoFactorYubiKey{Get,Update}Response` wrappers.
+ */
+export class TwoFactorYubiKeyDetailsResponse extends BaseResponse {
   enabled: boolean;
   key1: string;
   key2: string;

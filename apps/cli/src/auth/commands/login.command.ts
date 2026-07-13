@@ -25,8 +25,8 @@ import {
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorService, TwoFactorApiService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-login.request";
 import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
@@ -300,7 +300,7 @@ export class LoginCommand {
         }
 
         if (twoFactorToken == null && selectedProvider.type === TwoFactorProviderType.Email) {
-          const emailReq = new TwoFactorEmailRequest();
+          const emailReq = new TwoFactorEmailLoginRequest();
           emailReq.email = await this.loginStrategyService.getEmail();
           // if the user was logging in with SSO, we need to include the SSO session token
           if (response.ssoEmail2FaSessionToken != null) {

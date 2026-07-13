@@ -6,11 +6,12 @@ import { firstValueFrom, map } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
-import { UpdateTwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/update-two-factor-email.request";
-import { TwoFactorEmailResponse } from "@bitwarden/common/auth/models/response/two-factor-email.response";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorEmailDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-delete.request";
+import { TwoFactorEmailSetupRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-setup.request";
+import { TwoFactorEmailUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-update.request";
+import { TwoFactorEmailDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email-details.response";
+import { TwoFactorEmailResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-email.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -63,13 +64,21 @@ export class TwoFactorSetupEmailComponent
   sentEmail: string = "";
   emailPromise: Promise<unknown> | undefined;
   override componentName = "app-two-factor-email";
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
   formGroup = this.formBuilder.group({
     token: ["", [Validators.required]],
     email: ["", [Validators.email, Validators.required]],
   });
 
   constructor(
-    @Inject(DIALOG_DATA) protected data: AuthResponse<TwoFactorEmailResponse>,
+    @Inject(DIALOG_DATA) protected data: TwoFactorSetupDialogData<TwoFactorEmailResponse>,
     twoFactorService: TwoFactorService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -108,9 +117,9 @@ export class TwoFactorSetupEmailComponent
     await this.auth(this.data);
   }
 
-  auth(authResponse: AuthResponse<TwoFactorEmailResponse>) {
+  auth(authResponse: TwoFactorSetupDialogData<TwoFactorEmailResponse>) {
     super.auth(authResponse);
-    return this.processResponse(authResponse.response);
+    return this.processGetResponse(authResponse.response);
   }
 
   submit = async () => {
@@ -129,35 +138,63 @@ export class TwoFactorSetupEmailComponent
   };
 
   private disableEmail() {
-    return super.disableMethod();
+    return this.disableMethod();
   }
 
   sendEmail = async () => {
-    const request = await this.buildRequestModel(TwoFactorEmailRequest);
-    request.email = this.email;
+    const request = new TwoFactorEmailSetupRequest(this.email, this.requireUserVerificationToken());
     this.emailPromise = this.twoFactorService.postTwoFactorEmailSetup(request);
     await this.emailPromise;
     this.sentEmail = this.email;
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorEmailRequest);
-    request.email = this.email;
-    request.token = this.token;
+    const request = new TwoFactorEmailUpdateRequest(
+      this.token,
+      this.email,
+      this.requireUserVerificationToken(),
+    );
 
     const response = await this.twoFactorService.putTwoFactorEmail(request);
-    await this.processResponse(response);
+    await this.applyEmailDetails(response.email);
     this.onUpdated.emit(true);
+  }
+
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const request = new TwoFactorEmailDeleteRequest(this.requireUserVerificationToken());
+    await this.twoFactorService.deleteTwoFactorEmail(request);
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
   }
 
   onClose = () => {
     void this.dialogRef.close(this.enabled);
   };
 
-  private async processResponse(response: TwoFactorEmailResponse) {
+  private async processGetResponse(response: TwoFactorEmailResponse) {
+    this.userVerificationToken = response.userVerificationToken;
+    await this.applyEmailDetails(response.email);
+  }
+
+  private async applyEmailDetails(emailDetails: TwoFactorEmailDetailsResponse) {
     this.token = null;
-    this.email = response.email;
-    this.enabled = response.enabled;
+    this.email = emailDetails.email;
+    this.enabled = emailDetails.enabled;
     if (!this.enabled && (this.email == null || this.email === "")) {
       this.email = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.email)),
@@ -171,11 +208,11 @@ export class TwoFactorSetupEmailComponent
    */
   static open(
     dialogService: DialogService,
-    config: DialogConfig<AuthResponse<TwoFactorEmailResponse>>,
+    config: DialogConfig<TwoFactorSetupDialogData<TwoFactorEmailResponse>>,
   ) {
-    return dialogService.open<boolean, AuthResponse<TwoFactorEmailResponse>>(
+    return dialogService.open<boolean, TwoFactorSetupDialogData<TwoFactorEmailResponse>>(
       TwoFactorSetupEmailComponent,
-      config as DialogConfig<AuthResponse<TwoFactorEmailResponse>, boolean>,
+      config as DialogConfig<TwoFactorSetupDialogData<TwoFactorEmailResponse>, boolean>,
     );
   }
 }
