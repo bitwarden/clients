@@ -94,7 +94,7 @@ export class OffboardingSurveyComponent {
       hintKey: "cancelSurveyNeedsChangedHintV2",
     },
     {
-      value: "poor_service",
+      value: "customer_service",
       labelKey: "cancelSurveyPoorServiceLabel",
       hintKey: "cancelSurveyPoorServiceHint",
     },
@@ -113,7 +113,7 @@ export class OffboardingSurveyComponent {
     otherFeedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
   });
 
-  private readonly reason = toSignal(this.formGroup.controls.reason.valueChanges, {
+  protected readonly reason = toSignal(this.formGroup.controls.reason.valueChanges, {
     initialValue: this.formGroup.controls.reason.value,
   });
 
