@@ -91,6 +91,7 @@ impl TryFrom<PrivateKey> for String {
             PrivateKey::Ed25519(kp) => KeypairData::Ed25519(kp),
             PrivateKey::Ecdsa(kp) => KeypairData::Ecdsa(kp),
             PrivateKey::Rsa(kp) => KeypairData::Rsa(kp),
+            PrivateKey::MlDsa(kp) => KeypairData::MlDsa(kp),
         };
         let private_key = ssh_key::PrivateKey::new(keypair_data, "")?;
         Ok(private_key
@@ -101,9 +102,9 @@ impl TryFrom<PrivateKey> for String {
 
 #[cfg(test)]
 mod tests {
+    use getrandom::{SysRng, rand_core::UnwrapErr};
     use ssh_key::{
         private::{EcdsaKeypair, Ed25519Keypair, RsaKeypair},
-        rand_core::OsRng,
         EcdsaCurve, LineEnding,
     };
 
@@ -115,7 +116,7 @@ invalid_base64_data!!!
 -----END OPENSSH PRIVATE KEY-----";
 
     fn create_valid_ed25519_key_string() -> String {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ed25519(ed25519_keypair), "")
                 .unwrap();
@@ -123,7 +124,7 @@ invalid_base64_data!!!
     }
 
     fn create_test_keydata_ed25519() -> SSHKeyData {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let ssh_key = ssh_key::PrivateKey::new(
             ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
             "",
@@ -143,7 +144,7 @@ invalid_base64_data!!!
     }
 
     fn create_test_keydata_rsa() -> SSHKeyData {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair.clone()), "")
                 .unwrap();
@@ -161,7 +162,7 @@ invalid_base64_data!!!
     }
 
     fn create_test_keydata_ecdsa_p256() -> SSHKeyData {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let keypair = EcdsaKeypair::random(&mut UnwrapErr(SysRng), EcdsaCurve::NistP256).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Ecdsa(keypair.clone()), "")
                 .unwrap();
@@ -190,7 +191,7 @@ invalid_base64_data!!!
 
     #[test]
     fn test_parse_key_valid_rsa() {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair), "").unwrap();
         let pem = ssh_key.to_openssh(LineEnding::LF).unwrap().to_string();
@@ -213,7 +214,7 @@ invalid_base64_data!!!
 
     #[test]
     fn test_privatekey_ed25519_to_string() {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key = PrivateKey::Ed25519(ed25519_keypair);
 
         let pem = String::try_from(private_key).unwrap();
@@ -223,7 +224,7 @@ invalid_base64_data!!!
 
     #[test]
     fn test_privatekey_rsa_to_string() {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let private_key = PrivateKey::Rsa(rsa_keypair);
 
         let pem = String::try_from(private_key).unwrap();
@@ -233,7 +234,7 @@ invalid_base64_data!!!
 
     #[test]
     fn test_privatekey_to_string_uses_lf_line_ending() {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key = PrivateKey::Ed25519(ed25519_keypair);
 
         let pem = String::try_from(private_key).unwrap();
@@ -316,7 +317,7 @@ invalid_base64_data!!!
 
     #[test]
     fn test_privatekey_ecdsa_to_string() {
-        let keypair = EcdsaKeypair::random(&mut OsRng, EcdsaCurve::NistP256).unwrap();
+        let keypair = EcdsaKeypair::random(&mut UnwrapErr(SysRng), EcdsaCurve::NistP256).unwrap();
         let private_key = PrivateKey::Ecdsa(keypair);
 
         let pem = String::try_from(private_key).unwrap();

@@ -166,16 +166,14 @@ impl KeyStore for InMemoryEncryptedKeyStore {
 
 #[cfg(test)]
 mod tests {
-    use ssh_key::{
-        private::{Ed25519Keypair, RsaKeypair},
-        rand_core::OsRng,
-    };
+    use getrandom::{SysRng, rand_core::UnwrapErr};
+    use ssh_key::private::{Ed25519Keypair, RsaKeypair};
 
     use super::*;
     use crate::crypto::{PrivateKey, QueryableKeyData};
 
     fn create_test_keydata_ed25519(name: &str, cipher_id: &str) -> SSHKeyData {
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let ssh_key = ssh_key::PrivateKey::new(
             ssh_key::private::KeypairData::Ed25519(ed25519_keypair.clone()),
             "",
@@ -195,7 +193,7 @@ mod tests {
     }
 
     fn create_test_keydata_rsa(name: &str, cipher_id: &str) -> SSHKeyData {
-        let rsa_keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let rsa_keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let ssh_key =
             ssh_key::PrivateKey::new(ssh_key::private::KeypairData::Rsa(rsa_keypair.clone()), "")
                 .unwrap();
@@ -245,7 +243,7 @@ mod tests {
         ks.insert(key_data1).unwrap();
 
         // Create new SSHKeyData with same public key but different name/cipher_id
-        let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
+        let ed25519_keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let key_data2 = SSHKeyData::new(
             PrivateKey::Ed25519(ed25519_keypair),
             public_key.clone(),

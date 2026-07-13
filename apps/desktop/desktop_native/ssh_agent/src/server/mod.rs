@@ -170,7 +170,7 @@ where
 // within `server` utilize.
 #[cfg(test)]
 pub(crate) mod test_common {
-    use signature::{SignatureEncoding as _, Signer as _};
+    use signature::Signer as _;
     use ssh_key::private::{Ed25519Keypair, KeypairData, RsaKeypair};
 
     use super::{
@@ -246,16 +246,16 @@ pub(crate) mod test_common {
         let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
 
         let sig_bytes = match alg {
-            RSA_SHA2_256 => {
-                let signing_key =
-                    rsa::pkcs1v15::SigningKey::<sha2::Sha256>::try_from(keypair).unwrap();
-                signing_key.sign(session_id).to_vec()
-            }
-            RSA_SHA2_512 => {
-                let signing_key =
-                    rsa::pkcs1v15::SigningKey::<sha2::Sha512>::try_from(keypair).unwrap();
-                signing_key.sign(session_id).to_vec()
-            }
+            RSA_SHA2_256 => (keypair, Some(ssh_key::HashAlg::Sha256))
+                .try_sign(session_id)
+                .unwrap()
+                .as_bytes()
+                .to_vec(),
+            RSA_SHA2_512 => (keypair, Some(ssh_key::HashAlg::Sha512))
+                .try_sign(session_id)
+                .unwrap()
+                .as_bytes()
+                .to_vec(),
             _ => vec![0u8; 16],
         };
 

@@ -458,9 +458,10 @@ mod tests {
 
     #[tokio::test]
     async fn sign_request_when_authorized_key_found_returns_sign_response() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let blob = make_minimal_ed25519_blob();
         let expected_public_key = PublicKey {
             alg: "ssh-ed25519".to_string(),
@@ -578,10 +579,11 @@ mod tests {
 
     #[tokio::test]
     async fn sign_request_rsa_without_flags_returns_failure() {
-        use ssh_key::{private::RsaKeypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::RsaKeypair;
 
         const MIN_RSA_BITS: usize = 2048;
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_RSA_BITS).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), MIN_RSA_BITS).unwrap();
         let blob = make_minimal_rsa_blob();
         let expected_public_key = PublicKey {
             alg: "ssh-rsa".to_string(),
@@ -613,14 +615,15 @@ mod tests {
 
     #[tokio::test]
     async fn sign_request_rsa_sha256_flag_produces_sha256_signature() {
-        use ssh_key::{private::RsaKeypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::RsaKeypair;
 
         // SSH_AGENT_RSA_SHA2_256 flag
         const RSA_SHA2_256: u32 = 2;
 
         const MIN_RSA_BITS: usize = 2048;
 
-        let keypair = RsaKeypair::random(&mut OsRng, MIN_RSA_BITS).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), MIN_RSA_BITS).unwrap();
         let blob = make_minimal_rsa_blob();
         let expected_public_key = PublicKey {
             alg: "ssh-rsa".to_string(),
@@ -680,9 +683,10 @@ mod tests {
 
     #[test]
     fn session_bind_valid_not_forwarding_returns_success() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         let payload = make_extension_payload(b"session-bind@openssh.com", &bind_payload);
 
@@ -694,9 +698,10 @@ mod tests {
 
     #[test]
     fn session_bind_valid_forwarding_returns_success_and_sets_flag() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
         let payload = make_extension_payload(b"session-bind@openssh.com", &bind_payload);
 
@@ -708,9 +713,10 @@ mod tests {
 
     #[test]
     fn session_bind_is_forwarding_latched_on_rebind() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut state = SessionBindState::default();
 
         let forwarding_payload = make_session_bind_payload_ed25519(&keypair, &[0x01u8; 32], true);
@@ -735,9 +741,10 @@ mod tests {
 
     #[tokio::test]
     async fn session_bind_is_forwarding_propagates_to_sign_request_auth() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
         let ext_payload = make_extension_payload(b"session-bind@openssh.com", &bind_payload);
 
@@ -779,9 +786,10 @@ mod tests {
 
     #[tokio::test]
     async fn host_fingerprint_propagates_to_sign_request_auth() {
-        use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+        use getrandom::{SysRng, rand_core::UnwrapErr};
+        use ssh_key::private::Ed25519Keypair;
 
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let bind_payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
         let ext_payload = make_extension_payload(b"session-bind@openssh.com", &bind_payload);
 

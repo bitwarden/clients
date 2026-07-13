@@ -121,7 +121,7 @@ export class SshKeySectionComponent implements OnInit {
 
   private async generateSshKey() {
     await firstValueFrom(this.sdkService.client$);
-    const sshKey = generate_ssh_key("Ed25519");
+    const sshKey = generate_ssh_key("MlDsa65");
     this.sshKeyForm.setValue({
       privateKey: sshKey.privateKey,
       publicKey: sshKey.publicKey,

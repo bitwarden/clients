@@ -78,10 +78,10 @@ fn verify_rsa(
     session_id: &[u8],
     sig: &[u8],
 ) -> bool {
-    let Some(n) = key.n.as_positive_bytes().map(BigUint::from_bytes_be) else {
+    let Some(n) = key.n().as_positive_bytes().map(BigUint::from_bytes_be) else {
         return false;
     };
-    let Some(e) = key.e.as_positive_bytes().map(BigUint::from_bytes_be) else {
+    let Some(e) = key.e().as_positive_bytes().map(BigUint::from_bytes_be) else {
         return false;
     };
     let Ok(verifying_key) = rsa::RsaPublicKey::new(n, e) else {
@@ -110,11 +110,9 @@ fn verify_rsa(
 
 #[cfg(test)]
 mod tests {
+    use getrandom::{SysRng, rand_core::UnwrapErr};
     use signature::Signer as _;
-    use ssh_key::{
-        private::{Ed25519Keypair, KeypairData, RsaKeypair},
-        rand_core::OsRng,
-    };
+    use ssh_key::private::{Ed25519Keypair, KeypairData, RsaKeypair};
 
     use super::SessionBindState;
     use crate::server::test_common::{
@@ -132,7 +130,7 @@ mod tests {
 
     #[test]
     fn valid_ed25519_not_forwarding_returns_true() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         let state = apply(&payload).unwrap();
         assert!(!state.is_forwarding);
@@ -140,7 +138,7 @@ mod tests {
 
     #[test]
     fn valid_ed25519_forwarding_returns_true_and_sets_flag() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], true);
         let state = apply(&payload).unwrap();
         assert!(state.is_forwarding);
@@ -148,7 +146,7 @@ mod tests {
 
     #[test]
     fn valid_rsa_sha256_returns_true() {
-        let keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let payload = make_session_bind_payload_rsa(&keypair, "rsa-sha2-256", &[0x42u8; 32], false);
         let state = apply(&payload).unwrap();
         assert!(!state.is_forwarding);
@@ -156,7 +154,7 @@ mod tests {
 
     #[test]
     fn valid_rsa_sha512_returns_true() {
-        let keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let payload = make_session_bind_payload_rsa(&keypair, "rsa-sha2-512", &[0x42u8; 32], false);
         let state = apply(&payload).unwrap();
         assert!(!state.is_forwarding);
@@ -164,7 +162,7 @@ mod tests {
 
     #[test]
     fn tampered_signature_bytes_returns_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         let n = payload.len();
         payload[n - 2] ^= 0xFF;
@@ -173,8 +171,8 @@ mod tests {
 
     #[test]
     fn wrong_key_in_hostkey_returns_false() {
-        let keypair_a = Ed25519Keypair::random(&mut OsRng);
-        let keypair_b = Ed25519Keypair::random(&mut OsRng);
+        let keypair_a = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
+        let keypair_b = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
 
         let session_id = [0x42u8; 32];
         let private_a =
@@ -197,14 +195,14 @@ mod tests {
 
     #[test]
     fn rsa_sha1_algorithm_returns_false() {
-        let keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let payload = make_session_bind_payload_rsa(&keypair, "ssh-rsa", &[0x42u8; 32], false);
         assert!(apply(&payload).is_none());
     }
 
     #[test]
     fn rsa_unsupported_algorithm_returns_false() {
-        let keypair = RsaKeypair::random(&mut OsRng, 2048).unwrap();
+        let keypair = RsaKeypair::random(&mut UnwrapErr(SysRng), 2048).unwrap();
         let payload = make_session_bind_payload_rsa(&keypair, "rsa-sha2-999", &[0x42u8; 32], false);
         assert!(apply(&payload).is_none());
     }
@@ -216,7 +214,7 @@ mod tests {
 
     #[test]
     fn truncated_after_hostkey_returns_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key =
             ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
         let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
@@ -227,7 +225,7 @@ mod tests {
 
     #[test]
     fn truncated_after_session_id_returns_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key =
             ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
         let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
@@ -239,7 +237,7 @@ mod tests {
 
     #[test]
     fn truncated_sig_outer_returns_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key =
             ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
         let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
@@ -253,7 +251,7 @@ mod tests {
 
     #[test]
     fn invalid_utf8_alg_name_returns_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let private_key =
             ssh_key::PrivateKey::new(KeypairData::Ed25519(keypair.clone()), "").unwrap();
         let hostkey_bytes = private_key.public_key().to_bytes().unwrap();
@@ -270,7 +268,7 @@ mod tests {
 
     #[test]
     fn non_one_byte_treated_as_not_forwarding() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         *payload.last_mut().unwrap() = 2u8;
         let state = apply(&payload).unwrap();
@@ -279,7 +277,7 @@ mod tests {
 
     #[test]
     fn missing_forwarding_byte_defaults_to_false() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         payload.pop();
         let state = apply(&payload).unwrap();
@@ -288,7 +286,7 @@ mod tests {
 
     #[test]
     fn host_fingerprint_populated_on_successful_verification() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         let state = apply(&payload).unwrap();
         assert!(
@@ -300,7 +298,7 @@ mod tests {
 
     #[test]
     fn failed_verification_leaves_host_fingerprint_unchanged() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut payload = make_session_bind_payload_ed25519(&keypair, &[0x42u8; 32], false);
         let n = payload.len();
         payload[n - 2] ^= 0xFF; // tamper signature
@@ -314,8 +312,8 @@ mod tests {
 
     #[test]
     fn host_fingerprint_updates_on_rebind_with_different_key() {
-        let keypair_a = Ed25519Keypair::random(&mut OsRng);
-        let keypair_b = Ed25519Keypair::random(&mut OsRng);
+        let keypair_a = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
+        let keypair_b = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut state = SessionBindState::default();
 
         let payload_a = make_session_bind_payload_ed25519(&keypair_a, &[0x01u8; 32], false);
@@ -334,7 +332,7 @@ mod tests {
 
     #[test]
     fn is_forwarding_latched_on_rebind() {
-        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
         let mut state = SessionBindState::default();
 
         let payload1 = make_session_bind_payload_ed25519(&keypair, &[0x01u8; 32], true);

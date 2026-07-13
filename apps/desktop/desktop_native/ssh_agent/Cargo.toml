@@ -10,14 +10,16 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 base64 = { workspace = true }
 desktop_core = { path = "../core" }
+hybrid-array = "0.4.12"
 mockall = { workspace = true }
 rkyv = "=0.8.16"
 rsa = "0.9"
 sha2 = "=0.10.9"
-signature = "=2.2.0"
-ssh-key = { version = "=0.6.7", features = [
+signature = "3"
+ssh-key = { path = "/Users/bschoolmann/projects/SSH/ssh-key", features = [
     "encryption",
     "ed25519",
+    "mldsa",
     "p256",
     "p384",
     "p521",
@@ -40,6 +42,9 @@ windows = { workspace = true, features = [
     "Win32_System_Pipes",
 ] }
 
+[dev-dependencies]
+getrandom = { version = "0.4", features = ["sys_rng"] }
+
 [target.'cfg(unix)'.dev-dependencies]
 mockall = { workspace = true }
 rand = { workspace = true }
@@ -49,6 +54,7 @@ tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 mockall = { workspace = true }
+rand = { workspace = true }
 serial_test = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
 tracing-subscriber = { workspace = true }

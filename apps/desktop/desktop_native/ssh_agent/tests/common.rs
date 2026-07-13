@@ -335,9 +335,10 @@ fn make_session_bind_payload(
 
 /// Builds a framed EXTENSION message containing a valid session-bind payload.
 pub fn framed_session_bind_extension(is_forwarding: bool) -> Vec<u8> {
-    use ssh_key::{private::Ed25519Keypair, rand_core::OsRng};
+    use getrandom::{SysRng, rand_core::UnwrapErr};
+    use ssh_key::private::Ed25519Keypair;
 
-    let keypair = Ed25519Keypair::random(&mut OsRng);
+    let keypair = Ed25519Keypair::random(&mut UnwrapErr(SysRng));
     let session_id = [0x42u8; 32];
     let bind_payload = make_session_bind_payload(&keypair, &session_id, is_forwarding);
 
