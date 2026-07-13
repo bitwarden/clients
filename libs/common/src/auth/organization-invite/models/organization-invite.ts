@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { isId } from "../../types/guid";
+import { isId } from "../../../types/guid";
 
 /**
  * Documents the URL query param contract emitted by the server for organization invite
