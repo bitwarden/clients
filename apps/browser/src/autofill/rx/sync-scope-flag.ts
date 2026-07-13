@@ -6,34 +6,33 @@ import { Observable, OperatorFunction, identity } from "rxjs";
 const DETECT_SYNC_BOUNDARIES = process.env.BW_DETECT_SYNC_BOUNDARIES;
 
 /**
- * Brackets a pipeline region and reports when a value that entered through `enter`
- * reaches `exit` off the synchronous call stack that carried it in — i.e. something
- * between the two yielded to the event loop (a `Promise`, `setTimeout`, `timer()`,
- * `delay()`, `observeOn()`, etc).
+ * Guards a pipeline region that must stay synchronous. Returns a matched
+ * `{ enter, exit }` pair of operators: pipe `enter` at the start of the region and
+ * `exit` at the end — `source.pipe(enter, ...region..., exit)`. If a value that went
+ * in through `enter` only reaches `exit` after the region has yielded to the event
+ * loop — a `Promise`, `setTimeout`, `timer()`, `delay()`, `observeOn()`, or any other
+ * async hop in between — `report` is called with a message naming the scope and the
+ * likely culprits.
  *
- * The check is a call-stack depth, not a timer: `enter` brackets its downstream push
- * with `depth++` / `depth--` (in a `try`/`finally`, so it rebalances even if a
- * downstream operator throws), and `exit` reports whenever it sees `depth === 0` —
- * i.e. it is not, right now, on the synchronous stack of any `enter`. A value
- * delivered asynchronously always arrives after every live `enter` call has already
- * returned and rebalanced `depth`, so it is reliably seen at depth 0 — no matter how
- * many other values entered and exited the same scope synchronously in between. (A
- * microtask-scheduled or per-value generation counter can be fooled by that
- * interleaving — a later synchronous value can reset shared state before an earlier
- * asynchronous one arrives; a call-stack depth cannot, because it is never touched
- * except while literally on that call stack.)
+ * This is a diagnostic for development and CI, not a runtime assertion: it never
+ * throws and never alters the values flowing through — it only reports.
  *
- * Robust to fan-out and value drops: a dropped value (`filter`, `EMPTY`,
- * `switchMap`-cancel) never reaches `exit`, so it never triggers a check — no false
- * positive. Fan-out (`mergeMap`/`switchMap` emitting zero or more inner values) checks
- * each output against the stack independently.
+ * Behavior a caller can rely on:
+ * - A value dropped before `exit` (`filter`, `EMPTY`, a cancelled `switchMap` inner)
+ *   never triggers a report, so there are no false positives from short-circuiting.
+ * - Fan-out is handled per value: an operator emitting many outputs has each checked
+ *   on its own.
+ * - `enter` and `exit` share state, so both must come from the same call; using one
+ *   without the other does nothing. The message pinpoints the scope by `label`, not
+ *   the exact operator that introduced the boundary.
  *
- * When `BW_DETECT_SYNC_BOUNDARIES` is unset, `enter`/`exit` are `identity` — a
- * disabled scope allocates no state and adds nothing to the stream.
+ * Unless the `BW_DETECT_SYNC_BOUNDARIES` build flag is set, `enter` and `exit` are the
+ * identity operator: the guard adds nothing to the stream and costs nothing, so
+ * production builds neither report nor pay for it.
  *
  * @param label - Identifies this scope in the reported message.
- * @param report - Receives the fully-formatted message on a crossing, e.g.
- *   `(message) => this.logService.warning(message)` or `console.warn` directly.
+ * @param report - Receives the message when a value crosses an asynchronous boundary,
+ *   e.g. `(message) => this.logService.warning(message)`.
  */
 export function assertSynchronousScope(
   label: string,
