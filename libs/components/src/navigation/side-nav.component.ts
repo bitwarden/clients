@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,6 +8,7 @@ import {
   input,
   viewChild,
   inject,
+  effect,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -15,7 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 
 import { NavDividerComponent } from "./nav-divider.component";
-import { SideNavService } from "./side-nav.service";
+import { SideNavService, SideNavVersion } from "./side-nav.service";
 
 export type SideNavVariant = "primary" | "secondary";
 
@@ -32,6 +33,7 @@ export type SideNavVariant = "primary" | "secondary";
     I18nPipe,
     DragDropModule,
     AsyncPipe,
+    NgTemplateOutlet,
   ],
   host: {
     // Grid placement: always col 1.  In overlay mode the element is also
@@ -56,6 +58,8 @@ export class SideNavComponent {
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  readonly version = input<SideNavVersion>("1");
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -82,5 +86,11 @@ export class SideNavComponent {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       this.sideNavService.setWidthFromKeys(event.key);
     }
+  }
+
+  constructor() {
+    effect(() => {
+      this.sideNavService.version.set(this.version());
+    });
   }
 }

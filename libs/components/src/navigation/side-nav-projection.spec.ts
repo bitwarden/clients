@@ -1,0 +1,94 @@
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { RouterModule } from "@angular/router";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
+
+import { I18nMockService } from "../utils/i18n-mock.service";
+import { StorybookGlobalStateProvider } from "../utils/state-mock";
+
+import { NavigationModule } from "./navigation.module";
+import { SideNavService } from "./side-nav.service";
+
+@Component({
+  imports: [NavigationModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-side-nav>
+      <bit-nav-logo [openIcon]="logo" route="." label="Home"></bit-nav-logo>
+      <bit-nav-group text="Tools" icon="bwi-wrench" [open]="true">
+        <bit-nav-item text="Child A" route="a"></bit-nav-item>
+        <bit-nav-item text="Child B" route="b"></bit-nav-item>
+        <span slot="end">TRAILING</span>
+      </bit-nav-group>
+    </bit-side-nav>
+  `,
+})
+class HostComponent {
+  logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
+}
+
+// Regression: duplicating `<ng-content>` across the side-nav version `@if`/`@else` branches broke
+// projection in v1 — nav-group children rendered into an empty slot and `bit-nav-logo` (a selector
+// present only in the v2 branch) was dropped entirely. Each slot must appear once in the template.
+describe("side-nav v1 content projection", () => {
+  let fixture: ComponentFixture<HostComponent>;
+  let sideNavService: SideNavService;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HostComponent, RouterModule.forRoot([])],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              sideNavigation: "Side navigation",
+              toggleSideNavigation: "Toggle side navigation",
+              resizeSideNavigation: "Resize side navigation",
+              toggleCollapse: "Toggle collapse",
+              submenu: "submenu",
+            }),
+        },
+        { provide: GlobalStateProvider, useClass: StorybookGlobalStateProvider },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(HostComponent);
+    sideNavService = TestBed.inject(SideNavService);
+  });
+
+  it("renders in version 1 by default", () => {
+    fixture.detectChanges();
+    expect(sideNavService.version()).toBe("1");
+  });
+
+  it("projects nav-group child items when side nav is open and group is open", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Child A");
+    expect(text).toContain("Child B");
+  });
+
+  it("projects nav-item [slot=end] trailing content in v1", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent as string).toContain("TRAILING");
+  });
+
+  it("projects the bit-nav-logo in v1", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const logo = fixture.nativeElement.querySelector("bit-nav-logo");
+    expect(logo).not.toBeNull();
+    // The <bit-nav-logo> element exists in light DOM regardless; assert it is actually
+    // placed inside the rendered <nav> (i.e. projected into a live <ng-content>).
+    const nav = fixture.nativeElement.querySelector("nav#bit-side-nav");
+    expect(nav?.contains(logo)).toBe(true);
+  });
+});

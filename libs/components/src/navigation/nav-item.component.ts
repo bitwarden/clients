@@ -39,13 +39,13 @@ export class NavItemComponent extends NavBaseComponent {
    * Base padding for nav items (in rem)
    * This provides the initial indentation for nav items before depth-based padding
    */
-  protected readonly TREE_BASE_PADDING = 2.25;
+  protected readonly treeBasePadding = signal(2.25);
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly TREE_DEPTH_PADDING = 1.5;
+  protected readonly treeDepthPadding = signal(1.5);
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
@@ -77,7 +77,7 @@ export class NavItemComponent extends NavBaseComponent {
     const depth = this.treeDepth() ?? 0;
 
     if (open) {
-      return `${this.TREE_BASE_PADDING + depth * this.TREE_DEPTH_PADDING}rem`;
+      return `${this.treeBasePadding() + depth * this.treeDepthPadding()}rem`;
     }
 
     return "0";
@@ -131,7 +131,11 @@ export class NavItemComponent extends NavBaseComponent {
 
   constructor() {
     super();
+    const version = this.sideNavService.version();
 
+    if (version === "2") {
+      this.treeBasePadding.set(0.5);
+    }
     // Set tree depth based on parent's depth
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);

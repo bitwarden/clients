@@ -10,6 +10,8 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
+export type SideNavVersion = "1" | "2";
+
 @Injectable({
   providedIn: "root",
 })
@@ -20,6 +22,8 @@ export class SideNavService {
   readonly MAX_OPEN_WIDTH = 24;
 
   private rootFontSizePx: number;
+
+  readonly version = signal("1");
 
   /**
    * Whether the side navigation is open or closed.
