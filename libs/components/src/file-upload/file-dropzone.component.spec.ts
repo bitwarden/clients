@@ -122,6 +122,36 @@ describe("FileDropzoneComponent", () => {
     expect(host.control.value.map((f) => f.name)).toEqual(["b.txt"]);
   });
 
+  it("describes the native input with the projected hint", () => {
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const hint = fixture.debugElement.query(By.css("bit-hint")).nativeElement;
+
+    expect(hint.id).toBeTruthy();
+    expect(input.getAttribute("aria-describedby")).toContain(hint.id);
+  });
+
+  it("describes the native input with the max file size hint when provided", () => {
+    host.maxFileSize.set(30);
+    fixture.detectChanges();
+
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const size = fixture.nativeElement.querySelector(`#${input.id}-size`);
+
+    expect(size).not.toBeNull();
+    expect(size.textContent).toContain("Max. File Size: 30MB");
+    expect(input.getAttribute("aria-describedby")).toContain(size.id);
+  });
+
+  it("does not repeat ids in aria-describedby", () => {
+    host.maxFileSize.set(30);
+    fixture.detectChanges();
+
+    const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;
+    const ids = (input.getAttribute("aria-describedby") ?? "").split(" ").filter(Boolean);
+
+    expect(ids.length).toBe(new Set(ids).size);
+  });
+
   it("associates the label with the native file input", () => {
     const label = fixture.debugElement.query(By.css("bit-form-field label")).nativeElement;
     const input = fixture.debugElement.query(By.css('input[type="file"]')).nativeElement;

@@ -36,6 +36,7 @@
         </span>
         @if (maxFileSize() != null) {
           <span
+            [id]="maxFileSizeId"
             class="tw-text-xs"
             [class.tw-text-fg-body-subtle]="!disabled()"
             [class.tw-text-fg-inactive]="disabled()"

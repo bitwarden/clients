@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   effect,
   ElementRef,
   inject,
@@ -14,6 +15,7 @@ import { ControlValueAccessor, NgControl } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { BitPrefixDirective } from "../form-field/prefix.directive";
@@ -67,6 +69,7 @@ export class FileUploadComponent implements ControlValueAccessor {
   protected readonly formFieldControl = inject(BitFormFieldControlDirective);
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
+  private readonly hint = contentChild(BitHintDirective, { descendants: true });
 
   private readonly _files = signal<File[]>([]);
   private readonly _disabledFromCva = signal(false);
@@ -81,11 +84,16 @@ export class FileUploadComponent implements ControlValueAccessor {
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
   protected readonly fileName = computed(() => this._files()[0]?.name);
 
-  /** form-field's hint/error target (set on our directive) plus the live status region. */
-  protected readonly describedBy = computed(
-    () =>
-      [this.formFieldControl.ariaDescribedBy(), this.statusId].filter(Boolean).join(" ") || null,
-  );
+  /**
+   * The projected hint id (queried here because `bit-form-field` can't see a hint we re-project
+   * through our own `<ng-content>`), form-field's error target, and the live status region.
+   */
+  protected readonly describedBy = computed(() => {
+    const ids = [this.hint()?.id, this.formFieldControl.ariaDescribedBy(), this.statusId].filter(
+      Boolean,
+    );
+    return [...new Set(ids)].join(" ") || null;
+  });
 
   constructor() {
     if (this.ngControl != null) {

@@ -4,6 +4,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
   effect,
   ElementRef,
   inject,
@@ -17,6 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ButtonComponent } from "../button/button.component";
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitCustomInputDirective } from "../form-field/custom-input.directive";
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
@@ -84,6 +86,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
   private readonly fileList = viewChild(FileListComponent);
+  private readonly hint = contentChild(BitHintDirective, { descendants: true });
 
   private readonly _files = signal<File[]>([]);
   readonly files = this._files.asReadonly();
@@ -99,6 +102,7 @@ export class FileDropzoneComponent implements ControlValueAccessor {
 
   protected readonly inputId = `bit-file-dropzone-${nextId++}`;
   protected readonly statusId = `${this.inputId}-status`;
+  protected readonly maxFileSizeId = `${this.inputId}-size`;
 
   protected readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
 
@@ -117,12 +121,20 @@ export class FileDropzoneComponent implements ControlValueAccessor {
     return this.i18nService.t("filesUploaded", String(count));
   });
 
-  protected readonly describedBy = computed(
-    () =>
-      [this.formFieldControl.ariaDescribedBy(), this.files().length > 0 ? this.statusId : null]
-        .filter(Boolean)
-        .join(" ") || null,
-  );
+  /**
+   * The projected hint id (queried here because `bit-form-field` can't see a hint we re-project
+   * through our own `<ng-content>`), the max-file-size text, form-field's error target, and the
+   * live status region.
+   */
+  protected readonly describedBy = computed(() => {
+    const ids = [
+      this.hint()?.id,
+      this.maxFileSize() != null ? this.maxFileSizeId : null,
+      this.formFieldControl.ariaDescribedBy(),
+      this.files().length > 0 ? this.statusId : null,
+    ].filter(Boolean);
+    return [...new Set(ids)].join(" ") || null;
+  });
 
   protected readonly dropzoneClasses = computed(() => {
     const base = [

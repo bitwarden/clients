@@ -88,6 +88,18 @@ describe("FileUploadComponent", () => {
     expect(fixture.nativeElement.textContent).toContain("chosen.txt");
   });
 
+  it("describes the choose-file button with the projected hint and status region", () => {
+    const button = fixture.debugElement.query(By.css("button")).nativeElement;
+    const hint = fixture.debugElement.query(By.css("bit-hint")).nativeElement;
+
+    const ids = (button.getAttribute("aria-describedby") ?? "").split(" ").filter(Boolean);
+
+    expect(hint.id).toBeTruthy();
+    expect(ids).toContain(hint.id);
+    expect(ids).toContain(`${button.id}-status`);
+    expect(ids.length).toBe(new Set(ids).size);
+  });
+
   it("associates the label with the choose-file button", () => {
     const label = fixture.debugElement.query(By.css("label")).nativeElement;
     const button = fixture.debugElement.query(By.css("button")).nativeElement;
