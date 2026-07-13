@@ -36,6 +36,7 @@ import { getById } from "@bitwarden/common/platform/misc";
 import {
   A11yTitleDirective,
   AsyncActionsModule,
+  BadgeModule,
   ButtonModule,
   CheckboxModule,
   DIALOG_DATA,
@@ -84,6 +85,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     A11yTitleDirective,
     AsyncActionsModule,
     AsyncPipe,
+    BadgeModule,
     ButtonModule,
     CheckboxModule,
     DialogModule,
@@ -380,7 +382,7 @@ export class EditMemberDialogComponent {
     return Object.assign(p, partialPermissions);
   }
 
-  private async handleEditUser() {
+  private async handleEditUser(organization: Organization) {
     const userId = this.params.organizationUserId;
     const type = this.formGroup.getRawValue().type;
     const permissions = this.setRequestPermissions(
@@ -406,7 +408,7 @@ export class EditMemberDialogComponent {
       accessSecretsManager,
     });
 
-    await this.userService.saveV2(request, userId, this.params.organizationId);
+    await this.userService.saveV2(request, userId, organization);
 
     this.toastService.showToast({
       variant: "success",
@@ -439,7 +441,7 @@ export class EditMemberDialogComponent {
       return;
     }
 
-    await this.handleEditUser();
+    await this.handleEditUser(organization);
   };
 
   readonly revoke = async () => {

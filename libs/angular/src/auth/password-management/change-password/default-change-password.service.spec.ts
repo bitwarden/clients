@@ -152,7 +152,7 @@ describe("DefaultChangePasswordService", () => {
             "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
         };
 
-        request = PasswordRequest.newConstructor(
+        request = new PasswordRequest(
           currentAuthenticationData.masterPasswordAuthenticationHash,
           newAuthenticationData,
           newUnlockData,
