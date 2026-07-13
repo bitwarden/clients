@@ -38,7 +38,11 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
-  v2 = {
+  // Explicitly typed against the base class's declared `v2` shape (rather than left to be
+  // inferred from this literal) so that optional fields like `description`/`prerequisiteKey`
+  // remain valid to access - even though this policy doesn't set them - instead of TypeScript
+  // narrowing the field to only `{ component: ... }`.
+  v2: BasePolicyEditDefinition["v2"] = {
     component: AutoConfirmPolicyEditV2Component,
   };
 
@@ -208,9 +212,10 @@ export class AutoConfirmPolicyEditV2Component extends AutoConfirmPolicyEditCompo
   /**
    * Gates the enable switch: an admin must accept the security risk before they can turn the
    * policy on. Defaults to accepted when editing an already-enabled policy, since the risk was
-   * necessarily accepted the first time it was turned on.
+   * necessarily accepted the first time it was turned on. Public (matching {@link enabled}/
+   * {@link data} on the base class) so it can be exercised directly from tests.
    */
-  protected readonly riskAccepted = new FormControl(false, { nonNullable: true });
+  readonly riskAccepted = new FormControl(false, { nonNullable: true });
 
   private readonly step0ContentV2: Signal<TemplateRef<unknown>> =
     viewChild.required("step0ContentV2");
