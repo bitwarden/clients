@@ -32,6 +32,7 @@ import { BrowserFido2ParentWindowReference } from "../services/browser-fido2-use
 
 import { Fido2ExtensionMessage } from "./abstractions/fido2.background";
 import { Fido2Background } from "./fido2.background";
+import { PermissionsPolicyBackground } from "./permissions-policy/permissions-policy.background";
 
 const sharedExecuteScriptOptions = { runAt: "document_start" };
 const sharedScriptInjectionDetails = { frame: "all_frames", ...sharedExecuteScriptOptions };
@@ -90,6 +91,8 @@ describe("Fido2Background", () => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authServiceMock = mock<AuthService>();
     authServiceMock.activeAccountStatus$ = activeAccountStatusMock$;
+    const permissionsPolicyBackgroundMock = mock<PermissionsPolicyBackground>();
+    permissionsPolicyBackgroundMock.isFeatureAllowedForFrame.mockResolvedValue(true);
     fido2Background = new Fido2Background(
       logService,
       fido2ActiveRequestManager,
@@ -97,6 +100,7 @@ describe("Fido2Background", () => {
       vaultSettingsService,
       scriptInjectorServiceMock,
       authServiceMock,
+      permissionsPolicyBackgroundMock,
     );
     fido2Background["abortManager"] = abortManagerMock;
     abortManagerMock.runWithAbortController.mockImplementation((_requestId, runner) =>
