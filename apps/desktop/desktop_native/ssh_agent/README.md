@@ -6,9 +6,9 @@ The SSH Agent feature is a Desktop client feature that acts as a drop in replace
 
 The agent currently supports the following high level functionalities:
 
-- Listing keys (ssh-add -L, to display the public key and it’s name)
+- Listing keys (`ssh-add -L`, to display the public key and it’s name)
 - Request signing (used when signing files, git commits, authenticating with a remote host)
-- Agent forwarding (ssh -A, allowing a remote host you’ve authenticated with to use your keys)
+- Agent forwarding (`ssh -A`, allowing a remote host you’ve authenticated with to use your keys)
 - Supported key types:
     - Ed25519
     - RSA SHA-256 and SHA-512
