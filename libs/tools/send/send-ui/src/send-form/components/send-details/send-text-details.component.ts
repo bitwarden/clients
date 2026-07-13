@@ -27,8 +27,11 @@ export class SendTextDetailsComponent implements OnInit {
   readonly editing = input<boolean>(false);
 
   readonly sendTextDetailsForm = this.formBuilder.group({
-    text: new FormControl("", Validators.required),
-    hidden: new FormControl(false),
+    text: new FormControl(
+      this.sendFormService.updatedSendView()?.text.text ?? "",
+      Validators.required,
+    ),
+    hidden: new FormControl(this.sendFormService.updatedSendView()?.text.hidden ?? false),
   });
 
   readonly formDisabled = computed(
@@ -73,11 +76,6 @@ export class SendTextDetailsComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.sendTextDetailsForm.patchValue({
-      text: this.sendFormService.originalSendView()?.text?.text || "",
-      hidden: this.sendFormService.originalSendView()?.text?.hidden || false,
-    });
-
     if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
       this.sendTextDetailsForm.disable();
     }

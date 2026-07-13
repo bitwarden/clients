@@ -6,6 +6,7 @@ export class ServiceAccountView {
   name: string;
   creationDate: string;
   revisionDate: string;
+  decryptionError: boolean = false;
 }
 
 export class ServiceAccountSecretsDetailsView extends ServiceAccountView {

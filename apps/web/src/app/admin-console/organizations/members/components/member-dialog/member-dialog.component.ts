@@ -17,7 +17,6 @@ import {
 import {
   CollectionAdminService,
   OrganizationUserApiService,
-  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -61,7 +60,6 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
-import { MemberActionsService } from "../../services";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
@@ -96,7 +94,7 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   name: string;
   organizationUserId: Guid;
   usesKeyConnector: boolean;
-  managedByOrganization?: boolean;
+  claimedByOrganization?: boolean;
   initialTab: MemberDialogTab;
 }
 
@@ -146,8 +144,10 @@ export class MemberDialogComponent implements OnDestroy {
   protected formGroup = this.formBuilder.group({
     emails: [""],
     type: OrganizationUserType.User,
-    externalId: this.formBuilder.control({ value: "", disabled: true }),
-    ssoExternalId: this.formBuilder.control({ value: "", disabled: true }),
+    // set to readonly in the template
+    externalId: this.formBuilder.control({ value: "", disabled: false }),
+    // set to readonly in the template
+    ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
@@ -210,7 +210,6 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
-    private memberActionsService: MemberActionsService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -522,9 +521,9 @@ export class MemberDialogComponent implements OnDestroy {
     const userView = await this.getUserView();
 
     if (this.isEditDialogParams(this.params)) {
-      await this.handleEditUser(userView, this.params);
+      await this.handleEditUser(userView, this.params, organization);
     } else {
-      await this.handleInviteUsers(userView, organization);
+      await this.handleInviteUsers(userView);
     }
   };
 
@@ -557,7 +556,7 @@ export class MemberDialogComponent implements OnDestroy {
       accessSecretsManager: this.formGroup.value.accessSecretsManager,
       resetPasswordEnrolled: false,
       hasMasterPassword: false,
-      managedByOrganization: false,
+      claimedByOrganization: false,
     });
 
     return userView;
@@ -566,9 +565,10 @@ export class MemberDialogComponent implements OnDestroy {
   private async handleEditUser(
     userView: OrganizationUserAdminView,
     params: EditMemberDialogParams,
+    organization: Organization,
   ) {
     userView.id = params.organizationUserId;
-    await this.userService.save(userView);
+    await this.userService.save(userView, organization);
 
     this.toastService.showToast({
       variant: "success",
@@ -579,24 +579,10 @@ export class MemberDialogComponent implements OnDestroy {
     this.close(MemberDialogResult.Saved);
   }
 
-  private async handleInviteUsers(userView: OrganizationUserAdminView, organization: Organization) {
+  private async handleInviteUsers(userView: OrganizationUserAdminView) {
     const emails = [...new Set(this.formGroup.value.emails.trim().split(/\s*,\s*/))];
 
-    const request = new OrganizationUserInviteRequest({
-      emails,
-      type: userView.type,
-      groups: userView.groups,
-      permissions: userView.permissions,
-      collections: userView.collections,
-      accessSecretsManager: userView.accessSecretsManager,
-    });
-
-    const result = await this.memberActionsService.invite(organization.id, request);
-
-    if (result.success === false) {
-      this.toastService.showToast({ variant: "error", title: null, message: result.error });
-      return;
-    }
+    await this.userService.invite(emails, userView);
 
     this.toastService.showToast({
       variant: "success",

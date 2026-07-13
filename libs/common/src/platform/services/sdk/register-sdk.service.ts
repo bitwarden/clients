@@ -18,6 +18,7 @@ import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { JsWasmStateBridge } from "../../../key-management/state-bridge";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { UserId } from "../../../types/guid";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
@@ -149,6 +150,9 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               client.platform().state(),
               this.stateProvider,
             );
+            client
+              .km_state_bridge()
+              .register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
 
             await this.loadFeatureFlags(client);
 

@@ -1,12 +1,6 @@
-import { combineLatest, filter, map, Observable, switchMap } from "rxjs";
+import { combineLatest, filter, from, map, Observable, switchMap } from "rxjs";
 
-import {
-  OrganizationUserApiService,
-  OrganizationUserBulkConfirmRequest,
-  OrganizationUserBulkResponse,
-  OrganizationUserConfirmRequest,
-  OrganizationUserService,
-} from "@bitwarden/admin-console/common";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -16,6 +10,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import {
+  OrganizationUserApiService,
+  OrganizationUserBulkConfirmRequest,
+  OrganizationUserBulkResponse,
+  OrganizationUserConfirmRequest,
+  OrganizationUserService,
+} from "../..";
+import { OrganizationUserUpdateRequest } from "../models/requests";
 import { OrganizationUserBulkRestoreRequest } from "../models/requests/organization-user-bulk-restore.request";
 import { OrganizationUserRestoreRequest } from "../models/requests/organization-user-restore.request";
 
@@ -114,6 +116,33 @@ export class DefaultOrganizationUserService implements OrganizationUserService {
         return this.organizationUserApiService.restoreManyOrganizationUsers(
           organization.id,
           request,
+        );
+      }),
+    );
+  }
+
+  updateUser(
+    organization: Organization,
+    userId: string,
+    request: OrganizationUserUpdateRequest,
+  ): Observable<void> {
+    const exempt =
+      request.type === OrganizationUserType.Owner || request.type === OrganizationUserType.Admin;
+
+    const shouldSetDefaultCollection =
+      !exempt && organization.useMyItems && organization.usePolicies;
+
+    if (!shouldSetDefaultCollection) {
+      return from(
+        this.organizationUserApiService.putOrganizationUser(organization.id, userId, request),
+      );
+    }
+
+    return this.getEncryptedDefaultCollectionName$(organization).pipe(
+      switchMap((collectionName) => {
+        request.defaultUserCollectionName = collectionName.encryptedString;
+        return from(
+          this.organizationUserApiService.putOrganizationUser(organization.id, userId, request),
         );
       }),
     );

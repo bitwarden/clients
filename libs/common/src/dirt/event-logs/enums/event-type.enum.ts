@@ -42,6 +42,12 @@ export enum EventType {
   Cipher_ClientToggledLicenseNumberVisible = 1124,
   Cipher_ClientCopiedPassportNumber = 1125,
   Cipher_ClientToggledPassportNumberVisible = 1126,
+  Cipher_ClientCopiedSwiftCode = 1127,
+  Cipher_ClientToggledSwiftCodeVisible = 1128,
+  Cipher_ClientCopiedIban = 1129,
+  Cipher_ClientToggledIbanVisible = 1130,
+  Cipher_ClientCopiedNationalIdentificationNumber = 1131,
+  Cipher_ClientToggledNationalIdentificationNumberVisible = 1132,
 
   Collection_Created = 1300,
   Collection_Updated = 1301,
@@ -73,6 +79,9 @@ export enum EventType {
   OrganizationUser_AdminResetTwoFactor = 1519,
   OrganizationUser_Revoked_TwoFactorNonCompliance = 1520,
   OrganizationUser_Revoked_SingleOrganizationNonCompliance = 1521,
+  OrganizationUser_NotificationBannerActionClicked = 1522,
+  OrganizationUser_Staged = 1523,
+  OrganizationUser_InviteLinkAccepted = 1524,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -98,6 +107,11 @@ export enum EventType {
   Organization_AutoConfirmDisabled_Admin = 1621,
   Organization_AutoConfirmEnabled_Portal = 1622,
   Organization_AutoConfirmDisabled_Portal = 1623,
+  Organization_InviteLinkCreated = 1624,
+  Organization_InviteLinkDomainsEdited = 1625,
+  Organization_InviteLinkDeleted = 1626,
+  Organization_InviteLinkClientCopied = 1627,
+  Organization_InviteLinkRefreshed = 1628,
 
   Policy_Updated = 1700,
 
@@ -145,4 +159,10 @@ export enum EventType {
   Send_Created_File = 2503,
   Send_Created_File_WithEmailVerification = 2504,
   Send_Created_File_WithPasswordProtection = 2505,
+  Send_Updated_Text = 2506,
+  Send_Updated_File = 2507,
+  Send_Deleted_Text = 2508,
+  Send_Deleted_File = 2509,
+  Send_Accessed_Text = 2510,
+  Send_Accessed_File = 2511,
 }

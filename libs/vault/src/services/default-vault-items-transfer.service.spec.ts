@@ -10,8 +10,6 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -41,7 +39,6 @@ describe("DefaultVaultItemsTransferService", () => {
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockEventCollectionService: MockProxy<EventCollectionService>;
-  let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationUserApiService: MockProxy<OrganizationUserApiService>;
   let mockSyncService: MockProxy<SyncService>;
 
@@ -78,7 +75,6 @@ describe("DefaultVaultItemsTransferService", () => {
     mockDialogService = mock<DialogService>();
     mockToastService = mock<ToastService>();
     mockEventCollectionService = mock<EventCollectionService>();
-    mockConfigService = mock<ConfigService>();
     mockOrganizationUserApiService = mock<OrganizationUserApiService>();
     mockSyncService = mock<SyncService>();
 
@@ -95,7 +91,6 @@ describe("DefaultVaultItemsTransferService", () => {
       mockDialogService,
       mockToastService,
       mockEventCollectionService,
-      mockConfigService,
       mockOrganizationUserApiService,
       mockSyncService,
     );
@@ -653,13 +648,11 @@ describe("DefaultVaultItemsTransferService", () => {
     } as Organization;
 
     function setupMocksForEnforcementScenario(options: {
-      featureEnabled?: boolean;
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
       defaultCollection?: CollectionView;
     }): void {
-      mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
@@ -667,28 +660,6 @@ describe("DefaultVaultItemsTransferService", () => {
       mockSyncService.fullSync.mockResolvedValue(true);
       mockOrganizationUserApiService.revokeSelf.mockResolvedValue(undefined);
     }
-
-    it("does nothing when feature flag is disabled", async () => {
-      setupMocksForEnforcementScenario({
-        featureEnabled: false,
-        policies: [policy],
-        organizations: [organization],
-        ciphers: [{ id: "cipher-1" } as CipherView],
-        defaultCollection: {
-          id: collectionId,
-          organizationId: organizationId,
-          isDefaultCollection: true,
-        } as CollectionView,
-      });
-
-      await service.enforceOrganizationDataOwnership(userId);
-
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.MigrateMyVaultToMyItems,
-      );
-      expect(mockDialogService.open).not.toHaveBeenCalled();
-      expect(mockCipherService.shareManyWithServer).not.toHaveBeenCalled();
-    });
 
     it("does nothing when no migration is required", async () => {
       setupMocksForEnforcementScenario({ policies: [] });
@@ -965,13 +936,11 @@ describe("DefaultVaultItemsTransferService", () => {
     } as Organization;
 
     function setupMocksForTransferScenario(options: {
-      featureEnabled?: boolean;
       policies?: Policy[];
       organizations?: Organization[];
       ciphers?: CipherView[];
       defaultCollection?: CollectionView;
     }): void {
-      mockConfigService.getFeatureFlag.mockResolvedValue(options.featureEnabled ?? true);
       mockPolicyService.policiesByType$.mockReturnValue(of(options.policies ?? []));
       mockOrganizationService.organizations$.mockReturnValue(of(options.organizations ?? []));
       mockCipherService.cipherViews$.mockReturnValue(of(options.ciphers ?? []));
@@ -1058,7 +1027,6 @@ describe("DefaultVaultItemsTransferService", () => {
     } as CollectionView;
 
     beforeEach(() => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockPolicyService.policiesByType$.mockReturnValue(of([policy]));
       mockOrganizationService.organizations$.mockReturnValue(of([organization]));
       mockCipherService.cipherViews$.mockReturnValue(of(personalCiphers));

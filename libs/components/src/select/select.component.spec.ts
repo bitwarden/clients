@@ -50,4 +50,14 @@ describe("Select Component", () => {
       expect(select.selectedOption()?.value).toBe("apple");
     });
   });
+
+  describe("ID and label association", () => {
+    it("labelForId targets the internal search input, not the component root element", () => {
+      expect(select.formFieldControl.labelForId()).not.toBe(select.formFieldControl.id());
+    });
+
+    it("labelForId is derived from the component id with a '-search' suffix", () => {
+      expect(select.formFieldControl.labelForId()).toBe(`${select.formFieldControl.id()}-search`);
+    });
+  });
 });

@@ -7,19 +7,17 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
+
+import { MasterPasswordPolicyV2Component } from "./master-password-v2.component";
 
 export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
@@ -28,6 +26,13 @@ export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.Authentication;
   priority = 10;
   component = MasterPasswordPolicyComponent;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
+  v2 = {
+    component: MasterPasswordPolicyV2Component,
+    // MasterPasswordPolicyV2Component renders its own description inline; MasterPasswordPolicyComponent
+    // (v1) does not, so the dialog's own showDescription (defaults to true) must stay on for v1.
+    showDescription: false,
+  };
 }
 
 @Component({
@@ -59,7 +64,6 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
   constructor(
     private formBuilder: FormBuilder,
     i18nService: I18nService,
-    private organizationService: OrganizationService,
   ) {
     super();
 
@@ -75,12 +79,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
 
   async ngOnInit() {
     super.ngOnInit();
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
-    );
-    this.showKeyConnectorInfo = organization.keyConnectorEnabled;
+    const organization = await firstValueFrom(this.organization$);
+    this.showKeyConnectorInfo = organization?.keyConnectorEnabled ?? false;
   }
 }

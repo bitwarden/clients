@@ -67,8 +67,24 @@ export class Fido2Background implements Fido2BackgroundInterface {
    *
    * @param tabId - The tab id to check.
    */
-  isCredentialRequestInProgress(tabId: number): boolean {
+  private isCredentialRequestInProgress(tabId: number): boolean {
     return this.activeCredentialRequests.has(tabId);
+  }
+
+  /**
+   * Returns true when vault notifications should defer for visible FIDO2 UI.
+   */
+  shouldDeferVaultNotificationsForPasskeyUi(tabId: number): boolean {
+    if (!this.isCredentialRequestInProgress(tabId)) {
+      return false;
+    }
+
+    const activeRequest = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+    if (activeRequest == null) {
+      return true;
+    }
+
+    return activeRequest.credentials.length > 0;
   }
 
   /**

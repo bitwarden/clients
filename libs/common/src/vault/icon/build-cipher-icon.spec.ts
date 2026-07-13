@@ -135,9 +135,72 @@ describe("buildCipherIcon", () => {
       });
     });
 
+    it("returns bwi-lock icon when newItemTypes is true and there is no uri", () => {
+      setUri(null as any as string);
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-lock",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-lock icon with favicon resolved when newItemTypes is true", () => {
+      setUri("https://test.example");
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-lock",
+        image: "https://icons.example/test.example/icon.png",
+        fallbackImage: "images/bwi-globe.png",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-globe icon when newItemTypes is false", () => {
+      setUri(null as any as string);
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-globe",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
     function setUri(uri: string) {
       (cipher.login as { uri: string }).uri = uri;
     }
+  });
+
+  describe("Identity cipher", () => {
+    const cipher = {
+      type: CipherType.Identity,
+    } as any as CipherView;
+
+    it("returns bwi-id-card icon when newItemTypes is false", () => {
+      expect(buildCipherIcon(iconServerUrl, cipher, true, false)).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-user icon when newItemTypes is true", () => {
+      expect(buildCipherIcon(iconServerUrl, cipher, true, true)).toEqual({
+        icon: "bwi-user",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
   });
 
   describe("BankAccount cipher", () => {
