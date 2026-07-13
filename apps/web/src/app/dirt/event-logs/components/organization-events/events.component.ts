@@ -3,7 +3,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { concatMap, firstValueFrom, lastValueFrom, map, of, switchMap, takeUntil, tap } from "rxjs";
 
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
@@ -20,7 +20,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { EventSystemUser, EventResponse, EventView } from "@bitwarden/common/dirt/event-logs";
+import {
+  EventSystemUser,
+  EventResponse,
+  EventType,
+  EventView,
+} from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -35,9 +40,20 @@ import {
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { EventExportService } from "../../../../tools/event-export";
-import { EventService } from "../../services/event.service";
+import {
+  EventService,
+  MEMBER_EVENTS_HREF_PREFIX,
+  SEND_EVENTS_HREF_PREFIX,
+} from "../../services/event.service";
 import { BaseEventsComponent } from "../base-events/base-events.component";
+import { openEntityEventsDialog } from "../entity-events/entity-events.component";
 import { placeholderEvents } from "../placeholder-events";
+import {
+  collectLinkableMemberIds,
+  isLinkableMember,
+  ResolvedMember,
+  resolveSendAccessMember,
+} from "../send-access-member";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
@@ -59,7 +75,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
   placeholderEvents = placeholderEvents as EventView[];
 
-  private orgUsersUserIdMap = new Map<string, any>();
+  private orgUsersUserIdMap = new Map<string, ResolvedMember>();
   readonly ProductTierType = ProductTierType;
 
   constructor(
@@ -81,6 +97,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private dialogService: DialogService,
     private configService: ConfigService,
     protected activeRoute: ActivatedRoute,
+    private router: Router,
   ) {
     super(
       eventService,
@@ -132,7 +149,13 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     );
     response.data.forEach((u) => {
       const name = this.userNamePipe.transform(u);
-      this.orgUsersUserIdMap.set(u.userId, { name: name, email: u.email });
+      // Store the organization user id too, so event-log links keyed on a platform user id can
+      // navigate to (and open the events dialog for) the corresponding member.
+      this.orgUsersUserIdMap.set(u.userId, {
+        name: name,
+        email: u.email,
+        organizationUserId: u.id,
+      });
     });
 
     if (this.organization.providerId != null) {
@@ -179,6 +202,14 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
   }
 
   protected getUserName(r: EventResponse, userId: string) {
+    // Send access rows show the accessor, never the Send creator. This must run before the userId
+    // lookup below: EventView.userId coalesces to the creator for external accesses, which would
+    // otherwise show the creator's name instead of "External".
+    const sendAccessMember = resolveSendAccessMember(r, this.orgUsersUserIdMap, this.i18nService);
+    if (sendAccessMember != null) {
+      return sendAccessMember;
+    }
+
     if (r.installationId != null) {
       return {
         name: `Installation: ${r.installationId}`,
@@ -218,6 +249,75 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     }
 
     return null;
+  }
+
+  protected override linkableMemberIds(): ReadonlySet<string> {
+    return collectLinkableMemberIds(this.orgUsersUserIdMap);
+  }
+
+  /** True when the Member-column name on a Send access row resolves to a member we can link to. */
+  protected isSendAccessMemberLink(e: EventView): boolean {
+    // Link only when the ACCESSOR is a confirmed member. Use actingUserId, not e.userId: the latter
+    // coalesces to the Send creator for external accesses, which would wrongly link the "External" label.
+    return (
+      (e.type === EventType.Send_Accessed_Text || e.type === EventType.Send_Accessed_File) &&
+      isLinkableMember(e.actingUserId, this.orgUsersUserIdMap)
+    );
+  }
+
+  /** Delegated handler for the interactive id links in an event message (Send id, creator user id). */
+  protected onEventMessageClick(event: Event) {
+    const href = (event.target as HTMLElement)?.closest("a")?.getAttribute("href");
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(SEND_EVENTS_HREF_PREFIX)) {
+      event.preventDefault();
+      this.openSendEventsDialog(href.slice(SEND_EVENTS_HREF_PREFIX.length));
+      return;
+    }
+    if (href.startsWith(MEMBER_EVENTS_HREF_PREFIX)) {
+      event.preventDefault();
+      this.openMemberEventsDialog(href.slice(MEMBER_EVENTS_HREF_PREFIX.length));
+    }
+  }
+
+  /** Member-column name click on a Send access row. */
+  protected memberNameClicked(event: Event, platformUserId: string) {
+    event.preventDefault();
+    this.openMemberEventsDialog(platformUserId);
+  }
+
+  private openSendEventsDialog(sendId: string) {
+    if (sendId == null) {
+      return;
+    }
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "send",
+        entityId: sendId,
+        organizationId: this.organizationId,
+        name: this.i18nService.t("send") + " " + this.getShortId(sendId),
+        showUser: true,
+      },
+    });
+  }
+
+  private openMemberEventsDialog(platformUserId: string) {
+    const member = platformUserId != null ? this.orgUsersUserIdMap.get(platformUserId) : null;
+    if (member?.organizationUserId == null) {
+      return;
+    }
+    openEntityEventsDialog(this.dialogService, {
+      data: {
+        entity: "user",
+        entityId: member.organizationUserId,
+        organizationId: this.organizationId,
+        name: member.name,
+        showUser: true,
+      },
+    });
+    void this.router.navigate(["/organizations", this.organizationId, "members"]);
   }
 
   private getShortId(id: string) {

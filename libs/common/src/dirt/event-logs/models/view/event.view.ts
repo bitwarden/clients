@@ -7,6 +7,9 @@ export class EventView {
   appIcon: string;
   appName: string;
   userId: string;
+  // The acting user id from the event (not coalesced with the subject/creator). Send access
+  // events use this to tell a member accessor apart from an external one.
+  actingUserId: string;
   userName: string;
   userEmail: string;
   date: string;
@@ -22,6 +25,7 @@ export class EventView {
     this.appIcon = data.appIcon;
     this.appName = data.appName;
     this.userId = data.userId;
+    this.actingUserId = data.actingUserId;
     this.userName = data.userName;
     this.userEmail = data.userEmail;
     this.date = data.date;
