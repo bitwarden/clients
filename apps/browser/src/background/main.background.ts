@@ -165,6 +165,7 @@ import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } fro
 import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -197,6 +198,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultAvailableRegionsService } from "@bitwarden/common/platform/services/default-available-regions.service";
+import { DefaultGovModeService } from "@bitwarden/common/platform/services/default-gov-mode.service";
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
@@ -499,6 +501,7 @@ export default class MainBackground {
   cipherContextMenuHandler: CipherContextMenuHandler;
   configService: ConfigService;
   availableRegionsService: AvailableRegionsService;
+  govModeService: GovModeService;
   configApiService: ConfigApiServiceAbstraction;
   devicesApiService: DevicesApiServiceAbstraction;
   devicesService: DevicesServiceAbstraction;
@@ -916,6 +919,8 @@ export default class MainBackground {
       this.environmentService,
       this.configService,
     );
+
+    this.govModeService = new DefaultGovModeService(this.environmentService);
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
       this.apiService,
@@ -1840,8 +1845,6 @@ export default class MainBackground {
       if (authStatus === AuthenticationStatus.LoggedOut) {
         const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
         await this.switchAccount(nextUpAccount?.id);
-      } else {
-        this.biometricsService.startPolling(active.id);
       }
     }
 
@@ -1943,14 +1946,12 @@ export default class MainBackground {
       await switchPromise;
 
       if (userId == null) {
-        this.biometricsService.stopPolling();
         await this.refreshMenu();
         await this.updateOverlayCiphers();
         this.messagingService.send("goHome");
         return;
       }
 
-      this.biometricsService.startPolling(userId);
       nextAccountStatus = await this.authService.getAuthStatus(userId);
 
       await this.systemService.clearPendingClipboard();

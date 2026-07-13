@@ -3,24 +3,23 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill } from "@bitwarden/desktop-napi";
 
-import { WindowMain } from "../../../main/window.main";
-
-import { CommandDefinition } from "./command";
+import { WindowMain } from "../../main/window.main";
+import { AutofillCommandDefinition } from "../models/autofill-command";
 
 type BufferedMessage = {
   channel: string;
   data: any;
 };
 
-export type RunCommandParams<C extends CommandDefinition> = {
+export type RunCommandParams<C extends AutofillCommandDefinition> = {
   namespace: C["namespace"];
   command: C["name"];
   params: C["input"];
 };
 
-export type RunCommandResult<C extends CommandDefinition> = C["output"];
+export type RunCommandResult<C extends AutofillCommandDefinition> = C["output"];
 
-export class NativeAutofillMain {
+export class DesktopAutofillMain {
   private ipcServer?: autofill.AutofillIpcServer;
   private messageBuffer: BufferedMessage[] = [];
   private listenerReady = false;
@@ -62,7 +61,7 @@ export class NativeAutofillMain {
   async init() {
     ipcMain.handle(
       "autofill.runCommand",
-      <C extends CommandDefinition>(
+      <C extends AutofillCommandDefinition>(
         _event: any,
         params: RunCommandParams<C>,
       ): Promise<RunCommandResult<C>> => {
@@ -153,7 +152,7 @@ export class NativeAutofillMain {
     });
   }
 
-  private async runCommand<C extends CommandDefinition>(
+  private async runCommand<C extends AutofillCommandDefinition>(
     command: RunCommandParams<C>,
   ): Promise<RunCommandResult<C>> {
     try {
