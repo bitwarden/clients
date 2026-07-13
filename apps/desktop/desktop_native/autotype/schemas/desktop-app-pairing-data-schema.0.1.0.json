@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/apps/desktop/desktop_native/autotype/schemas/desktop-app-pairing-data-schema.0.1.0.json",
+  "title": "Desktop Autotype Pairing Data Schema",
+  "description": "The data used in the Pairing and Verification flows for Bitwarden's Autotype implementation must adhere to this schema.",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "object",
+          "properties": {
+            "major": {
+              "description": "The major version of the schema this data adheres to.",
+              "type": "integer"
+            },
+            "minor": {
+              "description": "The minor version of the schema this data adheres to.",
+              "type": "integer"
+            },
+            "patch": {
+              "description": "The patch version of the schema this data adheres to.",
+              "type": "integer"
+            }
+          },
+          "required": ["major", "minor", "patch"]
+        },
+        "creationDate": {
+          "description": "The creation date of the pairing, stored as a unix timestamp.",
+          "type": "integer"
+        }
+      },
+      "required": ["schemaVersion", "creationDate"]
+    },
+    "appData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The readable name of the application paired.",
+          "type": "string"
+        },
+        "path": {
+          "description": "The normalized absolute path of the application paired, including the file name.",
+          "type": "string"
+        }
+      },
+      "required": ["name", "path"]
+    },
+    "clientData": {
+      "type": "object",
+      "properties": {
+        "packagingType": {
+          "description": "The type of packaging of the Bitwarden client this pairing was made on. Informs the operating system and potential sandboxing requirements.",
+          "enum": ["windows-msix", "windows-exe"]
+        }
+      },
+      "required": ["packagingType"]
+    }
+  },
+  "required": [
+    "metadata",
+    "appData",
+    "clientData"
+  ]
+}
