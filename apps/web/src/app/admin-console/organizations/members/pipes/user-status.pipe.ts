@@ -21,6 +21,8 @@ export class UserStatusPipe implements PipeTransform {
         return this.i18nService.t("accepted");
       case OrganizationUserStatusType.Confirmed:
         return this.i18nService.t("confirmed");
+      case OrganizationUserStatusType.Staged:
+        return this.i18nService.t("staged");
       case OrganizationUserStatusType.Revoked:
         return this.i18nService.t("revoked");
       default:

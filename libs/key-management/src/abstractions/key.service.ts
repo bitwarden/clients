@@ -16,7 +16,6 @@ import {
   MasterKey,
   OrgKey,
   ProviderKey,
-  CipherKey,
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
@@ -296,11 +295,6 @@ export abstract class KeyService {
    * @throws Error when provided userId is null or undefined
    */
   abstract clearKeys(userId: UserId): Promise<void>;
-  /**
-   * Generates a new cipher key
-   * @returns A new cipher key
-   */
-  abstract makeCipherKey(): Promise<CipherKey>;
 
   /**
    * Initialize all necessary crypto keys needed for a new account.

@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
@@ -229,6 +229,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
+  private readonly pm32009NewItemTypesEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
+
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
@@ -421,6 +426,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
               FeatureFlag.PM29968_FillAfterSave,
             );
           }
+
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             params.cipherId,
@@ -512,11 +518,18 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   setHeader(mode: CipherFormMode, type: CipherType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+    const newItemTypesEnabled = this.pm32009NewItemTypesEnabled();
     const translation = {
       [CipherType.Login]: isEditMode ? "editItemHeaderLogin" : "newItemHeaderLogin",
       [CipherType.Card]: isEditMode ? "editItemHeaderCard" : "newItemHeaderCard",
       [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
-      [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
+      [CipherType.SecureNote]: newItemTypesEnabled
+        ? isEditMode
+          ? "editItemHeaderSecureNote"
+          : "newItemHeaderSecureNote"
+        : isEditMode
+          ? "editItemHeaderNote"
+          : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
       [CipherType.BankAccount]: isEditMode
         ? "editItemHeaderBankAccount"

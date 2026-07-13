@@ -15,9 +15,7 @@ else
   RAW_PATH=$(readlink -f "$0")
   APP_PATH=$(dirname $RAW_PATH)
 
-  # fix Bitwarden logo tray icon not appearing with the Snap on GNOME
   if [ -n "$SNAP" ]; then
-    export XDG_CURRENT_DESKTOP=Unity
     # force use of base image libdbus in snap
     if [ -e "/usr/lib/x86_64-linux-gnu/libdbus-1.so.3" ]; then
       export LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libdbus-1.so.3"
