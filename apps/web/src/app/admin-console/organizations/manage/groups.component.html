@@ -5,7 +5,7 @@
     class="tw-w-80"
   ></bit-search>
   <button bitButton type="button" buttonType="primary" (click)="add()" startIcon="bwi-plus">
-    {{ "newGroup" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "addGroup" : "newGroup") | i18n }}
   </button>
 </app-header>
 

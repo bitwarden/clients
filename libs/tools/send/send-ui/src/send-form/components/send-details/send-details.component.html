@@ -37,8 +37,11 @@
         </bit-select>
       }
       <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
-      @if (editing()) {
+      @if (editing() && !policyDeletionHoursOrgName) {
         <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+      }
+      @if (editing() && policyDeletionHoursOrgName) {
+        <bit-hint>{{ "sendDeletionDateSetByOrg" | i18n: policyDeletionHoursOrgName }}</bit-hint>
       }
     </bit-form-field>
 

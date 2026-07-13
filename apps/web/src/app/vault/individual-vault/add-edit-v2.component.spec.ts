@@ -90,7 +90,7 @@ describe("AddEditComponentV2", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: MessagingService, useValue: messagingService },
         { provide: OrganizationService, useValue: organizationService },
-        { provide: Router, useValue: mock<Router>() },
+        { provide: Router, useValue: mock<Router>({ url: "/", events: of() }) },
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },

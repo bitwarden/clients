@@ -8,6 +8,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import {
   AutofillOverlayVisibility,
   AutofillTargetingRuleTypes,
+  FormPurposeCategories,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
@@ -53,7 +54,6 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
 import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
-import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -68,6 +68,7 @@ import {
 import { flushPromises, triggerTestFailure } from "../spec/testing-utils";
 import * as qualification from "../utils/qualification";
 
+import { AutofillLifecycleService } from "./abstractions/autofill-lifecycle.service";
 import {
   AutoFillOptions,
   CollectPageDetailsResponseMessage,
@@ -115,6 +116,7 @@ describe("AutofillService", () => {
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
   let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
+  const autofillLifecycleService = mock<AutofillLifecycleService>();
 
   beforeEach(() => {
     configService = mock<ConfigService>();
@@ -186,6 +188,7 @@ describe("AutofillService", () => {
       userNotificationsSettings,
       messageListener,
       animationControlService,
+      autofillLifecycleService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -352,13 +355,6 @@ describe("AutofillService", () => {
       expect(autofillService.injectAutofillScripts).not.toHaveBeenCalledWith(tab3);
     });
 
-    it("sets up an extension runtime onConnect listener", async () => {
-      await autofillService.loadAutofillScriptsOnInstall();
-
-      // eslint-disable-next-line no-restricted-syntax
-      expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
-    });
-
     describe("handle inline menu visibility change", () => {
       beforeEach(async () => {
         await autofillService.loadAutofillScriptsOnInstall();
@@ -403,18 +399,12 @@ describe("AutofillService", () => {
   });
 
   describe("reloadAutofillScripts", () => {
-    it("re-injects the autofill scripts in all tabs and disconnects all connected ports", () => {
-      const port1 = mock<chrome.runtime.Port>();
-      const port2 = mock<chrome.runtime.Port>();
-      autofillService["autofillScriptPortsSet"] = new Set([port1, port2]);
+    it("retires all frames through the lifecycle service and re-injects the autofill scripts", () => {
       jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
       void autofillService.reloadAutofillScripts();
 
-      expect(port1.disconnect).toHaveBeenCalled();
-      expect(port2.disconnect).toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
+      expect(autofillLifecycleService.retireAllFrames).toHaveBeenCalled();
       expect(autofillService["injectAutofillScriptsInAllTabs"]).toHaveBeenCalled();
     });
   });
@@ -534,6 +524,15 @@ describe("AutofillService", () => {
         frameId: 0,
         ...defaultExecuteScriptOptions,
       });
+    });
+
+    it("hands the injected frame to the lifecycle service to begin monitoring", async () => {
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+      expect(autofillLifecycleService.startMonitoringFrame).toHaveBeenCalledWith(
+        sender.tab,
+        sender.frameId,
+      );
     });
   });
 
@@ -1955,6 +1954,156 @@ describe("AutofillService", () => {
         passwordField,
         "stored-password",
       );
+    });
+
+    it("fills an email-only account-login form's email field with the Login cipher username", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "m.moss@example.com", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        "m.moss@example.com",
+      );
+    });
+
+    it("fills a phone-only account-login form's phone field with the Login cipher username", async () => {
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_0_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "0118 999 881 999 119 7253", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        "0118 999 881 999 119 7253",
+      );
+    });
+
+    it("prefers the username field over email/phone when multiple identifier fields are present in a login form", async () => {
+      const usernameField = buildTargetedField({
+        opid: "targeted_field_0_username",
+        fieldQualifier: AutofillTargetingRuleTypes.username,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const emailField = buildTargetedField({
+        opid: "targeted_field_1_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_2_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "dreynholm", uris: [] });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([usernameField, emailField, phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        usernameField,
+        "dreynholm",
+      );
+      expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        expect.anything(),
+      );
+      expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        expect.anything(),
+      );
+    });
+
+    it("does not collapse identifier fields for an Identity cipher (email/phone map to their identity values)", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const phoneField = buildTargetedField({
+        opid: "targeted_field_1_phone",
+        type: "tel",
+        fieldQualifier: AutofillTargetingRuleTypes.phone,
+        formCategory: FormPurposeCategories.AccountLogin,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Identity;
+      options.cipher.identity = mock<IdentityView>({
+        email: "r.trenneman@example.com",
+        phone: "55 55 5555 5555",
+      });
+      jest.spyOn(AutofillService, "fillByOpid");
+
+      await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField, phoneField]),
+        options,
+      );
+
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        emailField,
+        "r.trenneman@example.com",
+      );
+      expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+        expect.anything(),
+        phoneField,
+        "55 55 5555 5555",
+      );
+    });
+
+    it("does not route the Login cipher username to email/phone fields outside an account-login form", async () => {
+      const emailField = buildTargetedField({
+        opid: "targeted_field_0_email",
+        type: "email",
+        fieldQualifier: AutofillTargetingRuleTypes.email,
+        formCategory: FormPurposeCategories.AccountCreation,
+      });
+      const options = createGenerateFillScriptOptionsMock();
+      options.cipher.type = CipherType.Login;
+      options.cipher.login = mock<LoginView>({ username: "j.barber@example.com", uris: [] });
+
+      const result = await autofillService["generateTargetedFillScript"](
+        buildTargetedPageDetails([emailField]),
+        options,
+      );
+
+      expect(result).toBeNull();
     });
   });
 
@@ -5637,60 +5786,6 @@ describe("AutofillService", () => {
 
       expect(result).toBe(false);
       expect(autofillService["currentlyOpeningPasswordRepromptPopout"]).toBe(false);
-    });
-  });
-
-  describe("handleInjectedScriptPortConnection", () => {
-    it("ignores port connections that do not have the correct port name", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: "some-invalid-port-name",
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).not.toHaveBeenCalled();
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
-    });
-
-    it("adds the connect port to the set of injected script ports and sets up an onDisconnect listener", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-        onDisconnect: { addListener: jest.fn() },
-      }) as any;
-      jest.spyOn(autofillService as any, "handleInjectScriptPortOnDisconnect");
-
-      autofillService["handleInjectedScriptPortConnection"](port);
-
-      expect(port.onDisconnect.addListener).toHaveBeenCalledWith(
-        autofillService["handleInjectScriptPortOnDisconnect"],
-      );
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-  });
-
-  describe("handleInjectScriptPortOnDisconnect", () => {
-    it("ignores port disconnections that do not have the correct port name", () => {
-      autofillService["autofillScriptPortsSet"].add(mock<chrome.runtime.Port>());
-
-      autofillService["handleInjectScriptPortOnDisconnect"](
-        mock<chrome.runtime.Port>({
-          name: "some-invalid-port-name",
-        }),
-      );
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
-    });
-
-    it("removes the port from the set of injected script ports", () => {
-      const port = mock<chrome.runtime.Port>({
-        name: AutofillPort.InjectedScript,
-      }) as any;
-      autofillService["autofillScriptPortsSet"].add(port);
-
-      autofillService["handleInjectScriptPortOnDisconnect"](port);
-
-      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
     });
   });
 });

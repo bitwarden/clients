@@ -62,6 +62,10 @@
 
   <div class="tw-mt-6 tw-flex tw-flex-col tw-gap-6">
     <sm-section>
+      <div *ngIf="view.allProjects.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
+        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.counts.projects }}
+        <a bitLink routerLink="projects" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
+      </div>
       <h2 slot="summary" class="tw-mb-0" bitTypography="h2" noMargin>{{ "projects" | i18n }}</h2>
       <sm-projects-list
         (newProjectEvent)="openNewProjectDialog()"
@@ -69,12 +73,12 @@
         (deleteProjectEvent)="openDeleteProjectDialog($event)"
         [projects]="view.latestProjects"
       ></sm-projects-list>
-      <div *ngIf="view.allProjects.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestProjects.length : view.counts.projects }}
-        <a bitLink routerLink="projects" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
-      </div>
     </sm-section>
     <sm-section>
+      <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
+        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.counts.secrets }}
+        <a bitLink routerLink="secrets" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
+      </div>
       <h2 slot="summary" class="tw-mb-0" bitTypography="h2" noMargin>{{ "secrets" | i18n }}</h2>
       <sm-secrets-list
         baseRoute="secrets"
@@ -87,10 +91,6 @@
         (copySecretUuidEvent)="copySecretUuid($event)"
         [secrets]="view.latestSecrets"
       ></sm-secrets-list>
-      <div *ngIf="view.allSecrets.length > 0" class="tw-ml-auto tw-mt-4 tw-max-w-max">
-        {{ "showingPortionOfTotal" | i18n: view.latestSecrets.length : view.counts.secrets }}
-        <a bitLink routerLink="secrets" class="tw-ml-2">{{ "viewAll" | i18n }}</a>
-      </div>
     </sm-section>
   </div>
 </div>

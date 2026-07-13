@@ -10,23 +10,22 @@ import {
   shareReplay,
 } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
-import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "../../admin-console/enums/policy-type.enum";
+import { getFirstPolicy } from "../../admin-console/services/policy/default-policy.service";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { AuthService } from "../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { getUserId } from "../../auth/services/account.service";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import {
   NeverDomains,
   EquivalentDomains,
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "../../models/domain/domain-service";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { Utils } from "../../platform/misc/utils";
 import {
   DOMAIN_SETTINGS_DISK,

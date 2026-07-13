@@ -1,4 +1,9 @@
-<cdk-virtual-scroll-viewport [itemSize]="RowHeight" bitScrollLayout class="tw-pb-8">
+<cdk-virtual-scroll-viewport
+  [itemSize]="RowHeight"
+  bitScrollLayout
+  class="tw-transition-[padding-bottom] tw-duration-300 tw-ease-in-out"
+  [ngClass]="batchBarService?.barVisible() ? 'tw-pb-[7.5rem]' : 'tw-pb-8'"
+>
   <bit-table [dataSource]="dataSource" layout="fixed">
     <ng-container header>
       <tr>
@@ -63,12 +68,12 @@
           [ngClass]="
             ((showCopyAndLaunchActions$ | async)
               ? 'tw-w-28'
-              : batchBarService && batchBarFlag()
+              : batchBarService?.enabled()
                 ? 'tw-w-24'
                 : 'tw-w-12') + ' tw-text-right'
           "
         >
-          @if (!batchBarService || !batchBarFlag()) {
+          @if (!batchBarService?.enabled()) {
             @let menuDisabled = disableMenu$ | async;
             <button
               [disabled]="disabled || isEmpty || menuDisabled"

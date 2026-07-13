@@ -8,8 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { SendPolicyService } from "@bitwarden/send-ui";
 
+import { SendPolicyService } from "../../..";
 import { SendFormService } from "../../abstractions/send-form.service";
 
 import { SendOptionsComponent } from "./send-options.component";
@@ -90,6 +90,24 @@ describe("SendOptionsComponent", () => {
       expect(privateNoteEl).toBeTruthy();
       expect(privateNoteEl.attributes.readonly).toEqual("");
     });
+  });
+
+  describe("maxAccessCount serialization", () => {
+    // Regression: editing a send whose maxAccessCount is unset must patch null, not NaN.
+    // An undefined patch value used to flow through Number(undefined) === NaN and the SDK
+    // rejected it ("invalid type: floating point `NaN`, expected u32").
+    it.each([null, undefined])(
+      "patches null when the original maxAccessCount is %s",
+      (maxAccessCount) => {
+        mockSendFormService.patchSend.mockClear();
+        mockSendFormService.originalSendView.mockReturnValue({ maxAccessCount } as SendView);
+        cycleChangeDetection();
+
+        expect(mockSendFormService.patchSend).toHaveBeenCalled();
+        const updateFn = mockSendFormService.patchSend.mock.calls.at(-1)![0];
+        expect(updateFn({} as SendView).maxAccessCount).toBeNull();
+      },
+    );
   });
 
   describe("Edit mode", () => {

@@ -19,7 +19,7 @@ import {
   memoizedMap,
 } from "./rx";
 
-describe("tools rx utilites", () => {
+describe("tools rx utilities", () => {
   describe("errorOnChange", () => {
     it("emits a single value when the input emits only once", async () => {
       const source$ = new Subject<number>();
