@@ -224,7 +224,9 @@ export class AutofillOrchestrator {
   private async resolveFreshTarget(
     request: Extract<FillRequest, { kind: "pageLoad" }>,
   ): Promise<chrome.tabs.Tab | null> {
-    const liveTab = await BrowserApi.getTab(request.tabId).catch((): null => null);
+    // `getTab` may return null synchronously (no tab id) or a promise that rejects (tab gone);
+    // both collapse to a clean abandon rather than a logged error.
+    const liveTab = (await BrowserApi.getTab(request.tabId)?.catch((): null => null)) ?? null;
     if (liveTab == null) {
       return null;
     }
