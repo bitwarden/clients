@@ -459,6 +459,18 @@
     "message": "Kopieer Waarde",
     "description": "Copy value to clipboard"
   },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
   "minimizeOnCopyToClipboard": {
     "message": "Minimaliseer by kopieer na knipbord"
   },
@@ -737,6 +749,9 @@
   "type": {
     "message": "Tipe"
   },
+  "items": {
+    "message": "Items"
+  },
   "firstName": {
     "message": "Voornaam"
   },
@@ -807,14 +822,42 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
   },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
+  },
   "deleteWebsite": {
     "message": "Delete website"
+  },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "owner": {
     "message": "Owner"
@@ -824,6 +867,15 @@
   },
   "editField": {
     "message": "Edit field"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Are you sure you want to permanently delete this attachment?"
@@ -1171,6 +1223,9 @@
   },
   "file": {
     "message": "Lêer"
+  },
+  "photo": {
+    "message": "Photo"
   },
   "selectFile": {
     "message": "Kies ’n lêer"
@@ -2573,6 +2628,9 @@
   "collectionsDeleted": {
     "message": "Collections deleted"
   },
+  "movedItem": {
+    "message": "Item moved"
+  },
   "movedItems": {
     "message": "Items moved"
   },
@@ -2739,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "Gebruiksvoorwaardes en privaatheidsbeleid is nie erken nie."
   },
-  "enableBrowserIntegration": {
-    "message": "Aktiveer blaaierintegrasie"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Used to allow biometric unlock in browsers that are not Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Staan DuckDuckGo-blaaierintegrasie toe"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Gebruik u Bitwarden-kluis wanneer u met DuckDuckGo blaai."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Blaaierintegrasie word nie ondersteun nie"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Error enabling browser integration"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "An error has occurred while enabling browser integration."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Ongelukkig word blaaierintegrasie tans nie in die weergawe vir die Windows-winkel ondersteun nie."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
@@ -4155,6 +4195,54 @@
   "importNothingError": {
     "message": "Nothing was imported."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
+  "general": {
+    "message": "General"
+  },
   "importEncKeyError": {
     "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
   },
@@ -4258,6 +4346,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Multifaktor waarmerking gemisluk"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "Sluit gedeelde lêers in"
   },
@@ -4315,6 +4406,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Plass die YubiKey wat met jou LastPass-rekening geassosieer word in jou rekenaar se USB-poort in en raak dan aan die knoppie."
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "commonImportFormats": {
     "message": "Common formats",
@@ -4841,6 +5121,18 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
+  },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
   },
@@ -5000,15 +5292,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archive $NUM$ item",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "Once archived, these items will be excluded from search results and autofill suggestions."
@@ -5354,6 +5640,13 @@
   "enterYear": {
     "message": "Enter year."
   },
+  "sendTypes": {
+    "message": "Send types",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Any"
+  },
   "invalidDay": {
     "message": "Enter a valid day."
   },
@@ -5472,6 +5765,9 @@
   "newBankAccountNudgeBody": {
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
+  "sendDeletionDate": {
+    "message": "Deletion date"
+  },
   "discardEditsTitle": {
     "message": "Discard edits"
   },
@@ -5529,7 +5825,15 @@
     "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "This Send will automatically expire at the set deletion date",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,6 +5888,15 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
     "message": "Add to folder"
   },
@@ -5604,6 +5917,9 @@
   },
   "deleteCollectionsDesc": {
     "message": "These collections will be permanently deleted."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",

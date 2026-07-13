@@ -459,6 +459,18 @@
     "message": "Kopírovať hodnotu",
     "description": "Copy value to clipboard"
   },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
   "minimizeOnCopyToClipboard": {
     "message": "Minimalizovať pri kopírovaní do schránky"
   },
@@ -737,6 +749,9 @@
   "type": {
     "message": "Typ"
   },
+  "items": {
+    "message": "Položky"
+  },
   "firstName": {
     "message": "Krstné meno"
   },
@@ -807,14 +822,42 @@
       }
     }
   },
+  "appUri": {
+    "message": "Aplikácia (URI)"
+  },
+  "appUriCount": {
+    "message": "Aplikácia (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Webová stránka pridaná"
   },
   "addWebsite": {
     "message": "Pridať webovú stránku"
   },
+  "addWebsiteOrApp": {
+    "message": "Pridať webovú stránku alebo aplikáciu"
+  },
+  "app": {
+    "message": "Aplikácia"
+  },
   "deleteWebsite": {
     "message": "Odstrániť webovú stránku"
+  },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "owner": {
     "message": "Vlastník"
@@ -824,6 +867,15 @@
   },
   "editField": {
     "message": "Upraviť pole"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
@@ -1171,6 +1223,9 @@
   },
   "file": {
     "message": "Súbor"
+  },
+  "photo": {
+    "message": "Fotografia"
   },
   "selectFile": {
     "message": "Vyberte súbor"
@@ -2573,6 +2628,9 @@
   "collectionsDeleted": {
     "message": "Zbierky boli odstránené"
   },
+  "movedItem": {
+    "message": "Položka bola presunutá"
+  },
   "movedItems": {
     "message": "Položky boli presunuté"
   },
@@ -2739,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "Neboli akceptované Podmienky používania a zásady Ochrany osobných údajov."
   },
-  "enableBrowserIntegration": {
-    "message": "Povoliť integráciu v prehliadiači"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Slúži na povolenie biometrického odomykania v prehliadačoch iných ako Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Povoliť integráciu prehliadača DuckDuckGo"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Používajte svoj trezor v Bitwardene pri prehliadaní pomocou DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Integrácia v prehliadači nie je podporovaná"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Chyba pri povoľovaní integrácie v prehliadači"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "Pri povoľovaní integrácie v prehliadači sa vyskytla chyba."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Bohužiaľ, integrácia v prehliadači zatiaľ nie je podporovaná, ak je aplikácia nainštalovaná cez Microsoft Store."
   },
   "enableHardwareAcceleration": {
     "message": "Použiť hardvérové zrýchlenie"
@@ -4155,6 +4195,54 @@
   "importNothingError": {
     "message": "Nič sa neimportovalo."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Nasledujúce položky sa nepodarilo načítať a nebudú zahrnuté do importu:"
+  },
+  "contact": {
+    "message": "Kontakt"
+  },
+  "membership": {
+    "message": "Členstvo"
+  },
+  "passport": {
+    "message": "Pas"
+  },
+  "driverLicense": {
+    "message": "Vodičský preukaz"
+  },
+  "ssnCard": {
+    "message": "Občiansky preukaz"
+  },
+  "birthCertificate": {
+    "message": "Rodný list"
+  },
+  "databaseCredentials": {
+    "message": "Prihlasovacie údaje k databáze"
+  },
+  "serverCredentials": {
+    "message": "Prihlasovacie údaje k serveru"
+  },
+  "softwareLicense": {
+    "message": "Softvérová licencia"
+  },
+  "healthInsurance": {
+    "message": "Zdravotné poistenie"
+  },
+  "wifiCredentials": {
+    "message": "Prihlasovacie údaje k Wi-Fi"
+  },
+  "general": {
+    "message": "Všeobecné"
+  },
   "importEncKeyError": {
     "message": "Chyba pri dešifrovaní exportovaného súboru. Váš šifrovací kľúč sa nezhoduje so šifrovacím kľúčom použitým pri exporte údajov."
   },
@@ -4258,6 +4346,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Viacfaktorové overenie zlyhalo"
   },
+  "keeperConnectionError": {
+    "message": "Pri komunikácii so správcom Keeper nastal problém. Skúste import zopakovať."
+  },
   "includeSharedFolders": {
     "message": "Zahrnúť zdieľané priečinky"
   },
@@ -4315,6 +4406,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
+  },
+  "keeperEmail": {
+    "message": "E-mail pre Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Zadajte e-mail, ktorý používate na prihlásenie do Keepera"
+  },
+  "dataCenterLocation": {
+    "message": "Umiestnenie dátového centra"
+  },
+  "keeperMasterPassword": {
+    "message": "Hlavné heslo Keepera"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Zadajte, hlavné heslo pre Keepera"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Zadajte kód z vašej metódy dvojstupňového prihlásenia"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "commonImportFormats": {
     "message": "Bežné formáty",
@@ -4841,6 +5121,18 @@
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
   },
+  "itemMovedToCollection": {
+    "message": "Položka bola presunutá do zbierky"
+  },
+  "itemMovedToCollections": {
+    "message": "Položka bola presunutá do zbierok"
+  },
+  "itemsMovedToCollection": {
+    "message": "Položky blli presunuté do zbierky"
+  },
+  "itemsMovedToCollections": {
+    "message": "Položky boli presunuté do zbierok"
+  },
   "itemAssignedToCollections": {
     "message": "Položka bola priradená do zbierok"
   },
@@ -5000,15 +5292,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archivovať $NUM$ položku",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Archivovať položku",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "Po archivácii budú tieto položky vylúčené z výsledkov vyhľadávania a návrhov automatického vypĺňania."
@@ -5354,6 +5640,13 @@
   "enterYear": {
     "message": "Zadajte rok."
   },
+  "sendTypes": {
+    "message": "Typy Sendov",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Akékoľvek"
+  },
   "invalidDay": {
     "message": "Zadajte platný deň."
   },
@@ -5472,6 +5765,9 @@
   "newBankAccountNudgeBody": {
     "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
   },
+  "sendDeletionDate": {
+    "message": "Dátum odstránenia"
+  },
   "discardEditsTitle": {
     "message": "Zahodiť úpravy"
   },
@@ -5529,7 +5825,15 @@
     "message": "Na úpravu tohto Sendu si urobte kópiu. Ak tento Send môže vypršať v stanovenom dátume na odstránenie, nemusíte nič robiť",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Vaša organizácia nepovoľuje textove Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Vaša organizácia nepovoľuje súborové Sendy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "Tento Send automaticky vyprší v stanovenom dátume odstránenia",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,6 +5888,15 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Položku sa nepodarilo uložiť. Na uloženie položiek musíte byť prihlásený k organizácii."
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "Organizácia $ORGNAME$ určila tento termín odstránenia",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
     "message": "Pridať do priečinka"
   },
@@ -5605,8 +5918,11 @@
   "deleteCollectionsDesc": {
     "message": "Tieto zbierky budú natrvalo odstránené."
   },
+  "duplicateAttachmentNameError": {
+    "message": "Položky nemôžu mať viacero príloh s rovnakým názvom súboru"
+  },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Nové upozornenie",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

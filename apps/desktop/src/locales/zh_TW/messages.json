@@ -136,13 +136,13 @@
     "message": "附件"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "此項目包含需要修正的舊檔案附件。"
   },
   "viewItem": {
     "message": "檢視項目"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "檢視集合 - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -187,39 +187,39 @@
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "新增登入資料",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "新增付款卡",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "新增身分資料",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "新增備註",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "新增安全筆記",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "新增 SSH 金鑰",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "新增銀行帳戶",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "新增駕照",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "新增護照",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -279,19 +279,19 @@
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "編輯登入資訊",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "編輯付款卡",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "新增身分資訊",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "編輯筆記",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -387,27 +387,27 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "檢視登入",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "檢視付款卡",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "檢視身分",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "檢視筆記",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "建立",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "新增集合"
   },
   "new": {
     "message": "新增",
@@ -429,7 +429,7 @@
     "message": "編輯項目"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "編輯項目 - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -458,6 +458,18 @@
   "copyValue": {
     "message": "複製值",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "複製到剪貼簿後最小化"
@@ -737,6 +749,9 @@
   "type": {
     "message": "類型"
   },
+  "items": {
+    "message": "Items"
+  },
   "firstName": {
     "message": "名"
   },
@@ -807,14 +822,42 @@
       }
     }
   },
+  "appUri": {
+    "message": "應用程式（URI）"
+  },
+  "appUriCount": {
+    "message": "應用程式（URI）$COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "已新增網站"
   },
   "addWebsite": {
     "message": "新增網站"
   },
+  "addWebsiteOrApp": {
+    "message": "新增網站或應用程式"
+  },
+  "app": {
+    "message": "應用程式"
+  },
   "deleteWebsite": {
     "message": "刪除網站"
+  },
+  "deleteCustomField": {
+    "message": "Delete $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "owner": {
     "message": "擁有者"
@@ -824,6 +867,15 @@
   },
   "editField": {
     "message": "編輯欄位"
+  },
+  "editFieldLabel": {
+    "message": "Edit $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "你確定要永久刪除此附件嗎？"
@@ -906,7 +958,7 @@
     "message": "刪除項目"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "刪除 $COUNT$ 個項目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -915,16 +967,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "此項目將移至垃圾桶，並於 30 天後永久刪除。"
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "這些項目將移至垃圾桶，並於 30 天後永久刪除。"
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "永久刪除項目"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "永久刪除 $COUNT$ 個項目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -933,16 +985,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "您將無法復原此項目。"
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "您將無法復原這些項目。"
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "刪除選取項目"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "選取的項目與收藏集將永久刪除。"
   },
   "deleteFolder": {
     "message": "刪除資料夾"
@@ -1171,6 +1223,9 @@
   },
   "file": {
     "message": "檔案"
+  },
+  "photo": {
+    "message": "Photo"
   },
   "selectFile": {
     "message": "選取檔案"
@@ -2083,7 +2138,7 @@
     "message": "已選擇"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "已選取",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -2547,34 +2602,37 @@
     "message": "已還原封存項目"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "已還原封存項目"
   },
   "restoredItem": {
     "message": "項目已還原"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "項目已還原"
   },
   "permanentlyDelete": {
     "message": "永久刪除"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "項目已永久刪除"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "項目已移至垃圾桶"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "已刪除的集合"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "收藏集已刪除"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "收藏集已刪除"
+  },
+  "movedItem": {
+    "message": "項目已移動"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "項目已移動"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "選擇登出將會在密碼庫逾時後移除對密碼庫的所有存取權限，若要重新驗證則需連線網路。確定要使用此設定嗎？"
@@ -2739,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "尚未接受服務條款與隱私權政策。"
   },
-  "enableBrowserIntegration": {
-    "message": "允許瀏覽器整合"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "用於在非 Safari 的瀏覽器中啟用生物辨識解鎖。"
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "允許 DuckDuckGo 瀏覽器整合"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "當使用 DuckDuckGo 瀏覽時，使用您的 Bitwarden 密碼庫。"
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "不支援瀏覽器整合"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "啟用瀏覽器整合時發生錯誤"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "啟用瀏覽器整合時發生錯誤。"
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "很遺憾，Microsoft Store 版本目前尚不支援瀏覽器整合功能。"
   },
   "enableHardwareAcceleration": {
     "message": "使用硬體加速"
@@ -2930,7 +2970,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "創建 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4155,6 +4195,54 @@
   "importNothingError": {
     "message": "未匯入任何內容。"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
+  "general": {
+    "message": "General"
+  },
   "importEncKeyError": {
     "message": "解密匯出的檔案時發生錯誤，您的加密金鑰與匯出資料時使用的金鑰不同。"
   },
@@ -4258,6 +4346,9 @@
   "multifactorAuthenticationFailed": {
     "message": "多因素驗證失敗"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "包含共用的資料夾"
   },
@@ -4315,6 +4406,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "將與您的 LastPass 帳戶連結的 YubiKey 插入電腦的 USB 連接埠，然後按下按鈕。"
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "commonImportFormats": {
     "message": "常見格式",
@@ -4817,7 +5097,7 @@
     "message": "1 個項目會被永久移到選擇的組織。您將不再擁有此項目。"
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 個項目會被永久移到選擇的組織。您將不再擁有這些項目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4826,7 +5106,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 個項目會被永久移到 $ORG$。您將不再擁有這些項目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4841,11 +5121,23 @@
   "successfullyAssignedCollections": {
     "message": "指派集合成功"
   },
+  "itemMovedToCollection": {
+    "message": "項目已移至收藏集"
+  },
+  "itemMovedToCollections": {
+    "message": "項目已移至收藏集"
+  },
+  "itemsMovedToCollection": {
+    "message": "項目已移至收藏集"
+  },
+  "itemsMovedToCollections": {
+    "message": "項目已移至收藏集"
+  },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "項目已指派至收藏集"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "項目已指派至收藏集"
   },
   "nothingSelected": {
     "message": "您沒有選擇任何項目。"
@@ -4991,7 +5283,7 @@
     "message": "取消封存並儲存"
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "封存 $NUM$ 個項目",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -5000,27 +5292,21 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archive $NUM$ item",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "封存項目",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "封存後，此項目將不會顯示在搜尋結果與自動填入建議中。"
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "項目已封存"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "項目已取消封存"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "選擇要將這 $COUNT$ 個項目移動至哪個資料夾。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5029,7 +5315,7 @@
     }
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "選擇資料夾"
   },
   "restartPremium": {
     "message": "重新啟用進階版"
@@ -5354,6 +5640,13 @@
   "enterYear": {
     "message": "請輸入年份。"
   },
+  "sendTypes": {
+    "message": "Send 類型",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "任何"
+  },
   "invalidDay": {
     "message": "請輸入有效的日期。"
   },
@@ -5472,6 +5765,9 @@
   "newBankAccountNudgeBody": {
     "message": "儲存您的銀行帳戶資訊，以便在各裝置間輕鬆且安全地存取。"
   },
+  "sendDeletionDate": {
+    "message": "刪除日期"
+  },
   "discardEditsTitle": {
     "message": "放棄變更"
   },
@@ -5529,7 +5825,15 @@
     "message": "若要編輯此 Send，請先複製一份。如果此 Send 會在設定的刪除日期過期，則無需執行任何操作",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "您的組織不允許使用文字 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "您的組織不允許使用檔案 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "此 Send 將在設定的刪除日期自動過期",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,14 +5888,23 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "無法儲存項目。您必須先獲得組織的認證才能儲存項目。"
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "此刪除日期由 $ORGNAME$ 設定",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "新增到資料夾"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "刪除收藏集"
   },
   "deleteCollectionsCount": {
-    "message": "Delete $COUNT$ collections",
+    "message": "刪除 $COUNT$ 個收藏集",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5600,13 +5913,16 @@
     }
   },
   "deleteCollectionDesc": {
-    "message": "This collection will be permanently deleted."
+    "message": "此收藏集將永久刪除。"
   },
   "deleteCollectionsDesc": {
-    "message": "These collections will be permanently deleted."
+    "message": "這些收藏集將永久刪除。"
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$：新通知",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

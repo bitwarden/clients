@@ -136,13 +136,13 @@
     "message": "Anhänge"
   },
   "attachmentsNeedFix": {
-    "message": "This item has old file attachments that need to be fixed."
+    "message": "Dieser Eintrag hat alte Datei-Anhänge, die repariert werden müssen."
   },
   "viewItem": {
     "message": "Eintrag anzeigen"
   },
   "viewCollectionWithName": {
-    "message": "View collection - $NAME$",
+    "message": "Sammlung anzeigen - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -187,39 +187,39 @@
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Zugangsdaten hinzufügen",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Karte hinzufügen",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Identität hinzufügen",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Notiz hinzufügen",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Sichere Notiz hinzufügen",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH-Schlüssel hinzufügen",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Bankkonto hinzufügen",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Führerschein hinzufügen",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "Reisepass hinzufügen",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -279,19 +279,19 @@
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Zugangsdaten bearbeiten",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Karte bearbeiten",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Identität bearbeiten",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Notiz bearbeiten",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -387,27 +387,27 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Zugangsdaten anzeigen",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Karte anzeigen",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Identität anzeigen",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Notiz anzeigen",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Erstellen",
     "description": "for adding new items"
   },
   "addCollection": {
-    "message": "Add collection"
+    "message": "Sammlung hinzufügen"
   },
   "new": {
     "message": "Neu",
@@ -429,7 +429,7 @@
     "message": "Eintrag bearbeiten"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Eintrag bearbeiten - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -458,6 +458,18 @@
   "copyValue": {
     "message": "Wert kopieren",
     "description": "Copy value to clipboard"
+  },
+  "copyWebsite": {
+    "message": "Website kopieren"
+  },
+  "copyCustomField": {
+    "message": "$FIELD$ kopieren",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
   },
   "minimizeOnCopyToClipboard": {
     "message": "Minimieren beim Kopieren in die Zwischenablage"
@@ -737,6 +749,9 @@
   "type": {
     "message": "Typ"
   },
+  "items": {
+    "message": "Einträge"
+  },
   "firstName": {
     "message": "Vorname"
   },
@@ -807,14 +822,42 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website hinzugefügt"
   },
   "addWebsite": {
     "message": "Website hinzufügen"
   },
+  "addWebsiteOrApp": {
+    "message": "Website oder App hinzufügen"
+  },
+  "app": {
+    "message": "App"
+  },
   "deleteWebsite": {
     "message": "Website löschen"
+  },
+  "deleteCustomField": {
+    "message": "$LABEL$ löschen",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "owner": {
     "message": "Besitzer"
@@ -824,6 +867,15 @@
   },
   "editField": {
     "message": "Feld bearbeiten"
+  },
+  "editFieldLabel": {
+    "message": "$LABEL$ bearbeiten",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
@@ -906,7 +958,7 @@
     "message": "Eintrag löschen"
   },
   "deleteItemsCount": {
-    "message": "Delete $COUNT$ items",
+    "message": "$COUNT$ Einträge löschen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -915,16 +967,16 @@
     }
   },
   "deleteItemDesc": {
-    "message": "This item will be sent to your trash. After 30 days there, it will be permanently deleted."
+    "message": "Dieser Eintrag wird in deinen Papierkorb verschoben. Nach 30 Tagen dort wird er dauerhaft gelöscht."
   },
   "deleteItemsDesc": {
-    "message": "These items will be sent to your trash. After 30 days there, they will be permanently deleted."
+    "message": "Diese Einträge werden in deinen Papierkorb verschoben. Nach 30 Tagen dort werden sie dauerhaft gelöscht."
   },
   "deleteItemPermanently": {
-    "message": "Delete item permanently"
+    "message": "Eintrag dauerhaft löschen"
   },
   "deleteItemsPermanentlyCount": {
-    "message": "Delete $COUNT$ items permanently",
+    "message": "$COUNT$ Einträge dauerhaft löschen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -933,16 +985,16 @@
     }
   },
   "deleteItemPermanentlyDesc": {
-    "message": "You will not be able to recover this item."
+    "message": "Du wirst diesen Eintrag nicht wiederherstellen können."
   },
   "deleteItemsPermanentlyDesc": {
-    "message": "You will not be able to recover these items."
+    "message": "Du wirst diese Einträge nicht wiederherstellen können."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Auswahl löschen"
   },
   "deleteItemsAndCollectionsDesc": {
-    "message": "The selected items and collections will be permanently deleted."
+    "message": "Die ausgewählten Einträge und Sammlungen werden dauerhaft gelöscht."
   },
   "deleteFolder": {
     "message": "Ordner löschen"
@@ -1171,6 +1223,9 @@
   },
   "file": {
     "message": "Datei"
+  },
+  "photo": {
+    "message": "Foto"
   },
   "selectFile": {
     "message": "Eine Datei auswählen"
@@ -2547,34 +2602,37 @@
     "message": "Archivierter Eintrag wiederhergestellt"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "Archivierte Einträge wiederhergestellt"
   },
   "restoredItem": {
     "message": "Eintrag wiederhergestellt"
   },
   "restoredItems": {
-    "message": "Items restored"
+    "message": "Einträge wiederhergestellt"
   },
   "permanentlyDelete": {
     "message": "Dauerhaft löschen"
   },
   "permanentlyDeletedItems": {
-    "message": "Items permanently deleted"
+    "message": "Einträge dauerhaft gelöscht"
   },
   "deletedItems": {
-    "message": "Items sent to trash"
+    "message": "Einträge in den Papierkorb verschoben"
   },
   "deletedCollections": {
-    "message": "Deleted collections"
+    "message": "Gelöschte Sammlungen"
   },
   "collectionDeleted": {
-    "message": "Collection deleted"
+    "message": "Sammlung gelöscht"
   },
   "collectionsDeleted": {
-    "message": "Collections deleted"
+    "message": "Sammlungen gelöscht"
+  },
+  "movedItem": {
+    "message": "Eintrag verschoben"
   },
   "movedItems": {
-    "message": "Items moved"
+    "message": "Einträge verschoben"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Nach dem Ausloggen verlierest du jeglichen Zugriff auf deinen Tresor und es ist nach Ablauf der Timeout-Zeit eine Online-Authentifizierung erforderlich. Bist du sicher, dass du diese Einstellung nutzen möchtest?"
@@ -2739,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert."
   },
-  "enableBrowserIntegration": {
-    "message": "Browser-Integration erlauben"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Wird verwendet, um biometrisches Entsperren in Browsern zu ermöglichen, die nicht Safari sind."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "DuckDuckGo Browser-Integration erlauben"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Verwende deinen Bitwarden-Tresor, wenn du mit DuckDuckGo surfst."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Browser-Integration wird nicht unterstützt"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Fehler beim Aktivieren der Browser-Integration"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "Leider wird die Browser-Integration derzeit nicht in der Microsoft Store Version unterstützt."
   },
   "enableHardwareAcceleration": {
     "message": "Hardwarebeschleunigung verwenden"
@@ -2930,7 +2970,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Send erstellen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
@@ -4155,6 +4195,54 @@
   "importNothingError": {
     "message": "Es wurde nichts importiert."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ Einträge werden übersprungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Die folgenden Einträge konnten nicht gelesen werden und werden nicht in deinen Import einbezogen:"
+  },
+  "contact": {
+    "message": "Kontakt"
+  },
+  "membership": {
+    "message": "Mitgliedschaft"
+  },
+  "passport": {
+    "message": "Reisepass"
+  },
+  "driverLicense": {
+    "message": "Führerschein"
+  },
+  "ssnCard": {
+    "message": "Personalausweis"
+  },
+  "birthCertificate": {
+    "message": "Geburtsurkunde"
+  },
+  "databaseCredentials": {
+    "message": "Datenbank-Zugangsdaten"
+  },
+  "serverCredentials": {
+    "message": "Server-Zugangsdaten"
+  },
+  "softwareLicense": {
+    "message": "Softwarelizenz"
+  },
+  "healthInsurance": {
+    "message": "Krankenversicherung"
+  },
+  "wifiCredentials": {
+    "message": "WLAN-Zugangsdaten"
+  },
+  "general": {
+    "message": "Allgemein"
+  },
   "importEncKeyError": {
     "message": "Fehler beim Entschlüsseln der exportierten Datei. Dein Verschlüsselungscode stimmt nicht mit dem beim Export verwendeten Verschlüsselungscode überein."
   },
@@ -4258,6 +4346,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Multifaktor-Authentifizierung fehlgeschlagen"
   },
+  "keeperConnectionError": {
+    "message": "Es ist ein Problem bei der Kommunikation mit Keeper aufgetreten. Bitte starte den Import erneut."
+  },
   "includeSharedFolders": {
     "message": "Geteilte Ordner mit einbeziehen"
   },
@@ -4315,6 +4406,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Stecke den YubiKey, der mit deinem LastPass Konto verknüpft ist, in den USB-Port deines Computers und drücke dann den Knopf des YubiKey."
+  },
+  "keeperEmail": {
+    "message": "Keeper E-Mail-Adresse"
+  },
+  "keeperEmailHint": {
+    "message": "Gib die E-Mail-Adresse ein, mit der du dich bei Keeper anmeldest"
+  },
+  "dataCenterLocation": {
+    "message": "Standort des Rechenzentrums"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper Master-Passwort"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Bitte gib dein Keeper Master-Passwort ein"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Bitte gib den Code aus deiner Zwei-Faktor-Authentifizierungsmethode ein"
+  },
+  "totpCodePrompt": {
+    "message": "Bitte gib den Code aus deiner Authenticator-App ein"
+  },
+  "smsCodePrompt": {
+    "message": "Bitte gib den Code ein, der per Textnachricht gesendet wurde"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Bitte gib den Code aus deiner Keeper DNA-App ein"
+  },
+  "adminApproval": {
+    "message": "Administrator-Genehmigung"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Wir haben eine Administrator-Genehmigungsanfrage an deinen Administrator gesendet"
+  },
+  "method": {
+    "message": "Methode"
+  },
+  "directImporter": {
+    "message": "Direkter Importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO-Authentifizierung erforderlich"
+  },
+  "keeperSsoDesc": {
+    "message": "Für dein Keeper-Konto ist eine SSO-Authentifizierung erforderlich. Schließe die Anmeldung im geöffneten Browserfenster ab und füge anschließend das auf der Seite angezeigten Token ein."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Schließe die Anmeldung im geöffneten Browser-Tab ab. Das Token wird automatisch erfasst."
+  },
+  "ssoToken": {
+    "message": "SSO-Token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper-Authentifizierung erforderlich"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper Gerätegenehmigung erforderlich"
+  },
+  "selectApprovalMethod": {
+    "message": "Genehmigungsmethoden"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Gerätegenehmigung erforderlich"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Genehmige dieses Gerät, indem du eine der folgenden Methoden auswählst"
+  },
+  "keeperPush": {
+    "message": "Keeper Push-Benachrichtigung"
+  },
+  "twoFactorMethod": {
+    "message": "Zwei-Faktor-Authentifizierungsmethode"
+  },
+  "emailVerification": {
+    "message": "E-Mail-Adressen-Verifizierung"
+  },
+  "approvalEmailDesc": {
+    "message": "Bitte überprüfe deine E-Mails und gib unten den Bestätigungscode ein"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper-Push-Benachrichtigung an genehmigtes Gerät gesendet"
+  },
+  "keeperPushSent": {
+    "message": "Keeper-Push-Benachrichtigung gesendet"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Genehmigungsanfrage wird abgebrochen"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Möchtest du wirklich gehen? Deine Administrator-Genehmigungsanfrage wird dann abgebrochen."
+  },
+  "cancelRequest": {
+    "message": "Anfrage abbrechen"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper Zwei-Faktor-Authentifizierung erforderlich"
+  },
+  "mfaPushDesc": {
+    "message": "Genehmige die Anmeldeanfrage in deiner Authenticator-App. Dieser Dialog wird automatisch geschlossen."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Zwei-Faktor-Methode auswählen"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Wähle aus, wie du deine Identität verifizieren möchtest."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator-App (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Textnachricht (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Wiederherstellungs-Codes"
+  },
+  "securityKeyU2f": {
+    "message": "Sicherheitsschlüssel (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Sicherheitsschlüssel (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA-Verifizierung"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Genehmige die Keeper-DNA-Benachrichtigung auf deinem Gerät"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Keeper DNA-Methode auswählen"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Wähle aus, wie du dich mit Keeper DNA verifizieren möchtest."
+  },
+  "pushNotification": {
+    "message": "Push-Benachrichtigung"
+  },
+  "enterCodeManually": {
+    "message": "Code manuell eingeben"
+  },
+  "twoFactorAuthentication": {
+    "message": "Zwei-Faktor-Authentifizierung"
+  },
+  "unknownMethod": {
+    "message": "Unbekannte Methode"
+  },
+  "selectDuoMethod": {
+    "message": "Duo-Methode auswählen"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Wähle aus, wie du dich mit Duo Security verifizieren möchtest."
+  },
+  "duoPush": {
+    "message": "Duo-Push"
+  },
+  "phoneCall": {
+    "message": "Telefonanruf"
+  },
+  "duoVerification": {
+    "message": "Duo-Verifizierung"
+  },
+  "duoPushWaiting": {
+    "message": "Genehmige die Duo-Push-Benachrichtigung auf deinem Gerät."
+  },
+  "duoSmsWaiting": {
+    "message": "Eine Textnachricht wurde an dein Handy gesendet. Gib den Code in der Duo-App ein, um fortzufahren."
+  },
+  "duoVoiceWaiting": {
+    "message": "Nimm den Anruf von Duo entgegen und befolge die Anweisungen."
+  },
+  "tryAnotherMethod": {
+    "message": "Andere Methode versuchen"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Dein Keeper-Konto erfordert eine Zwei-Faktor-Authentifizierungsmethode, die derzeit nicht vom direkten Importer unterstützt wird."
   },
   "commonImportFormats": {
     "message": "Gängigste Formate",
@@ -4817,7 +5097,7 @@
     "message": "1 Eintrag wird dauerhaft an die ausgewählte Organisation übertragen. Du wirst diesen Eintrag nicht mehr besitzen."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an die ausgewählte Organisation übertragen. Du wirst diese Einträge nicht mehr besitzen.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4826,7 +5106,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ werden dauerhaft an $ORG$ übertragen. Du wirst diese Einträge nicht mehr besitzen.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4840,6 +5120,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Sammlungen erfolgreich zugewiesen"
+  },
+  "itemMovedToCollection": {
+    "message": "Eintrag in Sammlung verschoben"
+  },
+  "itemMovedToCollections": {
+    "message": "Eintrag in Sammlungen verschoben"
+  },
+  "itemsMovedToCollection": {
+    "message": "Einträge in Sammlung verschoben"
+  },
+  "itemsMovedToCollections": {
+    "message": "Einträge in Sammlungen verschoben"
   },
   "itemAssignedToCollections": {
     "message": "Zu Sammlungen zugewiesener Eintrag"
@@ -4991,7 +5283,7 @@
     "message": "Nicht mehr archivieren und speichern"
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "$NUM$ Einträge archivieren",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -5000,27 +5292,21 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Archive $NUM$ item",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Eintrag archivieren",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "Nach der Archivierung werden diese Einträge von den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
   "bulkArchiveItems": {
-    "message": "Items archived"
+    "message": "Einträge archiviert"
   },
   "bulkUnarchiveItems": {
-    "message": "Items unarchived"
+    "message": "Einträge nicht mehr archiviert"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Wähle einen Ordner aus, in dem du $COUNT$ ausgewählte(s) Einträg(e) verschieben möchtest.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5029,7 +5315,7 @@
     }
   },
   "selectFolder": {
-    "message": "Select folder"
+    "message": "Ordner auswählen"
   },
   "restartPremium": {
     "message": "Premium neu starten"
@@ -5354,6 +5640,13 @@
   "enterYear": {
     "message": "Jahr eingeben."
   },
+  "sendTypes": {
+    "message": "Send-Typen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Alle"
+  },
   "invalidDay": {
     "message": "Gib einen gültigen Tag ein."
   },
@@ -5472,6 +5765,9 @@
   "newBankAccountNudgeBody": {
     "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
   },
+  "sendDeletionDate": {
+    "message": "Löschdatum"
+  },
   "discardEditsTitle": {
     "message": "Änderungen verwerfen"
   },
@@ -5529,7 +5825,15 @@
     "message": "Erstellle eine Kopie, um diesen Send zu bearbeiten. Wenn dieses Send zum festgelegten Löschdatum ablaufen kann, sind keine Maßnahmen erforderlich",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Text-Sends sind für deine Organisation nicht erlaubt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Datei-Sends sind für deine Organisation nicht erlaubt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "Dieses Send läuft automatisch zum festgelegten Löschdatum ab",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,14 +5888,23 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Eintrag konnte nicht gespeichert werden. Du musst von der Organisation bestätigt werden, um Einträge zu speichern."
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ hat dieses Löschdatum festgelegt",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
-    "message": "Add to folder"
+    "message": "Zu Ordner hinzufügen"
   },
   "deleteCollection": {
-    "message": "Delete collection"
+    "message": "Sammlung löschen"
   },
   "deleteCollectionsCount": {
-    "message": "Delete $COUNT$ collections",
+    "message": "$COUNT$ Sammlungen löschen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5600,13 +5913,16 @@
     }
   },
   "deleteCollectionDesc": {
-    "message": "This collection will be permanently deleted."
+    "message": "Diese Sammlung wird dauerhaft gelöscht."
   },
   "deleteCollectionsDesc": {
-    "message": "These collections will be permanently deleted."
+    "message": "Diese Sammlungen werden dauerhaft gelöscht."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Einträge können nicht mehrere Anhänge mit dem gleichen Dateinamen haben"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Neue Benachrichtigung",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

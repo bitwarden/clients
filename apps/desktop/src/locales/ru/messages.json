@@ -459,6 +459,18 @@
     "message": "Скопировать значение",
     "description": "Copy value to clipboard"
   },
+  "copyWebsite": {
+    "message": "Скопировать сайт"
+  },
+  "copyCustomField": {
+    "message": "Скопировать $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
   "minimizeOnCopyToClipboard": {
     "message": "Свернуть после копирования в буфер обмена"
   },
@@ -737,6 +749,9 @@
   "type": {
     "message": "Тип"
   },
+  "items": {
+    "message": "Items"
+  },
   "firstName": {
     "message": "Имя"
   },
@@ -807,14 +822,42 @@
       }
     }
   },
+  "appUri": {
+    "message": "Приложение (URI)"
+  },
+  "appUriCount": {
+    "message": "Приложение (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Сайт добавлен"
   },
   "addWebsite": {
     "message": "Добавить сайт"
   },
+  "addWebsiteOrApp": {
+    "message": "Добавить сайт или приложение"
+  },
+  "app": {
+    "message": "Приложение"
+  },
   "deleteWebsite": {
     "message": "Удалить сайт"
+  },
+  "deleteCustomField": {
+    "message": "Удалить $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "owner": {
     "message": "Владелец"
@@ -824,6 +867,15 @@
   },
   "editField": {
     "message": "Изменить поле"
+  },
+  "editFieldLabel": {
+    "message": "Изменить $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Вы уверены, что хотите навсегда удалить это вложение?"
@@ -1171,6 +1223,9 @@
   },
   "file": {
     "message": "Файл"
+  },
+  "photo": {
+    "message": "Photo"
   },
   "selectFile": {
     "message": "Выбрать файл"
@@ -2573,6 +2628,9 @@
   "collectionsDeleted": {
     "message": "Коллекции удалены"
   },
+  "movedItem": {
+    "message": "Элемент перемещен"
+  },
   "movedItems": {
     "message": "Элементы перемещены"
   },
@@ -2739,29 +2797,11 @@
   "acceptPoliciesRequired": {
     "message": "Условия предоставления услуг и Политика конфиденциальности не были подтверждены."
   },
-  "enableBrowserIntegration": {
-    "message": "Разрешить интеграцию с браузером"
-  },
-  "enableBrowserIntegrationDesc1": {
-    "message": "Используется для разрешения биометрической разблокировки в браузерах, отличных от Safari."
-  },
   "enableDuckDuckGoBrowserIntegration": {
     "message": "Разрешить интеграцию в браузер DuckDuckGo"
   },
   "enableDuckDuckGoBrowserIntegrationDesc": {
     "message": "Использовать хранилище Bitwarden совместно с браузером DuckDuckGo."
-  },
-  "browserIntegrationUnsupportedTitle": {
-    "message": "Интеграция с браузером не поддерживается"
-  },
-  "browserIntegrationErrorTitle": {
-    "message": "Ошибка при включении интеграции с браузером"
-  },
-  "browserIntegrationErrorDesc": {
-    "message": "Произошла ошибка при включении интеграции с браузером."
-  },
-  "browserIntegrationWindowsStoreDesc": {
-    "message": "К сожалению, интеграция браузера в версии для Microsoft Store в настоящее время не поддерживается."
   },
   "enableHardwareAcceleration": {
     "message": "Использовать аппаратное ускорение"
@@ -4155,6 +4195,54 @@
   "importNothingError": {
     "message": "Ничего не было импортировано."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
+  "general": {
+    "message": "General"
+  },
   "importEncKeyError": {
     "message": "Ошибка при расшифровке экспортированного файла. Ваш ключ шифрования не совпадает с ключом шифрования, использованным при экспорте данных."
   },
@@ -4258,6 +4346,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Сбой многофакторной аутентификации"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "Включить общие папки"
   },
@@ -4315,6 +4406,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "commonImportFormats": {
     "message": "Основные форматы",
@@ -4841,6 +5121,18 @@
   "successfullyAssignedCollections": {
     "message": "Коллекции успешно назначены"
   },
+  "itemMovedToCollection": {
+    "message": "Элемент перемещен в коллекцию"
+  },
+  "itemMovedToCollections": {
+    "message": "Элемент перемещен в коллекции"
+  },
+  "itemsMovedToCollection": {
+    "message": "Элементы перемещены в коллекцию"
+  },
+  "itemsMovedToCollections": {
+    "message": "Элементы перемещены в коллекции"
+  },
   "itemAssignedToCollections": {
     "message": "Элемент присвоен коллекциям"
   },
@@ -5000,15 +5292,9 @@
       }
     }
   },
-  "archiveItemsSingular": {
-    "message": "Архивировать $NUM$ элемент",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
+  "archiveItemTitle": {
+    "message": "Архивировать элемент",
+    "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
     "message": "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению."
@@ -5354,6 +5640,13 @@
   "enterYear": {
     "message": "Введите год."
   },
+  "sendTypes": {
+    "message": "Типы Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "any": {
+    "message": "Любой"
+  },
   "invalidDay": {
     "message": "Введите правильный день."
   },
@@ -5472,6 +5765,9 @@
   "newBankAccountNudgeBody": {
     "message": "Сохраните данные своего банковского счета, чтобы иметь к ним удобный и безопасный доступ со всех своих устройств."
   },
+  "sendDeletionDate": {
+    "message": "Дата удаления"
+  },
   "discardEditsTitle": {
     "message": "Отменить изменения"
   },
@@ -5529,7 +5825,15 @@
     "message": "Для редактирования этой Send, сделайте копию. Если эта Send может истечь к дате удаления, никаких действий не требуется",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
+  "orgDoesNotAllowTextSends": {
+    "message": "Текстовые Send не разрешены для вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "Файловые Send не разрешены для вашей организации",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
     "message": "Эта Send автоматически истечет после установки даты удаления",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
@@ -5584,6 +5888,15 @@
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Не удалось сохранить элемент. Для сохранения элементов необходимо подтвердить свою принадлежность к организации."
   },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ установил(а) дату удаления",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
   "addToFolder": {
     "message": "Добавить в папку"
   },
@@ -5605,8 +5918,11 @@
   "deleteCollectionsDesc": {
     "message": "Эти коллекции будут удалены навсегда."
   },
+  "duplicateAttachmentNameError": {
+    "message": "К элементам нельзя добавлять вложения с одинаковыми названиями файлов"
+  },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Новое уведомление",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
