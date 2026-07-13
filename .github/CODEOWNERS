@@ -192,7 +192,10 @@ apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-desktop-nat
 apps/desktop/desktop_native/win_webauthn @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/macos/autofill-extension @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/desktop-autofill.preload.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/main/main-desktop-autofill* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/autofill-* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-autofill.service.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-fido2* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 
