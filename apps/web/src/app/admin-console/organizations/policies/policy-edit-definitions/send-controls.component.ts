@@ -25,12 +25,16 @@ import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { SendDeletionDatePreset } from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { OrgKey } from "@bitwarden/common/types/key";
 import {
   FormFieldModule,
   Option,
@@ -47,8 +51,8 @@ import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-polic
 import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
-  name = "sendControls";
-  description = "sendControlsPolicyDescV2";
+  name = "manageSend";
+  description = "sendControlsPolicyDescV4";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
@@ -56,6 +60,19 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 
   override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return configService.getFeatureFlag$(FeatureFlag.SendControls);
+  }
+
+  override enabled(policy: PolicyResponse): boolean {
+    // This policy is always enabled, and is driven entirely through its `policy.data` configuration.
+    // The 'enabled' UI reflects whether the Send feature is enabled, rather than whether the policy is enabled.
+
+    // It is enabled by default:
+    if (policy == null || policy.data == null) {
+      return true;
+    }
+
+    // Or enabled if the Send feature is enabled:
+    return !policy.data.disableSend;
   }
 }
 
@@ -78,13 +95,17 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
+  readonly deletionHoursOptions: Option<SendDeletionDatePreset | null>[] = [];
+
   readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group({
     disableSend: false,
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
     allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    deletionHours: null,
   });
+  readonly enableSendControl = new FormControl<boolean>(false);
   readonly allowedSendTypesMultiSelectControl = new FormControl<
     (SelectItemView & { value: SendType })[]
   >([], { validators: [Validators.required] });
@@ -134,12 +155,23 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     }
   });
 
+  protected readonly showDeletionHours = new FormControl<boolean>(false);
+
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
   ) {
     super();
+    this.deletionHoursOptions = [
+      { label: this.i18nService.t("oneHour"), value: SendDeletionDatePreset.OneHour },
+      { label: this.i18nService.t("oneDay"), value: SendDeletionDatePreset.OneDay },
+      { label: this.i18nService.t("days", "2"), value: SendDeletionDatePreset.TwoDays },
+      { label: this.i18nService.t("days", "3"), value: SendDeletionDatePreset.ThreeDays },
+      { label: this.i18nService.t("days", "7"), value: SendDeletionDatePreset.SevenDays },
+      { label: this.i18nService.t("days", "14"), value: SendDeletionDatePreset.FourteenDays },
+      { label: this.i18nService.t("days", "30"), value: SendDeletionDatePreset.ThirtyDays },
+    ];
   }
 
   async ngOnInit() {
@@ -165,15 +197,25 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
           this.showDomains.set(false);
         }
       });
-    this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
-      if (!enabled) {
-        this.data.disable();
-        this.allowedSendTypesMultiSelectControl.disable();
-      } else {
-        this.data.enable();
-        this.allowedSendTypesMultiSelectControl.enable();
-      }
-    });
+    // The actual boolean field in the policy is the opposite of its toggle
+    this.enableSendControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((enableSend) => {
+        this.data.get("disableSend")?.patchValue(!enableSend);
+      });
+    this.data
+      .get("deletionHours")
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        // We don't emit an event here to prevent the following subscription from recursing
+        this.showDeletionHours.patchValue(value != null, { emitEvent: false });
+      });
+    this.showDeletionHours.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((checked) => {
+        this.data.patchValue({ deletionHours: checked ? SendDeletionDatePreset.ThreeDays : null });
+      });
+
     // The MultiSelectComponent outputs full SelectItemView objects in its output array, but the
     // `allowedSendTypes` field is an array of SendTypes. We therefore bind the multi-select to a
     // separate form control and update the policy data field whenever it changes
@@ -183,13 +225,26 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         this.data.get("allowedSendTypes")?.patchValue((values ?? []).map<SendType>((v) => v.value));
       });
     super.ngOnInit();
-    // The separate multi-select form control must be initialized after we've loaded the policy data
-    const currentSendTypes = this.data.get("allowedSendTypes")?.value ?? [];
+  }
+
+  protected override loadData(): void {
+    const policyResponseData =
+      (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
+    if (policyResponseData.allowedSendTypes == null) {
+      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
+    }
+    if (policyResponseData.whoCanAccess == null) {
+      policyResponseData.whoCanAccess = WhoCanAccessType.Any;
+    }
+
+    this.data.patchValue(policyResponseData);
+
+    // The two separate form controls (enabled toggle and Send Types multi-select) must be initialized separately
+    this.enableSendControl.patchValue(!(policyResponseData.disableSend ?? false));
     this.allowedSendTypesMultiSelectControl.patchValue(
       this.allSendTypeOptions().filter((asto) =>
-        currentSendTypes.some((st) => st.toString() === asto.id),
+        policyResponseData.allowedSendTypes.some((st) => st.toString() === asto.id),
       ),
-      { emitEvent: false },
     );
   }
 
@@ -235,5 +290,18 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       }
       return null;
     };
+  }
+
+  override buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
+    // This policy is always enabled, but unlike other policies whether it shows as such on the
+    // policy admin screen is determined by whether or not the 'Enable Send' toggle is on or off.
+    // Therefore when saving the policy we set both enabled and data fields directly
+    return Promise.resolve({
+      policy: {
+        enabled: true,
+        data: this.data.value,
+      },
+      metadata: null,
+    });
   }
 }

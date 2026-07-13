@@ -25,7 +25,7 @@ use std::{
 use futures::FutureExt;
 #[cfg(feature = "napi")]
 use napi_derive::napi;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use tracing::{error, info};
 #[cfg(target_os = "macos")]
 use tracing_subscriber::{
@@ -39,11 +39,11 @@ pub use crate::{
         PasskeyAssertionRequest, PasskeyAssertionResponse,
         PasskeyAssertionWithoutUserInterfaceRequest, PreparePasskeyAssertionCallback,
     },
-    lock_status::{LockStatusRequest, LockStatusResponse},
+    lock_status::LockStatusResponse,
     registration::{
         PasskeyRegistrationRequest, PasskeyRegistrationResponse, PreparePasskeyRegistrationCallback,
     },
-    window_handle_query::{WindowHandleQueryRequest, WindowHandleQueryResponse},
+    window_handle_query::WindowHandleQueryResponse,
 };
 use crate::{
     lock_status::GetLockStatusCallback, window_handle_query::GetWindowHandleQueryCallback,
@@ -153,10 +153,31 @@ pub struct AutofillProviderClient {
     connection_status: Arc<AtomicU8>,
 }
 
+/// Requests from the extension to the host.
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtensionRequestMessage {
+    pub sequence_number: u32,
+    #[serde(flatten)]
+    pub request: ExtensionRequest,
+}
+
+/// Requests from the extension to the host.
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(tag = "request", content = "params", rename_all = "camelCase")]
+pub enum ExtensionRequest {
+    LockStatus,
+    NativeStatus(NativeStatus),
+    PasskeyAssertion(PasskeyAssertionRequest),
+    PasskeyAssertionWithoutUserInterface(PasskeyAssertionWithoutUserInterfaceRequest),
+    PasskeyRegistration(PasskeyRegistrationRequest),
+    WindowHandle,
+}
+
 /// Store native desktop status information to use for IPC communication
 /// between the application and the credential provider.
 #[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NativeStatus {
     pub key: String,
@@ -252,15 +273,12 @@ impl AutofillProviderClient {
 
     /// Request the desktop client's lock status.
     pub fn get_lock_status(&self, callback: Arc<dyn GetLockStatusCallback>) {
-        self.send_message(LockStatusRequest {}, Some(Box::new(callback)));
+        self.send_request(ExtensionRequest::LockStatus, Some(Box::new(callback)));
     }
 
     /// Requests details about the desktop client's native window.
     pub fn get_window_handle(&self, callback: Arc<dyn GetWindowHandleQueryCallback>) {
-        self.send_message(
-            WindowHandleQueryRequest::default(),
-            Some(Box::new(callback)),
-        );
+        self.send_request(ExtensionRequest::WindowHandle, Some(Box::new(callback)));
     }
 
     fn connect_to_path(path: PathBuf) -> Self {
@@ -366,7 +384,7 @@ impl AutofillProviderClient {
     /// Send a one-way key-value message to the desktop client.
     pub fn send_native_status(&self, key: String, value: String) {
         let status = NativeStatus { key, value };
-        self.send_message(status, None);
+        self.send_request(ExtensionRequest::NativeStatus(status), None);
     }
 
     /// Send a request to create a new passkey to the desktop client.
@@ -375,7 +393,10 @@ impl AutofillProviderClient {
         request: PasskeyRegistrationRequest,
         callback: Arc<dyn PreparePasskeyRegistrationCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyRegistration(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Send a request to assert a passkey to the desktop client.
@@ -384,7 +405,10 @@ impl AutofillProviderClient {
         request: PasskeyAssertionRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyAssertion(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Send a request to assert a passkey, without prompting the user, to the desktop client.
@@ -393,7 +417,10 @@ impl AutofillProviderClient {
         request: PasskeyAssertionWithoutUserInterfaceRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        self.send_message(request, Some(Box::new(callback)));
+        self.send_request(
+            ExtensionRequest::PasskeyAssertionWithoutUserInterface(request),
+            Some(Box::new(callback)),
+        );
     }
 
     /// Return the status this client's connection to the desktop client.
@@ -428,16 +455,16 @@ pub fn initialize_logging() {
     });
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(tag = "command", rename_all = "camelCase")]
-enum CommandMessage {
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "command", content = "params", rename_all = "camelCase")]
+pub enum CommandMessage {
     Connected,
     Disconnected,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(untagged, rename_all = "camelCase")]
-enum SerializedMessage {
+pub enum SerializedMessage {
     Command(CommandMessage),
     Message {
         sequence_number: u32,
@@ -459,11 +486,7 @@ impl AutofillProviderClient {
         sequence_number
     }
 
-    fn send_message(
-        &self,
-        message: impl Serialize + DeserializeOwned,
-        callback: Option<Box<dyn Callback>>,
-    ) {
+    fn send_request(&self, request: ExtensionRequest, callback: Option<Box<dyn Callback>>) {
         if !matches!(self.get_connection_status(), ConnectionStatus::Connected) {
             if let Some(callback) = callback {
                 callback.error(BitwardenError::Disconnected);
@@ -476,7 +499,7 @@ impl AutofillProviderClient {
             NO_CALLBACK_INDICATOR
         };
 
-        if let Err(e) = send_message_helper(sequence_number, message, &self.to_server_send) {
+        if let Err(e) = send_request_helper(sequence_number, request, &self.to_server_send) {
             // Make sure we remove the callback from the queue if we can't send the message
             if sequence_number != NO_CALLBACK_INDICATOR {
                 if let Some((callback, _)) = self
@@ -495,17 +518,14 @@ impl AutofillProviderClient {
 }
 
 // Wrapped in Result<> to allow using ? for clarity.
-fn send_message_helper(
+fn send_request_helper(
     sequence_number: u32,
-    message: impl Serialize + DeserializeOwned,
+    request: ExtensionRequest,
     tx: &tokio::sync::mpsc::Sender<String>,
 ) -> Result<(), BitwardenError> {
-    let value = serde_json::to_value(message).map_err(|err| {
-        BitwardenError::Internal(format!("Could not represent message as JSON: {err}"))
-    })?;
-    let message = SerializedMessage::Message {
+    let message = ExtensionRequestMessage {
         sequence_number,
-        value: Ok(value),
+        request,
     };
     let json = serde_json::to_string(&message).map_err(|err| {
         BitwardenError::Internal(format!("Could not serialize message as JSON: {err}"))
@@ -661,9 +681,10 @@ mod tests {
     use tokio::sync::mpsc;
     use tracing::Level;
 
-    use crate::{
-        AutofillProviderClient, BitwardenError, ConnectionStatus, LockStatusRequest,
-        SerializedMessage, TimedCallback, IPC_PATH,
+    use super::{
+        AutofillProviderClient, BitwardenError, ConnectionStatus, ExtensionRequest,
+        ExtensionRequestMessage, PasskeyAssertionRequest, Position, SerializedMessage,
+        TimedCallback, UserVerification, WindowDetails, IPC_PATH,
     };
 
     /// Generates a path for a server and client to connect with.
@@ -679,9 +700,7 @@ mod tests {
     }
 
     /// Sets up an in-memory server based on the passed handler and returns a client to the server.
-    fn get_client<
-        F: Fn(Result<Value, BitwardenError>) -> Result<Value, BitwardenError> + Send + 'static,
-    >(
+    fn get_client<F: Fn(ExtensionRequest) -> Result<Value, BitwardenError> + Send + 'static>(
         handler: F,
     ) -> AutofillProviderClient {
         let (signal_tx, signal_rx) = std::sync::mpsc::channel();
@@ -715,21 +734,16 @@ mod tests {
                         MessageType::Disconnected => {}
                         MessageType::Message => {
                             // Deserialize and handle messages using the given handler function.
-                            let msg: SerializedMessage =
+                            let msg: ExtensionRequestMessage =
                                 serde_json::from_str(&data.message.unwrap()).unwrap();
 
-                            if let SerializedMessage::Message {
-                                sequence_number,
-                                value,
-                            } = msg
-                            {
-                                let response = serde_json::to_string(&SerializedMessage::Message {
-                                    sequence_number,
-                                    value: handler(value),
-                                })
-                                .unwrap();
-                                server.send(response).unwrap();
-                            }
+                            let response = serde_json::to_string(&SerializedMessage::Message {
+                                sequence_number: msg.sequence_number,
+                                value: handler(msg.request),
+                            })
+                            .unwrap();
+                            tracing::debug!("{response}");
+                            server.send(response).unwrap();
                         }
                     }
                 }
@@ -785,13 +799,12 @@ mod tests {
     #[test]
     fn test_client_parses_get_lock_status_response_when_valid_json_is_returned() {
         // The server should expect a lock status request and return a valid response.
-        let handler = |value: Result<Value, BitwardenError>| {
-            let value = value.unwrap();
-            if let Ok(LockStatusRequest {}) = serde_json::from_value(value.clone()) {
-                Ok(json!({"isUnlocked": true}))
+        let handler = |request: ExtensionRequest| {
+            if let ExtensionRequest::LockStatus = request {
+                Ok(json!({"isUnlocked": true }))
             } else {
                 Err(BitwardenError::Internal(format!(
-                    "Expected LockStatusRequest, received: {value:?}"
+                    "Expected LockStatusRequest, received: {request:?}"
                 )))
             }
         };
@@ -806,5 +819,31 @@ mod tests {
             .unwrap();
 
         assert!(response.is_unlocked);
+    }
+
+    #[test]
+    fn test_serialize_extension_request() {
+        let message = ExtensionRequestMessage {
+            sequence_number: 42,
+            request: ExtensionRequest::PasskeyAssertion(PasskeyAssertionRequest {
+                rp_id: "example.com".to_string(),
+                client_data_hash: vec![1; 32],
+                user_verification: UserVerification::Preferred,
+                allowed_credentials: vec![vec![4; 8]],
+                client_window: WindowDetails {
+                    position: Position { x: 100, y: 200 },
+                    handle: None,
+                },
+                context: None,
+            }),
+        };
+        let json = serde_json::to_string(&message).unwrap();
+        let value: Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(value["sequenceNumber"], 42);
+        assert_eq!(value["request"], "passkeyAssertion");
+        let request: PasskeyAssertionRequest =
+            serde_json::from_value(value.as_object().unwrap().get("params").unwrap().clone())
+                .unwrap();
+        assert_eq!(request.rp_id, "example.com");
     }
 }

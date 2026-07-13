@@ -58,21 +58,47 @@ export class MultiStepPolicyEditDialogComponent
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  /**
+   * True when this dialog is showing the v2/drawer experience for this policy (badge header,
+   * v2 component, no "Edit policy" label). This is only the case when the policy defines a `v2`
+   * component AND the dialog was actually opened as a drawer - i.e. the `PolicyDrawers` flag is
+   * on. `dialogRef.isDrawer` is only true when {@link PoliciesComponent.edit} called
+   * `openDrawer()`, which only happens when that flag is enabled, so this keeps the v2 look from
+   * leaking into the plain modal dialog used when the flag is off.
+   */
+  protected readonly isV2 = computed(() => !!this.dialogRef.isDrawer && !!this.policy.v2);
+
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.policy.showEnabledBadge
-      ? this.i18nService.t(this.policy.name)
-      : this.i18nService.t("editPolicy");
+    return this.isV2() ? this.i18nService.t(this.policy.name) : this.i18nService.t("editPolicy");
   });
 
   protected readonly dialogSubtitle = computed(() => {
-    if (this.currentStepConfig()?.titleContent?.() || this.policy.showEnabledBadge) {
+    if (this.currentStepConfig()?.titleContent?.() || this.isV2()) {
       return undefined;
     }
     return this.i18nService.t(this.policy.name);
   });
+
+  /**
+   * Whether to render `policy.description` in the dialog body. Only consults `policy.v2`'s
+   * override when {@link isV2} is true - v1 always uses the plain top-level fields so a
+   * `v2`-only override (e.g. because the v2 component renders its own description) can't hide
+   * the description from the v1 modal.
+   */
+  protected readonly showDescription = computed(() =>
+    this.isV2()
+      ? (this.policy.v2?.showDescription ?? this.policy.showDescription)
+      : this.policy.showDescription,
+  );
+
+  protected readonly descriptionKey = computed(() =>
+    this.isV2()
+      ? (this.policy.v2?.description ?? this.policy.description)
+      : this.policy.description,
+  );
 
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
@@ -133,8 +159,12 @@ export class MultiStepPolicyEditDialogComponent
       throw new Error("Template not initialized.");
     }
 
-    // Create the policy component instance
-    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    // Load the v2 component only when this dialog is actually rendering the v2/drawer
+    // experience (see isV2 above) - otherwise fall back to the standard component so the flag-off
+    // modal keeps looking like the original dialog.
+    const componentRef = policyFormRef.createComponent(
+      this.isV2() ? this.data.policy.v2!.component : this.data.policy.component,
+    );
     componentRef.setInput("policyResponse", policyResponse);
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("currentStep", this.currentStep);

@@ -12,9 +12,13 @@ import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -34,6 +38,7 @@ import {
   AccessItemValue,
   AccessItemView,
   AccessSelectorModule,
+  convertToPermission,
   convertToSelectionView,
   mapGroupToAccessItemView,
   mapUserToAccessItemView,
@@ -102,20 +107,31 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
         return this.groupService.getAll(organization.id);
       }),
     );
+    const collections$ = this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) =>
+        this.collectionAdminService.collectionAdminViews$(this.params.organizationId, userId),
+      ),
+    );
 
     combineLatest([
       organization$,
       groups$,
       this.organizationUserApiService.getAllMiniUserDetails(this.params.organizationId),
+      collections$,
     ])
       .pipe(takeUntil(this.destroy$))
-      .subscribe(([organization, groups, users]) => {
+      .subscribe(([organization, groups, users, collections]) => {
         this.organization = organization;
 
         this.accessItems = [].concat(
           groups.map(mapGroupToAccessItemView),
           users.data.map(mapUserToAccessItemView),
         );
+
+        const selectedIds = new Set(this.params.collections.map((c) => c.id));
+        const selectedCollections = collections.filter((c) => selectedIds.has(c.id));
+        this.formGroup.controls.access.setValue(sharedAccess(selectedCollections));
 
         this.loading = false;
       });
@@ -166,4 +182,43 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       config,
     );
   }
+}
+
+/**
+ * Determines the access to pre-populate the selector with for the selected collections. A single
+ * collection uses its own access; multiple collections only pre-populate when they all share the
+ * exact same access, otherwise the selector starts empty.
+ */
+function sharedAccess(collections: CollectionAdminView[]): AccessItemValue[] {
+  if (collections.length === 0) {
+    return [];
+  }
+
+  const [first, ...rest] = collections.map(mapToAccessSelections);
+  return rest.every((access) => accessEquals(first, access)) ? first : [];
+}
+
+function mapToAccessSelections(collection: CollectionAdminView): AccessItemValue[] {
+  return [].concat(
+    collection.groups.map<AccessItemValue>((selection) => ({
+      id: selection.id,
+      type: AccessItemType.Group,
+      permission: convertToPermission(selection),
+    })),
+    collection.users.map<AccessItemValue>((selection) => ({
+      id: selection.id,
+      type: AccessItemType.Member,
+      permission: convertToPermission(selection),
+    })),
+  );
+}
+
+function accessEquals(a: AccessItemValue[], b: AccessItemValue[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  const key = (value: AccessItemValue) => `${value.type}:${value.id}:${value.permission}`;
+  const bKeys = new Set(b.map(key));
+  return a.every((value) => bKeys.has(key(value)));
 }
