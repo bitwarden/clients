@@ -100,7 +100,7 @@ items.
       end
 
       subgraph storage
-          KeyStore[InMemoryKeyStore]
+          KeyStore[InMemoryEncryptedKeyStore]
           KeyStoreTrait{{KeyStore Trait}}
       end
 
