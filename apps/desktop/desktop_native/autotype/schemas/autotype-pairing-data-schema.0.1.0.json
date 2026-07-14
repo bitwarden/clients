@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/apps/desktop/desktop_native/autotype/schemas/autotype-pairing-data-schema.0.1.0.json",
   "title": "Autotype Pairing Data Schema",
-  "description": "The data saved for Bitwarden's Autotype implementation must adhere to this schema.",
+  "description": "The app pairing data saved for Bitwarden's Autotype implementation must adhere to this schema.",
   "type": "object",
   "properties": {
     "metadata": {
