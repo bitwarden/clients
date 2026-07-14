@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -22,30 +22,27 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-org-open-invite.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, IconModule, SpinnerComponent, I18nPipe],
 })
 export class AcceptOrgOpenInviteComponent implements OnInit {
-  protected loading = true;
-  protected noSeats = false;
-  protected linkNotFound = false;
-  protected planNotSupported = false;
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly acceptFlowService = inject(AcceptFlowService);
+  private readonly organizationInviteService = inject(OrganizationInviteService);
+  private readonly anonLayoutWrapperDataService = inject(AnonLayoutWrapperDataService);
+  private readonly accountService = inject(AccountService);
+  private readonly i18nService = inject(I18nService);
+  private readonly toastService = inject(ToastService);
+
+  protected readonly loading = signal(true);
+  protected readonly noSeats = signal(false);
+  protected readonly linkNotFound = signal(false);
+  protected readonly planNotSupported = signal(false);
 
   private readonly failedMessage = "openInviteAcceptFailed";
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly acceptFlowService: AcceptFlowService,
-    private readonly organizationInviteService: OrganizationInviteService,
-    private readonly anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
-    private readonly accountService: AccountService,
-    private readonly i18nService: I18nService,
-    private readonly toastService: ToastService,
-  ) {}
 
   async ngOnInit() {
     // The open route puts `inviteLinkCode` in the path and `inviteKey` in the query
@@ -70,7 +67,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         onError: () => this.organizationInviteService.clearOpenOrgInvite(),
       },
     );
-    this.loading = false;
+    this.loading.set(false);
   }
 
   /**
@@ -94,7 +91,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
           pageTitle: { key: "openInviteNotFoundTitle" },
           pageIcon: AccountWarning,
         });
-        this.linkNotFound = true;
+        this.linkNotFound.set(true);
         return null;
       case "plan-not-supported":
         // TODO: placeholder — pending design. Icon (AccountWarning) and copy
@@ -106,7 +103,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
           pageTitle: { key: "openInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
         });
-        this.planNotSupported = true;
+        this.planNotSupported.set(true);
         return null;
       case "unexpected":
         throw new Error(result.errorMessage);
@@ -124,7 +121,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         pageTitle: { key: "openInviteNoSeatsTitle" },
         pageIcon: AccountWarning,
       });
-      this.noSeats = true;
+      this.noSeats.set(true);
       return;
     }
 
@@ -164,7 +161,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         pageTitle: { key: "openInviteNoSeatsTitle" },
         pageIcon: AccountWarning,
       });
-      this.noSeats = true;
+      this.noSeats.set(true);
       return;
     }
 
@@ -192,7 +189,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
           pageTitle: { key: "openInviteNotFoundTitle" },
           pageIcon: AccountWarning,
         });
-        this.linkNotFound = true;
+        this.linkNotFound.set(true);
         return;
       case "plan-not-supported":
         // TODO: placeholder — pending design. Reuses the plan-not-supported stand-ins.
@@ -200,14 +197,14 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
           pageTitle: { key: "openInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
         });
-        this.planNotSupported = true;
+        this.planNotSupported.set(true);
         return;
       case "no-seats":
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "openInviteNoSeatsTitle" },
           pageIcon: AccountWarning,
         });
-        this.noSeats = true;
+        this.noSeats.set(true);
         return;
       case "already-member":
       case "email-domain-not-allowed":
