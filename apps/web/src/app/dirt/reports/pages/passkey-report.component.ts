@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { lastValueFrom, switchMap } from "rxjs";
@@ -70,7 +70,7 @@ import {
   ],
   providers: [PasskeyReportService],
 })
-export class PasskeyReportComponent {
+export class PasskeyReportComponent implements OnInit {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly cipherFormConfigService = inject(CipherFormConfigService);
@@ -112,8 +112,21 @@ export class PasskeyReportComponent {
   protected readonly currentFilterStatus = signal<number | string>(0);
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());
 
-  constructor() {
-    void this.init();
+  constructor() {}
+
+  async ngOnInit() {
+    this.loading.set(true);
+    this.error.set(false);
+
+    try {
+      await this.syncService.fullSync(false);
+      await this.setCiphers();
+    } catch (e) {
+      this.logService.error("[PasskeyReportComponent] Failed to load report", e);
+      this.error.set(true);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   async setCiphers() {
@@ -195,21 +208,6 @@ export class PasskeyReportComponent {
 
   protected async filterOrgToggleChipSelect(filterId: string | null) {
     await this.filterOrgToggle(filterId ?? 0);
-  }
-
-  private async init() {
-    this.loading.set(true);
-    this.error.set(false);
-
-    try {
-      await this.syncService.fullSync(false);
-      await this.setCiphers();
-    } catch (e) {
-      this.logService.error("[PasskeyReportComponent] Failed to load report", e);
-      this.error.set(true);
-    } finally {
-      this.loading.set(false);
-    }
   }
 
   private async loadPasskeyDirectory() {
