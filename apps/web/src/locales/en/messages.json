@@ -3015,15 +3015,20 @@
     "message": "Logins that support passkeys"
   },
   "passkeyLoginFoundReportDesc": {
-    "message": "We found $COUNT$ login(s) in your $VAULT$ that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "message": "We found $COUNT$ login(s) in your vault that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
-      },
-      "vault": {
-        "content": "$2",
-        "example": "vault"
+      }
+    }
+  },
+  "passkeyLoginFoundReportDescPlural": {
+    "message": "We found $COUNT$ login(s) in your vaults that support passkeys. To further secure these accounts, consider setting up a passkey where available. Sourced from passkeys.2fa.directory",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
       }
     }
   },
