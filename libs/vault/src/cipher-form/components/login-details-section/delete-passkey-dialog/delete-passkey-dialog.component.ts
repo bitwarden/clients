@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import {
   ButtonModule,
+  CenterPositionStrategy,
   DialogModule,
   DialogRef,
   DialogService,
@@ -30,7 +31,9 @@ export class DeletePasskeyDialogComponent {
   protected readonly dialogRef = inject<DialogRef<DeletePasskeyDialogResult>>(DialogRef);
 
   static open(dialogService: DialogService): DialogRef<DeletePasskeyDialogResult> {
-    return dialogService.open<DeletePasskeyDialogResult>(DeletePasskeyDialogComponent);
+    return dialogService.open<DeletePasskeyDialogResult>(DeletePasskeyDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+    });
   }
 
   protected delete() {
