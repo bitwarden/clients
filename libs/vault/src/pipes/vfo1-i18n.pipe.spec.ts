@@ -3,7 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { VaultTerminologyService } from "../services/vault-terminology.service";
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 import { VFO1I18nPipe } from "./vfo1-i18n.pipe";
 
@@ -21,7 +21,7 @@ describe("VFO1I18nPipe", () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: I18nService, useValue: i18nService },
-        { provide: VaultTerminologyService, useValue: { enabled: enabledFn } },
+        { provide: Vfo1TerminologyService, useValue: { enabled: enabledFn } },
         VFO1I18nPipe,
       ],
     });

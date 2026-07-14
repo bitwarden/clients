@@ -2,7 +2,7 @@ import { inject, Pipe, PipeTransform } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { VaultTerminologyService } from "../services/vault-terminology.service";
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 /**
  * Pipe for translating keys with support for vault terminology feature flag.
@@ -12,7 +12,7 @@ import { VaultTerminologyService } from "../services/vault-terminology.service";
 @Pipe({ name: "vfo1I18n", standalone: true, pure: false })
 export class VFO1I18nPipe implements PipeTransform {
   private i18nService = inject(I18nService);
-  private terminology = inject(VaultTerminologyService);
+  private terminology = inject(Vfo1TerminologyService);
 
   private last?: {
     legacy: string;

@@ -5,7 +5,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
-export class VaultTerminologyService {
+export class Vfo1TerminologyService {
   private configService = inject(ConfigService);
   readonly enabled: Signal<boolean> = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),

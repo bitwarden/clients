@@ -5,9 +5,9 @@ import { BehaviorSubject } from "rxjs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { VaultTerminologyService } from "./vault-terminology.service";
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
 
-describe("VaultTerminologyService", () => {
+describe("Vfo1TerminologyService", () => {
   let configService: MockProxy<ConfigService>;
   let flagSubject: BehaviorSubject<boolean>;
 
@@ -22,20 +22,20 @@ describe("VaultTerminologyService", () => {
   });
 
   it("defaults to false", () => {
-    const service = TestBed.inject(VaultTerminologyService);
+    const service = TestBed.inject(Vfo1TerminologyService);
     expect(service.enabled()).toBe(false);
   });
 
   it("reflects true when the flag resolves", () => {
     flagSubject.next(true);
 
-    const service = TestBed.inject(VaultTerminologyService);
+    const service = TestBed.inject(Vfo1TerminologyService);
 
     expect(service.enabled()).toBe(true);
   });
 
   it("updates as the flag changes", () => {
-    const service = TestBed.inject(VaultTerminologyService);
+    const service = TestBed.inject(Vfo1TerminologyService);
 
     flagSubject.next(true);
 
@@ -47,7 +47,7 @@ describe("VaultTerminologyService", () => {
   });
 
   it("subscribes to the VFO1Foundation flag", () => {
-    TestBed.inject(VaultTerminologyService);
+    TestBed.inject(Vfo1TerminologyService);
 
     expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
   });
