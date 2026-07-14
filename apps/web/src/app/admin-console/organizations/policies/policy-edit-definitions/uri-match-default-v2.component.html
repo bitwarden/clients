@@ -7,12 +7,9 @@
   <bit-form-field class="tw-flex-auto">
     <bit-label>{{ "uriMatchDetectionOptionsLabel" | i18n }}</bit-label>
     <bit-select formControlName="uriMatchDetection" id="uriMatchDetection">
-      <bit-option
-        *ngFor="let o of uriMatchOptions"
-        [label]="o.label"
-        [value]="o.value"
-        [disabled]="o.disabled"
-      ></bit-option>
+      @for (o of uriMatchOptions; track o.value) {
+        <bit-option [label]="o.label" [value]="o.value" [disabled]="o.disabled"></bit-option>
+      }
     </bit-select>
   </bit-form-field>
 </div>
