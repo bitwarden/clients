@@ -320,6 +320,23 @@ describe("AutoConfirmPolicyEditV2Component", () => {
 
       expect(component.enabled.disabled).toBe(true);
     });
+
+    // Regression test: un-accepting risk after enabling used to only disable() the switch, which
+    // does not clear its value - a disabled FormControl's `.value` (read by buildRequest()) still
+    // returned `true`, so the policy could be saved as enabled despite the switch appearing off.
+    it("resets the switch value to false when risk is unchecked after having been enabled, so it cannot be saved-on", () => {
+      fixture.componentRef.setInput("policyResponse", { enabled: false } as any);
+      component.ngOnInit();
+
+      component.riskAccepted.setValue(true);
+      component.enabled.setValue(true);
+      expect(component.enabled.value).toBe(true);
+
+      component.riskAccepted.setValue(false);
+
+      expect(component.enabled.value).toBe(false);
+      expect(component.enabled.disabled).toBe(true);
+    });
   });
 
   describe("policySteps", () => {
