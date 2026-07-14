@@ -35,6 +35,8 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import {
   A11yTitleDirective,
@@ -127,6 +129,8 @@ export class EditMemberDialogComponent {
   private readonly billingConstraint = inject(BillingConstraintService);
   private readonly organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private readonly configService = inject(ConfigService);
+  private readonly validationService = inject(ValidationService);
+  private readonly logService = inject(LogService);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -437,6 +441,15 @@ export class EditMemberDialogComponent {
     });
 
     this.close(MemberDialogResult.Saved);
+  }
+
+  protected async handleMenuAction(action: () => Promise<unknown>) {
+    try {
+      await action();
+    } catch (err: unknown) {
+      this.logService.error(`Async action exception: ${err}`);
+      this.validationService.showError(err);
+    }
   }
 
   readonly submit = async () => {

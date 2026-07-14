@@ -15,6 +15,8 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
@@ -141,6 +143,14 @@ const mockOrganizationMetadataService = {
   refreshMetadataCache: () => {},
 };
 
+const mockValidationService: Partial<ValidationService> = {
+  showError: () => [],
+};
+
+const mockLogService: Partial<LogService> = {
+  error: () => {},
+};
+
 function makeConfigService(detailsTabEnabled: boolean) {
   return {
     getFeatureFlag: (flag: FeatureFlag) =>
@@ -175,6 +185,8 @@ const sharedDecorators = [
         provide: OrganizationMetadataServiceAbstraction,
         useValue: mockOrganizationMetadataService,
       },
+      { provide: ValidationService, useValue: mockValidationService },
+      { provide: LogService, useValue: mockLogService },
     ],
   }),
   applicationConfig({
@@ -212,7 +224,13 @@ function makeRender(
           provide: DIALOG_DATA,
           useValue: {
             ...params,
-            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+            initialTab:
+              params.initialTab !== MemberDialogTab.Groups &&
+              params.initialTab !== MemberDialogTab.Collections
+                ? detailsTabEnabled
+                  ? MemberDialogTab.Details
+                  : MemberDialogTab.Role
+                : params.initialTab,
           },
         },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },

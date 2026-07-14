@@ -361,11 +361,21 @@
     @if (detailsTabEnabled()) {
       <bit-menu #actionsMenu>
         @if (isRevoked()) {
-          <button type="button" bitMenuItem [disabled]="loading()" (click)="restore()">
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="loading()"
+            (click)="handleMenuAction(restore)"
+          >
             {{ "restoreMember" | i18n }}
           </button>
         } @else {
-          <button type="button" bitMenuItem [disabled]="loading()" (click)="revoke()">
+          <button
+            type="button"
+            bitMenuItem
+            [disabled]="loading()"
+            (click)="handleMenuAction(revoke)"
+          >
             {{ "revokeMember" | i18n }}
           </button>
         }
@@ -375,7 +385,7 @@
             bitMenuItem
             variant="danger"
             [disabled]="loading()"
-            (click)="remove()"
+            (click)="handleMenuAction(remove)"
           >
             {{ "removeMember" | i18n }}
           </button>
@@ -386,7 +396,7 @@
             bitMenuItem
             variant="danger"
             [disabled]="loading()"
-            (click)="delete()"
+            (click)="handleMenuAction(delete)"
           >
             {{ "deleteMember" | i18n }}
           </button>

@@ -28,6 +28,8 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
@@ -121,6 +123,8 @@ async function createComponent(
     billingConstraint: MockProxy<BillingConstraintService>;
     organizationMetadataService: MockProxy<OrganizationMetadataServiceAbstraction>;
     configService: MockProxy<ConfigService>;
+    validationService: MockProxy<ValidationService>;
+    logService: MockProxy<LogService>;
   };
 }> {
   const accountService = mock<AccountService>();
@@ -137,6 +141,8 @@ async function createComponent(
   const billingConstraint = mock<BillingConstraintService>();
   const organizationMetadataService = mock<OrganizationMetadataServiceAbstraction>();
   const configService = mock<ConfigService>();
+  const validationService = mock<ValidationService>();
+  const logService = mock<LogService>();
 
   accountService.activeAccount$ = of({ id: ACCOUNT_ID } as any);
   organizationService.organizations$ = jest
@@ -175,6 +181,8 @@ async function createComponent(
       { provide: BillingConstraintService, useValue: billingConstraint },
       { provide: OrganizationMetadataServiceAbstraction, useValue: organizationMetadataService },
       { provide: ConfigService, useValue: configService },
+      { provide: ValidationService, useValue: validationService },
+      { provide: LogService, useValue: logService },
     ],
   }).compileComponents();
 
@@ -199,6 +207,8 @@ async function createComponent(
       billingConstraint,
       organizationMetadataService,
       configService,
+      validationService,
+      logService,
     },
   };
 }
