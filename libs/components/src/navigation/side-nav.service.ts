@@ -23,7 +23,7 @@ export class SideNavService {
 
   private rootFontSizePx: number;
 
-  readonly version = signal("1");
+  readonly version = signal<SideNavVersion>("1");
 
   /**
    * Whether the side navigation is open or closed.

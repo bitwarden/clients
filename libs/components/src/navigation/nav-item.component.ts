@@ -39,13 +39,26 @@ export class NavItemComponent extends NavBaseComponent {
    * Base padding for nav items (in rem)
    * This provides the initial indentation for nav items before depth-based padding
    */
-  protected readonly treeBasePadding = signal(2.25);
+  private readonly TREE_BASE_PADDING = 2.25;
+
+  /**
+   * Base padding for version 2 nav items (in rem)
+   */
+  private readonly TREE_BASE_PADDING_V2 = 0.5;
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly treeDepthPadding = signal(1.5);
+  private readonly TREE_DEPTH_PADDING = 1.5;
+
+  /**
+   * Version-aware base padding. Derived reactively from the side nav version so it tracks the same
+   * source as the template's version gating, rather than a one-time read at construction.
+   */
+  private readonly treeBasePadding = computed(() =>
+    this.sideNavService.version() === "2" ? this.TREE_BASE_PADDING_V2 : this.TREE_BASE_PADDING,
+  );
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
@@ -77,7 +90,7 @@ export class NavItemComponent extends NavBaseComponent {
     const depth = this.treeDepth() ?? 0;
 
     if (open) {
-      return `${this.treeBasePadding() + depth * this.treeDepthPadding()}rem`;
+      return `${this.treeBasePadding() + depth * this.TREE_DEPTH_PADDING}rem`;
     }
 
     return "0";
@@ -90,6 +103,18 @@ export class NavItemComponent extends NavBaseComponent {
    * not be marked `current` while the child page is marked as `current`
    */
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
+
+  /**
+   * `aria-expanded` for the interactive element. Set by a composing component (e.g. a nav group)
+   * when the item's main row toggles expandable content instead of a dedicated button. Left
+   * `undefined` for plain nav items so no attribute is rendered.
+   */
+  readonly ariaExpanded = input<boolean | undefined>(undefined);
+
+  /**
+   * `aria-controls` for the interactive element — the id of the region the item expands/collapses.
+   */
+  readonly ariaControls = input<string | undefined>(undefined);
 
   /**
    * By default, a navigation will put the user's focus on the `main` element.
@@ -131,11 +156,7 @@ export class NavItemComponent extends NavBaseComponent {
 
   constructor() {
     super();
-    const version = this.sideNavService.version();
 
-    if (version === "2") {
-      this.treeBasePadding.set(0.5);
-    }
     // Set tree depth based on parent's depth
     if (this.parentNavGroup) {
       this.treeDepth.set(this.parentNavGroup.treeDepth() + 1);

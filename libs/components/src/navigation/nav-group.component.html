@@ -3,11 +3,11 @@
   @if (sideNavService.version() === "1") {
     <ng-container *ngTemplateOutlet="groupContent"></ng-container>
   } @else {
-    <div class="tw-p-3">
+    <ng-container *ngTemplateOutlet="groupContent"></ng-container>
+    <!-- <div class="tw-p-3">
       <div class="tw-ps-3 tw-border-0 tw-border-l tw-border-solid tw-border-border-nav-divider">
-        <ng-container *ngTemplateOutlet="groupContent"></ng-container>
       </div>
-    </div>
+    </div> -->
   }
 }
 
@@ -29,9 +29,28 @@
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
     [forceActiveStyles]="forceActiveStyles()"
+    [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
+    [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
   >
+    @if (toggleInStartSlot()) {
+      <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>
+    }
+    <ng-container slot="end">
+      <ng-content select="[slot=end]"></ng-content>
+      @if (!toggleInStartSlot()) {
+        <bit-icon
+          class="tw-ms-auto"
+          [class]="open() ? 'tw-transform tw-transition-transform tw-rotate-180' : ''"
+          name="bwi-angle-down"
+          aria-hidden="true"
+          data-testid="nav-group-collapse-arrow"
+        ></bit-icon>
+      }
+    </ng-container>
+  </bit-nav-item>
+
+  <ng-template #collapseToggle>
     <button
-      slot="start"
       type="button"
       class="tw-ms-auto"
       [class]="!open() ? 'tw-transform tw-rotate-[-90deg]' : ''"
@@ -44,10 +63,7 @@
       [label]="['toggleCollapse' | i18n, text()].join(' ')"
       data-testid="nav-group-collapse-arrow"
     ></button>
-    <ng-container slot="end">
-      <ng-content select="[slot=end]"></ng-content>
-    </ng-container>
-  </bit-nav-item>
+  </ng-template>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
   @if (sideNavOpen()) {
     @if (open()) {

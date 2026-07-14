@@ -14,6 +14,7 @@ import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 
 import { NavBaseComponent } from "./nav-base.component";
@@ -27,7 +28,7 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, I18nPipe],
+  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, IconComponent, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
@@ -43,6 +44,14 @@ export class NavGroupComponent extends NavBaseComponent {
   readonly sideNavAndGroupOpen = computed(() => {
     return this.open() && this.sideNavOpen();
   });
+
+  /**
+   * The collapse toggle sits at the far left (slot=start) for v1 groups at any depth and for v2
+   * nested groups. Only v2 top-level groups place it on the right (slot=end).
+   */
+  protected readonly toggleInStartSlot = computed(
+    () => this.sideNavService.version() === "1" || this.treeDepth() > 0,
+  );
 
   /** When the side nav is open, the parent nav item should not show active styles when open. */
   protected readonly parentHideActiveStyles = computed(() => {

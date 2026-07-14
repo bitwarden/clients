@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 
@@ -9,13 +9,13 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { StorybookGlobalStateProvider } from "../utils/state-mock";
 
 import { NavigationModule } from "./navigation.module";
-import { SideNavService } from "./side-nav.service";
+import { SideNavService, SideNavVersion } from "./side-nav.service";
 
 @Component({
   imports: [NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <bit-side-nav>
+    <bit-side-nav [version]="version()">
       <bit-nav-logo [openIcon]="logo" route="." label="Home"></bit-nav-logo>
       <bit-nav-group text="Tools" icon="bwi-wrench" [open]="true">
         <bit-nav-item text="Child A" route="a"></bit-nav-item>
@@ -26,6 +26,7 @@ import { SideNavService } from "./side-nav.service";
   `,
 })
 class HostComponent {
+  readonly version = signal<SideNavVersion>("1");
   logo = { type: "image/svg+xml" as const, content: "<svg data-testid='logo-svg'></svg>" };
 }
 
@@ -80,6 +81,19 @@ describe("side-nav v1 content projection", () => {
     expect(fixture.nativeElement.textContent as string).toContain("TRAILING");
   });
 
+  // In v1 the collapse button carries the aria state, so the row itself must NOT render the
+  // attributes — an undefined [attr.*] binding removes the attribute rather than emitting an empty one.
+  it("does not render aria-expanded/aria-controls on the row in v1", () => {
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const interactive = fixture.nativeElement.querySelector(
+      "[data-testid='nav-item-interactive']",
+    );
+    expect(interactive?.hasAttribute("aria-expanded")).toBe(false);
+    expect(interactive?.hasAttribute("aria-controls")).toBe(false);
+  });
+
   it("projects the bit-nav-logo in v1", () => {
     sideNavService.open.set(true);
     fixture.detectChanges();
@@ -90,5 +104,40 @@ describe("side-nav v1 content projection", () => {
     // placed inside the rendered <nav> (i.e. projected into a live <ng-content>).
     const nav = fixture.nativeElement.querySelector("nav#bit-side-nav");
     expect(nav?.contains(logo)).toBe(true);
+  });
+
+  // Regression: nav-item declared a separate `<ng-content select="[slot=end]">` in each version
+  // branch, so projected [slot=end] content bound to the v1 instance and rendered empty in v2.
+  it("projects nav-item [slot=end] trailing content in v2", () => {
+    fixture.componentInstance.version.set("2");
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent as string).toContain("TRAILING");
+  });
+
+  it("renders the nav-group collapse arrow in v2", () => {
+    fixture.componentInstance.version.set("2");
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const arrow = fixture.nativeElement.querySelector(
+      "[data-testid='nav-group-collapse-arrow']",
+    );
+    expect(arrow).not.toBeNull();
+  });
+
+  // In v2 the top-level chevron is decorative, so aria-expanded/aria-controls live on the
+  // interactive row element instead of a dedicated toggle button.
+  it("exposes aria-expanded/aria-controls on the top-level row in v2", () => {
+    fixture.componentInstance.version.set("2");
+    sideNavService.open.set(true);
+    fixture.detectChanges();
+
+    const interactive = fixture.nativeElement.querySelector(
+      "[data-testid='nav-item-interactive']",
+    );
+    expect(interactive?.getAttribute("aria-expanded")).toBe("true");
+    expect(interactive?.getAttribute("aria-controls")).toBeTruthy();
   });
 });
