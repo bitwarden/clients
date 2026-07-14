@@ -33,6 +33,7 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamAccessRuleCollectionsNone: "Unassigned",
+              plusNMore: (n) => `+ ${n} more`,
             }),
         },
       ],

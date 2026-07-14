@@ -95,7 +95,10 @@ export default {
       providers: [
         importProvidersFrom(PreloadedEnglishI18nModule),
         importProvidersFrom(RouterModule.forRoot([])),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: "org-1" }), data: of({}) },
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
