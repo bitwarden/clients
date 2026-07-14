@@ -186,6 +186,7 @@ describe("OverlayBackground", () => {
     logService = mock<LogService>();
     cipherService = mock<CipherService>({
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
+      localData$: jest.fn().mockReturnValue(of({})),
     });
     enableNotificationAnimationMock$ = new BehaviorSubject(true);
     enableInlineMenuAnimationMock$ = new BehaviorSubject(true);

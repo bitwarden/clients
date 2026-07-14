@@ -72,6 +72,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
+import { hydrateCiphersWithLocalData } from "../utils/hydrate-ciphers-with-local-data";
 
 import {
   ADD_EDIT_CIPHER_INFO_KEY,
@@ -2053,14 +2054,7 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       const localData = await firstValueFrom(this.localData$(userId));
-      if (localData) {
-        for (const view of ciphers) {
-          const data = localData[view.id as CipherId];
-          if (data) {
-            view.localData = data;
-          }
-        }
-      }
+      ciphers = hydrateCiphersWithLocalData(ciphers, localData);
 
       if (autofillOnPageLoad) {
         const autofillOnPageLoadDefault = await this.getAutofillOnPageLoadDefault();
