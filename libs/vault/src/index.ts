@@ -101,3 +101,6 @@ export {
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
+
+export { VaultTerminologyService } from "./services/vault-terminology.service";
+export { VFO1I18nPipe } from "./pipes/vfo1-i18n.pipe";
