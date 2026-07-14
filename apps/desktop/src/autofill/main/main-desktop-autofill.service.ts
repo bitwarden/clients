@@ -120,6 +120,8 @@ export class DesktopAutofillMain {
     // method bound to this class instance instead of going through IPC.
     const windowHandleQueryCallback = this.doWindowHandleQuery;
 
+    const cancelRequestCallback = this.makeListener(AutofillIpcChannelIncoming.CancelRequest);
+
     this.ipcServer = await AutofillIpcServer.listen("af", {
       registrationCallback,
       assertionCallback,
@@ -127,6 +129,7 @@ export class DesktopAutofillMain {
       nativeStatusCallback,
       lockStatusCallback,
       windowHandleQueryCallback,
+      cancelRequestCallback,
     });
 
     ipcMain.on(AutofillIpcChannelControl.ListenerReady, () => {

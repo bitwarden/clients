@@ -214,13 +214,26 @@ export declare namespace autofill {
     completeError(clientId: number, sequenceNumber: number, error: string): number
   }
   export interface AutofillIpcCallbacks {
-    /** Function to execute when a passkey registration request is received. */
+    /**
+     * Function to execute when a passkey registration request is received.
+     *
+     * The `context` field should be stored, as the cancel_request_callback
+     * will use the same value to identify the request to be cancelled.
+     */
   registrationCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
-  /** Function to execute when a passkey assertion request is received. */
+  /**
+   * Function to execute when a passkey assertion request is received.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
+   */
   assertionCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   /**
    * Function to execute when a passkey assertion request is received and the UI must not be
    * shown.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
    */
   assertionWithoutUserInterfaceCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   /** Function to execute when a notification of the autofill provider's status is received. */
@@ -229,6 +242,11 @@ export declare namespace autofill {
   lockStatusCallback: { (error: null, clientId: number, sequenceNumber: number): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   /** Function to execute to retrieve the native OS window handle of the main application. */
   windowHandleQueryCallback: { (error: null, clientId: number, sequenceNumber: number): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to cancel a request. The `message` parameter is the context
+   * string that was passed on the initial request.
+   */
+  cancelRequestCallback: { (error: null, clientId: number, sequenceNumber: number, message: string): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   }
   export function runCommand(value: string): Promise<string>
 }

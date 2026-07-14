@@ -20,6 +20,7 @@ type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
 // process and does not need to touch the renderer process, so we don't register it here.
 
 export const AutofillIpcChannelIncoming = Object.freeze({
+  CancelRequest: "autofill.cancelRequest",
   LockStatus: "autofill.lockStatus",
   NativeStatus: "autofill.nativeStatus",
   PasskeyAssertion: "autofill.passkeyAssertion",
@@ -47,6 +48,11 @@ export type AutofillIpcChannelOutgoing =
  * `outgoing?: never` marks a fire-and-forget channel that expects no response.
  */
 export type AutofillIpcDefinitionMap = {
+  [AutofillIpcChannelIncoming.CancelRequest]: {
+    request: string;
+    response: void;
+    outgoing?: never;
+  };
   [AutofillIpcChannelIncoming.LockStatus]: {
     request: void;
     response: LockStatusResponse;

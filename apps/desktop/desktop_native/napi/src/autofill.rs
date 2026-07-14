@@ -36,6 +36,9 @@ pub mod autofill {
     #[napi(object, object_to_js = false)]
     pub struct AutofillIpcCallbacks {
         /// Function to execute when a passkey registration request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
         #[napi(ts_type = "{ \
                     (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; \
                     (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
@@ -44,6 +47,9 @@ pub mod autofill {
             ThreadsafeFunction<FnArgs<(u32, u32, PasskeyRegistrationRequest)>>,
 
         /// Function to execute when a passkey assertion request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
         #[napi(ts_type = "{ \
                     (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; \
                     (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
@@ -52,6 +58,9 @@ pub mod autofill {
 
         /// Function to execute when a passkey assertion request is received and the UI must not be
         /// shown.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
         #[napi(ts_type = "{ \
             (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
             (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
@@ -79,6 +88,14 @@ pub mod autofill {
             (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
         }")]
         pub window_handle_query_callback: ThreadsafeFunction<FnArgs<(u32, u32)>>,
+
+        /// Function to cancel a request. The `message` parameter is the context
+        /// string that was passed on the initial request.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: string): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub cancel_request_callback: ThreadsafeFunction<FnArgs<(u32, u32, String)>>,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
