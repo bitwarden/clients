@@ -353,6 +353,43 @@ jobs:
             docker push "$tag"
           done
 
+      - name: Generate image manifest fragment
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          IMAGE_NAME: ${{ matrix.image_name }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
+          DIGEST: ${{ steps.build-container.outputs.digest }}
+          TAGS: ${{ steps.image-name.outputs.tags }}
+        run: |
+          # One entry per registry we pushed to (same tag list the push step loops over).
+          # Each entry is a self-contained artifact: full image URI + digest, so nothing
+          # has to be reassembled downstream. Keyed "<image>-<registry base domain>",
+          # e.g. web-ghcr.io / web-azurecr.io.
+          fragment='{}'
+          IFS=',' read -r -a tags_array <<< "$TAGS"
+          for tag in "${tags_array[@]}"; do
+            image_uri="${tag%:*}"   # strip ":tag" -> full repo URI, e.g. ghcr.io/bitwarden/web
+            host="${tag%%/*}"       # registry host, e.g. bitwardenprod.azurecr.io / ghcr.io
+            base_domain=$(echo "$host" | awk -F. 'NF>=2{printf "%s.%s",$(NF-1),$NF} NF<2{printf "%s",$0}')
+            fragment=$(echo "$fragment" | jq \
+              --arg k "${IMAGE_NAME}-${base_domain}" \
+              --arg image "$image_uri" \
+              --arg tag "$IMAGE_TAG" \
+              --arg digest "$DIGEST" \
+              '. + {($k): {type: "container_image", image: $image, tag: $tag, digest: $digest}}')
+          done
+
+          mkdir -p image-manifest-fragments
+          echo "$fragment" > "image-manifest-fragments/${IMAGE_NAME}.json"
+
+      - name: Upload image manifest fragment
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: image-manifest-fragment-${{ matrix.image_name }}
+          path: image-manifest-fragments/${{ matrix.image_name }}.json
+          if-no-files-found: error
+
       - name: Zip project
         working-directory: apps/web
         env:
@@ -414,6 +451,51 @@ jobs:
       - name: Log out from Azure
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
+
+  image-manifest:
+    name: Build image manifest
+    runs-on: ubuntu-24.04
+    needs: [setup, build-containers]
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    permissions:
+      contents: read
+      actions: write # delete the intermediate fragment artifacts after aggregating
+    steps:
+      - name: Download image manifest fragments
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          pattern: image-manifest-fragment-*
+          path: image-manifest-fragments
+          merge-multiple: true
+
+      - name: Combine image manifest fragments
+        id: combine
+        run: |
+          additional_artifacts=$(jq -s 'add' image-manifest-fragments/*.json)
+          {
+            echo "additional_artifacts<<EOF"
+            echo "$additional_artifacts"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and upload artifact manifest
+        uses: bitwarden/gh-actions/artifact-manifest@main
+        with:
+          mode: upload
+          additional_artifacts: ${{ steps.combine.outputs.additional_artifacts }}
+
+      - name: Delete intermediate fragment artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for f in image-manifest-fragments/*.json; do
+            name="image-manifest-fragment-$(basename "$f" .json)"
+            id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=${name}" --jq '.artifacts[0].id // empty')
+            if [ -n "$id" ]; then
+              gh api --method DELETE "repos/${GITHUB_REPOSITORY}/actions/artifacts/${id}"
+              echo "Deleted fragment artifact ${name} (${id})"
+            fi
+          done
 
   crowdin-push:
     name: Crowdin Push
