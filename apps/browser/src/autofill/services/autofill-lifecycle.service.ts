@@ -93,7 +93,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
    * subscription runs the seed again, so a consumer can re-subscribe to retry a
    * failed seed.
    *
-   * If the seed fails the stream *errors*.
+   * If the seed fails the stream errors.
    */
   readonly liveTabs$: Observable<ReadonlySet<number>> = concat(
     defer(() => this.seedLiveTabs()).pipe(ignoreElements()),
@@ -101,13 +101,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   );
 
   /**
-   * Page transitions reconciled against monitoring — the buffer's output,
-   * multicast to the autofill side as fill *opportunities* (the *Resolved*
-   * state). Each reported transition is held until its frame is monitoring, then
-   * emitted once; a transition whose frame is retired before monitoring starts is
-   * dropped. `share({ resetOnRefCountZero: true })` keeps the buffering machinery
-   * cold until a consumer subscribes and returns it to cold when the last one
-   * drops — page transitions matter only while something consumes them.
+   * Emits once for each page transition reconciled against monitoring.
    */
   readonly pageTransitionResolved$: Observable<PageTransitionResolved> = this.pageTransition$.pipe(
     // keeps every (tab, frame) independent so simultaneous reloads each buffer on their own
@@ -135,9 +129,9 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   );
 
   /**
-   * Fires when the given tab is removed. Tab removal is a lifecycle concern; a
-   * consumer keying reactive work by tab ends that work on this signal so it
-   * cannot outlive the tab.
+   * Fires when a tab is removed. Tab removal is a lifecycle concern; consumers
+   * that key work by tab (e.g. per-tab reactive groups) can use this signal to
+   * dispose when the tab is removed.
    */
   readonly tabRemoved$ = (tabId: number): Observable<void> =>
     this.tabRemovedSubject$.pipe(
@@ -255,35 +249,33 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   }
 
   /**
-   * Commands a freshly-injected frame to start monitoring when an account is
-   * logged in. Called after the frame's scripts are injected.
-   *
-   * The auth status is re-checked here rather than reused from injection time:
-   * the injection awaits yield the event loop, and a logout can complete in
-   * that window; commanding start off a stale snapshot would leave this frame
-   * monitoring on a logged-out account.
-   *
-   * FIXME: A race condition can still occur here. There is no happens-before
-   * relationship between an `activeAccountStatus$` logout emission and this
-   * send. A logout landing just after this check triggers
-   * `handleAuthStatusTransition`, which stops connected ports. A frame whose
-   * port hasn't yet registered can still slip through. This may be eliminated
-   * by using rx to fully sequence script injections.
+   * Begins monitoring a freshly-injected frame: commands it to start when an
+   * account is logged in. Called by the injection path once a frame's scripts
+   * are in place.
    */
   async startMonitoringFrame(tab: chrome.tabs.Tab, frameId: number) {
     const tabId = tab.id;
     if (tabId == null) {
       return;
     }
+
+    // Re-check auth status in case a logout occurred between injection and the call
+    //
+    // FIXME: A race condition can still occur here. There is no happens-before
+    // relationship between an `activeAccountStatus$` logout emission and this
+    // send. A logout landing just after this check triggers
+    // `handleAuthStatusTransition`, which stops connected ports. A frame whose
+    // port hasn't yet registered can still slip through. This may be eliminated
+    // by using rx to fully sequence script injections.
     const accountIsLoggedIn =
       (await firstValueFrom(this.authService.activeAccountStatus$)) !==
       AuthenticationStatus.LoggedOut;
     if (!accountIsLoggedIn) {
+      this.logService.warning("Autofill monitoring disabled; the active account is logged out.");
       return;
     }
     // Fire-and-forget: the bootstrap is already injected at this point, and
-    // awaiting the send only matters if the caller needs a response, which it
-    // does not. Errors are reported rather than swallowed.
+    // this command doesn't send a response.
     BrowserApi.tabSendMessage(tab, { command: AutofillLifecycleCommand.start }, { frameId }).catch(
       (error) => this.logService.error(error),
     );
@@ -293,10 +285,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   }
 
   /**
-   * Retires every live frame from monitoring and disconnects its ports, ahead
-   * of a full re-injection. A background-initiated disconnect does not fire the
-   * port's `onDisconnect`, so the port fold is cleared explicitly rather than
-   * left to self-clear.
+   * Retires every live frame from monitoring and tears down its connection.
    */
   retireAllFrames() {
     this.markConnectedFramesMonitoring(false);
@@ -414,11 +403,8 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
 
   /**
    * The monitoring-state key for a `(tab, frame)` pair, and the single source of
-   * that key's encoding. The folds, the buffer's lookup, the disconnect
-   * retirement, and the broadcast dedup all route through here, so a frame
-   * commanded to start and a transition reported against it resolve to the same
-   * entry. Key correspondence holds only as long as every site uses this helper
-   * rather than hand-rolling the format.
+   * that key's encoding. Key correspondence holds only as long as every site uses
+   * this helper rather than hand-rolling the format.
    */
   private monitorFrameKey(tabId: number, frameId: number | undefined): string {
     return `${tabId}:${frameId ?? -1}`;
@@ -426,9 +412,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
 
   /**
    * Emits a lifecycle fact for every currently-connected `(tab, frame)`, folding
-   * them into or out of monitoring state. Used when an auth transition commands
-   * start/stop across all connected scripts, and when a reload retires every
-   * frame ahead of re-injection.
+   * them into or out of monitoring state.
    */
   private markConnectedFramesMonitoring(active: boolean) {
     const seen = new Set<string>();
@@ -447,22 +431,11 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     }
   }
 
-  /**
-   * Records a removed tab so `tabRemoved$` consumers can end per-tab work and the
-   * live-tab fold can drop it. Sourced from `chrome.tabs.onRemoved`, which also
-   * fires per-tab when a window closes. Step 7 is expected to additionally
-   * translate `windows.onRemoved` into this signal, via the per-window active-tab
-   * map it introduces.
-   */
   private handleTabRemoved = (tabId: number) => {
     this.tabRemovedSubject$.next(tabId);
     this.tabEvent$.next({ type: "remove", tabId });
   };
 
-  /**
-   * Records a newly-opened tab in the live-tab fold. A tab without an id cannot
-   * be keyed against and is ignored.
-   */
   private handleTabCreated = (tab: chrome.tabs.Tab) => {
     if (tab.id == null) {
       return;
@@ -470,10 +443,6 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
     this.tabEvent$.next({ type: "add", tabId: tab.id });
   };
 
-  /**
-   * Seeds the live-tab fold with tabs already open at startup. Feeds each open
-   * tab into the fold, then resolves.
-   */
   private async seedLiveTabs() {
     const tabs = await BrowserApi.tabsQuery({});
     for (const tab of tabs) {
