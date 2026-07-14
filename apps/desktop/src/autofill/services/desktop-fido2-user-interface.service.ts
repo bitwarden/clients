@@ -64,7 +64,9 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
   async newSession(
     fallbackSupported: boolean,
     nativeWindowObject: NativeWindowObject,
-    abortController?: AbortController,
+    // The interface marks this as optional, but in the Desktop implementation, we always pass an AbortController.
+    // We should see if we can change the interface type to require this object.
+    abortController: AbortController,
   ): Promise<DesktopFido2UserInterfaceSession> {
     this.logService.debug("newSession", fallbackSupported, abortController, nativeWindowObject);
     const session = new DesktopFido2UserInterfaceSession(
@@ -74,6 +76,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.logService,
       this.router,
       this.desktopSettingsService,
+      abortController,
       nativeWindowObject,
     );
 
@@ -90,14 +93,15 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private logService: LogService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
+    private abortController: AbortController,
     private windowObject: NativeWindowObject,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
 
-  private updatedCipher: CipherView;
+  private updatedCipher: CipherView | undefined = undefined;
 
-  private rpId = new BehaviorSubject<string>(null);
+  private rpId = new BehaviorSubject<string | null>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
@@ -168,14 +172,23 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private async waitForUiChosenCipher(
     timeoutMs: number = 60000,
   ): Promise<{ cipherId?: string; userVerified: boolean } | undefined> {
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
     try {
-      return await lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.chosenCipherSubject.pipe(timeout(timeoutMs)));
+      return await Promise.race([confirmPromise, cancelPromise]);
     } catch {
-      // If we hit a timeout, return undefined instead of throwing
-      this.logService.warning("Timeout: User did not select a cipher within the allowed time", {
-        timeoutMs,
-      });
+      // If we hit a timeout or if the request is cancelled, return undefined instead of throwing
+      if (this.abortController.signal.aborted) {
+        this.logService.warning("Request was cancelled before the user selected a cipher");
+      } else {
+        this.logService.warning("Timeout: User did not select a cipher within the allowed time", {
+          timeoutMs,
+        });
+      }
       return { cipherId: undefined, userVerified: false };
+    } finally {
+      this.unsubscribeCancellation(abortFn);
     }
   }
 
@@ -195,7 +208,23 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * @returns
    */
   private async waitForUiNewCredentialConfirmation(): Promise<boolean> {
-    return lastValueFrom(this.confirmCredentialSubject);
+    const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
+    try {
+      this.abortController.signal.throwIfAborted();
+      const confirmPromise = lastValueFrom(this.confirmCredentialSubject);
+      return await Promise.race([confirmPromise, cancelPromise]);
+    } catch (error) {
+      if (this.abortController.signal.aborted) {
+        this.logService.warning("Request was cancelled before the user confirmed a cipher");
+      } else {
+        this.logService.error("Error occurred while waiting for user confirmation", error);
+      }
+
+      // On cancellation or error, return false instead of throwing
+      return false;
+    } finally {
+      this.unsubscribeCancellation(abortFn);
+    }
   }
 
   /**
@@ -209,7 +238,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userHandle,
     userVerification,
     rpId,
-  }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
+  }: NewCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
     this.logService.debug(
       "confirmNewCredential",
       credentialName,
@@ -342,16 +371,22 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       await this.showUi("/lock", this.windowObject.windowXy, true, true);
 
       let status2: AuthenticationStatus;
+      const { promise: cancelPromise, listener: abortFn } = this.subscribeToCancellation();
       try {
-        status2 = await lastValueFrom(
+        const lockStatusPromise = lastValueFrom(
           this.authService.activeAccountStatus$.pipe(
             filter((s) => s === AuthenticationStatus.Unlocked),
             take(1),
             timeout(1000 * 60 * 5), // 5 minutes
           ),
         );
+        status2 = await Promise.race([lockStatusPromise, cancelPromise]);
       } catch (error) {
         this.logService.warning("Error while waiting for vault to unlock", error);
+        await this.hideUi();
+        throw new Error("Could not retrieve vault unlock status");
+      } finally {
+        this.unsubscribeCancellation(abortFn);
       }
 
       if (status2 === AuthenticationStatus.Unlocked) {
@@ -371,5 +406,33 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   async close() {
     this.logService.debug("close");
+  }
+
+  /** Returns a promise that will be rejected if the session's abort signal is fired. */
+  private subscribeToCancellation() {
+    let cancelReject: (reason?: any) => void;
+    const cancelPromise: Promise<never> = new Promise((_, reject) => {
+      cancelReject = reject;
+    });
+    const abortFn = (ev: Event) => {
+      if (ev.target instanceof AbortSignal) {
+        cancelReject(ev.target.reason);
+      }
+    };
+    this.abortController.signal.addEventListener("abort", abortFn, { once: true });
+
+    // Guard against an unhandled rejection. If the signal aborts after the
+    // consumer has already stopped racing this promise (e.g. the UI resolved
+    // first, but the listener hasn't been removed yet), the rejection would
+    // otherwise surface with no attached handler. Racing consumers attach their
+    // own handler, so this no-op does not swallow the cancellation.
+    cancelPromise.catch(() => {});
+
+    return { promise: cancelPromise, listener: abortFn };
+  }
+
+  /** Cleans up event listeners for cancellation */
+  private unsubscribeCancellation(listener: (ev: Event) => void): void {
+    this.abortController.signal.removeEventListener("abort", listener);
   }
 }
