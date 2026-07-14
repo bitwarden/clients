@@ -234,11 +234,6 @@ export class AutoConfirmPolicyEditV2Component extends AutoConfirmPolicyEditCompo
           this.enabled.enable({ emitEvent: false });
         } else {
           this.enabled.disable({ emitEvent: false });
-          // Un-accepting risk must also turn the switch back off - otherwise its stale `true`
-          // value would still be readable via getRawValue() (buildRequest() uses .value, which a
-          // disabled control also still returns) and the policy could be saved as enabled despite
-          // the gate being visually off. emitEvent defaults to true here (unlike disable() above)
-          // so saveDisabled$, which only recomputes on enabled.valueChanges, re-evaluates too.
           this.enabled.setValue(false);
         }
       });
