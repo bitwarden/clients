@@ -18,6 +18,8 @@ export enum FeatureFlag {
   StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
+  // TODO: PM-40137 - Remove this flag
+  PM27060_PasswordPreloginFromSdk = "pm-27060-password-prelogin-from-sdk",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
@@ -80,7 +82,6 @@ export enum FeatureFlag {
   EventManagementForSplunk = "event-management-for-splunk",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
-  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
@@ -164,7 +165,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForSplunk]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
-  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
@@ -188,6 +188,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,

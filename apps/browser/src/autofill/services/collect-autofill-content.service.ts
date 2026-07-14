@@ -79,6 +79,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private pendingAttributeMutations: Map<Element, Set<string>> = new Map();
   private pendingTopLayerTargets: Set<Element> = new Set();
   private pendingChildListUpdate = false;
+  private lastDetachedPurgeAt = -Infinity;
+  private readonly detachedPurgeThrottleMs = 1000;
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
@@ -134,6 +136,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       // Safari doesn't seem to function properly with a threshold of 1.
       threshold: 0.9999,
     });
+
+    // Match owned inline-menu hosts by identity, not tag name — a tag-name match would
+    // over-exclude same-tag page elements and is spoofable by the page.
+    this.domQueryService.setOwnedShadowHostPredicate(
+      (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
+    );
   }
 
   /**
@@ -1421,6 +1429,14 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   };
 
+  private get hasPendingWork(): boolean {
+    return (
+      this.pendingAttributeMutations.size > 0 ||
+      this.pendingTopLayerTargets.size > 0 ||
+      this.pendingChildListUpdate
+    );
+  }
+
   /**
    * Handles observed DOM mutations and identifies if a mutation is related to
    * an autofill element. If so, it will update the autofill element data.
@@ -1433,6 +1449,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
       return;
     }
+
+    // Throttled; runs every wake so detached nodes are reclaimed even when no drain is scheduled.
+    this.purgeDetachedNodesIfDue();
 
     const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
 
@@ -1462,22 +1481,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    const shouldSchedule =
-      this.pendingAttributeMutations.size === 0 &&
-      this.pendingTopLayerTargets.size === 0 &&
-      !this.pendingChildListUpdate;
+    // Drain only when idle AND this batch added work; no-op drains are pure overhead.
+    const queueWasIdle = !this.hasPendingWork;
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
-        // nodeType === 1 instead of `instanceof Element` — works across realms (adopted-from-iframe).
-        if (mutation.target.nodeType !== 1) {
+        if (!nodeIsElement(mutation.target)) {
           continue;
         }
         const attributeName = mutation.attributeName?.toLowerCase();
         if (!attributeName) {
           continue;
         }
-        const target = mutation.target as Element;
+        const target = mutation.target;
         let attributeNames = this.pendingAttributeMutations.get(target);
         if (!attributeNames) {
           attributeNames = new Set();
@@ -1488,20 +1504,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           this.pendingTopLayerTargets.add(target);
         }
       } else if (mutation.type === "childList") {
-        this.pendingChildListUpdate = true;
+        // Gate the noFieldsFound-invalidating flag; skip the walk once it's set.
+        if (!this.pendingChildListUpdate && this.mutationAddsOrRemovesFormField(mutation)) {
+          this.pendingChildListUpdate = true;
+        }
         for (const node of mutation.addedNodes ?? []) {
-          if (node.nodeType !== 1) {
+          if (!nodeIsElement(node)) {
             continue;
           }
-          const element = node as Element;
-          if (this.shouldListenToTopLayerCandidate(element)) {
-            this.pendingTopLayerTargets.add(element);
+          if (this.shouldListenToTopLayerCandidate(node)) {
+            this.pendingTopLayerTargets.add(node);
           }
         }
       }
     }
 
-    if (shouldSchedule) {
+    if (queueWasIdle && this.hasPendingWork) {
       requestIdleCallbackPolyfill(this.processMutations, { timeout: 500 });
     }
   };
@@ -1546,8 +1564,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.pendingTopLayerTargets = new Set();
     this.pendingChildListUpdate = false;
 
-    this.purgeDetachedFieldMetadata();
-    this.domQueryService.purgeDetachedShadowRoots();
+    // Drain-time purge: throttled, so this only does work when the window elapsed since the wake-purge.
+    this.purgeDetachedNodesIfDue();
 
     if (drainingAttributeMutations.size === 0 && drainingTopLayer.size === 0 && !childListNeeded) {
       return;
@@ -1598,6 +1616,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         field,
       );
     }
+  }
+
+  // One sweep per throttle window; -Infinity start lets the first call always run.
+  private purgeDetachedNodesIfDue(): void {
+    const now = performance.now();
+    if (now - this.lastDetachedPurgeAt < this.detachedPurgeThrottleMs) {
+      return;
+    }
+    this.lastDetachedPurgeAt = now;
+    this.purgeDetachedFieldMetadata();
+    this.domQueryService.purgeDetachedShadowRoots();
   }
 
   private purgeDetachedFieldMetadata(): void {
@@ -1675,7 +1704,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
   }
 
+  private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
+    return (
+      this.nodeListContainsFormField(mutation.addedNodes) ||
+      this.nodeListContainsFormField(mutation.removedNodes)
+    );
+  }
+
+  private nodeListContainsFormField(nodes: NodeList | undefined): boolean {
+    if (!nodes) {
+      return false;
+    }
+    for (const node of nodes) {
+      if (!nodeIsElement(node)) {
+        continue;
+      }
+      if (
+        node.matches(this.formFieldQueryString) ||
+        node.querySelector(this.formFieldQueryString) !== null
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private isShadowRootCandidate(node: Node): node is Element {
+    // FIXME (PM-39772): same-realm only — iframe-adopted (foreign-realm) hosts fall through here
+    // and are detected only later, not on insert.
     if (!(node instanceof Element)) {
       return false;
     }

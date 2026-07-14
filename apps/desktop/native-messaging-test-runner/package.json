@@ -23,7 +23,7 @@
     "yargs": "18.0.0"
   },
   "devDependencies": {
-    "@types/node": "22.19.17",
+    "@types/node": "22.20.0",
     "typescript": "5.8.2"
   },
   "_moduleAliases": {

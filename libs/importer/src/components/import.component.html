@@ -142,6 +142,19 @@
           Using the KeePass 2 desktop application, navigate to "File" &rarr; "Export" and select the
           "KeePass XML (2.x)" option.
         </ng-container>
+        <ng-container *ngIf="format === 'keepasskdbx'">
+          For detailed instructions visit our
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            href="https://bitwarden.com/help/import-from-keepass/"
+            endIcon="bwi-external-link"
+          >
+            help site</a
+          >.
+        </ng-container>
         <ng-container *ngIf="format === 'upmcsv'">
           Using the Universal Password Manager desktop application, navigate to "Database" &rarr;
           "Export" and save the CSV file.
@@ -465,6 +478,84 @@
           (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
           (error)="this.handleChromeImportError($event)"
         ></import-chrome>
+      } @else if (format === "keepasskdbx") {
+        <bit-form-field>
+          <bit-label>{{ "keePassMasterPassword" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="password"
+            id="import_input_kdbxPassword"
+            formControlName="kdbxPassword"
+            required
+            appInputVerbatim
+          />
+          <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+        </bit-form-field>
+
+        @if (showKeyFile) {
+          <bit-form-field>
+            <bit-label>{{ "keyFileUpload" | i18n }}</bit-label>
+            <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
+              <button
+                bitButton
+                type="button"
+                buttonType="secondary"
+                (click)="keyFileSelector.click()"
+              >
+                {{ "chooseFile" | i18n }}
+              </button>
+              {{ this.keyFileSelected ? this.keyFileSelected.name : ("noFileChosen" | i18n) }}
+            </div>
+            <input
+              bitInput
+              #keyFileSelector
+              type="file"
+              id="import_input_keyFile"
+              (change)="setKeyFile($event)"
+              hidden
+              class="tw-hidden"
+            />
+          </bit-form-field>
+        } @else {
+          <button
+            bitLink
+            linkType="primary"
+            type="button"
+            startIcon="bwi-plus"
+            id="import_button_addKeyFile"
+            class="tw-mb-6 tw-block"
+            (click)="addKeyFile()"
+          >
+            {{ "addKeyFile" | i18n }}
+          </button>
+        }
+
+        <bit-form-field disableMargin>
+          <bit-label>{{ "kdbxFileUpload" | i18n }}</bit-label>
+          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
+            <button
+              bitButton
+              type="button"
+              buttonType="secondary"
+              (click)="kdbxFileSelector.click()"
+            >
+              {{ "chooseFile" | i18n }}
+            </button>
+            {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
+          </div>
+          <input
+            bitInput
+            #kdbxFileSelector
+            type="file"
+            id="import_input_file"
+            formControlName="file"
+            [attr.accept]="acceptedFileTypes"
+            (change)="setSelectedFile($event)"
+            hidden
+            class="tw-hidden"
+          />
+          <bit-hint>{{ "acceptedFormatsKdbx" | i18n }}</bit-hint>
+        </bit-form-field>
       } @else {
         <!--
           We want to reuse the file selector below, so all the Keeper stuff has to be in this block.
@@ -493,6 +584,7 @@
               type="file"
               id="import_input_file"
               formControlName="file"
+              [attr.accept]="acceptedFileTypes"
               (change)="setSelectedFile($event)"
               hidden
               class="tw-hidden"
