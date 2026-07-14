@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -13,26 +13,21 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { IconModule, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "accept-org-direct-invite.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconModule, I18nPipe],
 })
 export class AcceptOrgDirectInviteComponent implements OnInit {
-  loading = true;
+  private readonly router = inject(Router);
+  private readonly i18nService = inject(I18nService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly acceptFlowService = inject(AcceptFlowService);
+  private readonly organizationInviteService = inject(OrganizationInviteService);
+  private readonly accountService = inject(AccountService);
+  private readonly toastService = inject(ToastService);
 
   private readonly failedMessage = "inviteAcceptFailed";
-
-  constructor(
-    private router: Router,
-    private i18nService: I18nService,
-    private route: ActivatedRoute,
-    private acceptFlowService: AcceptFlowService,
-    private organizationInviteService: OrganizationInviteService,
-    private accountService: AccountService,
-    private toastService: ToastService,
-  ) {}
 
   async ngOnInit() {
     const qParams = await firstValueFrom(this.route.queryParams);
@@ -47,7 +42,6 @@ export class AcceptOrgDirectInviteComponent implements OnInit {
       // the stash would let its policies bleed into the voluntary change-password component.
       onError: () => this.organizationInviteService.clearOrganizationInvite(),
     });
-    this.loading = false;
   }
 
   private async authedHandler(invite: DirectOrganizationInvite): Promise<void> {
