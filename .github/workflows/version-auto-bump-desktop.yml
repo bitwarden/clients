@@ -1,0 +1,68 @@
+name: Auto Bump Desktop Version
+
+# Triggered by the completion of version-auto-bump-desktop-signal.yml (the desktop-v** tag-push signal).
+# workflow_run executes on the default branch, so this run's head_branch is `main` — which
+# is what bitwarden/deploy's update-repository requires to accept the source artifact.
+on:
+  workflow_run:
+    workflows: ["Auto Bump Desktop Version - Signal"]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: version-auto-bump-desktop
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    name: Bump Desktop Version
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Get current Desktop version
+        id: current-desktop-version
+        working-directory: apps/desktop
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' package.json)
+          echo "version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Calculate next Desktop release version
+        id: calculate-next-desktop-version
+        uses: bitwarden/gh-actions/version-next@main
+        with:
+          version: ${{ steps.current-desktop-version.outputs.version }}
+
+      - name: Bump Desktop Version - Root
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version --workspace=@bitwarden/desktop --no-git-tag-version "$VERSION"
+
+      - name: Bump Desktop Version - App
+        working-directory: apps/desktop/src
+        env:
+          VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
+        run: npm version --no-git-tag-version "$VERSION"
+
+      - name: Upload modified files
+        id: upload
+        uses: bitwarden/gh-actions/upload-modified-files@main
+        with:
+          artifact_name: modified-files
+
+      - name: Trigger update-repository
+        uses: bitwarden/gh-actions/trigger-actions@main
+        with:
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          task: update-repository
+          data: '{"artifact_name": "${{ steps.upload.outputs.artifact_name }}", "target_branch": "main"}'
