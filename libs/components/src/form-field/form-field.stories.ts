@@ -582,8 +582,21 @@ export const Textarea: Story = {
     template: /*html*/ `
       <bit-form-field>
         <bit-label>Textarea</bit-label>
-        <textarea bitInput rows="4"></textarea>
+        <textarea bitInput rows="4">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
         <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea disabled</bit-label>
+        <textarea bitInput rows="4" disabled>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
+      </bit-form-field>
+      <bit-form-field>
+        <bit-label>Textarea readonly</bit-label>
+        <textarea bitInput rows="4" readonly>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</textarea>
+        <button type="button" bitSuffix bitIconButton="bwi-clone" label="Clone Label"></button>
+        <bit-hint>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</bit-hint>
       </bit-form-field>
     `,
   }),
