@@ -33,8 +33,11 @@ import { ProductSwitcherItem, ProductSwitcherService } from "../shared/product-s
 export class NavigationProductSwitcherComponent {
   constructor(private readonly productSwitcherService: ProductSwitcherService) {}
 
-  protected readonly sideNavOpen = inject(SideNavService).open;
-  protected readonly sideNavWidthRem = inject(SideNavService).widthRem;
+  private readonly sideNavService = inject(SideNavService);
+
+  protected readonly sideNavOpen = this.sideNavService.open;
+  protected readonly sideNavWidthRem = this.sideNavService.widthRem;
+  protected readonly version = this.sideNavService.version;
 
   protected readonly shouldShowPremiumUpgradeButton$: Observable<boolean> =
     this.productSwitcherService.shouldShowPremiumUpgradeButton$;

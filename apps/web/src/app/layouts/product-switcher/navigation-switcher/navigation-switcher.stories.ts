@@ -303,7 +303,7 @@ export const WithAllOptions: Story = {
  * compared across the v1 and v2 layouts.
  */
 const RealisticTemplate: StoryObj<
-  NavigationProductSwitcherComponent &
+  Omit<NavigationProductSwitcherComponent, "version"> &
     MockProviderService &
     MockOrganizationService & { version: "1" | "2" }
 > = {
