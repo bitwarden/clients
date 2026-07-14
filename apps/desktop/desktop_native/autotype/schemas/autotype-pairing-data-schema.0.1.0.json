@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/apps/desktop/desktop_native/autotype/schemas/desktop-app-pairing-data-schema.0.1.0.json",
-  "title": "Desktop Autotype Pairing Data Schema",
-  "description": "The data used in the Pairing and Verification flows for Bitwarden's Autotype implementation must adhere to this schema.",
+  "$id": "https://raw.githubusercontent.com/bitwarden/clients/refs/heads/main/apps/desktop/desktop_native/autotype/schemas/autotype-pairing-data-schema.0.1.0.json",
+  "title": "Autotype Pairing Data Schema",
+  "description": "The data saved for Bitwarden's Autotype implementation must adhere to this schema.",
   "type": "object",
   "properties": {
     "metadata": {
@@ -12,17 +12,17 @@
           "type": "object",
           "properties": {
             "major": {
-              "description": "The major version of the schema this data adheres to.",
+              "description": "The SemVer major version of the schema this data adheres to.",
               "type": "integer",
               "const": 0
             },
             "minor": {
-              "description": "The minor version of the schema this data adheres to.",
+              "description": "The SemVer minor version of the schema this data adheres to.",
               "type": "integer",
               "const": 1
             },
             "patch": {
-              "description": "The patch version of the schema this data adheres to.",
+              "description": "The SemVer patch version of the schema this data adheres to.",
               "type": "integer",
               "const": 0
             }
@@ -30,28 +30,28 @@
           "required": ["major", "minor", "patch"],
           "additionalProperties": false
         },
-        "creationDate": {
-          "description": "The creation date of the pairing, stored as a unix timestamp in seconds since the epoch.",
+        "pairingDate": {
+          "description": "The date of the pairing, stored as a unix timestamp in seconds since the epoch.",
           "type": "integer",
           "minimum": 0
         }
       },
-      "required": ["schemaVersion", "creationDate"],
+      "required": ["schemaVersion", "pairingDate"],
       "additionalProperties": false
     },
     "appData": {
       "type": "object",
       "properties": {
         "name": {
-          "description": "The readable name of the application paired.",
+          "description": "The name of the application paired.",
           "type": "string"
         },
-        "path": {
+        "normalizedPath": {
           "description": "The normalized absolute path of the application paired, including the file name.",
           "type": "string"
         }
       },
-      "required": ["name", "path"],
+      "required": ["name", "normalizedPath"],
       "additionalProperties": false
     },
     "clientData": {
