@@ -13,6 +13,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -73,6 +74,8 @@ function defaultParams(overrides: Partial<EditMemberDialogParams> = {}): EditMem
     organizationId: ORG_ID,
     organizationUserId: USER_ID,
     name: "Alice Smith",
+    email: "alice@example.com",
+    createdDate: new Date("2026-01-16T10:02:00Z"),
     usesKeyConnector: false,
     claimedByOrganization: false,
     isOnSecretsManagerStandalone: false,
@@ -137,13 +140,18 @@ const mockOrganizationMetadataService = {
   getOrganizationMetadata$: () => of(null),
 };
 
-const mockConfigService = {
-  getFeatureFlag: () => Promise.resolve(false),
-};
+function makeConfigService(detailsTabEnabled: boolean) {
+  return {
+    getFeatureFlag: (flag: FeatureFlag) =>
+      Promise.resolve(flag === FeatureFlag.PM28365_ChangeMemberEmail ? detailsTabEnabled : false),
+  };
+}
 
 function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
+
+type StoryArgs = { detailsTabEnabled: boolean };
 
 const sharedDecorators = [
   moduleMetadata({
@@ -166,7 +174,6 @@ const sharedDecorators = [
         provide: OrganizationMetadataServiceAbstraction,
         useValue: mockOrganizationMetadataService,
       },
-      { provide: ConfigService, useValue: mockConfigService },
     ],
   }),
   applicationConfig({
@@ -178,20 +185,37 @@ export default {
   title: "Admin Console/Organizations/Members/Edit Member Dialog",
   component: EditMemberDialogComponent,
   decorators: sharedDecorators,
-} as Meta;
+  argTypes: {
+    detailsTabEnabled: {
+      control: "boolean",
+      description: "Toggle between the legacy Role tab and the new Details tab (PM-28365)",
+      name: "Details tab (flag on)",
+    },
+  },
+  args: {
+    detailsTabEnabled: false,
+  },
+} as Meta<StoryArgs>;
 
-type Story = StoryObj<EditMemberDialogComponent>;
+type Story = StoryObj<StoryArgs>;
 
 function makeRender(
   params: EditMemberDialogParams,
   org: Organization,
   userDetails?: OrganizationUserAdminView,
 ): Story["render"] {
-  return () => ({
+  return ({ detailsTabEnabled }) => ({
     moduleMetadata: {
       providers: [
-        { provide: DIALOG_DATA, useValue: params },
+        {
+          provide: DIALOG_DATA,
+          useValue: {
+            ...params,
+            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+          },
+        },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
+        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
         ...(userDetails
           ? [
               {
@@ -207,14 +231,14 @@ function makeRender(
 }
 
 /**
- * Default confirmed member — Role tab, Revoke + Remove buttons in footer.
+ * Default confirmed member.
  */
 export const Default: Story = {
   render: makeRender(defaultParams(), mockOrganization()),
 };
 
 /**
- * Organization with groups enabled — Groups tab is visible between Role and Collections.
+ * Organization with groups enabled — Groups tab visible.
  */
 export const WithGroups: Story = {
   render: makeRender(
@@ -225,14 +249,14 @@ export const WithGroups: Story = {
 };
 
 /**
- * Organization with Secrets Manager — SM access section appears at the bottom of the Role tab.
+ * Organization with Secrets Manager.
  */
 export const WithSecretsManager: Story = {
   render: makeRender(defaultParams(), mockOrganization({ useSecretsManager: true })),
 };
 
 /**
- * Enterprise org with custom permissions enabled — Custom role option is selectable.
+ * Enterprise org with custom permissions enabled.
  */
 export const WithCustomPermissions: Story = {
   render: makeRender(
@@ -242,7 +266,7 @@ export const WithCustomPermissions: Story = {
 };
 
 /**
- * Revoked member — "Revoked" badge appears in the dialog header and the footer shows Restore instead of Revoke.
+ * Revoked member — "Revoked" badge in the header.
  */
 export const RevokedMember: Story = {
   render: makeRender(
@@ -270,5 +294,70 @@ export const CollectionsTab: Story = {
   render: makeRender(
     defaultParams({ initialTab: MemberDialogTab.Collections }),
     mockOrganization(),
+  ),
+};
+
+// ─── Flag ON (new Details tab design) ────────────────────────────────────────
+
+/**
+ * Details tab — Name, Email, Member role select, Created date.
+ */
+export const DetailsTab: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(defaultParams(), mockOrganization()),
+};
+
+/**
+ * Details tab with Secrets Manager checkbox visible.
+ */
+export const DetailsTabWithSecretsManager: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(defaultParams(), mockOrganization({ useSecretsManager: true })),
+};
+
+/**
+ * Details tab with custom permissions — Custom option selectable in role select.
+ */
+export const DetailsTabWithCustomPermissions: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
+  ),
+};
+
+/**
+ * Details tab, revoked member — "Revoked" badge in header; More actions shows Restore.
+ */
+export const DetailsTabRevokedMember: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization(),
+    mockUserDetails({ status: OrganizationUserStatusType.Revoked }),
+  ),
+};
+
+/**
+ * Details tab, member claimed by the organization — More actions shows Delete instead of Remove.
+ */
+export const DetailsTabClaimedByOrganization: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams({ claimedByOrganization: true }),
+    mockOrganization({ productTierType: ProductTierType.Enterprise }),
+    mockUserDetails({ claimedByOrganization: true }),
+  ),
+};
+
+/**
+ * Details tab with groups — Groups tab visible alongside Details and Collections.
+ */
+export const DetailsTabWithGroups: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useGroups: true }),
+    mockUserDetails({ groups: ["grp-1"] }),
   ),
 };
