@@ -71,8 +71,7 @@ export abstract class AutofillLifecycleService {
    */
   abstract startMonitoringFrame: (tab: chrome.tabs.Tab, frameId: number) => Promise<void>;
   /**
-   * Retires every live frame from monitoring and tears down its connection,
-   * ahead of a full re-injection.
+   * Retires every live frame from monitoring and tears down its connection.
    */
   abstract retireAllFrames: () => void;
 }
