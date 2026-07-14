@@ -1,5 +1,4 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -27,7 +26,6 @@ describe("CipherContextMenuHandler", () => {
     mainContextMenuHandler.initRunning = false;
     authService = mock();
     cipherService = mock();
-    cipherService.localData$.mockReturnValue(of({}));
 
     jest.spyOn(MainContextMenuHandler, "removeAll").mockResolvedValue();
 

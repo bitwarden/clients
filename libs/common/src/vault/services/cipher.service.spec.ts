@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, filter, firstValueFrom, map, of } from "rxjs";
+import { BehaviorSubject, Observable, filter, firstValueFrom, map, of, throwError } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -1778,74 +1778,43 @@ describe("Cipher Service", () => {
     });
   });
 
-  describe("getCipherForUrl localData application", () => {
+  describe("getAllDecrypted (SDK path) localData hydration", () => {
     beforeEach(() => {
-      Object.defineProperty(autofillSettingsService, "autofillOnPageLoadDefault$", {
-        value: of(true),
-        writable: true,
-      });
+      sdkCrudFeatureFlag$.next(true);
     });
 
-    it("should apply localData to ciphers when getCipherForUrl is called via getLastLaunchedForUrl", async () => {
-      const testUrl = "https://test-url.com";
+    it("re-attaches localData to SDK-decrypted ciphers", async () => {
       const cipherId = "test-cipher-id" as CipherId;
       const testLocalData = {
         lastLaunched: Date.now().valueOf(),
         lastUsedDate: Date.now().valueOf() - 1000,
       };
-
       jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
 
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = null;
+      const sdkView = new CipherView();
+      sdkView.id = cipherId;
+      sdkView.localData = undefined;
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
 
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
-
-      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
+      const [result] = await cipherService.getAllDecrypted(userId);
 
       expect(result.localData).toEqual(testLocalData);
     });
 
-    it("should apply localData to ciphers when getCipherForUrl is called via getLastUsedForUrl", async () => {
-      const testUrl = "https://test-url.com";
+    it("still returns ciphers when localData retrieval fails", async () => {
       const cipherId = "test-cipher-id" as CipherId;
-      const testLocalData = { lastUsedDate: Date.now().valueOf() - 1000 };
-
-      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: testLocalData }));
-
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = null;
-
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
-
-      const result = await cipherService.getLastUsedForUrl(testUrl, userId, true);
-
-      expect(result.localData).toEqual(testLocalData);
-    });
-
-    it("should not modify localData if it already matches in getCipherForUrl", async () => {
-      const testUrl = "https://test-url.com";
-      const cipherId = "test-cipher-id" as CipherId;
-      const existingLocalData = {
-        lastLaunched: Date.now().valueOf(),
-        lastUsedDate: Date.now().valueOf() - 1000,
-      };
-
       jest
         .spyOn(cipherService, "localData$")
-        .mockReturnValue(of({ [cipherId]: existingLocalData }));
+        .mockReturnValue(throwError(() => new Error("localData unavailable")));
 
-      const mockCipherView = new CipherView();
-      mockCipherView.id = cipherId;
-      mockCipherView.localData = existingLocalData;
+      const sdkView = new CipherView();
+      sdkView.id = cipherId;
+      cipherSdkService.getAllDecrypted.mockResolvedValue({ successes: [sdkView], failures: [] });
 
-      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([mockCipherView]);
+      const result = await cipherService.getAllDecrypted(userId);
 
-      const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
-
-      expect(result.localData).toBe(existingLocalData);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(cipherId);
     });
   });
 

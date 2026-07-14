@@ -353,10 +353,24 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
+    // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
+    // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
+    // sees it, matching the legacy and list-view decryption paths.
+    let localData: Record<CipherId, LocalData> | undefined;
+
+    // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience
+    try {
+      localData = await firstValueFrom(this.localData$(userId));
+    } catch {
+      localData = undefined;
+    }
+
     try {
       const result = await this.cipherSdkService.getAllDecrypted(userId);
 
-      const sortedSuccesses = result.successes.sort(this.getLocaleSortingFunction());
+      const sortedSuccesses = hydrateCiphersWithLocalData(result.successes, localData).sort(
+        this.getLocaleSortingFunction(),
+      );
 
       await this.setDecryptedCipherCache(sortedSuccesses, userId);
       await this.setFailedDecryptedCiphers(result.failures, userId);
@@ -2052,9 +2066,6 @@ export class CipherService implements CipherServiceAbstraction {
       if (!ciphers?.length) {
         return null;
       }
-
-      const localData = await firstValueFrom(this.localData$(userId));
-      ciphers = hydrateCiphersWithLocalData(ciphers, localData);
 
       if (autofillOnPageLoad) {
         const autofillOnPageLoadDefault = await this.getAutofillOnPageLoadDefault();

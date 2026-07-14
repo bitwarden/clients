@@ -8,7 +8,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { hydrateCiphersWithLocalData } from "@bitwarden/common/vault/utils/hydrate-ciphers-with-local-data";
 
 import { AutofillCipherTypeId } from "../types";
 
@@ -48,14 +47,10 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const [ciphers, localData] = await Promise.all([
-      this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-        CipherType.Card,
-        CipherType.Identity,
-      ]),
-      firstValueFrom(this.cipherService.localData$(activeUserId)),
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
+      CipherType.Card,
+      CipherType.Identity,
     ]);
-    hydrateCiphersWithLocalData(ciphers, localData);
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphers.reduce(

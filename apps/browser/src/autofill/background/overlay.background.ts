@@ -54,7 +54,6 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { hydrateCiphersWithLocalData } from "@bitwarden/common/vault/utils/hydrate-ciphers-with-local-data";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -553,13 +552,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return this.getAllCipherTypeViews(currentTab, activeUserId);
     }
 
-    const [decryptedCiphers, localData] = await Promise.all([
-      this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId),
-      firstValueFrom(this.cipherService.localData$(activeUserId)),
-    ]);
-    const cipherViews = hydrateCiphersWithLocalData(decryptedCiphers, localData).sort((a, b) =>
-      this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    const cipherViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId)
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return this.cardAndIdentityCiphers
       ? cipherViews.concat(...this.cardAndIdentityCiphers)
@@ -581,16 +576,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.cardAndIdentityCiphers.clear();
-    const [decryptedCiphers, localData] = await Promise.all([
-      this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
+    const cipherViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
-      ]),
-      firstValueFrom(this.cipherService.localData$(userId)),
-    ]);
-    const cipherViews = hydrateCiphersWithLocalData(decryptedCiphers, localData).sort((a, b) =>
-      this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+      ])
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     if (!this.cardAndIdentityCiphers) {
       return cipherViews;
