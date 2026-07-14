@@ -553,11 +553,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return this.getAllCipherTypeViews(currentTab, activeUserId);
     }
 
-    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab.url || "",
-      activeUserId,
-    );
-    const localData = await firstValueFrom(this.cipherService.localData$(activeUserId));
+    const [decryptedCiphers, localData] = await Promise.all([
+      this.cipherService.getAllDecryptedForUrl(currentTab.url || "", activeUserId),
+      firstValueFrom(this.cipherService.localData$(activeUserId)),
+    ]);
     const cipherViews = hydrateCiphersWithLocalData(decryptedCiphers, localData).sort((a, b) =>
       this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );
@@ -582,12 +581,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.cardAndIdentityCiphers.clear();
-    const decryptedCiphers = await this.cipherService.getAllDecryptedForUrl(
-      currentTab.url || "",
-      userId,
-      [CipherType.Card, CipherType.Identity],
-    );
-    const localData = await firstValueFrom(this.cipherService.localData$(userId));
+    const [decryptedCiphers, localData] = await Promise.all([
+      this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
+        CipherType.Card,
+        CipherType.Identity,
+      ]),
+      firstValueFrom(this.cipherService.localData$(userId)),
+    ]);
     const cipherViews = hydrateCiphersWithLocalData(decryptedCiphers, localData).sort((a, b) =>
       this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );

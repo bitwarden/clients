@@ -48,11 +48,13 @@ export class CipherContextMenuHandler {
       return;
     }
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
-      CipherType.Card,
-      CipherType.Identity,
+    const [ciphers, localData] = await Promise.all([
+      this.cipherService.getAllDecryptedForUrl(url, activeUserId, [
+        CipherType.Card,
+        CipherType.Identity,
+      ]),
+      firstValueFrom(this.cipherService.localData$(activeUserId)),
     ]);
-    const localData = await firstValueFrom(this.cipherService.localData$(activeUserId));
     hydrateCiphersWithLocalData(ciphers, localData);
     ciphers.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
