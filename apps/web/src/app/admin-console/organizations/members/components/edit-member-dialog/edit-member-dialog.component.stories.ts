@@ -137,7 +137,8 @@ const mockBillingConstraintService = {
 };
 
 const mockOrganizationMetadataService = {
-  getOrganizationMetadata$: () => of(null),
+  getOrganizationMetadata$: () => of({ organizationOccupiedSeats: 0 } as any),
+  refreshMetadataCache: () => {},
 };
 
 function makeConfigService(detailsTabEnabled: boolean) {
