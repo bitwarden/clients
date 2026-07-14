@@ -19,7 +19,11 @@
   </div>
   <div class="tw-flex tw-justify-between tw-items-center tw-flex-wrap tw-gap-4">
     <div class="tw-min-w-0 tw-overflow-x-auto">
-      <bit-toggle-group [selected]="selectedView()" (selectedChange)="onViewChange($event)">
+      <bit-toggle-group
+        [selected]="selectedView()"
+        (selectedChange)="onViewChange($event)"
+        [label]="'filterRiskOverTime' | i18n"
+      >
         <bit-toggle [value]="ViewType.Applications">{{ "applications" | i18n }}</bit-toggle>
         <bit-toggle [value]="ViewType.Passwords">{{ "passwords" | i18n }}</bit-toggle>
         <bit-toggle [value]="ViewType.Members">{{ "members" | i18n }}</bit-toggle>

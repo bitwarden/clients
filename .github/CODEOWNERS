@@ -12,8 +12,8 @@
 *.css   @bitwarden/team-ui-foundation
 
 ## Desktop native module ##
-apps/desktop/desktop_native                         @bitwarden/team-platform-dev
-apps/desktop/desktop_native/core/src/secure_memory  @bitwarden/team-key-management-dev
+apps/desktop/desktop_native                @bitwarden/team-platform-dev
+apps/desktop/desktop_native/secure_memory  @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
 apps/desktop/desktop_native/Cargo.lock
@@ -143,11 +143,10 @@ apps/web/src/translation-constants.ts  @bitwarden/team-platform-dev
 .github/workflows/build-web-target.yml                  @bitwarden/team-platform-dev
 .github/workflows/build-web.yml                         @bitwarden/team-platform-dev
 .github/workflows/crowdin-pull.yml                      @bitwarden/team-platform-dev
-.github/workflows/enforce-labels.yml                    @bitwarden/team-platform-dev
+.github/workflows/enforce-pr-labels-sdlc.yml            @bitwarden/team-platform-dev
 .github/workflows/lint.yml                              @bitwarden/team-platform-dev
 .github/workflows/locales-lint.yml                      @bitwarden/team-platform-dev
 .github/workflows/repository-management.yml             @bitwarden/team-platform-dev
-.github/workflows/scan.yml                              @bitwarden/team-platform-dev
 .github/workflows/sdk-update.yml                        @bitwarden/team-platform-dev
 .github/workflows/stale-bot.yml                         @bitwarden/team-platform-dev
 .github/workflows/test.yml                              @bitwarden/team-platform-dev
@@ -191,7 +190,10 @@ apps/desktop/desktop_native/objc/src/native/autofill            @bitwarden/team-
 apps/desktop/desktop_native/win_webauthn                        @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 apps/desktop/desktop_native/windows_plugin_authenticator        @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 apps/desktop/macos/autofill-extension                           @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/desktop-autofill.preload.ts           @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/main/main-desktop-autofill*           @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials                     @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
+apps/desktop/src/autofill/models/autofill-*                     @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-autofill.service.ts  @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-fido2*               @bitwarden/team-desktop-native-dev  @bitwarden/team-skunkworks
 
@@ -227,9 +229,8 @@ libs/unlock                                       @bitwarden/team-key-management
 # Node-cryptofunction service
 libs/node  @bitwarden/team-key-management-dev
 
-apps/desktop/desktop_native/core/src/biometric/                 @bitwarden/team-key-management-dev
 apps/desktop/desktop_native/core/src/biometric_v2/              @bitwarden/team-key-management-dev
-apps/desktop/desktop_native/core/src/secure_memory/             @bitwarden/team-key-management-dev
+apps/desktop/desktop_native/secure_memory/                      @bitwarden/team-key-management-dev
 apps/desktop/src/services/native-messaging.service.ts           @bitwarden/team-key-management-dev
 apps/browser/src/background/nativeMessaging.background.ts       @bitwarden/team-key-management-dev
 apps/desktop/src/services/biometric-message-handler.service.ts  @bitwarden/team-key-management-dev
@@ -247,7 +248,6 @@ apps/web/src/locales/en/messages.json
 
 ## BRE team owns these workflows ##
 .github/workflows/retrieve-current-desktop-rollout.yml  @bitwarden/dept-bre
-.github/workflows/staged-rollout-desktop.yml            @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop.yml         @bitwarden/dept-bre
 .github/workflows/version-auto-bump-desktop-signal.yml  @bitwarden/dept-bre
 
@@ -267,7 +267,7 @@ apps/web/src/locales/en/messages.json
 # To track that effort please see https://bitwarden.atlassian.net/browse/PM-21636
 **/tsconfig.json   @bitwarden/team-platform-dev
 **/jest.config.js  @bitwarden/team-platform-dev
-**/project.jsons   @bitwarden/team-platform-dev
+**/project.json    @bitwarden/team-platform-dev
 # Platform override specifically for the package-lock.json in
 # native-messaging-test-runner so that Platform can manage all lock file updates
 apps/desktop/native-messaging-test-runner/package-lock.json  @bitwarden/team-platform-dev
