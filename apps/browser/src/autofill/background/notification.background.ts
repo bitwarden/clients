@@ -30,6 +30,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -61,7 +62,6 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -149,6 +149,7 @@ export default class NotificationBackground {
       this.handleCollectPageDetailsResponseMessage(message),
     getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+    showLoginSavedNotification: ({ message }) => this.handleShowLoginSavedNotification(message),
   };
 
   constructor(
@@ -167,6 +168,7 @@ export default class NotificationBackground {
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
     protected messagingService: MessagingService,
     private fido2Background: Fido2Background,
   ) {}
@@ -246,7 +248,7 @@ export default class NotificationBackground {
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
-    const iconsServerUrl = env.getIconsUrl();
+    const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
 
     const getOrganizationType = (orgId?: string) =>
       organizations.find((org) => org.id === orgId)?.productTierType;
@@ -313,7 +315,7 @@ export default class NotificationBackground {
 
   convertToNotificationCipherData(
     view: CipherView,
-    iconsServerUrl: string,
+    iconsServerUrl: string | null,
     showFavicons: boolean,
     organizationType?: ProductTierType,
   ): NotificationCipherData {
@@ -548,8 +550,7 @@ export default class NotificationBackground {
 
     const { securityTask, cipher } = loginSecurityTaskInfo;
     const domain = Utils.getDomain(tab.url);
-    const passwordChangeUri =
-      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+    const passwordChangeUri = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
 
     const authStatus = await this.getAuthStatus();
 
@@ -578,6 +579,52 @@ export default class NotificationBackground {
     this.notificationQueue.push(queueMessage);
     await this.checkNotificationQueue(tab);
     return true;
+  }
+
+  /**
+   * Sends a "Login saved" confirmation notification bar directly to the given tab.
+   * Used after a cipher is saved via the inline menu "Save and fill" flow,
+   * where no notification bar is already open on the originating tab.
+   *
+   * @param cipherName - The name of the saved cipher, shown in the confirmation bar.
+   * @param cipherId - The ID of the saved cipher, used by the "View" action in the bar.
+   * @param tab - The tab to show the notification bar on.
+   */
+  async triggerLoginSavedNotification(
+    cipherName: string,
+    cipherId: string,
+    tab: chrome.tabs.Tab,
+  ): Promise<void> {
+    const theme = await firstValueFrom(this.themeStateService.selectedTheme$);
+    const showAnimations =
+      (await firstValueFrom(this.autofillService.enableNotificationAnimation$)) ?? true;
+
+    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+      type: "add",
+      typeData: {
+        isVaultLocked: false,
+        theme,
+        launchTimestamp: new Date().getTime(),
+        showAnimations,
+      },
+      params: {},
+      isConfirmation: true,
+      confirmationData: { cipherId, itemName: cipherName },
+    });
+  }
+
+  private async handleShowLoginSavedNotification(
+    message: NotificationBackgroundExtensionMessage,
+  ): Promise<void> {
+    const { senderTabId, cipherId, itemName } = message;
+    if (!senderTabId) {
+      return;
+    }
+    const tab = await BrowserApi.getTab(senderTabId);
+    if (!tab) {
+      return;
+    }
+    await this.triggerLoginSavedNotification(itemName ?? "", cipherId ?? "", tab);
   }
 
   /**
@@ -704,7 +751,10 @@ export default class NotificationBackground {
     }
 
     // If there is an active passkey prompt, exit early
-    if (tab.id !== undefined && this.fido2Background.isCredentialRequestInProgress(tab.id)) {
+    if (
+      tab.id !== undefined &&
+      this.fido2Background.shouldDeferVaultNotificationsForPasskeyUi(tab.id)
+    ) {
       return false;
     }
 
@@ -1719,7 +1769,7 @@ export default class NotificationBackground {
   }
 
   /**
-   * Returns the first value found from the organization service organizations$ observable.
+   * Returns enabled organizations from `organizations$` for the notification bar vault selector.
    */
   private async getOrgData() {
     const activeUserId = await firstValueFrom(
@@ -1732,14 +1782,16 @@ export default class NotificationBackground {
       this.organizationService.organizations$(activeUserId),
     );
 
-    return organizations.map((org) => {
-      const { id, name, productTierType } = org;
-      return {
-        id,
-        name,
-        productTierType,
-      };
-    });
+    return organizations
+      .filter((org) => org.enabled)
+      .map((org) => {
+        const { id, name, productTierType } = org;
+        return {
+          id,
+          name,
+          productTierType,
+        };
+      });
   }
 
   /**
@@ -1878,14 +1930,7 @@ export default class NotificationBackground {
             throw new Error("No at-risk cipher found for tab URL");
           }
 
-          // FIXME: TemporaryNotificationChangeLoginService uses `mode: "same-origin"` for
-          // its well-known URL probes, which will always fail from the MV3 service worker
-          // context (the worker's origin is chrome-extension://, never same-origin with the
-          // target site). The same issue exists at queue time
-          // (triggerAtRiskPasswordNotification). If the fetch mode is corrected there, it
-          // must also be corrected here or the button will appear but clicking it will
-          // silently fail.
-          return new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+          return this.changeLoginPasswordService.getChangePasswordUrl(cipher);
         }),
         map((url) => {
           if (!url) {

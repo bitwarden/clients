@@ -5,6 +5,7 @@ import { map } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 
@@ -52,6 +53,7 @@ export class CoachmarkService {
     private stateProvider: StateProvider,
     private i18nService: I18nService,
     private router: Router,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -99,6 +101,11 @@ export class CoachmarkService {
    */
   async startTour(): Promise<void> {
     if (this.isRunning()) {
+      return;
+    }
+
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
       return;
     }
 
@@ -178,7 +185,8 @@ export class CoachmarkService {
   }
 
   /**
-   * Completes the tour and persists the completion state.
+   * Completes the tour, persists the completion state, and navigates back to the vault
+   * so users are reminded to add items via the checklist and empty state UX.
    */
   async completeTour(): Promise<void> {
     this.activeStepId.set(null);
@@ -188,5 +196,7 @@ export class CoachmarkService {
     if (account) {
       await this.stateProvider.setUserState(COACHMARK_TOUR_COMPLETED_KEY, true, account.id);
     }
+
+    await this.router.navigate(["/vault"]);
   }
 }

@@ -29,10 +29,12 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           multiSelectLoading: "Retrieving options...",
           multiSelectNotFound: "No items found",
           multiSelectPlaceholder: "-- Type to Filter --",
+          passwordAnnounceSpace: "space",
           percentageCompleted: (p) => `${p}% complete`,
           required: "required",
           selectPlaceholder: "-- Select --",
           toggleVisibility: "Toggle visibility",
+          progressBar: "Progress bar",
         });
       },
     },

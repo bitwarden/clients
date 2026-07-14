@@ -183,67 +183,20 @@
             <ng-container *ngIf="showAppPreferences">
               <div class="form-group">
                 <div class="checkbox">
-                  <label for="enableTray">
+                  <label for="runInBackground">
                     <input
-                      id="enableTray"
+                      id="runInBackground"
                       type="checkbox"
-                      aria-describedby="enableTrayHelp"
-                      formControlName="enableTray"
-                      (change)="saveTray()"
+                      aria-describedby="runInBackgroundHelp"
+                      formControlName="runInBackground"
+                      (change)="saveRunInBackground()"
                     />
-                    {{ enableTrayText }}
+                    {{ runInBackgroundText }}
                   </label>
                 </div>
-                <small id="enableTrayHelp" class="help-block">{{ enableTrayDescText }}</small>
-              </div>
-              <div class="form-group" *ngIf="showMinToTray">
-                <div class="checkbox">
-                  <label for="enableMinToTray">
-                    <input
-                      id="enableMinToTray"
-                      type="checkbox"
-                      aria-describedby="enableMinToTrayHelp"
-                      formControlName="enableMinToTray"
-                      (change)="saveMinToTray()"
-                    />
-                    {{ enableMinToTrayText }}
-                  </label>
-                </div>
-                <small id="enableMinToTrayHelp" class="help-block">{{
-                  enableMinToTrayDescText
+                <small id="runInBackgroundHelp" class="help-block">{{
+                  runInBackgroundDescText
                 }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="enableCloseToTray">
-                    <input
-                      id="enableCloseToTray"
-                      type="checkbox"
-                      aria-describedby="enableCloseToTrayHelp"
-                      formControlName="enableCloseToTray"
-                      (change)="saveCloseToTray()"
-                    />
-                    {{ enableCloseToTrayText }}
-                  </label>
-                </div>
-                <small id="enableCloseToTrayHelp" class="help-block">{{
-                  enableCloseToTrayDescText
-                }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="startToTray">
-                    <input
-                      id="startToTray"
-                      type="checkbox"
-                      aria-describedby="startToTrayHelp"
-                      formControlName="startToTray"
-                      (change)="saveStartToTray()"
-                    />
-                    {{ startToTrayText }}
-                  </label>
-                </div>
-                <small id="startToTrayHelp" class="help-block">{{ startToTrayDescText }}</small>
               </div>
               <div class="form-group" *ngIf="showOpenAtLoginOption">
                 <div class="checkbox">
@@ -260,57 +213,6 @@
                 </div>
                 <small id="openAtLoginHelp" class="help-block">{{
                   "openAtLoginDesc" | i18n
-                }}</small>
-              </div>
-              <div class="form-group" *ngIf="showAlwaysShowDock">
-                <div class="checkbox">
-                  <label for="alwaysShowDock">
-                    <input
-                      id="alwaysShowDock"
-                      type="checkbox"
-                      aria-describedby="alwaysShowDockHelp"
-                      formControlName="alwaysShowDock"
-                      (change)="saveAlwaysShowDock()"
-                    />
-                    {{ "alwaysShowDock" | i18n }}
-                  </label>
-                </div>
-                <small id="alwaysShowDockHelp" class="help-block">{{
-                  "alwaysShowDockDesc" | i18n
-                }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="enableBrowserIntegration">
-                    <input
-                      id="enableBrowserIntegration"
-                      type="checkbox"
-                      aria-describedby="enableBrowserIntegrationHelp"
-                      formControlName="enableBrowserIntegration"
-                      (change)="saveBrowserIntegration()"
-                    />
-                    {{ "enableBrowserIntegration" | i18n }}
-                  </label>
-                </div>
-                <small id="enableBrowserIntegrationHelp" class="help-block">{{
-                  "enableBrowserIntegrationDesc1" | i18n
-                }}</small>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                  <label for="enableBrowserIntegrationFingerprint">
-                    <input
-                      id="enableBrowserIntegrationFingerprint"
-                      type="checkbox"
-                      aria-describedby="enableBrowserIntegrationFingerprintHelp"
-                      formControlName="enableBrowserIntegrationFingerprint"
-                      (change)="saveBrowserIntegrationFingerprint()"
-                    />
-                    {{ "enableBrowserIntegrationFingerprint" | i18n }}
-                  </label>
-                </div>
-                <small id="enableBrowserIntegrationFingerprintHelp" class="help-block">{{
-                  "enableBrowserIntegrationFingerprintDesc" | i18n
                 }}</small>
               </div>
               <div class="form-group" *ngIf="showEnableAutotype">

@@ -10,7 +10,7 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  * @description This API defers to `TaskSchedulerService` to schedule a task to be ran
  * in the future but the task that is ran is NOT the remainder of your RXJS pipeline. The
  * task you want ran must instead be registered in a location reachable on a service worker
- * startup (on browser). An example of an acceptible location is the constructor of a service
+ * startup (on browser). An example of an acceptable location is the constructor of a service
  * you know is created in `MainBackground`. Uses of this API in other clients _can_ have the
  * `registerTaskHandler` call in more places, but in order to have it work across clients
  * it is recommended to register it according to the rules of browser.
@@ -37,7 +37,7 @@ import { ScheduledTaskName } from "./scheduled-task-name.enum";
  * }
  * ```
  *
- * @param taskScheduler The task scheduler service to use to shedule RXJS work.
+ * @param taskScheduler The task scheduler service to use to schedule RXJS work.
  * @param taskName The name of the task that the handler should be registered and scheduled based on.
  * @returns A SchedulerLike object that can be passed in to RXJS operators like `delay` and `timeout`.
  */

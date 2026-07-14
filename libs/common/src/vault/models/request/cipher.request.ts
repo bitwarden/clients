@@ -4,12 +4,15 @@ import { UserId } from "../../../types/guid";
 import { EncryptionContext } from "../../abstractions/cipher.service";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
+import { BankAccountApi } from "../api/bank-account.api";
 import { CardApi } from "../api/card.api";
+import { DriversLicenseApi } from "../api/drivers-license.api";
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
+import { PassportApi } from "../api/passport.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
 
@@ -29,6 +32,9 @@ export class CipherRequest {
   card: CardApi;
   identity: IdentityApi;
   sshKey: SshKeyApi;
+  bankAccount: BankAccountApi;
+  driversLicense: DriversLicenseApi;
+  passport: PassportApi;
   fields: FieldApi[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
@@ -38,6 +44,7 @@ export class CipherRequest {
   archivedDate: Date | null;
   reprompt: CipherRepromptType;
   key: string;
+  data?: string;
 
   constructor({ cipher, encryptedFor }: EncryptionContext) {
     this.type = cipher.type;
@@ -51,9 +58,13 @@ export class CipherRequest {
     this.archivedDate = cipher.archivedDate;
     this.reprompt = cipher.reprompt;
     this.key = cipher.key?.encryptedString;
+    this.data = cipher.data;
 
     switch (this.type) {
       case CipherType.Login:
+        if (cipher.login == null) {
+          break;
+        }
         this.login = new LoginApi();
         this.login.uris =
           cipher.login.uris?.map((u) => {
@@ -99,10 +110,16 @@ export class CipherRequest {
         }
         break;
       case CipherType.SecureNote:
+        if (cipher.secureNote == null) {
+          break;
+        }
         this.secureNote = new SecureNoteApi();
         this.secureNote.type = cipher.secureNote.type;
         break;
       case CipherType.SshKey:
+        if (cipher.sshKey == null) {
+          break;
+        }
         this.sshKey = new SshKeyApi();
         this.sshKey.privateKey =
           cipher.sshKey.privateKey != null ? cipher.sshKey.privateKey.encryptedString : null;
@@ -114,6 +131,9 @@ export class CipherRequest {
             : null;
         break;
       case CipherType.Card:
+        if (cipher.card == null) {
+          break;
+        }
         this.card = new CardApi();
         this.card.cardholderName =
           cipher.card.cardholderName != null ? cipher.card.cardholderName.encryptedString : null;
@@ -126,6 +146,9 @@ export class CipherRequest {
         this.card.code = cipher.card.code != null ? cipher.card.code.encryptedString : null;
         break;
       case CipherType.Identity:
+        if (cipher.identity == null) {
+          break;
+        }
         this.identity = new IdentityApi();
         this.identity.title =
           cipher.identity.title != null ? cipher.identity.title.encryptedString : null;
@@ -166,6 +189,140 @@ export class CipherRequest {
         this.identity.licenseNumber =
           cipher.identity.licenseNumber != null
             ? cipher.identity.licenseNumber.encryptedString
+            : null;
+        break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount == null) {
+          break;
+        }
+        this.bankAccount = new BankAccountApi();
+        this.bankAccount.bankName =
+          cipher.bankAccount.bankName != null ? cipher.bankAccount.bankName.encryptedString : null;
+        this.bankAccount.nameOnAccount =
+          cipher.bankAccount.nameOnAccount != null
+            ? cipher.bankAccount.nameOnAccount.encryptedString
+            : null;
+        this.bankAccount.accountType =
+          cipher.bankAccount.accountType != null
+            ? cipher.bankAccount.accountType.encryptedString
+            : null;
+        this.bankAccount.accountNumber =
+          cipher.bankAccount.accountNumber != null
+            ? cipher.bankAccount.accountNumber.encryptedString
+            : null;
+        this.bankAccount.routingNumber =
+          cipher.bankAccount.routingNumber != null
+            ? cipher.bankAccount.routingNumber.encryptedString
+            : null;
+        this.bankAccount.branchNumber =
+          cipher.bankAccount.branchNumber != null
+            ? cipher.bankAccount.branchNumber.encryptedString
+            : null;
+        this.bankAccount.pin =
+          cipher.bankAccount.pin != null ? cipher.bankAccount.pin.encryptedString : null;
+        this.bankAccount.swiftCode =
+          cipher.bankAccount.swiftCode != null
+            ? cipher.bankAccount.swiftCode.encryptedString
+            : null;
+        this.bankAccount.iban =
+          cipher.bankAccount.iban != null ? cipher.bankAccount.iban.encryptedString : null;
+        this.bankAccount.bankContactPhone =
+          cipher.bankAccount.bankContactPhone != null
+            ? cipher.bankAccount.bankContactPhone.encryptedString
+            : null;
+        break;
+      case CipherType.DriversLicense:
+        if (cipher.driversLicense == null) {
+          break;
+        }
+        this.driversLicense = new DriversLicenseApi();
+        this.driversLicense.firstName =
+          cipher.driversLicense.firstName != null
+            ? cipher.driversLicense.firstName.encryptedString
+            : null;
+        this.driversLicense.middleName =
+          cipher.driversLicense.middleName != null
+            ? cipher.driversLicense.middleName.encryptedString
+            : null;
+        this.driversLicense.lastName =
+          cipher.driversLicense.lastName != null
+            ? cipher.driversLicense.lastName.encryptedString
+            : null;
+        this.driversLicense.dateOfBirth =
+          cipher.driversLicense.dateOfBirth != null
+            ? cipher.driversLicense.dateOfBirth.encryptedString
+            : null;
+        this.driversLicense.licenseNumber =
+          cipher.driversLicense.licenseNumber != null
+            ? cipher.driversLicense.licenseNumber.encryptedString
+            : null;
+        this.driversLicense.issuingCountry =
+          cipher.driversLicense.issuingCountry != null
+            ? cipher.driversLicense.issuingCountry.encryptedString
+            : null;
+        this.driversLicense.issuingState =
+          cipher.driversLicense.issuingState != null
+            ? cipher.driversLicense.issuingState.encryptedString
+            : null;
+        this.driversLicense.issueDate =
+          cipher.driversLicense.issueDate != null
+            ? cipher.driversLicense.issueDate.encryptedString
+            : null;
+        this.driversLicense.expirationDate =
+          cipher.driversLicense.expirationDate != null
+            ? cipher.driversLicense.expirationDate.encryptedString
+            : null;
+        this.driversLicense.issuingAuthority =
+          cipher.driversLicense.issuingAuthority != null
+            ? cipher.driversLicense.issuingAuthority.encryptedString
+            : null;
+        this.driversLicense.licenseClass =
+          cipher.driversLicense.licenseClass != null
+            ? cipher.driversLicense.licenseClass.encryptedString
+            : null;
+        break;
+      case CipherType.Passport:
+        if (cipher.passport == null) {
+          break;
+        }
+        this.passport = new PassportApi();
+        this.passport.surname =
+          cipher.passport.surname != null ? cipher.passport.surname.encryptedString : null;
+        this.passport.givenName =
+          cipher.passport.givenName != null ? cipher.passport.givenName.encryptedString : null;
+        this.passport.dateOfBirth =
+          cipher.passport.dateOfBirth != null ? cipher.passport.dateOfBirth.encryptedString : null;
+        this.passport.sex =
+          cipher.passport.sex != null ? cipher.passport.sex.encryptedString : null;
+        this.passport.birthPlace =
+          cipher.passport.birthPlace != null ? cipher.passport.birthPlace.encryptedString : null;
+        this.passport.nationality =
+          cipher.passport.nationality != null ? cipher.passport.nationality.encryptedString : null;
+        this.passport.issuingCountry =
+          cipher.passport.issuingCountry != null
+            ? cipher.passport.issuingCountry.encryptedString
+            : null;
+        this.passport.passportNumber =
+          cipher.passport.passportNumber != null
+            ? cipher.passport.passportNumber.encryptedString
+            : null;
+        this.passport.passportType =
+          cipher.passport.passportType != null
+            ? cipher.passport.passportType.encryptedString
+            : null;
+        this.passport.nationalIdentificationNumber =
+          cipher.passport.nationalIdentificationNumber != null
+            ? cipher.passport.nationalIdentificationNumber.encryptedString
+            : null;
+        this.passport.issuingAuthority =
+          cipher.passport.issuingAuthority != null
+            ? cipher.passport.issuingAuthority.encryptedString
+            : null;
+        this.passport.issueDate =
+          cipher.passport.issueDate != null ? cipher.passport.issueDate.encryptedString : null;
+        this.passport.expirationDate =
+          cipher.passport.expirationDate != null
+            ? cipher.passport.expirationDate.encryptedString
             : null;
         break;
       default:

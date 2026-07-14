@@ -52,6 +52,28 @@ describe("ReportVersioningService", () => {
       expect(result.data.memberRegistry).toHaveProperty("user-1");
     });
 
+    it("should drop a bad report element from a versioned envelope and log a warning without throwing", () => {
+      const envelopeWithBadElement = {
+        version: 1,
+        data: {
+          reports: [
+            { ...validPayload.reports[0], applicationName: "" }, // empty name — invalid
+            validPayload.reports[0], // valid
+          ],
+          memberRegistry: validPayload.memberRegistry,
+        },
+      };
+
+      const result = service.process(envelopeWithBadElement);
+
+      expect(result.wasLegacy).toBe(false);
+      expect(result.data.reports).toHaveLength(1);
+      expect(result.data.reports[0].applicationName).toBe("app.com");
+      expect(mockLogService.warning).toHaveBeenCalledWith(
+        expect.stringContaining("Dropped 1 invalid report payload"),
+      );
+    });
+
     it("should transform legacy array to payload and return wasLegacy: true", () => {
       const result = service.process(mockReportData);
 

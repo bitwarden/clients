@@ -1,13 +1,12 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
-import {
-  CollectionAccessDetailsResponse,
-  CollectionDetailsResponse,
-  CollectionResponse,
-} from "@bitwarden/common/admin-console/models/collections";
 
 import { OrganizationConnectionType } from "../admin-console/enums";
+import {
+  CollectionAccessDetailsResponse,
+  CollectionResponse,
+} from "../admin-console/models/collections";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
 import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/request/organization/organization-sponsorship-redeem.request";
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
@@ -61,9 +60,7 @@ import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -154,15 +151,12 @@ export abstract class ApiService {
   abstract getAccountRevisionDate(): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
-  abstract postReinstatePremium(): Promise<any>;
-  abstract postAccountStorage(request: StorageRequest): Promise<PaymentResponse>;
   abstract postAccountLicense(data: FormData): Promise<any>;
   abstract postAccountKeys(request: KeysRequest): Promise<any>;
   abstract postAccountVerifyEmail(): Promise<any>;
   abstract postAccountVerifyEmailToken(request: VerifyEmailRequest): Promise<any>;
   abstract postAccountRecoverDelete(request: DeleteRecoverRequest): Promise<any>;
   abstract postAccountRecoverDeleteToken(request: VerifyDeleteRecoverRequest): Promise<any>;
-  abstract postAccountKdf(request: KdfRequest): Promise<any>;
   abstract postUserApiKey(id: string, request: SecretVerificationRequest): Promise<ApiKeyResponse>;
   abstract postUserRotateApiKey(
     id: string,
@@ -279,12 +273,12 @@ export abstract class ApiService {
   abstract postCollection(
     organizationId: string,
     request: CreateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract putCollection(
     organizationId: string,
     id: string,
     request: UpdateCollectionRequest,
-  ): Promise<CollectionDetailsResponse>;
+  ): Promise<CollectionAccessDetailsResponse>;
   abstract deleteCollection(organizationId: string, id: string): Promise<any>;
   abstract deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any>;
 

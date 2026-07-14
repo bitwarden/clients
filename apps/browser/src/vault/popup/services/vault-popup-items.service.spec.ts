@@ -102,7 +102,9 @@ describe("VaultPopupItemsService", () => {
       failedToDecryptCiphersSubject.asObservable(),
     );
 
-    searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => ciphers!);
+    searchService.searchCiphers.mockImplementation(
+      async (userId, _organizationId, _query, ciphers) => ciphers!,
+    );
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
@@ -271,6 +273,9 @@ describe("VaultPopupItemsService", () => {
         [CipherType.Identity]: 3,
         [CipherType.SecureNote]: 4,
         [CipherType.SshKey]: 5,
+        [CipherType.BankAccount]: 6,
+        [CipherType.DriversLicense]: 7,
+        [CipherType.Passport]: 8,
       };
 
       // Assume all ciphers are autofill ciphers to test sorting
@@ -295,11 +300,13 @@ describe("VaultPopupItemsService", () => {
     it("should filter autoFillCiphers$ down to search term", (done) => {
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async (userId, q, _, ciphers) => {
-        return ciphers!.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
+      searchService.searchCiphers.mockImplementation(
+        async (userId, _organizationId, q, ciphers) => {
+          return ciphers!.filter((cipher) => {
+            return cipher.name.includes(searchText);
+          });
+        },
+      );
 
       // there is only 1 Login returned for filteredCiphers.
       service.autoFillCiphers$.subscribe((ciphers) => {
@@ -476,20 +483,15 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("applyFilter", () => {
-    it("should call search Service with the new search term", (done) => {
+    it("should call search Service with the new search term", async () => {
       const searchText = "Hello";
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
 
       service.applyFilter(searchText);
-      service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(
-          "UserId",
-          searchText,
-          undefined,
-          expect.anything(),
-        );
-        done();
-      });
+
+      await firstValueFrom(service.favoriteCiphers$.pipe(take(1)));
+
+      expect(searchServiceSpy).toHaveBeenCalledWith("UserId", null, searchText, expect.anything());
     });
   });
 

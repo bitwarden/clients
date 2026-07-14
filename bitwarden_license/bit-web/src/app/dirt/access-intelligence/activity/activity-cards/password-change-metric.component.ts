@@ -24,6 +24,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
 import {
   ButtonModule,
+  IconModule,
   ProgressBarComponent,
   ToastService,
   TypographyModule,
@@ -43,7 +44,7 @@ export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof Passwo
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-password-change-metric",
-  imports: [TypographyModule, JslibModule, ProgressBarComponent, ButtonModule],
+  imports: [TypographyModule, JslibModule, ProgressBarComponent, ButtonModule, IconModule],
   templateUrl: "./password-change-metric.component.html",
 })
 export class PasswordChangeMetricComponent implements OnInit {

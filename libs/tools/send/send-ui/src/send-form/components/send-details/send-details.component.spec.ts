@@ -4,12 +4,19 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  asDatePreset,
+  isDatePreset,
+  SendDeletionDatePreset,
+} from "@bitwarden/common/tools/models/send-deletion-date-preset";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -21,23 +28,18 @@ import { SendFormGenerationService } from "../../abstractions/send-form-generati
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
-import {
-  DatePreset,
-  SendDetailsComponent,
-  asDatePreset,
-  isDatePreset,
-} from "./send-details.component";
+import { SendDetailsComponent } from "./send-details.component";
 
-describe("SendDetails DatePreset utilities", () => {
+describe("SendDetails SendDeletionDatePreset utilities", () => {
   it("accepts all defined numeric presets", () => {
     const presets: Array<any> = [
-      DatePreset.OneHour,
-      DatePreset.OneDay,
-      DatePreset.TwoDays,
-      DatePreset.ThreeDays,
-      DatePreset.SevenDays,
-      DatePreset.FourteenDays,
-      DatePreset.ThirtyDays,
+      SendDeletionDatePreset.OneHour,
+      SendDeletionDatePreset.OneDay,
+      SendDeletionDatePreset.TwoDays,
+      SendDeletionDatePreset.ThreeDays,
+      SendDeletionDatePreset.SevenDays,
+      SendDeletionDatePreset.FourteenDays,
+      SendDeletionDatePreset.ThirtyDays,
     ];
     presets.forEach((p) => {
       expect(isDatePreset(p)).toBe(true);
@@ -66,13 +68,21 @@ describe("SendDetailsComponent", () => {
   const mockSendApiService = mock<SendApiService>();
   const mockEnvironmentService = mock<EnvironmentService>();
   const mockSendFormService = mock<SendFormService>();
+  const mockPolicyService = mock<PolicyService>();
 
   beforeEach(async () => {
     mockEnvironmentService.environment$ = of({
       getSendUrl: () => "https://send.bitwarden.com/",
     } as any);
     mockAccountService.activeAccount$ = of({ id: "userId" } as Account);
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockConfigService.getFeatureFlag$.mockImplementation((key) => {
+      if (key === FeatureFlag.SendControls) {
+        return of(true);
+      }
+      return of(false);
+    });
+    mockPolicyService.policiesByType$.mockReturnValue(of([]));
+    mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
     mockBillingStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
     mockI18nService.t.mockImplementation((k) => k);
 
@@ -88,12 +98,13 @@ describe("SendDetailsComponent", () => {
         { provide: BillingAccountProfileStateService, useValue: mockBillingStateService },
         { provide: CredentialGeneratorService, useValue: mockGeneratorService },
         { provide: SendApiService, useValue: mockSendApiService },
-        { provide: PolicyService, useValue: mock<PolicyService>() },
+        { provide: PolicyService, useValue: mockPolicyService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: SendFormService, useValue: mockSendFormService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: SendFormGenerationService, useValue: mock<SendFormGenerationService>() },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
       ],
     }).compileComponents();
 

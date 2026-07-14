@@ -5,12 +5,6 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
@@ -28,9 +22,11 @@ import {
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -43,9 +39,12 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
+import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -91,6 +90,7 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -108,6 +108,7 @@ export class DefaultSyncService extends CoreSyncService {
     private securityStateService: SecurityStateService,
     private kdfConfigService: KdfConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
+    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
   ) {
     super(
       tokenService,
@@ -193,6 +194,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -347,7 +349,8 @@ export class DefaultSyncService extends CoreSyncService {
 
   private async syncProfileOrganizations(response: ProfileResponse, userId: UserId) {
     const organizations: { [id: string]: OrganizationData } = {};
-    response.organizations.forEach((o) => {
+    const source = response.organizationsNew ?? response.organizations ?? [];
+    source.forEach((o) => {
       organizations[o.id] = new OrganizationData(o, {
         isMember: true,
         isProviderUser: false,
@@ -427,6 +430,24 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.policyService.replace(policies, userId);
   }
 
+  private async syncNewPolicies(
+    response: PolicyResponse[] | undefined,
+    fallback: PolicyResponse[] | undefined,
+    userId: UserId,
+  ) {
+    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
+    // feature flag is off) so the new service is always seeded with data.
+    const source = response != null && response.length > 0 ? response : fallback;
+    if (source == null || source.length === 0) {
+      return;
+    }
+    const policies: { [id: string]: PolicyData } = {};
+    source.forEach((p) => {
+      policies[p.id] = new PolicyData(p);
+    });
+    return await this.newPolicyService.replace(policies, userId);
+  }
+
   private async syncUserDecryption(
     userId: UserId,
     userDecryption: UserDecryptionResponse | undefined,
@@ -480,6 +501,15 @@ export class DefaultSyncService extends CoreSyncService {
       } catch (error) {
         this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
       }
+    }
+
+    if (userDecryption.v2UpgradeToken != null) {
+      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
+        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
+        userId,
+      );
+    } else {
+      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
     }
   }
 }

@@ -28,6 +28,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -81,6 +82,7 @@ export type NewApplicationsDialogResultType =
   imports: [
     ButtonModule,
     DialogModule,
+    IconModule,
     TypographyModule,
     I18nPipe,
     AssignTasksViewComponent,
@@ -314,8 +316,8 @@ export class NewApplicationsDialogComponent {
     }
   }
 
-  // Saves the application review and assigns tasks for unassigned at-risk ciphers
-  protected async handleAssignTasks() {
+  // Saves the application review and sends notifications for unassigned at-risk ciphers
+  protected async handleSendNotifications() {
     if (this.saving()) {
       return; // Prevent double-click
     }

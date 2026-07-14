@@ -31,6 +31,7 @@ export default {
               good: "Good",
               strong: "Strong",
               close: "Close",
+              callout: "Callout",
             });
           },
         },

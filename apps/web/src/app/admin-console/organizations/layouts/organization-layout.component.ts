@@ -1,7 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { combineLatest, filter, map, Observable, switchMap, withLatestFrom } from "rxjs";
 
@@ -17,11 +15,13 @@ import {
   canAccessSettingsTab,
   canAccessVaultTab,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
+import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -50,101 +50,89 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
-    TaxIdWarningComponent,
   ],
 })
-export class OrganizationLayoutComponent implements OnInit {
+export class OrganizationLayoutComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly policyService = inject(PolicyService);
+  private readonly providerService = inject(ProviderService);
+  private readonly accountService = inject(AccountService);
+  private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
+  private readonly organizationWarningsService = inject(OrganizationWarningsService);
+
   protected readonly logo = AdminConsoleLogo;
 
-  protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
+  protected readonly orgFilter = (org: Organization) => canAccessOrgAdmin(org);
 
-  protected integrationPageEnabled$: Observable<boolean>;
+  private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  organization$: Observable<Organization>;
-  canAccessExport$: Observable<boolean>;
-  showPaymentAndHistory$: Observable<boolean>;
-  hideNewOrgButton$: Observable<boolean>;
-  organizationIsUnmanaged$: Observable<boolean>;
+  readonly organization$: Observable<Organization> = this.route.params.pipe(
+    map((p) => p.organizationId),
+    withLatestFrom(this.userId$),
+    switchMap(([orgId, userId]) =>
+      this.organizationService.organizations$(userId).pipe(getById(orgId)),
+    ),
+    filter((org): org is Organization => org != null),
+  );
 
-  protected showSponsoredFamiliesDropdown$: Observable<boolean>;
+  readonly canAccessExport$: Observable<boolean> = this.organization$.pipe(
+    map((org) => org.canAccessExport),
+  );
 
-  protected subscriber$: Observable<NonIndividualSubscriber>;
-  protected getTaxIdWarning$: () => Observable<TaxIdWarningType | null>;
+  readonly showPaymentAndHistory$: Observable<boolean> = this.organization$.pipe(
+    map(
+      (org) =>
+        !this.platformUtilsService.isSelfHost() &&
+        org.canViewBillingHistory &&
+        org.canEditPaymentMethods,
+    ),
+  );
 
-  constructor(
-    private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    private platformUtilsService: PlatformUtilsService,
-    private policyService: PolicyService,
-    private providerService: ProviderService,
-    private accountService: AccountService,
-    private freeFamiliesPolicyService: FreeFamiliesPolicyService,
-    private organizationWarningsService: OrganizationWarningsService,
-  ) {}
+  readonly hideNewOrgButton$: Observable<boolean> = this.userId$.pipe(
+    switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
+  );
 
-  async ngOnInit() {
+  private readonly provider$: Observable<Provider | undefined> = combineLatest([
+    this.organization$,
+    this.userId$,
+  ]).pipe(
+    switchMap(([organization, userId]) =>
+      this.providerService.get$(organization.providerId, userId),
+    ),
+  );
+
+  readonly organizationIsUnmanaged$: Observable<boolean> = combineLatest([
+    this.organization$,
+    this.provider$,
+  ]).pipe(
+    map(
+      ([organization, provider]) =>
+        !organization.hasProvider ||
+        !provider ||
+        provider.providerStatus !== ProviderStatusType.Billable,
+    ),
+  );
+
+  protected readonly integrationPageEnabled$: Observable<boolean> = this.organization$.pipe(
+    map((org) => org.canAccessIntegrations),
+  );
+
+  protected readonly showSponsoredFamiliesDropdown$: Observable<boolean> =
+    this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
+
+  protected readonly subscriber$: Observable<NonIndividualSubscriber> = this.organization$.pipe(
+    map((organization) => ({ type: "organization" as const, data: organization })),
+  );
+
+  protected readonly getTaxIdWarning$: () => Observable<TaxIdWarningType | null> = () =>
+    this.organization$.pipe(
+      switchMap((organization) => this.organizationWarningsService.getTaxIdWarning$(organization)),
+    );
+
+  constructor() {
     document.body.classList.remove("layout_frontend");
-
-    this.organization$ = this.route.params.pipe(
-      map((p) => p.organizationId),
-      withLatestFrom(this.accountService.activeAccount$.pipe(getUserId)),
-      switchMap(([orgId, userId]) =>
-        this.organizationService.organizations$(userId).pipe(getById(orgId)),
-      ),
-      filter((org) => org != null),
-    );
-    this.showSponsoredFamiliesDropdown$ =
-      this.freeFamiliesPolicyService.showSponsoredFamiliesDropdown$(this.organization$);
-
-    this.canAccessExport$ = this.organization$.pipe(map((org) => org.canAccessExport));
-
-    this.showPaymentAndHistory$ = this.organization$.pipe(
-      map(
-        (org) =>
-          !this.platformUtilsService.isSelfHost() &&
-          org.canViewBillingHistory &&
-          org.canEditPaymentMethods,
-      ),
-    );
-
-    this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
-    );
-
-    const provider$ = combineLatest([
-      this.organization$,
-      this.accountService.activeAccount$.pipe(getUserId),
-    ]).pipe(
-      switchMap(([organization, userId]) =>
-        this.providerService.get$(organization.providerId, userId),
-      ),
-    );
-
-    this.organizationIsUnmanaged$ = combineLatest([this.organization$, provider$]).pipe(
-      map(
-        ([organization, provider]) =>
-          !organization.hasProvider ||
-          !provider ||
-          provider.providerStatus !== ProviderStatusType.Billable,
-      ),
-    );
-
-    this.integrationPageEnabled$ = this.organization$.pipe(map((org) => org.canAccessIntegrations));
-
-    this.subscriber$ = this.organization$.pipe(
-      map((organization) => ({
-        type: "organization",
-        data: organization,
-      })),
-    );
-
-    this.getTaxIdWarning$ = () =>
-      this.organization$.pipe(
-        switchMap((organization) =>
-          this.organizationWarningsService.getTaxIdWarning$(organization),
-        ),
-      );
   }
 
   canShowVaultTab(organization: Organization): boolean {
@@ -179,5 +167,7 @@ export class OrganizationLayoutComponent implements OnInit {
     return organization.useEvents ? "reporting" : "reports";
   }
 
-  refreshTaxIdWarning = () => this.organizationWarningsService.refreshTaxIdWarning();
+  refreshTaxIdWarning() {
+    this.organizationWarningsService.refreshTaxIdWarning();
+  }
 }

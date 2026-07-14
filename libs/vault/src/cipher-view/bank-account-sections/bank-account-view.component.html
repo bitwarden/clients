@@ -1,0 +1,232 @@
+<section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "bankAccountDetails" | i18n }}</h2>
+  </bit-section-header>
+  <read-only-cipher-card>
+    @if (bankAccount().bankName) {
+      <bit-form-field>
+        <bit-label>{{ "bankName" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().bankName"
+          aria-readonly="true"
+          data-testid="bank-name"
+        />
+      </bit-form-field>
+    }
+
+    @if (bankAccount().nameOnAccount) {
+      <bit-form-field>
+        <bit-label>{{ "nameOnAccount" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().nameOnAccount"
+          aria-readonly="true"
+          data-testid="name-on-account"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyNameOnAccount' | i18n"
+          appCopyField="nameOnAccount"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (localizedAccountType()) {
+      <bit-form-field>
+        <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="localizedAccountType()"
+          aria-readonly="true"
+          data-testid="account-type"
+        />
+      </bit-form-field>
+    }
+
+    @if (bankAccount().accountNumber) {
+      <bit-form-field>
+        <bit-label>{{ "accountNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().accountNumber"
+          aria-readonly="true"
+          type="password"
+          data-testid="account-number"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-account-number"
+          [toggled]="revealAccountNumber()"
+          (toggledChange)="toggleAccountNumberVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyAccountNumber' | i18n"
+          appCopyField="accountNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().routingNumber) {
+      <bit-form-field>
+        <bit-label>{{ "bankRoutingNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().routingNumber"
+          aria-readonly="true"
+          data-testid="routing-number"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyRoutingNumber' | i18n"
+          appCopyField="routingNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().branchNumber) {
+      <bit-form-field>
+        <bit-label>{{ "branchNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().branchNumber"
+          aria-readonly="true"
+          data-testid="branch-number"
+        />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyBranchNumber' | i18n"
+          appCopyField="branchNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().pin) {
+      <bit-form-field>
+        <bit-label>{{ "pin" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().pin"
+          aria-readonly="true"
+          type="password"
+          data-testid="pin"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-pin"
+          [toggled]="revealPin()"
+          (toggledChange)="togglePinVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyPin' | i18n"
+          appCopyField="pin"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().swiftCode) {
+      <bit-form-field>
+        <bit-label>{{ "swiftCode" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().swiftCode"
+          aria-readonly="true"
+          data-testid="swift-code"
+          type="password"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-swift-code"
+          [toggled]="revealSwiftCode()"
+          (toggledChange)="toggleSwiftCodeVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copySwiftCode' | i18n"
+          appCopyField="swiftCode"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().iban) {
+      <bit-form-field>
+        <bit-label>{{ "iban" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().iban"
+          aria-readonly="true"
+          data-testid="iban"
+          type="password"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          data-testid="toggle-iban"
+          [toggled]="revealIban()"
+          (toggledChange)="toggleIbanVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyIban' | i18n"
+          appCopyField="iban"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (bankAccount().bankContactPhone) {
+      <bit-form-field>
+        <bit-label>{{ "bankContactPhone" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="bankAccount().bankContactPhone"
+          aria-readonly="true"
+          data-testid="bank-contact-phone"
+        />
+      </bit-form-field>
+    }
+  </read-only-cipher-card>
+</section>

@@ -45,11 +45,19 @@ export class ProgressBarComponent {
   readonly ariaValueText = input<string>();
   /** The ID of the progress bar element, used for attaching `aria-describedby` attributes. */
   readonly progressBarId = input<string>(`bit-progress-bar-${this.id}`);
+  /**
+   * If a label is not supplied, provide a screenreader-accessible unique name for this progress bar
+   */
+  readonly accessibleName = input<string>();
 
   private readonly i18nService = inject(I18nService);
 
   // Necessary for `aria-labelledby` to point to the label element
   protected readonly labelId = `bit-progress-bar-label-${this.id}`;
+
+  protected readonly accessibleNameComputed = computed(() => {
+    return this.accessibleName() ?? `${this.i18nService.t("progressBar")} ${this.id + 1}`;
+  });
 
   protected readonly clampedValue = computed(() => Math.max(0, Math.min(100, this.value())));
 

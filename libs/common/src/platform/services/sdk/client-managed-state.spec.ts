@@ -1,10 +1,10 @@
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
 
 import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
-import { StateDefinition, UserKeyDefinition } from "../../state";
+import { StateDefinition, StateProvider, UserKeyDefinition } from "../../state";
 
 import { RepositoryRecord, SdkRecordMapper } from "./client-managed-state";
 
@@ -30,7 +30,6 @@ describe("RepositoryRecord", () => {
   let userId: UserId;
   let mapper: SdkRecordMapper<ClientType, SdkType>;
   let repo: RepositoryRecord<ClientType, SdkType>;
-
   beforeEach(() => {
     userId = newGuid() as UserId;
     const accountService = mockAccountServiceWith(userId);
@@ -237,6 +236,257 @@ describe("RepositoryRecord", () => {
       await repo.removeAll();
 
       expect(await getState()).toEqual({});
+    });
+  });
+
+  describe("delayed state propagation", () => {
+    const PROPAGATION_DELAY_MS = 200;
+
+    type StateRecord = Record<string, ClientType> | null;
+
+    /**
+     * Creates a mock StateProvider where state$ emissions are delayed,
+     * simulating async propagation (e.g. storage write + re-read).
+     */
+    function createDelayedStateProvider(initialState: StateRecord = null): StateProvider {
+      let currentValue: StateRecord = initialState;
+      const subject = new BehaviorSubject<StateRecord>(initialState);
+
+      const delayedUserState = {
+        state$: subject.asObservable(),
+        update: jest.fn(async (fn: (state: StateRecord) => StateRecord) => {
+          const newState = fn(currentValue);
+          currentValue = newState;
+          setTimeout(() => subject.next(newState), PROPAGATION_DELAY_MS);
+          return newState;
+        }),
+      };
+
+      return {
+        getUser: () => delayedUserState,
+      } as unknown as StateProvider;
+    }
+
+    /**
+     * Retries an assertion until it passes or the timeout is reached.
+     * Used to verify that optimistic writes eventually propagate.
+     */
+    async function expectEventually(
+      assertion: () => Promise<void>,
+      timeoutMs: number = PROPAGATION_DELAY_MS + 500,
+    ): Promise<void> {
+      const start = Date.now();
+      let lastError: Error;
+      do {
+        try {
+          await assertion();
+          return;
+        } catch (e) {
+          lastError = e as Error;
+          await new Promise((r) => setTimeout(r, 10));
+        }
+      } while (Date.now() - start < timeoutMs);
+      throw lastError;
+    }
+
+    describe("set", () => {
+      it("atomic: get returns updated value after set", async () => {
+        const delayedProvider = createDelayedStateProvider();
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.set("id-1", { value: "value-1" });
+        const result = await atomicRepo.get("id-1");
+
+        expect(result).toEqual({ value: "value-1" });
+      });
+
+      it("optimistic: get returns stale value after set, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider();
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.set("id-1", { value: "value-1" });
+
+        expect(await optimisticRepo.get("id-1")).toBeNull();
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+        });
+      });
+
+      it("atomic: get returns overwritten value after set", async () => {
+        const delayedProvider = createDelayedStateProvider({ "id-1": "value-1" });
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.set("id-1", { value: "value-2" });
+        const result = await atomicRepo.get("id-1");
+
+        expect(result).toEqual({ value: "value-2" });
+      });
+
+      it("optimistic: get returns previous value after overwrite, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider({ "id-1": "value-1" });
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.set("id-1", { value: "value-2" });
+
+        expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-2" });
+        });
+      });
+    });
+
+    describe("setBulk", () => {
+      it("atomic: get returns updated values after setBulk", async () => {
+        const delayedProvider = createDelayedStateProvider();
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.setBulk([
+          ["id-1", { value: "value-1" }],
+          ["id-2", { value: "value-2" }],
+        ]);
+
+        expect(await atomicRepo.get("id-1")).toEqual({ value: "value-1" });
+        expect(await atomicRepo.get("id-2")).toEqual({ value: "value-2" });
+      });
+
+      it("optimistic: get returns stale values after setBulk, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider();
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.setBulk([
+          ["id-1", { value: "value-1" }],
+          ["id-2", { value: "value-2" }],
+        ]);
+
+        expect(await optimisticRepo.get("id-1")).toBeNull();
+        expect(await optimisticRepo.get("id-2")).toBeNull();
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+          expect(await optimisticRepo.get("id-2")).toEqual({ value: "value-2" });
+        });
+      });
+
+      it("atomic: get returns overwritten values after setBulk", async () => {
+        const delayedProvider = createDelayedStateProvider({
+          "id-1": "value-1",
+          "id-2": "value-2",
+        });
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.setBulk([
+          ["id-1", { value: "updated-1" }],
+          ["id-2", { value: "updated-2" }],
+        ]);
+
+        expect(await atomicRepo.get("id-1")).toEqual({ value: "updated-1" });
+        expect(await atomicRepo.get("id-2")).toEqual({ value: "updated-2" });
+      });
+
+      it("optimistic: get returns previous values after overwrite, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider({
+          "id-1": "value-1",
+          "id-2": "value-2",
+        });
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.setBulk([
+          ["id-1", { value: "updated-1" }],
+          ["id-2", { value: "updated-2" }],
+        ]);
+
+        expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+        expect(await optimisticRepo.get("id-2")).toEqual({ value: "value-2" });
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toEqual({ value: "updated-1" });
+          expect(await optimisticRepo.get("id-2")).toEqual({ value: "updated-2" });
+        });
+      });
+    });
+
+    describe("remove", () => {
+      const initialState = { "id-1": "value-1" };
+
+      it("atomic: get returns null after remove", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.remove("id-1");
+        const result = await atomicRepo.get("id-1");
+
+        expect(result).toBeNull();
+      });
+
+      it("optimistic: get returns stale value after remove, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.remove("id-1");
+
+        expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toBeNull();
+        });
+      });
+    });
+
+    describe("removeBulk", () => {
+      const initialState = { "id-1": "value-1", "id-2": "value-2" };
+
+      it("atomic: get returns null after removeBulk", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.removeBulk(["id-1", "id-2"]);
+
+        expect(await atomicRepo.get("id-1")).toBeNull();
+        expect(await atomicRepo.get("id-2")).toBeNull();
+      });
+
+      it("optimistic: get returns stale values after removeBulk, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.removeBulk(["id-1", "id-2"]);
+
+        expect(await optimisticRepo.get("id-1")).toEqual({ value: "value-1" });
+        expect(await optimisticRepo.get("id-2")).toEqual({ value: "value-2" });
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.get("id-1")).toBeNull();
+          expect(await optimisticRepo.get("id-2")).toBeNull();
+        });
+      });
+    });
+
+    describe("removeAll", () => {
+      const initialState = { "id-1": "value-1", "id-2": "value-2" };
+
+      it("atomic: list returns empty after removeAll", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const atomicRepo = new RepositoryRecord(userId, delayedProvider, mapper);
+
+        await atomicRepo.removeAll();
+
+        expect(await atomicRepo.list()).toEqual([]);
+      });
+
+      it("optimistic: list returns stale values after removeAll, then eventually propagates", async () => {
+        const delayedProvider = createDelayedStateProvider(initialState);
+        const optimisticRepo = new RepositoryRecord(userId, delayedProvider, mapper, true);
+
+        await optimisticRepo.removeAll();
+
+        expect(await optimisticRepo.list()).toEqual([{ value: "value-1" }, { value: "value-2" }]);
+
+        await expectEventually(async () => {
+          expect(await optimisticRepo.list()).toEqual([]);
+        });
+      });
     });
   });
 });

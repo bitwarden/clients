@@ -1,17 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  Environment,
-  EnvironmentService,
-} from "@bitwarden/common/platform/abstractions/environment.service";
-
 import { FakeStateProvider, FakeAccountService, mockAccountServiceWith } from "../../../spec";
+import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
+import { AuthService } from "../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { Environment, EnvironmentService } from "../../platform/abstractions/environment.service";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 import { FormPurposeCategories } from "../constants";
@@ -30,6 +26,7 @@ describe("DefaultDomainSettingsService", () => {
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let environmentService: MockProxy<EnvironmentService>;
   let authService: MockProxy<AuthService>;
+  let fillAssistFeatureFlagMock$: BehaviorSubject<boolean>;
 
   const mockEquivalentDomains = [
     ["example.com", "exampleapp.com", "example.co.uk", "ejemplo.es"],
@@ -45,6 +42,11 @@ describe("DefaultDomainSettingsService", () => {
 
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
+    fillAssistFeatureFlagMock$ = new BehaviorSubject(false);
+    configService.getFeatureFlag$
+      .calledWith(FeatureFlag.FillAssistTargetingRules)
+      .mockReturnValue(fillAssistFeatureFlagMock$);
 
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
@@ -113,9 +115,7 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.FillAssistTargetingRules)
-        .mockResolvedValue(true);
+      fillAssistFeatureFlagMock$.next(true);
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -636,7 +636,7 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("handles state gates", () => {
       it("returns null when feature flag is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
+        fillAssistFeatureFlagMock$.next(false);
         await domainSettingsService.setEnableFillAssist(true);
         await setupRules(mockRules);
 
@@ -648,7 +648,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when fill assist setting is disabled", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(false);
         await domainSettingsService.setTargetingRules(mockRules);
 
@@ -660,7 +660,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no active account (logged out)", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         accountService.activeAccountSubject.next(null);
         await setupRules(mockRules);
@@ -673,7 +673,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no rules exist in state", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+        fillAssistFeatureFlagMock$.next(true);
         await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 

@@ -48,9 +48,6 @@ export * from "./sso/sso.component";
 export * from "./sso/sso-component.service";
 export * from "./sso/default-sso-component.service";
 
-// self hosted environment configuration dialog
-export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
-
 // two factor auth
 export * from "./two-factor-auth";
 

@@ -30,8 +30,10 @@ export class OrganizationResponse extends BaseResponse {
   useSecretsManager: boolean;
   hasPublicAndPrivateKeys: boolean;
   usePasswordManager: boolean;
+  usePam: boolean;
   smSeats?: number;
   smServiceAccounts?: number;
+  smServiceAccountsGrace?: number;
   maxAutoscaleSmSeats?: number;
   maxAutoscaleSmServiceAccounts?: number;
   limitCollectionCreation: boolean;
@@ -42,6 +44,7 @@ export class OrganizationResponse extends BaseResponse {
   useAccessIntelligence: boolean;
   usePhishingBlocker: boolean;
   useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(response: any) {
     super(response);
@@ -73,8 +76,10 @@ export class OrganizationResponse extends BaseResponse {
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
     this.hasPublicAndPrivateKeys = this.getResponseProperty("HasPublicAndPrivateKeys");
     this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
+    this.usePam = this.getResponseProperty("UsePam") ?? false;
     this.smSeats = this.getResponseProperty("SmSeats");
     this.smServiceAccounts = this.getResponseProperty("SmServiceAccounts");
+    this.smServiceAccountsGrace = this.getResponseProperty("SmServiceAccountsGrace") ?? 0;
     this.maxAutoscaleSmSeats = this.getResponseProperty("MaxAutoscaleSmSeats");
     this.maxAutoscaleSmServiceAccounts = this.getResponseProperty("MaxAutoscaleSmServiceAccounts");
     this.limitCollectionCreation = this.getResponseProperty("LimitCollectionCreation");
@@ -88,5 +93,6 @@ export class OrganizationResponse extends BaseResponse {
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
     this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }

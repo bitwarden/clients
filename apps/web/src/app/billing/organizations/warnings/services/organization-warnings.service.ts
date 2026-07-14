@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import {
   BehaviorSubject,
   filter,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
@@ -17,10 +18,13 @@ import { take } from "rxjs/operators";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
+import { BILLING_DISK_LOCAL, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
 
@@ -32,6 +36,7 @@ import { openChangePlanDialog } from "../../change-plan-dialog.component";
 import {
   OrganizationFreeTrialWarning,
   OrganizationResellerRenewalWarning,
+  OrganizationScheduledPriceIncreaseWarning,
   OrganizationWarningsResponse,
 } from "../types";
 
@@ -41,6 +46,18 @@ const format = (date: Date) =>
     day: "2-digit",
     year: "numeric",
   });
+
+type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
+
+export const TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY =
+  new UserKeyDefinition<TrialPaymentModalDismissedOrgs>(
+    BILLING_DISK_LOCAL,
+    "trialPaymentModalDismissedOrgs",
+    {
+      deserializer: (value) => value,
+      clearOn: [], // Do not clear dismissed modals
+    },
+  );
 
 @Injectable({ providedIn: "root" })
 export class OrganizationWarningsService {
@@ -60,6 +77,9 @@ export class OrganizationWarningsService {
     private organizationBillingClient: OrganizationBillingClient,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
+    private accountService: AccountService,
+    private logService: LogService,
+    private stateProvider: StateProvider,
   ) {}
 
   getFreeTrialWarning$ = (
@@ -143,6 +163,11 @@ export class OrganizationWarningsService {
         }
       }),
     );
+
+  getScheduledPriceIncreaseWarning$ = (
+    organization: Organization,
+  ): Observable<OrganizationScheduledPriceIncreaseWarning | null> =>
+    this.getWarning$(organization, (response) => response.scheduledPriceIncrease);
 
   getTaxIdWarning$ = (organization: Organization): Observable<TaxIdWarningType | null> =>
     merge(
@@ -238,6 +263,19 @@ export class OrganizationWarningsService {
     this.getWarning$(organization, (response) => response.freeTrial).pipe(
       filter((warning) => warning !== null),
       switchMap(async () => {
+        const account = await firstValueFrom(this.accountService.activeAccount$);
+        if (!account) {
+          return;
+        }
+
+        const dismissedOrgs = await firstValueFrom(
+          this.stateProvider.getUserState$(TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY, account.id),
+        );
+        // dismissedOrgs is null when no dismissals have been stored yet
+        if (dismissedOrgs?.[organization.id]) {
+          return;
+        }
+
         const organizationSubscriptionResponse = await this.organizationApiService.getSubscription(
           organization.id,
         );
@@ -249,9 +287,27 @@ export class OrganizationWarningsService {
             productTierType: organization?.productTierType,
           },
         });
+
         const result = await lastValueFrom(dialogRef.closed);
-        if (result === TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED) {
-          this.refreshFreeTrialWarningTrigger.next();
+
+        switch (result) {
+          case TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED: {
+            this.refreshFreeTrialWarningTrigger.next();
+            break;
+          }
+          default: {
+            // Covers CLOSED, X button, ESC, and clicking outside (all emit undefined).
+            // Uses .update() to read current state at write time, preventing stale overwrites
+            // if multiple tabs dismiss different orgs concurrently.
+            try {
+              await this.stateProvider
+                .getUser(account.id, TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY)
+                .update((current) => ({ ...(current ?? {}), [organization.id]: true }));
+            } catch (error) {
+              this.logService.error("Failed to save trial payment modal dismissal state:", error);
+            }
+            break;
+          }
         }
       }),
     );

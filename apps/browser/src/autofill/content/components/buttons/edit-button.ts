@@ -4,8 +4,12 @@ import { html } from "lit";
 import { Theme } from "@bitwarden/common/platform/enums";
 
 import { EventSecurity } from "../../../utils/event-security";
-import { themes, typography, spacing } from "../constants/styles";
+import { themes, spacing } from "../constants/styles";
 import { PencilSquare } from "../icons";
+
+const editButtonIconSize = "16px";
+const editButtonInset = spacing["1"];
+const editButtonSize = `calc(${editButtonIconSize} + (${editButtonInset} * 2))`;
 
 export type EditButtonProps = {
   buttonAction: (e: Event) => void;
@@ -33,16 +37,16 @@ export function EditButton({ buttonAction, buttonText, disabled = false, theme }
 }
 
 const editButtonStyles = ({ disabled, theme }: { disabled?: boolean; theme: Theme }) => css`
-  ${typography.helperMedium}
-
   user-select: none;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${editButtonSize};
+  height: ${editButtonSize};
   border: 1px solid transparent;
-  border-radius: ${spacing["1"]};
+  border-radius: ${editButtonInset};
   background-color: transparent;
-  padding: ${spacing["1"]};
-  max-height: fit-content;
-  overflow: hidden;
+  padding: ${editButtonInset};
 
   ${!disabled
     ? `
@@ -55,7 +59,7 @@ const editButtonStyles = ({ disabled, theme }: { disabled?: boolean; theme: Them
     : ""}
 
   > svg {
-    width: 16px;
-    height: fit-content;
+    width: ${editButtonIconSize};
+    height: ${editButtonIconSize};
   }
 `;

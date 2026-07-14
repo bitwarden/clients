@@ -12,7 +12,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { MessageListener, isExternalMessage } from "@bitwarden/common/platform/messaging";
-import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
@@ -26,7 +25,13 @@ import {
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
+import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
+import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
+import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";
+import { AutofillMessageCommand } from "../autofill/enums/autofill-message.enums";
+import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserInitialInstallService from "../platform/services/browser-initial-install.service";
@@ -55,16 +60,24 @@ export default class RuntimeBackground {
     private readonly lockService: LockService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private browserInitialInstallService: BrowserInitialInstallService,
+    private autofillLifecycleService: AutofillLifecycleService,
+    private defaultPasswordManagerPromptStateAccessor: DefaultPasswordManagerPromptStateAccessor,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
 
-    if (chrome?.permissions?.onAdded) {
-      chrome.permissions.onAdded.addListener((permissions) => {
-        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
-      });
+    const onPrivacyPermissionAdded = (
+      permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
+    ) => {
+      void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+    };
+
+    if (BrowserApi.isWebExtensionsApi && browser?.permissions?.onAdded) {
+      browser.permissions.onAdded.addListener(onPrivacyPermissionAdded);
+    } else if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener(onPrivacyPermissionAdded);
     }
   }
 
@@ -131,6 +144,12 @@ export default class RuntimeBackground {
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
+        break;
+      case AutofillMessageCommand.pageTransitionDetected:
+        // A page-lifecycle monitor reports a transition as a fact. The service
+        // buffers it against monitoring state and decides whether it warrants
+        // a collection.
+        this.autofillLifecycleService.reportPageTransition(sender.tab, sender.frameId);
         break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
@@ -222,30 +241,56 @@ export default class RuntimeBackground {
         return result;
       }
       case "getUrlAutofillTargetingRules": {
-        return await this.main.domainSettingsService.getTargetingRulesForUrl(sender.tab?.url);
+        // Because content scripts are injected into all _frames_, we give precedence
+        // to targeting rules matching by frame URI (`sender.url`) over tab URI, to avoid
+        // selector collision with coincidentally-matching in-frame structures.
+        const senderURL = sender.url ?? sender.tab?.url;
+        const targetingRulesForUrl =
+          await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
+
+        return targetingRulesForUrl;
+      }
+      case "authResult": {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
+          return;
+        }
+
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
+        }
+
+        if (sender.tab?.id) {
+          await BrowserApi.closeTab(sender.tab.id).catch((error) => {
+            this.logService.error("Unable to close SSO tab", error);
+          });
+        }
+        break;
       }
     }
   }
 
   private async handleSetBitwardenAsDefaultPasswordManager(
-    permissions: chrome.permissions.Permissions,
+    permissions: chrome.permissions.Permissions | browser.permissions.Permissions,
   ) {
-    if (!permissions.permissions?.includes("privacy")) {
+    if (!(permissions.permissions as string[] | undefined)?.includes("privacy")) {
       return;
     }
 
-    if (!chrome.storage?.session) {
-      return;
-    }
-
-    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
-    if (!result.pendingDefaultPasswordManagerApply) {
+    if (!(await isDefaultPasswordManagerPromptFeatureEnabled(this.configService))) {
       return;
     }
 
     try {
-      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
-      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+      await completePendingDefaultPasswordManagerApply();
     } catch (error) {
       this.logService.error(error);
     }
@@ -325,6 +370,9 @@ export default class RuntimeBackground {
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
         }
         break;
+      case FORCE_TARGETING_RULES_UPDATE_COMMAND:
+        this.main.targetingRulesDataService.forceUpdate();
+        break;
       case "openPopup":
         await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
         break;
@@ -352,25 +400,6 @@ export default class RuntimeBackground {
         break;
       case "bgReseedStorage": {
         await this.main.reseedStorage();
-        break;
-      }
-      case "authResult": {
-        if (!(await this.isValidVaultReferrer(msg.referrer))) {
-          return;
-        }
-
-        if (msg.lastpass) {
-          this.messagingService.send("importCallbackLastPass", {
-            code: msg.code,
-            state: msg.state,
-          });
-        } else {
-          try {
-            await openSsoAuthResultPopout(msg);
-          } catch {
-            this.logService.error("Unable to open sso popout tab");
-          }
-        }
         break;
       }
       case "webAuthnResult": {
@@ -489,22 +518,23 @@ export default class RuntimeBackground {
       void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
-        if (
-          this.onInstalledReason === "install" &&
-          !(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))
-        ) {
-          if (!devFlagEnabled("skipWelcomeOnInstall")) {
-            void BrowserApi.createNewTab("https://bitwarden.com/browser-start/");
+        if (this.onInstalledReason === "install") {
+          if (await isDefaultPasswordManagerPromptFeatureEnabled(this.configService)) {
+            await this.defaultPasswordManagerPromptStateAccessor.markFreshInstallEligible();
           }
 
-          await this.autofillSettingsService.setInlineMenuVisibility(
-            AutofillOverlayVisibility.OnFieldFocus,
-          );
+          if (!(await firstValueFrom(this.browserInitialInstallService.extensionInstalled$))) {
+            await this.browserInitialInstallService.displayWelcomePage();
 
-          if (await this.environmentService.hasManagedEnvironment()) {
-            await this.environmentService.setUrlsToManagedEnvironment();
+            await this.autofillSettingsService.setInlineMenuVisibility(
+              AutofillOverlayVisibility.OnFieldFocus,
+            );
+
+            if (await this.environmentService.hasManagedEnvironment()) {
+              await this.environmentService.setUrlsToManagedEnvironment();
+            }
+            await this.browserInitialInstallService.setExtensionInstalled(true);
           }
-          await this.browserInitialInstallService.setExtensionInstalled(true);
         }
 
         this.onInstalledReason = null;

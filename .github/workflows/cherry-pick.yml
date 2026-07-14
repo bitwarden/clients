@@ -30,7 +30,8 @@ jobs:
       dest_branch: ${{ inputs.dest_branch }}
       dest_branch_allowed: ''
     permissions:
-      contents: read
+      contents: write
+      pull-requests: write
       id-token: write
     secrets:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

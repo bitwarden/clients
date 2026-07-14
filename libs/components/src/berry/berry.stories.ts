@@ -14,6 +14,7 @@ export default {
     type: "count",
     variant: "primary",
     value: 5,
+    maxDigits: undefined,
   },
   argTypes: {
     type: {
@@ -39,7 +40,17 @@ export default {
     value: {
       control: "number",
       description:
-        "Optional value to display for berries with type 'count'. Maximum displayed is 999, values above show '999+'. If undefined, a small small berry is shown. If 0 or negative, the berry is hidden.",
+        "Optional value to display for berries with type 'count'. If undefined, a small berry is shown. If 0 or negative, the berry is hidden.",
+      table: {
+        category: "Inputs",
+        type: { summary: "number | undefined" },
+        defaultValue: { summary: "undefined" },
+      },
+    },
+    maxDigits: {
+      control: "number",
+      description:
+        "Limits the number of digits displayed in a count berry. When the value reaches or exceeds 10^maxDigits, it displays the maximum representable value followed by + (e.g., maxDigits=2 shows 99+ for values ≥ 100). If undefined, the full value is shown.",
       table: {
         category: "Inputs",
         type: { summary: "number | undefined" },
@@ -95,6 +106,17 @@ export const countType: Story = {
         </div>
     `,
   }),
+};
+
+export const WithMaxDigits: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<bit-berry [maxDigits]="maxDigits" [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
+  }),
+  args: {
+    value: 100,
+    maxDigits: 2,
+  },
 };
 
 export const AllVariants: Story = {

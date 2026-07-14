@@ -8,7 +8,10 @@ pub mod sshagent_v2 {
     use std::{sync::Arc, time::Duration};
 
     use async_trait::async_trait;
-    use napi::threadsafe_function::ThreadsafeFunction;
+    use napi::{
+        bindgen_prelude::{JsValuesTupleIntoVec, Promise},
+        threadsafe_function::ThreadsafeFunction,
+    };
     use ssh_agent::{
         ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
         SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
@@ -37,7 +40,7 @@ pub mod sshagent_v2 {
     }
 
     /// A sign request's SIG namespace
-    #[napi(string_enum)]
+    #[napi(string_enum = "camelCase")]
     #[derive(Debug)]
     pub enum SIGNamespace {
         Git,
@@ -63,6 +66,7 @@ pub mod sshagent_v2 {
         pub process_name: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SIGNamespace>,
+        pub host_fingerprint: Option<String>,
     }
 
     impl From<ssh_agent::SignRequest> for SignRequest {
@@ -72,9 +76,14 @@ pub mod sshagent_v2 {
                     alg: r.public_key.alg,
                     blob: r.public_key.blob,
                 },
-                process_name: r.process_name,
-                is_forwarding: r.is_forwarding,
+                process_name: r.connection.process_name,
+                is_forwarding: r
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
                 namespace: r.namespace.map(Into::into),
+                host_fingerprint: r.connection.session_bind.map(|s| s.host_fingerprint),
             }
         }
     }
@@ -104,50 +113,51 @@ pub mod sshagent_v2 {
 
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
-        // Callback used to request vault unlock from Electron
-        unlock_callback: Arc<ThreadsafeFunction<(), bool>>,
-        // Callback used to approve signing data
-        sign_callback: Arc<ThreadsafeFunction<SignRequestData, bool>>,
+        sign_callback: Arc<ThreadsafeFunction<SignRequestData, Promise<bool>>>,
+        list_callback: Arc<ThreadsafeFunction<(), Promise<bool>>>,
+    }
+
+    async fn invoke_callback<T: 'static + JsValuesTupleIntoVec>(
+        callback: &ThreadsafeFunction<T, Promise<bool>>,
+        arg: T,
+    ) -> Result<bool, ApprovalError> {
+        timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+            let promise = callback
+                .call_async(Ok(arg))
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))?;
+            promise
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))
+        })
+        .await
+        .map_err(|_| ApprovalError::Timeout)
+        .flatten()
     }
 
     #[async_trait]
     impl ApprovalRequester for ElectronApprovalRequester {
-        async fn request_unlock(&self) -> Result<bool, ApprovalError> {
-            debug!("Sending unlock request to Electron.");
-
-            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
-                self.unlock_callback
-                    .call_async(Ok(()))
-                    .await
-                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
-            })
-            .await
-            .map_err(|_| ApprovalError::Timeout)
-            .flatten()?;
-
-            debug!(%is_approved, "Unlock response from Electron.");
-            Ok(is_approved)
-        }
-
         async fn request_sign_approval(
             &self,
             request: SSHSignApprovalRequest,
         ) -> Result<bool, ApprovalError> {
-            let request = SignRequestData::from(request);
+            debug!("Sending sign approval request to Electron.");
 
-            debug!(?request, "Sending sign approval request to Electron.");
-
-            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
-                self.sign_callback
-                    .call_async(Ok(request))
-                    .await
-                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
-            })
-            .await
-            .map_err(|_| ApprovalError::Timeout)
-            .flatten()?;
+            let is_approved =
+                invoke_callback(&self.sign_callback, SignRequestData::from(request)).await?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
+
+            Ok(is_approved)
+        }
+
+        async fn request_list_approval(&self) -> Result<bool, ApprovalError> {
+            debug!("Sending list approval request to Electron.");
+
+            let is_approved = invoke_callback(&self.list_callback, ()).await?;
+
+            debug!(%is_approved, "List approval response from Electron.");
+
             Ok(is_approved)
         }
     }
@@ -158,36 +168,27 @@ pub mod sshagent_v2 {
         ///
         /// # Arguments
         ///
-        /// * `unlock_callback` - Allows agent to vault unlock
         /// * `sign_callback` - Allows agent to get approval for sign requests
-        #[napi(
-            factory,
-            // ts_args_type overrides the generated TypeScript parameter types. The Rust type
-            // `ThreadsafeFunction<T, bool>` would generate `(arg: T) => boolean`, but these
-            // callbacks return Promises. `call_async` awaits the Promise and deserializes the
-            // resolved value as `bool`, so `bool` is the correct Rust type — the mismatch is
-            // only in the generated TypeScript declaration.
-            ts_args_type = "unlockCallback: () => Promise<boolean>,
-                            signCallback: (data: SignRequestData) => Promise<boolean>"
-        )]
+        /// * `list_callback` - Allows agent to get approval for list key requests
+        #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
-            unlock_callback: ThreadsafeFunction<(), bool>,
-            sign_callback: ThreadsafeFunction<SignRequestData, bool>,
+            sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
+            list_callback: ThreadsafeFunction<(), Promise<bool>>,
         ) -> napi::Result<Self> {
+            debug!("Creating agent and starting server.");
+
             let approval_handler = ElectronApprovalRequester {
-                unlock_callback: Arc::new(unlock_callback),
                 sign_callback: Arc::new(sign_callback),
+                list_callback: Arc::new(list_callback),
             };
 
             let keystore = InMemoryEncryptedKeyStore::default();
 
             let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
 
-            debug!("Signaling the agent to start the server.");
-
             // TODO after PM-31827 is merged, can use simplified error conversion
-            agent.start_server().map_err(|error| {
+            agent.start().map_err(|error| {
                 error!(%error, "Failed to start the server.");
                 napi::Error::from_reason(error.to_string())
             })?;
@@ -199,7 +200,7 @@ pub mod sshagent_v2 {
 
         #[napi]
         pub fn stop(&mut self) {
-            self.agent.stop_server();
+            self.agent.stop();
         }
 
         #[napi]
@@ -208,23 +209,18 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn set_keys(&mut self, _new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
-            todo!()
-        }
+        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
+            let parsed = new_keys
+                .into_iter()
+                .map(|k| {
+                    ssh_agent::SSHKeyData::from_private_key_pem(&k.private_key, k.name, k.cipher_id)
+                        .map_err(|e| napi::Error::from_reason(e.to_string()))
+                })
+                .collect::<napi::Result<Vec<_>>>()?;
 
-        #[napi]
-        pub fn clear_keys(&mut self) {
-            self.agent.clear_keys();
-        }
-
-        #[napi]
-        pub fn lock(&mut self) {
-            self.agent.lock();
-        }
-
-        #[napi]
-        pub fn unlock(&mut self) {
-            self.agent.unlock();
+            self.agent
+                .replace(parsed)
+                .map_err(|e| napi::Error::from_reason(e.to_string()))
         }
     }
 }

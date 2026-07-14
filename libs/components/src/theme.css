@@ -9,7 +9,7 @@
 @font-face {
   font-family: Inter;
   src:
-    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2 supports variations"),
+    url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2") tech(variations),
     url("~@bitwarden/components/src/webfonts/inter.woff2") format("woff2-variations");
   font-display: swap;
   font-weight: 100 900;

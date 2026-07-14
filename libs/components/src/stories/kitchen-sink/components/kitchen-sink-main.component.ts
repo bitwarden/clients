@@ -125,7 +125,6 @@ export class KitchenSinkDialogWithAutofocusComponent {
         [bitPopoverAnchorFor]="tourStep1"
         [popoverOpen]="tourService.tourStep() === 1"
         [spotlight]="true"
-        [spotlightPadding]="12"
         [position]="'below-center'"
       />
       <button

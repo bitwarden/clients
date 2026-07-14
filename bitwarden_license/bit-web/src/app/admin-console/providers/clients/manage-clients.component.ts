@@ -29,6 +29,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
@@ -66,6 +67,7 @@ import { ReplacePipe } from "./replace.pipe";
     SharedOrganizationModule,
     NoClientsComponent,
     ReplacePipe,
+    IconModule,
   ],
 })
 export class ManageClientsComponent implements OnInit, OnDestroy {

@@ -7,6 +7,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -31,6 +32,7 @@ describe("CreateCommand", () => {
   const organizationService = mock<OrganizationService>();
   const accountService = mock<AccountService>();
   const cliRestrictedItemTypesService = mock<CliRestrictedItemTypesService>();
+  const configService = mock<ConfigService>();
 
   const userId = "user-id" as UserId;
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
@@ -71,7 +73,11 @@ describe("CreateCommand", () => {
     );
     keyService.getOrgKey.mockResolvedValue(mockOrgKey);
     encryptService.encryptString.mockResolvedValue(mockEncString);
-    apiService.postCollection.mockResolvedValue({ id: "new-collection-id" } as any);
+    apiService.postCollection.mockResolvedValue({
+      id: "new-collection-id",
+      groups: [],
+      users: [],
+    } as any);
 
     command = new CreateCommand(
       cipherService,
@@ -84,6 +90,7 @@ describe("CreateCommand", () => {
       organizationService,
       accountService,
       cliRestrictedItemTypesService,
+      configService,
     );
   });
 
@@ -209,6 +216,25 @@ describe("CreateCommand", () => {
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.postCollection.mockResolvedValue({
+        id: "new-collection-id",
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ groups: requestGroups }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
     });
   });
 });

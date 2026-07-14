@@ -11,6 +11,10 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BitwardenIcon } from "@bitwarden/components";
+
+export const SEND_EVENTS_HREF_PREFIX = "#send-events:";
+export const MEMBER_EVENTS_HREF_PREFIX = "#member-events:";
 
 @Injectable()
 export class EventService {
@@ -89,7 +93,9 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("exportedVault");
         break;
       case EventType.User_UpdatedTempPassword:
-        msg = humanReadableMsg = this.i18nService.t("updatedTempPassword");
+        msg = humanReadableMsg = this.i18nService.t(
+          "userResetMasterPasswordThroughAccountRecovery",
+        );
         break;
       case EventType.User_MigratedKeyToKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("migratedKeyConnector");
@@ -200,6 +206,105 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientToggledBankAccountNumberVisible:
+        msg = this.i18nService.t("viewedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledBankAccountPinVisible:
+        msg = this.i18nService.t("viewedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountNumber:
+        msg = this.i18nService.t("copiedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountPin:
+        msg = this.i18nService.t("copiedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledLicenseNumberVisible:
+        msg = this.i18nService.t("viewedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedLicenseNumber:
+        msg = this.i18nService.t("copiedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedPassportNumber:
+        msg = this.i18nService.t("copiedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledPassportNumberVisible:
+        msg = this.i18nService.t("viewedPassportNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedPassportNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedIban:
+        msg = this.i18nService.t("copiedIbanItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t("copiedIbanItemId", this.getShortId(ev.cipherId));
+        break;
+      case EventType.Cipher_ClientToggledIbanVisible:
+        msg = this.i18nService.t("viewedIbanItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t("viewedIbanItemId", this.getShortId(ev.cipherId));
+        break;
+      case EventType.Cipher_ClientCopiedSwiftCode:
+        msg = this.i18nService.t("copiedSwiftCodeItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedSwiftCodeItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledSwiftCodeVisible:
+        msg = this.i18nService.t("viewedSwiftCodeItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedSwiftCodeItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledNationalIdentificationNumberVisible:
+        msg = this.i18nService.t(
+          "viewedNationalIdentificationNumberItemId",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "viewedNationalIdentificationNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedNationalIdentificationNumber:
+        msg = this.i18nService.t(
+          "copiedNationalIdentificationNumberItemId",
+          this.formatCipherId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "copiedNationalIdentificationNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));
@@ -293,16 +398,22 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_AdminResetPassword:
-        msg = this.i18nService.t("eventAdminPasswordReset", this.formatOrgUserId(ev));
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithMasterPasswordInitiated",
+          this.formatOrgUserId(ev),
+        );
         humanReadableMsg = this.i18nService.t(
-          "eventAdminPasswordReset",
+          "eventAccountRecoveryWithMasterPasswordInitiated",
           this.getShortId(ev.organizationUserId),
         );
         break;
       case EventType.OrganizationUser_AdminResetTwoFactor:
-        msg = this.i18nService.t("eventAdminResetTwoFactor", this.formatOrgUserId(ev));
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
+          this.formatOrgUserId(ev),
+        );
         humanReadableMsg = this.i18nService.t(
-          "eventAdminResetTwoFactor",
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -331,6 +442,13 @@ export class EventService {
         msg = this.i18nService.t("restoredUserId", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
           "restoredUserId",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Staged:
+        msg = this.i18nService.t("stagedUserId", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "stagedUserId",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -371,6 +489,33 @@ export class EventService {
         break;
       case EventType.OrganizationUser_SelfRevoked:
         msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
+        break;
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance:
+        msg = this.i18nService.t("revokedUserIdTwoFactorNonCompliance", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdTwoFactorNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance:
+        msg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.formatOrgUserId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_NotificationBannerActionClicked:
+        msg = humanReadableMsg = this.i18nService.t("clickedVaultBannerButton");
+        break;
+      case EventType.OrganizationUser_InviteLinkAccepted:
+        msg = this.i18nService.t("inviteLinkEventAccepted", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "inviteLinkEventAccepted",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       // Org
       case EventType.Organization_Updated:
@@ -473,7 +618,11 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
         break;
       case EventType.Organization_ItemOrganization_Declined:
-        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        msg = this.i18nService.t("revokedUserIdDeclinedTransfer", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdDeclinedTransfer",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       case EventType.Organization_AutoConfirmEnabled_Admin:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
@@ -486,6 +635,21 @@ export class EventService {
         break;
       case EventType.Organization_AutoConfirmDisabled_Portal:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmDisabledByPortal");
+        break;
+      case EventType.Organization_InviteLinkCreated:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCreated");
+        break;
+      case EventType.Organization_InviteLinkDomainsEdited:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDomainsEdited");
+        break;
+      case EventType.Organization_InviteLinkDeleted:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventDeleted");
+        break;
+      case EventType.Organization_InviteLinkClientCopied:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventCopied");
+        break;
+      case EventType.Organization_InviteLinkRefreshed:
+        msg = humanReadableMsg = this.i18nService.t("inviteLinkEventRegenerated");
         break;
 
       // Policies
@@ -710,6 +874,113 @@ export class EventService {
         msg = this.i18nService.t("phishingBlockerBypassed");
         humanReadableMsg = this.i18nService.t("phishingBlockerBypassed");
         break;
+      // Send
+      case EventType.Send_Created_Text:
+        msg = this.i18nService.t("createdTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_Text_WithEmailVerification:
+        msg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_Text_WithPasswordProtection:
+        msg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdTextSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_File:
+        msg = this.i18nService.t("createdFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_File_WithEmailVerification:
+        msg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithEmailVerificationV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Created_File_WithPasswordProtection:
+        msg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "createdFileSendWithPasswordProtectionV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Updated_Text:
+        msg = this.i18nService.t("editedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Updated_File:
+        msg = this.i18nService.t("editedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "editedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Deleted_Text:
+        msg = this.i18nService.t("deletedTextSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedTextSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Deleted_File:
+        msg = this.i18nService.t("deletedFileSendV2", this.formatSendId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "deletedFileSendV2",
+          this.formatSendIdText(ev, options),
+        );
+        break;
+      case EventType.Send_Accessed_Text:
+        msg = this.i18nService.t(
+          "accessedTextSendV2",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedTextSendV2",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
+        break;
+      case EventType.Send_Accessed_File:
+        msg = this.i18nService.t(
+          "accessedFileSendV2",
+          this.formatSendId(ev, options),
+          this.formatSendCreatorId(ev, options),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "accessedFileSendV2",
+          this.formatSendIdText(ev, options),
+          this.getShortId(ev.userId),
+        );
+        break;
 
       default:
         break;
@@ -720,7 +991,7 @@ export class EventService {
     };
   }
 
-  private getAppInfo(ev: EventResponse): [string, string] {
+  private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
     }
@@ -942,6 +1213,36 @@ export class EventService {
     return a;
   }
 
+  private formatSendId(ev: EventResponse, options: EventOptions): string {
+    if (options.hideSendId || ev.sendId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.sendId);
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewSendEvents", shortId);
+    a.setAttribute("href", SEND_EVENTS_HREF_PREFIX + ev.sendId);
+    return " " + a.outerHTML;
+  }
+
+  private formatSendIdText(ev: EventResponse, options: EventOptions): string {
+    return options.hideSendId || ev.sendId == null ? "" : " " + this.getShortId(ev.sendId);
+  }
+
+  private formatSendCreatorId(ev: EventResponse, options: EventOptions): string {
+    if (ev.userId == null) {
+      return "";
+    }
+    const shortId = this.getShortId(ev.userId);
+    // Render plain text (no link) when the creator is not a member we can open events for
+    if (options.linkableMemberIds != null && !options.linkableMemberIds.has(ev.userId)) {
+      return "<code>" + shortId + "</code>";
+    }
+    const a = this.makeAnchor(shortId);
+    a.title = this.i18nService.t("viewMemberEvents", shortId);
+    a.setAttribute("href", MEMBER_EVENTS_HREF_PREFIX + ev.userId);
+    return a.outerHTML;
+  }
+
   private getShortId(id: string) {
     return id?.substring(0, 8);
   }
@@ -978,11 +1279,18 @@ export class EventService {
 export class EventInfo {
   message: string;
   humanReadableMessage: string;
-  appIcon: string;
+  appIcon: BitwardenIcon;
   appName: string;
 }
 
 export class EventOptions {
   cipherInfo = true;
   disableLink = false;
+  // Set when rendering inside a Send-scoped dialog, where repeating the Send id on every row is redundant.
+  hideSendId = false;
+  // User ids whose member events can be opened. When provided, the Send creator id renders
+  // as a link only if its id is in this set; otherwise it renders as plain text, since clicking a
+  // non-member's id would do nothing. An empty set means nothing is linkable; leaving it undefined
+  // keeps all creator ids linked (for callers that don't gate on membership).
+  linkableMemberIds?: ReadonlySet<string>;
 }

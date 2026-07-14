@@ -15,7 +15,10 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  OrganizationService,
+  singleOrganizationPolicyApplies$,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
@@ -27,6 +30,8 @@ import { cloneCollection } from "@bitwarden/common/admin-console/utils/collectio
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -39,13 +44,14 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
 import { CipherListView } from "@bitwarden/sdk-internal";
+
 import {
   VaultFilterServiceAbstraction,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "@bitwarden/vault";
+} from "..";
 
 const NestingDelimiter = "/";
 
@@ -65,7 +71,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
     this.memberOrganizations$,
     this.activeUserId$.pipe(
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     ),
     this.activeUserId$.pipe(
       switchMap((userId) =>
@@ -73,7 +79,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       ),
     ),
   ]).pipe(
-    switchMap(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
+    map(([orgs, singleOrgPolicy, organizationDataOwnershipPolicy]) =>
       this.buildOrganizationTree(orgs, singleOrgPolicy, organizationDataOwnershipPolicy),
     ),
   );
@@ -113,6 +119,82 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     map(([collections, organizations]) => this.buildCollectionTree(collections, organizations)),
   );
 
+  cipherTypeFilters$: Observable<CipherTypeFilter[]> = this.configService
+    .getFeatureFlag$(FeatureFlag.PM32009NewItemTypes)
+    .pipe(
+      map((newItemTypes) => {
+        const filters: CipherTypeFilter[] = [
+          {
+            id: "favorites",
+            name: this.i18nService.t("favorites"),
+            type: "favorites",
+            icon: "bwi-star",
+          },
+          {
+            id: "login",
+            name: this.i18nService.t("typeLogin"),
+            type: CipherType.Login,
+            icon: newItemTypes ? "bwi-lock" : "bwi-globe",
+          },
+          {
+            id: "card",
+            name: this.i18nService.t("typeCard"),
+            type: CipherType.Card,
+            icon: "bwi-credit-card",
+          },
+          ...(newItemTypes
+            ? [
+                {
+                  id: "bankAccount",
+                  name: this.i18nService.t("bankAccount"),
+                  type: CipherType.BankAccount,
+                  icon: "bwi-bank",
+                } as CipherTypeFilter,
+              ]
+            : []),
+          {
+            id: "identity",
+            name: this.i18nService.t("typeIdentity"),
+            type: CipherType.Identity,
+            icon: newItemTypes ? "bwi-user" : "bwi-id-card",
+          },
+          ...(newItemTypes
+            ? [
+                {
+                  id: "driversLicense",
+                  name: this.i18nService.t("typeDriversLicense"),
+                  type: CipherType.DriversLicense,
+                  icon: "bwi-id-card",
+                } as CipherTypeFilter,
+              ]
+            : []),
+          ...(newItemTypes
+            ? [
+                {
+                  id: "passport",
+                  name: this.i18nService.t("typePassport"),
+                  type: CipherType.Passport,
+                  icon: "bwi-passport",
+                } as CipherTypeFilter,
+              ]
+            : []),
+          {
+            id: "note",
+            name: this.i18nService.t("typeSecureNote"),
+            type: CipherType.SecureNote,
+            icon: "bwi-sticky-note",
+          },
+          {
+            id: "sshKey",
+            name: this.i18nService.t("typeSshKey"),
+            type: CipherType.SshKey,
+            icon: "bwi-key",
+          },
+        ];
+        return filters;
+      }),
+    );
+
   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>> = this.buildCipherTypeTree();
 
   private collapsedGroupingsState(userId: UserId): SingleUserState<string[]> {
@@ -128,6 +210,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
+    protected configService: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -168,11 +251,11 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     await this.setCollapsedFilterNodes(collapsedFilterNodes, userId);
   }
 
-  protected async buildOrganizationTree(
+  protected buildOrganizationTree(
     orgs: Organization[],
     singleOrgPolicy: boolean,
     organizationDataOwnershipPolicy: boolean,
-  ): Promise<TreeNode<OrganizationFilter>> {
+  ): TreeNode<OrganizationFilter> {
     const headNode = this.getOrganizationFilterHead();
     if (!organizationDataOwnershipPolicy) {
       const myVaultNode = this.getOrganizationFilterMyVault();
@@ -322,45 +405,10 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected buildCipherTypeTree(): Observable<TreeNode<CipherTypeFilter>> {
-    const allTypeFilters: CipherTypeFilter[] = [
-      {
-        id: "favorites",
-        name: this.i18nService.t("favorites"),
-        type: "favorites",
-        icon: "bwi-star",
-      },
-      {
-        id: "login",
-        name: this.i18nService.t("typeLogin"),
-        type: CipherType.Login,
-        icon: "bwi-globe",
-      },
-      {
-        id: "card",
-        name: this.i18nService.t("typeCard"),
-        type: CipherType.Card,
-        icon: "bwi-credit-card",
-      },
-      {
-        id: "identity",
-        name: this.i18nService.t("typeIdentity"),
-        type: CipherType.Identity,
-        icon: "bwi-id-card",
-      },
-      {
-        id: "note",
-        name: this.i18nService.t("typeSecureNote"),
-        type: CipherType.SecureNote,
-        icon: "bwi-sticky-note",
-      },
-      {
-        id: "sshKey",
-        name: this.i18nService.t("typeSshKey"),
-        type: CipherType.SshKey,
-        icon: "bwi-key",
-      },
-    ];
-
-    return this.buildTypeTree({ id: "AllItems", name: "allItems", type: "all" }, allTypeFilters);
+    return this.cipherTypeFilters$.pipe(
+      switchMap((filters) =>
+        this.buildTypeTree({ id: "AllItems", name: "allItems", type: "all" }, filters),
+      ),
+    );
   }
 }

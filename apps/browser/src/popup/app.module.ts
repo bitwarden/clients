@@ -1,7 +1,7 @@
 import { A11yModule } from "@angular/cdk/a11y";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LayoutModule } from "@angular/cdk/layout";
-import { OverlayModule } from "@angular/cdk/overlay";
+import { OverlayModule, OVERLAY_DEFAULT_CONFIG } from "@angular/cdk/overlay";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CurrencyPipe, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
@@ -20,6 +20,7 @@ import {
   CalloutModule,
   LinkModule,
 } from "@bitwarden/components";
+import { KEEPER_SSO_TAB_MONITOR } from "@bitwarden/importer-ui";
 
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
@@ -32,6 +33,7 @@ import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.comp
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
+import { BrowserKeeperSsoTabMonitor } from "../tools/popup/settings/import/browser-keeper-sso-tab-monitor";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -84,7 +86,12 @@ import "../platform/popup/locales";
   ],
   declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],
-  providers: [CurrencyPipe, DatePipe],
+  providers: [
+    CurrencyPipe,
+    DatePipe,
+    { provide: KEEPER_SSO_TAB_MONITOR, useClass: BrowserKeeperSsoTabMonitor },
+    { provide: OVERLAY_DEFAULT_CONFIG, useValue: { usePopover: false } },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

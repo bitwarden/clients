@@ -14,6 +14,7 @@ import { BitwardenIcon } from "../shared/icon";
     "[class]": "classList()",
     "[attr.aria-hidden]": "ariaLabel() ? null : true",
     "[attr.aria-label]": "ariaLabel()",
+    "[attr.role]": "ariaLabel() ? 'img' : 'presentation'",
   },
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,

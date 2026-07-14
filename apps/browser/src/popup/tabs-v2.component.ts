@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
@@ -15,8 +15,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-
-import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
+import { BottomNavigationButton } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -26,6 +26,8 @@ import { NavButton } from "../platform/popup/layout/popup-tab-navigation.compone
   standalone: false,
 })
 export class TabsV2Component {
+  private sendPolicyService = inject(SendPolicyService);
+
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
@@ -35,10 +37,16 @@ export class TabsV2Component {
     this.autofillSettingsService.showClipboardSettingUpdateNotification$,
   ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
 
-  protected navButtons$: Observable<NavButton[]> = this.showSettingsBerry$.pipe(
-    startWith(false),
-    map((showBerry) => {
-      return [
+  private sendEnabled$ = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
+  );
+
+  protected navButtons$: Observable<BottomNavigationButton[]> = combineLatest([
+    this.showSettingsBerry$.pipe(startWith(false)),
+    this.sendEnabled$.pipe(startWith(true)),
+  ]).pipe(
+    map(([showBerry, sendEnabled]) => {
+      const buttons: BottomNavigationButton[] = [
         {
           label: "vault",
           page: "/tabs/vault",
@@ -51,12 +59,16 @@ export class TabsV2Component {
           icon: GeneratorInactive,
           iconActive: GeneratorActive,
         },
-        {
-          label: "send",
-          page: "/tabs/send",
-          icon: SendInactive,
-          iconActive: SendActive,
-        },
+        ...(sendEnabled
+          ? [
+              {
+                label: "send",
+                page: "/tabs/send",
+                icon: SendInactive,
+                iconActive: SendActive,
+              } as BottomNavigationButton,
+            ]
+          : []),
         {
           label: "settings",
           page: "/tabs/settings",
@@ -65,8 +77,10 @@ export class TabsV2Component {
           showBerry,
         },
       ];
+      return buttons;
     }),
   );
+
   constructor(
     private nudgesService: NudgesService,
     private accountService: AccountService,

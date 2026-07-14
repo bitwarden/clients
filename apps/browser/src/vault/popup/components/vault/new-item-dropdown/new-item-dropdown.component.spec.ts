@@ -188,6 +188,19 @@ describe("NewItemDropdownComponent", () => {
         collectionId: "777-888-999",
       });
     });
+
+    it("should build query params for a BankAccount", async () => {
+      component.initialValues = {
+        collectionId: "777-888-999",
+      } as NewItemInitialValues;
+
+      const params = await component.buildQueryParams(CipherType.BankAccount);
+
+      expect(params).toEqual({
+        type: CipherType.BankAccount.toString(),
+        collectionId: "777-888-999",
+      });
+    });
   });
 
   describe("new item types", () => {

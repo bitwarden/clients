@@ -8,8 +8,9 @@ import {
   ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { Storage, StorageCardComponent } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Storage, StorageCardComponent } from "../..";
 
 export default {
   title: "Billing/Storage Card",
@@ -38,6 +39,7 @@ export default {
                 storageFullDescription: `You have used all ${args[0]} GB of your encrypted storage. To continue storing files, add more storage.`,
                 addStorage: "Add storage",
                 removeStorage: "Remove storage",
+                progressBar: "Progress bar",
               };
               return translations[key] || key;
             },

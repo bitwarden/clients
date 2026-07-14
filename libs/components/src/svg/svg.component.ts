@@ -10,6 +10,7 @@ import { BitSvg, isBitSvg } from "@bitwarden/assets/svg";
     "[attr.aria-label]": "ariaLabel()",
     "[innerHtml]": "innerHtml()",
     class: "tw-max-h-full tw-flex tw-justify-center",
+    "[attr.role]": "ariaLabel() ? 'img' : 'presentation'",
   },
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,

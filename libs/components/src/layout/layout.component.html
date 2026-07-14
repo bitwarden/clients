@@ -10,7 +10,10 @@
   <div
     class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
   >
-    <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
+    <nav
+      class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2"
+      [attr.aria-label]="'skipLink' | i18n"
+    >
       <a
         #skipLink
         bitLink
@@ -19,8 +22,9 @@
         [routerLink]="[]"
         (click)="focusMainContent()"
         linkType="light"
-        >{{ "skipToContent" | i18n }}</a
       >
+        {{ "skipToContent" | i18n }}
+      </a>
     </nav>
   </div>
 
@@ -44,12 +48,22 @@
     [id]="mainContentId"
     tabindex="-1"
     bitScrollLayoutHost
-    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container"
+    class="tw-col-start-2 tw-row-start-1 tw-overflow-auto tw-max-h-full tw-min-w-96 tw-bg-background tw-p-8 tw-pt-6 tw-@container has-[bit-page]:tw-p-0"
     [class.tw-rounded-tl-2xl]="rounded()"
   >
     <!-- ^ If updating this padding, also update the padding correction in bit-banner! ^ -->
     <ng-content></ng-content>
   </main>
+
+  <!-- Footer region (always col 2): overlaps <main> but is a sibling of it — outside the
+       `cdk-virtual-scrollable` scroll container — so pinned content (e.g. a bulk-actions bar)
+       stays fixed to the viewport while <main> scrolls. `tw-contain-layout` makes this the
+       containing block for `position: fixed` content; unlike <main> this element never scrolls,
+       so it doesn't re-introduce scroll-with-content. Grid keeps it aligned to the main column,
+       and `pointer-events-none` lets clicks through to <main> (projected content opts back in). -->
+  <div class="tw-col-start-2 tw-row-start-1 tw-z-50 tw-contain-layout tw-pointer-events-none">
+    <ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>
+  </div>
 
   <!-- Overlay backdrop for side-nav (fixed, z-40 — below nav overlay z-50) -->
   <div

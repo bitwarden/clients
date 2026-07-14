@@ -1,3 +1,10 @@
+// ResizeObserver is not available in jsdom
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;
+
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -20,8 +27,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ButtonComponent, ToastService } from "@bitwarden/components";
-import { DownloadAttachmentComponent } from "@bitwarden/vault";
 
+import { DownloadAttachmentComponent } from "../../..";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../../common/spec";
 
 import { CipherAttachmentsComponent } from "./cipher-attachments.component";
@@ -172,7 +179,9 @@ describe("CipherAttachmentsComponent", () => {
     const fileName = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
-    expect(fileName.nativeElement.textContent.trim()).toEqual(attachment.fileName);
+    expect(fileName.nativeElement.querySelector("[aria-label]").getAttribute("aria-label")).toEqual(
+      attachment.fileName,
+    );
     expect(fileSize.nativeElement.textContent.trim()).toEqual(attachment.sizeName);
   });
 
@@ -249,6 +258,38 @@ describe("CipherAttachmentsComponent", () => {
           variant: "error",
           title: "errorOccurred",
           message: "maxFileSize",
+        });
+      });
+
+      it("shows error toast if file name matches an existing attachment", async () => {
+        const attachment = {
+          id: "1234-5678",
+          fileName: "helloworld.txt",
+          sizeName: "65 Bytes",
+        } as AttachmentView;
+
+        const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
+        cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
+
+        // Create fresh fixture to pick up the mock
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        fixture.detectChanges();
+
+        await waitForInitialization();
+
+        component.attachmentForm.controls.file.setValue({
+          name: "helloworld.txt",
+          size: 65,
+        } as File);
+
+        await component.submit();
+
+        expect(showToast).toHaveBeenCalledWith({
+          variant: "error",
+          title: "errorOccurred",
+          message: "duplicateAttachmentNameError",
         });
       });
 

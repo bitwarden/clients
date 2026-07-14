@@ -7,7 +7,9 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
+import { BrowserApi } from "../../browser/browser-api";
 import BrowserPopupUtils, {
+  POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOption,
   PopupWidthOptions,
 } from "../../browser/browser-popup-utils";
@@ -23,7 +25,7 @@ const POPUP_WIDTH_KEY_DEF = new KeyDefinition<PopupWidthOption>(POPUP_STYLE_DISK
  **/
 @Injectable({ providedIn: "root" })
 export class PopupSizeService {
-  private static readonly LocalStorageKey = "bw-popup-width";
+  private static readonly LocalStorageKey = POPUP_WIDTH_STORAGE_KEY;
   private readonly state = inject(GlobalStateProvider).get(POPUP_WIDTH_KEY_DEF);
 
   readonly width$: Observable<PopupWidthOption> = this.state.state$.pipe(
@@ -79,10 +81,19 @@ export class PopupSizeService {
 
   private static async setStyle(width: PopupWidthOption) {
     const isInTab = await BrowserPopupUtils.isInTab();
+    const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
+
+    if (BrowserPopupUtils.inPopout(window)) {
+      const currentWindow = await BrowserApi.getCurrentWindow();
+      if (currentWindow.id != null) {
+        await BrowserApi.updateWindowProperties(currentWindow.id, { width: pxWidth });
+      }
+      return;
+    }
+
     if (!BrowserPopupUtils.inPopup(window) || isInTab) {
       return;
     }
-    const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
 
     document.body.style.width = `${pxWidth}px`;
   }

@@ -6,6 +6,7 @@ import {
 import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
+import { reportIframeAttributesWhenReady } from "./iframe-allow-reporter";
 import {
   InsecureAssertCredentialParams,
   InsecureCreateCredentialParams,
@@ -34,6 +35,13 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   messenger.handler = handleFido2Message;
   const port = chrome.runtime.connect({ name: Fido2PortName.InjectedScript });
   port.onDisconnect.addListener(handlePortOnDisconnect);
+
+  // Report this frame's iframe `allow=` attributes to the background so the
+  // Permissions Policy gate can consult them when evaluating cross-origin
+  // sub-frames. No-op when this frame has no iframes.
+  reportIframeAttributesWhenReady(globalContext.document, (command, payload) =>
+    sendExtensionMessage(command, payload),
+  );
 
   /**
    * Handles FIDO2 credential requests and returns the result.
@@ -126,6 +134,11 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     requestId: string,
     messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {
+    const featureName = permissionsPolicyFeatureForCommand(command);
+    if (featureName != null && !isWebAuthnFeatureAllowed(featureName)) {
+      return Promise.reject(buildPermissionsPolicyError(featureName));
+    }
+
     const data: CreateCredentialParams | AssertCredentialParams = {
       ...messageData,
       origin: globalContext.location.origin,
@@ -139,6 +152,71 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
     }
 
     return Promise.resolve({ type, result });
+  }
+
+  /**
+   * Maps the background-bound command name to the corresponding Permissions Policy
+   * feature name. Returns `undefined` for commands that don't have a policy gate.
+   */
+  function permissionsPolicyFeatureForCommand(command: string): string | undefined {
+    if (command === "fido2RegisterCredentialRequest") {
+      return "publickey-credentials-create";
+    }
+    if (command === "fido2GetCredentialRequest") {
+      return "publickey-credentials-get";
+    }
+    return undefined;
+  }
+
+  /**
+   * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
+   *
+   * This check runs in the content script's isolated world, so its view of
+   * `document.permissionsPolicy` / `document.featurePolicy` cannot be tampered
+   * with by page-world script — the precondition for the VULN-582 / VULN-398
+   * attacker model.
+   *
+   * Prefers the standardized `document.permissionsPolicy` API; falls back to
+   * the older `document.featurePolicy`. No shipping browser exposes
+   * `permissionsPolicy` as of writing, but the WICG spec defines it as the
+   * standardized form, so we check it first for forward-compatibility.
+   *
+   * When neither API is available (Safari, default-config Firefox where the
+   * IDL is gated behind `dom.security.featurePolicy.webidl.enabled`), permit
+   * the ceremony here and let the background gate make the call. The
+   * background reads `Permissions-Policy` headers via `webRequest` and
+   * iframe `allow=` attributes via a content-script scraper, and applies
+   * the full delegation algorithm. That path has strictly better fidelity
+   * than the naive `self === top` heuristic this fallback used to run.
+   *
+   * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
+   */
+  function isWebAuthnFeatureAllowed(featureName: string): boolean {
+    try {
+      const policyHolder = globalContext.document as Document & {
+        permissionsPolicy?: { allowsFeature(feature: string): boolean };
+        featurePolicy?: { allowsFeature(feature: string): boolean };
+      };
+      const policy = policyHolder.permissionsPolicy ?? policyHolder.featurePolicy;
+      if (policy != null && typeof policy.allowsFeature === "function") {
+        return policy.allowsFeature(featureName);
+      }
+    } catch {
+      // Fall through: background gate will apply the real policy check.
+    }
+
+    return true;
+  }
+
+  /**
+   * Builds a DOMException that mirrors the error the browser raises when a Permissions
+   * Policy denies a WebAuthn ceremony.
+   */
+  function buildPermissionsPolicyError(featureName: string): DOMException {
+    return new DOMException(
+      `The '${featureName}' feature is not enabled in this document. Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.`,
+      "NotAllowedError",
+    );
   }
 
   /**

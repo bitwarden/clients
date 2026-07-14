@@ -9,11 +9,27 @@ import {
   OnInit,
   signal,
   ChangeDetectionStrategy,
+  Injector,
+  isDevMode,
+  effect,
+  afterNextRender,
+  untracked,
 } from "@angular/core";
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, skip } from "rxjs/operators";
+import {
+  combineLatest,
+  concat,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
+import { concatMap, delay, finalize, skip, take } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -23,10 +39,11 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import {
   MemberRegistryEntryView,
-  ApplicationHealthView,
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -37,15 +54,25 @@ import {
   DialogRef,
   DialogService,
   IconComponent,
+  PopoverModule,
   TabsModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
+import { NewAdminWelcomeDialogComponent } from "../../onboarding/new-admin-welcome-dialog.component";
+import { PostImportModalDialogComponent } from "../../onboarding/post-import-modal-dialog.component";
+import { DevMenuComponent } from "../../shared/dev-menu.component";
+import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { NewApplicationsDialogV2Component } from "../activity-tab/new-applications-dialog-v2/new-applications-dialog-v2.component";
+import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
+import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -65,8 +92,11 @@ type ProgressStep = ReportProgress | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
+    AccessIntelligenceCoachmarkComponent,
     ActivityTabComponent,
+    AllApplicationsTabComponent,
     ApplicationsTabComponent,
+    CriticalApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -74,8 +104,11 @@ type ProgressStep = ReportProgress | null;
     IconComponent,
     JslibModule,
     HeaderModule,
+    PageLoadingComponent,
+    PopoverModule,
     TabsModule,
     ReportLoadingComponent,
+    DevMenuComponent,
   ],
   animations: [
     trigger("fadeIn", [
@@ -88,6 +121,7 @@ type ProgressStep = ReportProgress | null;
 })
 export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly mustBeginPostImportTour = signal(false);
 
   protected readonly tabIndex = signal<RiskInsightsTabType>(RiskInsightsTabType.AllActivity);
 
@@ -122,12 +156,48 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   // Prevents jarring quick transitions between progress steps
   private readonly STEP_DISPLAY_DELAY_MS = 250;
 
+  protected readonly initializing = signal(true);
   protected readonly currentProgressStep = signal<ProgressStep>(null);
 
   protected readonly hasReportData = computed(() => {
     const report = this.report();
     return report !== null && report !== undefined && report.reports.length > 0;
   });
+
+  protected readonly criticalAppsCount = computed(
+    () => this.report()?.getCriticalApplications().length ?? 0,
+  );
+
+  readonly milestone11Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Milestone11AppPageImprovements),
+    { initialValue: false },
+  );
+
+  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
+    initialValue: [],
+  });
+
+  protected readonly hasCiphers = computed(() => this.ciphers().length > 0);
+
+  protected readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
+
+  readonly adoptionUxImprovementsEnabled = toSignal<boolean>(
+    this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceAdoptionUxImprovements),
+  );
+
+  protected readonly isDevMode = signal<boolean>(isDevMode());
+
+  protected readonly monitorActivityOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorActivity",
+  );
+
+  protected readonly criticalApplicationsOpen = computed(
+    () => this.coachmarkService.activeStepId() === "criticalApplications",
+  );
+
+  protected readonly runReportOpen = computed(
+    () => this.coachmarkService.activeStepId() === "runReport",
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -137,12 +207,18 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     protected readonly i18nService: I18nService,
     private readonly dialogService: DialogService,
     private readonly logService: LogService,
+    private readonly configService: ConfigService,
+    private readonly injector: Injector,
+    private readonly coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex.set(
-        !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
-      );
-    });
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ tabIndex, source, status }) => {
+        this.tabIndex.set(
+          !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
+        );
+        this.invokedFrom.set({ source, status });
+      });
 
     // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time.
     // - skip(1): Skip initial BehaviorSubject emission (stale Complete from previous run would
@@ -171,17 +247,64 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    effect(() => {
+      // determine if we need to begin the post import tour
+      // wait for the report generation to complete (but only if we came via the post Import flow, indicated by mustBeginPostImportTour)
+      // when report generation is complete (i.e. this.currentProgressStep() is null)
+      // and mustBeginPostImportTour is true (set when user is navigated from import page after successful import)
+      if (this.currentProgressStep() === null && this.mustBeginPostImportTour()) {
+        this.mustBeginPostImportTour.set(false);
+
+        // open the dialog only after the rendering of the report is complete
+        afterNextRender(() => void this.beginPostImportTour(), { injector: this.injector });
+      }
+    });
+
+    effect(() => {
+      const requiredTabIndex = this.coachmarkService.requiredTabIndex();
+      if (requiredTabIndex !== null && requiredTabIndex !== this.tabIndex()) {
+        this.tabIndex.set(requiredTabIndex);
+
+        // Reset drawer state and close drawer when tabs are changed
+        // we need to ensure that the popover is closed before the tab is changed,
+        // otherwise the popover will be hidden behind the new tab content
+        const activeStepId = untracked(() => this.coachmarkService.activeStepId());
+        this.coachmarkService.activeStepId.set(null); // close all popovers now
+
+        // afterNextRender defers re-activation to after Angular's CD + rendering completes,
+        // so the tab button is un-hidden before the popover measures its position.
+        afterNextRender(() => this.coachmarkService.activeStepId.set(activeStepId), {
+          injector: this.injector,
+        });
+      }
+    });
+
+    this.coachmarkService.tourCompleted$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      const report = this.report();
+      if (!report) {
+        return;
+      }
+      NewApplicationsDialogV2Component.open(this.dialogService, {
+        newApplications: report.getNewApplications(),
+        organizationId: this.organizationId(),
+        hasExistingCriticalApplications: report.getCriticalApplications().length > 0,
+      });
+    });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         map((params) => params.get("organizationId")),
         filter(Boolean),
         switchMap((orgId) => {
+          this.initializing.set(true);
           this.organizationId.set(orgId as OrganizationId);
-          return this.accessIntelligenceService.initializeForOrganization$(orgId as OrganizationId);
+          return this.accessIntelligenceService
+            .initializeForOrganization$(orgId as OrganizationId)
+            .pipe(finalize(() => this.initializing.set(false)));
         }),
       )
       .subscribe();
@@ -190,6 +313,29 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
 
     // Close any open dialogs (happens when navigating between orgs)
     void this.currentDialogRef()?.close();
+
+    // determine if we need to launch the new admin welcome tour
+    // launch when there are no reports and no ciphers.
+    combineLatest([
+      toObservable(this.hasReportData, { injector: this.injector }),
+      toObservable(this.hasCiphers, { injector: this.injector }),
+      toObservable(this.initializing, { injector: this.injector }),
+    ])
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(([_, __, initializing]) => !initializing), // Wait until initialization is complete
+        filter(([hasReportData, hasCiphers]) => !hasReportData && !hasCiphers),
+        take(1),
+      )
+      .subscribe(() => {
+        void this.beginNewAdminWelcomeTour().catch((error: unknown) => {
+          this.logService.error("Failed to launch onboarding welcome", error);
+        });
+      });
+
+    if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
+      await this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+    }
   }
 
   ngOnDestroy(): void {
@@ -212,6 +358,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         });
     }
   }
+
+  protected readonly goToImportPage = (): void => {
+    void this.router.navigate(
+      ["/organizations", this.organizationId(), "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
+  };
 
   protected async onTabChange(newIndex: number): Promise<void> {
     this.tabIndex.set(newIndex);
@@ -262,19 +415,28 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
               return null;
           }
         }),
+        switchMap((content) => {
+          if (!content) {
+            void this.currentDialogRef()?.close();
+            return EMPTY;
+          }
+
+          return from(
+            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            }),
+          ).pipe(
+            tap((drawerRef) => this.currentDialogRef.set(drawerRef)),
+            // Reset drawer state whenever the dialog closes (X, ESC, or programmatic close) so
+            // re-clicking the same invoker reopens it. Without this, the state stays "open" and
+            // the re-open is filtered out by distinctUntilChanged.
+            switchMap((drawerRef) => drawerRef?.closed ?? EMPTY),
+            tap(() => this.drawerStateService.closeDrawer()),
+          );
+        }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((content) => {
-        if (content) {
-          void this.dialogService
-            .openDrawer(AccessIntelligenceDrawerV2Component, {
-              data: content,
-            })
-            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
-        } else {
-          void this.currentDialogRef()?.close();
-        }
-      });
+      .subscribe();
   }
 
   /**
@@ -293,7 +455,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return {
       type: DrawerType.AppAtRiskMembers,
       applicationName: app.applicationName,
-      members: this.mapMembersToDrawerData(members, report, app),
+      members: this.mapMembersToDrawerData(members, report),
     };
   }
 
@@ -325,9 +487,15 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Derives critical applications' at-risk members drawer content.
    */
   private getCriticalAtRiskMembersContent(report: AccessReportView): CriticalAtRiskMembersData {
+    const members = report.getCriticalAtRiskMembers();
     return {
       type: DrawerType.CriticalAtRiskMembers,
-      members: this.mapMembersToDrawerData(report.getCriticalAtRiskMembers(), report),
+      members: members.map((member) => ({
+        email: member.email,
+        atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id, {
+          criticalOnly: true,
+        }),
+      })),
     };
   }
 
@@ -350,13 +518,59 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   private mapMembersToDrawerData(
     members: MemberRegistryEntryView[],
     report: AccessReportView,
-    app?: ApplicationHealthView,
   ): DrawerMemberData[] {
     return members.map((member) => ({
       email: member.email,
-      userName: member.userName ?? "",
-      userGuid: member.id,
-      atRiskPasswordCount: report.getAtRiskPasswordCountForMember(member.id, app?.applicationName),
+      atRiskApplicationCount: report.getAtRiskApplicationCountForMember(member.id),
     }));
+  }
+
+  private async handleReturnParams(
+    source: string | undefined,
+    status: string | undefined,
+  ): Promise<void> {
+    if (source === "import" && status === "success") {
+      this.generateReport();
+      this.mustBeginPostImportTour.set(true);
+    }
+
+    this.clearQueryParams(this.router, this.route, ["source", "status"]);
+  }
+
+  private clearQueryParams(router: Router, route: ActivatedRoute, params: string[]) {
+    // we don't want these params to persist in the URL after handling them, so we remove them
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null, status: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
+
+  protected async beginPostImportTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      this.mustBeginPostImportTour.set(false);
+      await PostImportModalDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginNewAdminWelcomeTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await NewAdminWelcomeDialogComponent.showDialog(
+        this.injector,
+        this.dialogService,
+        this.organizationId(),
+      );
+    }
+  }
+
+  protected async beginCoachmarksTour(): Promise<void> {
+    if (this.adoptionUxImprovementsEnabled()) {
+      await this.coachmarkService.startTour(this.organizationId());
+    }
   }
 }

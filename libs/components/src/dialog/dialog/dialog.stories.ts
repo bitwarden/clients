@@ -46,6 +46,7 @@ export default {
             return new I18nMockService({
               close: "Close",
               loading: "Loading",
+              more: "More",
             });
           },
         },
@@ -58,11 +59,6 @@ export default {
     disableAnimations: true,
   },
   argTypes: {
-    _disablePadding: {
-      table: {
-        disable: true,
-      },
-    },
     background: {
       options: ["alt", "default"],
       control: { type: "radio" },
@@ -88,7 +84,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disableAnimations]="disableAnimations">
         <ng-container bitDialogTitle>
           <span bitBadge variant="success">Foobar</span>
         </ng-container>
@@ -161,7 +157,7 @@ export const ScrollingContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <bit-dialog title="Scrolling Example" [background]="background" [dialogSize]="dialogSize" [loading]="loading" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           Dialog body text goes here.<br />
           <ng-container *ngFor="let _ of [].constructor(100)">
@@ -186,7 +182,7 @@ export const TabContent: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <bit-dialog title="Tab Content Example" [background]="background" [dialogSize]="dialogSize" [disableAnimations]="disableAnimations">
         <span bitDialogContent>
           <bit-tab-group>
               <bit-tab label="First Tab">First Tab Content</bit-tab>
@@ -203,13 +199,11 @@ export const TabContent: Story = {
   }),
   args: {
     dialogSize: "large",
-    disablePadding: true,
     disableAnimations: true,
   },
   parameters: {
     docs: {
-      storyDescription: `An example of using the \`bitTabGroup\` component within the Dialog. The content padding should be
-      disabled (via \`disablePadding\`) so that the tabs are flush against the dialog title.`,
+      storyDescription: `An example of using the \`bitTabGroup\` component within the Dialog.`,
     },
   },
 };
@@ -223,7 +217,7 @@ export const WithCards: Story = {
       ...args,
     },
     template: /*html*/ `
-      <form [formGroup]="formObj" bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations">
+      <form [formGroup]="formObj" bit-dialog [dialogSize]="dialogSize" [background]="background" [title]="title" [subtitle]="subtitle" [loading]="loading" [disableAnimations]="disableAnimations">
         <ng-container bitDialogContent>
           <bit-section>
             <bit-section-header>
@@ -294,7 +288,7 @@ export const WithoutFooter: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations" background="alt">
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disableAnimations]="disableAnimations" background="alt">
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
       </bit-dialog>
     `,
@@ -314,7 +308,6 @@ export const HeaderEnd: Story = {
         [title]="title"
         [subtitle]="subtitle"
         [loading]="loading"
-        [disablePadding]="disablePadding"
         [disableAnimations]="disableAnimations">
 
         <ng-container bitDialogHeaderEnd>

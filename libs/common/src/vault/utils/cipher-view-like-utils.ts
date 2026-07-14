@@ -1,8 +1,5 @@
 import {
-  UriMatchStrategy,
-  UriMatchStrategySetting,
-} from "@bitwarden/common/models/domain/domain-service";
-import {
+  BankAccountView as SdkBankAccountView,
   CardListView,
   CipherListView,
   CopyableCipherFields,
@@ -10,9 +7,12 @@ import {
   LoginUriView as LoginListUriView,
 } from "@bitwarden/sdk-internal";
 
+import { UriMatchStrategy, UriMatchStrategySetting } from "../../models/domain/domain-service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
-import { CipherType } from "../enums";
+import { BankAccountType, BankAccountTypeI18nKeys, CipherType } from "../enums";
 import { Cipher } from "../models/domain/cipher";
+import { BankAccountView } from "../models/view/bank-account.view";
 import { CardView } from "../models/view/card.view";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginUriView } from "../models/view/login-uri.view";
@@ -130,24 +130,95 @@ export class CipherViewLikeUtils {
         return CipherType.SecureNote;
       case cipher.type === "sshKey":
         return CipherType.SshKey;
+      case cipher.type === "bankAccount":
+        return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
   };
 
-  /** @returns The subtitle of the cipher. */
-  static subtitle = (cipher: CipherViewLike): string | undefined => {
-    if (!this.isCipherListView(cipher)) {
-      return cipher.subTitle;
+  /**
+   * @returns The subtitle of the cipher.
+   *
+   * When `i18nService` is supplied, cipher types that depend on localized values
+   * (e.g. the bank-account `accountType` dropdown) produce a translated subtitle.
+   * Without `i18nService`, the cipher's raw `subTitle` / `subtitle` is returned —
+   * suitable for non-Angular callers (search indexing, CLI) where translation is
+   * unnecessary or unavailable.
+   */
+  static subtitle = (cipher: CipherViewLike, i18nService?: I18nService): string | undefined => {
+    const baseSubtitle = this.isCipherListView(cipher) ? cipher.subtitle : cipher.subTitle;
+
+    if (!i18nService) {
+      return baseSubtitle;
     }
 
-    return cipher.subtitle;
+    switch (this.getType(cipher)) {
+      case CipherType.BankAccount: {
+        const bankAccountSubtitle = this.bankAccountSubtitle(cipher, i18nService);
+        return bankAccountSubtitle ?? baseSubtitle;
+      }
+      default:
+        return baseSubtitle;
+    }
+  };
+
+  private static getBankAccount = (
+    cipher: CipherViewLike,
+  ): BankAccountView | SdkBankAccountView | null => {
+    // CipherListViewType only inlines `card` and `login` data — bank account is a plain
+    // string discriminator without nested view data, so there is nothing to read here.
+    if (this.isCipherListView(cipher)) {
+      return null;
+    }
+
+    return cipher.type === CipherType.BankAccount ? (cipher.bankAccount ?? null) : null;
+  };
+
+  private static bankAccountSubtitle = (
+    cipher: CipherViewLike,
+    i18nService: I18nService,
+  ): string | undefined => {
+    const bankAccount = this.getBankAccount(cipher);
+    if (!bankAccount) {
+      return undefined;
+    }
+
+    const accountTypeKey = bankAccount.accountType
+      ? BankAccountTypeI18nKeys[bankAccount.accountType as BankAccountType]
+      : undefined;
+    const translatedAccountType = accountTypeKey ? i18nService.t(accountTypeKey) : undefined;
+
+    let shownDigits: string | undefined = undefined;
+    if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 4) {
+      shownDigits = bankAccount.accountNumber?.slice(-4);
+    } else if (bankAccount.accountNumber && bankAccount.accountNumber?.length > 1) {
+      const length = bankAccount.accountNumber?.length;
+      const negativeSlice = (length - 1) * -1;
+      shownDigits = bankAccount.accountNumber?.slice(negativeSlice);
+    }
+
+    if (translatedAccountType && shownDigits) {
+      return `${translatedAccountType}, *${shownDigits}`;
+    }
+    if (translatedAccountType) {
+      return translatedAccountType;
+    }
+    if (shownDigits) {
+      return `*${shownDigits}`;
+    }
+
+    return undefined;
   };
 
   /** @returns `true` when the cipher has attachments, false otherwise. */
@@ -235,11 +306,19 @@ export class CipherViewLikeUtils {
     // `CipherListView` instances do not contain the values to be copied, but rather a list of copyable fields.
     // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
     if (this.isCipherListView(cipher)) {
+      // For login ciphers, cross-check against the decrypted data available in LoginListView
+      // when possible. The SDK's copyableFields can report fields as copyable even when
+      // the decrypted value is empty.
+      if (this.getType(cipher) === CipherType.Login) {
+        const login = this.getLogin(cipher);
+        if (copyField === "username") {
+          return !!login?.username;
+        }
+      }
+
       let _copyField = copyField;
 
-      if (_copyField === "username" && this.getType(cipher) === CipherType.Login) {
-        _copyField = "usernameLogin";
-      } else if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
+      if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
         _copyField = "usernameIdentity";
       }
 
@@ -272,6 +351,36 @@ export class CipherViewLikeUtils {
         return !!cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return !!cipher.sshKey?.keyFingerprint;
+      case "nameOnAccount":
+        return !!cipher.bankAccount?.nameOnAccount;
+      case "accountNumber":
+        return !!cipher.bankAccount?.accountNumber;
+      case "routingNumber":
+        return !!cipher.bankAccount?.routingNumber;
+      case "branchNumber":
+        return !!cipher.bankAccount?.branchNumber;
+      case "pin":
+        return !!cipher.bankAccount?.pin;
+      case "iban":
+        return !!cipher.bankAccount?.iban;
+      case "swiftCode":
+        return !!cipher.bankAccount?.swiftCode;
+      case "firstNameLicense":
+        return !!cipher.driversLicense?.firstName;
+      case "middleNameLicense":
+        return !!cipher.driversLicense?.middleName;
+      case "lastNameLicense":
+        return !!cipher.driversLicense?.lastName;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
+      case "givenName":
+        return !!cipher.passport?.givenName;
+      case "surname":
+        return !!cipher.passport?.surname;
       default:
         return false;
     }
@@ -375,6 +484,21 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  nameOnAccount: "BankAccountNameOnAccount",
+  accountNumber: "BankAccountAccountNumber",
+  routingNumber: "BankAccountRoutingNumber",
+  branchNumber: "BankAccountBranchNumber",
+  pin: "BankAccountPin",
+  iban: "BankAccountIban",
+  swiftCode: "BankAccountSwift",
+  firstNameLicense: "DriversLicenseFirstName",
+  middleNameLicense: "DriversLicenseMiddleName",
+  lastNameLicense: "DriversLicenseLastName",
+  licenseNumber: "DriversLicenseLicenseNumber",
+  givenName: "PassportGivenName",
+  surname: "PassportSurname",
+  passportNumber: "PassportPassportNumber",
+  nationalIdentificationNumber: "PassportNationalIdentificationNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

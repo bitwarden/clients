@@ -3,15 +3,17 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -76,8 +78,16 @@ describe("VaultCipherRowComponent", () => {
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
+        {
           provide: BillingAccountProfileStateService,
           useValue: mock<BillingAccountProfileStateService>(),
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: mock<PlatformUtilsService>(),
         },
       ],
     }).compileComponents();
@@ -151,6 +161,56 @@ describe("VaultCipherRowComponent", () => {
       const overlayContent = openMenuAndGetContent();
 
       expect(overlayContent).not.toContain('appcopyfield="password"');
+    });
+  });
+
+  describe("hasBankAccountOptions", () => {
+    let bankAccountCipher: CipherView;
+
+    beforeEach(() => {
+      bankAccountCipher = new CipherView();
+      bankAccountCipher.id = "cipher-1";
+      bankAccountCipher.name = "Test Bank Account";
+      bankAccountCipher.type = CipherType.BankAccount;
+      bankAccountCipher.deletedDate = null;
+
+      component.cipher = bankAccountCipher;
+      component.disabled = false;
+    });
+
+    it("returns true when accountNumber is populated", () => {
+      bankAccountCipher.bankAccount.accountNumber = "123456789";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when routingNumber is populated", () => {
+      bankAccountCipher.bankAccount.routingNumber = "987654321";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when pin is populated", () => {
+      bankAccountCipher.bankAccount.pin = "1234";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when iban is populated", () => {
+      bankAccountCipher.bankAccount.iban = "GB29NWBK60161331926819";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns false when no bank account fields are populated", () => {
+      expect(component["hasBankAccountOptions"]).toBe(false);
+    });
+
+    it("returns false when cipher is not a bank account type", () => {
+      bankAccountCipher.type = CipherType.Login;
+      expect(component["hasBankAccountOptions"]).toBe(false);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      bankAccountCipher.bankAccount.accountNumber = "123456789";
+      bankAccountCipher.deletedDate = new Date();
+      expect(component["hasBankAccountOptions"]).toBe(false);
     });
   });
 
