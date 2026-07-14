@@ -31,13 +31,15 @@ export declare namespace autofill {
      * # Operating System Differences
      *
      * ## macOS
-     * Unused.
+     * A UUID representing the request.
      *
      * ## Windows
      * On Windows, this is a base64-string representing the following data:
      * `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
+     * The hash is required to be passed back to the OS when calling the
+     * Windows Hello passkey user verification API.
      */
-    context?: string
+    context: string
   }
   /** Response for a passkey assertion request. */
   export interface PasskeyAssertionResponse {
@@ -80,12 +82,14 @@ export declare namespace autofill {
      * # Operating System Differences
      *
      * ## macOS
-     * Unused.
+     * A UUID representing the request.
      *
      * ## Windows
      * On Windows, this is `request transaction id () || SHA-256(pluginOperationRequest)`.
+     * The hash is required to be passed back to the OS when calling the
+     * Windows Hello passkey user verification API.
      */
-    context?: string
+    context: string
   }
   /** Request to create a credential. */
   export interface PasskeyRegistrationRequest {
@@ -110,13 +114,15 @@ export declare namespace autofill {
      * # Operating System Differences
      *
      * ## macOS
-     * Unused.
+     * A UUID representing the request.
      *
      * ## Windows
      * On Windows, this is a base64-string representing the following data:
      * `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
+     * The hash is required to be passed back to the OS when calling the
+     * Windows Hello passkey user verification API.
      */
-    context?: string
+    context: string
   }
   /** Response for a passkey registration request. */
   export interface PasskeyRegistrationResponse {
