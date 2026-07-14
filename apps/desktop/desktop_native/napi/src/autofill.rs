@@ -31,6 +31,42 @@ pub mod autofill {
         server: desktop_core::ipc::server::Server,
     }
 
+    // TODO(PM-40230): Investigate if we can define the response types on these
+    // callbacks directly.
+    #[napi(object, object_to_js = false)]
+    pub struct AutofillIpcCallbacks {
+        /// Function to execute when a passkey registration request is received.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub registration_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyRegistrationRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub assertion_callback: ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received and the UI must not be
+        /// shown.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub assertion_without_user_interface_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>>,
+
+        /// Function to execute when a notification of the autofill provider's status is received.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub native_status_callback: ThreadsafeFunction<FnArgs<(u32, u32, NativeStatus)>>,
+    }
+
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     #[napi]
@@ -39,38 +75,11 @@ pub mod autofill {
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
         /// connection and must be the same for both the server and client. @param callback
-        /// This function will be called whenever a message is received from a client.
+        /// The functions that will be called whenever a message of the
+        /// corresponding type is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
-        pub async fn listen(
-            name: String,
-            // Ideally we'd have a single callback that has an enum containing the request values,
-            // but NAPI doesn't support that just yet
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
-            )]
-            registration_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
-            )]
-            assertion_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
-            )]
-            assertion_without_user_interface_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
-            )]
-            native_status_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, NativeStatus)>,
-            >,
-        ) -> napi::Result<Self> {
+        pub async fn listen(name: String, callbacks: AutofillIpcCallbacks) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
                 while let Some(Message {
@@ -105,14 +114,14 @@ pub mod autofill {
                                     let _params = (client_id, msg.sequence_number);
                                     todo!("Add lock_status_callback");
                                     /*
-                                    lock_status_callback.call(
+                                    callbacks.lock_status_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     */
                                 }
                                 ExtensionRequest::NativeStatus(native_status) => {
                                     let params = (client_id, msg.sequence_number, native_status);
-                                    native_status_callback.call(
+                                    callbacks.native_status_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     );
@@ -120,7 +129,7 @@ pub mod autofill {
                                 ExtensionRequest::PasskeyAssertion(assertion_request) => {
                                     let params =
                                         (client_id, msg.sequence_number, assertion_request);
-                                    assertion_callback.call(
+                                    callbacks.assertion_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     );
@@ -130,7 +139,7 @@ pub mod autofill {
                                 ) => {
                                     let params =
                                         (client_id, msg.sequence_number, silent_assertion_request);
-                                    assertion_without_user_interface_callback.call(
+                                    callbacks.assertion_without_user_interface_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     );
@@ -138,7 +147,7 @@ pub mod autofill {
                                 ExtensionRequest::PasskeyRegistration(registration_request) => {
                                     let params =
                                         (client_id, msg.sequence_number, registration_request);
-                                    registration_callback.call(
+                                    callbacks.registration_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     );
@@ -147,7 +156,7 @@ pub mod autofill {
                                     let _params = (client_id, msg.sequence_number);
                                     todo!("Add window_handle_callback");
                                     /*
-                                    window_handle_callback.call(
+                                    callbacks.window_handle_callback.call(
                                         Ok(params.into()),
                                         ThreadsafeFunctionCallMode::NonBlocking,
                                     */
