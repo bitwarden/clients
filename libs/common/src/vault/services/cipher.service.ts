@@ -2067,6 +2067,14 @@ export class CipherService implements CipherServiceAbstraction {
         return null;
       }
 
+      // `getAllDecryptedForUrl` already hydrates localData at the source, but this path
+      // caches the result in `sortedCiphersCache` and is read immediately after a
+      // lastLaunched/lastUsed update before `cipherViews$` necessarily re-decrypts.
+      // Re-hydrate from the current localData$ so the correct cipher is selected
+      // regardless of that emission timing.
+      const localData = await firstValueFrom(this.localData$(userId));
+      ciphers = hydrateCiphersWithLocalData(ciphers, localData);
+
       if (autofillOnPageLoad) {
         const autofillOnPageLoadDefault = await this.getAutofillOnPageLoadDefault();
 

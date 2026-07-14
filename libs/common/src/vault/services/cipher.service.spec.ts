@@ -1818,6 +1818,34 @@ describe("Cipher Service", () => {
     });
   });
 
+  describe("getCipherForUrl localData freshness", () => {
+    beforeEach(() => {
+      Object.defineProperty(autofillSettingsService, "autofillOnPageLoadDefault$", {
+        value: of(true),
+        writable: true,
+      });
+    });
+
+    it("re-hydrates localData at call time so the launch flow selects the correct cipher", async () => {
+      const cipherId = "test-cipher-id" as CipherId;
+      const freshLocalData = {
+        lastLaunched: Date.now().valueOf(),
+        lastUsedDate: Date.now().valueOf() - 1000,
+      };
+      jest.spyOn(cipherService, "localData$").mockReturnValue(of({ [cipherId]: freshLocalData }));
+
+      // Simulate a view whose localData has not yet propagated through cipherViews$.
+      const staleView = new CipherView();
+      staleView.id = cipherId;
+      staleView.localData = null;
+      jest.spyOn(cipherService, "getAllDecryptedForUrl").mockResolvedValue([staleView]);
+
+      const result = await cipherService.getLastLaunchedForUrl("https://example.com", userId, true);
+
+      expect(result.localData).toEqual(freshLocalData);
+    });
+  });
+
   describe("saveCollectionsWithServerAdmin()", () => {
     const collectionIds = ["col-id-1", "col-id-2"];
     let cipher: Cipher;
