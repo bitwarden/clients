@@ -92,9 +92,9 @@ export class PasskeyReportComponent {
   protected readonly filterStatus = signal<(number | string)[]>([0]);
   protected readonly showFilterToggle = signal(false);
   protected readonly vaultMsg = signal("vault");
-  protected readonly chipSelectOptions = signal<{ label: string; value: string }[]>([]);
+  protected readonly chipSelectOptions = signal<{ label: string; value: string | number }[]>([]);
   protected readonly selectedFilterChip = "0";
-  private readonly maxItemsToSwitchToChipSelect = 5;
+  private readonly maxItemsToSwitchToChipSelect = 1;
 
   // Organization state
   protected readonly organizations = toSignal(
@@ -296,7 +296,9 @@ export class PasskeyReportComponent {
     this.chipSelectOptions.set(this.setupChipSelectOptions(statuses));
   }
 
-  private setupChipSelectOptions(filters: (number | string)[]): { label: string; value: string }[] {
+  private setupChipSelectOptions(
+    filters: (number | string)[],
+  ): { label: string; value: string | number }[] {
     return filters.map((filterId) => {
       const name = this.getName(filterId);
       const count = this.getCount(filterId);
@@ -304,7 +306,7 @@ export class PasskeyReportComponent {
 
       return {
         label: name + labelSuffix,
-        value: String(filterId),
+        value: filterId,
       };
     });
   }

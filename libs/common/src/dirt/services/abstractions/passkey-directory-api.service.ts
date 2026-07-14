@@ -1,6 +1,5 @@
-import { PasskeyDirectoryEntryResponse } from "@bitwarden/common/dirt";
-
 import { UserId } from "../../../types/guid";
+import { PasskeyDirectoryEntryResponse } from "../../models/response/passkey-directory-entry.response";
 
 /**
  * Service for retrieving the passkey directory from the server.
