@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subscription } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subscription } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -42,6 +42,9 @@ describe("DefaultAutofillLifecycleService", () => {
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation();
     tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockResolvedValue(undefined);
+    // The live-tab seed queries open tabs at init; default to none so seeding is deterministic
+    // and no real chrome API is touched. Tests that exercise seeding override this.
+    jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
 
     service = new DefaultAutofillLifecycleService(authService, logService);
   });
@@ -68,6 +71,83 @@ describe("DefaultAutofillLifecycleService", () => {
         chrome.tabs.onRemoved,
         service["handleTabRemoved"],
       );
+    });
+
+    it("registers a tabs onCreated listener", () => {
+      service.init();
+
+      expect(BrowserApi.addListener).toHaveBeenCalledWith(
+        chrome.tabs.onCreated,
+        service["handleTabCreated"],
+      );
+    });
+  });
+
+  describe("live-tab set", () => {
+    it("seeds the live-tab set from the tabs open when subscribed", async () => {
+      jest
+        .spyOn(BrowserApi, "tabsQuery")
+        .mockResolvedValue([createChromeTabMock({ id: 1 }), createChromeTabMock({ id: 2 })]);
+
+      service.init();
+
+      expect(await firstValueFrom(service.liveTabs$)).toEqual(new Set([1, 2]));
+    });
+
+    it("re-seeds on each subscription, so a failed seed can be retried", async () => {
+      const querySpy = jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+      service.init();
+
+      await firstValueFrom(service.liveTabs$);
+      await firstValueFrom(service.liveTabs$);
+
+      // The stream is cold: each subscription re-runs the query, which is what lets a consumer
+      // retry a failed seed by re-subscribing.
+      expect(querySpy).toHaveBeenCalledTimes(2);
+    });
+
+    it("adds a created tab and drops a removed tab", async () => {
+      service.init();
+
+      service["handleTabCreated"](createChromeTabMock({ id: 5 }));
+      expect((await firstValueFrom(service.liveTabs$)).has(5)).toBe(true);
+
+      service["handleTabRemoved"](5);
+      expect((await firstValueFrom(service.liveTabs$)).has(5)).toBe(false);
+    });
+
+    it("ignores a created tab that has no id", async () => {
+      service.init();
+
+      service["handleTabCreated"](createChromeTabMock({ id: undefined }));
+
+      expect(await firstValueFrom(service.liveTabs$)).toEqual(new Set());
+    });
+
+    it("errors liveTabs$ when the seed query fails", async () => {
+      // The failure is surfaced, not eaten: the set can never become authoritative, so the stream
+      // errors and the consumer owns the policy (retry, then stop) rather than the producer
+      // substituting a fallback that would silently gate open.
+      jest.spyOn(BrowserApi, "tabsQuery").mockRejectedValue(new Error("query failed"));
+
+      service.init();
+
+      await expect(firstValueFrom(service.liveTabs$)).rejects.toThrow("query failed");
+    });
+
+    it("does not publish until the seed completes", async () => {
+      // Before the async seed resolves the set is not authoritative, so the stream stays silent
+      // (a `withLatestReady` consumer holds its input rather than gating early).
+      service.init();
+      const emissions: ReadonlySet<number>[] = [];
+      const sub = service.liveTabs$.subscribe((tabs) => emissions.push(tabs));
+
+      // Synchronously after subscribing, before the seed's tabsQuery promise resolves.
+      expect(emissions).toEqual([]);
+
+      await flushPromises();
+      expect(emissions[emissions.length - 1]).toEqual(new Set());
+      sub.unsubscribe();
     });
   });
 

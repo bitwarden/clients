@@ -1,6 +1,7 @@
-import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
+import { BehaviorSubject, concat, defer, firstValueFrom, Observable, Subject } from "rxjs";
 import {
   filter,
+  ignoreElements,
   map,
   mergeMap,
   pairwise,
@@ -76,6 +77,30 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   private readonly tabRemovedSubject$ = new Subject<number>();
 
   /**
+   * Add/remove facts for open tabs, seeded once at `init()` and then fed from
+   * `chrome.tabs.onCreated` / `onRemoved`. The live-tab set is the fold of this
+   * stream — no separate structure is mutated alongside it.
+   */
+  private readonly tabEvent$ = new Subject<{ type: "add" | "remove"; tabId: number }>();
+
+  /**
+   * The currently-open tab ids, derived as the running fold of `tabEvent$`.
+   */
+  private readonly liveTabs = new BehaviorSubject<ReadonlySet<number>>(new Set());
+
+  /**
+   * The open tab ids, published only once a fresh seed has succeeded. Cold: each
+   * subscription runs the seed again, so a consumer can re-subscribe to retry a
+   * failed seed.
+   *
+   * If the seed fails the stream *errors*.
+   */
+  readonly liveTabs$: Observable<ReadonlySet<number>> = concat(
+    defer(() => this.seedLiveTabs()).pipe(ignoreElements()),
+    this.liveTabs,
+  );
+
+  /**
    * Page transitions reconciled against monitoring — the buffer's output,
    * multicast to the autofill side as fill *opportunities* (the *Resolved*
    * state). Each reported transition is held until its frame is monitoring, then
@@ -147,6 +172,7 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   init() {
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     BrowserApi.addListener(chrome.tabs.onRemoved, this.handleTabRemoved);
+    BrowserApi.addListener(chrome.tabs.onCreated, this.handleTabCreated);
 
     // Fold port events into the live port set. The accumulator is mutated in
     // place (no per-event allocation); reads go through `connectedPorts.value`.
@@ -188,6 +214,21 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
         this.assertSynchronousMonitoringState.exit,
       )
       .subscribe(this.monitoringState);
+
+    // Fold tab add/remove facts into the live-tab set. The accumulator is mutated
+    // in place and widened to ReadonlySet to prevent casual mutation.
+    this.tabEvent$
+      .pipe(
+        scan((tabs, event) => {
+          if (event.type === "add") {
+            tabs.add(event.tabId);
+          } else {
+            tabs.delete(event.tabId);
+          }
+          return tabs;
+        }, new Set<number>()),
+      )
+      .subscribe(this.liveTabs);
 
     this.authService.activeAccountStatus$
       .pipe(startWith(undefined), pairwise())
@@ -407,12 +448,38 @@ export class DefaultAutofillLifecycleService implements AutofillLifecycleService
   }
 
   /**
-   * Records a removed tab so `tabRemoved$` consumers can end per-tab work.
-   * Sourced from `chrome.tabs.onRemoved`, which also fires per-tab when a window
-   * closes. Step 7 is expected to additionally translate `windows.onRemoved` into
-   * this signal, via the per-window active-tab map it introduces.
+   * Records a removed tab so `tabRemoved$` consumers can end per-tab work and the
+   * live-tab fold can drop it. Sourced from `chrome.tabs.onRemoved`, which also
+   * fires per-tab when a window closes. Step 7 is expected to additionally
+   * translate `windows.onRemoved` into this signal, via the per-window active-tab
+   * map it introduces.
    */
   private handleTabRemoved = (tabId: number) => {
     this.tabRemovedSubject$.next(tabId);
+    this.tabEvent$.next({ type: "remove", tabId });
   };
+
+  /**
+   * Records a newly-opened tab in the live-tab fold. A tab without an id cannot
+   * be keyed against and is ignored.
+   */
+  private handleTabCreated = (tab: chrome.tabs.Tab) => {
+    if (tab.id == null) {
+      return;
+    }
+    this.tabEvent$.next({ type: "add", tabId: tab.id });
+  };
+
+  /**
+   * Seeds the live-tab fold with tabs already open at startup. Feeds each open
+   * tab into the fold, then resolves.
+   */
+  private async seedLiveTabs() {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (const tab of tabs) {
+      if (tab.id != null) {
+        this.tabEvent$.next({ type: "add", tabId: tab.id });
+      }
+    }
+  }
 }

@@ -5,6 +5,7 @@ import {
   groupBy,
   map,
   mergeMap,
+  retry,
   Subject,
   takeUntil,
   withLatestFrom,
@@ -14,6 +15,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { withLatestReady } from "@bitwarden/common/tools/rx";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -54,6 +56,16 @@ type FillRequest =
     };
 
 /**
+ * How many times the dispatch pipe re-seeds the live-tab set after a seed failure
+ * before giving up. Bounded so a persistently failing seed cannot loop forever;
+ * on exhaustion dispatch stops (fails closed) rather than gating open.
+ */
+export const LIVE_TAB_SEED_MAX_RETRIES = 3;
+
+/** Delay between live-tab seed retries, giving a transient failure time to clear. */
+export const LIVE_TAB_SEED_RETRY_DELAY_MS = 1_000;
+
+/**
  * The single owner of runtime-message-driven autofill dispatch: page-load fills
  * (consumed from the lifecycle's `pageTransitionResolved$` opportunity) and the
  * user-initiated keyboard-shortcut, card, and identity fills the background
@@ -86,13 +98,15 @@ export class AutofillOrchestrator {
    * Subscriptions are process-lifetime — this is a background singleton.
    */
   init() {
-    // Serialized core: group per tab, then per frame; serialize within each frame
-    // (concatMap) while different frames/tabs run concurrently (mergeMap). When a
-    // tab is removed, `takeUntil` ends that tab's pipeline — abandoning any queued
-    // fill (an already-dispatched one still finishes) and tearing down the per-tab
-    // subscriptions so the grouping does not leak.
+    // sequence and dispatch fill requests through a common pipe to prevent dispatch
+    // calls from interleaving async collections and fills.
     this.fillRequest$
       .pipe(
+        // Drop any request whose tab id is not a currently-open tab before it can
+        // open a per-tab group.
+        withLatestReady(this.lifecycleService.liveTabs$),
+        filter(([request, liveTabs]) => liveTabs.has(request.tabId)),
+        map(([request]) => request),
         groupBy((request) => request.tabId),
         mergeMap((tabGroup) =>
           tabGroup.pipe(
@@ -103,8 +117,16 @@ export class AutofillOrchestrator {
             takeUntil(this.lifecycleService.tabRemoved$(tabGroup.key)),
           ),
         ),
+        // circuit-break fill requests when tab validation repeatedly fails
+        retry({ count: LIVE_TAB_SEED_MAX_RETRIES, delay: LIVE_TAB_SEED_RETRY_DELAY_MS }),
       )
-      .subscribe();
+      .subscribe({
+        error: (error: unknown) =>
+          this.logService.error(
+            "Autofill dispatch stopped: live-tab set could not be established.",
+            error,
+          ),
+      });
 
     // Page-load opportunities feed the same serialized stream, gated reactively on
     // the current autofill-on-page-load setting (this fill-time check is what
@@ -185,10 +207,14 @@ export class AutofillOrchestrator {
             this.autofillService.collectPageDetailsFromTab$(liveTab, request.frameId),
           );
           await this.recordActiveAccountActivity();
-          // doAutoFillOnTab throws on empty details; short-circuit to preserve the null outcome.
-          const totp = pageDetails[0]?.details?.fields?.length
-            ? await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false)
-            : null;
+          // The cipher is read before data collection, while the content script gates the fill on
+          // the URL captured during the collect. Guard against a same-document navigation between
+          // those reads from filling a cipher chosen for the old URL to the new page.
+          const frameStillFresh = pageDetails[0]?.details?.url === request.frameUrl;
+          const totp =
+            frameStillFresh && pageDetails[0]?.details?.fields?.length
+              ? await this.autofillService.doAutoFillOnTab(pageDetails, liveTab, false)
+              : null;
           this.copyTotp(totp);
           await this.updateOverlayCiphers();
           break;

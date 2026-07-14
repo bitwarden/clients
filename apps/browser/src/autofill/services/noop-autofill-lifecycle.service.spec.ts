@@ -62,6 +62,22 @@ describe("NoopAutofillLifecycleService", () => {
     expect(logService.warning).not.toHaveBeenCalled();
   });
 
+  // Unlike the other streams, `liveTabs$` must emit — a `withLatestReady` consumer
+  // would otherwise stall. It emits an (empty) set and completes.
+  it("exposes liveTabs$ as an inert empty-set stream", () => {
+    const emissions: unknown[] = [];
+    let completed = false;
+
+    service.liveTabs$.subscribe({
+      next: (value) => emissions.push(value),
+      complete: () => (completed = true),
+    });
+
+    expect(emissions).toEqual([new Set()]);
+    expect(completed).toBe(true);
+    expect(logService.warning).not.toHaveBeenCalled();
+  });
+
   it("withholds the tab and frame entirely so no tab data reaches the log", async () => {
     const tab = createChromeTabMock({ id: 8675309, url: "https://secret.example/abc" });
 

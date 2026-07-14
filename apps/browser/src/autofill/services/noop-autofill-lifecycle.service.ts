@@ -1,4 +1,4 @@
-import { EMPTY } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
@@ -27,6 +27,10 @@ export class NoopAutofillLifecycleService implements AutofillLifecycleService {
   // popup never subscribes to them. Only the invoked methods below warn.
   readonly pageTransitionResolved$ = EMPTY;
   readonly tabRemoved$ = () => EMPTY;
+  // `liveTabs$` emits an (empty) set rather than `EMPTY`: a `withLatestReady`
+  // consumer must receive a value or it would stall. The popup never drives fills,
+  // so the contents are moot — it just must be a valid, non-erroring emission.
+  readonly liveTabs$ = of<ReadonlySet<number>>(new Set());
 
   init() {
     this.warnInvoked("init");

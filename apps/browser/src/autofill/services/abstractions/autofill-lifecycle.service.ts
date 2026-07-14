@@ -59,6 +59,14 @@ export abstract class AutofillLifecycleService {
    */
   abstract tabRemoved$: (tabId: number) => Observable<void>;
   /**
+   * The open tab ids, published only once a fresh seed has succeeded. Cold: each
+   * subscription runs the seed again, so a consumer can re-subscribe to retry a
+   * failed seed.
+   *
+   * If the seed fails the stream *errors*.
+   */
+  abstract liveTabs$: Observable<ReadonlySet<number>>;
+  /**
    * Begins monitoring a freshly-injected frame: commands it to start when an
    * account is logged in. Called by the injection path once a frame's scripts
    * are in place.

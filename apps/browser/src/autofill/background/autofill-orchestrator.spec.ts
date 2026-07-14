@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, filter, map, of, Subject } from "rxjs";
+import { BehaviorSubject, defer, filter, map, of, Subject, throwError } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -13,10 +13,18 @@ import {
   PageTransitionResolved,
 } from "../services/abstractions/autofill-lifecycle.service";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
-import { createChromeTabMock, createPageDetailMock } from "../spec/autofill-mocks";
+import {
+  createAutofillPageDetailsMock,
+  createChromeTabMock,
+  createPageDetailMock,
+} from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
 
-import { AutofillOrchestrator } from "./autofill-orchestrator";
+import {
+  AutofillOrchestrator,
+  LIVE_TAB_SEED_MAX_RETRIES,
+  LIVE_TAB_SEED_RETRY_DELAY_MS,
+} from "./autofill-orchestrator";
 
 describe("AutofillOrchestrator", () => {
   let autofillOrchestrator: AutofillOrchestrator;
@@ -31,13 +39,23 @@ describe("AutofillOrchestrator", () => {
   let pageTransitionResolved$: Subject<PageTransitionResolved>;
   let tabRemovedSubject$: Subject<number>;
   let autofillOnPageLoad$: BehaviorSubject<boolean>;
+  let liveTabs$: BehaviorSubject<ReadonlySet<number>>;
 
   // createChromeTabMock's default url; the live tab and reported frame url share it by default so
   // the fill-time match succeeds unless a test overrides one side.
   const DEFAULT_URL = "https://jest-testing-website.com";
 
-  const pageDetail = (tabId: number | undefined, frameId: number): PageDetail =>
-    createPageDetailMock({ frameId, tab: createChromeTabMock({ id: tabId }) });
+  const pageDetail = (tabId: number | undefined, frameId: number): PageDetail => {
+    const tab = createChromeTabMock({ id: tabId });
+    // A collected frame reports its own url; default it to the tab url so a top-frame page-load
+    // passes the fill-time freshness check (details.url === frameUrl). Sub-frame tests, whose
+    // frame url differs from the tab's, set a distinct url explicitly.
+    return createPageDetailMock({
+      frameId,
+      tab,
+      details: createAutofillPageDetailsMock({ url: tab.url }),
+    });
+  };
 
   const emitPageTransition = (pd: PageDetail, frameUrl: string = pd.tab.url ?? DEFAULT_URL) =>
     pageTransitionResolved$.next({ tab: pd.tab, tabId: pd.tab.id!, frameId: pd.frameId, frameUrl });
@@ -65,9 +83,14 @@ describe("AutofillOrchestrator", () => {
     pageTransitionResolved$ = new Subject<PageTransitionResolved>();
     tabRemovedSubject$ = new Subject<number>();
     autofillOnPageLoad$ = new BehaviorSubject<boolean>(true);
+    // The tabs used across these tests are open by default so requests pass the live-tab gate;
+    // the gate tests below override this to exercise the drop path (empty set) and the seed-error
+    // fail-open path.
+    liveTabs$ = new BehaviorSubject<ReadonlySet<number>>(new Set([1, 2]));
 
     lifecycleService = mock<AutofillLifecycleService>();
     (lifecycleService as any).pageTransitionResolved$ = pageTransitionResolved$;
+    (lifecycleService as any).liveTabs$ = liveTabs$;
     lifecycleService.tabRemoved$.mockImplementation((tabId: number) =>
       tabRemovedSubject$.pipe(
         filter((removedTabId) => removedTabId === tabId),
@@ -124,7 +147,11 @@ describe("AutofillOrchestrator", () => {
     it("resolves the target by id, validates the frame url, collects the reported frame, records activity, fills, copies the TOTP, and refreshes the overlay", async () => {
       // The top frame's live url (the tab's) matches the reported frame url, so the fill proceeds.
       const url = "https://login.example.com/session";
-      const pd = createPageDetailMock({ frameId: 0, tab: createChromeTabMock({ id: 1, url }) });
+      const pd = createPageDetailMock({
+        frameId: 0,
+        tab: createChromeTabMock({ id: 1, url }),
+        details: createAutofillPageDetailsMock({ url }),
+      });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
       autofillService.doAutoFillOnTab.mockResolvedValue("999999");
@@ -171,7 +198,12 @@ describe("AutofillOrchestrator", () => {
       // A sub-frame's url is not the tab's, so it is validated via getFrameDetails; a non-zero
       // frameId also guards the collect against scoping to a hardcoded 0.
       const frameUrl = "https://idp.example.com/sso";
-      const pd = pageDetail(1, 3);
+      // A sub-frame's collected url is the frame's own url, not the tab's.
+      const pd = createPageDetailMock({
+        frameId: 3,
+        tab: createChromeTabMock({ id: 1 }),
+        details: createAutofillPageDetailsMock({ url: frameUrl }),
+      });
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       jest
         .spyOn(BrowserApi, "getFrameDetails")
@@ -230,6 +262,27 @@ describe("AutofillOrchestrator", () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
       emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not fill when the reported frame is fresh but has zero fields", async () => {
+      // Isolates the fields guard from the freshness check: the url matches (frame is fresh), but
+      // the collected detail has no fields, so doAutoFillOnTab (which throws on empty details) must
+      // still be skipped while the side effects run.
+      const tab = createChromeTabMock({ id: 1 });
+      const pd = createPageDetailMock({
+        frameId: 0,
+        tab,
+        details: createAutofillPageDetailsMock({ url: tab.url, fields: [] }),
+      });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitPageTransition(pd);
       await flushPromises();
 
       expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
@@ -303,6 +356,28 @@ describe("AutofillOrchestrator", () => {
 
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
       // The overlay refresh is part of the page-load side effects and runs regardless.
+      expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
+    });
+
+    it("abandons the fill when the frame navigates between validation and collection", async () => {
+      // resolveFreshTarget passes (the live tab still shows the reported url), but the collected
+      // details carry a different url: a same-document navigation landed in the gap between the
+      // pre-collect validation and the collect. The cipher would have been chosen for the reported
+      // url, so the fill is abandoned rather than applied to the page now loaded.
+      const pd = createPageDetailMock({
+        frameId: 0,
+        tab: createChromeTabMock({ id: 1 }),
+        details: createAutofillPageDetailsMock({ url: "https://login.example.com/after-nav" }),
+      });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitPageTransition(pd, DEFAULT_URL);
+      await flushPromises();
+
+      expect(autofillService.doAutoFillOnTab).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      // The abandon mirrors the empty-collection path: activity and overlay refresh still run.
+      expect(accountService.setAccountActivity).toHaveBeenCalledWith("user-1", expect.any(Date));
       expect(updateOverlayCiphers).toHaveBeenCalledTimes(1);
     });
   });
@@ -408,6 +483,161 @@ describe("AutofillOrchestrator", () => {
 
       // Once the page-load fill completes, the queued keyboard fill runs.
       pageLoadFill.resolve(null);
+      await flushPromises();
+      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("live-tab gate", () => {
+    it("drops a page-load fill whose tab id is not an open tab", async () => {
+      // No tab is open, so the reported transition's tab id is not live: the request is dropped
+      // before it can open a per-tab serialization group that nothing would later retire.
+      liveTabs$.next(new Set());
+
+      emitPageTransition(pageDetail(1, 0));
+      await flushPromises();
+
+      expectAbandoned();
+    });
+
+    it("drops a user-initiated fill whose tab id is not an open tab", async () => {
+      // Tab 1 is not among the open tabs, so a fill request naming it (e.g. a forged runtime
+      // message) is dropped rather than keyed into a group.
+      liveTabs$.next(new Set([2]));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+    });
+
+    it("dispatches a fill whose tab id is an open tab", async () => {
+      // The complement of the drop cases: a request for a live tab passes the gate and fills.
+      liveTabs$.next(new Set([1]));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      await flushPromises();
+
+      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+    });
+
+    it("dispatches a page-load fill whose tab id is an open tab", async () => {
+      // Page-load and user-initiated fills share the gated pipe; assert the page-load path
+      // explicitly rather than relying on the default-open set in the page-load block.
+      liveTabs$.next(new Set([1]));
+      const pd = pageDetail(1, 0);
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
+
+      emitPageTransition(pd);
+      await flushPromises();
+
+      expect(autofillService.doAutoFillOnTab).toHaveBeenCalledTimes(1);
+    });
+
+    it("re-seeds and recovers when a later seed attempt succeeds", async () => {
+      jest.useFakeTimers();
+      // The first subscription errors (seed fails); the retry's re-subscription succeeds.
+      let attempt = 0;
+      const flakyLiveTabs$ = defer(() =>
+        attempt++ === 0 ? throwError(() => new Error("transient")) : of(new Set([1])),
+      );
+      (lifecycleService as any).liveTabs$ = flakyLiveTabs$;
+      const orchestrator = new AutofillOrchestrator(
+        lifecycleService,
+        autofillService,
+        autofillSettingsService,
+        accountService,
+        platformUtilsService,
+        updateOverlayCiphers,
+        logService,
+      );
+      orchestrator.init();
+
+      // Advancing past the retry delay re-seeds, and this attempt succeeds.
+      await jest.advanceTimersByTimeAsync(LIVE_TAB_SEED_RETRY_DELAY_MS);
+      expect(attempt).toBe(2);
+
+      // The pipe is healthy again, so a fill dispatches through the gate — never failing open.
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+      expect(logService.error).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it("re-seeds up to the retry limit, then fails closed (logged)", async () => {
+      jest.useFakeTimers();
+      // The seed never succeeds; the pipe resets a bounded number of times, then gives up.
+      let subscriptions = 0;
+      const alwaysErrors$ = defer(() => {
+        subscriptions++;
+        return throwError(() => new Error("seed failed"));
+      });
+      (lifecycleService as any).liveTabs$ = alwaysErrors$;
+      const orchestrator = new AutofillOrchestrator(
+        lifecycleService,
+        autofillService,
+        autofillSettingsService,
+        accountService,
+        platformUtilsService,
+        updateOverlayCiphers,
+        logService,
+      );
+      orchestrator.init();
+
+      await jest.advanceTimersByTimeAsync(LIVE_TAB_SEED_RETRY_DELAY_MS * LIVE_TAB_SEED_MAX_RETRIES);
+
+      // Initial attempt plus the bounded retries — then it stops rather than looping.
+      expect(subscriptions).toBe(LIVE_TAB_SEED_MAX_RETRIES + 1);
+      expect(logService.error).toHaveBeenCalledWith(
+        "Autofill dispatch stopped: live-tab set could not be established.",
+        expect.any(Error),
+      );
+
+      // Fail closed: a fill after the pipe gives up is not dispatched (never gates open).
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      await jest.advanceTimersByTimeAsync(0);
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it("holds a fill until the live-tab set becomes available, then dispatches it", async () => {
+      // `withLatestReady`: a fill arriving before the startup seed resolves waits for the
+      // authoritative set instead of slipping through ungated or being dropped.
+      const pendingLiveTabs$ = new Subject<ReadonlySet<number>>();
+      (lifecycleService as any).liveTabs$ = pendingLiveTabs$;
+      const orchestrator = new AutofillOrchestrator(
+        lifecycleService,
+        autofillService,
+        autofillSettingsService,
+        accountService,
+        platformUtilsService,
+        updateOverlayCiphers,
+        logService,
+      );
+      orchestrator.init();
+
+      orchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
+      await flushPromises();
+      // Not dispatched yet — the live-tab set has not emitted.
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+
+      pendingLiveTabs$.next(new Set([1]));
+      await flushPromises();
+      expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
+    });
+
+    it("drops a forged-id request without disturbing a later live-tab fill", async () => {
+      // The gate's purpose is to keep a forged id from opening a per-tab group that never retires.
+      // A dropped forged request must not consume or reroute a subsequent legitimate fill.
+      liveTabs$.next(new Set([1]));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(999, 0));
+      await flushPromises();
+      expect(autofillService.doAutoFillActiveTab).not.toHaveBeenCalled();
+
+      autofillOrchestrator.autofillActiveTabFromCommand(pageDetail(1, 0));
       await flushPromises();
       expect(autofillService.doAutoFillActiveTab).toHaveBeenCalledTimes(1);
     });
