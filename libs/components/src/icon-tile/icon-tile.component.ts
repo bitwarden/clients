@@ -33,7 +33,7 @@ const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> 
     icon: ["tw-text-sm", "tw-leading-[0]"],
   },
   base: {
-    container: ["tw-w-9", "tw-h-9"],
+    container: ["tw-w-8", "tw-h-8"],
     icon: ["tw-text-lg"],
   },
   lg: {
