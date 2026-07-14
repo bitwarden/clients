@@ -1,5 +1,6 @@
 ignore:
   - "**/*.spec.ts" # Tests
+  - "**/*.stories.ts" # Storybook stories
 
 component_management:
   default_rules:
