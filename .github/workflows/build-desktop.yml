@@ -261,42 +261,42 @@ jobs:
         run: npm run dist:lin
 
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
           if-no-files-found: error
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
@@ -309,7 +309,7 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
@@ -437,14 +437,14 @@ jobs:
         run: npm run dist:lin:arm64
 
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           if-no-files-found: error
 
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
@@ -457,7 +457,7 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: com.bitwarden.desktop-arm64.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
@@ -634,7 +634,7 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -642,7 +642,7 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -650,7 +650,7 @@ jobs:
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -658,7 +658,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -666,7 +666,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -674,7 +674,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -682,7 +682,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -690,7 +690,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -698,7 +698,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -706,7 +706,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -714,7 +714,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -722,7 +722,7 @@ jobs:
 
       - name: Upload nupkg artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
@@ -730,7 +730,7 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
@@ -902,7 +902,7 @@ jobs:
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-beta-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}-beta.exe
           path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}-beta.exe
@@ -910,7 +910,7 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}-beta.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}-beta.exe
@@ -918,7 +918,7 @@ jobs:
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32.appx
@@ -926,7 +926,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32-store.appx
@@ -934,7 +934,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-ia32.nsis.7z
@@ -942,7 +942,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64.appx
@@ -950,7 +950,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64-store.appx
@@ -958,7 +958,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-x64.nsis.7z
@@ -966,7 +966,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64.appx
@@ -974,7 +974,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64-store.appx
@@ -982,7 +982,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-arm64.nsis.7z
@@ -990,7 +990,7 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: beta.yml
           path: apps/desktop/dist/nsis-web/beta.yml
@@ -1425,7 +1425,7 @@ jobs:
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1461,28 +1461,28 @@ jobs:
         run: npm run pack:mac
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
@@ -1693,21 +1693,21 @@ jobs:
         run: npm run pack:mac:beta
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal.dmg
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: beta-mac.yml
           path: apps/desktop/dist/beta-mac.yml
@@ -1927,7 +1927,7 @@ jobs:
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1973,14 +1973,14 @@ jobs:
           $buildInfo | ConvertTo-Json | Set-Content -Path dist/macos-build-number.json
 
       - name: Upload MacOS App Store build number artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: macos-build-number.json
           path: apps/desktop/dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
