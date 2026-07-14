@@ -97,7 +97,6 @@ export class OrgPasskeyReportComponent {
 
   // Reactive state
   protected readonly loading = signal(false);
-  protected readonly hasLoaded = signal(false);
   protected readonly error = signal(false);
   protected readonly ciphers = signal<PasskeyCipherRow[]>([]);
   protected readonly dataSource = new TableDataSource<PasskeyCipherRow>();
@@ -180,7 +179,6 @@ export class OrgPasskeyReportComponent {
       this.error.set(true);
     } finally {
       this.loading.set(false);
-      this.hasLoaded.set(true);
     }
   }
 

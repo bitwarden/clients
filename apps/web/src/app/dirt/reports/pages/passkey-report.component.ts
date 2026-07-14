@@ -84,7 +84,6 @@ export class PasskeyReportComponent {
 
   // Reactive state
   protected readonly loading = signal(false);
-  protected readonly hasLoaded = signal(false);
   protected readonly error = signal(false);
   protected readonly ciphers = signal<PasskeyCipherRow[]>([]);
   protected readonly allCiphers = signal<PasskeyCipherRow[]>([]);
@@ -210,7 +209,6 @@ export class PasskeyReportComponent {
       this.error.set(true);
     } finally {
       this.loading.set(false);
-      this.hasLoaded.set(true);
     }
   }
 

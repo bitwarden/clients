@@ -16,7 +16,7 @@
       {{ "passkeyLoginReportHowToUse" | i18n }}
     </a>
   </p>
-  @if (!hasLoaded() && loading()) {
+  @if (loading()) {
     <div>
       <bit-icon
         name="bwi-spinner"
