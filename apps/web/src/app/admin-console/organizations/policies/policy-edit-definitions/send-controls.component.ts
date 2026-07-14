@@ -19,7 +19,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -256,6 +256,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const orgId = this.policyResponse()?.organizationId;
     const hasExistingDomains = this.policyResponse()?.data?.allowedDomains != null;
     if (!orgId || hasExistingDomains) {
+      return;
+    }
+
+    // Claimed domains come from an SSO/domain-gated endpoint. A user without that permission
+    // (e.g. a custom role with only Manage policies) gets a 401, which ApiService turns into a
+    // forced logout before this method's catch can run.
+    const organization = await firstValueFrom(this.organization$);
+    if (!organization?.canManageDomainVerification) {
       return;
     }
 
