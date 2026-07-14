@@ -1,0 +1,44 @@
+<div
+  class="tw-relative tw-inline-flex tw-items-center tw-justify-center tw-size-24"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-valuenow]="percentage()"
+  [attr.aria-valuetext]="accessibleValueText()"
+>
+  <!-- Ring -->
+  <svg class="tw-size-full" viewBox="0 0 36 36" aria-hidden="true">
+    <!-- Rotate the ring so the fill starts at 12 o'clock (rotation is around the ring center). -->
+    <g transform="rotate(-90 18 18)">
+      <!-- Track: green when clean, neutral when at risk -->
+      <circle
+        class="tw-fill-none"
+        [class]="trackStrokeClass()"
+        cx="18"
+        cy="18"
+        r="15.9155"
+        stroke-width="3"
+      ></circle>
+      <!-- Fill: red arc sized to the at-risk proportion. Omitted when clean so a round
+           line-cap can't leave a stray dot on the empty (green) ring. -->
+      @if (fillFraction() > 0) {
+        <circle
+          class="tw-fill-none tw-stroke-bg-danger"
+          cx="18"
+          cy="18"
+          r="15.9155"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-dasharray="100"
+          [attr.stroke-dashoffset]="strokeDashoffset()"
+        ></circle>
+      }
+    </g>
+  </svg>
+
+  <!-- Centered percentage + label overlay -->
+  <div class="tw-absolute tw-flex tw-flex-col tw-items-center tw-justify-center tw-leading-none">
+    <span bitTypography="h3" class="tw-text-main">{{ percentage() }}%</span>
+    <span bitTypography="helper" class="tw-text-muted">{{ "atRisk" | i18n }}</span>
+  </div>
+</div>

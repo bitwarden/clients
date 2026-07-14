@@ -3174,6 +3174,10 @@
   "atRiskPasswords": {
     "message": "At-risk passwords"
   },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Label shown inside the vault-health at-risk gauge, beneath the percentage."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
     "placeholders": {
