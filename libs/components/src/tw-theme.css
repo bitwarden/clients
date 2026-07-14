@@ -408,11 +408,11 @@
   /* Original variant tokens — retained for the version 1 side-nav (see [data-nav-version="1"]) */
   --color-nav-fg-primary: var(--color-white);
   --color-nav-fg-secondary: var(--color-gray-900);
-  --color-nav-bg-primary: var(--color-brand-900);
+  --color-nav-bg-primary: var(--color-brand-800);
   --color-nav-bg-secondary: var(--color-gray-100);
   --color-nav-bg-primary-strong: var(--color-brand-900);
   --color-nav-bg-secondary-strong: var(--color-gray-300);
-  --color-nav-bg-primary-hover: rgba(var(--color-brand-800-rgb), 0.6);
+  --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
   --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
   --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
   --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
