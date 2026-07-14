@@ -18,11 +18,12 @@
   </p>
   @if (!hasLoaded() && loading()) {
     <div>
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
         title="{{ 'loading' | i18n }}"
         aria-hidden="true"
-      ></i>
+      ></bit-icon>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
   } @else {
@@ -85,21 +86,23 @@
                 >{{ row.cipher.name }}</a
               >
               @if (row.cipher.organizationId) {
-                <i
-                  class="bwi bwi-collection-shared tw-ml-1"
+                <bit-icon
+                  name="bwi-collection-shared"
+                  class="tw-ml-1"
                   appStopProp
                   title="{{ 'shared' | i18n }}"
                   aria-hidden="true"
-                ></i>
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "shared" | i18n }}</span>
               }
               @if (row.cipher.hasAttachments) {
-                <i
-                  class="bwi bwi-paperclip tw-ml-1"
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="tw-ml-1"
                   appStopProp
                   title="{{ 'attachments' | i18n }}"
                   aria-hidden="true"
-                ></i>
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
               }
               <br />
@@ -107,19 +110,21 @@
             </td>
             <td bitCell>
               @if (row.supportsPasskeyLogin) {
-                <i
-                  class="bwi bwi-passkey tw-mr-1"
+                <bit-icon
+                  name="bwi-passkey"
+                  class="tw-mr-1"
                   title="{{ 'passwordlessLogin' | i18n }}"
                   aria-hidden="true"
-                ></i>
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "passwordlessLogin" | i18n }}</span>
               }
               @if (row.supportsPasskeyMfa) {
-                <i
-                  class="bwi bwi-lock-encrypted tw-mr-1"
+                <bit-icon
+                  name="bwi-lock-encrypted"
+                  class="tw-mr-1"
                   title="{{ 'multifactorAuthentication' | i18n }}"
                   aria-hidden="true"
-                ></i>
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "multifactorAuthentication" | i18n }}</span>
               }
             </td>
