@@ -1,15 +1,13 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
 @if (!hideIfEmpty() || nestedNavComponents().length > 0) {
-  @if (sideNavService.version() === "1") {
-    <ng-container *ngTemplateOutlet="groupContent"></ng-container>
-  } @else {
-    <ng-container *ngTemplateOutlet="groupContent"></ng-container>
-    <!-- <div class="tw-p-3">
-      <div class="tw-ps-3 tw-border-0 tw-border-l tw-border-solid tw-border-border-nav-divider">
-      </div>
-    </div> -->
-  }
+  <ng-container *ngTemplateOutlet="groupContent"></ng-container>
 }
+
+<ng-template #defaultContent>
+  <div [attr.id]="contentId" [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')" role="group">
+    <ng-content></ng-content>
+  </div>
+</ng-template>
 
 <!--
   Shared content is defined once so each `<ng-content>` slot appears a single time in the compiled
@@ -67,13 +65,23 @@
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
   @if (sideNavOpen()) {
     @if (open()) {
-      <div
-        [attr.id]="contentId"
-        [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
-        role="group"
-      >
-        <ng-content></ng-content>
-      </div>
+      @if (sideNavService.version() === "1") {
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      } @else {
+        <!-- Magic number needed for visual consistency -->
+        <div class="tw-ps-[31px] tw-py-0.5">
+          <div
+            class="tw-flex tw-flex-col tw-gap-0.5"
+            [class]="
+              treeDepth() === 0
+                ? 'tw-border-0 tw-border-l tw-border-solid tw-border-border-nav-divider'
+                : ''
+            "
+          >
+            <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+          </div>
+        </div>
+      }
     }
   }
 </ng-template>
