@@ -55,7 +55,7 @@
                 </bit-label>
               </bit-form-control>
             }
-            <bit-radio-group formControlName="type" [block]="true">
+            <bit-form-field>
               <bit-label>
                 {{ "memberRole" | i18n }}
                 <a
@@ -65,67 +65,33 @@
                   appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
                   href="https://bitwarden.com/help/user-types-access-control/"
                   slot="end"
-                >
-                  <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-                </a>
+                  startIcon="bwi-question-circle"
+                ></a>
               </bit-label>
-              <bit-form-control>
-                <input
-                  id="edit-member-dialog_radio_user-type-user"
-                  type="radio"
-                  bitRadio
+              <bit-select formControlName="type" data-testid="role">
+                <bit-option
                   [value]="organizationUserType.User"
-                />
-                <bit-label>{{ "user" | i18n }}</bit-label>
-                <bit-hint>{{ "userDesc" | i18n }}</bit-hint>
-              </bit-form-control>
-              <bit-form-control>
-                <input
-                  id="edit-member-dialog_radio_user-type-admin"
-                  type="radio"
-                  bitRadio
+                  [description]="'userDesc' | i18n"
+                  [label]="'user' | i18n"
+                ></bit-option>
+                <bit-option
                   [value]="organizationUserType.Admin"
-                />
-                <bit-label>{{ "admin" | i18n }}</bit-label>
-                <bit-hint>{{ "adminDesc" | i18n }}</bit-hint>
-              </bit-form-control>
-              <bit-form-control>
-                <input
-                  id="edit-member-dialog_radio_user-type-owner"
-                  type="radio"
-                  bitRadio
+                  [description]="'adminRoleDesc' | i18n"
+                  [label]="'admin' | i18n"
+                ></bit-option>
+                <bit-option
                   [value]="organizationUserType.Owner"
-                />
-                <bit-label>{{ "owner" | i18n }}</bit-label>
-                <bit-hint>{{ "ownerDesc" | i18n }}</bit-hint>
-              </bit-form-control>
-              <bit-form-control>
-                <input
-                  id="edit-member-dialog_radio_user-type-custom"
-                  type="radio"
-                  bitRadio
+                  [description]="'ownerDesc' | i18n"
+                  [label]="'owner' | i18n"
+                ></bit-option>
+                <bit-option
                   [value]="organizationUserType.Custom"
+                  [description]="'customDesc' | i18n"
+                  [label]="'custom' | i18n"
                   [disabled]="!organization.useCustomPermissions"
-                />
-                <bit-label>{{ "custom" | i18n }}</bit-label>
-                <bit-hint>
-                  @if (!organization.useCustomPermissions) {
-                    <p>
-                      {{ "customDescNonEnterpriseStart" | i18n
-                      }}<a
-                        bitLink
-                        href="https://bitwarden.com/contact/"
-                        target="_blank"
-                        rel="noreferrer"
-                        >{{ "customDescNonEnterpriseLink" | i18n }}</a
-                      >{{ "customDescNonEnterpriseEnd" | i18n }}
-                    </p>
-                  } @else {
-                    <p>{{ "customDesc" | i18n }}</p>
-                  }
-                </bit-hint>
-              </bit-form-control>
-            </bit-radio-group>
+                ></bit-option>
+              </bit-select>
+            </bit-form-field>
             @if (customUserTypeSelected()) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
                 <div class="tw-col-span-4">
@@ -395,38 +361,40 @@
     @if (detailsTabEnabled()) {
       <bit-menu #actionsMenu>
         @if (isRevoked()) {
-          <button type="button" bitMenuItem [bitAction]="restore" [disabled]="loading()">
-            {{ "restore" | i18n }}
+          <button type="button" bitMenuItem [disabled]="loading()" (click)="restore()">
+            {{ "restoreMember" | i18n }}
           </button>
         } @else {
-          <button type="button" bitMenuItem [bitAction]="revoke" [disabled]="loading()">
-            {{ "revoke" | i18n }}
+          <button type="button" bitMenuItem [disabled]="loading()" (click)="revoke()">
+            {{ "revokeMember" | i18n }}
           </button>
         }
-        <bit-menu-divider></bit-menu-divider>
         @if (!params.claimedByOrganization) {
           <button
             type="button"
             bitMenuItem
-            buttonType="danger"
-            [bitAction]="remove"
+            variant="danger"
             [disabled]="loading()"
+            (click)="remove()"
           >
-            {{ "remove" | i18n }}
+            {{ "removeMember" | i18n }}
           </button>
         }
         @if (params.claimedByOrganization) {
           <button
             type="button"
             bitMenuItem
-            buttonType="danger"
-            [bitAction]="delete"
+            variant="danger"
             [disabled]="loading()"
+            (click)="delete()"
           >
-            {{ "delete" | i18n }}
+            {{ "deleteMember" | i18n }}
           </button>
         }
       </bit-menu>
+      <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
+        {{ "save" | i18n }}
+      </button>
       <button
         type="button"
         bitButton
@@ -435,10 +403,7 @@
         [disabled]="loading()"
       >
         {{ "moreActions" | i18n }}
-        <i class="bwi bwi-chevron-down tw-ml-1" aria-hidden="true"></i>
-      </button>
-      <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">
-        {{ "save" | i18n }}
+        <bit-icon name="bwi-angle-down" class="tw-ml-1"></bit-icon>
       </button>
     } @else {
       <button type="submit" bitButton bitFormButton buttonType="primary" [disabled]="loading()">

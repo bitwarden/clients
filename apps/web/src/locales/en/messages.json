@@ -10302,6 +10302,15 @@
   "removeMember": {
     "message": "Remove member"
   },
+  "revokeMember": {
+    "message": "Revoke member"
+  },
+  "restoreMember": {
+    "message": "Restore member"
+  },
+  "deleteMember": {
+    "message": "Delete member"
+  },
   "collection": {
     "message": "Collection"
   },
