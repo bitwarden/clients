@@ -116,6 +116,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* PAM */
+  Pam = "pm-37044-pam-v-0",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -234,6 +237,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* PAM */
+  [FeatureFlag.Pam]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
