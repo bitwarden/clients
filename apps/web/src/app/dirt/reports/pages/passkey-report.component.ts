@@ -94,7 +94,7 @@ export class PasskeyReportComponent {
   protected readonly vaultMsg = signal("vault");
   protected readonly chipSelectOptions = signal<{ label: string; value: string | number }[]>([]);
   protected readonly selectedFilterChip = "0";
-  private readonly maxItemsToSwitchToChipSelect = 1;
+  private readonly maxItemsToSwitchToChipSelect = 5;
 
   // Organization state
   protected readonly organizations = toSignal(
