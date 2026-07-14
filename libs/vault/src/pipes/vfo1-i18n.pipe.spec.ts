@@ -5,12 +5,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
-import { VFO1I18nPipe } from "./vfo1-i18n.pipe";
+import { Vfo1I18nPipe } from "./vfo1-i18n.pipe";
 
-describe("VFO1I18nPipe", () => {
+describe("Vfo1I18nPipe", () => {
   let i18nService: MockProxy<I18nService>;
   let enabledFn: jest.Mock<boolean, []>;
-  let pipe: VFO1I18nPipe;
+  let pipe: Vfo1I18nPipe;
 
   beforeEach(() => {
     i18nService = mock<I18nService>();
@@ -22,11 +22,11 @@ describe("VFO1I18nPipe", () => {
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: Vfo1TerminologyService, useValue: { enabled: enabledFn } },
-        VFO1I18nPipe,
+        Vfo1I18nPipe,
       ],
     });
 
-    pipe = TestBed.inject(VFO1I18nPipe);
+    pipe = TestBed.inject(Vfo1I18nPipe);
   });
 
   it("returns the legacy key translation when flag is off", () => {

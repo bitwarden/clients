@@ -10,7 +10,7 @@ import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
  * It caches the last translation result to avoid unnecessary calls to the i18n service when the inputs haven't changed.
  */
 @Pipe({ name: "vfo1I18n", standalone: true, pure: false })
-export class VFO1I18nPipe implements PipeTransform {
+export class Vfo1I18nPipe implements PipeTransform {
   private i18nService = inject(I18nService);
   private terminology = inject(Vfo1TerminologyService);
 
