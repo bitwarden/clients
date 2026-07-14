@@ -19,6 +19,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
+  BerryComponent,
   I18nMockService,
   LayoutComponent,
   NavigationModule,
@@ -147,6 +148,7 @@ export default {
         LayoutComponent,
         I18nPipe,
         NavigationProductSwitcherComponent,
+        BerryComponent,
       ],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
@@ -292,5 +294,83 @@ export const WithAllOptions: Story = {
       },
     ] as Organization[],
     mockProviders: [{ id: "provider-a" }] as Provider[],
+  },
+};
+
+/**
+ * A realistic side nav: the product switcher plus a fuller set of items, including
+ * nested nav groups. Rendered with the `version` input so the same content can be
+ * compared across the v1 and v2 layouts.
+ */
+const RealisticTemplate: StoryObj<
+  NavigationProductSwitcherComponent &
+    MockProviderService &
+    MockOrganizationService & { version: "1" | "2" }
+> = {
+  render: (args) => ({
+    props: { ...args, logo: PasswordManagerLogo },
+    template: `
+      <bit-layout>
+        <bit-side-nav [version]="version">
+          <bit-nav-logo [openIcon]="logo" route="." label="Bitwarden"></bit-nav-logo>
+          <bit-nav-item text="Vault" icon="bwi-lock" route="vault"></bit-nav-item>
+          <bit-nav-item text="Send" icon="bwi-send" route="send"></bit-nav-item>
+          <bit-nav-group text="All items" icon="bwi-cog" route="all" [open]="true">
+            <bit-nav-item text="All vault items" route="all-items" icon="bwi-list"></bit-nav-item>
+            <bit-nav-item text="My items" route="my-items" icon="bwi-user"></bit-nav-item>
+            <bit-nav-item text="Shared folders" route="shared" icon="bwi-collection-shared"></bit-nav-item>
+            <bit-nav-group text="Engineering" icon="bwi-collection-shared" route="eng">
+              <bit-nav-item text="Frontend" route="eng-fe"></bit-nav-item>
+              <bit-nav-item text="Backend" route="eng-be"></bit-nav-item>
+            </bit-nav-group>
+            <bit-nav-group text="Operations" icon="bwi-collection-shared" route="ops">
+              <bit-nav-item text="Infrastructure" route="ops-infra"></bit-nav-item>
+              <bit-nav-item text="Support" route="ops-support"></bit-nav-item>
+            </bit-nav-group>
+            <bit-berry slot="end" variant="primary" [value]="1"></bit-berry>
+          </bit-nav-group>
+          <bit-nav-group text="Tools" icon="bwi-key" route="tools" [open]="true">
+            <bit-nav-item text="Generator" route="generator"></bit-nav-item>
+            <bit-nav-item text="Import" route="import"></bit-nav-item>
+            <bit-nav-item text="Export" route="export"></bit-nav-item>
+          </bit-nav-group>
+          <bit-nav-item text="Reports" icon="bwi-file-text" route="reports"></bit-nav-item>
+          <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
+          <ng-container slot="product-switcher">
+            <bit-nav-divider></bit-nav-divider>
+            <navigation-product-switcher [mockOrgs]="mockOrgs" [mockProviders]="mockProviders"></navigation-product-switcher>
+          </ng-container>
+        </bit-side-nav>
+        <router-outlet></router-outlet>
+      </bit-layout>
+    `,
+  }),
+  args: {
+    version: "1",
+    mockOrgs: [
+      {
+        id: "org-a",
+        canManageUsers: true,
+        canAccessSecretsManager: true,
+        enabled: true,
+      },
+    ] as Organization[],
+    mockProviders: [{ id: "provider-a" }] as Provider[],
+  },
+};
+
+export const RealisticSideNav = {
+  ...RealisticTemplate,
+  args: {
+    ...RealisticTemplate.args,
+    version: "1",
+  },
+};
+
+export const RealisticSideNavV2 = {
+  ...RealisticTemplate,
+  args: {
+    ...RealisticTemplate.args,
+    version: "2",
   },
 };
