@@ -28,6 +28,8 @@ import {
   SharedFido2ScriptInjectionDetails,
   SharedFido2ScriptRegistrationOptions,
 } from "./abstractions/fido2.background";
+import { PermissionsPolicyBackground } from "./permissions-policy/permissions-policy.background";
+import { WebAuthnPermissionsPolicyFeature } from "./permissions-policy/types";
 
 export class Fido2Background implements Fido2BackgroundInterface {
   private currentAuthStatus$: Subscription = Subscription.EMPTY;
@@ -59,6 +61,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
+    private permissionsPolicy: PermissionsPolicyBackground,
   ) {}
 
   /**
@@ -93,6 +96,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
    * handle passkey enable/disable events.
    */
   init() {
+    this.permissionsPolicy.init();
     BrowserApi.messageListener("fido2.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     this.vaultSettingsService.enablePasskeys$
@@ -304,6 +308,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<CreateCredentialResult> {
+    await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Create);
     return await this.handleCredentialRequest<CreateCredentialResult>(
       message,
       sender.tab!,
@@ -326,6 +331,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<AssertCredentialResult> {
+    await this.enforcePermissionsPolicyGate(sender, WebAuthnPermissionsPolicyFeature.Get);
     return await this.handleCredentialRequest<AssertCredentialResult>(
       message,
       sender.tab!,
@@ -336,6 +342,39 @@ export class Fido2Background implements Fido2BackgroundInterface {
           abortController,
         ),
     );
+  }
+
+  /**
+   * Consults the Permissions Policy gate before starting a ceremony. Throws
+   * a `NotAllowedError`-named Error when the gate denies, matching the error
+   * the native browser API would throw. The page-script side rehydrates the
+   * error into a real `DOMException` so callers that check `instanceof
+   * DOMException` see what they'd see with the native API.
+   *
+   * Fails open when sender metadata is missing — the in-content-script gate
+   * still provides defense-in-depth.
+   */
+  private async enforcePermissionsPolicyGate(
+    sender: chrome.runtime.MessageSender,
+    feature: WebAuthnPermissionsPolicyFeature,
+  ): Promise<void> {
+    const tabId = sender.tab?.id;
+    if (tabId == null) {
+      return;
+    }
+    const frameId = sender.frameId ?? 0;
+
+    const allowed = await this.permissionsPolicy.isFeatureAllowedForFrame(tabId, frameId, feature);
+    if (allowed) {
+      return;
+    }
+
+    const error = new Error(
+      `The '${feature}' feature is not enabled in this document. ` +
+        "Permissions Policy may be used to delegate Web Authentication capabilities to cross-origin child frames.",
+    );
+    error.name = "NotAllowedError";
+    throw error;
   }
 
   /**

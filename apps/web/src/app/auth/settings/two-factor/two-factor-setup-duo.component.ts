@@ -4,10 +4,15 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
-import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
-import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
+import { TwoFactorService, TwoFactorSetupDialogData } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-delete.request";
+import { TwoFactorDuoUpdateRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-duo-update.request";
+import { TwoFactorOrganizationDuoDeleteRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-organization-duo-delete.request";
+import { TwoFactorDuoDetailsResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-duo-details.response";
+import { TwoFactorDuoUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-duo-update.response";
+import { TwoFactorDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-duo.response";
+import { TwoFactorOrganizationDuoUpdateResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo-update.response";
+import { TwoFactorOrganizationDuoResponse } from "@bitwarden/common/auth/two-factor/response/two-factor-organization-duo.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -29,6 +34,11 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-base.component";
+
+type TwoFactorDuoResponseUnion = TwoFactorDuoResponse | TwoFactorOrganizationDuoResponse;
+type TwoFactorDuoUpdateResponseUnion =
+  | TwoFactorDuoUpdateResponse
+  | TwoFactorOrganizationDuoUpdateResponse;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -64,6 +74,14 @@ export class TwoFactorSetupDuoComponent
     host: ["", [Validators.required]],
   });
   override componentName = "app-two-factor-duo";
+  private userVerificationToken: string | undefined;
+
+  private requireUserVerificationToken(): string {
+    if (this.userVerificationToken === undefined) {
+      throw new Error("User verification token is missing");
+    }
+    return this.userVerificationToken;
+  }
 
   constructor(
     @Inject(DIALOG_DATA) protected data: TwoFactorDuoComponentConfig,
@@ -113,7 +131,7 @@ export class TwoFactorSetupDuoComponent
     }
 
     super.auth(this.data.authResponse);
-    this.processResponse(this.data.authResponse.response);
+    this.processGetResponse(this.data.authResponse.response);
 
     if (this.data.organizationId) {
       this.type = TwoFactorProviderType.OrganizationDuo;
@@ -135,12 +153,14 @@ export class TwoFactorSetupDuoComponent
   };
 
   protected async enable() {
-    const request = await this.buildRequestModel(UpdateTwoFactorDuoRequest);
-    request.clientId = this.clientId;
-    request.clientSecret = this.clientSecret;
-    request.host = this.host;
+    const request = new TwoFactorDuoUpdateRequest(
+      this.clientId,
+      this.clientSecret,
+      this.host,
+      this.requireUserVerificationToken(),
+    );
 
-    let response: TwoFactorDuoResponse;
+    let response: TwoFactorDuoUpdateResponseUnion;
 
     if (this.organizationId != null) {
       response = await this.twoFactorService.putTwoFactorOrganizationDuo(
@@ -151,19 +171,54 @@ export class TwoFactorSetupDuoComponent
       response = await this.twoFactorService.putTwoFactorDuo(request);
     }
 
-    this.processResponse(response);
+    this.applyDuoDetails(response.duo);
     this.onUpdated.emit(true);
+  }
+
+  protected override async disableMethod() {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "disable" },
+      content: { key: "twoStepDisableDesc" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    if (this.organizationId != null) {
+      const request = new TwoFactorOrganizationDuoDeleteRequest(
+        this.requireUserVerificationToken(),
+      );
+      await this.twoFactorService.deleteTwoFactorOrganizationDuo(this.organizationId, request);
+    } else {
+      const request = new TwoFactorDuoDeleteRequest(this.requireUserVerificationToken());
+      await this.twoFactorService.deleteTwoFactorDuo(request);
+    }
+
+    this.enabled = false;
+    this.toastService.showToast({
+      variant: "success",
+      title: "",
+      message: this.i18nService.t("twoStepDisabled"),
+    });
+    this.onUpdated.emit(false);
   }
 
   onClose = () => {
     void this.dialogRef.close(this.enabled);
   };
 
-  private processResponse(response: TwoFactorDuoResponse) {
-    this.clientId = response.clientId;
-    this.clientSecret = response.clientSecret;
-    this.host = response.host;
-    this.enabled = response.enabled;
+  private processGetResponse(response: TwoFactorDuoResponseUnion) {
+    this.userVerificationToken = response.userVerificationToken;
+    this.applyDuoDetails(response.duo);
+  }
+
+  private applyDuoDetails(duoDetails: TwoFactorDuoDetailsResponse) {
+    this.clientId = duoDetails.clientId;
+    this.clientSecret = duoDetails.clientSecret;
+    this.host = duoDetails.host;
+    this.enabled = duoDetails.enabled;
   }
 
   /**
@@ -183,6 +238,6 @@ export class TwoFactorSetupDuoComponent
 }
 
 type TwoFactorDuoComponentConfig = {
-  authResponse: AuthResponse<TwoFactorDuoResponse>;
+  authResponse: TwoFactorSetupDialogData<TwoFactorDuoResponseUnion>;
   organizationId?: string;
 };
