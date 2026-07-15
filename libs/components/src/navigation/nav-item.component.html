@@ -3,11 +3,6 @@
 @let interactiveElClass =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none !tw-text-fg-nav tw-text-start hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
-<!--
-  Each `<ng-content>` slot is defined once here so it appears a single time in the compiled
-  template. Duplicating `<ng-content>` across the version `@if`/`@else` branches breaks projection —
-  the projected content binds to one slot instance and renders empty in the other branch.
--->
 <ng-template #startSlot><ng-content select="[slot=start]"></ng-content></ng-template>
 <ng-template #endSlot><ng-content select="[slot=end]"></ng-content></ng-template>
 

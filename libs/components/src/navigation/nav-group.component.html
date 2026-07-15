@@ -9,11 +9,6 @@
   </div>
 </ng-template>
 
-<!--
-  Shared content is defined once so each `<ng-content>` slot appears a single time in the compiled
-  template. Duplicating `<ng-content>` across the version `@if`/`@else` branches breaks projection —
-  the projected children bind to a slot instance that is not the one being rendered.
--->
 <ng-template #groupContent>
   <bit-nav-item
     [text]="text()"

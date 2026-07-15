@@ -1,12 +1,6 @@
 @let open = sideNavService.open();
 @let isOverlay = sideNavService.isOverlay();
 
-<!--
-  Each projection slot is defined once here so it appears a single time in the compiled template.
-  Duplicating `<ng-content>` across the version `@if`/`@else` branches breaks projection — content
-  binds to a slot instance that is not the one being rendered — and a selector present in only one
-  branch (e.g. `bit-nav-logo`) silently drops that content in the other branch.
--->
 <ng-template #logoContent><ng-content select="bit-nav-logo"></ng-content></ng-template>
 <ng-template #productSwitcherContent
   ><ng-content select="[slot=product-switcher]"></ng-content
