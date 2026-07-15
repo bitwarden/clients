@@ -32,29 +32,6 @@
               <input bitInput type="email" formControlName="email" />
               <bit-hint>{{ "emailUpdateOnSave" | i18n }}</bit-hint>
             </bit-form-field>
-            @if (organization.useSecretsManager) {
-              <bit-form-control>
-                <input
-                  type="checkbox"
-                  [disabled]="params.isOnSecretsManagerStandalone || null"
-                  bitCheckbox
-                  formControlName="accessSecretsManager"
-                />
-                <bit-label>
-                  {{ "userAccessSecretsManagerGA" | i18n }}
-                  <a
-                    bitLink
-                    target="_blank"
-                    rel="noreferrer"
-                    appA11yTitle="{{ 'learnMore' | i18n }}"
-                    href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
-                    slot="end"
-                  >
-                    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-                  </a>
-                </bit-label>
-              </bit-form-control>
-            }
             <bit-form-field>
               <bit-label>
                 {{ "memberRole" | i18n }}
@@ -92,6 +69,29 @@
                 ></bit-option>
               </bit-select>
             </bit-form-field>
+            @if (organization.useSecretsManager) {
+              <bit-form-control>
+                <input
+                  type="checkbox"
+                  [disabled]="params.isOnSecretsManagerStandalone || null"
+                  bitCheckbox
+                  formControlName="accessSecretsManager"
+                />
+                <bit-label>
+                  {{ "userAccessSecretsManagerGA" | i18n }}
+                  <a
+                    bitLink
+                    target="_blank"
+                    rel="noreferrer"
+                    appA11yTitle="{{ 'learnMore' | i18n }}"
+                    href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
+                    slot="end"
+                  >
+                    <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+                  </a>
+                </bit-label>
+              </bit-form-control>
+            }
             @if (customUserTypeSelected()) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
                 <div class="tw-col-span-4">
