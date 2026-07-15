@@ -43,6 +43,10 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
+  host: {
+    class:
+      "tw-flex tw-flex-col tw-p-3 -tw-mx-3 tw-gap-4 tw-bg-background tw-text-main tw-rounded-lg first:-tw-mt-3 last-of-type:tw-mb-0",
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
