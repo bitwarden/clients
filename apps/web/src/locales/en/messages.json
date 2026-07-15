@@ -989,6 +989,9 @@
   "save": {
     "message": "Save"
   },
+  "saveAndContinue": {
+    "message": "Save and continue"
+  },
   "cancel": {
     "message": "Cancel"
   },

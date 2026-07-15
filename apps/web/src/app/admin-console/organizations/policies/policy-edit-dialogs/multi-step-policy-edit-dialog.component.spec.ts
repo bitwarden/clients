@@ -9,11 +9,14 @@ import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule, UntypedFormGroup } from "@angular/forms";
+import { Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { NEVER, of } from "rxjs";
 
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,6 +29,11 @@ import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/
 import { KeyService } from "@bitwarden/key-management";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "../base-policy-edit.component";
+import {
+  AutoConfirmPolicy,
+  AutoConfirmPolicyEditComponent,
+  AutoConfirmPolicyEditV2Component,
+} from "../policy-edit-definitions/auto-confirm-policy.component";
 import { MasterPasswordPolicyV2Component } from "../policy-edit-definitions/master-password-v2.component";
 import {
   MasterPasswordPolicy,
@@ -422,6 +430,12 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       configService.getFeatureFlag$.mockReturnValue(of(isDrawer));
       const authService = mock<AuthService>();
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+      const policyService = mock<PolicyService>();
+      policyService.policies$.mockReturnValue(of([]));
+      const router = mock<Router>();
+      // DrawerService reads router.url synchronously at construction time.
+      (router as any).url = "/";
+      (router as any).events = NEVER;
 
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
@@ -440,6 +454,14 @@ describe("MultiStepPolicyEditDialogComponent", () => {
           { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
           { provide: ConfigService, useValue: configService },
           { provide: EncryptService, useValue: mock<EncryptService>() },
+          // Only AutoConfirmPolicy's component injects these, but providing them unconditionally
+          // is harmless for every other policy rendered through this same helper.
+          { provide: PolicyService, useValue: policyService },
+          {
+            provide: AutomaticUserConfirmationService,
+            useValue: mock<AutomaticUserConfirmationService>(),
+          },
+          { provide: Router, useValue: router },
         ],
         schemas: [NO_ERRORS_SCHEMA],
       }).compileComponents();
@@ -506,6 +528,37 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         );
         expect(component.dialogTitle()).toBe("centralizeDataOwnership");
         expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+      });
+    });
+
+    describe("AutoConfirmPolicy", () => {
+      // Regression test: AutoConfirmPolicyEditV2Component previously threw NG0951 ("Child query
+      // result is required but no value is available") when advancing to step 1, because its
+      // template didn't declare the #step1Title/#step1Content/#step1Footer refs that the
+      // inherited viewChild.required(...) queries (declared on the v1 base class, but resolved
+      // against whichever concrete component's view is actually rendered) require.
+      it("renders the v1 component, no badge, and can render both steps when the flag is off (modal)", async () => {
+        const { fixture, component } = await setupRealPolicy(new AutoConfirmPolicy(), false);
+
+        expect(component.policyComponent()).toBeInstanceOf(AutoConfirmPolicyEditComponent);
+        expect(component.policyComponent()).not.toBeInstanceOf(AutoConfirmPolicyEditV2Component);
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).toBeNull();
+
+        component.currentStep.set(1);
+        expect(() => fixture.detectChanges()).not.toThrow();
+      });
+
+      it("renders the v2 component, a badge, and can render both steps when the flag is on (drawer)", async () => {
+        const { fixture, component } = await setupRealPolicy(new AutoConfirmPolicy(), true);
+
+        expect(component.policyComponent()).toBeInstanceOf(AutoConfirmPolicyEditV2Component);
+        expect(component.dialogTitle()).toBe("automaticUserConfirmation");
+        expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+
+        component.currentStep.set(1);
+        expect(() => fixture.detectChanges()).not.toThrow();
+        // Step 1's own titleContent takes over from the generic dialogTitle() once rendered.
+        expect(component.dialogTitle()).toBeUndefined();
       });
     });
   });

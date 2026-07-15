@@ -1,0 +1,110 @@
+<ng-template #step0ContentV2>
+  <p class="tw-mb-6">
+    {{ "autoConfirmPolicyEditDescription" | i18n }}
+  </p>
+
+  <ul class="tw-mb-6 tw-pl-6">
+    <li>
+      <span class="tw-font-medium">
+        {{ "autoConfirmAcceptSecurityRiskTitle" | i18n }}
+      </span>
+      {{ "autoConfirmAcceptSecurityRiskDescription" | i18n }}
+      <a
+        bitLink
+        href="https://bitwarden.com/help/automatic-confirmation/"
+        target="_blank"
+        endIcon="bwi-external-link"
+      >
+        {{ "autoConfirmAcceptSecurityRiskLearnMore" | i18n }}
+      </a>
+    </li>
+
+    <li>
+      @if (singleOrgEnabled$ | async) {
+        <span class="tw-font-medium">
+          {{ "autoConfirmSingleOrgExemption" | i18n }}
+        </span>
+      } @else {
+        <span class="tw-font-medium">
+          {{ "autoConfirmSingleOrgRequired" | i18n }}
+        </span>
+      }
+      {{ "autoConfirmSingleOrgRequiredDesc" | i18n }}
+    </li>
+
+    <li>
+      <span class="tw-font-medium">
+        {{ "autoConfirmNoEmergencyAccess" | i18n }}
+      </span>
+      {{ "autoConfirmNoEmergencyAccessDescription" | i18n }}
+    </li>
+  </ul>
+
+  <bit-form-control class="tw-mb-4">
+    <input type="checkbox" bitCheckbox [formControl]="riskAccepted" id="riskAccepted" />
+    <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+  </bit-form-control>
+
+  <bit-form-control>
+    <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
+    <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+  </bit-form-control>
+</ng-template>
+
+<ng-template #step0FooterV2>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    {{ "saveAndContinue" | i18n }}
+  </button>
+  <button bitButton buttonType="secondary" type="button" bitDialogClose>
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>
+
+<!--
+  Step 1 ("how to turn on") is unchanged from the v1 template, but Angular resolves each
+  viewChild.required(...) query (see step1Title/step1Content/step1Footer in
+  auto-confirm-policy.component.ts) against this component's own rendered view - inheriting the
+  signal from the v1 base class does NOT let it find template refs declared in the v1 template.
+  These must be duplicated here unchanged; see auto-confirm-policy.component.html for the v1 copy.
+-->
+<ng-template #step1Title>
+  {{ "howToTurnOnAutoConfirm" | i18n }}
+</ng-template>
+
+<ng-template #step1Content>
+  <div class="tw-flex tw-justify-center tw-mb-6">
+    <bit-svg class="tw-w-[233px]" [content]="autoConfirmSvg"></bit-svg>
+  </div>
+  <ol>
+    <li>1. {{ "autoConfirmExtension1" | i18n }}</li>
+
+    <li>
+      2. {{ "autoConfirmExtension2" | i18n }}
+      <strong>
+        {{ "autoConfirmExtension3" | i18n }}
+      </strong>
+    </li>
+  </ol>
+</ng-template>
+
+<ng-template #step1Footer>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    {{ "openExtension" | i18n }}
+    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+  </button>
+  <button bitButton buttonType="secondary" type="button" bitDialogClose>
+    {{ "close" | i18n }}
+  </button>
+</ng-template>
