@@ -2,13 +2,14 @@
 // @ts-strict-ignore
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -67,7 +68,7 @@ export const openOffboardingSurvey = (
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class OffboardingSurveyComponent {
+export class OffboardingSurveyComponent implements OnInit {
   protected ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
@@ -126,6 +127,7 @@ export class OffboardingSurveyComponent {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
+    private logService: LogService,
   ) {
     this.isBusiness = this.isBusinessPlan();
 
@@ -156,16 +158,24 @@ export class OffboardingSurveyComponent {
         text: this.i18nService.t("other"),
       },
     ];
+  }
 
+  ngOnInit() {
     if (this.dialogParams.type === "Organization") {
       void this.loadAnnualUpgradeOffer(this.dialogParams.id);
     }
   }
 
   private async loadAnnualUpgradeOffer(organizationId: string): Promise<void> {
-    this.annualUpgradeOffer = await this.organizationBillingClient.getAnnualUpgradeOffer(
-      organizationId as OrganizationId,
-    );
+    // Best-effort: the offer is a bonus prompt, so a failure to load it is logged and
+    // swallowed, leaving the survey fully usable without the offer.
+    try {
+      this.annualUpgradeOffer = await this.organizationBillingClient.getAnnualUpgradeOffer(
+        organizationId as OrganizationId,
+      );
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 
   switchToAnnualBilling = async () => {

@@ -5,6 +5,7 @@ import { mock } from "jest-mock-extended";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 
@@ -37,11 +38,16 @@ describe("OffboardingSurveyComponent", () => {
   const mockToastService = mock<ToastService>();
   const mockI18nService = mock<I18nService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
+  const mockLogService = mock<LogService>();
 
   let fixture: ComponentFixture<OffboardingSurveyComponent>;
 
-  const build = async (offer: AnnualUpgradeOfferResponseModel | null) => {
-    mockOrganizationBillingClient.getAnnualUpgradeOffer.mockResolvedValue(offer);
+  const build = async (offer: AnnualUpgradeOfferResponseModel | null, loadError?: unknown) => {
+    if (loadError !== undefined) {
+      mockOrganizationBillingClient.getAnnualUpgradeOffer.mockRejectedValue(loadError);
+    } else {
+      mockOrganizationBillingClient.getAnnualUpgradeOffer.mockResolvedValue(offer);
+    }
     // Echo the i18n key so assertions can check for a (design-pending) translated string without
     // depending on real copy. Mirrors the convention in organization-subscription-cloud.component.spec.ts.
     mockI18nService.t.mockImplementation((key: string) => key);
@@ -65,6 +71,7 @@ describe("OffboardingSurveyComponent", () => {
         { provide: ToastService, useValue: mockToastService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        { provide: LogService, useValue: mockLogService },
       ],
     }).compileComponents();
 
@@ -81,6 +88,16 @@ describe("OffboardingSurveyComponent", () => {
     await build(null);
 
     expect(mockOrganizationBillingClient.getAnnualUpgradeOffer).toHaveBeenCalledWith("org-1");
+  });
+
+  it("swallows and logs a failure to load the offer, leaving the survey usable", async () => {
+    const error = new Error("offer load failed");
+
+    await build(null, error);
+
+    expect(mockLogService.error).toHaveBeenCalledWith(error);
+    expect(fixture.componentInstance).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')).toBeNull();
   });
 
   it("does not render the callout when no offer is available", async () => {
