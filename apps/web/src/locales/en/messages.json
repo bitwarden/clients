@@ -1434,6 +1434,9 @@
   "moveToOrganization": {
     "message": "Move to organization"
   },
+  "moveToVault": {
+    "message": "Move to vault"
+  },
   "valueCopied": {
     "message": "$VALUE$ copied",
     "description": "Value has been copied to the clipboard.",
@@ -11925,8 +11928,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
+  "bulkVaultCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these collections will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkVaultCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these collections will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
@@ -12819,8 +12828,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",

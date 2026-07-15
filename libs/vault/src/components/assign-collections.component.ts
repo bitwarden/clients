@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   OnInit,
@@ -50,6 +51,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   AsyncActionsModule,
   BitSubmitDirective,
+  BitwardenIcon,
   ButtonComponent,
   ButtonModule,
   DialogModule,
@@ -59,6 +61,10 @@ import {
   SelectModule,
   ToastService,
 } from "@bitwarden/components";
+
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+
+import { getOrgIcon } from "./org-icon.directive";
 
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
@@ -116,6 +122,7 @@ const MY_VAULT_ID = "MyVault";
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
+  protected vfo1TerminologyService = inject(Vfo1TerminologyService);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
@@ -186,6 +193,13 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     ),
   );
 
+  /**
+   * Resolves the icon for an organization based on its product tier, falling back to the
+   * business icon for unrecognized tiers so the option always renders an icon.
+   */
+  protected getOrgIcon = (org: Organization): BitwardenIcon =>
+    getOrgIcon(org.productTierType) || "bwi-business";
+
   protected transferWarningText = (orgName: string, itemsCount: number) => {
     const haveOrgName = !!orgName;
 
@@ -193,12 +207,16 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
       return this.i18nService.t("personalItemsWithOrgTransferWarningPlural", itemsCount, orgName);
     }
     if (itemsCount > 1 && !haveOrgName) {
-      return this.i18nService.t("personalItemsTransferWarningPlural", itemsCount);
+      return this.vfo1TerminologyService.enabled()
+        ? this.i18nService.t("personalItemsVaultTransferWarningPlural", itemsCount)
+        : this.i18nService.t("personalItemsTransferWarningPlural", itemsCount);
     }
     if (itemsCount === 1 && haveOrgName) {
       return this.i18nService.t("personalItemWithOrgTransferWarningSingular", orgName);
     }
-    return this.i18nService.t("personalItemTransferWarningSingular");
+    return this.vfo1TerminologyService.enabled()
+      ? this.i18nService.t("personalItemVaultTransferWarningSingular")
+      : this.i18nService.t("personalItemTransferWarningSingular");
   };
 
   private editableItems: CipherView[] = [];
