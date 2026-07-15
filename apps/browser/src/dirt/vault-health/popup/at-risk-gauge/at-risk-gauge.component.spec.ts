@@ -76,6 +76,19 @@ describe("AtRiskGaugeComponent", () => {
       expect(read().percentage()).toBe(33);
       expect(read().fillFraction()).toBeCloseTo(1 / 3);
     });
+
+    it("floors the percentage to 1 while at risk when the fraction rounds to 0", () => {
+      setInputs(1, 1000); // 0.1% -> rounds to 0, but the gauge is red, so show 1%
+      expect(read().isAtRisk()).toBe(true);
+      expect(read().percentage()).toBe(1);
+      expect(read().fillFraction()).toBeCloseTo(0.001);
+    });
+
+    it("does not floor the percentage when not at risk", () => {
+      setInputs(0, 1000);
+      expect(read().isAtRisk()).toBe(false);
+      expect(read().percentage()).toBe(0);
+    });
   });
 
   describe("color state", () => {

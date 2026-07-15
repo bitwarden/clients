@@ -51,11 +51,16 @@ export class AtRiskGaugeComponent {
   /**
    * Rounded integer percentage shown inside the arc. 0 when total <= 0, and
    * clamped to 100 so a value greater than the total stays consistent with the
-   * fully-filled arc.
+   * fully-filled arc. While at risk it is floored to 1 so a red gauge never
+   * misleadingly reads "0%" for a small-but-nonzero fraction (e.g. 1 / 1000).
    */
-  protected readonly percentage = computed(() =>
-    this.total() > 0 ? Math.min(100, Math.round((this.value() / this.total()) * 100)) : 0,
-  );
+  protected readonly percentage = computed(() => {
+    if (this.total() <= 0) {
+      return 0;
+    }
+    const rounded = Math.min(100, Math.round((this.value() / this.total()) * 100));
+    return this.isAtRisk() ? Math.max(1, rounded) : rounded;
+  });
 
   /**
    * `stroke-dasharray` for the red fill arc: the filled length (a fraction of the
