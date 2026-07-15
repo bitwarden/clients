@@ -1194,6 +1194,18 @@
   "shared": {
     "message": "Shared"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
   "attachments": {
     "message": "Attachments"
   },
