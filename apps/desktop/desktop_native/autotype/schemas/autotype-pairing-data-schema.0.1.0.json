@@ -30,13 +30,13 @@
           "required": ["major", "minor", "patch"],
           "additionalProperties": false
         },
-        "pairingDate": {
-          "description": "The date of the pairing, stored as a unix timestamp in seconds since the epoch.",
+        "pairingTimestamp": {
+          "description": "When this pairing was created, stored as a unix timestamp in seconds since the epoch.",
           "type": "integer",
           "minimum": 0
         }
       },
-      "required": ["schemaVersion", "pairingDate"],
+      "required": ["schemaVersion", "pairingTimestamp"],
       "additionalProperties": false
     },
     "appData": {
