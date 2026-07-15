@@ -30,8 +30,9 @@ describe("AtRiskGaugeComponent", () => {
       fillFraction: () => number;
       percentage: () => number;
       isAtRisk: () => boolean;
-      strokeDashoffset: () => number;
+      fillDashArray: () => string;
       trackStrokeClass: () => string;
+      percentageTextClass: () => string;
       accessibleValueText: () => string;
     };
 
@@ -46,27 +47,27 @@ describe("AtRiskGaugeComponent", () => {
       setInputs(0, 100);
       expect(read().fillFraction()).toBe(0);
       expect(read().percentage()).toBe(0);
-      expect(read().strokeDashoffset()).toBe(100);
     });
 
-    it("renders half full when value is half of total", () => {
+    it("renders half of the arc when value is half of total", () => {
       setInputs(50, 100);
       expect(read().fillFraction()).toBe(0.5);
       expect(read().percentage()).toBe(50);
-      expect(read().strokeDashoffset()).toBe(50);
+      // 0.5 * 75-unit arc = 37.5 units filled.
+      expect(read().fillDashArray()).toBe("37.5 100");
     });
 
-    it("renders full when value equals total", () => {
+    it("fills the whole arc when value equals total", () => {
       setInputs(100, 100);
       expect(read().fillFraction()).toBe(1);
       expect(read().percentage()).toBe(100);
-      expect(read().strokeDashoffset()).toBe(0);
+      expect(read().fillDashArray()).toBe("75 100");
     });
 
     it("clamps fill and percentage when value exceeds total", () => {
       setInputs(150, 100);
       expect(read().fillFraction()).toBe(1);
-      expect(read().strokeDashoffset()).toBe(0);
+      expect(read().fillDashArray()).toBe("75 100");
       expect(read().percentage()).toBe(100);
     });
 
@@ -82,12 +83,14 @@ describe("AtRiskGaugeComponent", () => {
       setInputs(0, 100);
       expect(read().isAtRisk()).toBe(false);
       expect(read().trackStrokeClass()).toContain("success");
+      expect(read().percentageTextClass()).toContain("success");
     });
 
     it("is red (at risk) when value is greater than 0", () => {
       setInputs(1, 100);
       expect(read().isAtRisk()).toBe(true);
-      expect(read().trackStrokeClass()).toContain("quaternary");
+      expect(read().trackStrokeClass()).toContain("danger");
+      expect(read().percentageTextClass()).toContain("danger");
     });
   });
 

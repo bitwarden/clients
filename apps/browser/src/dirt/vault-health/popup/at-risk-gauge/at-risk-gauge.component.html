@@ -6,11 +6,13 @@
   [attr.aria-valuenow]="percentage()"
   [attr.aria-valuetext]="accessibleValueText()"
 >
-  <!-- Ring -->
+  <!-- 270° arc gauge. The ring circumference is ~100 (r=15.9155); the arc spans 75
+       units (270°) with a 25-unit (90°) gap centered at the bottom. Rotating the
+       group by 135° places that gap at the bottom and starts the sweep at the
+       lower-left, filling clockwise. -->
   <svg class="tw-size-full" viewBox="0 0 36 36" aria-hidden="true">
-    <!-- Rotate the ring so the fill starts at 12 o'clock (rotation is around the ring center). -->
-    <g transform="rotate(-90 18 18)">
-      <!-- Track: green when clean, neutral when at risk -->
+    <g transform="rotate(135 18 18)">
+      <!-- Track: light green when clean, light red when at risk -->
       <circle
         class="tw-fill-none"
         [class]="trackStrokeClass()"
@@ -18,19 +20,20 @@
         cy="18"
         r="15.9155"
         stroke-width="3"
+        stroke-linecap="round"
+        stroke-dasharray="75 25"
       ></circle>
-      <!-- Fill: red arc sized to the at-risk proportion. Omitted when clean so a round
-           line-cap can't leave a stray dot on the empty (green) ring. -->
+      <!-- Fill: solid red arc sized to the at-risk proportion of the 270° sweep.
+           Omitted when clean so a round line-cap can't leave a stray dot. -->
       @if (fillFraction() > 0) {
         <circle
-          class="tw-fill-none tw-stroke-bg-danger"
+          class="tw-fill-none tw-stroke-danger-600"
           cx="18"
           cy="18"
           r="15.9155"
           stroke-width="3"
           stroke-linecap="round"
-          stroke-dasharray="100"
-          [attr.stroke-dashoffset]="strokeDashoffset()"
+          [attr.stroke-dasharray]="fillDashArray()"
         ></circle>
       }
     </g>
@@ -38,7 +41,9 @@
 
   <!-- Centered percentage + label overlay -->
   <div class="tw-absolute tw-flex tw-flex-col tw-items-center tw-justify-center tw-leading-none">
-    <span bitTypography="h3" class="tw-text-main">{{ percentage() }}%</span>
-    <span bitTypography="helper" class="tw-text-muted">{{ "atRisk" | i18n }}</span>
+    <span bitTypography="h5" [noMargin]="true" [class]="percentageTextClass()"
+      >{{ percentage() }}%</span
+    >
+    <span bitTypography="helper" class="tw-text-main">{{ "atRisk" | i18n }}</span>
   </div>
 </div>

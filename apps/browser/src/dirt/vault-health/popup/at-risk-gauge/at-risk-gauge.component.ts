@@ -5,13 +5,16 @@ import { TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Presentational circular gauge for the vault-health "at risk" score.
+ * Presentational 270° arc gauge for the vault-health "at risk" score.
  *
- * Fills a circular arc to the `value / total` proportion and renders the
- * percentage plus an "at risk" label centered inside the ring. Color is binary:
- * green when `value` is 0 (empty), red for any fill (`value` greater than 0).
- * A `total` of 0 (or any non-positive total) renders an empty, green gauge
- * without a divide-by-zero.
+ * Renders an open circular arc (a 270° sweep with a 90° gap at the bottom) that
+ * fills to the `value / total` proportion, with the percentage and an "at risk"
+ * label centered inside. Color is binary, matching the design:
+ * - empty (`value` is 0): a light green track, green percentage;
+ * - any fill (`value` greater than 0): a light red track with a solid red fill
+ *   arc and a red percentage.
+ * There is no amber or intermediate state. A `total` of 0 (or any non-positive
+ * total) renders an empty, green gauge without a divide-by-zero.
  *
  * Purely presentational: it derives everything from its inputs, fetches no data,
  * and emits no events.
@@ -24,6 +27,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 })
 export class AtRiskGaugeComponent {
   private readonly i18nService = inject(I18nService);
+
+  /**
+   * Length of the visible track arc, in the same units as the ring circumference
+   * (~100, from radius 15.9155). 75 units = a 270° sweep, leaving a 90° (25-unit)
+   * gap at the bottom.
+   */
+  private static readonly ARC_LENGTH = 75;
 
   /** The at-risk count. 0 renders an empty, green gauge. */
   readonly value = input<number>(0);
@@ -39,23 +49,30 @@ export class AtRiskGaugeComponent {
   );
 
   /**
-   * Rounded integer percentage shown inside the ring. 0 when total <= 0, and
+   * Rounded integer percentage shown inside the arc. 0 when total <= 0, and
    * clamped to 100 so a value greater than the total stays consistent with the
-   * fully-filled ring.
+   * fully-filled arc.
    */
   protected readonly percentage = computed(() =>
     this.total() > 0 ? Math.min(100, Math.round((this.value() / this.total()) * 100)) : 0,
   );
 
   /**
-   * SVG stroke-dashoffset for the fill arc. The ring's radius (15.9155) makes its
-   * circumference ~100, so the offset is simply 100 minus the filled percent.
+   * `stroke-dasharray` for the red fill arc: the filled length (a fraction of the
+   * 270° arc) followed by a gap larger than the ring so only the fill shows.
    */
-  protected readonly strokeDashoffset = computed(() => 100 - this.fillFraction() * 100);
+  protected readonly fillDashArray = computed(
+    () => `${this.fillFraction() * AtRiskGaugeComponent.ARC_LENGTH} 100`,
+  );
 
-  /** Track ring color: green when clean, neutral when at risk. */
+  /** Track arc color: light green when clean, light red when at risk. */
   protected readonly trackStrokeClass = computed(() =>
-    this.isAtRisk() ? "tw-stroke-bg-quaternary" : "tw-stroke-bg-success",
+    this.isAtRisk() ? "tw-stroke-danger-100" : "tw-stroke-success-100",
+  );
+
+  /** Percentage text color: green when clean, red when at risk (matches the design). */
+  protected readonly percentageTextClass = computed(() =>
+    this.isAtRisk() ? "!tw-text-danger-600" : "!tw-text-success-600",
   );
 
   /** Localized accessible summary announced by screen readers, e.g. "37% at risk". */
