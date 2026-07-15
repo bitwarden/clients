@@ -7601,6 +7601,9 @@
   "uriMatchDetectionPolicyDesc": {
     "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
   },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
+  },
   "uriMatchDetectionOptionsLabel": {
     "message": "Default URI match detection"
   },

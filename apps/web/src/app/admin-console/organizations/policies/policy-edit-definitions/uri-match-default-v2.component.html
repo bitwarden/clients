@@ -1,0 +1,15 @@
+<bit-form-control>
+  <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
+</bit-form-control>
+
+<div [formGroup]="data">
+  <bit-form-field class="tw-flex-auto">
+    <bit-label>{{ "uriMatchDetectionOptionsLabel" | i18n }}</bit-label>
+    <bit-select formControlName="uriMatchDetection" id="uriMatchDetection">
+      @for (o of uriMatchOptions; track o.value) {
+        <bit-option [label]="o.label" [value]="o.value" [disabled]="o.disabled"></bit-option>
+      }
+    </bit-select>
+  </bit-form-field>
+</div>
