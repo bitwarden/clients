@@ -41,6 +41,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -64,8 +65,6 @@ import {
 
 import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
-
-import { getOrgIcon } from "./org-icon.directive";
 
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
@@ -195,12 +194,18 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     ),
   );
 
-  /**
-   * Resolves the icon for an organization based on its product tier, falling back to the
-   * business icon for unrecognized tiers so the option always renders an icon.
-   */
-  protected getOrgIcon = (org: Organization): BitwardenIcon =>
-    getOrgIcon(org.productTierType) || "bwi-business";
+  protected getOrgIcon = (org: Organization): BitwardenIcon => {
+    switch (org.productTierType) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return "bwi-family";
+      case ProductTierType.Teams:
+      case ProductTierType.Enterprise:
+      case ProductTierType.TeamsStarter:
+      default:
+        return "bwi-business";
+    }
+  };
 
   protected transferWarningText = (orgName: string, itemsCount: number) => {
     const haveOrgName = !!orgName;
