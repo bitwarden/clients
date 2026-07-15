@@ -5,7 +5,7 @@ import { provideRouter } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { IconTileComponent } from "../icon-tile";
+import { IconTileComponent, IconTileSize } from "../icon-tile";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
@@ -58,23 +58,24 @@ describe("BreadcrumbsComponent", () => {
     fixture = TestBed.createComponent(TestHostComponent);
   });
 
-  /** The size-scaled container class the icon tile renders for a given `IconTileSize`. */
-  function tileContainerClass(): string {
-    const tile = fixture.debugElement.query(By.directive(IconTileComponent));
-    return (tile.nativeElement as HTMLElement).firstElementChild!.className;
+  /** The `size` the projected icon tile was driven to by the parent breadcrumbs. */
+  function tileSize(): IconTileSize {
+    const tile = fixture.debugElement.query(By.directive(IconTileComponent))
+      .componentInstance as IconTileComponent;
+    return tile.size();
   }
 
   it("sizes a projected start-slot icon tile to `sm` when the breadcrumbs are `base`", () => {
     fixture.componentInstance.size.set("base");
     fixture.detectChanges();
 
-    expect(tileContainerClass()).toContain("tw-w-6"); // sm
+    expect(tileSize()).toBe("sm");
   });
 
   it("sizes a projected start-slot icon tile to `xs` when the breadcrumbs are `small`", () => {
     fixture.componentInstance.size.set("small");
     fixture.detectChanges();
 
-    expect(tileContainerClass()).toContain("tw-w-4"); // xs
+    expect(tileSize()).toBe("xs");
   });
 });

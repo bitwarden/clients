@@ -30,8 +30,8 @@ import { TypographyModule } from "../typography";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 
-/** Approximate width reserved for the trailing separator arrow (icon + margins), in pixels. */
-const TRAILING_ARROW_RESERVE_PX = 48;
+/** Approximate width reserved for the trailing separator arrow (icon + margins), per size, in pixels. */
+const TRAILING_ARROW_RESERVE_PX = { base: 48, small: 34 } as const;
 
 /**
  * Breadcrumbs are used to help users understand where they are in a products navigation. Typically
@@ -73,10 +73,14 @@ export class BreadcrumbsComponent {
    * Width handed to the overflow list. Derived from the host rather than letting the list
    * observe its own element: the list host is content-sized (it shrinks as items hide), so
    * self-observation would feed the packing decision back into its own input and, once
-   * collapsed, never re-expand. Reserve room for the trailing arrow when it's shown.
+   * collapsed, never re-expand. Reserve room for the trailing arrow when it's shown; the arrow
+   * shrinks with `size`, so the reserve tracks it too.
    */
   protected readonly availableWidth = computed(() =>
-    Math.max(0, this.hostWidth() - (this.showTrailingArrow() ? TRAILING_ARROW_RESERVE_PX : 0)),
+    Math.max(
+      0,
+      this.hostWidth() - (this.showTrailingArrow() ? TRAILING_ARROW_RESERVE_PX[this.size()] : 0),
+    ),
   );
 
   /**
