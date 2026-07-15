@@ -18,6 +18,8 @@ export enum FeatureFlag {
   StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
+  // TODO: PM-40137 - Remove this flag
+  PM27060_PasswordPreloginFromSdk = "pm-27060-password-prelogin-from-sdk",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
@@ -114,6 +116,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* VFO */
+  VFO1Foundation = "vfo1-foundation",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -186,6 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
@@ -231,6 +237,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* VFO */
+  [FeatureFlag.VFO1Foundation]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
