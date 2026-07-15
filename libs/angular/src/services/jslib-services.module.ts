@@ -114,8 +114,10 @@ import { UserVerificationService as UserVerificationServiceAbstraction } from "@
 import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
-import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/organization-invite/default-organization-invite.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  DefaultOrganizationInviteService,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import {
   DefaultPasswordPreloginService,
   PasswordPreloginApiService,
@@ -182,6 +184,7 @@ import {
   EventCollectionService as EventCollectionServiceAbstraction,
 } from "@bitwarden/common/dirt/event-logs";
 import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
+import { EventLogApiService } from "@bitwarden/common/dirt/event-logs/services/event-log-api.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -551,6 +554,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: HibpApiService,
     useClass: HibpApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: EventLogApiService,
+    useClass: EventLogApiService,
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
@@ -2001,7 +2009,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService],
+    deps: [PasswordPreloginApiService, SdkService, EnvironmentService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

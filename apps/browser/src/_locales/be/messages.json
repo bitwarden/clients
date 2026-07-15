@@ -171,13 +171,13 @@
     "message": "Copy national identification number"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Скапіяваць імя"
   },
   "copyMiddleName": {
     "message": "Copy middle name"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Скапіяваць прозвішча"
   },
   "copyLicenseNumber": {
     "message": "Скапіяваць нумар ліцэнзіі"
@@ -215,11 +215,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Аўтазапаўненне",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Аўтазапаўненне",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -290,7 +290,7 @@
     "message": "Увядзіце адрас электроннай пошты ўліковага запісу і падказка пароля будзе адпраўлена вам"
   },
   "hint": {
-    "message": "Hint"
+    "message": "Падказка"
   },
   "continue": {
     "message": "Працягнуць"
@@ -460,7 +460,7 @@
     "message": "Сінхранізаваць"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Сінхранізаваць зараз"
   },
   "lastSync": {
     "message": "Апошняя сінхранізацыя:"
@@ -614,6 +614,23 @@
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
   },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+  },
   "itemRestored": {
     "message": "Item has been restored"
   },
@@ -624,10 +641,10 @@
     "message": "Прагляд"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Паглядзець усе"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Паказаць усе"
   },
   "viewLess": {
     "message": "View less"
@@ -742,7 +759,7 @@
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Спампаваць"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш вэб-браўзер не падтрымлівае капіяванне даных у буфер абмену. Скапіюйце іх уручную."
@@ -979,7 +996,7 @@
     "message": "Увайсці"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Увайсці"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"
@@ -1027,7 +1044,7 @@
     "message": "Anyone with a password set by you"
   },
   "location": {
-    "message": "Location"
+    "message": "Месцазнаходжанне"
   },
   "unexpectedError": {
     "message": "Адбылася нечаканая памылка."
@@ -1217,7 +1234,7 @@
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Новае апавяшчэнне"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
@@ -1550,6 +1567,12 @@
   },
   "file": {
     "message": "Файл"
+  },
+  "photo": {
+    "message": "Photo"
+  },
+  "unknown": {
+    "message": "Unknown"
   },
   "fileToShare": {
     "message": "File to share"
@@ -2321,6 +2344,42 @@
   "licenseClass": {
     "message": "License class"
   },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2384,6 +2443,22 @@
   "editItemHeaderSecureNote": {
     "message": "Edit secure note",
     "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
+    "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
@@ -3021,6 +3096,18 @@
   "biometricsFailedDesc": {
     "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
+  "nativeMessaginPermissionErrorTitle": {
+    "message": "Permission not provided"
+  },
+  "nativeMessaginPermissionErrorDesc": {
+    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
+  },
+  "nativeMessaginPermissionSidebarTitle": {
+    "message": "Permission request error"
+  },
+  "nativeMessaginPermissionSidebarDesc": {
+    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
+  },
   "personalOwnershipSubmitError": {
     "message": "У адпаведнасці з палітыкай прадпрыемства вам забаронена захоўваць элементы ў асабістым сховішчы. Змяніце параметры ўласнасці на арганізацыю і выберыце з даступных калекцый."
   },
@@ -3139,6 +3226,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Review and change $COUNT$ at-risk passwords",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Review 1 at-risk password"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Review $COUNT$ at-risk passwords",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3342,6 +3441,10 @@
   },
   "createSend": {
     "message": "Стварыць новы Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -4671,6 +4774,51 @@
   "importNothingError": {
     "message": "Нічога не было імпартавана."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
   "importEncKeyError": {
     "message": "Памылка дэшыфроўкі экспартаванага файла. Ваш ключ шыфравання не супадае з ключом шыфравання, які выкарыстоўваецца для экспартавання даных."
   },
@@ -4837,6 +4985,9 @@
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "Include shared folders"
   },
@@ -4888,6 +5039,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "switchAccount": {
     "message": "Змяніць уліковы запіс"
@@ -5032,11 +5372,26 @@
   "defaultPasswordManagerPromptTitle": {
     "message": "Make Bitwarden your browser's default password manager"
   },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Turn off the browser autofill settings to avoid conflicts.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Manage browser settings",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
   "defaultPasswordManagerPromptStep2AfterAllow": {
     "message": "from the browser prompt to give Bitwarden permission to change your settings."
   },
   "defaultPasswordManagerPromptStep3": {
     "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Made Bitwarden your default browser password manager"
   },
   "allow": {
     "message": "Allow",
@@ -5299,6 +5654,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
+  },
   "new": {
     "message": "Новы"
   },
@@ -5483,11 +5861,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Website added"
   },
   "addWebsite": {
     "message": "Add website"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "Delete website"
@@ -5718,6 +6115,18 @@
   },
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6576,14 +6985,29 @@
   "sharedUnlock": {
     "message": "Shared unlock"
   },
-  "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  "sharedUnlockWithDesktop": {
+    "message": "Share unlock with Desktop"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  "sharedUnlockWithWeb": {
+    "message": "Share unlock with web vault"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+  },
+  "newPermissionNeeded": {
+    "message": "New permission needed"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+  },
+  "biometricPermissionDesc": {
+    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "enterMonth": {
     "message": "Enter month."
@@ -6747,17 +7171,37 @@
     "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "makeACopy": {
     "message": "Make a copy"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
   },
   "cannotSaveItemNoConfirmedOrgs": {
     "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
   }
 }
