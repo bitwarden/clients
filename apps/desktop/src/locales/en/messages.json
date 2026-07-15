@@ -5096,7 +5096,7 @@
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
   },
-  "bulkVaultSharedFoldersAssignmentDialogDescriptionPlural": {
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
     "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "noCollectionsAssigned": {
