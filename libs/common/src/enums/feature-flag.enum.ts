@@ -15,8 +15,11 @@ export enum FeatureFlag {
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
+  StagedStatus = "pm-34423-staged-status",
 
   /* Auth */
+  // TODO: PM-40137 - Remove this flag
+  PM27060_PasswordPreloginFromSdk = "pm-27060-password-prelogin-from-sdk",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
@@ -79,7 +82,6 @@ export enum FeatureFlag {
   EventManagementForSplunk = "event-management-for-splunk",
   PhishingDetection = "phishing-detection",
   Milestone11AppPageImprovements = "pm-30538-dirt-milestone-11-app-page-improvements",
-  AccessIntelligenceTrendChart = "pm-26961-access-intelligence-trend-chart",
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
   AccessIntelligenceReportFileStorage = "pm-31920-access-intelligence-azure-file-storage",
   AccessIntelligenceAdoptionUxImprovements = "pm-34723-access-intelligence-adoption-ux-improvements",
@@ -114,6 +116,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* VFO */
+  VFO1Foundation = "vfo1-foundation",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -132,6 +137,7 @@ const FALSE = false as boolean;
 export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PoliciesInAcceptedState]: FALSE,
@@ -162,7 +168,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EventManagementForSplunk]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
-  [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
@@ -186,6 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32380_BtnTextAddCreate]: FALSE,
 
   /* Auth */
+  [FeatureFlag.PM27060_PasswordPreloginFromSdk]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
@@ -231,6 +237,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* VFO */
+  [FeatureFlag.VFO1Foundation]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
