@@ -1,9 +1,5 @@
-import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
-
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
-import { CollectionId } from "../../../types/guid";
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
 
@@ -155,37 +151,38 @@ export class CollectionAdminView extends CollectionView {
   }
 
   /**
-   * Creates a CollectionAdminView from the SDK CollectionView returned by SDK decrypt operations.
-   *
-   * The `source` parameter provides the admin-only fields (`groups`, `users`, `unmanaged`,
-   * `assigned`) that the SDK's CollectionView type does not carry, since those are specific to
-   * the Admin Console's collection-access-details representation, not the SDK's crypto model.
+   * Wraps an already-decrypted `CollectionView` (produced by
+   * {@link CollectionEncryptionService.decryptManyWithFailures}) with the admin-only fields
+   * (`groups`, `users`, `unmanaged`, `assigned`) carried by the access-details response. This is a
+   * data transform only - decryption itself is the responsibility of `CollectionEncryptionService`.
    */
-  static fromSdkCollectionViewWithAccessDetails(
-    sdkView: SdkCollectionView,
+  static fromCollectionView(
+    view: CollectionView,
     source: CollectionAccessDetailsResponse,
   ): CollectionAdminView {
-    const view = new CollectionAdminView({
-      id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : (source.id as CollectionId),
-      organizationId: source.organizationId,
-      name: sdkView.name,
+    const adminView = new CollectionAdminView({
+      id: view.id,
+      organizationId: view.organizationId,
+      name: view.name,
     });
 
-    view.externalId = sdkView.externalId;
-    view.hidePasswords = sdkView.hidePasswords;
-    view.readOnly = sdkView.readOnly;
-    view.manage = sdkView.manage;
-    view.type = sdkView.type;
-    view.defaultUserCollectionEmail = source.defaultUserCollectionEmail;
+    adminView.externalId = view.externalId;
+    adminView.hidePasswords = view.hidePasswords;
+    adminView.readOnly = view.readOnly;
+    adminView.manage = view.manage;
+    adminView.type = view.type;
+    adminView.defaultUserCollectionEmail = view.defaultUserCollectionEmail;
 
-    view.assigned = source.assigned;
-    view.unmanaged = source.unmanaged;
-    view.groups = source.groups
+    adminView.assigned = source.assigned;
+    adminView.unmanaged = source.unmanaged;
+    adminView.groups = source.groups
       ? source.groups.map((g) => new CollectionAccessSelectionView(g))
       : [];
-    view.users = source.users ? source.users.map((g) => new CollectionAccessSelectionView(g)) : [];
+    adminView.users = source.users
+      ? source.users.map((g) => new CollectionAccessSelectionView(g))
+      : [];
 
-    return view;
+    return adminView;
   }
 
   /**

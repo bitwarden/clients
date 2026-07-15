@@ -1,13 +1,13 @@
 import {
-  catchError,
   combineLatest,
-  concatMap,
   firstValueFrom,
+  forkJoin,
   from,
   map,
   Observable,
   of,
   switchMap,
+  tap,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,21 +22,20 @@ import {
   CollectionDetailsResponse,
   CollectionResponse,
   CollectionData,
+  CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
-import { DecryptCollectionListResult } from "@bitwarden/sdk-internal";
 
 import { CollectionAdminService, CollectionService } from "../abstractions";
+import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 import {
   BulkCollectionAccessRequest,
   BaseCollectionRequest,
@@ -51,7 +50,7 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     private encryptService: EncryptService,
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
-    private sdkService: SdkService,
+    private collectionEncryptionService: CollectionEncryptionService,
     private configService: ConfigService,
     private logService: LogService,
   ) {}
@@ -145,166 +144,145 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
-  private async decryptMany(
+  private decryptMany(
     organizationId: string,
     userId: UserId,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
-  ): Promise<CollectionAdminView[]> {
+  ): Observable<CollectionAdminView[]> {
     if (collections.length > 0 && collections.every(isCollectionAccessDetailsResponse)) {
-      const bulkDecryptEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.CollectionAdminBulkDecrypt,
-      );
-
-      if (bulkDecryptEnabled) {
-        return this.decryptManyBulk(collections as CollectionAccessDetailsResponse[], userId);
-      }
+      return this.configService
+        .getFeatureFlag$(FeatureFlag.CollectionAdminBulkDecrypt)
+        .pipe(
+          switchMap((bulkDecryptEnabled) =>
+            bulkDecryptEnabled
+              ? this.decryptManyV2(collections as CollectionAccessDetailsResponse[], userId)
+              : this.decryptManyV1(organizationId, collections, orgKeys),
+          ),
+        );
     }
 
-    return this.decryptManyOriginal(organizationId, collections, orgKeys);
+    return this.decryptManyV1(organizationId, collections, orgKeys);
   }
 
   /**
-   * Original implementation: decrypts each collection's name individually via `EncryptService`,
-   * one at a time. A collection that fails to decrypt is shown with a placeholder name rather
-   * than being dropped, since admins still need to see, manage, and delete it.
+   * V1 implementation: decrypts each collection's name individually via `EncryptService`, one at
+   * a time. A collection that fails to decrypt is shown with a placeholder name rather than
+   * being dropped, since admins still need to see, manage, and delete it.
    */
-  private async decryptManyOriginal(
+  private decryptManyV1(
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
-  ): Promise<CollectionAdminView[]> {
+  ): Observable<CollectionAdminView[]> {
     const startTime = performance.now();
 
-    const promises = collections.map(async (c) => {
-      if (isCollectionAccessDetailsResponse(c)) {
-        return CollectionAdminView.fromCollectionAccessDetails(
-          c,
-          this.encryptService,
-          orgKeys[organizationId as OrganizationId],
-        );
-      }
+    if (collections.length === 0) {
+      return of([]);
+    }
 
-      return await CollectionAdminView.fromCollectionResponse(
-        c,
-        this.encryptService,
-        orgKeys[organizationId as OrganizationId],
-      );
-    });
-
-    const views = await Promise.all(promises);
-
-    this.logService.measure(
-      startTime,
-      "Admin Console",
-      "DefaultCollectionAdminService",
-      "decryptMany (original, one at a time)",
-      [
-        ["Items", collections.length],
-        ["Successes", views.length],
-      ],
+    const decryptions = collections.map((c) =>
+      isCollectionAccessDetailsResponse(c)
+        ? from(
+            CollectionAdminView.fromCollectionAccessDetails(
+              c,
+              this.encryptService,
+              orgKeys[organizationId as OrganizationId],
+            ),
+          )
+        : from(
+            CollectionAdminView.fromCollectionResponse(
+              c,
+              this.encryptService,
+              orgKeys[organizationId as OrganizationId],
+            ),
+          ),
     );
 
-    return views;
+    return forkJoin(decryptions).pipe(
+      tap((views) => {
+        this.logService.measure(
+          startTime,
+          "Admin Console",
+          "DefaultCollectionAdminService",
+          "decryptMany (v1, one at a time)",
+          [
+            ["Items", collections.length],
+            ["Successes", views.length],
+          ],
+        );
+      }),
+    );
   }
 
   /**
-   * Batched implementation using the SDK's `decrypt_list_with_failures`, which parallelizes
-   * decryption of the whole list for better performance on large lists. Gated behind
+   * V2 implementation: delegates decryption to `CollectionEncryptionService`, the single source
+   * of truth for `Collection -> CollectionView` decryption, then wraps the result back into
+   * `CollectionAdminView`s with the admin-only fields carried by the access-details response.
+   * This is a mapping layer only - it never calls the SDK directly. Gated behind
    * {@link FeatureFlag.CollectionAdminBulkDecrypt} until this path has proven out in production.
    *
    * Unlike the personal-vault decryption path, a collection that fails to decrypt is never
    * silently dropped here: it's shown with a placeholder name so admins can still see, manage,
    * and delete it from the Admin Console.
    */
-  private async decryptManyBulk(
+  private decryptManyV2(
     collections: CollectionAccessDetailsResponse[],
     userId: UserId,
-  ): Promise<CollectionAdminView[]> {
+  ): Observable<CollectionAdminView[]> {
     const startTime = performance.now();
 
-    const responseMap = new Map<string, CollectionAccessDetailsResponse>();
-    const sdkCollections = collections.map((c) => {
-      if (responseMap.has(c.id)) {
-        // See the analogous check in DefaultCollectionEncryptionService.decryptManyWithFailures:
-        // decrypted views are re-associated with their source response by id below, so a
-        // duplicate id would make that re-association ambiguous. Fail closed instead of guessing.
-        throw new Error(`Duplicate collection id passed to decryptMany: ${c.id}`);
-      }
-      responseMap.set(c.id, c);
-
-      const collection = new Collection({
-        id: c.id as CollectionId,
-        name: new EncString(c.name),
-        organizationId: c.organizationId,
-      });
-      collection.externalId = c.externalId;
-      collection.readOnly = c.readOnly;
-      collection.hidePasswords = c.hidePasswords;
-      collection.manage = c.manage;
-      collection.type = c.type;
-      collection.defaultUserCollectionEmail = c.defaultUserCollectionEmail;
-
-      return collection.toSdkCollection();
-    });
-
-    const views = await firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-
-          const result: DecryptCollectionListResult = ref.value
-            .vault()
-            .collections()
-            .decrypt_list_with_failures(sdkCollections);
-
-          const successViews = result.successes
-            .map((sdkView) => {
-              const id = sdkView.id ? uuidAsString(sdkView.id) : "";
-              const source = responseMap.get(id);
-              if (!source) {
-                return null;
-              }
-              return CollectionAdminView.fromSdkCollectionViewWithAccessDetails(sdkView, source);
-            })
-            .filter((v): v is CollectionAdminView => v !== null);
-
-          const failureViews = result.failures
-            .map((sdkCollection) => {
-              const id = sdkCollection.id ? uuidAsString(sdkCollection.id) : "";
-              const source = responseMap.get(id);
-              this.logService.error(`Failed to decrypt collection ${id}`);
-              return source
-                ? CollectionAdminView.fromCollectionAccessDetailsDecryptionFailure(source)
-                : null;
-            })
-            .filter((v): v is CollectionAdminView => v !== null);
-
-          return [...successViews, ...failureViews];
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-          throw error;
-        }),
-      ),
+    const responseMap = new Map(collections.map((c) => [c.id, c]));
+    const collectionsToDecrypt = collections.map((c) =>
+      Collection.fromCollectionAccessDetailsResponse(c),
     );
 
-    this.logService.measure(
-      startTime,
-      "Admin Console",
-      "DefaultCollectionAdminService",
-      "decryptMany (bulk, decrypt_list_with_failures)",
-      [
-        ["Items", collections.length],
-        ["Successes", views.length],
-      ],
-    );
+    return this.collectionEncryptionService
+      .decryptManyWithFailures(collectionsToDecrypt, userId)
+      .pipe(
+        map((result) => [
+          ...this.mapDecryptedSuccesses(result.success, responseMap),
+          ...this.mapDecryptedFailures(result.failure, responseMap),
+        ]),
+        tap((views) => {
+          this.logService.measure(
+            startTime,
+            "Admin Console",
+            "DefaultCollectionAdminService",
+            "decryptMany (v2, via CollectionEncryptionService)",
+            [
+              ["Items", collections.length],
+              ["Successes", views.length],
+            ],
+          );
+        }),
+      );
+  }
 
-    return views;
+  private mapDecryptedSuccesses(
+    views: CollectionView[],
+    responseMap: Map<string, CollectionAccessDetailsResponse>,
+  ): CollectionAdminView[] {
+    return views
+      .map((view) => {
+        const source = responseMap.get(view.id);
+        return source ? CollectionAdminView.fromCollectionView(view, source) : undefined;
+      })
+      .filter((v): v is CollectionAdminView => v !== undefined);
+  }
+
+  private mapDecryptedFailures(
+    failures: Collection[],
+    responseMap: Map<string, CollectionAccessDetailsResponse>,
+  ): CollectionAdminView[] {
+    return failures
+      .map((failure) => {
+        const source = responseMap.get(failure.id);
+        return source
+          ? CollectionAdminView.fromCollectionAccessDetailsDecryptionFailure(source)
+          : undefined;
+      })
+      .filter((v): v is CollectionAdminView => v !== undefined);
   }
 
   private async encrypt(

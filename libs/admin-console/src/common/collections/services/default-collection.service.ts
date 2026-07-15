@@ -121,7 +121,7 @@ export class DefaultCollectionService implements CollectionService {
             this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
           ]).pipe(
             switchMap(([collections]) =>
-              from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
+              this.collectionEncryptionService.decryptMany(collections ?? [], userId).pipe(
                 map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
                 // Cache successful decryptions (delayWhen only runs on emitted values, so a failure
                 // is never cached), then drop this emission - the value is delivered to subscribers
@@ -174,9 +174,11 @@ export class DefaultCollectionService implements CollectionService {
 
     let decryptedCollections: CollectionView[];
     if (sdkEnabled) {
-      decryptedCollections = await this.collectionEncryptionService.decryptMany(
-        [Collection.fromCollectionData(toUpdate)],
-        userId,
+      decryptedCollections = await firstValueFrom(
+        this.collectionEncryptionService.decryptMany(
+          [Collection.fromCollectionData(toUpdate)],
+          userId,
+        ),
       );
     } else {
       decryptedCollections = await firstValueFrom(

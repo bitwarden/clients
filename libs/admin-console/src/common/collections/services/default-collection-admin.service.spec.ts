@@ -2,23 +2,25 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionTypes } from "@bitwarden/common/admin-console/models/collections/collection";
+import {
+  Collection,
+  CollectionTypes,
+} from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections/collection.response";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
-import {
-  Collection as SdkCollection,
-  CollectionView as SdkCollectionView,
-  DecryptCollectionListResult,
-} from "@bitwarden/sdk-internal";
 
 import { CollectionService } from "../abstractions";
+import {
+  CollectionDecryptionResult,
+  CollectionEncryptionService,
+} from "../abstractions/collection-encryption.service";
 
 import { DefaultCollectionAdminService } from "./default-collection-admin.service";
 
@@ -53,25 +55,20 @@ function makeAccessDetailsResponse(
   });
 }
 
-function makeSdkCollectionView(overrides: Partial<SdkCollectionView> = {}): SdkCollectionView {
-  return {
-    id: collectionId1 as any,
-    organizationId: orgId as any,
+function makeCollectionView(id: string, overrides: Partial<CollectionView> = {}): CollectionView {
+  const view = new CollectionView({
+    id: id as any,
+    organizationId: orgId,
     name: "Decrypted Name",
-    externalId: undefined,
-    hidePasswords: false,
-    readOnly: false,
-    manage: true,
-    type: CollectionTypes.SharedCollection,
-    ...overrides,
-  };
+  });
+  return Object.assign(view, overrides);
 }
 
 function makeResult(
-  successes: SdkCollectionView[],
-  failures: SdkCollection[] = [],
-): DecryptCollectionListResult {
-  return { successes, failures };
+  success: CollectionView[],
+  failure: Collection[] = [],
+): CollectionDecryptionResult {
+  return { success, failure };
 }
 
 describe("DefaultCollectionAdminService", () => {
@@ -82,8 +79,13 @@ describe("DefaultCollectionAdminService", () => {
   const encryptService = { decryptString: jest.fn() } as unknown as EncryptService;
   const collectionService = {} as unknown as CollectionService;
   const organizationService = {} as unknown as OrganizationService;
-  const sdkService = { userClient$: jest.fn() } as unknown as SdkService;
-  const configService = { getFeatureFlag: jest.fn() } as unknown as ConfigService;
+  const collectionEncryptionService = {
+    decryptManyWithFailures: jest.fn(),
+  } as unknown as CollectionEncryptionService;
+  const configService = {
+    getFeatureFlag: jest.fn(),
+    getFeatureFlag$: jest.fn(),
+  } as unknown as ConfigService;
   const logService = {
     error: jest.fn(),
     warning: jest.fn(),
@@ -94,31 +96,10 @@ describe("DefaultCollectionAdminService", () => {
     mark: jest.fn(),
   } as unknown as LogService;
 
-  let mockDecryptListWithFailures: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
 
     (keyService.orgKeys$ as jest.Mock).mockReturnValue(of({ [orgId]: {} as any }));
-
-    mockDecryptListWithFailures = jest.fn();
-    const mockCollectionsClient = {
-      decrypt: jest.fn(),
-      decrypt_list_with_failures: mockDecryptListWithFailures,
-      encrypt: jest.fn(),
-      encrypt_list: jest.fn(),
-      get_collection_tree: jest.fn(),
-    };
-    const mockRef = {
-      value: {
-        vault: jest.fn().mockReturnValue({
-          collections: jest.fn().mockReturnValue(mockCollectionsClient),
-        }),
-      },
-      [Symbol.dispose]: jest.fn(),
-    };
-    const mockSdk = { take: jest.fn().mockReturnValue(mockRef) };
-    (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk));
 
     service = new DefaultCollectionAdminService(
       apiService,
@@ -126,7 +107,7 @@ describe("DefaultCollectionAdminService", () => {
       encryptService,
       collectionService,
       organizationService,
-      sdkService,
+      collectionEncryptionService,
       configService,
       logService,
     );
@@ -140,31 +121,34 @@ describe("DefaultCollectionAdminService", () => {
 
   describe("collectionAdminViews$", () => {
     it("checks the CollectionAdminBulkDecrypt feature flag", async () => {
-      (configService.getFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
       (encryptService.decryptString as jest.Mock).mockResolvedValue("Decrypted Name");
       mockApiResponse([makeAccessDetailsResponse()]);
 
       await service.collectionAdminViews$(orgId, userId).toPromise();
 
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.CollectionAdminBulkDecrypt,
       );
     });
 
     describe("when CollectionAdminBulkDecrypt is enabled", () => {
       beforeEach(() => {
-        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
+        (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
       });
 
-      it("decrypts collections via the SDK bulk path", async () => {
+      it("decrypts collections via CollectionEncryptionService", async () => {
         mockApiResponse([makeAccessDetailsResponse()]);
-        mockDecryptListWithFailures.mockReturnValue(
-          makeResult([makeSdkCollectionView({ name: "Decrypted Name" })]),
+        (collectionEncryptionService.decryptManyWithFailures as jest.Mock).mockReturnValue(
+          of(makeResult([makeCollectionView(collectionId1, { name: "Decrypted Name" })])),
         );
 
         const result = await service.collectionAdminViews$(orgId, userId).toPromise();
 
-        expect(mockDecryptListWithFailures).toHaveBeenCalled();
+        expect(collectionEncryptionService.decryptManyWithFailures).toHaveBeenCalledWith(
+          expect.arrayContaining([expect.objectContaining({ id: collectionId1 })]),
+          userId,
+        );
         expect(encryptService.decryptString).not.toHaveBeenCalled();
         expect(result).toHaveLength(1);
         expect(result![0].name).toBe("Decrypted Name");
@@ -175,22 +159,18 @@ describe("DefaultCollectionAdminService", () => {
         const succeeding = makeAccessDetailsResponse({ id: collectionId2 });
         mockApiResponse([failing, succeeding]);
 
-        mockDecryptListWithFailures.mockReturnValue(
-          makeResult(
-            [makeSdkCollectionView({ id: collectionId2 as any, name: "Collection 2" })],
-            [
-              {
-                id: collectionId1 as any,
-                organizationId: orgId as any,
-                name: "2.abc123|def456==|ghi789==" as any,
-                externalId: undefined,
-                hidePasswords: false,
-                readOnly: false,
-                manage: true,
-                defaultUserCollectionEmail: undefined,
-                type: CollectionTypes.SharedCollection,
-              },
-            ],
+        const failedCollection = new Collection({
+          id: collectionId1 as any,
+          organizationId: orgId,
+          name: failing.name as any,
+        });
+
+        (collectionEncryptionService.decryptManyWithFailures as jest.Mock).mockReturnValue(
+          of(
+            makeResult(
+              [makeCollectionView(collectionId2, { name: "Collection 2" })],
+              [failedCollection],
+            ),
           ),
         );
 
@@ -199,9 +179,6 @@ describe("DefaultCollectionAdminService", () => {
         expect(result).toHaveLength(2);
         const failedView = result!.find((v) => v.id === collectionId1);
         expect(failedView?.name).toBe("[error: cannot decrypt]");
-        expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining(`Failed to decrypt collection ${collectionId1}`),
-        );
       });
 
       it("falls back to the original path when responses are not access-details responses", async () => {
@@ -217,7 +194,7 @@ describe("DefaultCollectionAdminService", () => {
 
     describe("when CollectionAdminBulkDecrypt is disabled", () => {
       beforeEach(() => {
-        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(false);
+        (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
       });
 
       it("decrypts collections one at a time via EncryptService", async () => {
@@ -226,7 +203,7 @@ describe("DefaultCollectionAdminService", () => {
 
         const result = await service.collectionAdminViews$(orgId, userId).toPromise();
 
-        expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
+        expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
         expect(encryptService.decryptString).toHaveBeenCalled();
         expect(result).toHaveLength(1);
         expect(result![0].name).toBe("Decrypted Name");

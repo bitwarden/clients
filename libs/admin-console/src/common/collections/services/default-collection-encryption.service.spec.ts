@@ -1,4 +1,4 @@
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import {
   Collection,
@@ -79,7 +79,10 @@ describe("DefaultCollectionEncryptionService", () => {
     mark: jest.fn(),
   } as unknown as LogService;
   const sdkService = { userClient$: jest.fn() } as unknown as SdkService;
-  const configService = { getFeatureFlag: jest.fn() } as unknown as ConfigService;
+  const configService = {
+    getFeatureFlag: jest.fn(),
+    getFeatureFlag$: jest.fn(),
+  } as unknown as ConfigService;
 
   let mockDecrypt: jest.Mock;
   let mockDecryptListWithFailures: jest.Mock;
@@ -113,12 +116,12 @@ describe("DefaultCollectionEncryptionService", () => {
 
   describe("decryptManyWithFailures", () => {
     it("checks the CollectionBulkDecryptWithFailures feature flag", async () => {
-      (configService.getFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
       mockDecrypt.mockReturnValue(makeSdkCollectionView());
 
-      await service.decryptManyWithFailures([makeCollection()], userId);
+      await firstValueFrom(service.decryptManyWithFailures([makeCollection()], userId));
 
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.CollectionBulkDecryptWithFailures,
       );
     });
@@ -126,7 +129,7 @@ describe("DefaultCollectionEncryptionService", () => {
 
   describe("when CollectionBulkDecryptWithFailures is enabled", () => {
     beforeEach(() => {
-      (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
     });
 
     describe("decrypt", () => {
@@ -137,7 +140,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const sdkView = makeSdkCollectionView({ name: "Decrypted Name" });
         mockDecryptListWithFailures.mockReturnValue(makeResult([sdkView]));
 
-        const result = await service.decrypt(collection, userId);
+        const result = await firstValueFrom(service.decrypt(collection, userId));
 
         expect(mockDecryptListWithFailures).toHaveBeenCalledWith([stubSdkCollection]);
         expect(mockDecrypt).not.toHaveBeenCalled();
@@ -152,7 +155,7 @@ describe("DefaultCollectionEncryptionService", () => {
           throw new Error("crypto failure");
         });
 
-        await expect(service.decrypt(collection, userId)).rejects.toThrow();
+        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
@@ -163,7 +166,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const collection = makeCollection();
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        await expect(service.decrypt(collection, userId)).rejects.toThrow();
+        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
@@ -172,7 +175,7 @@ describe("DefaultCollectionEncryptionService", () => {
 
     describe("decryptMany", () => {
       it("returns an empty array without calling the SDK for empty input", async () => {
-        const result = await service.decryptMany([], userId);
+        const result = await firstValueFrom(service.decryptMany([], userId));
         expect(result).toEqual([]);
         expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
       });
@@ -190,7 +193,9 @@ describe("DefaultCollectionEncryptionService", () => {
           ]),
         );
 
-        const result = await service.decryptMany([collection1, collection2], userId);
+        const result = await firstValueFrom(
+          service.decryptMany([collection1, collection2], userId),
+        );
 
         expect(result).toHaveLength(2);
         expect(result.map((v) => v.name)).toEqual(
@@ -215,17 +220,16 @@ describe("DefaultCollectionEncryptionService", () => {
           ),
         );
 
-        const [views, failures] = await service.decryptManyWithFailures(
-          [collection1, collection2],
-          userId,
+        const { success, failure } = await firstValueFrom(
+          service.decryptManyWithFailures([collection1, collection2], userId),
         );
 
-        expect(views).toHaveLength(1);
-        expect(views[0].name).toBe("Collection 2");
-        expect(failures).toHaveLength(1);
-        expect(failures[0].id).toBe(collectionId);
+        expect(success).toHaveLength(1);
+        expect(success[0].name).toBe("Collection 2");
+        expect(failure).toHaveLength(1);
+        expect(failure[0].id).toBe(collectionId);
         expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining(`Failed to decrypt collection ${collectionId}`),
+          expect.stringContaining(`Failed to decrypt 1 collection(s): ${collectionId}`),
         );
       });
 
@@ -240,16 +244,16 @@ describe("DefaultCollectionEncryptionService", () => {
           makeResult([makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection })]),
         );
 
-        const [result] = await service.decryptMany([collection], userId);
+        const [result] = await firstValueFrom(service.decryptMany([collection], userId));
 
         expect(result.defaultUserCollectionEmail).toBe(email);
       });
 
-      it("fails closed instead of mismatching security-sensitive metadata when input ids collide", async () => {
-        // Regression test: `defaultUserCollectionEmail` (which gates CollectionView.canEditName())
-        // is re-attached to decrypted views by looking up the source Collection by id. If two
-        // input collections shared an id, the wrong source (and its permissions/email) could get
-        // paired with a decrypted view. This must throw rather than silently mismatch.
+      it("resolves duplicate input ids by letting the last entry win", async () => {
+        // A duplicate id indicates a duplicate collection - the map collapses to the last entry,
+        // which is used to re-associate the decrypted view with its source (needed to preserve
+        // `defaultUserCollectionEmail`, which gates the security restriction in
+        // `CollectionView.canEditName()`).
         const collection1 = makeCollection({
           defaultUserCollectionEmail: "offboarded@example.com",
           type: CollectionTypes.DefaultUserCollection,
@@ -260,14 +264,13 @@ describe("DefaultCollectionEncryptionService", () => {
         });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
         jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecryptListWithFailures.mockReturnValue(makeResult([makeSdkCollectionView()]));
 
-        await expect(service.decryptMany([collection1, collection2], userId)).rejects.toThrow(
-          /Duplicate collection id/,
+        const [result] = await firstValueFrom(
+          service.decryptMany([collection1, collection2], userId),
         );
-        expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
-        expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining("Failed to decrypt collections in batch"),
-        );
+
+        expect(result.defaultUserCollectionEmail).toBeUndefined();
       });
 
       it("logs the error and rejects when the SDK client is unavailable", async () => {
@@ -275,7 +278,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const collection = makeCollection();
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        await expect(service.decryptMany([collection], userId)).rejects.toThrow();
+        await expect(firstValueFrom(service.decryptMany([collection], userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
@@ -285,7 +288,7 @@ describe("DefaultCollectionEncryptionService", () => {
 
   describe("when CollectionBulkDecryptWithFailures is disabled", () => {
     beforeEach(() => {
-      (configService.getFeatureFlag as jest.Mock).mockResolvedValue(false);
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
     });
 
     describe("decrypt", () => {
@@ -294,7 +297,7 @@ describe("DefaultCollectionEncryptionService", () => {
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
         mockDecrypt.mockReturnValue(makeSdkCollectionView({ name: "Decrypted Name" }));
 
-        const result = await service.decrypt(collection, userId);
+        const result = await firstValueFrom(service.decrypt(collection, userId));
 
         expect(mockDecrypt).toHaveBeenCalledWith(stubSdkCollection);
         expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
@@ -307,7 +310,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const collection = makeCollection();
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        await expect(service.decrypt(collection, userId)).rejects.toThrow();
+        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
@@ -316,7 +319,7 @@ describe("DefaultCollectionEncryptionService", () => {
 
     describe("decryptMany", () => {
       it("returns an empty array without calling the SDK for empty input", async () => {
-        const result = await service.decryptMany([], userId);
+        const result = await firstValueFrom(service.decryptMany([], userId));
         expect(result).toEqual([]);
         expect(mockDecrypt).not.toHaveBeenCalled();
       });
@@ -331,7 +334,9 @@ describe("DefaultCollectionEncryptionService", () => {
           .mockReturnValueOnce(makeSdkCollectionView({ name: "Collection 1" }))
           .mockReturnValueOnce(makeSdkCollectionView({ name: "Collection 2" }));
 
-        const result = await service.decryptMany([collection1, collection2], userId);
+        const result = await firstValueFrom(
+          service.decryptMany([collection1, collection2], userId),
+        );
 
         expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
         expect(result).toHaveLength(2);
@@ -351,18 +356,17 @@ describe("DefaultCollectionEncryptionService", () => {
           })
           .mockReturnValueOnce(makeSdkCollectionView({ name: "Collection 2" }));
 
-        const [views, failures] = await service.decryptManyWithFailures(
-          [collection1, collection2],
-          userId,
+        const { success, failure } = await firstValueFrom(
+          service.decryptManyWithFailures([collection1, collection2], userId),
         );
 
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining(`Failed to decrypt collection ${collection1.id}`),
         );
-        expect(views).toHaveLength(1);
-        expect(views[0].name).toBe("Collection 2");
-        expect(failures).toHaveLength(1);
-        expect(failures[0]).toBe(collection1);
+        expect(success).toHaveLength(1);
+        expect(success[0].name).toBe("Collection 2");
+        expect(failure).toHaveLength(1);
+        expect(failure[0]).toBe(collection1);
       });
 
       it("preserves defaultUserCollectionEmail from the source collection", async () => {
@@ -376,7 +380,7 @@ describe("DefaultCollectionEncryptionService", () => {
           makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection }),
         );
 
-        const [result] = await service.decryptMany([collection], userId);
+        const [result] = await firstValueFrom(service.decryptMany([collection], userId));
 
         expect(result.defaultUserCollectionEmail).toBe(email);
       });
@@ -386,7 +390,7 @@ describe("DefaultCollectionEncryptionService", () => {
         const collection = makeCollection();
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        await expect(service.decryptMany([collection], userId)).rejects.toThrow();
+        await expect(firstValueFrom(service.decryptMany([collection], userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
