@@ -62,6 +62,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
 
 import { getOrgIcon } from "./org-icon.directive";
@@ -119,6 +120,7 @@ const MY_VAULT_ID = "MyVault";
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
+    Vfo1I18nPipe,
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {

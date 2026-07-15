@@ -1,14 +1,11 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit" id="assign_collections_form">
   <p>
     {{
-      (personalItemsCount === 1
-        ? this.vfo1TerminologyService.enabled()
-          ? "bulkVaultCollectionAssignmentDialogDescriptionSingular"
-          : "bulkCollectionAssignmentDialogDescriptionSingular"
-        : this.vfo1TerminologyService.enabled()
-          ? "bulkVaultCollectionAssignmentDialogDescriptionPlural"
-          : "bulkCollectionAssignmentDialogDescriptionPlural"
-      ) | i18n
+      personalItemsCount === 1
+        ? ("bulkCollectionAssignmentDialogDescriptionSingular"
+          | vfo1I18n: "bulkVaultCollectionAssignmentDialogDescriptionSingular")
+        : ("bulkCollectionAssignmentDialogDescriptionPlural"
+          | vfo1I18n: "bulkVaultCollectionAssignmentDialogDescriptionPlural")
     }}
   </p>
 
@@ -32,9 +29,7 @@
   @if (showOrgSelector) {
     <div class="tw-flex">
       <bit-form-field class="tw-grow tw-max-w-full">
-        <bit-label>{{
-          (vfo1TerminologyService.enabled() ? "moveToVault" : "moveToOrganization") | i18n
-        }}</bit-label>
+        <bit-label>{{ "moveToOrganization" | vfo1I18n: "moveToVault" }}</bit-label>
         <bit-select formControlName="selectedOrg">
           @for (org of organizations$ | async; track org.id) {
             <bit-option
