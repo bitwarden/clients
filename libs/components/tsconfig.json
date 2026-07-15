@@ -1,3 +1,4 @@
 {
-  "extends": "../../tsconfig.base"
+  "extends": "../../tsconfig.base",
+  "exclude": ["src/**/*.page.ts", "src/**/*.fragment.ts"]
 }

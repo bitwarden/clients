@@ -1,0 +1,7 @@
+# Failure artifacts (screenshots + console/DOM logs), regenerated each run.
+artifacts/
+
+# Environment files (keep .env.example tracked)
+.env
+.env.*
+!.env.example

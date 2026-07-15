@@ -6,5 +6,5 @@
   },
   "files": ["src/main.ts", "src/polyfills.ts"],
   "include": ["src/**/*.d.ts"],
-  "exclude": ["**/*.stories.*"]
+  "exclude": ["**/*.stories.*", "**/*.page.ts", "**/*.fragment.ts"]
 }

@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "types": ["@wdio/globals/types", "@wdio/types", "mocha", "expect-webdriverio"]
+  },
+  "include": [
+    "apps/web/test/wdio.conf.ts",
+    "apps/web/test/smoke/**/*.ts",
+    "apps/web/test/support/**/*.ts",
+    "apps/browser/test/wdio.conf.ts",
+    "apps/browser/test/smoke/**/*.ts",
+    "apps/browser/test/support/**/*.ts",
+    "libs/**/*.page.ts",
+    "libs/**/*.fragment.ts",
+    "apps/web/src/**/*.page.ts",
+    "apps/web/src/**/*.fragment.ts",
+    "apps/browser/src/**/*.page.ts",
+    "apps/browser/src/**/*.fragment.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

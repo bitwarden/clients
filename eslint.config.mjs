@@ -707,6 +707,24 @@ export default tseslint.config(
     },
   },
 
+  // WebdriverIO E2E specs: type-checked via tsconfig.wdio.json (which supplies the
+  // mocha ambient globals) and intentionally cross project boundaries — specs deep-import
+  // colocated page objects from libs (e.g. @bitwarden/auth/src/.../login.page). The page
+  // objects themselves import only @wdio/globals + same-lib relatives, so they trip no
+  // boundary rule and are left under the normal config.
+  {
+    files: ["apps/web/test/**/*.ts", "apps/browser/test/**/*.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.wdio.json"],
+      },
+    },
+    rules: {
+      "no-restricted-imports": "off",
+      "import/no-restricted-paths": "off",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
