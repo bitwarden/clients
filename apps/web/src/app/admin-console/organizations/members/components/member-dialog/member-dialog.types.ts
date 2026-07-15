@@ -38,6 +38,7 @@ export interface EditMemberDialogParams extends CommonMemberDialogParams {
   organizationUserId: Guid;
   usesKeyConnector: boolean;
   claimedByOrganization?: boolean;
+  hasMasterPassword?: boolean;
   initialTab: MemberDialogTab;
 }
 

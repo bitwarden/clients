@@ -26,6 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -461,6 +462,152 @@ describe("EditMemberDialogComponent", () => {
         );
         expect((component as any).tabIndex()).toBe(MemberDialogTab.Role);
       });
+    });
+  });
+
+  describe("emailEditable", () => {
+    it("is true when claimed and no master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(true);
+    });
+
+    it("is false when not claimed (regardless of master password)", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+
+    it("is false when claimed but has a master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      expect((component as any).emailEditable()).toBe(false);
+    });
+  });
+
+  describe("email control enabled state after load", () => {
+    it("enables email control when emailEditable is true", async () => {
+      const { component } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "user@org.com",
+        }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(false);
+    });
+
+    it("keeps email control disabled when not claimed", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+
+    it("keeps email control disabled when claimed but has master password", async () => {
+      const { component } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect((component as any).formGroup.controls.email.disabled).toBe(true);
+    });
+  });
+
+  describe("handleEditUser() email field", () => {
+    it("includes email in request when editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({
+          claimedByOrganization: true,
+          hasMasterPassword: false,
+          email: "original@org.com",
+        }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      (component as any).formGroup.controls.email.setValue("new@org.com");
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: "new@org.com" }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("omits email from request when not editable", async () => {
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: false, hasMasterPassword: true }),
+        { detailsTabEnabled: true },
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.userAdminService.saveV2).toHaveBeenCalledWith(
+        expect.objectContaining({ email: undefined }),
+        expect.anything(),
+        expect.anything(),
+      );
+    });
+
+    it("sets inline email error and stays open on email validation error from server", async () => {
+      const emailError = new ErrorResponse(
+        { errors: { email: [{ type: "new_email_domain_not_claimed", detail: "..." }] } },
+        400,
+      );
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(emailError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await component.submit();
+
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
+      expect(
+        (component as any).formGroup.controls.email.errors?.serverError?.message,
+      ).toBeDefined();
+    });
+
+    it("re-throws non-email errors so the generic toast path runs", async () => {
+      const genericError = new Error("Unexpected server error");
+      const { component, mocks } = await createComponent(
+        defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+        { detailsTabEnabled: true },
+      );
+
+      mocks.userAdminService.saveV2.mockRejectedValue(genericError);
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      await expect(component.submit()).rejects.toThrow("Unexpected server error");
+      expect(mocks.dialogRef.close).not.toHaveBeenCalled();
     });
   });
 });

@@ -109,6 +109,7 @@ export class MemberDialogManagerService {
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
         initialTab: resolvedTab,
         claimedByOrganization: user.claimedByOrganization,
+        hasMasterPassword: user.hasMasterPassword,
       },
     });
 

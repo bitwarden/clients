@@ -170,6 +170,7 @@ describe("MemberDialogManagerService", () => {
             isOnSecretsManagerStandalone: false,
             initialTab: MemberDialogTab.Role,
             claimedByOrganization: false,
+            hasMasterPassword: true,
           },
         }),
       );
