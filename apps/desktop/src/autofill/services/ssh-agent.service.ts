@@ -154,7 +154,6 @@ export class SshAgentService implements OnDestroy {
 
           return of([message, account.id]);
         }),
-        // Fetch ciphers for each request without cancelling in-flight predecessors.
         concatMap(([message, userId]: [Record<string, unknown>, UserId]) =>
           from(this.cipherService.getAllDecrypted(userId)).pipe(
             map((ciphers) => [message, ciphers] as const),
