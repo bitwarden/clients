@@ -391,18 +391,29 @@ describe("MembersComponent", () => {
   });
 
   describe("restore", () => {
-    it("should restore user successfully", async () => {
+    it("should check the seat limit and restore user successfully", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
       mockMemberActionsService.restoreUser.mockResolvedValue({ success: true });
       mockMemberService.loadUsers.mockResolvedValue([mockUser]);
 
       await component.restore(mockUser, mockOrg);
 
+      expect(mockBillingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        mockOrg,
+        mockBillingMetadata,
+      );
+      expect(mockBillingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        mockOrg,
+        "restore",
+      );
       expect(mockMemberActionsService.restoreUser).toHaveBeenCalledWith(mockOrg, mockUser.id);
       expect(mockToastService.showToast).toHaveBeenCalled();
       expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
     });
 
     it("should handle errors via handleMemberActionResult", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
       mockMemberActionsService.restoreUser.mockResolvedValue({
         success: false,
         error: "Restore failed",
@@ -415,6 +426,14 @@ describe("MembersComponent", () => {
         message: "Restore failed",
       });
       expect(mockLogService.error).toHaveBeenCalledWith("Restore failed");
+    });
+
+    it("should not restore user when seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.restore(mockUser, mockOrg);
+
+      expect(mockMemberActionsService.restoreUser).not.toHaveBeenCalled();
     });
   });
 
@@ -490,6 +509,7 @@ describe("MembersComponent", () => {
     ])(
       "should open bulk $action dialog and reload when isRevoking is $isRevoking",
       async ({ isRevoking }) => {
+        mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
         const users = [mockUser];
         jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
         mockMemberService.loadUsers.mockResolvedValue([mockUser]);
@@ -504,6 +524,49 @@ describe("MembersComponent", () => {
         expect(mockMemberService.loadUsers).toHaveBeenCalledWith(mockOrg);
       },
     );
+
+    it("should check the seat limit before opening the bulk restore dialog", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(false);
+      const users = [mockUser];
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
+
+      await component.bulkRevokeOrRestore(false, mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).toHaveBeenCalledWith(
+        mockOrg,
+        mockBillingMetadata,
+      );
+      expect(mockBillingConstraint.seatLimitReached).toHaveBeenCalledWith(
+        undefined,
+        mockOrg,
+        "restore",
+      );
+    });
+
+    it("should not open the bulk restore dialog when seat limit is reached", async () => {
+      mockBillingConstraint.seatLimitReached.mockResolvedValue(true);
+
+      await component.bulkRevokeOrRestore(false, mockOrg);
+
+      expect(mockMemberDialogManager.openBulkRestoreRevokeDialog).not.toHaveBeenCalled();
+    });
+
+    it("should not check the seat limit when revoking", async () => {
+      const users = [mockUser];
+      jest.spyOn(component["dataSource"](), "getCheckedUsersWithLimit").mockReturnValue(users);
+      mockMemberService.loadUsers.mockResolvedValue([mockUser]);
+
+      await component.bulkRevokeOrRestore(true, mockOrg);
+
+      expect(mockBillingConstraint.checkSeatLimit).not.toHaveBeenCalled();
+      expect(mockBillingConstraint.seatLimitReached).not.toHaveBeenCalled();
+      expect(mockMemberDialogManager.openBulkRestoreRevokeDialog).toHaveBeenCalledWith(
+        mockOrg,
+        users,
+        true,
+      );
+    });
   });
 
   describe("bulkReinvite", () => {

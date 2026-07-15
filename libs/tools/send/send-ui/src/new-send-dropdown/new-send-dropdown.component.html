@@ -3,7 +3,16 @@
     @if (!hideIcon) {
       <bit-icon name="bwi-plus" class="tw-me-2" />
     }
-    {{ (hideIcon ? "createSend" : "new") | i18n }}
+    {{
+      (hideIcon
+        ? btnTextAddCreateFeatureFlag()
+          ? "createSendV2"
+          : "createSend"
+        : btnTextAddCreateFeatureFlag()
+          ? "create"
+          : "new"
+      ) | i18n
+    }}
   </button>
 } @else {
   <button
@@ -13,7 +22,16 @@
     type="button"
     [startIcon]="!hideIcon ? 'bwi-plus' : undefined"
   >
-    {{ (hideIcon ? "createSend" : "new") | i18n }}
+    {{
+      (hideIcon
+        ? btnTextAddCreateFeatureFlag()
+          ? "createSendV2"
+          : "createSend"
+        : btnTextAddCreateFeatureFlag()
+          ? "create"
+          : "new"
+      ) | i18n
+    }}
   </button>
   <bit-menu #itemOptions>
     <a bitMenuItem [routerLink]="buildRouterLink()" [queryParams]="buildQueryParams(sendType.Text)">

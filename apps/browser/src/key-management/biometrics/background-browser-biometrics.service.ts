@@ -27,6 +27,9 @@ import { NativeMessagingBackground } from "../../background/nativeMessaging.back
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
+  BIOMETRICS_NO_INTERACTION_TIMEOUT = 500;
+  BIOMETRICS_INTERACTION_TIMEOUT = 60_000;
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private configService: () => ConfigService,
@@ -42,10 +45,13 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      if (!this.nativeMessagingBackground().connected) {
+      try {
+        return await ipcRequestAuthenticateBiometrics(
+          this.ipcService().client,
+          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+        );
+      } catch {
         return false;
-      } else {
-        return await ipcRequestAuthenticateBiometrics(this.ipcService().client);
       }
     }
 
@@ -70,12 +76,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
 
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      if (!this.nativeMessagingBackground().connected) {
-        return BiometricsStatus.DesktopDisconnected;
-      } else {
-        // Handle SDK-based biometrics status check
-        return BiometricsStatus.Available;
-      }
+      return BiometricsStatus.Available;
     }
 
     try {
@@ -96,34 +97,31 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      if (!this.nativeMessagingBackground().connected) {
-        return null;
-      } else {
-        // Handle SDK-based biometric unlock
-        try {
-          const response = await ipcRequestUnlockBiometrics(
-            this.ipcService().client,
-            fromTsUserId(userId),
-          );
-          if (response.user_key) {
-            const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
-            if (!(await this.keyService.validateUserKey(userKey, userId))) {
-              this.logService.info("Biometric unlock for user failed: invalid user key");
-              return null;
-            }
-
-            await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
-            await this.keyService.setUserKey(userKey, userId);
-            // to update badge and other things
-            this.messagingService.send("switchAccount", { userId });
-            return userKey;
-          } else {
+      // Handle SDK-based biometric unlock
+      try {
+        const response = await ipcRequestUnlockBiometrics(
+          this.ipcService().client,
+          fromTsUserId(userId),
+          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+        );
+        if (response.user_key) {
+          const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+          if (!(await this.keyService.validateUserKey(userKey, userId))) {
+            this.logService.info("Biometric unlock for user failed: invalid user key");
             return null;
           }
-        } catch (e) {
-          this.logService.info("Biometric unlock for user failed", e);
+
+          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
+          await this.keyService.setUserKey(userKey, userId);
+          // to update badge and other things
+          this.messagingService.send("switchAccount", { userId });
+          return userKey;
+        } else {
           return null;
         }
+      } catch (e) {
+        this.logService.info("Biometric unlock for user failed", e);
+        return null;
       }
     }
 
@@ -162,14 +160,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
-      if (!this.nativeMessagingBackground().connected) {
-        return BiometricsStatus.DesktopDisconnected;
-      } else {
+      try {
         const status = await ipcRequestGetBiometricsStatus(
           this.ipcService().client,
           fromTsUserId(id),
+          AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
         );
         return toTsBiometricsStatus(status);
+      } catch {
+        return BiometricsStatus.DesktopDisconnected;
       }
     }
 

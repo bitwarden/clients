@@ -11,9 +11,11 @@ import {
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
@@ -125,6 +127,16 @@ const mockDeleteManagedMemberWarningService = {
   acknowledgeWarning: () => Promise.resolve(),
 };
 
+const mockBillingConstraintService = {
+  checkSeatLimit: () => ({ canAddUsers: true }),
+  seatLimitReached: () => Promise.resolve(false),
+};
+
+const mockOrganizationMetadataService = {
+  getOrganizationMetadata$: () => of({ organizationOccupiedSeats: 0 } as any),
+  refreshMetadataCache: () => {},
+};
+
 function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
@@ -144,6 +156,11 @@ const sharedDecorators = [
       {
         provide: DeleteManagedMemberWarningService,
         useValue: mockDeleteManagedMemberWarningService,
+      },
+      { provide: BillingConstraintService, useValue: mockBillingConstraintService },
+      {
+        provide: OrganizationMetadataServiceAbstraction,
+        useValue: mockOrganizationMetadataService,
       },
     ],
   }),
