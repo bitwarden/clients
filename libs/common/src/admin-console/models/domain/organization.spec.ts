@@ -80,7 +80,7 @@ describe("Organization", () => {
       limitCollectionDeletion: false,
       limitItemDeletion: false,
       allowAdminAccessToAllCollectionItems: true,
-      userIsManagedByOrganization: false,
+      userIsClaimedByOrganization: false,
       useAccessIntelligence: false,
       useAdminSponsoredFamilies: false,
       isAdminInitiated: false,
@@ -293,6 +293,26 @@ describe("Organization", () => {
       const organization = new Organization(data);
 
       expect(organization.canEnableAutoConfirmPolicy).toBe(false);
+    });
+  });
+
+  describe("canUseAccessIntelligence", () => {
+    it("should return true when the server UseRiskInsights ability is enabled, regardless of plan type", () => {
+      data.useAccessIntelligence = true;
+      data.productTierType = ProductTierType.Free;
+
+      const organization = new Organization(data);
+
+      expect(organization.canUseAccessIntelligence).toBe(true);
+    });
+
+    it("should return false when the server ability is disabled, even for Enterprise plans", () => {
+      data.useAccessIntelligence = false;
+      data.productTierType = ProductTierType.Enterprise;
+
+      const organization = new Organization(data);
+
+      expect(organization.canUseAccessIntelligence).toBe(false);
     });
   });
 });

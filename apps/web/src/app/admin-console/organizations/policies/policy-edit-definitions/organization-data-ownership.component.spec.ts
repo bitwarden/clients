@@ -12,15 +12,18 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { OrganizationDataOwnershipPolicyV2Component } from "./organization-data-ownership-v2.component";
 import {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
 } from "./organization-data-ownership.component";
 
 const ORG_ID = "org1" as OrganizationId;
+const USER_ID = "user1" as UserId;
 
 function makePolicyResponse(enabled: boolean, data: object | null = null) {
   return new PolicyStatusResponse({
@@ -39,14 +42,24 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.description).toEqual("centralizeDataOwnershipDesc");
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
+    expect(policy.v2?.component).toEqual(OrganizationDataOwnershipPolicyV2Component);
+  });
+
+  it("hides the dialog's description in both v1 and v2 (both components render their own)", () => {
+    expect(policy.showDescription).toBe(false);
+    expect(policy.v2?.showDescription).toBe(false);
   });
 });
 
-describe("OrganizationDataOwnershipPolicyComponent", () => {
-  let component: OrganizationDataOwnershipPolicyComponent;
-  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
+// MultiStepPolicyEditDialogComponent renders OrganizationDataOwnershipPolicyV2Component only
+// when the dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
+// OrganizationDataOwnershipPolicyComponent (above). See
+// multi-step-policy-edit-dialog.component.spec.ts for coverage of that gating.
+describe("OrganizationDataOwnershipPolicyV2Component", () => {
+  let component: OrganizationDataOwnershipPolicyV2Component;
+  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyV2Component>;
   let mockOrganizationService: MockProxy<OrganizationService>;
-  let mockAccountService: MockProxy<AccountService>;
+  let accountService: FakeAccountService;
 
   function setupOrg(useMyItems: boolean) {
     mockOrganizationService.organizations$.mockReturnValue(
@@ -56,9 +69,8 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    mockAccountService = mock<AccountService>();
+    accountService = mockAccountServiceWith(USER_ID);
 
-    mockAccountService.activeAccount$ = of({ id: "user1" as UserId } as any);
     mockOrganizationService.organizations$.mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
@@ -67,14 +79,14 @@ describe("OrganizationDataOwnershipPolicyComponent", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: EncryptService, useValue: mock<EncryptService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyComponent);
+    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyV2Component);
     component = fixture.componentInstance;
   });
 

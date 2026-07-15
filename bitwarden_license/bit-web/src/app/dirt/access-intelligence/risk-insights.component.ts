@@ -197,9 +197,11 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         const activeStepId = untracked(() => this.coachmarkService.activeStepId());
         this.coachmarkService.activeStepId.set(null); // close all popovers now
 
-        // setTimeout defers re-activation to after Angular's CD + rendering completes,
+        // afterNextRender defers re-activation to after Angular's CD + rendering completes,
         // so the tab button is un-hidden before the popover measures its position.
-        setTimeout(() => this.coachmarkService.activeStepId.set(activeStepId));
+        afterNextRender(() => this.coachmarkService.activeStepId.set(activeStepId), {
+          injector: this.injector,
+        });
       }
     });
 

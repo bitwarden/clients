@@ -51,6 +51,11 @@ import {
   BulkDeleteDialogRef,
   BulkDeleteDialogResult,
 } from "../tokens/bulk-delete-dialog.token";
+import {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+  BulkEditCollectionAccessResult,
+} from "../tokens/bulk-edit-collection-access-dialog.token";
 
 import { PasswordRepromptService } from "./password-reprompt.service";
 import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
@@ -99,6 +104,10 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   private readonly assignCollectionsDialog =
     inject<AssignCollectionsDialogRef>(ASSIGN_COLLECTIONS_DIALOG);
   private readonly bulkDeleteDialog = inject<BulkDeleteDialogRef>(BULK_DELETE_DIALOG);
+  private readonly bulkEditCollectionAccessDialog = inject<BulkEditCollectionAccessDialogRef>(
+    BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+    { optional: true },
+  );
 
   private readonly defaultConfig: VaultBatchBarConfig = {
     isOrgVault: false,
@@ -189,21 +198,25 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
+    if (
+      selected.length === 0 ||
+      !this.userCanArchive() ||
+      hasCollections ||
+      this.inTrash() ||
+      this.config().isOrgVault
+    ) {
       return false;
     }
-    return !selected.find(
-      (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-    );
+    return !selected.find((item) => item.cipher && item.cipher.archivedDate);
   });
 
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.inTrash()) {
+    if (selected.length === 0 || this.inTrash() || this.config().isOrgVault) {
       return false;
     }
-    return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
+    return !selected.find((i) => !i.cipher?.archivedDate);
   });
 
   /** True when all selected ciphers can be restored from trash. */
@@ -299,7 +312,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     // Org-vault admins can assign any cipher to a collection without further checks, `isOrgVault` should
     // only be true when the user is within the Admin Console.
-    if (config.isOrgVault && selected.length !== 0) {
+    if (config.isOrgVault && selectedCiphers.length !== 0) {
       return true;
     }
 
@@ -338,6 +351,19 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     );
   });
 
+  /**
+   * True when the selected items are collections-only and the vault context is an org vault.
+   * Per-collection `canEdit(org)` checks are deferred to {@link bulkEditCollectionAccess}.
+   */
+  readonly canEditCollectionAccess = computed(() => {
+    const config = this.config();
+    const selected = this.selected();
+    if (!config.isOrgVault || selected.length === 0) {
+      return false;
+    }
+    return selected.some((i) => i.collection !== undefined);
+  });
+
   constructor() {
     this.routedVaultFilterService.filter$
       .pipe(
@@ -369,9 +395,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
+    const titleKey = ciphers.length === 1 ? "archiveItemTitle" : "archiveItemsPlural";
+    const contentKey =
+      ciphers.length === 1 ? "archiveItemDialogContent" : "archiveItemsPluralDescription";
+    const successKey = ciphers.length === 1 ? "itemArchiveToast" : "bulkArchiveItems";
+
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "archiveBulkItems" },
-      content: { key: "archiveBulkItemsConfirmDesc" },
+      title: { key: titleKey, placeholders: [ciphers.length] },
+      content: { key: contentKey },
+      acceptButtonText: { key: "archiveVerb" },
       type: "info",
     });
 
@@ -385,7 +417,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.archiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkArchiveItems"),
+        message: this.i18nService.t(successKey),
       });
       this.selection.clear();
       this._completed$.next();
@@ -412,7 +444,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.unarchiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkUnarchiveItems"),
+        message: this.i18nService.t(
+          ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
+        ),
       });
       this.selection.clear();
       this._completed$.next();
@@ -447,8 +481,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const toastMessage = ciphers.some((c) => !CipherViewLikeUtils.isArchived(c))
-      ? this.i18nService.t("restoredItems")
-      : this.i18nService.t("archivedItemsRestored");
+      ? this.i18nService.t(ciphers.length === 1 ? "restoredItem" : "restoredItems")
+      : this.i18nService.t(ciphers.length === 1 ? "archivedItemRestored" : "archivedItemsRestored");
 
     if (!(await this.reprompt(ciphers))) {
       return;
@@ -691,6 +725,42 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
+      this.selection.clear();
+      this._completed$.next();
+    }
+  }
+
+  /** Open the bulk-edit-collection-access dialog for the selected collections. No-op when token is not provided. */
+  async bulkEditCollectionAccess(): Promise<void> {
+    if (!this.bulkEditCollectionAccessDialog) {
+      return;
+    }
+
+    const { organization: org } = this.config();
+    if (!org) {
+      return;
+    }
+
+    const collections = this.selectedCollections();
+    if (collections.length === 0) {
+      return;
+    }
+
+    const canEditAll = collections.every((c) => c.canEdit(org));
+    if (!canEditAll) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("missingPermissions"),
+      });
+      return;
+    }
+
+    const result = await this.bulkEditCollectionAccessDialog.open({
+      organizationId: org.id,
+      collections,
+    });
+
+    if (result === BulkEditCollectionAccessResult.Saved) {
       this.selection.clear();
       this._completed$.next();
     }
