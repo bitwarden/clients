@@ -1,5 +1,5 @@
+import { ReportProgram } from "./dirt/report.program";
 import { Program } from "./program";
-import { ReportProgram } from "./report.program";
 import { ServiceContainer } from "./service-container/service-container";
 import { SendProgram } from "./tools/send/send.program";
 import { VaultProgram } from "./vault.program";

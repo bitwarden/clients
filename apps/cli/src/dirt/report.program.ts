@@ -2,10 +2,11 @@ import { program, Command, OptionValues } from "commander";
 
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { BaseProgram } from "./base-program";
+import { BaseProgram } from "../base-program";
+import { Response } from "../models/response";
+import { CliUtils } from "../utils";
+
 import { ReportCommand } from "./commands/report.command";
-import { Response } from "./models/response";
-import { CliUtils } from "./utils";
 
 const writeLn = CliUtils.writeLn;
 

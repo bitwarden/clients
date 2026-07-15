@@ -1,7 +1,7 @@
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
-import { BaseResponse } from "./base.response";
+import { BaseResponse } from "../../../models/response/base.response";
 
 export class PasswordHealthResponse implements BaseResponse {
   object: string;

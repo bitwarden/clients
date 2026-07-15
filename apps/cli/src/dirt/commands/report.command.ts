@@ -8,8 +8,8 @@ import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-r
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { isRiskableLoginCipher } from "@bitwarden/common/vault/services/default-cipher-risk.service";
 
-import { Response } from "../models/response";
-import { ListResponse } from "../models/response/list.response";
+import { Response } from "../../models/response";
+import { ListResponse } from "../../models/response/list.response";
 import { PasswordHealthResponse } from "../models/response/password-health.response";
 
 const SPINNER_FRAMES = ["|", "/", "-", "\\"];

@@ -11,7 +11,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
-import { ListResponse } from "../models/response/list.response";
+import { ListResponse } from "../../models/response/list.response";
 import { PasswordHealthResponse } from "../models/response/password-health.response";
 
 import { ReportCommand } from "./report.command";
