@@ -15,7 +15,6 @@ import {
   Subject,
   switchMap,
   takeUntil,
-  timer,
 } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -41,7 +40,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
-  DialogRef,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -59,15 +57,9 @@ import {
   CalloutModule,
   SpinnerComponent,
 } from "@bitwarden/components";
-import {
-  KeyService,
-  BiometricsService,
-  BiometricStateService,
-  BiometricsStatus,
-} from "@bitwarden/key-management";
+import { KeyService, BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
-import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -75,8 +67,6 @@ import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-heade
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { SetPinComponent } from "../components/set-pin.component";
 import { AuthExtensionRoute } from "../constants/auth-extension-route.constant";
-
-import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -144,7 +134,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
   private destroy$ = new Subject<void>();
-  private readonly BIOMETRICS_POLLING_INTERVAL = 2000;
 
   constructor(
     private accountService: AccountService,
@@ -220,52 +209,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
     this.loading.set(false);
-
-    timer(0, this.BIOMETRICS_POLLING_INTERVAL)
-      .pipe(
-        switchMap(async () => {
-          const biometricSettingAvailable = await this.biometricsService.canEnableBiometricUnlock();
-          if (!biometricSettingAvailable) {
-            this.form.controls.biometric.disable({ emitEvent: false });
-          } else {
-            this.form.controls.biometric.enable({ emitEvent: false });
-          }
-
-          // Biometrics status shouldn't be checked if permissions are needed.
-          const needsPermissionPrompt =
-            !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
-            !this.platformUtilsService.isSafari();
-          if (needsPermissionPrompt) {
-            return;
-          }
-
-          const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
-          if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextDesktopDisconnected",
-            );
-          } else if (
-            status === BiometricsStatus.NotEnabledInConnectedDesktopApp &&
-            !biometricSettingAvailable
-          ) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextNotEnabledInDesktop",
-              activeAccount.email,
-            );
-          } else if (
-            status === BiometricsStatus.HardwareUnavailable &&
-            !biometricSettingAvailable
-          ) {
-            this.biometricUnavailabilityReason = this.i18nService.t(
-              "biometricsStatusHelptextHardwareUnavailable",
-            );
-          } else {
-            this.biometricUnavailabilityReason = "";
-          }
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
 
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
@@ -426,19 +369,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
       try {
         await this.keyService.refreshAdditionalKeys(userId);
-
-        const successful = await this.trySetupBiometrics();
-        this.form.controls.biometric.setValue(successful);
-        await this.biometricStateService.setBiometricUnlockEnabled(successful, userId);
-        if (!successful) {
-          await this.biometricStateService.setFingerprintValidated(false);
-          return;
-        }
-        this.toastService.showToast({
-          variant: "success",
-          title: null,
-          message: this.i18nService.t("unlockWithBiometricSet"),
-        });
+        this.form.controls.biometric.setValue(true, { emitEvent: false });
+        await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
       } catch (error) {
         this.form.controls.biometric.setValue(false);
         this.validationService.showError(error);
@@ -447,95 +379,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       await this.biometricStateService.setBiometricUnlockEnabled(false, userId);
       await this.biometricStateService.setFingerprintValidated(false);
     }
-  }
-
-  async trySetupBiometrics(): Promise<boolean> {
-    let awaitDesktopDialogRef: DialogRef<boolean, unknown> | undefined;
-    let biometricsResponseReceived = false;
-    let setupResult = false;
-
-    const waitForUserDialogPromise = async () => {
-      // only show waiting dialog if we have waited for 500 msec to prevent double dialog
-      // the os will respond instantly if the dialog shows successfully, and the desktop app will respond instantly if something is wrong
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      if (biometricsResponseReceived) {
-        return;
-      }
-
-      awaitDesktopDialogRef = AwaitDesktopDialogComponent.open(this.dialogService);
-      await firstValueFrom(awaitDesktopDialogRef.closed);
-      if (!biometricsResponseReceived) {
-        setupResult = false;
-      }
-      return;
-    };
-
-    const biometricsPromise = async () => {
-      try {
-        const userId = await firstValueFrom(
-          this.accountService.activeAccount$.pipe(map((a) => a.id)),
-        );
-        let result = false;
-        try {
-          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
-          result = await this.keyService.validateUserKey(userKey, userId);
-          // FIXME: Remove when updating file. Eslint update
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-          result = false;
-        }
-
-        // prevent duplicate dialog
-        biometricsResponseReceived = true;
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(result);
-        }
-
-        if (!result) {
-          this.platformUtilsService.showToast(
-            "error",
-            this.i18nService.t("errorEnableBiometricTitle"),
-            this.i18nService.t("errorEnableBiometricDesc"),
-          );
-          setupResult = false;
-          return;
-        }
-        setupResult = true;
-      } catch (e) {
-        // prevent duplicate dialog
-        biometricsResponseReceived = true;
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(true);
-        }
-
-        if (e.message == "canceled") {
-          setupResult = false;
-          return;
-        }
-
-        const error = BiometricErrors[e.message as BiometricErrorTypes];
-        const shouldRetry = await this.dialogService.openSimpleDialog({
-          title: { key: error.title },
-          content: { key: error.description },
-          acceptButtonText: { key: "retry" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-        if (shouldRetry) {
-          setupResult = await this.trySetupBiometrics();
-        } else {
-          setupResult = false;
-          return;
-        }
-      } finally {
-        if (awaitDesktopDialogRef) {
-          await awaitDesktopDialogRef.close(true);
-        }
-      }
-    };
-
-    await Promise.all([waitForUserDialogPromise(), biometricsPromise()]);
-    return setupResult;
   }
 
   async updateAllowSharingUnlockStateWithDesktop(enabled: boolean) {

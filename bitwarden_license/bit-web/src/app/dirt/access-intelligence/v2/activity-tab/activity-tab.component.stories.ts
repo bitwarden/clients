@@ -199,9 +199,9 @@ export const NeedsReview: Story = {
 };
 
 /**
- * Trend Chart Enabled - Feature flag on, trend widget visible with populated data
+ * Trend Chart - widget visible with populated data
  */
-export const TrendChartEnabled: Story = {
+export const TrendChart: Story = {
   // The trend chart derives its x-axis from the current date, so the rendered
   // chart is non-deterministic. Snapshotting will be re-enabled in a follow-up that
   // pins the chart's reference clock. Matches the trend-widget stories
@@ -231,7 +231,7 @@ export const TrendChartEnabled: Story = {
       props: { organizationId: orgId },
       moduleMetadata: {
         providers: buildActivityTabProviders(report, {
-          trend: { flagEnabled: true, data: populatedTrendData },
+          trend: { data: populatedTrendData },
         }),
       },
     };

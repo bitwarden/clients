@@ -40,7 +40,7 @@ export function canAccessBillingTab(org: Organization): boolean {
 
 /**
  * Access Intelligence is only available to:
- * - Enterprise organizations
+ * - Organizations whose server UseRiskInsights ability is enabled
  * - Users in those organizations with report access
  *
  * @param org The organization to verify access

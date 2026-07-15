@@ -17,6 +17,7 @@ export const featuredImportOptions = [
 ] as const;
 
 export const regularImportOptions = [
+  { id: "keepasskdbx", name: "KeePass (kdbx)" },
   { id: "keepassxcsv", name: "KeePassX (csv)" },
   { id: "1password1pif", name: "1Password (1pif)" },
   { id: "1passwordwincsv", name: "1Password 6 and 7 Windows (csv)" },

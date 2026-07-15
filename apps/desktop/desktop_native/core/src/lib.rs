@@ -20,7 +20,6 @@ pub mod password;
 #[allow(missing_docs)]
 pub mod powermonitor;
 pub mod process_isolation;
-pub mod secure_memory;
 #[allow(missing_docs)] // staged to be removed
 pub mod ssh_agent;
 

@@ -162,7 +162,7 @@ type StoryArgs = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Invite Members Dialog",
+  title: "Admin Console/Organizations/Members/Invite Members Dialog/Invite Members Dialog",
   component: InviteMembersDialogComponent,
   args: {
     useInviteLinks: true,
