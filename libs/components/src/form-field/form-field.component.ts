@@ -55,6 +55,10 @@ export class BitFormFieldComponent implements AfterContentChecked {
       "has-[:is(input,textarea):disabled]:!tw-text-fg-inactive",
       "[&_bit-hint]:tw-m-0",
       "[&_bit-error]:tw-m-0",
+      // When the label is visually hidden, don't reserve the label/field gap so
+      // the field stays centered. Scoped to `bit-label` so the `sr-only`
+      // `(required)` span doesn't trigger it.
+      "has-[bit-label.tw-sr-only]:tw-gap-0",
       ...(this.readOnly ? [] : ["tw-gap-2"]),
     ].join(" ");
   }
