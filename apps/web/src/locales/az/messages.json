@@ -65,6 +65,9 @@
   "riskOverTime": {
     "message": "Vaxtla risk"
   },
+  "filterRiskOverTime": {
+    "message": "Zamanla risk filtri"
+  },
   "passwordsAtRisk": {
     "message": "Riskli parollar"
   },
@@ -646,11 +649,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "Tətbiq (URI)"
+  },
+  "appUriCount": {
+    "message": "Tətbiq (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Veb sayt əlavə edildi"
   },
   "addWebsite": {
     "message": "Veb sayt əlavə et"
+  },
+  "addWebsiteOrApp": {
+    "message": "Veb sayt və ya tətbiq əlavə et"
+  },
+  "app": {
+    "message": "Tətbiq"
   },
   "deleteWebsite": {
     "message": "Veb saytı sil"
@@ -1190,6 +1212,42 @@
   "viewItem": {
     "message": "Elementə bax"
   },
+  "addItemHeaderLogin": {
+    "message": "Giriş əlavə et",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kart əlavə et",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Kimlik əlavə et",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Not əlavə et",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Güvənli not əlavə et",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH açarı əlavə et",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bank hesabı əlavə et",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Sür. vəsiqəsi əlavə et",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Pasport əlavə et",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Yeni giriş",
     "description": "Header for new login item type"
@@ -1254,6 +1312,22 @@
     "message": "Güvənli nota düzəliş",
     "description": "Header for edit secure note item type"
   },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Girişə düzəliş",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Karta düzəliş",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Kimliyə düzəliş",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Nota düzəliş",
+    "description": "Header for edit note item type"
+  },
   "editItemHeaderSshKey": {
     "message": "SSH açarına düzəliş et",
     "description": "Header for edit SSH key item type"
@@ -1313,6 +1387,26 @@
   "viewItemHeaderPassport": {
     "message": "Pasporta bax",
     "description": "Header for view passport item type"
+  },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Girişə bax",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Karta bax",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Kimliyə bax",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Nota bax",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Yarat",
+    "description": "for adding new items"
   },
   "new": {
     "message": "Yeni",
@@ -1588,6 +1682,9 @@
   "file": {
     "message": "Fayl"
   },
+  "photo": {
+    "message": "Foto"
+  },
   "selectFile": {
     "message": "Fayl seçin."
   },
@@ -1705,6 +1802,9 @@
   },
   "deletedItems": {
     "message": "Elementlər tullantı qutusuna göndərildi"
+  },
+  "movedItem": {
+    "message": "Element daşındı"
   },
   "movedItems": {
     "message": "Elementlər daşınıldı"
@@ -2481,6 +2581,9 @@
     "message": "Minimum simvol",
     "description": "Minimum special characters"
   },
+  "minSpecialCharacters": {
+    "message": "Minimum xüsusi xarakter"
+  },
   "ambiguous": {
     "message": "Anlaşılmaz simvollardan çəkinin",
     "description": "deprecated. Use avoidAmbiguous instead."
@@ -2804,6 +2907,54 @@
   "importNothingError": {
     "message": "Heç nə idxal edilmədi."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ element buraxıldı",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "Aşağıdakı elementlər oxuna bilmir və daxilə köçürmə prosesinə əlavə edilməyəcək:"
+  },
+  "contact": {
+    "message": "Əlaqə"
+  },
+  "membership": {
+    "message": "Üzvlük"
+  },
+  "passport": {
+    "message": "Pasport"
+  },
+  "driverLicense": {
+    "message": "Sürücülük vəsiqəsi"
+  },
+  "ssnCard": {
+    "message": "Kimlik kartı"
+  },
+  "birthCertificate": {
+    "message": "Doğum şəhadətnaməsi"
+  },
+  "databaseCredentials": {
+    "message": "Veri bazası kimlik məlumatları"
+  },
+  "serverCredentials": {
+    "message": "Server kimlik məlumatları"
+  },
+  "softwareLicense": {
+    "message": "Yazılım lisenziyası"
+  },
+  "healthInsurance": {
+    "message": "Sağlamlıq sığortası"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi kimlik məlumatları"
+  },
+  "general": {
+    "message": "Ümumi"
+  },
   "importEncKeyError": {
     "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, veriləri xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
@@ -2903,6 +3054,9 @@
   },
   "newCustomDomain": {
     "message": "Yeni özəl domen"
+  },
+  "addCustomDomain": {
+    "message": "Özəl domen əlavə et"
   },
   "newCustomDomainDesc": {
     "message": "Vergüllə ayrılan bir domen siyahısı daxil edin. Yalnız \"təməl\" domenlərə icazə verilir. Alt domen daxil etməyin. Məsələn, \"www.google.com\" əvəzinə \"google.com\" daxil edin. Bir android tətbiqini digər veb sayt domenləri ilə əlaqələndirmək üçün \"androidtətbiqi://paket.adı\" daxil edə bilərsiniz."
@@ -5040,6 +5194,15 @@
       }
     }
   },
+  "stagedUserId": {
+    "message": "Staged user $ID$ added.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "revokedEmailError": {
     "message": "1 və ya daha çox e-poçt, ləğv edilmiş üzvlərə aiddir. Erişimini bərpa etmək üçün təkrar dəvət edin."
   },
@@ -5897,6 +6060,15 @@
       }
     }
   },
+  "deleteCustomField": {
+    "message": "$LABEL$ - sil",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "reorderToggleButton": {
     "message": "$LABEL$ - yenidən sırala. Ox düyməsi ilə elementi yuxarı və ya aşağı daşıyın.",
     "placeholders": {
@@ -6295,6 +6467,27 @@
   "masterPassPolicyDesc": {
     "message": "Ana parol gücü üçün tələbləri ayarla."
   },
+  "enablePolicy": {
+    "message": "Siyasəti fəallaşdır"
+  },
+  "minCharacterLength": {
+    "message": "Minimum xarakter uzunluğu"
+  },
+  "characterRequirements": {
+    "message": "Xarakter tələbləri"
+  },
+  "specialCharactersPolicy": {
+    "message": "Xüsusi xarakterlər (məs. !, @, $)"
+  },
+  "uppercasePolicy": {
+    "message": "Böyük hərf"
+  },
+  "lowercasePolicy": {
+    "message": "Kiçik hərf"
+  },
+  "numbersPolicy": {
+    "message": "Rəqəmlər"
+  },
   "passwordStrengthScore": {
     "message": "Parolun güc xalı: $SCORE$",
     "placeholders": {
@@ -6324,6 +6517,15 @@
   },
   "passwordGeneratorPolicyDesc": {
     "message": "Parol yaradıcı üçün tələbləri ayarla."
+  },
+  "passwordGeneratorPolicyDescV2": {
+    "message": "Üzvlər tərəfindən yaradılmış parollar üçün minimum tələblər dəstini seçin."
+  },
+  "generatedPassword": {
+    "message": "Parol yaradıldı"
+  },
+  "generatedPassphrase": {
+    "message": "Keçid ifadəsi yaradıldı"
   },
   "masterPasswordPolicyInEffect": {
     "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolunuzu tələb edir:"
@@ -6573,6 +6775,9 @@
   "singleOrgPolicyDesc": {
     "message": "Üzvlərin digər təşkilatlara qoşulmasını məhdudlaşdır. Bu siyasət, domen doğrulamasını fəallaşdıran təşkilatlar üçün tələb olunur."
   },
+  "singleOrgPolicyDescV2": {
+    "message": "Bu təşkilatın üzvləri digər təşkilatlara qoşula bilməz. Bu siyasət fəallaşdırıldığı zaman, digər təşkilatlara aid olan mövcud üzvlərin erişimləri ləğv ediləcək. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Hazırkı təşkilatınızın, bir neçə təşkilata qoşulmasına icazə verməyən bir siyasəti var. Lütfən təşkilat adminləri ilə əlaqə saxlayın və ya fərqli bir Bitwarden hesabı ilə qeydiyyatdan keçin."
   },
@@ -6638,6 +6843,10 @@
   },
   "createSend": {
     "message": "Yeni \"Send\" yarat",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send yarat",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -6733,6 +6942,12 @@
   "accepted": {
     "message": "Qəbul edildi"
   },
+  "staged": {
+    "message": "Staged"
+  },
+  "stagedMemberTooltip": {
+    "message": "Gözləyən hesab dəvəti"
+  },
   "sendLink": {
     "message": "\"Send\" keçidi",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6755,6 +6970,9 @@
   },
   "allSends": {
     "message": "Bütün \"Send\"lər"
+  },
+  "filterSends": {
+    "message": "Send-ləri filtrlə"
   },
   "maxAccessCountReached": {
     "message": "Maksimum erişim sayına çatıldı",
@@ -7008,9 +7226,6 @@
   "promptUsersToMoveItemsV2": {
     "message": "İstifadəçilərdən öz seyf elementlərini təşkilata daşımasını istəyin"
   },
-  "enablePolicy": {
-    "message": "Siyasəti fəallaşdır"
-  },
   "organizationDataOwnership": {
     "message": "Təşkilata veri üzərində məcburi sahiblik ver"
   },
@@ -7116,6 +7331,30 @@
   "autoConfirmDisabledByPortal": {
     "message": "Avtomatik istifadəçi təsdiqi siyasəti silindi"
   },
+  "inviteLinkEventCreated": {
+    "message": "Dəvət keçidi yaradıldı"
+  },
+  "inviteLinkEventDomainsEdited": {
+    "message": "Dəvət keçidi üçün icazə verilən domenlərə düzəliş edildi"
+  },
+  "inviteLinkEventDeleted": {
+    "message": "Dəvət keçidi silindi"
+  },
+  "inviteLinkEventCopied": {
+    "message": "Dəvət keçidi kopyalandı"
+  },
+  "inviteLinkEventRegenerated": {
+    "message": "Dəvət keçidini yenidən yaradıldı"
+  },
+  "inviteLinkEventAccepted": {
+    "message": "$ID$ üzvü dəvət keçidi üzərindən dəvəti qəbul etdi",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Sistem"
   },
@@ -7166,26 +7405,38 @@
     "message": "Təşkilatınızın Send siyasətinə riayət etmir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledNonCompliantBannerMessage": {
-    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+  "orgDoesNotAllowTextSends": {
+    "message": "Təşkilatınızda mətn Send-lərinə icazə verilmir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendWillExpireOnDeletionDate": {
-    "message": "This Send will automatically expire at the set deletion date",
+  "orgDoesNotAllowFileSends": {
+    "message": "Təşkilatınızda fayl Send-lərinə icazə verilmir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Bu \"Send\"in müddəti, təyin olunmuş silinmə vaxtında avtomatik olaraq bitəcək",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "Bu \"Send\"ə düzəliş etmək üçün bir kopyasını yaradın. Əgər bu \"Send\"in müddəti, təyin olunmuş silinmə tarixində bitəcəksə, heç bir əməliyyata ehtiyac yoxdur",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Kopyasını yarat"
   },
   "sendControls": {
     "message": "Send kontrolları"
+  },
+  "manageSend": {
+    "message": "Send-i idarə et",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDesc": {
     "message": "Send yaratma və düzəliş seçimlərini ayarla. Send-ləri xaric etmə imkanı da var.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV2": {
-    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
+  "sendControlsPolicyDescV3": {
+    "message": "Üzvlərin \"Send\"i necə istifadə edəcəyini idarə edin. Adminlər və sahiblər bu siyasətdən azaddırlar.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7500,7 +7751,7 @@
     "message": "Yeni parolunuz hazırkı parolunuzla eyni ola bilməz."
   },
   "hint": {
-    "message": "Hint"
+    "message": "İpucu"
   },
   "hintEqualsPassword": {
     "message": "Parol məsləhəti, parolunuzla eyni ola bilməz."
@@ -7612,6 +7863,18 @@
   },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
+  },
+  "accountRecoveryPolicySingleOrgReqV2": {
+    "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
+  },
+  "accountRecoveryPolicyDescV3Part1": {
+    "message": "Üzvlərin öz hesablarına təkrar erişməsinə kömək etmək üçün adminlərə icazə verin. Üzvlərin yazılması şərtdir: "
+  },
+  "accountRecoveryDescLinkText": {
+    "message": "hesabın geri qaytarılması"
+  },
+  "accountRecoveryPolicyDescV3Part2": {
+    "message": ". Bu siyasət işə salındıqdan sonra, mövcud üzvlər yazıla bilər. İstəsəniz yeni üzvlər avtomatik olaraq da yazıla bilər."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Avtomatik qeydiyyat"
@@ -8100,7 +8363,7 @@
     "message": "Üzvlərin fərdi seyflərindən veriləri xaricə köçürməsinə icazə verilməsin."
   },
   "disablePersonalVaultExportDescriptionV2": {
-    "message": "Do not allow members to export data from their individual vaults. This policy won't be enforced for owners and admins."
+    "message": "Üzvlərin öz fərdi seyflərindən veriləri xaricə köçürməsinə icazə verməyin. Bu siyasət, sahiblərə və adminlərə şamil olunmur."
   },
   "vaultExportDisabled": {
     "message": "Seyf xaricə köçürmə silindi"
@@ -8111,8 +8374,17 @@
   "activateAutofillPolicy": {
     "message": "Avto-doldurmanı aktivləşdir"
   },
+  "enableAutofillOnPageLoad": {
+    "message": "Səhifə yüklənəndə avto-doldurmanı fəallaşdır"
+  },
   "activateAutofillPolicyDescription": {
     "message": "Bütün mövcud və yeni üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını aktivləşdirin."
+  },
+  "activateAutofillPolicyDescV2": {
+    "message": "Enable autofill on page load setting in the browser extension for all existing and new members. Be aware that compromised or untrustworthy websites can"
+  },
+  "exploitAutofillOnPageLoad": {
+    "message": "exploit autofill on page load"
   },
   "autofillOnPageLoadExploitWarning": {
     "message": "Təhlükəli və ya güvənilməyən veb saytlar, səhifə yüklənərkən avto-doldurmanı sui-istifadə edə bilər."
@@ -9150,6 +9422,20 @@
   "scimApiKeyHelperText": {
     "message": "Bu API açarı, təşkilatınızdakı istifadəçiləri idarə etmə erişiminə sahibdir. Gizli saxlanılmalıdır."
   },
+  "scimInviteUsersAfterProvisioning": {
+    "message": "Automatically send email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHint": {
+    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimInviteUsersAfterProvisioningHelpTitle": {
+    "message": "About email invitations"
+  },
+  "scimInviteUsersAfterProvisioningHelpBody": {
+    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
   "copyScimKey": {
     "message": "SCIM API açarını lövhəyə kopyala",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -9285,7 +9571,7 @@
     "message": "1 və ya daha çox e-poçt yararsızdır"
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "E-poçt alıcı siyahısı 2500 xarakterdən çox ola bilməz. Davam etmək üçün bir və ya bir neçə alıcını xaric edin."
   },
   "tooManyEmails": {
     "message": "Bir dəfəyə ən çox $COUNT$ e-poçt göndərə bilərsiniz",
@@ -9902,6 +10188,9 @@
   },
   "newDomain": {
     "message": "Yeni domen"
+  },
+  "addDomain": {
+    "message": "Domen əlavə et"
   },
   "noDomains": {
     "message": "Domen yoxdur"
@@ -11074,11 +11363,17 @@
   "assignCollectionAccess": {
     "message": "Kolleksiya erişimini təyin et"
   },
+  "collectionsEdited": {
+    "message": "Kolleksiyalara düzəliş edildi"
+  },
   "editedCollections": {
     "message": "Düzəliş edilən kolleksiyalar"
   },
+  "collectionEdited": {
+    "message": "Kolleksiyaya düzəliş edildi"
+  },
   "editedCollection": {
-    "message": "Edited collection"
+    "message": "Düzəliş edilən kolleksiya"
   },
   "baseUrl": {
     "message": "Server URL-si"
@@ -11459,11 +11754,23 @@
   "successfullyAssignedCollections": {
     "message": "Uğurla təyin edilən kolleksiyalar"
   },
+  "itemMovedToCollection": {
+    "message": "Element kolleksiyaya daşındı"
+  },
+  "itemMovedToCollections": {
+    "message": "Element kolleksiyalara daşındı"
+  },
+  "itemsMovedToCollection": {
+    "message": "Elementlər kolleksiyaya daşındı"
+  },
+  "itemsMovedToCollections": {
+    "message": "Elementlər kolleksiyalara daşındı"
+  },
   "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
+    "message": "Element kolleksiyalara təyin olundu"
   },
   "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
+    "message": "Elementlər kolleksiyalara təyin olundu"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
@@ -11587,6 +11894,10 @@
     "message": "Yeni maşın hesabı",
     "description": "Title for creating a new machine account."
   },
+  "addMachineAccount": {
+    "message": "Maşın hesabı əlavə et",
+    "description": "Title for creating a new machine account."
+  },
   "machineAccountsNoItemsMessage": {
     "message": "Sirr erişimini avtomatlaşdırmağa başlamaq üçün yeni bir maşın hesabı yaradın.",
     "description": "Message to encourage the user to start creating machine accounts."
@@ -11708,6 +12019,15 @@
       "count": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "graceMachineAccounts": {
+    "message": "You have $COUNT$ machine accounts from your previous plan.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "30"
       }
     }
   },
@@ -11977,6 +12297,9 @@
   "selectAPlan": {
     "message": "Bir plan seçin"
   },
+  "planBillingInterval": {
+    "message": "Plan billing interval"
+  },
   "thirtyFivePercentDiscount": {
     "message": "35% endirim"
   },
@@ -12111,7 +12434,7 @@
     }
   },
   "providerDiscountAmountOff": {
-    "message": "$AMOUNT$ Discount",
+    "message": "$AMOUNT$ endirim",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -12894,6 +13217,23 @@
       }
     }
   },
+  "revokeSponsorshipAcceptedWithPriceConfirmation": {
+    "message": "$EMAIL$ silsəniz, bu Ailə planı üçün sponsorluq bitəcək və saxlanılmış ödəniş üsulundan $DATE$ tarixində $PRICE$ + müvafiq vergi tutulacaq. $DATE$ tarixinə qədər yeni bir sponsorluq istifadə edə bilməyəcəksiniz. Davam etmək istədiyinizə əminsiniz?",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "sponsored@organization.com"
+      },
+      "price": {
+        "content": "$2",
+        "example": "$40"
+      },
+      "date": {
+        "content": "$3",
+        "example": "12/10/2024"
+      }
+    }
+  },
   "domainClaimed": {
     "message": "Domen götürüldü"
   },
@@ -13263,8 +13603,35 @@
     "message": "Elementi arxivlə",
     "description": "Verb"
   },
+  "archiveItemsPlural": {
+    "message": "$NUM$ elementi arxivlə",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Elementi arxivlə",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsSingular": {
+    "message": "$NUM$ elementi arxivlə",
+    "description": "Title of the archive items dialog when a single item is selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "archiveItemDialogContent": {
     "message": "Arxivləndikdən sonra, bu element axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Arxivləndikdən sonra, bu elementlər axtarış nəticələrindən və avto-doldurma təkliflərindən xaric ediləcək."
   },
   "archiveBulkItems": {
     "message": "Elementləri arxivlə",
@@ -14483,7 +14850,7 @@
     "message": "As you review applications and assign member tasks, your org's progress on security improvements will show up here."
   },
   "aiCoachmarkPrioritizeRisksTitle": {
-    "message": "Prioritize risks"
+    "message": "Riskləri prioritetləşdirmə"
   },
   "aiCoachmarkPrioritizeRisksDescription": {
     "message": "Review every application stored in your org vault and star ones that are the highest priority to your security."
@@ -14520,7 +14887,7 @@
     }
   },
   "coachmarkStepIndicator": {
-    "message": "Step $CURRENT$ of $TOTAL$",
+    "message": "Addım $CURRENT$/$TOTAL$",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -14532,11 +14899,215 @@
       }
     }
   },
+  "keeperEmail": {
+    "message": "Keeper e-poçtu"
+  },
+  "keeperEmailHint": {
+    "message": "Keeper-ə giriş etmək üçün istifadə etdiyiniz e-poçtu daxil edin"
+  },
+  "dataCenterLocation": {
+    "message": "Veri mərkəzi yerləşməsi"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper ana parolu"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Lütfən Keeper ana parolunuzu daxil edin"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Lütfən iki faktorlu üsulunuzdakı kodu daxil edin"
+  },
+  "totpCodePrompt": {
+    "message": "Lütfən kimlik doğrulama tətbiqinizdəki kodu daxil edin"
+  },
+  "smsCodePrompt": {
+    "message": "Lütfən mətn mesajı ilə göndərilən kodu daxil edin"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Lütfən Keeper DNA tətbiqinizdəki kodu daxil edin"
+  },
+  "adminApproval": {
+    "message": "Admin təsdiqi"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Admin təsdiqi sorğunuzu admininizə göndərmişik"
+  },
+  "method": {
+    "message": "Üsul"
+  },
+  "directImporter": {
+    "message": "Birbaşa idxalçı"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO kimlik doğrulama tələb olunur"
+  },
+  "keeperSsoDesc": {
+    "message": "Keeper hesabınız SSO kimlik doğrulamasını tələb edir. Açılan brauzer pəncərəsində daxil olma prosesini tamamlayın, sonra səhifədə göstərilən tokeni yapışdırın."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Açılmış brauzer vərəqində daxil olma prosesini tamamlayın. Token avtomatik olaraq yaxalanacaq."
+  },
+  "ssoToken": {
+    "message": "SSO tokeni"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper kimlik doğrulama tələb olunur"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper cihazının təsdiq olunması tələb olunur"
+  },
+  "selectApprovalMethod": {
+    "message": "Təsdiq üsulları"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Cihazın təsdiq olunması lazımdır"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Aşağıdakı üsullardan birini seçərək bu cihazı təsdiqlə"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "İki faktorlu üsul"
+  },
+  "emailVerification": {
+    "message": "E-poçt doğrulaması"
+  },
+  "approvalEmailDesc": {
+    "message": "Lütfən e-poçtunuzu yoxlayın və doğrulama kodunu aşağıda daxil edin"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push bildirişi təsdiqlənmiş cihaza göndərildi"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push göndərildi"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Təsdiq sorğusu ləğv ediləcək"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Tərk etmək istədiyinizə əminsiniz? Admin təsdiqi sorğunuz ləğv ediləcək."
+  },
+  "cancelRequest": {
+    "message": "Sorğunu ləğv et"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper iki faktorlu kimlik doğrulaması tələb olunur"
+  },
+  "mfaPushDesc": {
+    "message": "Kimlik doğrulama tətbiqinizdə giriş sorğusunu təsdiqlə. Bu pəncərə avtomatik bağlanacaq."
+  },
+  "selectTwoFactorMethod": {
+    "message": "İki faktorlu üsulu seç"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Kimliyinizi necə doğrulayacağınızı seçin."
+  },
+  "authenticatorAppTotp": {
+    "message": "Kimlik doğrulayıcı tətbiq (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Mətn mesajı (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Ehtiyat kodlar"
+  },
+  "securityKeyU2f": {
+    "message": "Təhlükəsizlik açarı (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Təhlükəsizlik açarı (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA doğrulaması"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Keeper DNA bildirişini cihazınızda təsdiqləyin"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Keeper DNA üsulunu seç"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Keeper DNA ilə necə doğrulayacağınızı seçin."
+  },
+  "pushNotification": {
+    "message": "Push bildirişi"
+  },
+  "enterCodeManually": {
+    "message": "Kodu manual daxil et"
+  },
+  "twoFactorAuthentication": {
+    "message": "İki faktorlu kimlik doğrulama"
+  },
+  "unknownMethod": {
+    "message": "Bilinməyən üsul"
+  },
+  "selectDuoMethod": {
+    "message": "Duo üsulunu seç"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Duo Security ilə necə doğrulayacağınızı seçin."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Telefon zəngi"
+  },
+  "duoVerification": {
+    "message": "Duo doğrulama"
+  },
+  "duoPushWaiting": {
+    "message": "Duo push bildirişini cihazınızda təsdiqləyin."
+  },
+  "duoSmsWaiting": {
+    "message": "Mətn mesajı telefonunuza göndərilib. Davam etmək üçün Duo tətbiqində kodu daxil edin."
+  },
+  "duoVoiceWaiting": {
+    "message": "Duo-dan gələn telefon zəngini cavablayın və təlimatları izləyin."
+  },
+  "tryAnotherMethod": {
+    "message": "Başqa bir üsulu sına"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Keeper hesabınız, hazırda birbaşa idxalçı tərəfindən dəstəklənməyən iki faktorlu kimlik doğrulama üsulu tələb edir."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Çox faktorlu kimlik doğrulama ləğv edildi"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"
+  },
+  "keeperConnectionError": {
+    "message": "Keeper ilə rabitə zamanı problem baş verdi. Lütfən yenidən daxilə köçürməyə çalışın."
+  },
+  "importingYourAccount": {
+    "message": "Hesabınız daxilə köçürülür..."
+  },
+  "passcode": {
+    "message": "Kod"
+  },
   "multipleInputDomainsInvalid": {
-    "message": "One or more domains are invalid"
+    "message": "Bir və ya daha çox domen yararsızdır"
   },
   "domainNotAllowed": {
-    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "message": "Yalnız aşağıdakı domenlər daxildir: $DOMAINS$. Lütfən incələyib yenidən sınayın",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -14544,14 +15115,18 @@
     }
   },
   "sendControlsEnableDescription": {
-    "message": "Control whether members can use Send",
+    "message": "Üzvlərin Send-i istifadə edib-etməyəcəyini idarə et",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendTypes": {
+    "message": "Send növləri",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "Hamısı"
   },
   "allowedDomainsAutopopulateAlert": {
-    "message": "This was filled in using claimed domains."
+    "message": "Bu, götürülmüş domenlər istifadə olunaraq doldurulub."
   },
   "more": {
     "message": "Daha çox"
@@ -14637,24 +15212,30 @@
     "message": "Send-də saxlanılmamış düzəlişlər var. Tərk etmək istədiyinizə əminsiniz?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendControlsPolicySwitchLabel": {
-    "message": "Enable Send controls",
+  "sendControlsPolicySwitchLabelV2": {
+    "message": "\"Send\"i fəallaşdır",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
-    "message": "Allow"
+    "message": "İcazə ver"
   },
   "block": {
-    "message": "Block"
+    "message": "Əngəllə"
   },
   "sendControlAccessOptions": {
-    "message": "Access options"
+    "message": "Erişim seçimləri"
   },
   "sendControlHideEmailDescription": {
-    "message": "Always show member's email address with recipients"
+    "message": "Alıcılara üzvlərin e-poçt ünvanlarını həmişə göstər"
   },
   "sendAccessOptionAnyoneWithAPassword": {
-    "message": "Password set by member"
+    "message": "Üzv tərəfindən ayarlanmış parol"
+  },
+  "enforceDeletionDate": {
+    "message": "Enforce deletion date"
+  },
+  "sendDeletionDate": {
+    "message": "Silinmə tarixi"
   },
   "hideMyEmail": {
     "message": "E-poçt ünvanımı alıcılardan gizlət."
@@ -14707,17 +15288,14 @@
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "clickedVaultBannerButton": {
-    "message": "Clicked vault banner button"
+    "message": "Seyf banneri düyməsinə klikləndi"
   },
   "progressBar": {
     "message": "İrəliləyiş çubuğu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "emailVerification": {
-    "message": "Email verification"
-  },
   "separateDomainsWithComma": {
-    "message": "Separate domains with a comma"
+    "message": "Domenləri vergüllə ayır"
   },
   "errorImportingMyItemsMultiCollection": {
     "message": "Birdən çox kolleksiyanın parçası olan elementləri \"Elementlərim\"ə köçürə bilməzsiniz"
@@ -14771,27 +15349,49 @@
     "message": "Kopyala"
   },
   "paymentSuccessful": {
-    "message": "Payment successful"
+    "message": "Ödəniş uğurludur"
   },
   "paymentSuccessfulProcessingMessage": {
-    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+    "message": "Yüksəltməniz emal olunur. Bitwarden-də Premium özəllikləri görməyiniz bir neçə dəqiqə çəkə bilər."
   },
   "planPurchased": {
-    "message": "Plan purchased"
+    "message": "Plan satın alındı"
   },
   "renewalDate": {
-    "message": "Renewal date"
+    "message": "Yenilənmə tarixi"
   },
   "upgradeStatus": {
-    "message": "Upgrade status"
+    "message": "Yüksəltmə statusu"
   },
   "processing": {
-    "message": "Processing"
+    "message": "Emal olunur"
   },
   "managePlanInWebApp": {
-    "message": "Manage plan in web app"
+    "message": "Planı veb tətbiqdə idarə et"
   },
   "cannotSaveItemNoConfirmedOrgs": {
-    "message": "Unable to save item. You must be confirmed to the organization to save items."
+    "message": "Element saxlanıla bilmir. Elementləri saxlamaq üçün təşkilat üzvü olmasınız."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Elementlərin eyni fayl adı ilə birdən çox qoşması ola bilməz"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ bu silinmə tarixi təyin etdi",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "labelWithNotification": {
+    "message": "$LABEL$: Yeni bildiriş",
+    "description": "Label for the notification with a new login suggestion.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
   }
 }
