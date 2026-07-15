@@ -51,4 +51,30 @@ describe("Vfo1TerminologyService", () => {
 
     expect(configService.getFeatureFlag$).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
   });
+
+  describe("collectionIconClass", () => {
+    it("emits the legacy collection icon when the flag is off", () => {
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      expect(service.collectionIconClass()).toBe("bwi-collection-shared");
+    });
+
+    it("emits the shared folder icon when the flag is on", () => {
+      flagSubject.next(true);
+
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      expect(service.collectionIconClass()).toBe("bwi-shared-folder");
+    });
+
+    it("updates as the flag changes", () => {
+      const service = TestBed.inject(Vfo1TerminologyService);
+
+      flagSubject.next(true);
+      expect(service.collectionIconClass()).toBe("bwi-shared-folder");
+
+      flagSubject.next(false);
+      expect(service.collectionIconClass()).toBe("bwi-collection-shared");
+    });
+  });
 });
