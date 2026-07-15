@@ -170,9 +170,10 @@ export declare namespace autofill {
      *
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC
      * connection and must be the same for both the server and client. @param callback
-     * This function will be called whenever a message is received from a client.
+     * The functions that will be called whenever a message of the
+     * corresponding type is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void, assertionWithoutUserInterfaceCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void, nativeStatusCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void): Promise<AutofillIpcServer>
+    static listen(name: string, callbacks: AutofillIpcCallbacks): Promise<AutofillIpcServer>
     /** Return the path to the IPC server. */
     getPaths(): Array<string>
     /** Stop the IPC server. */
@@ -180,6 +181,19 @@ export declare namespace autofill {
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
+  }
+  export interface AutofillIpcCallbacks {
+    /** Function to execute when a passkey registration request is received. */
+  registrationCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /** Function to execute when a passkey assertion request is received. */
+  assertionCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to execute when a passkey assertion request is received and the UI must not be
+   * shown.
+   */
+  assertionWithoutUserInterfaceCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /** Function to execute when a notification of the autofill provider's status is received. */
+  nativeStatusCallback: { (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   }
   export function runCommand(value: string): Promise<string>
 }
