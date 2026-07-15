@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base",
+  "compilerOptions": {
+    "types": ["node", "@playwright/test"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": [
+    "apps/web/test/playwright.config.ts",
+    "apps/web/test/smoke/**/*.ts",
+    "apps/browser/test/playwright.config.ts",
+    "apps/browser/test/smoke/**/*.ts",
+    "apps/browser/test/support/**/*.ts",
+    "libs/**/*.page.ts",
+    "libs/**/*.fragment.ts",
+    "apps/web/src/**/*.page.ts",
+    "apps/web/src/**/*.fragment.ts",
+    "apps/browser/src/**/*.page.ts",
+    "apps/browser/src/**/*.fragment.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

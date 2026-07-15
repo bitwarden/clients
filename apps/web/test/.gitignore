@@ -1,0 +1,8 @@
+# Failure artifacts (screenshots, traces, HTML report), regenerated each run.
+artifacts/
+playwright-report/
+
+# Environment files (keep .env.example tracked)
+.env
+.env.*
+!.env.example

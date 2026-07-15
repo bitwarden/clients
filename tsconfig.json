@@ -17,6 +17,12 @@
     "apps/desktop/src/**/*.spec.ts",
     "apps/web/src/**/*.spec.ts",
     "libs/*/src/**/*.spec.ts",
-    "**/*.spec-util.ts"
+    "**/*.spec-util.ts",
+    "libs/*/src/**/*.page.ts",
+    "libs/*/src/**/*.fragment.ts",
+    "apps/web/src/**/*.page.ts",
+    "apps/web/src/**/*.fragment.ts",
+    "apps/browser/src/**/*.page.ts",
+    "apps/browser/src/**/*.fragment.ts"
   ]
 }

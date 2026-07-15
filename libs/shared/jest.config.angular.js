@@ -29,6 +29,7 @@ module.exports = {
   testPathIgnorePatterns: [
     "/node_modules/", // default value
     ".*.type.spec.ts", // ignore type tests (which are checked at compile time and not run by jest)
+    "\\.play\\.spec\\.ts$", // Playwright E2E specs — run via `npm run test:e2e:*`, not Jest
   ],
 
   // Improves on-demand performance, for watches prefer 25%, overridable by setting --maxWorkers

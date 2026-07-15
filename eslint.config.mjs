@@ -707,6 +707,27 @@ export default tseslint.config(
     },
   },
 
+  // Playwright E2E scaffolding: specs and colocated page/fragment objects are
+  // type-checked via tsconfig.playwright.json and intentionally cross project
+  // boundaries (page objects live beside their components, imported by specs).
+  {
+    files: [
+      "apps/web/test/**/*.ts",
+      "apps/browser/test/**/*.ts",
+      "**/*.page.ts",
+      "**/*.fragment.ts",
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ["./tsconfig.playwright.json"],
+      },
+    },
+    rules: {
+      "no-restricted-imports": "off",
+      "import/no-restricted-paths": "off",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
