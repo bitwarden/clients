@@ -1455,7 +1455,7 @@
   "accountRestricted": {
     "message": "Account restricted"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+  "filePasswordConfirmationMismatch": {
     "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
@@ -1469,7 +1469,7 @@
   "confirmVaultExport": {
     "message": "Confirm vault export"
   },
-  "exportWarningDesc": {
+  "exportUnencryptedWarningDesc": {
     "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
@@ -3061,10 +3061,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "The desktop application is logged into a different account. Please ensure both applications are logged into the same account."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -6042,7 +6042,7 @@
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
