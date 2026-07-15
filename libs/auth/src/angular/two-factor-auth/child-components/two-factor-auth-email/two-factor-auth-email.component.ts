@@ -5,8 +5,8 @@ import { ReactiveFormsModule, FormsModule, FormControl } from "@angular/forms";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { TwoFactorEmailLoginRequest } from "@bitwarden/common/auth/two-factor/request/two-factor-email-login.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -124,7 +124,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     }
 
     // TODO: PM-17545 - consider building a method on the login strategy service to get a mostly
-    // initialized TwoFactorEmailRequest in 1 call instead of 5 like we do today.
+    // initialized TwoFactorEmailLoginRequest in 1 call instead of 5 like we do today.
     const email = await this.loginStrategyService.getEmail();
 
     if (email == null) {
@@ -137,7 +137,7 @@ export class TwoFactorAuthEmailComponent implements OnInit {
     }
 
     try {
-      const request = new TwoFactorEmailRequest();
+      const request = new TwoFactorEmailLoginRequest();
       request.email = email;
 
       request.masterPasswordHash = (await this.loginStrategyService.getMasterPasswordHash()) ?? "";

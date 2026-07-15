@@ -353,6 +353,7 @@ import { MainContextMenuHandler } from "../autofill/browser/main-context-menu-ha
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { Fido2Background as Fido2BackgroundAbstraction } from "../autofill/fido2/background/abstractions/fido2.background";
 import { Fido2Background } from "../autofill/fido2/background/fido2.background";
+import { PermissionsPolicyBackground } from "../autofill/fido2/background/permissions-policy/permissions-policy.background";
 import {
   BrowserFido2ParentWindowReference,
   BrowserFido2UserInterfaceService,
@@ -756,7 +757,6 @@ export default class MainBackground {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -1484,6 +1484,12 @@ export default class MainBackground {
 
     // Background
 
+    const permissionsPolicyBackground = new PermissionsPolicyBackground(
+      chrome.webRequest,
+      chrome.tabs,
+      chrome.webNavigation,
+      chrome.runtime,
+    );
     this.fido2Background = new Fido2Background(
       this.logService,
       this.fido2ActiveRequestManager,
@@ -1491,6 +1497,7 @@ export default class MainBackground {
       this.vaultSettingsService,
       this.scriptInjectorService,
       this.authService,
+      permissionsPolicyBackground,
     );
 
     const logoutService = new DefaultLogoutService(this.messagingService);
