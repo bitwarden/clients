@@ -36,36 +36,42 @@ describe("ProblemDetailsService", () => {
     fb = new FormBuilder();
   });
 
-  it("returns true and sets serverError on email control for known error type", () => {
+  it("sets serverError on email control for known error type", () => {
     const formGroup = fb.group({ email: [""] });
     const error = makeEmailError("new_email_domain_not_claimed");
 
-    expect(service.applyErrors(error, formGroup, EMAIL_FIELD_MAP)).toBe(true);
+    service.applyErrors(error, formGroup, EMAIL_FIELD_MAP);
+
     expect(formGroup.controls.email.errors?.serverError?.message).toBeDefined();
   });
 
-  it("returns false for unknown problem-detail type", () => {
+  it("does not set errors for unknown problem-detail type", () => {
     const formGroup = fb.group({ email: [""] });
     const error = makeEmailError("unknown_error_type");
 
-    expect(service.applyErrors(error, formGroup, EMAIL_FIELD_MAP)).toBe(false);
+    service.applyErrors(error, formGroup, EMAIL_FIELD_MAP);
+
     expect(formGroup.controls.email.errors).toBeNull();
   });
 
-  it("returns false for non-ErrorResponse errors", () => {
+  it("does not set errors when response has no matching fields", () => {
     const formGroup = fb.group({ email: [""] });
-    const error = new Error("generic");
+    const err = new ProblemDetailsErrorResponse({ errors: {} }, 400);
 
-    expect(service.applyErrors(error, formGroup, EMAIL_FIELD_MAP)).toBe(false);
+    service.applyErrors(err, formGroup, EMAIL_FIELD_MAP);
+
+    expect(formGroup.controls.email.errors).toBeNull();
   });
 
-  it("returns false when field in rawErrors has no matching form control", () => {
+  it("does not set errors when field in rawErrors has no matching form control", () => {
     const formGroup = fb.group({ email: [""] });
     const err = new ProblemDetailsErrorResponse(
       { errors: { unknownField: [{ type: "new_email_domain_not_claimed", detail: "" }] } },
       400,
     );
 
-    expect(service.applyErrors(err, formGroup, EMAIL_FIELD_MAP)).toBe(false);
+    service.applyErrors(err, formGroup, EMAIL_FIELD_MAP);
+
+    expect(formGroup.controls.email.errors).toBeNull();
   });
 });

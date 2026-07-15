@@ -26,7 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -574,7 +574,7 @@ describe("EditMemberDialogComponent", () => {
     });
 
     it("sets inline email error and stays open on email validation error from server", async () => {
-      const emailError = new ErrorResponse(
+      const emailError = new ProblemDetailsErrorResponse(
         { errors: { email: [{ type: "new_email_domain_not_claimed", detail: "..." }] } },
         400,
       );
