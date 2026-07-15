@@ -3,6 +3,9 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import {
   credentialsData,
+  credentialsDataAlternateUriHeaders,
+  credentialsDataEnclosedInQuotes,
+  credentialsDataEnclosedInQuotesEnglishOrgUnit,
   credentialsDataWithFolders,
 } from "../spec-data/netwrix-csv/login-export.csv";
 
@@ -55,6 +58,29 @@ describe("Netwrix Password Secure CSV Importer", () => {
     expect(cipher.notes).toEqual("Information");
   });
 
+  it("should map alternate website column headers to URIs", async () => {
+    const result = await importer.parse(credentialsDataAlternateUriHeaders);
+    expect(result != null).toBe(true);
+    expect(result.success).toBe(true);
+
+    const expectedUris: Record<string, string> = {
+      "Internetadresse Entry": "https://www.internetadresse.com",
+      "Webseite Entry": "https://www.webseite.com",
+      "Website Entry": "https://www.website.com",
+      "Webmail Entry": "https://www.webmail.com",
+      "Web page Entry": "https://www.webpage.com",
+      "URL Entry": "https://www.url.com",
+    };
+
+    expect(result.ciphers.length).toBe(Object.keys(expectedUris).length);
+    result.ciphers.forEach((cipher) => {
+      expect(cipher.login.uris.length).toEqual(1);
+      expect(cipher.login.uris[0].uri).toEqual(expectedUris[cipher.name]);
+      // Alternate URI headers must not leak into custom fields
+      expect(cipher.fields.length).toBe(0);
+    });
+  });
+
   it("should add any unmapped fields as custom fields", async () => {
     const result = await importer.parse(credentialsData);
     expect(result != null).toBe(true);
@@ -64,6 +90,47 @@ describe("Netwrix Password Secure CSV Importer", () => {
     const field = cipher.fields.shift();
     expect(field.name).toEqual("DataTags");
     expect(field.value).toEqual("tag1, tag2, tag3");
+  });
+
+  it("should parse exports where each row is wrapped in an extra layer of quotes", async () => {
+    const result = await importer.parse(credentialsDataEnclosedInQuotes);
+    expect(result != null).toBe(true);
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toBe(2);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.name).toEqual("Test Entry 1");
+    expect(cipher.login.username).toEqual("someUser");
+    expect(cipher.login.password).toEqual("somePassword");
+    // Kommentare maps to notes
+    expect(cipher.notes).toEqual("some note for example.com");
+    // Internetadresse, Webseite and Webseite1 all map to URIs
+    expect(cipher.login.uris.map((u) => u.uri)).toEqual([
+      "https://www.example.com",
+      "https://webseite.example.com",
+      "https://webseite1.example.com",
+    ]);
+    // DataTags and EMail-Adresse are preserved as custom fields
+    const fieldNames = cipher.fields.map((f) => f.name);
+    expect(fieldNames).toContain("DataTags");
+    expect(fieldNames).toContain("EMail-Adresse");
+    expect(cipher.fields.find((f) => f.name === "EMail-Adresse").value).toEqual("user@example.com");
+  });
+
+  it("should map the English 'Organisational unit' header to a folder", async () => {
+    importer.organizationId = Utils.newGuid() as OrganizationId;
+    const result = await importer.parse(credentialsDataEnclosedInQuotesEnglishOrgUnit);
+    expect(result != null).toBe(true);
+    expect(result.success).toBe(true);
+
+    expect(result.collections.length).toBe(1);
+    expect(result.collections[0].name).toBe("Bohn, Markus");
+    expect(result.collectionRelationships[0]).toEqual([0, 0]);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.name).toEqual("TESTING");
+    expect(cipher.login.username).toEqual("myUser");
+    expect(cipher.login.password).toEqual("test");
   });
 
   it("should parse an item and create a folder", async () => {
