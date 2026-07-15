@@ -2670,7 +2670,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Clear generator history"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "noPasswordsInList": {
@@ -5566,7 +5566,7 @@
   "needsApproval": {
     "message": "Needs approval"
   },
-  "areYouTryingtoLogin": {
+  "areYouTryingToLogin": {
     "message": "Are you trying to log in?"
   },
   "logInAttemptBy": {
@@ -8668,7 +8668,7 @@
   "noSponsoredFamiliesMessage": {
     "message": "No sponsored families"
   },
-  "nosponsoredFamiliesDetails": {
+  "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
   "sponsorshipFreeBitwardenFamilies": {
@@ -9410,7 +9410,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -9420,7 +9420,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -9434,7 +9434,7 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
+  "forwarderInvalidOperation": {
     "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
@@ -9444,7 +9444,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -9533,7 +9533,7 @@
       }
     }
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Premium subscription required"
   },
   "scim": {
@@ -11546,14 +11546,8 @@
   "assignCollectionAccess": {
     "message": "Assign collection access"
   },
-  "collectionsEdited": {
-    "message": "Collections edited"
-  },
   "editedCollections": {
     "message": "Edited collections"
-  },
-  "collectionEdited": {
-    "message": "Collection edited"
   },
   "editedCollection": {
     "message": "Edited collection"
@@ -14096,7 +14090,7 @@
     },
     "description": "A message shown in a non-dismissible dialog to admins of unpaid providers."
   },
-  "subscribetoEnterprise": {
+  "subscribeToEnterprise": {
     "message": "Subscribe to $PLAN$",
     "placeholders": {
       "plan": {
@@ -15500,9 +15494,6 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
-  },
-  "emailVerification": {
-    "message": "Email verification"
   },
   "separateDomainsWithComma": {
     "message": "Separate domains with a comma"
