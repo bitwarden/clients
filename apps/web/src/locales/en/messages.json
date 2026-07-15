@@ -11934,14 +11934,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
   },
-  "bulkVaultCollectionAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these collections will be able to see the item."
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
   },
-  "bulkVaultCollectionAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these collections will be able to see the items."
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
