@@ -335,7 +335,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           selectedCollectionsCount,
         );
       } else {
-        assignedMessageKey = "successfullyAssignedCollections";
+        assignedMessageKey = this.vfo1TerminologyService.enabled()
+          ? "successfullyAssignedSharedFolders"
+          : "successfullyAssignedCollections";
       }
       const assignedMessage = this.i18nService.t(assignedMessageKey);
 
@@ -538,9 +540,21 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
 
   private collectionAssignmentToastKey(ciphersCount: number, collectionsCount: number): string {
     if (ciphersCount === 1) {
-      return collectionsCount === 1 ? "itemMovedToCollection" : "itemMovedToCollections";
+      return collectionsCount === 1
+        ? this.vfo1TerminologyService.enabled()
+          ? "itemMovedToSharedFolder"
+          : "itemMovedToCollection"
+        : this.vfo1TerminologyService.enabled()
+          ? "itemMovedToSharedFolders"
+          : "itemMovedToCollections";
     }
-    return collectionsCount === 1 ? "itemsMovedToCollection" : "itemsMovedToCollections";
+    return collectionsCount === 1
+      ? this.vfo1TerminologyService.enabled()
+        ? "itemsMovedToSharedFolder"
+        : "itemsMovedToCollection"
+      : this.vfo1TerminologyService.enabled()
+        ? "itemsMovedToSharedFolders"
+        : "itemsMovedToCollections";
   }
 
   private async moveToOrganization(
@@ -574,7 +588,10 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
         title: null,
         message: this.i18nService.t(
           shareableCiphers.length === 1 ? "itemMovedToOrg" : "itemsMovedToOrg",
-          this.orgName ?? this.i18nService.t("organization"),
+          this.orgName ??
+            (this.vfo1TerminologyService.enabled()
+              ? this.i18nService.t("vault")
+              : this.i18nService.t("organization")),
         ),
       });
     }

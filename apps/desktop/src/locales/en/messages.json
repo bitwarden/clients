@@ -4959,6 +4959,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Move"
   },
@@ -5060,6 +5069,9 @@
   "assignToCollections": {
     "message": "Assign to collections"
   },
+  "assignToSharedFolders": {
+    "message": "Assign to shared folders"
+  },
   "assignToTheseCollections": {
     "message": "Assign to these collections"
   },
@@ -5098,6 +5110,9 @@
   },
   "selectCollectionsToAssign": {
     "message": "Select collections to assign"
+  },
+  "selectSharedFoldersToAssign": {
+    "message": "Select shared folders to assign"
   },
   "personalItemsTransferWarning": {
     "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
@@ -5170,17 +5185,32 @@
   "successfullyAssignedCollections": {
     "message": "Successfully assigned collections"
   },
+  "successfullyAssignedSharedFolders": {
+    "message": "Successfully assigned shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemMovedToSharedFolder": {
+    "message": "Item moved to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemMovedToSharedFolders": {
+    "message": "Item moved to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsMovedToSharedFolder": {
+    "message": "Items moved to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsMovedToSharedFolders": {
+    "message": "Items moved to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
