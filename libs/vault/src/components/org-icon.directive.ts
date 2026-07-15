@@ -1,27 +1,8 @@
 import { Directive, ElementRef, HostBinding, Input, Renderer2 } from "@angular/core";
 
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { BitwardenIcon } from "@bitwarden/components";
 
 export type OrgIconSize = "default" | "small" | "large";
-
-/**
- * Maps an organization's product tier to its corresponding Bitwarden icon.
- * Returns an empty string for unrecognized tiers.
- */
-export function getOrgIcon(tierType: ProductTierType): BitwardenIcon | "" {
-  switch (tierType) {
-    case ProductTierType.Free:
-    case ProductTierType.Families:
-      return "bwi-family";
-    case ProductTierType.Teams:
-    case ProductTierType.Enterprise:
-    case ProductTierType.TeamsStarter:
-      return "bwi-business";
-    default:
-      return "";
-  }
-}
 
 @Directive({
   selector: "[appOrgIcon]",
@@ -52,8 +33,18 @@ export class OrgIconDirective {
     }
   }
 
-  get orgIcon(): BitwardenIcon | "" {
-    return getOrgIcon(this.tierType);
+  get orgIcon(): string {
+    switch (this.tierType) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return "bwi-family";
+      case ProductTierType.Teams:
+      case ProductTierType.Enterprise:
+      case ProductTierType.TeamsStarter:
+        return "bwi-business";
+      default:
+        return "";
+    }
   }
 
   @HostBinding("class") get classList() {
