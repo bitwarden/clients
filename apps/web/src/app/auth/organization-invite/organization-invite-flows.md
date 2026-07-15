@@ -30,20 +30,25 @@ employ to decrypt their vaults after SSO authentication (configured under the
 org's SSO settings):
 
 - **Master password member decryption option**: server's
-  `SetInitialMasterPasswordCommand` accepts the user when they submit their
+  `FinishSsoJitProvisionMasterPasswordCommand` accepts the user when they submit their
   initial master password.
 - **Trusted Device Encryption (TDE) member decryption option**: server
   accepts the user during admin-recovery enrollment (the org feature that
   lets admins recover user accounts via a shared key — TDE users are enrolled
   automatically as part of first-device setup, and the acceptance is bundled
   into that server call).
+- **Key Connector member decryption option**: server's
+  `SetKeyConnectorKeyCommand` accepts the user when the client completes
+  key-connector provisioning — the client posts the master-key encryption key
+  to the org's self-hosted Key Connector service, then posts the wrapped user
+  key to Bitwarden.
 
 ---
 
 ## Entry point: `/accept-organization`
 
 The email link points at `/accept-organization` with query params parsed by
-[`OrganizationInvite.fromUrlParams`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite.ts).
+[`OrganizationInvite.fromUrlParams`](../../../../../../../libs/common/src/auth/organization-invite/models/organization-invite.ts).
 Required params: `organizationId`, `organizationUserId`, `email`,
 `organizationName`, `token`, `initOrganization`, `orgUserHasExistingUser`.
 Optional: `orgSsoIdentifier` (only when the inviting org has SSO + the SSO-login
@@ -94,7 +99,7 @@ success toast + navigate to `/`. Returns `false` → silently exit.
 2. `unauthedHandler` stashes invite → `/finish-signup?email=...`
 3. User completes registration form
    - `WebRegistrationFinishService.getOrgNameFromOrgInvite` displays the org name
-   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getInvitePolicies(invite)`, and applies them to the password validator on the registration form
+   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getOrgPoliciesForInvite(invite)`, and applies them to the password validator on the registration form
    - `buildRegisterRequest` attaches the invite token + `organizationUserId` to the server registration request for token validation
 4. Server creates the user; client auto-logs them in
 5. `deepLinkGuard` replays the persisted `/accept-organization` URL once auth status is `Unlocked` (see [Deep-link replay mechanism](#deep-link-replay-mechanism))
@@ -111,7 +116,7 @@ post-login force-set-password redirect.
 2. `unauthedHandler` stashes invite → `/login?email=...`
 3. User submits their existing master password
    - `LoginComponent.submit` calls `WebLoginComponentService.getOrgPoliciesFromOrgInvite`
-   - That reads the stashed invite, validates the email matches (else clears stash + redirect URL), and fetches policies via `getInvitePolicies(invite)`
+   - That reads the stashed invite, validates the email matches (else clears stash + redirect URL), and fetches policies via `getOrgPoliciesForInvite(invite)`
    - Policies are passed into `PasswordLoginCredentials` as `masterPasswordPoliciesFromOrgInvite`
 4. Login proceeds normally. `PasswordLoginStrategy` authenticates successfully regardless of policy compliance.
 5. Post-auth, `PasswordLoginStrategy` evaluates the supplied master password against the combined policy options:
@@ -150,7 +155,7 @@ After SSO they land in a "set initial password" flow.
 3. Server JIT-provisions the user
 4. Client navigates the user through "set initial password"
 5. User submits their new MP → `WebSetInitialPasswordService.setInitialPassword` (or `.initializePasswordJitPasswordUserV2Encryption` for the V2 path — V2 is the current SDK-based encryption path; V1 is the deprecated direct path)
-6. Server's `SetInitialMasterPasswordCommand`:
+6. Server's `FinishSsoJitProvisionMasterPasswordCommand`:
    - Sets the user's master password hash + key
    - Accepts the user into the org (the side effect)
 7. Client-side cleanup, in `WebSetInitialPasswordService`:
@@ -187,12 +192,35 @@ The flow below covers the net-new TDE case:
    - `organizationInviteService.clearOrganizationInvite()`
 7. User completes device-trust setup and lands in `/vault`
 
-### Why two cleanup points
+### SSO + Key Connector
+
+Net-new Key Connector users JIT-provisioned into an org whose SSO decryption
+option is Key Connector. The master-key encryption key lives on the org's
+self-hosted Key Connector service; the client never derives an MP.
+
+1. Email link → `/accept-organization` → `unauthedHandler` stashes → `/sso`
+2. IdP auth + callback
+3. Server JIT-provisions the user
+4. Client routes to [`ConfirmKeyConnectorDomainComponent`](../../../../../../../libs/key-management-ui/src/key-connector/confirm-key-connector-domain.component.ts). The JIT-vs-returning branch is driven by `NEW_SSO_USER_KEY_CONNECTOR_CONVERSION` state stashed by `SsoLoginStrategy` when the identity token's wrapped user key is null.
+5. User confirms hostname → `keyConnectorService.convertNewSsoUserToKeyConnector(userId)` POSTs the master-key encryption key to Key Connector, then POSTs the wrapped user key + account keys to Bitwarden via `POST /accounts/set-key-connector-key`.
+6. Server's `SetKeyConnectorKeyCommand` writes the crypto and accepts the user into the org as a side effect (via `AcceptOrgUserByOrgSsoIdAsync`).
+7. Client-side cleanup, in the web-app's `ConfirmKeyConnectorDomainComponent` override:
+   - `routerService.getAndClearLoginRedirectUrl()`
+   - **No `organizationInviteService.clearOrganizationInvite()` anywhere in the KC path — base or override.** `fullSync` doesn't touch `ORGANIZATION_INVITE_DISK`, and no other post-accept code clears it either, so the stashed invite persists on disk after acceptance. Nothing immediately breaks because the override _does_ clear the login-redirect URL — `deepLinkGuard` never replays `/accept-organization`, so `authedHandler` doesn't re-consume the stale stash. It self-heals via the next invite-slot overwrite or the email-mismatch guard in `WebLoginComponentService`. Latent divergence from MP-SSO / TDE-SSO — arguably a bug.
+8. User lands in `/vault`
+
+### Why three cleanup points
 
 MP-SSO cleans up in `WebSetInitialPasswordService`, TDE-SSO in
-`WebLoginDecryptionOptionsService` — different services own the two
-account-setup paths. Consolidation tracked in
-[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615).
+`WebLoginDecryptionOptionsService`, and Key Connector-SSO in the web-app
+override of `ConfirmKeyConnectorDomainComponent` — different services own
+the three account-setup paths.
+
+MP and TDE both explicitly `clearOrganizationInvite()`. Key Connector never
+clears the stash; the invite sits on disk until an overwrite or the email-
+mismatch guard drops it. Consolidation of the MP + TDE pair is tracked in
+[PM-22615](https://bitwarden.atlassian.net/browse/PM-22615); a KC fix would
+either extend that scope or land as its own follow-up.
 
 ---
 
@@ -234,7 +262,7 @@ and paste it into a tab that's already signed in. In that case:
    no stored invite = user has not been redirected through the MP check
    yet). The service then stashes the invite and calls
    `authService.logOut` — see
-   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts)
+   [`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts)
    (the branch inside `validateAndAcceptInvite`).
 4. Logout returns the user to `/login`, where the existing-user flow runs
    normally: the stash drives policy fetching, the MP is evaluated against
@@ -245,7 +273,7 @@ and paste it into a tab that's already signed in. In that case:
    `masterPasswordPolicyCheckRequired` returns `false` and `accept()` runs.
 
 The branch is unit-tested in
-[`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.spec.ts)
+[`default-organization-invite.service.spec.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.spec.ts)
 ("logs out the user and stores the invite when a master password policy check
 is required"), but there is no end-to-end / component-level test exercising
 the paste-into-authed-session entry. Worth covering.
@@ -258,7 +286,7 @@ the paste-into-authed-session entry. Worth covering.
 
 `OrganizationInvite` is persisted to disk via `GlobalStateProvider` under the
 `ORGANIZATION_INVITE_DISK` key (see
-[`organization-invite-state.ts`](../../../../../../../libs/common/src/auth/organization-invite/organization-invite-state.ts)).
+[`organization-invite.state.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/organization-invite.state.ts)).
 Disk persistence is what makes the stash survive the navigation away to
 `/login` / `/sso` / `/finish-signup` and the SSO IdP round-trip.
 
@@ -306,8 +334,8 @@ re-mount.
 
 ### Policy cache
 
-`DefaultOrganizationInviteService.getInvitePolicies(invite)` caches the policy
+`DefaultOrganizationInviteService.getOrgPoliciesForInvite(invite)` caches the policy
 list per invite token on the service instance. The cache is cleared on
 `setOrganizationInvite` and `clearOrganizationInvite` so a state transition
 never leaks stale entries. See the field comment in
-[`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/default-organization-invite.service.ts).
+[`default-organization-invite.service.ts`](../../../../../../../libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts).
