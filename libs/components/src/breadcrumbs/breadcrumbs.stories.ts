@@ -231,12 +231,6 @@ export const WithTrailingArrow: Story = {
   },
 };
 
-/**
- * Breadcrumb overflow is width-driven: as the container narrows, the middle crumbs
- * collapse into the "More" menu while the first (root) and last (current page) crumbs
- * stay anchored. At very small widths the root collapses too, and finally the current
- * page truncates. Drag the container's resize handle (bottom-right) to see it adapt.
- */
 export const ResponsiveOverflow: Story = {
   render: (args) => ({
     props: args,
