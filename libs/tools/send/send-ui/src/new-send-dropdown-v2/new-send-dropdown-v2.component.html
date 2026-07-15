@@ -3,14 +3,32 @@
     @if (!hideIcon()) {
       <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
     }
-    {{ (hideIcon() ? "createSend" : "new") | i18n }}
+    {{
+      (hideIcon()
+        ? btnTextAddCreateFeatureFlag()
+          ? "createSendV2"
+          : "createSend"
+        : btnTextAddCreateFeatureFlag()
+          ? "create"
+          : "new"
+      ) | i18n
+    }}
   </button>
 } @else {
   <button bitButton [bitMenuTriggerFor]="itemOptions" [buttonType]="buttonType()" type="button">
     @if (!hideIcon()) {
       <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
     }
-    {{ (hideIcon() ? "createSend" : "new") | i18n }}
+    {{
+      (hideIcon()
+        ? btnTextAddCreateFeatureFlag()
+          ? "createSendV2"
+          : "createSend"
+        : btnTextAddCreateFeatureFlag()
+          ? "create"
+          : "new"
+      ) | i18n
+    }}
   </button>
   <bit-menu #itemOptions>
     <button bitMenuItem type="button" (click)="onTextSendClick()">

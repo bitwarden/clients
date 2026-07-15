@@ -6,7 +6,7 @@
     (click)="navigateToNewItemPage()"
     startIcon="bwi-plus"
   >
-    {{ "new" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
   </button>
 } @else {
   <button
@@ -16,7 +16,7 @@
     buttonType="primary"
     type="button"
   >
-    {{ "new" | i18n }}
+    {{ (btnTextAddCreateFeatureFlag() ? "add" : "new") | i18n }}
   </button>
   <bit-menu #itemOptions>
     @for (menuItem of cipherMenuItems$ | async; track menuItem.type) {
