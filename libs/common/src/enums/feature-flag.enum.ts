@@ -116,6 +116,9 @@ export enum FeatureFlag {
 
   /* Desktop */
   DesktopSettingsDialog = "desktop-ui-settings-dialog",
+
+  /* VFO */
+  VFO1Foundation = "vfo1-foundation",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -234,6 +237,9 @@ export const DefaultFeatureFlagValue = {
 
   /* Desktop */
   [FeatureFlag.DesktopSettingsDialog]: FALSE,
+
+  /* VFO */
+  [FeatureFlag.VFO1Foundation]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
