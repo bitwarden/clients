@@ -30,11 +30,6 @@
               <bit-label for="biometric" class="tw-whitespace-normal">
                 {{ "unlockWithBiometrics" | i18n }}
               </bit-label>
-              @if (biometricUnavailabilityReason) {
-                <bit-hint>
-                  {{ biometricUnavailabilityReason }}
-                </bit-hint>
-              }
             </bit-form-control>
           }
           @if (this.form.value.biometric && !(sharedUnlockFeatureEnabled$ | async)) {

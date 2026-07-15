@@ -93,15 +93,6 @@ export class NativeMessagingBackground {
     private biometricStateService: BiometricStateService,
     private accountService: AccountService,
   ) {
-    if (chrome?.permissions?.onAdded) {
-      // Reload extension to activate nativeMessaging
-      chrome.permissions.onAdded.addListener((permissions) => {
-        if (permissions.permissions?.includes("nativeMessaging")) {
-          BrowserApi.reloadExtension();
-        }
-      });
-    }
-
     // Always try to keep a connection to the Bitwarden Desktop app alive so that there is no wait
     // when biometrics are used. `connect` is a no-op when the native messaging permission is missing.
     this.startConnecting();
