@@ -9,8 +9,8 @@ import { TypographyModule } from "../typography";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { CardContentComponent } from "./card-content.component";
+import { SegmentedCardComponent } from "./card-segmented.component";
 import { CardComponent } from "./card.component";
-import { SegmentedCardComponent } from "./segmented-card.component";
 
 export default {
   title: "Component Library/Cards/Card",
@@ -103,7 +103,7 @@ export const Segmented: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-        <bit-segmented-card class="tw-max-w-2xl">
+        <bit-card-segmented class="tw-max-w-2xl">
           <bit-card-content>
             <h3 bitTypography="h4" class="!tw-mb-1">Section one</h3>
             <p bitTypography="body1" class="!tw-mb-0">
@@ -122,7 +122,7 @@ export const Segmented: Story = {
             <h3 bitTypography="h4" class="!tw-mb-1">Section three</h3>
             <p bitTypography="body1" class="!tw-mb-0">Nunc elementum odio nibh.</p>
           </bit-card-content>
-        </bit-segmented-card>
+        </bit-card-segmented>
     `,
   }),
 };

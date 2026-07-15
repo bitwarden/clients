@@ -9,11 +9,11 @@ import { BaseCardDirective } from "./base-card/base-card.directive";
  * (`<bit-card-content>` is a convenient choice for standard card padding).
  *
  * Note: dividers are drawn between *direct* children (Tailwind `divide-y`), so each
- * segment must be a direct child of `bit-segmented-card`. `@if` / `@for` blocks are fine;
+ * segment must be a direct child of `bit-card-segmented`. `@if` / `@for` blocks are fine;
  * wrapping segments in an intermediate element removes the dividers.
  */
 @Component({
-  selector: "bit-segmented-card",
+  selector: "bit-card-segmented",
   template: `<ng-content></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
