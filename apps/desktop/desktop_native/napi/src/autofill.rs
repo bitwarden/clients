@@ -1,8 +1,10 @@
 #[napi]
 pub mod autofill {
     use autofill_provider::{
-        BitwardenError, NativeStatus, PasskeyAssertionRequest,
+        BitwardenError, ExtensionRequest, ExtensionRequestMessage, NativeStatus,
+        PasskeyAssertionRequest, PasskeyAssertionResponse,
         PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
+        PasskeyRegistrationResponse,
     };
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::{
@@ -29,6 +31,42 @@ pub mod autofill {
         server: desktop_core::ipc::server::Server,
     }
 
+    // TODO(PM-40230): Investigate if we can define the response types on these
+    // callbacks directly.
+    #[napi(object, object_to_js = false)]
+    pub struct AutofillIpcCallbacks {
+        /// Function to execute when a passkey registration request is received.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub registration_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyRegistrationRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub assertion_callback: ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received and the UI must not be
+        /// shown.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub assertion_without_user_interface_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>>,
+
+        /// Function to execute when a notification of the autofill provider's status is received.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub native_status_callback: ThreadsafeFunction<FnArgs<(u32, u32, NativeStatus)>>,
+    }
+
     // FIXME: Remove unwraps! They panic and terminate the whole application.
     #[allow(clippy::unwrap_used)]
     #[napi]
@@ -37,36 +75,11 @@ pub mod autofill {
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
         /// connection and must be the same for both the server and client. @param callback
-        /// This function will be called whenever a message is received from a client.
+        /// The functions that will be called whenever a message of the
+        /// corresponding type is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
-        pub async fn listen(
-            name: String,
-            // Ideally we'd have a single callback that has an enum containing the request values,
-            // but NAPI doesn't support that just yet
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
-            )]
-            registration_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
-            )]
-            assertion_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
-            )]
-            assertion_without_user_interface_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
-            )]
-            native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
-        ) -> napi::Result<Self> {
+        pub async fn listen(name: String, callbacks: AutofillIpcCallbacks) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
                 while let Some(Message {
@@ -84,76 +97,71 @@ pub mod autofill {
                                 continue;
                             };
 
-                            match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
+                            let msg =
+                                match serde_json::from_str::<ExtensionRequestMessage>(&message) {
+                                    Ok(msg) => msg,
+                                    Err(error) => {
+                                        error!(
+                                            %error,
+                                            %message,
+                                            "Received an unknown message from extension"
+                                        );
+                                        continue;
+                                    }
+                                };
+                            match msg.request {
+                                ExtensionRequest::LockStatus => {
+                                    let _params = (client_id, msg.sequence_number);
+                                    todo!("Add lock_status_callback");
+                                    /*
+                                    callbacks.lock_status_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    */
                                 }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
+                                ExtensionRequest::NativeStatus(native_status) => {
+                                    let params = (client_id, msg.sequence_number, native_status);
+                                    callbacks.native_status_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
-                            }
-
-                            match serde_json::from_str::<
-                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
-                            >(&message)
-                            {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_without_user_interface_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
+                                ExtensionRequest::PasskeyAssertion(assertion_request) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, assertion_request);
+                                    callbacks.assertion_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
+                                ExtensionRequest::PasskeyAssertionWithoutUserInterface(
+                                    silent_assertion_request,
+                                ) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, silent_assertion_request);
+                                    callbacks.assertion_without_user_interface_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<PasskeyRegistrationRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    registration_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
+                                ExtensionRequest::PasskeyRegistration(registration_request) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, registration_request);
+                                    callbacks.registration_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message2");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    native_status_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(error) => {
-                                    error!(%error, "Unable to deserialze native status.");
+                                ExtensionRequest::WindowHandle => {
+                                    let _params = (client_id, msg.sequence_number);
+                                    todo!("Add window_handle_callback");
+                                    /*
+                                    callbacks.window_handle_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    */
                                 }
                             }
-
-                            error!(message, "Received an unknown message2");
                         }
                     }
                 }
@@ -193,7 +201,7 @@ pub mod autofill {
             &self,
             client_id: u32,
             sequence_number: u32,
-            response: autofill_provider::PasskeyRegistrationResponse,
+            response: PasskeyRegistrationResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,
@@ -207,7 +215,7 @@ pub mod autofill {
             &self,
             client_id: u32,
             sequence_number: u32,
-            response: autofill_provider::PasskeyAssertionResponse,
+            response: PasskeyAssertionResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

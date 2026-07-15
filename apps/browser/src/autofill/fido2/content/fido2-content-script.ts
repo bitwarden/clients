@@ -6,6 +6,7 @@ import {
 import { currentlyInSandboxedIframe, sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
+import { reportIframeAttributesWhenReady } from "./iframe-allow-reporter";
 import {
   InsecureAssertCredentialParams,
   InsecureCreateCredentialParams,
@@ -34,6 +35,13 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   messenger.handler = handleFido2Message;
   const port = chrome.runtime.connect({ name: Fido2PortName.InjectedScript });
   port.onDisconnect.addListener(handlePortOnDisconnect);
+
+  // Report this frame's iframe `allow=` attributes to the background so the
+  // Permissions Policy gate can consult them when evaluating cross-origin
+  // sub-frames. No-op when this frame has no iframes.
+  reportIframeAttributesWhenReady(globalContext.document, (command, payload) =>
+    sendExtensionMessage(command, payload),
+  );
 
   /**
    * Handles FIDO2 credential requests and returns the result.
@@ -164,21 +172,22 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
    * Checks whether the document's Permissions Policy allows the requested WebAuthn feature.
    *
    * This check runs in the content script's isolated world, so its view of
-   * `document.permissionsPolicy` / `document.featurePolicy` and the `self`/`top`
-   * references cannot be tampered with by page-world script — the precondition
-   * for the VULN-582 / VULN-398 attacker model.
+   * `document.permissionsPolicy` / `document.featurePolicy` cannot be tampered
+   * with by page-world script — the precondition for the VULN-582 / VULN-398
+   * attacker model.
    *
-   * Prefers the standardized `document.permissionsPolicy` API; falls back to the older
-   * `document.featurePolicy`. No shipping browser exposes `permissionsPolicy` as of writing,
-   * but the WICG spec defines it as the standardized form, so we check it first for
-   * forward-compatibility.
+   * Prefers the standardized `document.permissionsPolicy` API; falls back to
+   * the older `document.featurePolicy`. No shipping browser exposes
+   * `permissionsPolicy` as of writing, but the WICG spec defines it as the
+   * standardized form, so we check it first for forward-compatibility.
    *
-   * When neither API is available (Safari, default-config Firefox where the IDL is gated
-   * behind `dom.security.featurePolicy.webidl.enabled`), we fall back to a defense-in-depth
-   * check: deny when we're in a cross-origin iframe, since the spec default allowlist for
-   * `publickey-credentials-*` is `self`. This over-rejects iframes that legitimately received
-   * `allow=publickey-credentials-*` from their parent, which we can't introspect without the
-   * policy API.
+   * When neither API is available (Safari, default-config Firefox where the
+   * IDL is gated behind `dom.security.featurePolicy.webidl.enabled`), permit
+   * the ceremony here and let the background gate make the call. The
+   * background reads `Permissions-Policy` headers via `webRequest` and
+   * iframe `allow=` attributes via a content-script scraper, and applies
+   * the full delegation algorithm. That path has strictly better fidelity
+   * than the naive `self === top` heuristic this fallback used to run.
    *
    * @param featureName Permissions Policy feature name, e.g. `publickey-credentials-get`.
    */
@@ -193,26 +202,10 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
         return policy.allowsFeature(featureName);
       }
     } catch {
-      // Fall through to the defense-in-depth check.
+      // Fall through: background gate will apply the real policy check.
     }
 
-    return !isCrossOriginIframe();
-  }
-
-  /**
-   * Best-effort detection of whether this document is loaded in a cross-origin iframe.
-   * Used as a defense-in-depth fallback when the Permissions Policy JS API is unavailable.
-   */
-  function isCrossOriginIframe(): boolean {
-    try {
-      if (globalContext.self === globalContext.top) {
-        return false;
-      }
-      return globalContext.top?.location.origin !== globalContext.self.location.origin;
-    } catch {
-      // SecurityError reading top.location → top is a different origin.
-      return true;
-    }
+    return true;
   }
 
   /**
