@@ -17,7 +17,6 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
-import { BillingConstraintService } from "../../../../../billing/members/billing-constraint/billing-constraint.service";
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { GroupApiService, OrganizationUserAdminView, UserAdminService } from "../../../core";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
