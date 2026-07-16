@@ -104,6 +104,18 @@
   "shared": {
     "message": "Shared"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
   "share": {
     "message": "Share"
   },
@@ -424,6 +436,10 @@
   },
   "passphrase": {
     "message": "Passphrase"
+  },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Edit item"
@@ -4217,7 +4233,7 @@
     "message": "Passport"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Driver’s licence"
   },
   "ssnCard": {
     "message": "Identity card"
@@ -4232,7 +4248,7 @@
     "message": "Server credentials"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Software licence"
   },
   "healthInsurance": {
     "message": "Health insurance"
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirm file password"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "Vault data exported"
@@ -4414,7 +4454,7 @@
     "message": "Enter the email you use to log in to Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Data centre location"
   },
   "keeperMasterPassword": {
     "message": "Keeper master password"
@@ -4498,10 +4538,10 @@
     "message": "Keeper Push sent"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Approval request will be cancelled"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Are you sure you want to leave? Your admin approval request will be cancelled."
   },
   "cancelRequest": {
     "message": "Cancel request"
@@ -4510,7 +4550,7 @@
     "message": "Keeper two-factor authentication required"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Approve the login request in your authentication app. This dialogue will close automatically."
   },
   "selectTwoFactorMethod": {
     "message": "Select two-factor method"

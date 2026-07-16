@@ -104,6 +104,18 @@
   "shared": {
     "message": "Gedeeld"
   },
+  "sharedFolder": {
+    "message": "Gedeelde map"
+  },
+  "sharedFolders": {
+    "message": "Gedeelde mappen"
+  },
+  "myFolder": {
+    "message": "Mijn map"
+  },
+  "myFolders": {
+    "message": "Mijn mappen"
+  },
   "share": {
     "message": "Delen"
   },
@@ -424,6 +436,10 @@
   },
   "passphrase": {
     "message": "Wachtwoordzin"
+  },
+  "passwordAnnounceSpace": {
+    "message": "spatie",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "editItem": {
     "message": "Item bewerken"
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Bestandswachtwoord bevestigen"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass-hoofdwachtwoord"
+  },
+  "addKeyFile": {
+    "message": "Sleutelbestand toevoegen"
+  },
+  "keyFileUpload": {
+    "message": "Sleutelbestand uploaden"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX-bestand uploaden"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Toegestane formaten: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "De gegevens zijn niet correct opgemaakt. Gelieve uw importbestand te controleren en probeer het opnieuw."
+  },
+  "kdbxWrongFileType": {
+    "message": "Dit bestand is geen geldige KeePass-database (.kdbx). Selecteer een .kdbx-bestand en probeer het opnieuw."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Deze KeePass-database is te groot om te importeren."
   },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"

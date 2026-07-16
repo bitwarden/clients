@@ -104,6 +104,18 @@
   "shared": {
     "message": "Megosztva"
   },
+  "sharedFolder": {
+    "message": "Megosztott mappa"
+  },
+  "sharedFolders": {
+    "message": "Megosztott mappák"
+  },
+  "myFolder": {
+    "message": "Saját mappa"
+  },
+  "myFolders": {
+    "message": "Saját mappák"
+  },
   "share": {
     "message": "Megosztás"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "Kulcskifejezés"
   },
+  "passwordAnnounceSpace": {
+    "message": "szóköz",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Elem szerkesztése"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Webhely másolása"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "$FIELD$ másolása",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -851,7 +867,7 @@
     "message": "Webhely törlése"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "$LABEL$ törlése",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Mező szerkesztése"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "$LABEL$ szerkesztése",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Fájl jelszó megerősítés"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass mesterjelszó"
+  },
+  "addKeyFile": {
+    "message": "Kulcs fájl hozzáadása"
+  },
+  "keyFileUpload": {
+    "message": "Kulcs fájl feltöltés"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX fájl feltöltés"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Elfogadott formátumok: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ez a fájl nem érvényes KeePass adatbázis (.kdbx). Válasszunk egy .kdbx fájlt, és próbáljuk újra."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ez a KeePass adatbázis túl nagy az importáláshoz."
   },
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."

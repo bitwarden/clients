@@ -104,6 +104,18 @@
   "shared": {
     "message": "Đã chia sẻ"
   },
+  "sharedFolder": {
+    "message": "Thư mục chia sẻ"
+  },
+  "sharedFolders": {
+    "message": "Thư mục chia sẻ"
+  },
+  "myFolder": {
+    "message": "Thư mục của tôi"
+  },
+  "myFolders": {
+    "message": "Thư mục của tôi"
+  },
   "share": {
     "message": "Chia sẻ"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "Cụm mật khẩu"
   },
+  "passwordAnnounceSpace": {
+    "message": "dấu nối",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Chỉnh sửa mục"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Sao chép trang web"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Sao chép $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -851,7 +867,7 @@
     "message": "Xóa trang web"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Xoá $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Chỉnh sửa trường"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Chỉnh sửa $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -2503,7 +2519,7 @@
     "message": "Đã đóng tài khoản của bạn và đã xóa tất cả những dữ liệu liên quan."
   },
   "preferences": {
-    "message": "Tuỳ chỉnh"
+    "message": "Tùy chỉnh"
   },
   "hideToMenuBar": {
     "message": "Ẩn vào thanh menu"
@@ -3263,7 +3279,7 @@
     "message": "Bạn chỉ có thể đăng nhập tối đa 5 tài khoản cùng lúc."
   },
   "accountPreferences": {
-    "message": "Tuỳ chỉnh"
+    "message": "Cài đặt"
   },
   "appPreferences": {
     "message": "Cài đặt ứng dụng (tất cả tài khoản)"
@@ -3272,7 +3288,7 @@
     "message": "Số lượng tài khoản đã đạt giới hạn. Đăng xuất khỏi một tài khoản để thêm tài khoản khác."
   },
   "settingsTitle": {
-    "message": "Cài đặt ứng dụng cho $EMAIL$",
+    "message": "Cài đặt ứng dụng của $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3378,7 +3394,7 @@
     "message": "Email được tạo ra"
   },
   "spinboxBoundariesHint": {
-    "message": "Giá trị phải nằm trong khoảng từ $MIN$ đến $MAX$.",
+    "message": "Độ dài phải nằm trong khoảng từ $MIN$ đến $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Nhập lại mật khẩu tập tin"
+  },
+  "keePassMasterPassword": {
+    "message": "Mật khẩu chính KeePass"
+  },
+  "addKeyFile": {
+    "message": "Thêm tệp khóa"
+  },
+  "keyFileUpload": {
+    "message": "Tải lên tệp khóa"
+  },
+  "kdbxFileUpload": {
+    "message": "Tải lên tệp KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Định dạng được chấp nhận: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Dữ liệu không đúng định dạng. Vui lòng kiểm tra tệp tin nhập và thử lại."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tệp này không phải là cơ sở dữ liệu KeePass (.kdbx) hợp lệ. Vui lòng chọn một tệp .kdbx rồi thử lại."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Cơ sở dữ liệu KeePass này quá lớn để nhập."
   },
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
