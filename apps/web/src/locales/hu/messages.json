@@ -66,7 +66,7 @@
     "message": "Idővel kockázatos"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "Kockázat szűrése az idő múlásával"
   },
   "passwordsAtRisk": {
     "message": "Kockázatos jelszavak"
@@ -284,10 +284,10 @@
     "message": "Egyetlen alkalmazás sem lett megjelölve kritikusként."
   },
   "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
+    "message": "Válasszuk ki a legkritikusabb alkalmazásokat, hogy rangsoroljuk a biztonsági műveleteket a felhasználók számára a veszélyeztetett jelszavak kezeléséhez."
   },
   "markCriticalApplications": {
-    "message": "Select critical applications"
+    "message": "Kritikus alkalmazások kiválasztása"
   },
   "markAppAsCritical": {
     "message": "Alkalmazások megjelölése kritikusként"
@@ -989,6 +989,9 @@
   "save": {
     "message": "Mentés"
   },
+  "saveAndContinue": {
+    "message": "Mentés és folytatás"
+  },
   "cancel": {
     "message": "Mégsem"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Megosztott"
+  },
+  "sharedFolder": {
+    "message": "Megosztott mappa"
+  },
+  "sharedFolders": {
+    "message": "Megosztott mappák"
+  },
+  "myFolder": {
+    "message": "Saját mappa"
+  },
+  "myFolders": {
+    "message": "Saját mappák"
   },
   "attachments": {
     "message": "Mellékletek"
@@ -1461,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "A jelszó másolásra került."
+  },
+  "passwordAnnounceSpace": {
+    "message": "szóköz",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Felhasználónév másolása",
@@ -1849,13 +1868,13 @@
     "message": "Regisztráció újrakezdése"
   },
   "expiredLink": {
-    "message": "A hivatkozás lejárt"
+    "message": "A hivatkozás lejárt."
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Kezdd előlről a regisztrációt vagy próbálj belépni."
+    "message": "Kezdjük újra a regisztrációt vagy próbáljunk meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehet hogy már rendelkezel fiókkal"
+    "message": "Lehetséges, hogy már rendelkezünk fiókkal."
   },
   "logOutConfirmation": {
     "message": "Biztosan szeretnénk kijelentkezni?"
@@ -2086,7 +2105,7 @@
     "message": "Mesterjelszó emlékeztető (nem kötelező)"
   },
   "newMasterPassHint": {
-    "message": "Mesterjelszó emlékeztető (nem kötelező)"
+    "message": "Új mesterjelszó emlékeztető (opcionális)"
   },
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
@@ -2148,10 +2167,10 @@
     "message": "A fiók létrehozásra került. Most már be lehet jelentkezni."
   },
   "newAccountCreated2": {
-    "message": "Az új fiók létrejött."
+    "message": "Az új fiók létrejött!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "Bejelentkezve!"
+    "message": "Megtörtént a bejelentkezés!"
   },
   "trialAccountCreated": {
     "message": "A fiók sikeresen létrejött."
@@ -2525,6 +2544,30 @@
   },
   "confirmFilePassword": {
     "message": "Fájl jelszó megerősítés"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass mesterjelszó"
+  },
+  "addKeyFile": {
+    "message": "Kulcs fájl hozzáadása"
+  },
+  "keyFileUpload": {
+    "message": "Kulcs fájl feltöltés"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX fájl feltöltés"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Elfogadott formátumok: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ez a fájl nem érvényes KeePass adatbázis (.kdbx). Válasszunk egy .kdbx fájlt, és próbáljuk újra."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ez a KeePass adatbázis túl nagy az importáláshoz."
   },
   "accountRestrictedOptionDescription": {
     "message": "Használjuk a fiók felhasználónevéből és a mesterjelszóból származó titkosítási kulcsot az exportálás titkosításához és az importálás korlátozásához csak az aktuális Bitwarden fiókra."
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "A szöveges Send elem létrejött."
+  "createdTextSendV2": {
+    "message": "Send$SENDID$ elem létrehozott szüveg",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "A szöveges Send elem létrejött email ellenőrzéssel.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Created text Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "A szöveges Send elem jelszóval létrejött.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Created text Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "A Send fájl elem létrejött.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Created file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "A Send fájl elem létrejött email ellenőrzéssel.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Created file Send$SENDID$ with email verification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "A Send fájl elem jelszóval létrejött.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Created file Send$SENDID$ with password",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "A Send szöveg szerkesztésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Edited text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "A Send fájl szerkesztésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Edited file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "A Send szöveg törlésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Deleted text Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "A Send fájl törlésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Deleted file Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "A Send szöveg elérésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Accessed a text Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "A Send fájl elérésre került.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Accessed a file Send$SENDID$ created by $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Külső"
+  },
+  "sendAccessExternalDomain": {
+    "message": "External ($DOMAIN$ domain)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "View Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "View member $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "$ID$ elem átkerült egy szervezethez.",
@@ -6061,7 +6217,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "$LABEL$ törlése",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6972,7 +7128,7 @@
     "message": "Összes küldés"
   },
   "filterSends": {
-    "message": "Filter Sends"
+    "message": "Send elemek szűrése"
   },
   "maxAccessCountReached": {
     "message": "A maximális hozzáférések száma elérésre került.",
@@ -7435,8 +7591,8 @@
     "message": "Állítsuk be a Send elemek létrehozásának és szerkesztésének opcióit, beleértve a Send elemek eltávolításának lehetőségét.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Kezeljük, hogy a tagok hogyan használják a Send elemeket. Az adminisztrátorokat és a tulajdonosokat ebből a szabályzatból választják.",
+  "sendControlsPolicyDescV4": {
+    "message": "Kezeljük, hogy a tagok hogyan használják a Send szolgáltatást. Ez a házirend a házirend bekapcsolása után létrehozott Send elemekre vonatkozik. Az adminisztrátorok és a tulajdonosok mentesülnek a szabály alól.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Határozzuk meg, hogy mikor javasolt a bejelentkezés az automatikus kitöltéshez. Az adminisztrátorok és tulajdonosok mentesülnek e szabály alól."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Állítsunk be egy alapértelmezést, hogy a webhely cím (URI) mely részeinek kell megfelelniük ahhoz, hogy a Bitwarden bejelentkezést javasoljon az automatikus kitöltéshez. Ez a házirend nem érvényesül a tulajdonosok és az adminisztrátorok számára."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Alapértelmezett URI egyezés érzékelés"
@@ -9423,17 +9582,17 @@
     "message": "Ez az API kulcs hozzáféréssel rendelkezik a szervezeten belüli felhasználók kezeléséhez. Célszerű titokban tartani."
   },
   "scimInviteUsersAfterProvisioning": {
-    "message": "Automatically send email invitations"
+    "message": "Email meghívók automatikus küldése"
   },
   "scimInviteUsersAfterProvisioningHint": {
-    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "message": "Emailes meghívók automatikus küldése, ha a felhasználók SCIM-en keresztül biztosítottak.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimInviteUsersAfterProvisioningHelpTitle": {
-    "message": "About email invitations"
+    "message": "Az email meghívókról"
   },
   "scimInviteUsersAfterProvisioningHelpBody": {
-    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "message": "Ha ez a beállítás be van kapcsolva, a SCIM-en keresztül biztosított tagok emailben meghívót kapnak és meghívottként jelennek meg a Tagok oldalon. Ha ki van kapcsolva, a tagok szakaszosan jelennek meg, és manuálisan kell meghívni őket egy adminisztrátornak vagy meghívó hivatkozásnak.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
@@ -10374,6 +10533,42 @@
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
     "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba a szervezet tulajdonosával a csomag frissítéséhez és további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Az ingyenes szervezeteknek legfeljebb $SEATCOUNT$ tagjai lehetnek. Térjünk át egy fizetett csomagra további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Az ingyenes szervezeteknek legfeljebb $SEATCOUNT$ tagjai lehetnek. Vegyük fel a kapcsolatot a szervezet tulajdonosával az áttéréshez.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "A Teams Starter csomagoknak legfeljebb $SEATCOUNT$ tagja lehet. Térjünk át egy fizetett csomagra további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "A Teams Starter csomagoknak legfeljebb $SEATCOUNT$ tagja lehet. Lépjünk kapcsolatba a szervezet tulajdonosával a csomag áttéréshez és a tag hozzáférés visszaállításához.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12298,7 +12493,7 @@
     "message": "Előfizetés kiválasztása"
   },
   "planBillingInterval": {
-    "message": "Plan billing interval"
+    "message": "Csomag számlázási intervallum"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% engedmény"
@@ -12782,6 +12977,24 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "A családi szervezeteknek legfeljebb $SEATCOUNT$ tagja lehet. Az áttéréshez forduljunk a szervezet tulajdonosához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "A családi szervezeteknek legfeljebb $SEATCOUNT$ tagjai lehetnek. Térjünk át fizetős csomagra a tag hozzáférés visszaállításához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
     "message": "A családi szervezeteknek legfeljebb $SEATCOUNT$ tagja lehet. Az áttéréshez forduljunk a szervezet tulajdonosához.",
     "placeholders": {
       "seatcount": {
