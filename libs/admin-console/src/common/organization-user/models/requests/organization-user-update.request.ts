@@ -11,6 +11,7 @@ export class OrganizationUserUpdateRequest {
   permissions: PermissionsApi;
   defaultUserCollectionName: EncryptedString | undefined;
   email: string | undefined;
+  name: string | undefined;
 
   constructor(c: {
     type: OrganizationUserType;
@@ -20,6 +21,7 @@ export class OrganizationUserUpdateRequest {
     groups?: string[];
     defaultUserCollectionName?: EncryptedString;
     email?: string;
+    name?: string;
   }) {
     this.type = c.type;
     this.accessSecretsManager = c.accessSecretsManager ?? false;
@@ -28,5 +30,6 @@ export class OrganizationUserUpdateRequest {
     this.permissions = c.permissions;
     this.defaultUserCollectionName = c.defaultUserCollectionName;
     this.email = c.email;
+    this.name = c.name;
   }
 }

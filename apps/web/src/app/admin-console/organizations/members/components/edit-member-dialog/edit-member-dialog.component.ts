@@ -454,6 +454,8 @@ export class EditMemberDialogComponent {
       ? (this.formGroup.getRawValue().email ?? undefined)
       : undefined;
 
+    const name = this.formGroup.getRawValue().name ?? undefined;
+
     const request = new OrganizationUserUpdateRequest({
       type,
       permissions,
@@ -461,6 +463,7 @@ export class EditMemberDialogComponent {
       collections,
       accessSecretsManager,
       email,
+      name,
     });
 
     try {
