@@ -1,59 +1,71 @@
-<div *ngIf="loading">
-  <bit-icon
-    name="bwi-spinner"
-    class="bwi-spin tw-text-muted"
-    [ariaLabel]="'loading' | i18n"
-  ></bit-icon>
-</div>
-<form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
-  <div class="tw-grid tw-grid-cols-12 tw-gap-6">
-    <div class="tw-col-span-12 @3xl:tw-col-span-6">
-      <bit-form-field>
-        <bit-label>{{ "name" | i18n }}</bit-label>
-        <input bitInput formControlName="name" />
-      </bit-form-field>
-      <bit-form-field>
-        <bit-label>{{ "email" | i18n }}</bit-label>
-        <input bitInput formControlName="email" readonly />
-      </bit-form-field>
-    </div>
-    <div class="tw-col-span-12 @3xl:tw-col-span-6 tw-row-start-1 @3xl:tw-row-start-auto">
-      <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
-        <dynamic-avatar text="{{ profile | userName }}" [id]="profile.id" size="2xl">
-        </dynamic-avatar>
-        <button
-          class="tw-ml-3"
-          type="button"
-          buttonType="secondary"
-          bitButton
-          bitFormButton
-          appStopClick
-          appStopProp
-          [bitAction]="openChangeAvatar"
-        >
-          <bit-icon name="bwi-pencil-square" class="bwi-lg"></bit-icon>
-          {{ "customize" | i18n }}
-        </button>
-      </div>
-      <div *ngIf="managingOrganization$ | async as managingOrganization">
-        {{ "accountIsOwnedMessage" | i18n: managingOrganization?.name }}
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://bitwarden.com/help/claimed-accounts"
-        >
-          <bit-icon name="bwi-question-circle"></bit-icon>
-        </a>
-      </div>
-      @if (fingerprintMaterial && userPublicKey) {
-        <app-account-fingerprint
-          [fingerprintMaterial]="fingerprintMaterial"
-          [publicKeyBuffer]="userPublicKey"
-          fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
-        >
-        </app-account-fingerprint>
-      }
-    </div>
+@if (loading()) {
+  <div>
+    <bit-icon
+      name="bwi-spinner"
+      class="bwi-spin tw-text-muted"
+      [ariaLabel]="'loading' | i18n"
+    ></bit-icon>
   </div>
-  <button bitButton bitFormButton type="submit" buttonType="primary">{{ "save" | i18n }}</button>
-</form>
+}
+@if (profile(); as profile) {
+  @if (!loading()) {
+    <form [formGroup]="formGroup" [bitSubmit]="submit">
+      <div class="tw-grid tw-grid-cols-12 tw-gap-6">
+        <div class="tw-col-span-12 @3xl:tw-col-span-6">
+          <bit-form-field>
+            <bit-label>{{ "name" | i18n }}</bit-label>
+            <input bitInput formControlName="name" />
+          </bit-form-field>
+          <bit-form-field>
+            <bit-label>{{ "email" | i18n }}</bit-label>
+            <input bitInput [value]="email()" readonly />
+          </bit-form-field>
+        </div>
+        <div class="tw-col-span-12 @3xl:tw-col-span-6 tw-row-start-1 @3xl:tw-row-start-auto">
+          <div class="tw-mb-3 tw-flex tw-align-middle tw-items-center">
+            <dynamic-avatar [text]="avatarUser() | userName" [id]="profile.id" size="2xl">
+            </dynamic-avatar>
+            <button
+              startIcon="bwi-pencil-square"
+              class="tw-ml-3"
+              type="button"
+              buttonType="secondary"
+              bitButton
+              bitFormButton
+              appStopClick
+              appStopProp
+              [bitAction]="openChangeAvatar"
+            >
+              {{ "customize" | i18n }}
+            </button>
+          </div>
+          @if (managingOrganization(); as managingOrganization) {
+            <div>
+              {{ "accountIsOwnedMessage" | i18n: managingOrganization?.name }}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://bitwarden.com/help/claimed-accounts"
+              >
+                <bit-icon name="bwi-question-circle"></bit-icon>
+              </a>
+            </div>
+          }
+          @if (fingerprintMaterial(); as fingerprintMaterial) {
+            @if (userPublicKey(); as userPublicKey) {
+              <app-account-fingerprint
+                [fingerprintMaterial]="fingerprintMaterial"
+                [publicKeyBuffer]="userPublicKey"
+                fingerprintLabel="{{ 'yourAccountsFingerprint' | i18n }}"
+              >
+              </app-account-fingerprint>
+            }
+          }
+        </div>
+      </div>
+      <button bitButton bitFormButton type="submit" buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
+    </form>
+  }
+}

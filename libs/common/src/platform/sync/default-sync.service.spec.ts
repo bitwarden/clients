@@ -29,6 +29,7 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
@@ -46,6 +47,7 @@ import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
@@ -83,6 +85,7 @@ describe("DefaultSyncService", () => {
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
   let v2UpgradeTokenStateService: MockProxy<V2UpgradeTokenStateService>;
+  let configService: MockProxy<ConfigService>;
 
   let sut: DefaultSyncService;
 
@@ -117,6 +120,7 @@ describe("DefaultSyncService", () => {
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
     v2UpgradeTokenStateService = mock();
+    configService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -148,6 +152,7 @@ describe("DefaultSyncService", () => {
       kdfConfigService,
       accountCryptographicStateService,
       v2UpgradeTokenStateService,
+      configService,
     );
   });
 
@@ -669,6 +674,35 @@ describe("DefaultSyncService", () => {
           expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
+      });
+    });
+
+    describe("account email sync", () => {
+      const newEmail = "new@example.com";
+
+      const emailSyncResponse = new SyncResponse({
+        Profile: { Id: user1, Email: newEmail },
+      });
+
+      it("sets the account email when the self-service change email flag is enabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM30806_SelfServiceChangeEmailCommand,
+        );
+        expect(accountService.setAccountEmail).toHaveBeenCalledWith(user1, newEmail);
+      });
+
+      it("does not set the account email when the self-service change email flag is disabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(accountService.setAccountEmail).not.toHaveBeenCalled();
       });
     });
 

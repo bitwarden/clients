@@ -1,12 +1,10 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, OnInit, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
-import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -23,41 +21,62 @@ import { SharedModule } from "../../../shared";
 
 import { ChangeAvatarDialogComponent } from "./change-avatar-dialog.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-profile",
   templateUrl: "profile.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SharedModule, DynamicAvatarComponent, AccountFingerprintComponent],
 })
-export class ProfileComponent implements OnInit, OnDestroy {
-  loading = true;
-  profile: ProfileResponse;
-  fingerprintMaterial: string;
-  userPublicKey: UserPublicKey;
-  managingOrganization$: Observable<Organization>;
-  private destroy$ = new Subject<void>();
+export class ProfileComponent implements OnInit {
+  protected readonly loading = signal(true);
+  protected readonly profile = signal<ProfileResponse | undefined>(undefined);
+  protected readonly fingerprintMaterial = signal<string | undefined>(undefined);
+  protected readonly userPublicKey = signal(undefined as UserPublicKey | undefined);
 
-  protected formGroup = new FormGroup({
-    name: new FormControl(null),
-    email: new FormControl(null),
+  protected readonly formGroup = new FormGroup({
+    name: new FormControl("", { nonNullable: true }),
   });
 
+  protected readonly email = toSignal(
+    this.accountService.activeAccount$.pipe(map((account) => account?.email ?? "")),
+  );
+
+  // Live value of the name field so the avatar initials update as the user types.
+  private readonly enteredName = toSignal(this.formGroup.controls.name.valueChanges, {
+    initialValue: "",
+  });
+
+  protected readonly avatarUser = computed(() => ({
+    name: this.enteredName(),
+    email: this.email(),
+  }));
+
+  protected readonly managingOrganization = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      map((organizations) => organizations.find((o) => o.userIsClaimedByOrganization === true)),
+    ),
+  );
+
   constructor(
-    private apiService: ApiService,
-    private i18nService: I18nService,
-    private accountService: AccountService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private organizationService: OrganizationService,
-    private keyService: KeyService,
-    private logService: LogService,
+    private readonly apiService: ApiService,
+    private readonly i18nService: I18nService,
+    private readonly accountService: AccountService,
+    private readonly dialogService: DialogService,
+    private readonly toastService: ToastService,
+    private readonly organizationService: OrganizationService,
+    private readonly keyService: KeyService,
+    private readonly logService: LogService,
   ) {}
 
   async ngOnInit() {
-    this.profile = await this.apiService.getProfile();
+    const profile = await this.apiService.getProfile();
+    this.profile.set(profile);
+
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    this.fingerprintMaterial = userId;
+    this.fingerprintMaterial.set(userId);
+
     const publicKey = (await firstValueFrom(
       this.keyService.userPublicKey$(userId),
     )) as UserPublicKey;
@@ -68,45 +87,30 @@ export class ProfileComponent implements OnInit, OnDestroy {
           " fingerprint can't be displayed.",
       );
     } else {
-      this.userPublicKey = publicKey;
+      this.userPublicKey.set(publicKey);
     }
 
-    this.managingOrganization$ = this.organizationService
-      .organizations$(userId)
-      .pipe(
-        map((organizations) => organizations.find((o) => o.userIsClaimedByOrganization === true)),
-      );
+    this.formGroup.controls.name.setValue(profile.name);
 
-    this.formGroup.get("name").setValue(this.profile.name);
-    this.formGroup.get("email").setValue(this.profile.email);
-
-    this.formGroup
-      .get("name")
-      .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((name) => {
-        this.profile.name = name;
-      });
-
-    this.loading = false;
+    this.loading.set(false);
   }
 
-  openChangeAvatar = async () => {
+  protected readonly openChangeAvatar = async () => {
+    const profile = this.profile();
+    if (profile == null) {
+      return;
+    }
+
     ChangeAvatarDialogComponent.open(this.dialogService, {
-      data: { profile: this.profile },
+      data: { profile },
     });
   };
 
-  async ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  submit = async () => {
-    const request = new UpdateProfileRequest(this.formGroup.get("name").value);
+  protected readonly submit = async () => {
+    const request = new UpdateProfileRequest(this.formGroup.controls.name.value);
     await this.apiService.putProfile(request);
     this.toastService.showToast({
       variant: "success",
-      title: null,
       message: this.i18nService.t("accountUpdated"),
     });
   };
