@@ -10,15 +10,12 @@ export interface OpenOrgInviteSsoConfig {
 }
 
 /**
- * Domain snapshot of an open invite link's status, sourced from
- * `OrganizationInviteService.getOpenOrgInviteStatus(code)`. Mapped from the wire
- * response inside the service; the service wraps this in an
- * {@link OpenOrgInviteStatusResult} to encapsulate the endpoint's error modes
- * into a single discriminated return.
+ * Payload shape carried on the `ok` variant of {@link OpenOrgInviteStatusResult}.
+ * Discriminator-encoded fields (`linksEnabled`, `seatsAvailable`) are omitted — they
+ * are always true when `ok` is returned, so keeping them on the payload would let
+ * illegal states be typed (see the result union file for the fuller rationale).
  */
 export interface OpenOrgInviteStatus {
-  organizationId: string;
   organizationName: string;
-  seatsAvailable: boolean;
   sso: OpenOrgInviteSsoConfig | null;
 }

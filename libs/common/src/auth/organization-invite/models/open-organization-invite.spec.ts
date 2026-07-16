@@ -15,13 +15,11 @@ describe("OpenOrganizationInvite", () => {
       const invite = new OpenOrganizationInvite({
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
-        organizationId: "organizationId",
         organizationName: "organizationName",
       });
 
       expect(invite.inviteLinkCode).toBe("inviteLinkCode");
       expect(invite.inviteKey).toBe("inviteKey");
-      expect(invite.organizationId).toBe("organizationId");
       expect(invite.organizationName).toBe("organizationName");
     });
 
@@ -29,7 +27,6 @@ describe("OpenOrganizationInvite", () => {
       const invite = new OpenOrganizationInvite({
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
-        organizationId: "organizationId",
         organizationName: "organizationName",
       });
 
@@ -40,7 +37,6 @@ describe("OpenOrganizationInvite", () => {
       const invite = new OpenOrganizationInvite({
         inviteLinkCode: "inviteLinkCode",
         inviteKey: "inviteKey",
-        organizationId: "organizationId",
         organizationName: "organizationName",
         sso: ssoConfig,
       });
@@ -56,9 +52,7 @@ describe("OpenOrganizationInvite", () => {
     });
 
     const validStatus = (overrides: Partial<OpenOrgInviteStatus> = {}): OpenOrgInviteStatus => ({
-      organizationId: "organizationId",
       organizationName: "Acme Inc.",
-      seatsAvailable: true,
       sso: null,
       ...overrides,
     });
@@ -74,7 +68,6 @@ describe("OpenOrganizationInvite", () => {
         kind: "open",
         inviteLinkCode: "invite-link-code",
         inviteKey: "invite-key",
-        organizationId: "organizationId",
         organizationName: "Acme Inc.",
         sso: ssoConfig,
       });
@@ -109,7 +102,6 @@ describe("OpenOrganizationInvite", () => {
         kind: "open",
         inviteLinkCode: "invite-link-code",
         inviteKey: "invite-key",
-        organizationId: "organizationId",
         organizationName: "organizationName",
         sso: ssoConfig,
       } satisfies Jsonify<OpenOrganizationInvite>;

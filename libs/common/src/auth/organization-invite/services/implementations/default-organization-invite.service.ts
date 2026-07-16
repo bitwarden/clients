@@ -43,10 +43,7 @@ import { DirectOrganizationInvite } from "../../models/direct-organization-invit
 import { OpenOrganizationInvite } from "../../models/open-organization-invite";
 import { AcceptOpenOrgInviteResult } from "../../types/accept-open-org-invite-result.type";
 import { OpenOrgInviteStatusResult } from "../../types/open-org-invite-status-result.type";
-import {
-  OpenOrgInviteStatus,
-  OpenOrgInviteSsoConfig,
-} from "../../types/open-org-invite-status.type";
+import { OpenOrgInviteSsoConfig } from "../../types/open-org-invite-status.type";
 import { OrganizationInvite } from "../../types/organization-invite.type";
 import { OrganizationInviteService } from "../organization-invite.service";
 
@@ -190,6 +187,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
         invite,
         userId,
       );
+      // TODO: PM-40216 (PR #21815) — accept request scoping. When that lands, pass
+      // `organizationId: invite.organizationId` on the request (invite.organizationId
+      // will re-appear on OpenOrganizationInvite, sourced from the URL path).
       await this.organizationInviteLinkApiService.accept(
         new OrganizationInviteLinkAcceptRequest({
           code: invite.inviteLinkCode,
@@ -297,7 +297,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
               invite.email,
               invite.organizationUserId,
             )
-          : await this.policyApiService.getPoliciesByInviteLinkCode(invite.inviteLinkCode);
+          : // TODO: PM-40216 (PR #21815) — policy fetch scoping. When that lands, pass
+            // `invite.organizationId` as the first argument.
+            await this.policyApiService.getPoliciesByInviteLinkCode(invite.inviteLinkCode);
       if (policies != null) {
         this.policyCache.set(cacheKey, policies);
       }
@@ -308,36 +310,27 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     }
   }
 
+  // TODO: PM-40216 (PR #21815) — signature becomes
+  //   getOpenOrgInviteStatus(organizationId: string, code: string)
+  // and the wrapped call gets both args. Callers pass organizationId from the URL
+  // path params.
   async getOpenOrgInviteStatus(code: string): Promise<OpenOrgInviteStatusResult> {
     try {
       const response = await this.organizationInviteLinkApiService.getStatus(code);
-      // TODO: PM-39815 — server is moving the "plan doesn't support invite links"
-      // signal from a 400 InviteLinkNotAvailable error to a boolean field (e.g.,
-      // LinksEnabled) on the successful status payload. When that lands:
-      //   1. Add the field to OrganizationInviteLinkStatusResponseModel and
-      //      OpenOrgInviteStatus.
-      //   2. Return `{ kind: "plan-not-supported" }` from here when the field is
-      //      false, before constructing the `ok` result below.
-      //   3. Remove the 400 branch in the catch below (a stray 400 then falls
-      //      through to `unexpected`, which is the desired behavior).
-      // Consumer result contract is unchanged.
+      if (!response.linksEnabled) {
+        return { kind: "plan-not-supported", organizationName: response.organizationName };
+      }
+      if (!response.seatsAvailable) {
+        return { kind: "no-seats", organizationName: response.organizationName };
+      }
       const sso: OpenOrgInviteSsoConfig | null =
         response.sso == null
           ? null
           : { orgSsoId: response.sso.orgSsoId, required: response.sso.required };
-      const status: OpenOrgInviteStatus = {
-        organizationId: response.organizationId,
-        organizationName: response.organizationName,
-        seatsAvailable: response.seatsAvailable,
-        sso,
-      };
-      return { kind: "ok", status };
+      return { kind: "ok", status: { organizationName: response.organizationName, sso } };
     } catch (e) {
       if (e instanceof ErrorResponse && e.statusCode === 404) {
         return { kind: "not-found" };
-      }
-      if (e instanceof ErrorResponse && e.statusCode === 400) {
-        return { kind: "plan-not-supported" };
       }
       return { kind: "unexpected", errorMessage: this.extractErrorMessage(e) };
     }
@@ -375,6 +368,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   // "invite not found" post-auth; (b) fail-open + clear open-invite state on a definitive
   // 404 so pre-auth "Joining <org>" hints stop lying; (c) also surface a toast at the
   // domain-check step. Awaiting product's call.
+  // TODO: PM-40216 (PR #21815) — signature becomes
+  //   validateOpenOrgInviteEmailDomain(organizationId: string, code: string, email: string)
+  // and the request adds `organizationId`.
   async validateOpenOrgInviteEmailDomain(code: string, email: string): Promise<boolean> {
     const response = await this.organizationInviteLinkApiService.validateEmailDomain(
       new OrganizationInviteLinkValidateEmailDomainRequest({ code, email }),
@@ -557,49 +553,37 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
   }
 
   /**
-   * Encrypts the user key with the org's public key so the server can auto-enroll the
-   * user in the org's account-recovery flow as part of accepting an
-   * open invite.
+   * Stub: auto-enroll on open-invite accept is a no-op today. Returns undefined so
+   * the accept request goes out without a `resetPasswordKey`.
    *
-   * Returns undefined when the org's account-recovery policy doesn't auto-enroll
-   * accepting members. Callers set `resetPasswordKey` on the accept request to the
-   * returned value.
+   * Two independent blockers keep this stubbed. Do not simply restore the prior TS
+   * implementation — both blockers must resolve, and (2) requires a different design.
+   *
+   * 1. PM-40216 (PR #21815, in flight) — the invite URL will carry `organizationId`.
+   *    The prior TS crypto needed it for
+   *    `policyService.getResetPasswordPolicyOptions(policies, orgId)` and
+   *    `organizationApiService.getKeys(orgId)`. PM-40216 landing unblocks this.
+   *
+   * 2. ZK vulnerability flagged in PR #21574 review — the prior TS crypto encrypted
+   *    the user key against an unauthenticated org public key fetched from the server.
+   *    A malicious server can swap the pubkey and obtain the user key; nothing binds
+   *    trust to the invite. The direct-invite path has the same latent vulnerability
+   *    today. The fix is not a restoration but a replacement: an SDK primitive that
+   *    owns the wrap crypto and binds trust via the invite envelope (quexten's
+   *    proposal — bake the pubkey / fingerprint into the invite envelope).
+   *
+   * Net: PM-40216 does not, by itself, unblock this method. Wait for the SDK-owned
+   * account-recovery-wrap primitive; when it lands, this method disappears and the
+   * caller in `acceptOpenOrgInvite` calls the SDK instead.
+   *
+   * Feature is behind `FeatureFlag.GenerateInviteLink = false` in prod, so the
+   * current no-op has no user-visible impact. Prior TS crypto preserved in branch
+   * history if it's useful as reference for the SDK migration.
    */
   private async computeOpenInviteResetPasswordKey(
-    invite: OpenOrganizationInvite,
-    userId: UserId,
+    _invite: OpenOrganizationInvite,
+    _userId: UserId,
   ): Promise<string | undefined> {
-    const policies = await this.getOrgPoliciesForInvite(invite);
-    if (policies == null || policies.length === 0) {
-      return undefined;
-    }
-
-    const [resetPasswordOptions, enabled] = this.policyService.getResetPasswordPolicyOptions(
-      policies,
-      invite.organizationId,
-    );
-    if (!enabled || !resetPasswordOptions.autoEnrollEnabled) {
-      return undefined;
-    }
-
-    const orgKeysResponse = await this.organizationApiService.getKeys(invite.organizationId);
-    if (orgKeysResponse == null) {
-      throw new Error(this.i18nService.t("resetPasswordOrgKeysError"));
-    }
-    const orgPublicKey = Utils.fromB64ToArray(orgKeysResponse.publicKey);
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("User key is required to enroll in password reset.");
-    }
-
-    const orgPublicKeyEncryptedUserKey = await this.encryptService.encapsulateKeyUnsigned(
-      userKey,
-      orgPublicKey,
-    );
-    if (orgPublicKeyEncryptedUserKey.encryptedString == null) {
-      throw new Error("Failed to encrypt user key for password reset enrollment.");
-    }
-    return orgPublicKeyEncryptedUserKey.encryptedString;
+    return undefined;
   }
 }

@@ -8,6 +8,12 @@ import { OpenOrgInviteSsoConfig, OpenOrgInviteStatus } from "../types/open-org-i
  * `inviteLinkCode` is a server-generated GUID; `inviteKey` is the URL-fragment key,
  * which the browser never transmits to the server in HTTP requests.
  */
+// TODO: PM-40216 (PR #21815) — invite URL adds an `organizationId` path segment.
+// When that PR lands, add `organizationId: string` here (also to the constructor,
+// fromUrlParamsAndStatus, fromJSON, and the class field), update the route path in
+// oss-routing.module.ts, and re-wire the downstream consumers currently stubbed
+// with PM-40216 TODOs (computeOpenInviteResetPasswordKey; the openMatch branch in
+// WebLoginComponentService).
 export interface OpenOrgInviteUrlParams {
   inviteLinkCode: string;
   inviteKey: string;
@@ -25,7 +31,6 @@ export class OpenOrganizationInvite {
   readonly kind = OrgInviteKind.Open;
   inviteLinkCode: string;
   inviteKey: string;
-  organizationId: string;
   organizationName: string;
   /** Absent when the org has no SSO configured/enabled. */
   sso?: OpenOrgInviteSsoConfig;
@@ -33,13 +38,11 @@ export class OpenOrganizationInvite {
   constructor(data: {
     inviteLinkCode: string;
     inviteKey: string;
-    organizationId: string;
     organizationName: string;
     sso?: OpenOrgInviteSsoConfig;
   }) {
     this.inviteLinkCode = data.inviteLinkCode;
     this.inviteKey = data.inviteKey;
-    this.organizationId = data.organizationId;
     this.organizationName = data.organizationName;
     this.sso = data.sso;
   }
@@ -55,7 +58,6 @@ export class OpenOrganizationInvite {
     return new OpenOrganizationInvite({
       inviteLinkCode: urlParams.inviteLinkCode,
       inviteKey: urlParams.inviteKey,
-      organizationId: status.organizationId,
       organizationName: status.organizationName,
       sso: status.sso ?? undefined,
     });

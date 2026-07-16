@@ -76,6 +76,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * failures so the caller can short-circuit. `unexpected` re-throws into
    * `AcceptFlowService`'s generic error path.
    */
+  // TODO: PM-40216 (PR #21815) — takes `organizationId` alongside `code` and
+  // passes both to `getOpenOrgInviteStatus`.
   private async fetchStatusOrShowError(code: string): Promise<OpenOrgInviteStatus | null> {
     const result = await this.organizationInviteService.getOpenOrgInviteStatus(code);
     switch (result.kind) {
@@ -97,13 +99,24 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         // TODO: placeholder — pending design. Icon (AccountWarning) and copy
         // (openInvitePlanNotSupportedTitle / openInvitePlanNotSupportedMessage
         // in apps/web/src/locales/en/messages.json) are stand-ins until design
-        // provides the final asset + strings. Server response for 400 carries
-        // no org name, so copy stays generic.
+        // provides the final asset + strings. `organizationName` is available on
+        // this result kind and should feed the title once design approves the
+        // interpolated copy.
         this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
           pageTitle: { key: "openInvitePlanNotSupportedTitle" },
           pageIcon: AccountWarning,
         });
         this.planNotSupported.set(true);
+        return null;
+      case "no-seats":
+        // TODO: placeholder — pending design. `organizationName` is available on
+        // this result kind and should feed the title once design approves the
+        // interpolated copy.
+        this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+          pageTitle: { key: "openInviteNoSeatsTitle" },
+          pageIcon: AccountWarning,
+        });
+        this.noSeats.set(true);
         return null;
       case "unexpected":
         throw new Error(result.errorMessage);
@@ -113,15 +126,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private async unauthedHandler(urlParams: OpenOrgInviteUrlParams): Promise<void> {
     const status = await this.fetchStatusOrShowError(urlParams.inviteLinkCode);
     if (status == null) {
-      return;
-    }
-
-    if (!status.seatsAvailable) {
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "openInviteNoSeatsTitle" },
-        pageIcon: AccountWarning,
-      });
-      this.noSeats.set(true);
       return;
     }
 
@@ -153,15 +157,6 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
     // surfaces (404 / 400 / no-seats) to render before committing an accept.
     const status = await this.fetchStatusOrShowError(urlParams.inviteLinkCode);
     if (status == null) {
-      return;
-    }
-
-    if (!status.seatsAvailable) {
-      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: { key: "openInviteNoSeatsTitle" },
-        pageIcon: AccountWarning,
-      });
-      this.noSeats.set(true);
       return;
     }
 

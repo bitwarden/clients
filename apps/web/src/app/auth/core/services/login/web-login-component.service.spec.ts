@@ -193,7 +193,6 @@ describe("WebLoginComponentService", () => {
       const openInvite = new OpenOrganizationInvite({
         inviteLinkCode: "link-code",
         inviteKey: "link-key",
-        organizationId: "open-org-id",
         organizationName: "Acme Corp",
       });
 
@@ -209,7 +208,7 @@ describe("WebLoginComponentService", () => {
         expect(organizationInviteService.getOrgPoliciesForInvite).not.toHaveBeenCalled();
       });
 
-      it("uses invite.organizationId and returns PasswordPolicies when flag is on", async () => {
+      it("returns PasswordPolicies when flag is on", async () => {
         const policies: Policy[] = [new Policy()];
         const masterPasswordPolicyOptions = new MasterPasswordPolicyOptions();
         const resetPasswordPolicyOptions = new ResetPasswordPolicyOptions();
@@ -229,10 +228,6 @@ describe("WebLoginComponentService", () => {
 
         const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
 
-        expect(internalPolicyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
-          policies,
-          openInvite.organizationId,
-        );
         expect(result).toEqual({
           policies,
           isPolicyAndAutoEnrollEnabled: false,
@@ -390,18 +385,11 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).not.toHaveBeenCalled();
       });
 
-      it("auto-progresses on open-invite match by org id when a direct pending row also exists server-side for the same org", async () => {
-        // User has an open invite in state AND the server has a pending direct-invite
-        // row for the same org (from an earlier admin invite). Server fires
-        // InviteAcceptanceRequired because of the direct row; client matches on the
-        // open invite's org id and auto-progresses. Post-MP-login, deepLinkGuard
-        // replays /join/... and open-invite accept runs; server dedupes against the
-        // existing pending row.
+      it("falls through to the warning toast when a stashed open invite is present (open stash-match is stubbed until PM-40216)", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             inviteLinkCode: "link-code",
             inviteKey: "link-key",
-            organizationId: mockOrganizationId,
             organizationName: mockOrganizationName,
           }),
         );
@@ -413,13 +401,8 @@ describe("WebLoginComponentService", () => {
           email: mockEmail,
         });
 
-        expect(result.autoSubmit).toBe(true);
-        expect(result.mpEntryLayoutOverride).toEqual({
-          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
-          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
-          pageIcon: expect.anything(),
-        });
-        expect(toastService.showToast).not.toHaveBeenCalled();
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
       });
     });
 
@@ -494,46 +477,12 @@ describe("WebLoginComponentService", () => {
         expect(toastService.showToast).toHaveBeenCalled();
       });
 
-      it("auto-progresses on open-invite match by org id (existing Bitwarden user, never invited or joined server-side)", async () => {
-        // Existing user clicks /join/<code> for an SSO-required org they've never
-        // been invited to or joined. SSO succeeds against IdP; server refuses to
-        // create the OrgUser (no direct invite, no auto-provision) and fires
-        // OrgMembershipRequired. Client matches by org id (email is not on the open
-        // invite, so we skip that check for the open branch).
+      it("falls through to the warning toast when a stashed open invite is present (open stash-match is stubbed until PM-40216)", async () => {
         organizationInviteService.getOrganizationInvite.mockResolvedValue(
           new OpenOrganizationInvite({
             inviteLinkCode: "link-code",
             inviteKey: "link-key",
-            organizationId: mockOrganizationId,
             organizationName: mockOrganizationName,
-          }),
-        );
-
-        const result = await service.handleQueryParamErrors({
-          error: "ssoOrgMembershipRequired",
-          organizationId: mockOrganizationId,
-          organizationName: mockOrganizationName,
-          email: mockEmail,
-        });
-
-        expect(result.autoSubmit).toBe(true);
-        expect(result.mpEntryLayoutOverride).toEqual({
-          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
-          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
-          pageIcon: expect.anything(),
-        });
-        expect(toastService.showToast).not.toHaveBeenCalled();
-      });
-
-      it("does not auto-progress when the open invite is for a different org than the redirect", async () => {
-        // Open invite for OrgB stashed, redirect is for OrgA — fall through to
-        // the shared no-match toast. Matching by org id keeps this correct.
-        organizationInviteService.getOrganizationInvite.mockResolvedValue(
-          new OpenOrganizationInvite({
-            inviteLinkCode: "link-code",
-            inviteKey: "link-key",
-            organizationId: "22222222-2222-2222-2222-222222222222",
-            organizationName: "Different Org",
           }),
         );
 

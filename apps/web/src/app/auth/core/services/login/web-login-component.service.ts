@@ -116,11 +116,17 @@ export class WebLoginComponentService
           orgInvite?.kind === OrgInviteKind.Direct &&
           orgInvite.organizationId === params.organizationId &&
           orgInvite.email?.toLowerCase() === params.email.toLowerCase();
-        const openMatch =
-          orgInvite?.kind === OrgInviteKind.Open &&
-          orgInvite.organizationId === params.organizationId;
-
-        if (directMatch || openMatch) {
+        // TODO: PM-40216 (PR #21815) — restore the open-invite branch of the stash
+        // match when `OpenOrganizationInvite.organizationId` re-appears (sourced from
+        // the URL path). Reversal template:
+        //   const openMatch =
+        //     orgInvite?.kind === OrgInviteKind.Open &&
+        //     orgInvite.organizationId === params.organizationId;
+        //   if (directMatch || openMatch) { ... }
+        // Until then, stash-match is direct-only; open invites fall through to the
+        // warning-toast path. Feature is behind `FeatureFlag.GenerateInviteLink = false`
+        // in prod, no user-visible regression.
+        if (directMatch) {
           return this.autoProgressToMpEntry(params);
         }
         this.showInviteAcceptanceRequiredToast(params);
@@ -149,11 +155,16 @@ export class WebLoginComponentService
           orgInvite?.kind === OrgInviteKind.Direct &&
           orgInvite.organizationId === params.organizationId &&
           orgInvite.email?.toLowerCase() === params.email.toLowerCase();
-        const openMatch =
-          orgInvite?.kind === OrgInviteKind.Open &&
-          orgInvite.organizationId === params.organizationId;
-
-        if (directMatch || openMatch) {
+        // TODO: PM-40216 (PR #21815) — restore the open-invite branch of the stash
+        // match when `OpenOrganizationInvite.organizationId` re-appears (sourced from
+        // the URL path). Reversal template:
+        //   const openMatch =
+        //     orgInvite?.kind === OrgInviteKind.Open &&
+        //     orgInvite.organizationId === params.organizationId;
+        //   if (directMatch || openMatch) { ... }
+        // Until then, stash-match is direct-only. Same rationale as the sibling case
+        // above — feature is behind `FeatureFlag.GenerateInviteLink = false` in prod.
+        if (directMatch) {
           return this.autoProgressToMpEntry(params);
         }
         this.showInviteAcceptanceRequiredToast(params);

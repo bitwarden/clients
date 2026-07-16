@@ -672,64 +672,26 @@ describe("DefaultOrganizationInviteService", () => {
       expect(await sut.getOrganizationInvite()).toBeNull();
     });
 
-    it("returns accepted with an encrypted resetPasswordKey when ResetPassword auto-enroll is required", async () => {
+    it("accepts without a resetPasswordKey even when ResetPassword auto-enroll would apply (stubbed until PM-40216 restores invite.organizationId)", async () => {
       const open = createOpenOrgInvite();
-      const policies = [
-        {
-          type: PolicyType.ResetPassword,
-          organizationId: open.organizationId,
-        } as unknown as Policy,
-      ];
+      const policies = [{ type: PolicyType.ResetPassword } as unknown as Policy];
       policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
       policyService.getResetPasswordPolicyOptions.mockReturnValue([
         { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
         true,
       ]);
-      organizationApiService.getKeys.mockResolvedValue({
-        publicKey: Utils.fromBufferToB64(new Uint8Array([1, 2, 3])),
-      } as OrganizationKeysResponse);
-      keyService.userKey$.mockReturnValue(new BehaviorSubject("user-key" as any));
-      encryptService.encapsulateKeyUnsigned.mockResolvedValue({
-        encryptedString: "encrypted-user-key",
-      } as EncString);
 
       const result = await sut.acceptOpenOrgInvite(open, activeUserId);
 
       expect(result).toEqual({ kind: "accepted" });
-      expect(policyService.getResetPasswordPolicyOptions).toHaveBeenCalledWith(
-        policies,
-        open.organizationId,
-      );
-      expect(organizationApiService.getKeys).toHaveBeenCalledWith(open.organizationId);
-      expect(encryptService.encapsulateKeyUnsigned).toHaveBeenCalled();
+      expect(organizationApiService.getKeys).not.toHaveBeenCalled();
+      expect(encryptService.encapsulateKeyUnsigned).not.toHaveBeenCalled();
       expect(organizationInviteLinkApiService.accept).toHaveBeenCalledWith(
         expect.objectContaining({
           code: open.inviteLinkCode,
-          resetPasswordKey: "encrypted-user-key",
+          resetPasswordKey: undefined,
         }),
       );
-    });
-
-    it("returns unexpected when ResetPassword auto-enroll is required but the org keys fetch returns null", async () => {
-      const open = createOpenOrgInvite();
-      const policies = [
-        {
-          type: PolicyType.ResetPassword,
-          organizationId: open.organizationId,
-        } as unknown as Policy,
-      ];
-      policyApiService.getPoliciesByInviteLinkCode.mockResolvedValue(policies);
-      policyService.getResetPasswordPolicyOptions.mockReturnValue([
-        { autoEnrollEnabled: true } as ResetPasswordPolicyOptions,
-        true,
-      ]);
-      organizationApiService.getKeys.mockResolvedValue(null as any);
-      i18nService.t.mockReturnValue("translated-error");
-
-      const result = await sut.acceptOpenOrgInvite(open, activeUserId);
-
-      expect(result).toEqual({ kind: "unexpected", errorMessage: "translated-error" });
-      expect(organizationInviteLinkApiService.accept).not.toHaveBeenCalled();
     });
 
     // Classifier cases — each rejection kind is a string-match against the exact server
@@ -903,8 +865,8 @@ describe("DefaultOrganizationInviteService", () => {
   describe("getOpenOrgInviteStatus", () => {
     it("returns ok with a mapped non-SSO status on success", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
-        organizationId: "org-id",
         organizationName: "Acme",
+        linksEnabled: true,
         seatsAvailable: true,
         sso: null,
       } as any);
@@ -914,9 +876,7 @@ describe("DefaultOrganizationInviteService", () => {
       expect(result).toEqual({
         kind: "ok",
         status: {
-          organizationId: "org-id",
           organizationName: "Acme",
-          seatsAvailable: true,
           sso: null,
         },
       });
@@ -925,8 +885,8 @@ describe("DefaultOrganizationInviteService", () => {
 
     it("returns ok with the SSO config carried through on the mapped status", async () => {
       organizationInviteLinkApiService.getStatus.mockResolvedValue({
-        organizationId: "org-id",
         organizationName: "Acme",
+        linksEnabled: true,
         seatsAvailable: true,
         sso: { orgSsoId: "acme-sso", required: true },
       } as any);
@@ -939,6 +899,32 @@ describe("DefaultOrganizationInviteService", () => {
       }
     });
 
+    it("returns plan-not-supported with organizationName when linksEnabled is false", async () => {
+      organizationInviteLinkApiService.getStatus.mockResolvedValue({
+        organizationName: "Acme",
+        linksEnabled: false,
+        seatsAvailable: true,
+        sso: null,
+      } as any);
+
+      const result = await sut.getOpenOrgInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "plan-not-supported", organizationName: "Acme" });
+    });
+
+    it("returns no-seats with organizationName when linksEnabled is true but seatsAvailable is false", async () => {
+      organizationInviteLinkApiService.getStatus.mockResolvedValue({
+        organizationName: "Acme",
+        linksEnabled: true,
+        seatsAvailable: false,
+        sso: null,
+      } as any);
+
+      const result = await sut.getOpenOrgInviteStatus("abc");
+
+      expect(result).toEqual({ kind: "no-seats", organizationName: "Acme" });
+    });
+
     it("returns not-found when the server responds with 404", async () => {
       const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
         statusCode: 404,
@@ -948,17 +934,6 @@ describe("DefaultOrganizationInviteService", () => {
       const result = await sut.getOpenOrgInviteStatus("abc");
 
       expect(result).toEqual({ kind: "not-found" });
-    });
-
-    it("returns plan-not-supported when the server responds with 400", async () => {
-      const errorResponse = Object.assign(Object.create(ErrorResponse.prototype), {
-        statusCode: 400,
-      });
-      organizationInviteLinkApiService.getStatus.mockRejectedValue(errorResponse);
-
-      const result = await sut.getOpenOrgInviteStatus("abc");
-
-      expect(result).toEqual({ kind: "plan-not-supported" });
     });
 
     it("returns unexpected with the server's message for unclassified ErrorResponse", async () => {
@@ -1036,7 +1011,6 @@ function createOpenOrgInvite(custom: Partial<OpenOrganizationInvite> = {}): Open
   return new OpenOrganizationInvite({
     inviteLinkCode: "invite-link-code",
     inviteKey: "invite-key",
-    organizationId: "open-org-id",
     organizationName: "Acme",
     ...custom,
   });
