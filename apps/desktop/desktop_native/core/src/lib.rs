@@ -11,7 +11,6 @@
 pub mod autofill;
 #[allow(missing_docs)]
 pub mod autostart;
-pub mod biometric_v2;
 #[allow(missing_docs)]
 pub mod clipboard;
 pub mod error;

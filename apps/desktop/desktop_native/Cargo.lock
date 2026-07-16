@@ -428,6 +428,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "biometric"
+version = "0.0.0"
+dependencies = [
+ "aes",
+ "anyhow",
+ "chacha20poly1305",
+ "desktop_core",
+ "rand 0.9.3",
+ "scopeguard",
+ "secure_memory",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
+ "tracing",
+ "windows 0.62.2",
+ "windows-future 0.3.2",
+ "zbus",
+ "zbus_polkit",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1019,7 +1041,6 @@ dependencies = [
  "bitwarden-russh",
  "bytes",
  "cbc",
- "chacha20poly1305",
  "core-foundation",
  "desktop_objc",
  "dirs",
@@ -1027,18 +1048,14 @@ dependencies = [
  "homedir",
  "interprocess",
  "libc",
- "linux-keyutils",
  "oo7",
  "pin-project",
  "rand 0.9.3",
  "rsa",
  "scopeguard",
  "secmem-proc",
- "secure_memory",
  "security-framework",
  "security-framework-sys",
- "serde",
- "serde_json",
  "sha2",
  "ssh-key",
  "sysinfo",
@@ -1051,7 +1068,6 @@ dependencies = [
  "windows 0.62.2",
  "windows-future 0.3.2",
  "zbus",
- "zbus_polkit",
  "zeroizing-alloc",
 ]
 
@@ -1063,6 +1079,7 @@ dependencies = [
  "async-trait",
  "autofill_provider",
  "autotype",
+ "biometric",
  "chromium_importer",
  "desktop_core",
  "napi",

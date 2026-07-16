@@ -35,7 +35,7 @@ jest.mock("@bitwarden/desktop-napi", () => {
 jest.mock("./native-v2", () => ({
   LinuxBiometricsSystem: jest.fn(),
   WindowsBiometricsSystem: jest.fn(),
-  biometrics_v2: {
+  biometrics: {
     initBiometricSystem: jest.fn(),
   },
 }));

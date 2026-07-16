@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "autofill_provider",
     "autotype",
+    "biometric",
     "bitwarden_chromium_import_helper",
     "chromium_importer",
     "core",
