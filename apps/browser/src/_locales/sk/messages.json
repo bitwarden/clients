@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Heslo skopírované"
   },
+  "passwordAnnounceSpace": {
+    "message": "medzera",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1480,6 +1484,18 @@
   "shared": {
     "message": "Zdieľané"
   },
+  "sharedFolder": {
+    "message": "Zdieľaný priečinok"
+  },
+  "sharedFolders": {
+    "message": "Zdieľané priečinky"
+  },
+  "myFolder": {
+    "message": "Môj priečinok"
+  },
+  "myFolders": {
+    "message": "Moje priečinky"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden pre podniky vám umožňuje zdieľať položky trezoru s ostatnými pomocou organizácie. Viac informácií nájdete na webovej stránke bitwarden.com."
   },
@@ -1569,10 +1585,10 @@
     "message": "Súbor"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Fotografia"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "Neznáme"
   },
   "fileToShare": {
     "message": "Súbor, ktorý chcete zdieľať"
@@ -4775,7 +4791,7 @@
     "message": "Nič sa neimportovalo."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "Položky ($COUNT$) budu vynechané",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4784,40 +4800,40 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Nasledujúce položky sa nepodarilo načítať a nebudú zahrnuté do importu:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Kontakt"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Členstvo"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Pas"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Vodičský preukaz"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Občiansky preukaz"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Rodný list"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Prihlasovacie údaje k databáze"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Prihlasovacie údaje k serveru"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Softvérová licencia"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Zdravotné poistenie"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Prihlasovacie údaje k Wi-Fi"
   },
   "importEncKeyError": {
     "message": "Chyba pri dešifrovaní exportovaného súboru. Váš šifrovací kľúč sa nezhoduje so šifrovacím kľúčom použitým pri exporte údajov."
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Potvrdiť heslo súboru"
+  },
+  "keePassMasterPassword": {
+    "message": "Hlavné heslo pre KeePass"
+  },
+  "addKeyFile": {
+    "message": "Pridať súbor s kľúčom"
+  },
+  "keyFileUpload": {
+    "message": "Nahrať súbor s kľúčom"
+  },
+  "kdbxFileUpload": {
+    "message": "Nahrať súbor KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Podporované formáty: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Údaje nie sú správne naformátované. Skontrolujte súbor importu a skúste to znova."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tento súbor nie je platnou databázou KeePass (.kdbx). Vyberte súbor s príponou .kdbx a skúste to znova."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Táto databáza KeePass je príliš veľká na import."
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
@@ -4986,7 +5026,7 @@
     "message": "Viacfaktorové overenie zlyhalo"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Pri komunikácii so správcom Keeper nastal problém. Skúste import zopakovať."
   },
   "includeSharedFolders": {
     "message": "Zahrnúť zdieľané priečinky"
@@ -5041,121 +5081,121 @@
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "E-mail pre Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Zadajte e-mail, ktorý používate na prihlásenie do Keepera"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Umiestnenie dátového centra"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Hlavné heslo Keepera"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Zadajte hlavné heslo pre Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Zadajte kód z vašej metódy dvojstupňového prihlásenia"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Zadajte kód z overovacej aplikácie"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Zadajte kód zaslaný cez SMS správu"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Zadajte kód z aplikácie Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Schválenie správcom"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Poslali sme žiadosť o schválenie správcom vášmu správcovi"
   },
   "method": {
-    "message": "Method"
+    "message": "Metóda"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Priamy import"
   },
   "csv": {
     "message": "CSV"
   },
   "json": {
-    "message": "Json"
+    "message": "JSON"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Vyžaduje sa overenie cez SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Váš účet Keeper vyžaduje overenie cez SSO. Dokončite prihlásenie v otvorenom okne prehliadača a následne vložte token zobrazený na stránke."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Dokončite prihlásenie v otvorenej karte prehliadača. Token sa zachytí automaticky."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Token SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Keeper vyžaduje overenie"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Keeper vyžaduje schválenie zariadenia"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Metódy schvaľovania"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Je potrebné schválenie zariadenia"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Schváľte toto zariadenie výberom jednej z metód"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Metóda dvojstupňového overenia"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "Overenie e-mailom"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Skontrolujte e-mail a zadajte overovací kód nižšie"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Upozornenie Keeper Push odoslané na schválené zariadenie"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push odoslané"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Žiadosť o schválenie bude zrušená"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Naozaj chcete odísť? Vaša žiadosť o schválenie správcom bude zrušená."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Zrušiť žiadosť"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Keeper vyžaduje dvojstupňové overenie"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Potvrďte žiadosť o prihlásenie v overovacej aplikácii. Toto dialógové okno sa automaticky zatvorí."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Vyberte metódu dvojstupňového overenia"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Vyberte, akým spôsobom chcete overiť svoju totožnosť."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Overovacia aplikácia (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Textová správa (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5164,70 +5204,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Záložné kódy"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Bezpečnostný kľúč (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Bezpečnostný kľúč (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Overenie cez Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Schváľte upozornenie aplikácie Keeper DNA na svojom zariadení"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Vyberte metódu Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Vyberte, akým spôsobom chcete overiť svoju identitu cez Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Push notifikácia"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Zadajte kľúč manuálne"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Dvojstupňové overenie"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Neznáma metóda"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Vyberte metódu Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Vyberte, akým spôsobom chcete overiť svoju identitu cez Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Telefonický hovor"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Overenie cez Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Schváľte push notifikácie aplikácie Duo na svojom zariadení."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Na váš telefón bola odoslaná textová správa. Pokračujte zadaním kódu v aplikácii Duo."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Zdvihnite telefón, keď vám zavolá Duo, a postupujte podľa pokynov."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Skúsiť inú metódu"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Váš účet Keeper vyžaduje metódu dvojstupňového overenia, ktorú priamy import momentálne nepodporuje."
   },
   "switchAccount": {
     "message": "Prepnúť účet"
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN na odomknutie nastavený"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Odomknutie biometrickými údajmi nastavené"
   },
   "authenticating": {
     "message": "Overuje sa"

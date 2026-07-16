@@ -987,7 +987,7 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "Kijelentkezett fiókjából."
+    "message": "Megtörtént a kijelentkezés a fiókból."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
@@ -1023,10 +1023,10 @@
     "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
+    "message": "Kezdjük újra a regisztrációt vagy próbáljunk meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehetséges, hogy már rendelkezik fiókkal"
+    "message": "Lehetséges, hogy már rendelkezünk fiókkal."
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1087,6 +1087,10 @@
   },
   "passwordCopied": {
     "message": "Jelszó másolva"
+  },
+  "passwordAnnounceSpace": {
+    "message": "szóköz",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1324,7 +1328,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
+    "message": "Nem lehetett ezt elmenteni. Próbáljuk meg beírni manuálisan.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Megosztott"
+  },
+  "sharedFolder": {
+    "message": "Megosztott mappa"
+  },
+  "sharedFolders": {
+    "message": "Megosztott mappák"
+  },
+  "myFolder": {
+    "message": "Saját mappa"
+  },
+  "myFolders": {
+    "message": "Saját mappák"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Fájl jelszó megerősítés"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass mesterjelszó"
+  },
+  "addKeyFile": {
+    "message": "Kulcs fájl hozzáadása"
+  },
+  "keyFileUpload": {
+    "message": "Kulcs fájl feltöltés"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX fájl feltöltés"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Elfogadott formátumok: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ez a fájl nem érvényes KeePass adatbázis (.kdbx). Válasszunk egy .kdbx fájlt, és próbáljuk újra."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ez a KeePass adatbázis túl nagy az importáláshoz."
+  },
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Feloldás biometrikusan"
   },
   "authenticating": {
     "message": "Hitelesítés"

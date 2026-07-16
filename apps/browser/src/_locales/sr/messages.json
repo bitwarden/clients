@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Лозинка копирана"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "Линк"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Дељено"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden for Business вам омогућава да делите ставке сефа са другима користећи организацију. Сазнајте више на веб локацију bitwarden.com."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Потврдити лозинку датотеке"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "exportSuccess": {
     "message": "Подаци из сефа су извезени"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Постављен ПИН деблокирања"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Откључај биометријом"
   },
   "authenticating": {
     "message": "Аутентификација"

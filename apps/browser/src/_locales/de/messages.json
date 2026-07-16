@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Passwort kopiert"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Geteilt"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden für Unternehmen erlaubt es dir, deine Tresor-Einträge mit anderen zu teilen, indem du eine Organisation verwendest. Erfahre mehr auf der bitwarden.com Website."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Dateipasswort bestätigen"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass-Master-Passwort"
+  },
+  "addKeyFile": {
+    "message": "Schlüsseldatei hinzufügen"
+  },
+  "keyFileUpload": {
+    "message": "Schlüsseldatei hochladen"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX-Datei hochladen"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Akzeptierte Formate: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Die Daten sind nicht richtig formatiert. Kontrolliere bitte deine Import-Datei und versuche es erneut."
+  },
+  "kdbxWrongFileType": {
+    "message": "Diese Datei ist keine gültige KeePass-Datenbank (.kdbx). Bitte wähle eine .kdbx-Datei aus und versuche es erneut."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Diese KeePass-Datenbank ist zu groß, um sie zu importieren."
+  },
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Entsperr-PIN festgelegt"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Mit Biometrie entsperren eingerichtet"
   },
   "authenticating": {
     "message": "Authentifizierung"

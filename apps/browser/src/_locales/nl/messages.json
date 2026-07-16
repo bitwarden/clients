@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Wachtwoord gekopieerd"
   },
+  "passwordAnnounceSpace": {
+    "message": "spatie",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Gedeeld"
+  },
+  "sharedFolder": {
+    "message": "Gedeelde map"
+  },
+  "sharedFolders": {
+    "message": "Gedeelde mappen"
+  },
+  "myFolder": {
+    "message": "Mijn map"
+  },
+  "myFolders": {
+    "message": "Mijn mappen"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Met Bitwarden voor Business kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Bestandswachtwoord bevestigen"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass-hoofdwachtwoord"
+  },
+  "addKeyFile": {
+    "message": "Sleutelbestand toevoegen"
+  },
+  "keyFileUpload": {
+    "message": "Sleutelbestand uploaden"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX-bestand uploaden"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Toegestane formaten: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "De gegevens zijn niet correct opgemaakt. Gelieve uw importbestand te controleren en probeer het opnieuw."
+  },
+  "kdbxWrongFileType": {
+    "message": "Dit bestand is geen geldige KeePass-database (.kdbx). Selecteer een .kdbx-bestand en probeer het opnieuw."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Deze KeePass-database is te groot om te importeren."
+  },
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "PIN-code ontgrendelen instellen"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Met biometrische set ontgrendelen"
   },
   "authenticating": {
     "message": "Aan het inloggen"

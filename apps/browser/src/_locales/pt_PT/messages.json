@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Palavra-passe copiada"
   },
+  "passwordAnnounceSpace": {
+    "message": "espaço",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Partilhado"
+  },
+  "sharedFolder": {
+    "message": "Pasta partilhada"
+  },
+  "sharedFolders": {
+    "message": "Pastas partilhadas"
+  },
+  "myFolder": {
+    "message": "A minha pasta"
+  },
+  "myFolders": {
+    "message": "As minhas pastas"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "O Bitwarden para Empresas permite-lhe partilhar os seus itens do cofre com outras pessoas através da utilização de uma organização. Saiba mais no site bitwarden.com."
@@ -4769,7 +4785,7 @@
     "message": "Iniciar o Duo"
   },
   "importFormatError": {
-    "message": "Os dados não estão formatados corretamente. Por favor, verifique o seu ficheiro de importação e tente novamente."
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
   },
   "importNothingError": {
     "message": "Nada foi importado."
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirmar a palavra-passe do ficheiro"
+  },
+  "keePassMasterPassword": {
+    "message": "Palavra-passe mestra do KeePass"
+  },
+  "addKeyFile": {
+    "message": "Adicionar ficheiro de chave"
+  },
+  "keyFileUpload": {
+    "message": "Carregar ficheiro de chave"
+  },
+  "kdbxFileUpload": {
+    "message": "Carregar ficheiro KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formatos aceites: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Os dados não estão formatados corretamente. Verifique o ficheiro de importação e tente novamente."
+  },
+  "kdbxWrongFileType": {
+    "message": "Este ficheiro não é uma base de dados KeePass (.kdbx) válida. Selecione um ficheiro .kdbx e tente novamente."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Esta base de dados KeePass é demasiado grande para ser importada."
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
@@ -5056,7 +5096,7 @@
     "message": "Introduza a sua palavra-passe mestra do Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Introduza o código do seu método de verificação de dois passos"
+    "message": "Introduza o código do seu método de dois fatores"
   },
   "totpCodePrompt": {
     "message": "Introduza o código da sua app de autenticação"
@@ -5227,7 +5267,7 @@
     "message": "Tente outro método"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "A sua conta do Keeper requer um método de autenticação de dois fatores que, de momento, não é suportado pelo importador direto."
   },
   "switchAccount": {
     "message": "Mudar de conta"
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Definição do PIN de desbloqueio"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Desbloquear com conjunto biométrico"
   },
   "authenticating": {
     "message": "A autenticar"

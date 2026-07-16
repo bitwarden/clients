@@ -332,7 +332,7 @@
     "message": "ساعد الآخرين في معرفة ما إذا كان Bitwarden مناسبا لهم. تفضل بزيارة متجر إضافات متصفحك واترك تقييما الآن."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "يمكنك تغيير كلمة المرور الرئيسية على تطبيق ويب Bitwarden"
+    "message": "يمكنك تغيير كلمة المرور الرئيسية على تطبيق ويب Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "عبارة بصمة الإصبع",
@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "تم نسخ كلمة المرور"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1440,7 +1444,7 @@
     "message": "ستستخدم كلمة المرور هذه لتصدير هذا الملف واستيراده"
   },
   "accountRestrictedOptionDescription": {
-    "message": "استخدم مفتاح تشفير حسابك، مشتقة من اسم المستخدم في حسابك وكلمة المرور الرئيسية، لتشفير التصدير وتقييد الاستيراد إلى حساب Bitwarden الحالي فقط."
+    "message": "استخدم مفتاح تشفير حسابك، مشتق من اسم المستخدم في حسابك وكلمة المرور الرئيسية، لتشفير التصدير وتقييد الاستيراد إلى حساب Bitwarden الحالي فقط."
   },
   "passwordProtectedOptionDescription": {
     "message": "تعيين كلمة مرور للملف لتشفير التصدير واستيراده إلى أي حساب Bitwarden باستخدام كلمة المرور لفك التشفير."
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "مشترك"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "يتيح لك Bitwarden for Business مشاركة عناصر خزنتك مع الآخرين بواسطة إنشاء منظمة. تعرف على المزيد على موقع bitwarden.com."
@@ -1569,10 +1585,10 @@
     "message": "ملف"
   },
   "photo": {
-    "message": "Photo"
+    "message": "صورة"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "غير معروف"
   },
   "fileToShare": {
     "message": "ملف للمشاركة"
@@ -1626,7 +1642,7 @@
     "message": "الوصول الطارئ."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "خيارات تسجيل دخول مخصصة بخطوتين مثل YubiKey وDuo."
+    "message": "خيارات تسجيل دخول مخصصة بخطوتين مثل YubiKey و Duo."
   },
   "premiumSubscriptionEnded": {
     "message": "انتهى اشتراكك في الباقة Premium"
@@ -1695,7 +1711,7 @@
     "message": "المطالبة بالمصادقة البيومترية عند الإطلاق"
   },
   "authenticationTimeout": {
-    "message": "مهلة المصادقة"
+    "message": "انتهاء مهلة المصادقة"
   },
   "authenticationSessionTimedOut": {
     "message": "انتهت مهلة جلسة المصادقة. يرجى إعادة بدء عملية تسجيل الدخول."
@@ -2306,7 +2322,7 @@
     "message": "نص هام"
   },
   "typeSshKeySubtitle": {
-    "message": "توكن تسجيل دخول الخادم"
+    "message": "رمز تسجيل دخول الخادم"
   },
   "folderSubtitle": {
     "message": "نظم عناصرك"
@@ -2796,7 +2812,7 @@
     "message": "فتح باستخدام المصادقة البيومترية"
   },
   "unlockWithMasterPassword": {
-    "message": "فتح باستخدام كلمة المرور الرئيسية"
+    "message": "فتح القفل باستخدام كلمة المرور الرئيسية"
   },
   "awaitDesktop": {
     "message": "في انتظار التأكيد من تطبيق سطح المكتب"
@@ -3022,7 +3038,7 @@
     "message": "خطأ في تحديث رمز الوصول"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "لم يتم العثور على توكن تنشيط أو مفاتيح API. يرجى محاولة تسجيل الخروج ثم الدخول مرة اخرى."
+    "message": "لم يتم العثور على رمز تحديث أو مفاتيح API. الرجاء محاولة تسجيل الخروج وتسجيل الدخول مرة أخرى."
   },
   "desktopSyncVerificationTitle": {
     "message": "التحقق من مزامنة سطح المكتب"
@@ -3356,7 +3372,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "تم الوصول إلى الحد الأقصى لعدد مرات الوصول",
+    "message": "تم بلوغ الحد الأقصى لعدد مرات الوصول",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "hideTextByDefault": {
@@ -3403,7 +3419,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendConfirmation": {
-    "message": "هل أنت متأكد من أنك تريد حذف هذا الإرسال؟",
+    "message": "هل أنت متأكد من رغبتك في حذف Send هذا؟",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendPermanentConfirmation": {
@@ -3602,7 +3618,7 @@
     "message": "التسجيل التلقائي"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "ملك هذه المنظمة سياسة مؤسسة ستسجلك تلقائياً في إعادة تعيين كلمة المرور. سيتيح هذا التسجيل لمسؤولي المنظمة تغيير كلمة المرور الرئيسية الخاصة بك."
+    "message": "تتبع هذه المؤسسة سياسة مؤسسية تقضي بتسجيلك تلقائيا في خدمة إعادة تعيين كلمة المرور. وسيتيح هذا التسجيل لمسؤولي المؤسسة تغيير كلمة مرورك الرئيسية."
   },
   "selectFolder": {
     "message": "تحديد المجلد..."
@@ -3652,7 +3668,7 @@
     }
   },
   "vaultTimeoutPolicyInEffect1": {
-    "message": "الحد الأقصى $HOURS$ساعة و $MINUTES$ دقيقة.",
+    "message": "الحد الأقصى $HOURS$ ساعة و $MINUTES$ دقيقة.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3695,7 +3711,7 @@
     }
   },
   "vaultTimeoutActionPolicyInEffect": {
-    "message": "حددت سياسات منظمتك إجراء مهلة خزنتك إلى ACTION.",
+    "message": "حددت سياسات منظمتك إجراء مهلة خزنتك إلى $ACTION$.",
     "placeholders": {
       "action": {
         "content": "$1",
@@ -3828,7 +3844,7 @@
     }
   },
   "passwordLengthRecommendationHint": {
-    "message": " استخدم $RECOMMENDED$ من الاحرف أو اكثر لتوليد كلمة مرور قوية.",
+    "message": " استخدم $RECOMMENDED$ من الأحرف أو اكثر لتوليد كلمة مرور قوية.",
     "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3876,7 +3892,7 @@
     "message": "عنوان البريد الإلكتروني المستعار الموجه"
   },
   "forwardedEmailDesc": {
-    "message": "إنشاء بريد إلكتروني مستعار مع خدمة إعادة توجيه خارجية"
+    "message": "إنشاء بريد إلكتروني مستعار مع خدمة إعادة توجيه خارجية."
   },
   "forwarderDomainName": {
     "message": "نطاق البريد الإلكتروني",
@@ -4017,7 +4033,7 @@
     "description": "Part of a URL."
   },
   "apiAccessToken": {
-    "message": "توكن الوصول للـ API"
+    "message": "رمز الوصول للـ API"
   },
   "apiKey": {
     "message": "مفتاح API"
@@ -4343,7 +4359,7 @@
     "message": "يطلب الموافقة على الجهاز. حدد خيار موافقة أدناه:"
   },
   "deviceApprovalRequiredV2": {
-    "message": "يلزم الموافقة من الجهاز"
+    "message": "يجب الموافقة من الجهاز"
   },
   "selectAnApprovalOptionBelow": {
     "message": "اختر أحد خيارات الموافقة أدناه"
@@ -4367,7 +4383,7 @@
     "message": "يجب عليك تسجيل الدخول من جهاز موثوق أو الطلب من مسؤولك تعيين كلمة مرور لك."
   },
   "ssoIdentifierRequired": {
-    "message": "معرف SSO للمنظمة إلزامي."
+    "message": "معرف SSO للمنظمة مطلوب."
   },
   "creatingAccountOn": {
     "message": "إنشاء حساب على"
@@ -4407,7 +4423,7 @@
     "message": "تم إنشاء الحساب بنجاح!"
   },
   "adminApprovalRequested": {
-    "message": "تم طلب موافقة المسؤول"
+    "message": "مطلوب موافقة المسؤول"
   },
   "adminApprovalRequestSentToAdmins": {
     "message": "تم إرسال طلبك إلى المسؤول."
@@ -4775,7 +4791,7 @@
     "message": "لم يتم استيراد أي شيء."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "سيتم تخطي $COUNT$ من العناصر",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4784,40 +4800,40 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "تعذر قراءة العناصر التالية ولن يتم تضمينها في عملية الاستيراد الخاصة بك:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "جهة اتصال"
   },
   "membership": {
-    "message": "Membership"
+    "message": "عضوية"
   },
   "passport": {
-    "message": "Passport"
+    "message": "جواز السفر"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "رخصة قيادة"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "بطاقة هوية"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "شهادة ميلاد"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "بيانات اعتماد قاعدة البيانات"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "بيانات اعتماد الخادم"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "ترخيص البرنامج"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "تأمين صحي"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "بيانات اعتماد شبكة Wi-Fi"
   },
   "importEncKeyError": {
     "message": "خطأ في فك تشفير الملف المصدر. مفتاح التشفير الخاص بك لا يطابق مفتاح التشفير المستخدم لتصدير البيانات."
@@ -4875,13 +4891,37 @@
     }
   },
   "confirmVaultImport": {
-    "message": "تأكيد تصدير الخزنة"
+    "message": "تأكيد استيراد الخزنة"
   },
   "confirmVaultImportDesc": {
     "message": "هذا الملف محمي بكلمة مرور. الرجاء إدخال كلمة مرور الملف لاستيراد البيانات."
   },
   "confirmFilePassword": {
     "message": "تأكيد كلمة مرور الملف"
+  },
+  "keePassMasterPassword": {
+    "message": "كلمة المرور الرئيسية لـ KeePass"
+  },
+  "addKeyFile": {
+    "message": "إضافة ملف مفتاح"
+  },
+  "keyFileUpload": {
+    "message": "تحميل ملف المفتاح"
+  },
+  "kdbxFileUpload": {
+    "message": "تحميل ملف KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "التنسيقات المقبولة: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "البيانات غير منسقة بشكل صحيح. يرجى التحقق من ملف الاستيراد والمحاولة مرة أخرى."
+  },
+  "kdbxWrongFileType": {
+    "message": "هذا الملف ليس قاعدة بيانات KeePass صالحة (kdbx.). يرجى تحديد ملف kdbx. والمحاولة مرة أخرى."
+  },
+  "kdbxFileTooLarge": {
+    "message": "قاعدة بيانات KeePass هذه كبيرة جدا ولا يمكن استيرادها."
   },
   "exportSuccess": {
     "message": "تم تصدير بيانات الخزنة"
@@ -4986,7 +5026,7 @@
     "message": "فشلت المصادقة متعددة العوامل"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "حدثت مشكلة في الاتصال بـ Keeper. يرجى محاولة الاستيراد مرة أخرى."
   },
   "includeSharedFolders": {
     "message": "تضمين المجلدات المشتركة"
@@ -5041,43 +5081,43 @@
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB بجهاز الكمبيوتر، ثم اضغط على زره."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "البريد الإلكتروني لـ Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "أدخل البريد الإلكتروني الذي تستخدمه لتسجيل الدخول إلى Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "موقع مركز البيانات"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "كلمة المرور الرئيسية لـ Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "يرجى أدخل كلمة المرور الرئيسية لـ Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "يرجى أدخل الرمز من طريقة التحقق بخطوتين الخاصة بك"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "يرجى أدخل الرمز من تطبيق أداة المصادقة الخاص بك"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "يرجى إدخال الرمز المرسل عبر الرسالة النصية"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "يرجى إدخال الرمز من تطبيق Keeper DNA الخاص بك"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "موافقة المسؤول"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "لقد أرسلنا طلب موافقة إلى المسؤول الخاص بك"
   },
   "method": {
-    "message": "Method"
+    "message": "الطريقة"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "مستورد مباشر"
   },
   "csv": {
     "message": "CSV"
@@ -5086,76 +5126,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "المصادقة SSO مطلوبة"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "يتطلب حسابك على Keeper مصادقة SSO. أكمل عملية تسجيل الدخول في نافذة المتصفح التي تم فتحها، ثم الصق الرمز المعروض على الصفحة."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "أكمل تسجيل الدخول في تبويب المتصفح الذي فتح. سيتم التقاط الرمز تلقائيا."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "رمز SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "مطلوب مصادقة Keeper"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "موافقة جهاز Keeper مطلوبة"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "طرق الموافقة"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "موافقة الجهاز مطلوبة"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "وافق على هذا الجهاز عبر اختيار طريقة أدناه"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "طريقة التحقق بخطوتين"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "التحقق عبر البريد الإلكتروني"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "يرجى التحقق من بريدك الإلكتروني وإدخال رمز التحقق أدناه"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "تم إرسال Keeper Push إلى جهاز معتمد"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "تم إرسال Keeper Push"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "سيتم إلغاء طلب الموافقة"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "هل أنت متأكد من أنك تريد المغادرة؟ سيتم إلغاء طلب موافقة المسؤول الخاص بك."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "إلغاء الطلب"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "المصادقة الثنائية لـ Keeper مطلوبة"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "وافق على طلب تسجيل الدخول في تطبيق المصادقة الخاص بك. سيغلق هذا المربع الحواري تلقائيا."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "تحديد طريقة التحقق بخطوتين"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "اختر الطريقة التي تود بها التحقق من هويتك."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "تطبيق أداة المصادقة (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "رسالة نصية (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -5164,70 +5204,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "رموز النسخ الاحتياطي"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "مفتاح الأمان (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "مفتاح الأمان (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "التحقق عبر Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "وافق على إشعار Keeper DNA على جهازك"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "تحديد طريقة Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "اختر الطريقة التي تود بها التحقق عبر Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "إشعار Push"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "أدخل الرمز يدويا"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "المصادقة الثنائية"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "طريقة غير معروفة"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "اختر طريقة Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "اختر الطريقة التي تود بها التحقق عبر Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "مكالمة هاتفية"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "التحقق عبر Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "وافق على إشعار Duo push على جهازك."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "تم إرسال رسالة نصية إلى هاتفك. أدخل الرمز في تطبيق Duo للمتابعة."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "يجب الرد على المكالمة الهاتفية من Duo واتبع التعليمات."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "جرب طريقة أخرى"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "يتطلب حساب Keeper الخاص بك طريقة مصادقة ثنائية لا يدعمها المستورد المباشر حاليا."
   },
   "switchAccount": {
     "message": "تبديل الحساب"
@@ -6304,9 +6344,6 @@
   "unlockPinSet": {
     "message": "تم تعيين PIN لفتح القفل"
   },
-  "unlockWithBiometricSet": {
-    "message": "تم تعيين فتح القفل بالمصادقة البيومترية"
-  },
   "authenticating": {
     "message": "جاري المصادقة"
   },
@@ -6986,16 +7023,16 @@
     "message": "فتح القفل المشترك"
   },
   "sharedUnlockWithDesktop": {
-    "message": "Share unlock with Desktop"
+    "message": "مشاركة حالة إلغاء القفل مع تطبيق سطح المكتب"
   },
   "sharedUnlockWithDesktopDescription": {
-    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
+    "message": "عند التفعيل، سيتم مشاركة حالة إلغاء القفل مع تطبيق سطح المكتب لـ Bitwarden."
   },
   "sharedUnlockWithWeb": {
-    "message": "Share unlock with web vault"
+    "message": "مشاركة حالة إلغاء القفل مع خزنة الويب"
   },
   "sharedUnlockWithWebDescription": {
-    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+    "message": "عند التفعيل، سيتم مشاركة حالة إلغاء القفل مع خزنات الويب لـ Bitwarden."
   },
   "newPermissionNeeded": {
     "message": "مطلوب إذن جديد"
@@ -7193,10 +7230,10 @@
     "message": "تعذر حفظ العنصر. يجب تأكيد عضويتك في المنظمة لحفظ العناصر."
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "لا يمكن أن تحتوي العناصر على مرفقات متعددة بنفس اسم الملف"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "حددت $ORGNAME$ تاريخ الحذف هذا",
     "placeholders": {
       "orgname": {
         "content": "$1",

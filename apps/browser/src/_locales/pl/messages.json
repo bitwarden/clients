@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Hasło zostało skopiowane"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Udostępnione"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden dla firm pozwala na udostępnianie zawartości sejfu innym użytkownikom za pośrednictwem organizacji. Dowiedz się więcej na stronie bitwarden.com."
@@ -4793,10 +4809,10 @@
     "message": "Membership"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Paszport"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Prawo jazdy"
   },
   "ssnCard": {
     "message": "Identity card"
@@ -4814,7 +4830,7 @@
     "message": "Software license"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Ubezpieczenie zdrowotne"
   },
   "wifiCredentials": {
     "message": "Wi-Fi credentials"
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Potwierdź hasło pliku"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Dodaj plik klucza"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
@@ -5041,19 +5081,19 @@
     "message": "Włóż klucz YubiKey powiązany z kontem LastPass do portu USB urządzenia, a następnie dotknij jego przycisku."
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Adres e-mail Keeper"
   },
   "keeperEmailHint": {
     "message": "Enter the email you use to log in to Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Lokalizacja centrum danych"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Hasło główne Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Wpisz hasło główne Keeper"
   },
   "twoFactorCodePrompt": {
     "message": "Please enter the code from your two-factor method"
@@ -5164,13 +5204,13 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Kody zapasowe"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Klucz bezpieczeństwa (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Klucz bezpieczeństwa (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Kod PIN został ustawiony"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Odblokuj biometrią"
   },
   "authenticating": {
     "message": "Uwierzytelnianie"

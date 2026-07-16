@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Parola kopyalandı"
   },
+  "passwordAnnounceSpace": {
+    "message": "boşluk",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URl"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Paylaşılan"
+  },
+  "sharedFolder": {
+    "message": "Paylaşılan klasör"
+  },
+  "sharedFolders": {
+    "message": "Paylaşılan klasörler"
+  },
+  "myFolder": {
+    "message": "Klasörüm"
+  },
+  "myFolders": {
+    "message": "Klasörlerim"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "İşletmeler için Bitwarden'ı kullanarak kasanızdaki kayıtları başkalarıyla paylaşabilirsiniz. Daha fazla bilgi için bitwarden.com sitesini ziyaret edin."
@@ -4883,6 +4899,30 @@
   "confirmFilePassword": {
     "message": "Dosya parolasını onaylayın"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass ana parolası"
+  },
+  "addKeyFile": {
+    "message": "Anahtar dosyası ekle"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
+  },
   "exportSuccess": {
     "message": "Kasa verileri dışa aktarıldı"
   },
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Kilidi PIN setiyle aç"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Kilidi biyometri setiyle aç"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
