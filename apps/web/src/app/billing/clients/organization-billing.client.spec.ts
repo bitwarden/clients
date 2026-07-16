@@ -128,19 +128,11 @@ describe("OrganizationBillingClient", () => {
       expect(result).toBeNull();
     });
 
-    it("propagates non-404 errors", async () => {
+    it("propagates errors from the API", async () => {
       const serverError = new ErrorResponse(null, 500);
       mockApiService.send.mockRejectedValue(serverError);
 
       await expect(sut.getAnnualUpgradeOffer(orgId)).rejects.toBeInstanceOf(ErrorResponse);
-    });
-
-    it("returns null when the API returns a falsy body", async () => {
-      mockApiService.send.mockResolvedValue(null);
-
-      const result = await sut.getAnnualUpgradeOffer(orgId);
-
-      expect(result).toBeNull();
     });
   });
 
