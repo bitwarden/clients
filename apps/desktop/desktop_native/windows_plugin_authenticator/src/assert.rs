@@ -68,7 +68,7 @@ pub fn get_assertion(
         allowed_credentials: allowed_credential_ids,
         user_verification,
         client_window,
-        context: Some(context),
+        context,
     };
     let passkey_response =
         send_assertion_request(ipc_client, assertion_request, cancellation_token)

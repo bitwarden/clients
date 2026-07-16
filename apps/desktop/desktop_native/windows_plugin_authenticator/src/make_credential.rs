@@ -91,7 +91,7 @@ pub fn make_credential(
         user_verification,
         supported_algorithms,
         client_window,
-        context: Some(context),
+        context,
     };
 
     tracing::debug!("Make credential request - RP: {rp_id}");

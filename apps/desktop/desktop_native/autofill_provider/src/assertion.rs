@@ -31,12 +31,14 @@ pub struct PasskeyAssertionRequest {
     /// # Operating System Differences
     ///
     /// ## macOS
-    /// Unused.
+    /// A UUID representing the request.
     ///
     /// ## Windows
     /// On Windows, this is a base64-string representing the following data:
     /// `request transaction id (GUID, 16 bytes) || SHA-256(pluginOperationRequest)`
-    pub context: Option<String>,
+    /// The hash is required to be passed back to the OS when calling the
+    /// Windows Hello passkey user verification API.
+    pub context: String,
     //  TODO(PM-30510): Implement support for extensions
     // pub extension_input: Vec<u8>,
 }
@@ -101,11 +103,13 @@ pub struct PasskeyAssertionWithoutUserInterfaceRequest {
     /// # Operating System Differences
     ///
     /// ## macOS
-    /// Unused.
+    /// A UUID representing the request.
     ///
     /// ## Windows
     /// On Windows, this is `request transaction id () || SHA-256(pluginOperationRequest)`.
-    pub context: Option<String>,
+    /// The hash is required to be passed back to the OS when calling the
+    /// Windows Hello passkey user verification API.
+    pub context: String,
 }
 
 /// Callback to process a response to passkey assertion request.

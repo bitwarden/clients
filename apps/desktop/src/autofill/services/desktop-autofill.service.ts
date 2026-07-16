@@ -220,6 +220,13 @@ export class DesktopAutofillService implements OnDestroy {
     return this.registrationRequest;
   }
 
+  async doLockStatus(): Promise<autofill.LockStatusResponse> {
+    const isUnlocked =
+      (await firstValueFrom(this.authService.activeAccountStatus$)) ===
+      AuthenticationStatus.Unlocked;
+    return { isUnlocked };
+  }
+
   async doPasskeyRegistration(
     request: PasskeyRegistrationRequest,
   ): Promise<PasskeyRegistrationResponse> {
@@ -285,6 +292,8 @@ export class DesktopAutofillService implements OnDestroy {
     );
 
     this.makeListener(ipcDesktopAutofill.listenNativeStatus, (r) => this.doNativeStatus(r));
+
+    this.makeListener(ipcDesktopAutofill.listenLockStatus, () => this.doLockStatus());
 
     ipcDesktopAutofill.listenerReady();
   }

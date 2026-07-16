@@ -8,6 +8,7 @@
  */
 
 import type { autofill } from "@bitwarden/desktop-napi";
+type LockStatusResponse = autofill.LockStatusResponse;
 type NativeStatus = autofill.NativeStatus;
 type PasskeyAssertionRequest = autofill.PasskeyAssertionRequest;
 type PasskeyAssertionResponse = autofill.PasskeyAssertionResponse;
@@ -15,8 +16,12 @@ type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
 type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
+// Note that WindowHandleQueryResponse is implemented directly in the main
+// process and does not need to touch the renderer process, so we don't register it here.
 
 export const AutofillIpcChannelIncoming = Object.freeze({
+  CancelRequest: "autofill.cancelRequest",
+  LockStatus: "autofill.lockStatus",
   NativeStatus: "autofill.nativeStatus",
   PasskeyAssertion: "autofill.passkeyAssertion",
   PasskeyAssertionWithoutUserInterface: "autofill.passkeyAssertionWithoutUserInterface",
@@ -27,6 +32,7 @@ export type AutofillIpcChannelIncoming =
 
 export const AutofillIpcChannelOutgoing = Object.freeze({
   Error: "autofill.completeError",
+  LockStatus: "autofill.completeLockStatus",
   PasskeyAssertion: "autofill.completePasskeyAssertion",
   PasskeyRegistration: "autofill.completePasskeyRegistration",
 } as const);
@@ -42,6 +48,16 @@ export type AutofillIpcChannelOutgoing =
  * `outgoing?: never` marks a fire-and-forget channel that expects no response.
  */
 export type AutofillIpcDefinitionMap = {
+  [AutofillIpcChannelIncoming.CancelRequest]: {
+    request: string;
+    response: void;
+    outgoing?: never;
+  };
+  [AutofillIpcChannelIncoming.LockStatus]: {
+    request: void;
+    response: LockStatusResponse;
+    outgoing: typeof AutofillIpcChannelOutgoing.LockStatus;
+  };
   [AutofillIpcChannelIncoming.NativeStatus]: {
     request: NativeStatus;
     response: void;
