@@ -37,6 +37,7 @@ use std::{
 use aes::cipher::KeyInit;
 use anyhow::{anyhow, Result};
 use chacha20poly1305::{aead::Aead, XChaCha20Poly1305, XNonce};
+use desktop_core::password::{self, PASSWORD_NOT_FOUND};
 use secure_memory::*;
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
@@ -61,7 +62,6 @@ use windows::{
 use windows_future::IAsyncOperation;
 
 use super::windows_focus::{focus_security_prompt, restore_focus};
-use crate::password::{self, PASSWORD_NOT_FOUND};
 
 const AUTHENTICATE_AVAILABLE_CACHE_TTL: Duration = Duration::from_secs(30);
 const KEYCHAIN_SERVICE_NAME: &str = "BitwardenBiometricsV2";
@@ -431,7 +431,7 @@ unsafe fn as_mut_bytes(buffer: &mut IBuffer) -> Result<&mut [u8]> {
 #[cfg(test)]
 #[allow(clippy::print_stdout)]
 mod tests {
-    use crate::biometric_v2::{
+    use crate::{
         biometric_v2::{
             decrypt_data, encrypt_data, has_keychain_entry, windows_hello_authenticate,
             windows_hello_authenticate_with_crypto, CHALLENGE_LENGTH, XCHACHA20POLY1305_KEY_LENGTH,
