@@ -35,7 +35,11 @@
             @for (user of users(); track user.id) {
               <tr bitRow>
                 <td bitCell class="tw-w-5">
-                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                  <bit-avatar
+                    [text]="user | userName"
+                    [id]="user.userId ?? user.id"
+                    [color]="user.avatarColor"
+                  ></bit-avatar>
                 </td>
                 <td bitCell>
                   {{ user.email }}
@@ -75,7 +79,11 @@
             @for (user of users(); track user.id) {
               <tr bitRow>
                 <td bitCell class="tw-w-5">
-                  <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                  <bit-avatar
+                    [text]="user | userName"
+                    [id]="user.userId ?? user.id"
+                    [color]="user.avatarColor"
+                  ></bit-avatar>
                 </td>
                 <td bitCell>
                   {{ user.email }}

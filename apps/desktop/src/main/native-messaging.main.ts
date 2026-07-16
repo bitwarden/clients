@@ -190,16 +190,19 @@ export class NativeMessagingMain {
       }
       case "darwin": {
         const nmhs = this.getDarwinNMHS();
-        for (const [key, value] of Object.entries(nmhs)) {
-          if (existsSync(value)) {
-            const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
+        for (const [key, browserDirectory] of Object.entries(nmhs)) {
+          if (existsSync(browserDirectory)) {
+            const nmhsPath = path.join(browserDirectory, "NativeMessagingHosts");
+            const manifestPath = path.join(nmhsPath, "com.8bit.bitwarden.json");
 
             let manifest: any = await this.generateChromeJson(binaryPath);
             if (key === "Firefox" || key === "Zen") {
+              // Only generate the NMHS dir if the browser directory exists
+              await fs.mkdir(nmhsPath, { recursive: true });
               manifest = await this.generateFirefoxJson(binaryPath);
             }
 
-            await this.writeManifest(p, manifest);
+            await this.writeManifest(manifestPath, manifest);
           } else {
             this.logService.warning(`${key} not found, skipping.`);
           }
@@ -213,15 +216,19 @@ export class NativeMessagingMain {
         // so that a canonical path to put in the manifest can be used.
 
         // Unsandboxed browser
-        for (const [key, value] of Object.entries(this.getLinuxNMHS())) {
-          if (existsSync(value)) {
-            let nhmsPath = path.join(value, "NativeMessagingHosts");
+        for (const [key, browserDirectory] of Object.entries(this.getLinuxNMHS())) {
+          if (existsSync(browserDirectory)) {
+            let nhmsPath = path.join(browserDirectory, "NativeMessagingHosts");
             if (key === "Firefox") {
-              nhmsPath = path.join(value, "native-messaging-hosts");
+              nhmsPath = path.join(browserDirectory, "native-messaging-hosts");
             }
             const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
 
-            await fs.mkdir(nhmsPath, { recursive: true });
+            if (key === "Firefox") {
+              // Only generate the NMHS dir if the browser directory exists
+              await fs.mkdir(nhmsPath, { recursive: true });
+            }
+
             await this.linkOrCopy(binaryPath, browserBinaryPath);
             this.logService.info(
               `[Native messaging] Hard-linked ${binaryPath} to ${browserBinaryPath}`,

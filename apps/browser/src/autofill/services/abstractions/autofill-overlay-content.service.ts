@@ -56,6 +56,7 @@ export interface AutofillOverlayContentService extends AutofillMonitor {
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   getOwnedInlineMenuTagNames(): string[];
+  isElementInlineMenu(element: Element): boolean;
   getUnownedTopLayerItems(includeCandidates?: boolean): NodeListOf<Element> | undefined;
   refreshMenuLayerPosition(): void;
   clearUserFilledFields(): void;

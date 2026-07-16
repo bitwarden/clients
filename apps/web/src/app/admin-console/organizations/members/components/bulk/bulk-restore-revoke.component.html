@@ -42,7 +42,11 @@
                 <td bitCell class="tw-max-w-0">
                   <div class="tw-flex tw-items-center">
                     <div class="tw-mr-6">
-                      <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                      <bit-avatar
+                        [text]="user | userName"
+                        [id]="user.userId ?? user.id"
+                        [color]="user.avatarColor"
+                      ></bit-avatar>
                     </div>
                     @if (user.name) {
                       <div class="tw-truncate" [title]="user.name + ' ' + user.email">
@@ -91,7 +95,11 @@
                 <td bitCell class="tw-max-w-0">
                   <div class="tw-flex tw-items-center">
                     <div class="tw-mr-6">
-                      <bit-avatar [text]="user | userName" [id]="user.id"></bit-avatar>
+                      <bit-avatar
+                        [text]="user | userName"
+                        [id]="user.userId ?? user.id"
+                        [color]="user.avatarColor"
+                      ></bit-avatar>
                     </div>
                     @if (user.name) {
                       <div class="tw-truncate" [title]="user.name + ' ' + user.email">
