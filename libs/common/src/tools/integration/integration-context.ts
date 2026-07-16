@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { parse } from "tldts";
+
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
 
@@ -128,19 +130,26 @@ export class IntegrationContext<Settings extends object> {
       return "";
     }
 
+    const parsed = parse(hostname, { allowPrivateDomains: true });
+
+    if (parsed.domainWithoutSuffix != null) {
+      // Use tldts-parsed parts so ccSLDs (e.g. .co.uk, .com.au) are handled correctly.
+      // subdomain may itself contain dots (foo.bar), so we split on "." before joining with "_".
+      return [parsed.subdomain, parsed.domainWithoutSuffix]
+        .filter(Boolean)
+        .join(".")
+        .split(".")
+        .join("_");
+    }
+
+    // Fallback for IPs and localhost where tldts has no public suffix data.
     const parts = hostname.split(".");
     if (parts.length <= 1) {
       return Utils.getUrl(rawWebsite) != null ? hostname : "";
     }
 
-    // For second-level domains (example.com), return just the domain name
-    if (parts.length === 2) {
-      return parts[0];
-    }
-
-    // For subdomains (foo.example.com), return "foo_example"
-    // We take all parts except the TLD and join them with underscore
-    const partsWithoutTld = parts.slice(0, parts.length - 1);
-    return partsWithoutTld.join("_");
+    // Preserve existing behavior: strip last label and join with "_"
+    // (e.g. 127.0.0.1 → "127_0_0")
+    return parts.slice(0, parts.length - 1).join("_");
   }
 }
