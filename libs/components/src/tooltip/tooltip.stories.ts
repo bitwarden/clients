@@ -13,7 +13,6 @@ import { TooltipPosition, TooltipPositionIdentifier, tooltipPositions } from "./
 import { TOOLTIP_DATA, TooltipComponent } from "./tooltip.component";
 import { TooltipDirective } from "./tooltip.directive";
 
-
 export default {
   title: "Component Library/Tooltip",
   component: TooltipDirective,

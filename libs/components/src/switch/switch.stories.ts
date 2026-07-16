@@ -11,7 +11,6 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { SwitchComponent } from "./switch.component";
 
-
 export default {
   title: "Component Library/Form/Switch",
   component: SwitchComponent,

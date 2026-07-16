@@ -15,7 +15,6 @@ import { StorybookGlobalStateProvider } from "../utils/state-mock";
 import { LayoutComponent } from "./layout.component";
 import { mockLayoutI18n } from "./mocks";
 
-
 export default {
   title: "Component Library/Layout",
   component: LayoutComponent,

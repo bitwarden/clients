@@ -66,22 +66,33 @@ export const FEATURE_FLAG_CATALOG: FeatureFlagOption[] = Object.entries(FeatureF
 
 /**
  * Provides the flag-driven mock `ConfigService` at the application root of every
- * story and syncs the enabled set from globals on each render. A story that
- * provides its own `ConfigService` (via `moduleMetadata`) shadows this one, so
- * existing stories are unaffected.
+ * story and syncs the enabled set from globals on each render.
+ *
+ * A story that provides its own `ConfigService` is left untouched: one provided
+ * via `moduleMetadata` sits in a child injector and shadows this one, while one
+ * provided at the application root (`applicationConfig`) is detected here and we
+ * skip adding ours — adding a second would clash (e.g. Angular refuses to mix a
+ * `multi` provider with a regular one for the same token).
  */
 export const featureFlagDecorator: Decorator = (storyFn, context) => {
   const enabled = (context.globals[FEATURE_FLAGS_GLOBAL] as string[] | undefined) ?? [];
   enabledFlags$.next(new Set(enabled));
   const story = storyFn();
+  const providers = story.applicationConfig?.providers ?? [];
+  const storyProvidesConfig = providers.some(
+    (p) =>
+      p != null &&
+      typeof p === "object" &&
+      "provide" in p &&
+      (p as { provide: unknown }).provide === ConfigService,
+  );
   return {
     ...story,
     applicationConfig: {
       ...story.applicationConfig,
-      providers: [
-        { provide: ConfigService, useValue: configService },
-        ...(story.applicationConfig?.providers ?? []),
-      ],
+      providers: storyProvidesConfig
+        ? providers
+        : [{ provide: ConfigService, useValue: configService }, ...providers],
     },
   };
 };

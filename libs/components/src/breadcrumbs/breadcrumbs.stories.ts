@@ -13,7 +13,6 @@ import { I18nMockService } from "../utils";
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 
-
 @Component({
   template: /*html*/ ` <div class="tw-mt-5">Some really cool content for {{ currentUrl }}</div> `,
   changeDetection: ChangeDetectionStrategy.OnPush,

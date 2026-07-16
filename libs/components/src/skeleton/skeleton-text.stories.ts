@@ -4,7 +4,6 @@ import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { SkeletonTextComponent } from "./skeleton-text.component";
 
-
 export default {
   title: "Component Library/Skeleton/Skeleton Text",
   component: SkeletonTextComponent,
