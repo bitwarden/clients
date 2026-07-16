@@ -81,7 +81,6 @@ export class IntegrationContext<Settings extends object> {
    *  @param request supplies information about the state of the extension site
    *  @param options optional parameters
    *  @param options.extractHostname when `true`, tries to extract the hostname from the website URL, returns full URL otherwise
-   *  @param options.extractOrigin when `true`, tries to extract the origin (scheme + host) from the website URL, returns full URL otherwise
    *  @param options.maxLength limits the length of the return value
    *  @returns The website or an empty string if a website isn't available
    *  @remarks `website` is usually supplied when generating a credential from the vault
