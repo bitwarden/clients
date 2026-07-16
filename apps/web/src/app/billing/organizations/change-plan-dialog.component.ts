@@ -506,6 +506,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
+    // Clear the previous plan's server total so the summary falls back to the client
+    // estimate for the newly selected plan until refreshSalesTax() resolves.
+    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
