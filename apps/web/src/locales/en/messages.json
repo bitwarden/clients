@@ -77,9 +77,6 @@
   "reviewAccessIntelligence": {
     "message": "Review security reports to find and fix credential risks before they escalate."
   },
-  "reviewAtRiskLoginsPrompt": {
-    "message": "Review at-risk logins"
-  },
   "dataLastUpdated": {
     "message": "Data last updated: $DATE$",
     "placeholders": {
@@ -88,9 +85,6 @@
         "example": "2021-01-01"
       }
     }
-  },
-  "noReportRan": {
-    "message": "You have not created a report yet"
   },
   "notifiedMembers": {
     "message": "Notified members"
@@ -137,9 +131,6 @@
   },
   "onceYouReviewApplications": {
     "message": "Once you review applications and mark them as critical, assign tasks to your members to change their passwords."
-  },
-  "sendReminders": {
-    "message": "Send reminders"
   },
   "noCriticalApplicationsMarkedYet": {
     "message": "You haven't marked any critical applications yet. Review applications to get started."
@@ -280,12 +271,6 @@
   "noReportsRunDescription": {
     "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
   },
-  "noCriticalApplicationsTitle": {
-    "message": "You haven’t marked any applications as critical"
-  },
-  "noCriticalApplicationsDescription": {
-    "message": "Select your most critical applications to prioritize security actions for your users to address at-risk passwords."
-  },
   "markCriticalApplications": {
     "message": "Select critical applications"
   },
@@ -295,17 +280,11 @@
   "markAsCritical": {
     "message": "Mark as critical"
   },
-  "applicationsSelected": {
-    "message": "applications selected"
-  },
   "selectApplication": {
     "message": "Select application"
   },
   "unselectApplication": {
     "message": "Unselect application"
-  },
-  "applicationsMarkedAsCriticalSuccess": {
-    "message": "Applications marked as critical"
   },
   "criticalApplicationsMarkedSuccess": {
     "message": "$COUNT$ applications marked as critical",
@@ -479,9 +458,6 @@
   "applicationsNeedingReview": {
     "message": "Applications needing review"
   },
-  "newApplicationsCardTitle": {
-    "message": "Review new applications"
-  },
   "newApplicationsWithCount": {
     "message": "$COUNT$ new applications",
     "placeholders": {
@@ -532,9 +508,6 @@
   },
   "clickIconToMarkAppAsCritical": {
     "message": "Click the star icon to mark an app as critical"
-  },
-  "markAsCriticalPlaceholder": {
-    "message": "Mark as critical functionality will be implemented in a future update"
   },
   "applicationReviewSaved": {
     "message": "Application review saved"
@@ -744,17 +717,11 @@
   "sex": {
     "message": "Sex"
   },
-  "copySex": {
-    "message": "Copy sex"
-  },
   "birthPlace": {
     "message": "Birth place"
   },
   "nationality": {
     "message": "Nationality"
-  },
-  "copyNationality": {
-    "message": "Copy nationality"
   },
   "passportType": {
     "message": "Passport type"
@@ -1121,9 +1088,6 @@
   },
   "passportDetails": {
     "message": "Passport details"
-  },
-  "passportAdded": {
-    "message": "Passport added"
   },
   "typePassportSubtitle": {
     "message": "Travel document"
@@ -1503,9 +1467,6 @@
   "copyAddress": {
     "message": "Copy address"
   },
-  "copyBirthPlace": {
-    "message": "Copy birth place"
-  },
   "copyPhone": {
     "message": "Copy phone"
   },
@@ -1523,9 +1484,6 @@
   },
   "copyNationalIdentificationNumber": {
     "message": "Copy national identification number"
-  },
-  "copyPassportType": {
-    "message": "Copy passport type"
   },
   "copyFirstName": {
     "message": "Copy first name"
@@ -1547,12 +1505,6 @@
   },
   "copyFingerprint": {
     "message": "Copy fingerprint"
-  },
-  "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
-  },
-  "copyIssuingCountry": {
-    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Copy name"
@@ -4618,9 +4570,6 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteUserDescription": {
-    "message": "Invite new users to your organization by entering their email address below."
-  },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
     "placeholders": {
@@ -5563,9 +5512,6 @@
   "trusted": {
     "message": "Trusted"
   },
-  "needsApproval": {
-    "message": "Needs approval"
-  },
   "areYouTryingtoLogin": {
     "message": "Are you trying to log in?"
   },
@@ -5741,9 +5687,6 @@
   "updateBrowser": {
     "message": "Update browser"
   },
-  "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
-  },
   "loadingProgress": {
     "message": "Loading progress"
   },
@@ -5906,9 +5849,6 @@
   },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
-  },
-  "enterYourMasterPassword": {
-    "message": "Enter your master password"
   },
   "updateSettings": {
     "message": "Update settings"
@@ -6341,15 +6281,6 @@
   },
   "regenerateInviteLink": {
     "message": "Regenerate invite link"
-  },
-  "invalidateInviteLink": {
-    "message": "Invalidate invite link"
-  },
-  "invalidateInviteLinkDesc": {
-    "message": "If you remove all domains, this invite link will no longer work for anyone."
-  },
-  "invalidateLink": {
-    "message": "Invalidate link"
   },
   "inviteLinkInvalidated": {
     "message": "Invite link invalidated"
@@ -7346,12 +7277,6 @@
   "centralizeDataOwnershipBenefit3": {
     "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
   },
-  "centralizeDataOwnershipWarningTitle": {
-    "message": "Prompt members to transfer their items"
-  },
-  "centralizeDataOwnershipWarningDesc": {
-    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
-  },
   "centralizeDataOwnershipWarningLink": {
     "message": "Learn more about the transfer"
   },
@@ -8098,15 +8023,6 @@
   "bulkReinviteMessage": {
     "message": "Reinvited successfully"
   },
-  "bulkReinviteSuccessToast": {
-    "message": "$COUNT$ users re-invited",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "12"
-      }
-    }
-  },
   "reinviteSuccessToast": {
     "message": "1 invitation sent"
   },
@@ -8692,18 +8608,6 @@
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Shared collections for family members"
   },
-  "memberFamilies": {
-    "message": "Member families"
-  },
-  "noMemberFamilies": {
-    "message": "No member families"
-  },
-  "noMemberFamiliesDescription": {
-    "message": "Members who have redeemed family plans will display here"
-  },
-  "membersWithSponsoredFamilies": {
-    "message": "Members of your organization are eligible for Free Bitwarden Families. Here you can see members who have sponsored a Families organization."
-  },
   "organizationHasMemberMessage": {
     "message": "A sponsorship cannot be sent to $EMAIL$ because they are a member of your organization.",
     "placeholders": {
@@ -8836,9 +8740,6 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
-  },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
   },
@@ -8898,15 +8799,6 @@
   },
   "ssoTurnedOff": {
     "message": "SSO turned off"
-  },
-  "emailMustLoginWithSso": {
-    "message": "$EMAIL$ must login with Single Sign-on",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
   },
   "enabledKeyConnector": {
     "message": "Key Connector activated"
@@ -10528,30 +10420,12 @@
       }
     }
   },
-  "freeOrgRestoreLimitReachedManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "2"
-      }
-    }
-  },
   "freeOrgRestoreLimitReachedNoManageBilling": {
     "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
         "example": "2"
-      }
-    }
-  },
-  "teamsStarterPlanRestoreLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
       }
     }
   },
@@ -11289,17 +11163,8 @@
   "approveRequest": {
     "message": "Approve request"
   },
-  "deviceApproved": {
-    "message": "Device approved"
-  },
-  "deviceRemoved": {
-    "message": "Device removed"
-  },
   "removeDevice": {
     "message": "Remove device"
-  },
-  "removeDeviceConfirmation": {
-    "message": "Are you sure you want to remove this device?"
   },
   "noDeviceRequests": {
     "message": "No device requests"
@@ -11955,12 +11820,6 @@
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
   },
-  "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
-  },
-  "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
-  },
   "bulkCollectionAssignmentWarning": {
     "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
     "placeholders": {
@@ -12345,12 +12204,6 @@
   "deviceManagementDesc": {
     "message": "Configure device management for Bitwarden using the implementation guide for your platform."
   },
-  "crowdstrikeEventIntegrationDesc": {
-    "message": "Send event data to your Logscale instance"
-  },
-  "datadogEventIntegrationDesc": {
-    "message": "Send vault event data to your Datadog instance"
-  },
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
@@ -12657,18 +12510,6 @@
   },
   "updatedTaxInformation": {
     "message": "Updated tax information"
-  },
-  "billingInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
-  },
-  "billingTaxIdTypeInferenceError": {
-    "message": "We were unable to validate your tax ID, if you believe this is an error please contact support."
-  },
-  "billingPreviewInvalidTaxIdError": {
-    "message": "Invalid tax ID, if you believe this is an error please contact support."
-  },
-  "billingPreviewInvoiceError": {
-    "message": "An error occurred while previewing the invoice. Please try again later."
   },
   "unverified": {
     "message": "Unverified"
@@ -12979,15 +12820,6 @@
       }
     }
   },
-  "familiesPlanRestoreLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "6"
-      }
-    }
-  },
   "familiesPlanRestoreLimitReachedNoManageBilling": {
     "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
     "placeholders": {
@@ -13255,15 +13087,6 @@
       }
     }
   },
-  "userSelfRevokedFromOrganization": {
-    "message": "User $ID$ self-revoked from organization.",
-    "placeholders": {
-      "id": {
-        "content": "$1",
-        "example": "First 8 characters of a GUID"
-      }
-    }
-  },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revoked for declining transfer to organization ownership."
   },
@@ -13341,12 +13164,6 @@
   },
   "reclaimDomain": {
     "message": "Reclaim domain"
-  },
-  "claimDomainNameInputHint": {
-    "message": "Example: mydomain.com. Subdomains require separate entries to be claimed."
-  },
-  "automaticClaimedDomains": {
-    "message": "Automatic Claimed Domains"
   },
   "automaticDomainClaimProcess": {
     "message": "Bitwarden will attempt to claim the domain 3 times during the first 72 hours. If the domain can’t be claimed, check the DNS record in your host and manually claim. The domain will be removed from your organization in 7 days if it is not claimed."
@@ -13462,9 +13279,6 @@
   "rotationCompletedDesc": {
     "message": "Your master password and encryption keys have been updated. Your other devices have been logged out."
   },
-  "trustUserEmergencyAccess": {
-    "message": "Trust and confirm user"
-  },
   "trustOrganization": {
     "message": "Trust organization"
   },
@@ -13473,9 +13287,6 @@
   },
   "doNotTrust": {
     "message": "Do not trust"
-  },
-  "organizationNotTrusted": {
-    "message": "Organization is not trusted"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -13650,9 +13461,6 @@
       }
     }
   },
-  "accountDeprovisioningNotification": {
-    "message": "Administrators now have the ability to delete member accounts that belong to a claimed domain."
-  },
   "deleteManagedUserWarningDesc": {
     "message": "This action will delete the member account including all items in their vault. This replaces the previous Remove action."
   },
@@ -13731,9 +13539,6 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
-  },
-  "vulnerablePassword": {
-    "message": "Vulnerable password."
   },
   "changeNow": {
     "message": "Change now"
@@ -13823,16 +13628,6 @@
   "archiveItemTitle": {
     "message": "Archive item",
     "description": "Title of the archive items dialog when a single item is selected"
-  },
-  "archiveItemsSingular": {
-    "message": "Archive $NUM$ item",
-    "description": "Title of the archive items dialog when a single item is selected",
-    "placeholders": {
-      "num": {
-        "content": "$1",
-        "example": "1"
-      }
-    }
   },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
@@ -13989,9 +13784,6 @@
   "restart": {
     "message": "Restart"
   },
-  "verifyProviderBankAccountWithStatementDescriptorWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the provider's subscription page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
-  },
   "clickPayWithPayPal": {
     "message": "Please click the Pay with PayPal button to add your payment method."
   },
@@ -14053,9 +13845,6 @@
   },
   "cardSecurityCodeDescription": {
     "message": "Card security code, also known as CVV or CVC, is typically a 3 digit number printed on the back of your credit card or 4 digit number printed on the front above your card number."
-  },
-  "verifyBankAccountWarning": {
-    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the Payment Details page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
   },
   "taxId": {
     "message": "Tax ID: $TAX_ID$",
@@ -14201,9 +13990,6 @@
   },
   "unlockWithPasskey": {
     "message": "Unlock with passkey"
-  },
-  "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
   },
   "noPrfCredentialsAvailable": {
     "message": "No PRF-enabled passkeys are available for unlock."
@@ -14670,15 +14456,6 @@
   "youNeedToUpdateLicenseFile": {
     "message": "You'll need to update your license file"
   },
-  "youNeedToUpdateLicenseFileDate": {
-    "message": "$DATE$.",
-    "placeholders": {
-      "date": {
-        "content": "$1",
-        "example": "June 12, 2026"
-      }
-    }
-  },
   "uploadLicenseFile": {
     "message": "Upload license file"
   },
@@ -14714,9 +14491,6 @@
   },
   "weCouldNotProcessYourPayment": {
     "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
-  },
-  "yourSubscriptionHasExpired": {
-    "message": "Your subscription has expired. Please contact the support team for assistance."
   },
   "yourSubscriptionIsScheduledToCancel": {
     "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
@@ -14833,9 +14607,6 @@
   },
   "emailProtected": {
     "message": "Email protected"
-  },
-  "invalidSendPassword": {
-    "message": "Invalid Send password"
   },
   "vaultWelcomeDialogTitle": {
     "message": "You're in! Welcome to Bitwarden"
@@ -14992,12 +14763,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Other"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"
@@ -15157,17 +14922,8 @@
   "keeperSsoDesc": {
     "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
   },
-  "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
-  },
   "ssoToken": {
     "message": "SSO token"
-  },
-  "keeperAuthRequired": {
-    "message": "Keeper authentication required"
-  },
-  "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
   },
   "selectApprovalMethod": {
     "message": "Approval methods"
@@ -15214,9 +14970,6 @@
   "selectTwoFactorMethod": {
     "message": "Select two-factor method"
   },
-  "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
-  },
   "authenticatorAppTotp": {
     "message": "Authenticator app (TOTP)"
   },
@@ -15247,29 +15000,17 @@
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device"
   },
-  "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
-  },
-  "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
-  },
   "pushNotification": {
     "message": "Push notification"
   },
   "enterCodeManually": {
     "message": "Enter code manually"
   },
-  "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
-  },
   "unknownMethod": {
     "message": "Unknown method"
   },
   "selectDuoMethod": {
     "message": "Select Duo method"
-  },
-  "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
@@ -15282,12 +15023,6 @@
   },
   "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
-  },
-  "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
-  },
-  "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
   },
   "tryAnotherMethod": {
     "message": "Try another method"
@@ -15321,10 +15056,6 @@
       }
     }
   },
-  "sendControlsEnableDescription": {
-    "message": "Control whether members can use Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "sendTypes": {
     "message": "Send types",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -15340,9 +15071,6 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
-  },
-  "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
   },
   "backToEditing": {
     "message": "Back to editing"
