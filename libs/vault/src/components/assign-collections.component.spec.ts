@@ -96,6 +96,9 @@ describe("AssignCollectionsComponent", () => {
   const organizations$ = jest.fn().mockReturnValue(of([org]));
 
   beforeEach(async () => {
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       providers: [
         { provide: CipherService, useValue: mock<CipherService>() },
@@ -104,7 +107,7 @@ describe("AssignCollectionsComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compileComponents();
 

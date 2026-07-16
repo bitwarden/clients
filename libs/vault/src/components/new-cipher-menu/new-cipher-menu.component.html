@@ -46,13 +46,13 @@
       @if (canCreateFolder()) {
         <button type="button" bitMenuItem (click)="folderAdded.emit()">
           <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-          {{ "folder" | i18n }}
+          {{ "folder" | vfo1I18n: "myFolder" }}
         </button>
       }
       @if (canCreateCollection()) {
         <button type="button" bitMenuItem (click)="collectionAdded.emit()">
           <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-          {{ "collection" | i18n }}
+          {{ "collection" | vfo1I18n: "sharedFolder" }}
         </button>
       }
     </bit-menu>

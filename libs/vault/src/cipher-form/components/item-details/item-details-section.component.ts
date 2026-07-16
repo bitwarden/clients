@@ -33,6 +33,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { Vfo1I18nPipe } from "../../../pipes/vfo1-i18n.pipe";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -55,6 +56,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     IconButtonModule,
     JslibModule,
     CommonModule,
+    Vfo1I18nPipe,
   ],
 })
 export class ItemDetailsSectionComponent implements OnInit {

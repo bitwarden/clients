@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
@@ -23,6 +23,7 @@ import {
 } from "@bitwarden/components";
 
 import { OrgIconDirective } from "../../components/org-icon.directive";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -46,6 +47,8 @@ export class ItemDetailsV2Component {
   readonly folder = input<FolderView | undefined>();
   readonly collections = input<CollectionView[] | undefined>();
   readonly showAllDetails = signal(false);
+
+  private readonly terminology = inject(Vfo1TerminologyService);
 
   readonly showOwnership = computed(() => {
     return this.cipher().organizationId && this.organization() && !this.hideOwner();
@@ -97,9 +100,11 @@ export class ItemDetailsV2Component {
     if (item instanceof Organization) {
       return this.i18nService.t("owner") + item.name;
     } else if (item instanceof CollectionView) {
-      return this.i18nService.t("collection") + item.name;
+      return (
+        this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection") + item.name
+      );
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder") + item.name;
+      return this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder") + item.name;
     }
     return "";
   }
@@ -117,9 +122,9 @@ export class ItemDetailsV2Component {
 
   getItemTitle(item: Organization | CollectionView | FolderView): string {
     if (item instanceof CollectionView) {
-      return this.i18nService.t("collection");
+      return this.i18nService.t(this.terminology.enabled() ? "sharedFolder" : "collection");
     } else if (item instanceof FolderView) {
-      return this.i18nService.t("folder");
+      return this.i18nService.t(this.terminology.enabled() ? "myFolder" : "folder");
     }
     return "";
   }

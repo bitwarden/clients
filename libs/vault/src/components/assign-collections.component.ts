@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
   OnInit,
@@ -60,6 +61,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { Vfo1I18nPipe } from "../pipes/vfo1-i18n.pipe";
+import { Vfo1TerminologyService } from "../services/vfo1-terminology.service";
+
 export interface CollectionAssignmentParams {
   organizationId: OrganizationId;
 
@@ -113,6 +117,7 @@ const MY_VAULT_ID = "MyVault";
     ReactiveFormsModule,
     ButtonModule,
     DialogModule,
+    Vfo1I18nPipe,
   ],
 })
 export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -208,6 +213,7 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
     return this.formGroup.getRawValue().selectedOrg || this.params.organizationId;
   }
   private destroy$ = new Subject<void>();
+  private readonly terminology = inject(Vfo1TerminologyService);
 
   constructor(
     private cipherService: CipherService,
@@ -310,7 +316,9 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
           selectedCollectionsCount,
         );
       } else {
-        assignedMessageKey = "successfullyAssignedCollections";
+        assignedMessageKey = this.terminology.enabled()
+          ? "successfullyAssignedSharedFolders"
+          : "successfullyAssignedCollections";
       }
       const assignedMessage = this.i18nService.t(assignedMessageKey);
 
@@ -512,10 +520,17 @@ export class AssignCollectionsComponent implements OnInit, OnDestroy, AfterViewI
   }
 
   private collectionAssignmentToastKey(ciphersCount: number, collectionsCount: number): string {
+    const sharedFolderTerminology = this.terminology.enabled();
     if (ciphersCount === 1) {
-      return collectionsCount === 1 ? "itemMovedToCollection" : "itemMovedToCollections";
+      if (collectionsCount === 1) {
+        return sharedFolderTerminology ? "itemMovedToSharedFolder" : "itemMovedToCollection";
+      }
+      return sharedFolderTerminology ? "itemMovedToSharedFolders" : "itemMovedToCollections";
     }
-    return collectionsCount === 1 ? "itemsMovedToCollection" : "itemsMovedToCollections";
+    if (collectionsCount === 1) {
+      return sharedFolderTerminology ? "itemsMovedToSharedFolder" : "itemsMovedToCollection";
+    }
+    return sharedFolderTerminology ? "itemsMovedToSharedFolders" : "itemsMovedToCollections";
   }
 
   private async moveToOrganization(
