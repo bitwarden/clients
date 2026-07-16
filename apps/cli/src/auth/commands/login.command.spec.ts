@@ -153,7 +153,6 @@ describe("LoginCommand", () => {
 
     // Default mock behaviors for a successful password login
     i18nService.t.mockImplementation((key: string) => key);
-    cryptoFunctionService.randomBytes.mockResolvedValue(MOCK_SESSION_KEY);
     loginStrategyService.logIn.mockResolvedValue(mockSuccessAuthResult());
     keyConnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
     masterPasswordService.forceSetPasswordReason$.mockReturnValue(of(ForceSetPasswordReason.None));
