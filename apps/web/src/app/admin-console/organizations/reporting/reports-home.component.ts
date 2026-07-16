@@ -149,6 +149,10 @@ export class ReportsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             ? ReportVariant.Enabled
             : ReportVariant.RequiresEnterprise,
       },
+      {
+        ...reports[ReportType.AccessIntelligencePrototype],
+        variant: reportRequiresUpgrade,
+      },
     ];
 
     return reportsArray;
