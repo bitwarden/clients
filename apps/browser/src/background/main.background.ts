@@ -1247,6 +1247,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.syncServiceListener = new SyncServiceListener(
