@@ -111,4 +111,22 @@ describe("SubscriptionStatusComponent", () => {
       expect(component.status).toBe("incomplete_expired");
     });
   });
+
+  describe("planName getter", () => {
+    beforeEach(() => {
+      component.organizationSubscriptionResponse = {
+        ...makeOrgResponse(makeSubscription()),
+        plan: { name: "Teams (Monthly)" },
+      } as any;
+    });
+
+    it("uses response plan name when no override", () => {
+      expect(component.planName).toBe("Teams (Monthly)");
+    });
+
+    it("uses planOverride name when provided", () => {
+      component.planOverride = { name: "Teams (Annually)" } as any;
+      expect(component.planName).toBe("Teams (Annually)");
+    });
+  });
 });

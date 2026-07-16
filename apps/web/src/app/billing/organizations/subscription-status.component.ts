@@ -4,6 +4,7 @@ import { DatePipe } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 type ComponentData = {
@@ -38,6 +39,9 @@ export class SubscriptionStatusComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() hideCallout = false;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() planOverride: PlanResponse | null = null;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() reinstatementRequested = new EventEmitter<void>();
 
@@ -52,7 +56,7 @@ export class SubscriptionStatusComponent {
   }
 
   get planName() {
-    return this.organizationSubscriptionResponse.plan.name;
+    return this.planOverride?.name ?? this.organizationSubscriptionResponse.plan.name;
   }
 
   get status(): string {

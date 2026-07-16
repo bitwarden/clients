@@ -3949,6 +3949,15 @@
   "pendingCancellation": {
     "message": "Pending cancellation"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "The subscription has been marked for cancellation at the end of the current billing period."
   },
