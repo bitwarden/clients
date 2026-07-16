@@ -233,7 +233,7 @@
     "message": "Вы отмечаете, какие приложения наиболее критичны, и Access Intelligence автоматически определяет пароли, подверженные риску, которые требуют внимания в первую очередь."
   },
   "trackImprovementsAcrossYourTeam": {
-    "message": "Отслеживайте улучшения в вашей команде"
+    "message": "Отслеживайте прогресс всей вашей команды"
   },
   "membersAreAutomaticallyNotified": {
     "message": "Пользователи автоматически получают уведомления о паролях, подверженных риску, в расширении Bitwarden. Никаких дополнительных действий не требуется."
@@ -989,6 +989,9 @@
   "save": {
     "message": "Сохранить"
   },
+  "saveAndContinue": {
+    "message": "Сохранить и продолжить"
+  },
   "cancel": {
     "message": "Отмена"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Общие"
+  },
+  "sharedFolder": {
+    "message": "Общая папка"
+  },
+  "sharedFolders": {
+    "message": "Общие папки"
+  },
+  "myFolder": {
+    "message": "Моя папка"
+  },
+  "myFolders": {
+    "message": "Мои папки"
   },
   "attachments": {
     "message": "Вложения"
@@ -1462,6 +1477,10 @@
   "passwordCopied": {
     "message": "Пароль скопирован"
   },
+  "passwordAnnounceSpace": {
+    "message": "пробел",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "copyUsername": {
     "message": "Скопировать имя пользователя",
     "description": "Copy username to clipboard"
@@ -1683,7 +1702,7 @@
     "message": "Файл"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Фото"
   },
   "selectFile": {
     "message": "Выберите файл."
@@ -2526,6 +2545,30 @@
   "confirmFilePassword": {
     "message": "Подтвердите пароль к файлу"
   },
+  "keePassMasterPassword": {
+    "message": "Мастер-пароль KeePass"
+  },
+  "addKeyFile": {
+    "message": "Добавить файл ключа"
+  },
+  "keyFileUpload": {
+    "message": "Загрузка файла ключа"
+  },
+  "kdbxFileUpload": {
+    "message": "Загрузка файла KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Допустимые форматы: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Формат данных некорректен. Проверьте файл импорта и повторите попытку."
+  },
+  "kdbxWrongFileType": {
+    "message": "Этот файл не является допустимой базой данных KeePass (.kdbx). Выберите файл .kdbx и повторите попытку."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Эта база данных KeePass слишком велика для импорта."
+  },
   "accountRestrictedOptionDescription": {
     "message": "Использовать ключ шифрования вашего аккаунта, полученный из имени пользователя и мастер-пароля, для шифрования экспорта и ограничения импорта только для текущего аккаунта Bitwarden."
   },
@@ -2908,7 +2951,7 @@
     "message": "Ничего не было импортировано."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ элементов будут пропущены",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2917,43 +2960,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Следующие элементы не удалось прочитать, и они не будут включены в ваш импорт:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Контакт"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Участники"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Паспорт"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Водительское удостоверение"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Удостоверение личности"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Свидетельство о рождении"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Учетные данные базы данных"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Учетные данные сервера"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Лицензия на программное обеспечение"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Медицинское страхование"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Учетные данные Wi-Fi"
   },
   "general": {
-    "message": "General"
+    "message": "Основное"
   },
   "importEncKeyError": {
     "message": "Ошибка при расшифровке экспортированного файла. Ваш ключ шифрования не совпадает с ключом шифрования, использованным при экспорте данных."
@@ -3886,10 +3929,10 @@
     "message": "Специальное предложение, прежде чем вы продолжите"
   },
   "churnOfferPreamble": {
-    "message": "Если вы откажетесь сейчас, ваш доступ сохранится до"
+    "message": "Если вы отмените сейчас, ваш доступ будет действовать до"
   },
   "churnOfferPreambleSuffix": {
-    "message": ". Но, как нашему давнему клиенту, мы хотели бы сначала кое-что вам предложить."
+    "message": ". Но, поскольку вы являетесь нашим давним клиентом, мы хотели бы сначала предложить вам кое-что."
   },
   "churnOfferDiscountHeading": {
     "message": "Получите $DISCOUNT$ на вашу подписку",
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Созданная текстовая Send"
+  "createdTextSendV2": {
+    "message": "Создана текстовая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Созданная текстовая Send с email-верификацией",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Создана текстовая Send$SENDID$ с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Созданная текстовая Send с паролем",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Создана текстовая Send$SENDID$ с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Созданная файловая Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Создана файловая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Созданная файловая Send с email-верификацией",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Создана файловая Send$SENDID$ с email-верификацией",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Созданная файловая Send с паролем",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Создана файловая Send$SENDID$ с паролем",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Изменена текстовая Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Изменена текстовая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Изменена файловая Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Изменена файловая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Удалена текстовая Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Удалена текстовая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Удалена файловая Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Удалена файловая Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Доступ к текстовой Send получен",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Доступ к текстовой Send$SENDID$ созданной $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Доступ к файловой Send получен",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Доступ к файловой Send$SENDID$ созданной $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Внешний"
+  },
+  "sendAccessExternalDomain": {
+    "message": "Внешний (домен $DOMAIN$)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "Просмотр $ID$ Send",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "Просмотр $ID$ участника",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Элемент $ID$ перемещен в организацию.",
@@ -5195,7 +5351,7 @@
     }
   },
   "stagedUserId": {
-    "message": "Staged user $ID$ added.",
+    "message": "Пользователь $ID$ добавлен во временную среду.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6943,10 +7099,10 @@
     "message": "Принято"
   },
   "staged": {
-    "message": "Staged"
+    "message": "Временная среда"
   },
   "stagedMemberTooltip": {
-    "message": "Pending account invitation"
+    "message": "Приглашение в аккаунт ожидается"
   },
   "sendLink": {
     "message": "Ссылка на Send",
@@ -7435,8 +7591,8 @@
     "message": "Настройте параметры создания и редактирования Send, включая возможность их удаления.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Управляйте тем, как участники используют функцию Send. Администраторы и владельцы группы исключены из этой политики.",
+  "sendControlsPolicyDescV4": {
+    "message": "Управляйте тем, как участники используют функцию Send. Эта политика будет применяться к Send, созданным после ее включения. Администраторы и владельцы группы исключаются из-под действия этой политики.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Определяет, когда логины будут предлагаться для автозаполнения. Администраторы и владельцы освобождаются от этой политики."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Задайте умолчание, какие части адреса сайта (URI) должны совпадать, чтобы Bitwarden предложил логин для автозаполнения. Эта политика не будет применяться к владельцам и администраторам."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Обнаружение совпадения URI по умолчанию"
@@ -10381,6 +10540,42 @@
       }
     }
   },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Бесплатные организации могут иметь до $SEATCOUNT$ участников. Перейдите на платный тариф, чтобы восстановить доступ этого участника.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "В бесплатных организациях может быть до $SEATCOUNT$ участников. Для перехода на платную версию обратитесь к владельцу вашей организации.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "На тарифных планах Teams Starter может быть до $SEATCOUNT$ участников. Перейдите на более дорогой тарифный план, чтобы восстановить доступ этого участника.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "На тарифных планах Teams Starter может быть до $SEATCOUNT$ участников. Обратитесь к владельцу вашей организации, чтобы перейти на более дорогой тарифный план и восстановить доступ этого участника.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "В бесплатных организациях может быть до $COLLECTIONCOUNT$ коллекций. Перейдите на платный план, чтобы добавить больше коллекций.",
     "placeholders": {
@@ -12790,6 +12985,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Семейные организации могут иметь до $SEATCOUNT$ участников. Перейдите на платный тариф, чтобы восстановить доступ этого участника.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "В семейных организациях может быть до $SEATCOUNT$ участников. Для перехода на платную версию обратитесь к владельцу вашей организации.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "Улучшите свой план, чтобы приглашать пользователей и получить мощные возможности безопасности."
   },
@@ -13933,7 +14146,7 @@
     "message": "Необходимые действия: В платежных реквизитах не указан идентификационный номер налогоплательщика. Если идентификационный номер налогоплательщика не указан, в ваших счетах могут быть указаны дополнительные налоги."
   },
   "breadcrumbs": {
-    "message": "Breadcrumbs",
+    "message": "Гид",
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
@@ -14900,43 +15113,43 @@
     }
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Адрес email Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Введите адрес email, который вы используете для авторизации в Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Расположение дата-центра"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Мастер-пароль Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Пожалуйста, введите мастер-пароль Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Введите код, сгенерированный вашим средством двухфакторной аутентификации"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Введите код из приложения-аутентификатора"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Введите код, присланный в SMS"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Введите код из приложения Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Подтверждение администратора"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Мы отправили запрос на одобрение администратора вашему администратору"
   },
   "method": {
-    "message": "Method"
+    "message": "Метод"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Прямой импортер"
   },
   "csv": {
     "message": "CSV"
@@ -14945,76 +15158,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Требуется аутентификация SSO"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Для входа в ваш аккаунт Keeper требуется аутентификация SSO. Завершите авторизацию в открывшемся окне браузера, а затем вставьте токен, отображенный на странице."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Завершите авторизацию на открывшейся вкладке браузера. Токен будет считан автоматически."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Токен SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Требуется аутентификация Keeper"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Требуется подтверждение устройства Keeper"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Методы подтверждения"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Требуется подтверждение устройства"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Подтвердите это устройство, выбрав один из способов ниже"
   },
   "keeperPush": {
-    "message": "Keeper Push"
+    "message": "Push-уведомление Keeper"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Метод двухфакторной аутентификации"
   },
   "emailVerification": {
     "message": "Подтверждение email"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Пожалуйста, проверьте свою почту и введите код подтверждения ниже"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Отправлено push-уведомление Keeper на авторизованное устройство"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Отправлено push-уведомление Keeper"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "Запрос на подтверждение будет отменен"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Вы уверены, что хотите выйти? Ваш запрос на подтверждение администратором будет отменен."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Отменить запрос"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Требуется двухфакторная аутентификация Keeper"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Подтвердите запрос на вход в приложении-аутентификаторе. Это окно закроется автоматически."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Выберите метод двухфакторной аутентификации"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Выберите способ подтверждения своей личности."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Приложение-аутентификатор (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Текстовое сообщение (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -15023,85 +15236,85 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Резервные коды"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Ключ безопасности (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Ключ безопасности (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Верификация Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Подтвердите уведомление Keeper DNA на своем устройстве"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Выберите метод Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Выберите способ подтверждения с помощью Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Push-уведомление"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Введите код вручную"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Двухфакторная аутентификация"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Неизвестный метод"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Выберите метод Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Выберите способ подтверждения с помощью Duo Security.."
   },
   "duoPush": {
-    "message": "Duo Push"
+    "message": ""
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Телефонный вызов"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Верификация Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Подтвердите push-уведомление Duo на своем устройстве"
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "На ваш телефон было отправлено SMS. Введите код в приложении Duo, чтобы продолжить."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Ответьте на звонок от Duo и следуйте инструкциям."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Попробуйте другой способ"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Для вашего аккаунта Keeper требуется метод двухфакторной аутентификации, который в настоящее время не поддерживается прямым импортером."
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "Многофакторная аутентификация отменена"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Сбой многофакторной аутентификации"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Возникла проблема при подключении к Keeper. Пожалуйста, попробуйте выполнить импорт еще раз."
   },
   "importingYourAccount": {
-    "message": "Importing your account..."
+    "message": "Импорт вашего аккаунта..."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Код доступа"
   },
   "multipleInputDomainsInvalid": {
     "message": "Один или несколько доменов недействительны"
