@@ -311,6 +311,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 */
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyAssertionWithoutUserInterfaceRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -320,7 +321,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userName: passkeyIdentity.userName,
                         userHandle: passkeyIdentity.userHandle,
                         recordIdentifier: passkeyIdentity.recordIdentifier,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
@@ -408,6 +409,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                 Task {
                     let clientWindow = await self.getWindowDetails()
+                    let context = UUID().uuidString
                     let req = PasskeyRegistrationRequest(
                         rpId: passkeyIdentity.relyingPartyIdentifier,
                         clientDataHash: request.clientDataHash,
@@ -417,7 +419,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                         userHandle: passkeyIdentity.userHandle,
                         supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) },
                         excludedCredentials: excludedCredentialIds,
-                        context: nil
+                        context: context
                     )
 
                     let client = await getClient()
@@ -479,13 +481,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         Task {
             let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
             let req = PasskeyAssertionRequest(
                 rpId: requestParameters.relyingPartyIdentifier,
                 clientDataHash: requestParameters.clientDataHash,
                 userVerification: userVerification,
                 clientWindow: clientWindow,
                 allowedCredentials: requestParameters.allowedCredentials,
-                context: nil
+                context: context
             )
 
             let client = await getClient()
