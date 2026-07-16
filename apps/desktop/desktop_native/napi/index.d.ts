@@ -264,7 +264,7 @@ export declare namespace autotype {
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }
 
-export declare namespace biometrics_v2 {
+export declare namespace biometrics {
   export class BiometricLockSystem {
 
   }
