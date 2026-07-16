@@ -104,6 +104,18 @@
   "shared": {
     "message": "已共享"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
   "share": {
     "message": "共享"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "密码短语"
   },
+  "passwordAnnounceSpace": {
+    "message": "空格",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "编辑项目"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "复制网站"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "复制 $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -750,7 +766,7 @@
     "message": "类型"
   },
   "items": {
-    "message": "Items"
+    "message": "项目"
   },
   "firstName": {
     "message": "名字"
@@ -842,7 +858,7 @@
     "message": "添加网站"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "添加网站或 App"
   },
   "app": {
     "message": "App"
@@ -851,7 +867,7 @@
     "message": "删除网站"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "删除 $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "编辑字段"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "编辑 $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1225,7 +1241,7 @@
     "message": "文件"
   },
   "photo": {
-    "message": "Photo"
+    "message": "照片"
   },
   "selectFile": {
     "message": "选择一个文件"
@@ -2629,7 +2645,7 @@
     "message": "集合已删除"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "项目已移动"
   },
   "movedItems": {
     "message": "项目已移动"
@@ -3620,7 +3636,7 @@
     "message": "无法访问已暂停组织中的项目。请联系您的组织所有者寻求帮助。"
   },
   "neverLockWarning": {
-    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
+    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您应确保您的设备已受到妥善保护。"
   },
   "vault": {
     "message": "密码库",
@@ -3657,7 +3673,7 @@
     "message": "通知已发送到您的设备"
   },
   "notificationSentDevicePart1": {
-    "message": "解锁您设备上的 Bitwarden 或通过"
+    "message": "解锁您设备上的 Bitwarden 或解锁"
   },
   "notificationSentDeviceAnchor": {
     "message": "网页 App"
@@ -4196,7 +4212,7 @@
     "message": "没有导入任何内容。"
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ 个项目将被跳过",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4205,43 +4221,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "以下项目无法读取，将不会包含在您的导入中："
   },
   "contact": {
-    "message": "Contact"
+    "message": "联系人"
   },
   "membership": {
-    "message": "Membership"
+    "message": "成员资格"
   },
   "passport": {
-    "message": "Passport"
+    "message": "护照"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "驾驶证"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "身份证"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "出生证明"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "数据库凭据"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "服务器凭据"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "软件许可证"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "健康保险"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 凭据"
   },
   "general": {
-    "message": "General"
+    "message": "常规"
   },
   "importEncKeyError": {
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
@@ -4307,6 +4323,30 @@
   "confirmFilePassword": {
     "message": "确认文件密码"
   },
+  "keePassMasterPassword": {
+    "message": "KeePass 主密码"
+  },
+  "addKeyFile": {
+    "message": "添加密钥文件"
+  },
+  "keyFileUpload": {
+    "message": "密钥文件上传"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX 文件上传"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "可接受的格式：kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "数据格式不正确。请检查您的导入文件然后重试。"
+  },
+  "kdbxWrongFileType": {
+    "message": "此文件不是有效的 KeePass 数据库 (.kdbx) 文件。请选择一个 .kdbx 文件，然后重试。"
+  },
+  "kdbxFileTooLarge": {
+    "message": "此 KeePass 数据库过大，无法导入。"
+  },
   "exportSuccess": {
     "message": "密码库数据已导出"
   },
@@ -4347,7 +4387,7 @@
     "message": "多重身份验证失败"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
   },
   "includeSharedFolders": {
     "message": "包含共享的文件夹"
@@ -4408,43 +4448,43 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Keeper 电子邮箱"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "输入您用于登录 Keeper 的电子邮箱"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "数据中心位置"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Keeper 主密码"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "请输入您的 Keeper 主密码"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "请输入来自您的双重身份验证方式的代码"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "请输入来自您的验证器 App 的代码"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "请输入通过短信发送的代码"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "请输入来自您的 Keeper DNA App 的代码"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "管理员批准"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "我们已经向您的管理员发送了管理员批准请求"
   },
   "method": {
-    "message": "Method"
+    "message": "方式"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "直接导入器"
   },
   "csv": {
     "message": "CSV"
@@ -4453,76 +4493,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "需要 SSO 身份验证"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "您的 Keeper 账户要求 SSO 身份验证。在打开的浏览器窗口中完成登录，然后粘贴页面上显示的令牌。"
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "在打开的浏览器标签页中完成登录。令牌将被自动捕获。"
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO 令牌"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "需要 Keeper 身份验证"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "需要 Keeper 设备批准"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "批准方式"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "需要设备批准"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "通过选择下面的方式来批准此设备"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "双重身份验证方式"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "电子邮箱验证"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "请检查您的电子邮箱然后在下面输入验证码"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Keeper Push 通知已发送到认可的设备"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push 已发送"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "批准请求将被取消"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "确定要离开吗？您的管理员批准请求将被取消。"
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "取消请求"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "需要 Keeper 双重身份验证"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "在您的身份验证 App 中批准登录请求。此对话框将自动关闭。"
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "选择双重身份验证方式"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "选择验证您的身份的方式。"
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "验证器 App (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "短信 (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -4531,70 +4571,70 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "备份代码"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "安全密钥 (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "安全密钥 (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Keeper DNA 验证"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "批准您设备上的 Keeper DNA 通知"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "选择 Keeper DNA 方式"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "选择使用 Keeper DNA 进行验证的方式。"
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Push 通知"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "手动输入代码"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "双重身份验证"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "未知方式"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "选择 Duo 方式"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "选择使用 Duo Security 进行验证的方式。"
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "电话"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo 验证"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "批准您设备上的 Duo Push 通知。"
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "短信已经发送到您的手机。请在 Duo App 中输入代码以继续。"
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "接听来自 Duo 的电话然后按照说明操作。"
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "尝试其他方式"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "您的 Keeper 账户需要双重身份验证方式，而直接导入器目前不支持这种方式。"
   },
   "commonImportFormats": {
     "message": "常规格式",
@@ -5122,16 +5162,16 @@
     "message": "成功分配了集合"
   },
   "itemMovedToCollection": {
-    "message": "Item moved to collection"
+    "message": "项目已移动到集合"
   },
   "itemMovedToCollections": {
-    "message": "Item moved to collections"
+    "message": "项目已移动到集合"
   },
   "itemsMovedToCollection": {
-    "message": "Items moved to collection"
+    "message": "项目已移动到集合"
   },
   "itemsMovedToCollections": {
-    "message": "Items moved to collections"
+    "message": "项目已移动到集合"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -5293,7 +5333,7 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "归档项目",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
@@ -5641,7 +5681,7 @@
     "message": "输入年份。"
   },
   "sendTypes": {
-    "message": "Send types",
+    "message": "Send 类型",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
@@ -5766,7 +5806,7 @@
     "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "删除日期"
   },
   "discardEditsTitle": {
     "message": "放弃编辑"
@@ -5826,15 +5866,15 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowTextSends": {
-    "message": "Text Sends are not allowed for your organization",
+    "message": "您的组织不允许文本 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "orgDoesNotAllowFileSends": {
-    "message": "File Sends are not allowed for your organization",
+    "message": "您的组织不允许文件 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendWillAutomaticallyExpire": {
-    "message": "This Send will automatically expire at the set deletion date",
+    "message": "此 Send 将在设置的删除日期自动过期",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
@@ -5889,7 +5929,7 @@
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   },
   "sendDeletionDateSetByOrg": {
-    "message": "$ORGNAME$ has set this deletion date",
+    "message": "$ORGNAME$ 已设置此删除日期",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -5919,7 +5959,7 @@
     "message": "这些集合将被永久删除。"
   },
   "duplicateAttachmentNameError": {
-    "message": "Items cannot have multiple attachments with the same file name"
+    "message": "项目不能有多个具有相同文件名的附件"
   },
   "labelWithNotification": {
     "message": "$LABEL$：新通知",

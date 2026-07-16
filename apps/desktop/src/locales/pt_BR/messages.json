@@ -104,6 +104,18 @@
   "shared": {
     "message": "Compartilhado"
   },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
   "share": {
     "message": "Compartilhar"
   },
@@ -425,6 +437,10 @@
   "passphrase": {
     "message": "Frase secreta"
   },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "editItem": {
     "message": "Editar item"
   },
@@ -460,10 +476,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Copiar site"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "Copiar $FIELD$",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -750,7 +766,7 @@
     "message": "Tipo"
   },
   "items": {
-    "message": "Items"
+    "message": "Itens"
   },
   "firstName": {
     "message": "Primeiro nome"
@@ -842,7 +858,7 @@
     "message": "Adicionar site"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Adicionar site ou app"
   },
   "app": {
     "message": "App"
@@ -851,7 +867,7 @@
     "message": "Apagar site"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Apagar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -869,7 +885,7 @@
     "message": "Editar campo"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Editar $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1225,7 +1241,7 @@
     "message": "Arquivo"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Foto"
   },
   "selectFile": {
     "message": "Selecione um arquivo"
@@ -2629,7 +2645,7 @@
     "message": "Conjuntos apagados"
   },
   "movedItem": {
-    "message": "Item moved"
+    "message": "Item movido"
   },
   "movedItems": {
     "message": "Itens movidos"
@@ -4196,7 +4212,7 @@
     "message": "Nada foi importado."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ itens serão pulados",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4205,43 +4221,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Os seguintes itens não puderam ser lidos e não serão inclusos na sua importação:"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Contato"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Assinatura"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Passaporte"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Carteira de habilitação"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Carteira de identidade"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Certidão de nascimento"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Credenciais de banco de dados"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Credenciais de servidor"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Licença de software"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Plano de saúde"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Credenciais de Wi-Fi"
   },
   "general": {
-    "message": "General"
+    "message": "Geral"
   },
   "importEncKeyError": {
     "message": "Erro ao descriptografar o arquivo exportado. Sua chave de criptografia não corresponde à chave de criptografia usada para exportar os dados."
@@ -4306,6 +4322,30 @@
   },
   "confirmFilePassword": {
     "message": "Confirmar senha do arquivo"
+  },
+  "keePassMasterPassword": {
+    "message": "Senha principal do KeePass"
+  },
+  "addKeyFile": {
+    "message": "Adicionar arquivo de chave"
+  },
+  "keyFileUpload": {
+    "message": "Envio de arquivo de chave"
+  },
+  "kdbxFileUpload": {
+    "message": "Envio de arquivo KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formatos aceitos: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "Dados do cofre exportados"
