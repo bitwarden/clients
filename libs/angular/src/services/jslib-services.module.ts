@@ -840,7 +840,6 @@ const safeProviders: SafeProvider[] = [
       GlobalStateProvider,
       SUPPORTS_SECURE_STORAGE,
       SECURE_STORAGE,
-      KeyGenerationService,
       EncryptService,
       LogService,
       LOGOUT_CALLBACK,
@@ -2009,7 +2008,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordPreloginService,
     useClass: DefaultPasswordPreloginService,
-    deps: [PasswordPreloginApiService],
+    deps: [PasswordPreloginApiService, SdkService, EnvironmentService, ConfigService],
   }),
   safeProvider({
     provide: EncryptedMigrationsSchedulerService,

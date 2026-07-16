@@ -15,6 +15,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { BillingConstraintService } from "../../../../../billing/members/billing-constraint/billing-constraint.service";
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -135,6 +136,16 @@ const mockDeleteManagedMemberWarningService = {
   warningAcknowledged: () => of(false),
   showWarning: () => Promise.resolve(true),
   acknowledgeWarning: () => Promise.resolve(),
+};
+
+const mockBillingConstraintService = {
+  checkSeatLimit: () => ({ canAddUsers: true }),
+  seatLimitReached: () => Promise.resolve(false),
+};
+
+const mockOrganizationMetadataService = {
+  getOrganizationMetadata$: () => of({ organizationOccupiedSeats: 0 } as any),
+  refreshMetadataCache: () => {},
 };
 
 function makeOrganizationService(org: Organization) {

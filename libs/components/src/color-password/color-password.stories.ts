@@ -1,8 +1,10 @@
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { I18nMockService } from "../utils";
 
 import { ColorPasswordComponent } from "./color-password.component";
 
@@ -20,6 +22,13 @@ export default {
             // eslint-disable-next-line
             copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
           },
+        },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              passwordAnnounceSpace: "space",
+            }),
         },
       ],
     }),

@@ -495,7 +495,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -832,7 +831,12 @@ export class ServiceContainer {
       this.apiService,
       this.environmentService,
     );
-    this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
+    this.passwordPreloginService = new DefaultPasswordPreloginService(
+      passwordPreloginApiService,
+      this.sdkService,
+      this.environmentService,
+      this.configService,
+    );
 
     const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
       this.globalStateProvider,
