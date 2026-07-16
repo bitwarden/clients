@@ -78,6 +78,7 @@ export enum FeatureFlag {
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
   EventManagementForDataDogAndCrowdStrike = "event-management-for-datadog-and-crowdstrike",
+  EventManagementForGenericHec = "event-management-for-generic-hec",
   EventManagementForHuntress = "event-management-for-huntress",
   EventManagementForSplunk = "event-management-for-splunk",
   PhishingDetection = "phishing-detection",
@@ -164,6 +165,7 @@ export const DefaultFeatureFlagValue = {
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
   [FeatureFlag.EventManagementForDataDogAndCrowdStrike]: FALSE,
+  [FeatureFlag.EventManagementForGenericHec]: FALSE,
   [FeatureFlag.EventManagementForHuntress]: FALSE,
   [FeatureFlag.EventManagementForSplunk]: FALSE,
   [FeatureFlag.PhishingDetection]: FALSE,
