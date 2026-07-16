@@ -59,7 +59,8 @@ import type { NativeWindowObject } from "./desktop-fido2-user-interface.service"
 export class DesktopAutofillService implements OnDestroy {
   private destroy$ = new Subject<void>();
   private registrationRequest?: PasskeyRegistrationRequest;
-  private featureFlag?: typeof FeatureFlag.MacOsNativeCredentialSync;
+  private featureFlag?:
+    typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
   private isEnabled: boolean = false;
   private readonly inFlightRequests: Record<string, AbortController> = {};
 
@@ -75,6 +76,8 @@ export class DesktopAutofillService implements OnDestroy {
     const deviceType = platformUtilsService.getDevice();
     if (deviceType === DeviceType.MacOsDesktop) {
       this.featureFlag = FeatureFlag.MacOsNativeCredentialSync;
+    } else if (deviceType === DeviceType.WindowsDesktop) {
+      this.featureFlag = FeatureFlag.WindowsNativeCredentialSync;
     }
   }
 
