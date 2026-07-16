@@ -121,16 +121,6 @@ const mockMemberActionsService = {
   deleteUser: () => Promise.resolve({ success: true }),
 };
 
-const mockOrganizationMetadataService = {
-  getOrganizationMetadata$: () => of(null),
-  refreshMetadataCache: () => {},
-};
-
-const mockBillingConstraintService = {
-  checkSeatLimit: () => ({ canAddUsers: true }),
-  seatLimitReached: () => Promise.resolve(false),
-};
-
 const mockDeleteManagedMemberWarningService = {
   warningAcknowledged: () => of(false),
   showWarning: () => Promise.resolve(true),
