@@ -3,7 +3,9 @@
 import { OrganizationResponse } from "../../../admin-console/models/response/organization.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
+import { PlanResponse } from "./plan.response";
 import {
+  BillingSubscriptionItemResponse,
   BillingSubscriptionResponse,
   BillingSubscriptionUpcomingInvoiceResponse,
 } from "./subscription.response";
@@ -17,6 +19,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   expiration: string;
   expirationWithoutGracePeriod: string;
   exemptFromBillingAutomation: boolean;
+  pendingAnnualUpgrade?: PendingAnnualUpgradeResponse;
 
   constructor(response: any) {
     super(response);
@@ -35,6 +38,10 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
     this.exemptFromBillingAutomation = this.getResponseProperty("ExemptFromBillingAutomation");
+    const pendingAnnualUpgrade = this.getResponseProperty("PendingAnnualUpgrade");
+    if (pendingAnnualUpgrade) {
+      this.pendingAnnualUpgrade = new PendingAnnualUpgradeResponse(pendingAnnualUpgrade);
+    }
   }
 }
 
@@ -56,5 +63,22 @@ export class BillingCustomerDiscount extends BaseResponse {
     this.end = this.getResponseProperty("End");
     this.durationInMonths = this.getResponseProperty("DurationInMonths");
     this.appliesTo = this.getResponseProperty("AppliesTo") || [];
+  }
+}
+
+export class PendingAnnualUpgradeResponse extends BaseResponse {
+  plan: PlanResponse;
+  lineItems: BillingSubscriptionItemResponse[] = [];
+  effectiveDate: Date;
+
+  constructor(response: any) {
+    super(response);
+    const plan = this.getResponseProperty("Plan");
+    this.plan = plan == null ? null : new PlanResponse(plan);
+    const lineItems = this.getResponseProperty("LineItems");
+    if (lineItems != null) {
+      this.lineItems = lineItems.map((i: any) => new BillingSubscriptionItemResponse(i));
+    }
+    this.effectiveDate = new Date(this.getResponseProperty("EffectiveDate"));
   }
 }
