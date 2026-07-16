@@ -135,6 +135,11 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
+      # The CLI builds on Node 22, which bundles npm 10. Pin npm 11 to match every other
+      # workflow (Node 24) so both produce and validate the same package-lock.json.
+      - name: Pin npm version
+        run: npm install --global npm@11.18.0
+
       - name: Install
         run: npm ci
         working-directory: ./
@@ -352,6 +357,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
+
+      # The CLI builds on Node 22, which bundles npm 10. Pin npm 11 to match every other
+      # workflow (Node 24) so both produce and validate the same package-lock.json.
+      - name: Pin npm version
+        run: npm install --global npm@11.18.0
 
       - name: Get pkg-fetch
         shell: pwsh

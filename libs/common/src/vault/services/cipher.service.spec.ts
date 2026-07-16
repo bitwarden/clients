@@ -1673,6 +1673,26 @@ describe("Cipher Service", () => {
       expect(result[1]).toBeInstanceOf(CipherView);
     });
 
+    it("should serve the decrypted cache without calling the SDK when the cache is populated (flag enabled)", async () => {
+      sdkCrudFeatureFlag$.next(true);
+
+      const cachedView = new CipherView();
+      cachedView.id = "cached-cipher-id" as CipherId;
+      cachedView.name = "Cached Cipher";
+
+      stateProvider.singleUser
+        .getFake(mockUserId, DECRYPTED_CIPHERS)
+        .nextState({ [cachedView.id]: cachedView });
+
+      const sdkServiceSpy = jest.spyOn(cipherSdkService, "getAllDecrypted");
+
+      const result = await cipherService.getAllDecrypted(mockUserId);
+
+      expect(sdkServiceSpy).not.toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe("Cached Cipher");
+    });
+
     it("should not call cipherSdkService when feature flag is disabled", async () => {
       configService.getFeatureFlag
         .calledWith(FeatureFlag.PM27632_SdkCipherCrudOperations)

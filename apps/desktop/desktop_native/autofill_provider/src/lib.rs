@@ -834,7 +834,7 @@ mod tests {
                     position: Position { x: 100, y: 200 },
                     handle: None,
                 },
-                context: None,
+                context: "context".to_string(),
             }),
         };
         let json = serde_json::to_string(&message).unwrap();

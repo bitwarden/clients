@@ -353,9 +353,15 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getAllDecryptedUsingSdk(userId: UserId): Promise<CipherView[]> {
+    const decCiphers = await this.getDecryptedCiphers(userId);
+    if (decCiphers != null && decCiphers.length !== 0) {
+      return decCiphers;
+    }
+
     // `localData` (e.g. lastUsedDate) is a client-only field the SDK does not populate on the
     // decrypted views. Re-attach it here so every consumer of `cipherViews$`/`getAllDecrypted`
     // sees it, matching the legacy and list-view decryption paths.
+    // (Note, the cached views above are already hydrated)
     let localData: Record<CipherId, LocalData> | undefined;
 
     // Wrap `localData` in try-catch so a failure to hydrate data doesn't cascade to a larger failed experience

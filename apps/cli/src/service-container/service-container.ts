@@ -495,7 +495,6 @@ export class ServiceContainer {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
-      this.keyGenerationService,
       this.encryptService,
       this.logService,
       logoutCallback,
@@ -1028,6 +1027,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountCryptographicStateService,
       this.v2UpgradeTokenStateService,
+      this.configService,
     );
 
     this.totpService = new TotpService(this.sdkService);
