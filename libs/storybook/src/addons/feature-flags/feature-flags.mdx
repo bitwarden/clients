@@ -1,0 +1,35 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Feature Flags" />
+
+# Feature Flags
+
+The `@bitwarden/storybook` feature-flags addon lets you preview any story under different
+feature-flag states — interactively while developing, and as automated Chromatic snapshots. Both are
+driven by a mock `ConfigService` provided to every story.
+
+## Toggle flags interactively
+
+Open the **Feature Flags** panel (bottom tab, next to Controls). It lists every boolean flag from
+`FeatureFlag`. Ticking a flag reports it as `true` to the mock `ConfigService`; unticking returns it
+to its default value. Stories that read a flag via `getFeatureFlag$(...) | async` update live — no
+reload needed.
+
+## Snapshot a story with a flag off and on
+
+Opt a story into Chromatic on/off snapshots with `featureFlagModes`:
+
+```ts
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { featureFlagModes } from "@bitwarden/storybook";
+
+export const Default: StoryObj<MyComponent> = {
+  parameters: {
+    chromatic: { modes: featureFlagModes(FeatureFlag.MyFlag) },
+  },
+};
+```
+
+Chromatic then captures the story twice — once with the flag off, once on. Pass multiple flags to
+enable them together: `featureFlagModes(FlagA, FlagB)`. Stories that don't opt in keep their single
+flag-off snapshot.

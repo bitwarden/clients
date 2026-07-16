@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+
 import { SkeletonTextComponent } from "./skeleton-text.component";
 
-import { formatArgsForCodeSnippet } from ".storybook/format-args-for-code-snippet";
 
 export default {
   title: "Component Library/Skeleton/Skeleton Text",
