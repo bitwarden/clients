@@ -110,6 +110,11 @@ export class OffboardingSurveyComponent implements OnInit {
   protected readonly isBusiness: boolean;
 
   protected annualUpgradeOffer: AnnualUpgradeOfferResponseModel | null = null;
+  // The business-reason `value` strings are legacy backend cancellation codes that do
+  // not line up with their labels: value "too_complex" is the "We're not getting enough
+  // value for the cost" option (value "too_expensive" is "Our needs changed"). The
+  // annual-upgrade callout attaches to the cost option.
+  protected readonly annualOfferReasonValue = "too_complex";
   protected annualUpgradeRedeemLoading = false;
   protected annualUpgradeRedeemError: string | null = null;
 

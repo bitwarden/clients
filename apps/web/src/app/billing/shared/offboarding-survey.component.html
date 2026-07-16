@@ -18,7 +18,7 @@
           </bit-radio-button>
         }
       </bit-radio-group>
-      @if (isBusiness && annualUpgradeOffer && formGroup.value.reason === "too_expensive") {
+      @if (isBusiness && annualUpgradeOffer && formGroup.value.reason === annualOfferReasonValue) {
         <div data-testid="annual-upgrade-offer" class="tw-mt-3">
           <bit-callout
             type="info"

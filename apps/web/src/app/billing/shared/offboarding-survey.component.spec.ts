@@ -102,7 +102,7 @@ describe("OffboardingSurveyComponent", () => {
 
   it("does not render the callout when no offer is available", async () => {
     await build(null);
-    fixture.componentInstance.formGroup.controls.reason.setValue("too_expensive");
+    fixture.componentInstance.formGroup.controls.reason.setValue("too_complex");
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')).toBeNull();
@@ -118,12 +118,28 @@ describe("OffboardingSurveyComponent", () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')).toBeNull();
 
-    fixture.componentInstance.formGroup.controls.reason.setValue("too_expensive");
+    fixture.componentInstance.formGroup.controls.reason.setValue("too_complex");
     fixture.detectChanges();
 
     expect(
       fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]'),
     ).not.toBeNull();
+  });
+
+  it("does not render the callout for the 'needs changed' reason", async () => {
+    const offer = new AnnualUpgradeOfferResponseModel({
+      CurrentAnnualCost: 60,
+      NewAnnualCost: 48,
+      Savings: 12,
+    });
+    await build(offer);
+
+    // "too_expensive" is the legacy value for the "Our needs changed" option, not the
+    // cost option -- the callout must not appear here.
+    fixture.componentInstance.formGroup.controls.reason.setValue("too_expensive");
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')).toBeNull();
   });
 
   it("redeeming the offer closes the dialog with a success toast and does not cancel", async () => {
