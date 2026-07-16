@@ -198,21 +198,25 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly canArchive = computed(() => {
     const selected = this.selected();
     const hasCollections = selected.some((i) => i.collection);
-    if (selected.length === 0 || !this.userCanArchive() || hasCollections || this.inTrash()) {
+    if (
+      selected.length === 0 ||
+      !this.userCanArchive() ||
+      hasCollections ||
+      this.inTrash() ||
+      this.config().isOrgVault
+    ) {
       return false;
     }
-    return !selected.find(
-      (item) => item.cipher && (item.cipher.organizationId || item.cipher.archivedDate),
-    );
+    return !selected.find((item) => item.cipher && item.cipher.archivedDate);
   });
 
   /** True when all selected ciphers can be unarchived. */
   readonly canUnarchive = computed(() => {
     const selected = this.selected();
-    if (selected.length === 0 || this.inTrash()) {
+    if (selected.length === 0 || this.inTrash() || this.config().isOrgVault) {
       return false;
     }
-    return !selected.find((i) => !i.cipher?.archivedDate || i.cipher?.organizationId);
+    return !selected.find((i) => !i.cipher?.archivedDate);
   });
 
   /** True when all selected ciphers can be restored from trash. */
@@ -391,7 +395,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       return;
     }
 
-    const titleKey = ciphers.length === 1 ? "archiveItemsSingular" : "archiveItemsPlural";
+    const titleKey = ciphers.length === 1 ? "archiveItemTitle" : "archiveItemsPlural";
     const contentKey =
       ciphers.length === 1 ? "archiveItemDialogContent" : "archiveItemsPluralDescription";
     const successKey = ciphers.length === 1 ? "itemArchiveToast" : "bulkArchiveItems";
@@ -440,7 +444,9 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       await this.cipherArchiveService.unarchiveWithServer(cipherIds, userId);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("bulkUnarchiveItems"),
+        message: this.i18nService.t(
+          ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
+        ),
       });
       this.selection.clear();
       this._completed$.next();
@@ -475,8 +481,8 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     }
 
     const toastMessage = ciphers.some((c) => !CipherViewLikeUtils.isArchived(c))
-      ? this.i18nService.t("restoredItems")
-      : this.i18nService.t("archivedItemsRestored");
+      ? this.i18nService.t(ciphers.length === 1 ? "restoredItem" : "restoredItems")
+      : this.i18nService.t(ciphers.length === 1 ? "archivedItemRestored" : "archivedItemsRestored");
 
     if (!(await this.reprompt(ciphers))) {
       return;

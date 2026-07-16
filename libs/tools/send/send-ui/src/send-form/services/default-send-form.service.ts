@@ -122,28 +122,28 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
 
-    let sendView: SendView;
     try {
+      const plaintextPassword = this._updatedSendView().password;
       const sendData = await this.sendService.encrypt(
-        this.updatedSendView(),
+        this._updatedSendView(),
         this.file,
-        this.updatedSendView().password,
+        plaintextPassword,
         null,
       );
-      const newSend = await this.sendApiService.save(sendData);
-      sendView = await this.decryptSend(newSend);
+      // Forward the plaintext (null when preserving an existing password) so the SDK path can
+      // derive the send password over the key it generates; the legacy path ignores it.
+      const newSend = await this.sendApiService.save(sendData, plaintextPassword);
+      const sendView = await this.decryptSend(newSend);
+      this._originalSendView.set(null);
+      this._updatedSendView.set(null);
+      this._submitting.set(false);
+      return sendView;
     } catch (err) {
       // We surface any errors but make sure that the submitting
       // status signal is set to false before we do
       this._submitting.set(false);
       throw err;
     }
-
-    this._originalSendView.set(null);
-    this._updatedSendView.set(null);
-    this._submitting.set(false);
-
-    return sendView;
   }
 
   sendFormHasEdits() {

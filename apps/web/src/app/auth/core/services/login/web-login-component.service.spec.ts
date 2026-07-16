@@ -8,8 +8,10 @@ import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/reset-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { OrganizationInvite } from "@bitwarden/common/auth/organization-invite/organization-invite";
-import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite/organization-invite.service";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -109,9 +111,9 @@ describe("WebLoginComponentService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined if getInvitePolicies returns undefined", async () => {
+    it("returns undefined if getOrgPoliciesForInvite returns undefined", async () => {
       organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-      organizationInviteService.getInvitePolicies.mockResolvedValue(undefined);
+      organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(undefined);
       const result = await service.getOrgPoliciesFromOrgInvite(mockEmail);
       expect(result).toBeUndefined();
     });
@@ -128,7 +130,7 @@ describe("WebLoginComponentService", () => {
         resetPasswordPolicyOptions.autoEnrollEnabled = autoEnrollEnabled;
 
         organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInvite);
-        organizationInviteService.getInvitePolicies.mockResolvedValue(policies);
+        organizationInviteService.getOrgPoliciesForInvite.mockResolvedValue(policies);
 
         internalPolicyService.getResetPasswordPolicyOptions.mockReturnValue([
           resetPasswordPolicyOptions,
@@ -332,6 +334,78 @@ describe("WebLoginComponentService", () => {
         expect(result).toEqual({ autoSubmit: false });
         expect(organizationInviteService.getOrganizationInvite).not.toHaveBeenCalled();
         expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when error code is ssoOrgMembershipRequired", () => {
+      // The OrgMembershipRequired lane shares the same client-side match/no-match
+      // handler as InviteAcceptanceRequired (via switch fall-through), so we cover
+      // the key shapes here rather than duplicating the full InviteAcceptanceRequired
+      // suite. These tests pin the fall-through wiring so a future split (where a
+      // lane gets its own case body) is caught by the existing test names changing.
+
+      it("returns autoSubmit=true with the MP-entry layout override when stash org id + email match", async () => {
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(orgInviteFor());
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result.autoSubmit).toBe(true);
+        expect(result.mpEntryLayoutOverride).toEqual({
+          pageTitle: { key: "joinOrganizationName", placeholders: [mockOrganizationName] },
+          pageSubtitle: { key: "acceptInviteWithMasterPassword" },
+          pageIcon: expect.anything(),
+        });
+        expect(toastService.showToast).not.toHaveBeenCalled();
+      });
+
+      it("returns autoSubmit=false and reuses the existing invite-acceptance toast when no invite is stashed", async () => {
+        // Existing user with no pending invite attempting SSO. The shared toast
+        // covers both this and the stale/wrong-org stash edge case (the server
+        // can't distinguish them), so we assert the same key fires.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+        i18nService.t.mockReturnValue("translated message");
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(i18nService.t).toHaveBeenCalledWith(
+          "ssoLoginRequiresInviteAcceptance",
+          mockOrganizationName,
+        );
+        expect(toastService.showToast).toHaveBeenCalledWith({
+          variant: "warning",
+          title: null,
+          message: "translated message",
+          timeout: 10000,
+        });
+      });
+
+      it("returns autoSubmit=false and fires the warning toast when the stash org id does not match", async () => {
+        // Stale or wrong-org stash — fall through to the shared no-match path so the
+        // user isn't auto-progressed for a different org.
+        organizationInviteService.getOrganizationInvite.mockResolvedValue(
+          orgInviteFor({ organizationId: "22222222-2222-2222-2222-222222222222" }),
+        );
+
+        const result = await service.handleQueryParamErrors({
+          error: "ssoOrgMembershipRequired",
+          organizationId: mockOrganizationId,
+          organizationName: mockOrganizationName,
+          email: mockEmail,
+        });
+
+        expect(result).toEqual({ autoSubmit: false });
+        expect(toastService.showToast).toHaveBeenCalled();
       });
     });
 
