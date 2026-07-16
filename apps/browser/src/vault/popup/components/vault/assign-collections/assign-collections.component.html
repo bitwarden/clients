@@ -1,5 +1,9 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'assignToCollections' | i18n" showBackButton>
+  <popup-header
+    slot="header"
+    [pageTitle]="'assignToCollections' | vfo1I18n: 'assignToSharedFolders'"
+    showBackButton
+  >
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>

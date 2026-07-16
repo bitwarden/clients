@@ -21,7 +21,11 @@ import {
   FormFieldModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
-import { AssignCollectionsComponent, CollectionAssignmentParams } from "@bitwarden/vault";
+import {
+  AssignCollectionsComponent,
+  CollectionAssignmentParams,
+  Vfo1I18nPipe,
+} from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
 import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
@@ -47,6 +51,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
     PopupHeaderComponent,
     PopupFooterComponent,
     PopOutComponent,
+    Vfo1I18nPipe,
   ],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
