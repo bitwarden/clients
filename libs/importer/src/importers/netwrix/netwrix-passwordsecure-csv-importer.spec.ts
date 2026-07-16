@@ -5,6 +5,7 @@ import {
   credentialsData,
   credentialsDataAlternateUriHeaders,
   credentialsDataEnclosedInQuotes,
+  credentialsDataEnclosedInQuotesEmptyRow,
   credentialsDataEnclosedInQuotesEnglishOrgUnit,
   credentialsDataWithFolders,
 } from "../spec-data/netwrix-csv/login-export.csv";
@@ -115,6 +116,14 @@ describe("Netwrix Password Secure CSV Importer", () => {
     expect(fieldNames).toContain("DataTags");
     expect(fieldNames).toContain("EMail-Adresse");
     expect(cipher.fields.find((f) => f.name === "EMail-Adresse").value).toEqual("user@example.com");
+  });
+
+  it("should not crash on an enclosed-in-quotes export whose only row is empty", async () => {
+    // Regression: the re-parse used to collapse to just the header and return null, throwing a
+    // TypeError in parse(). It must now resolve gracefully instead.
+    const result = await importer.parse(credentialsDataEnclosedInQuotesEmptyRow);
+    expect(result).not.toBeNull();
+    expect(result.success).toBe(true);
   });
 
   it("should map the English 'Organisational unit' header to a folder", async () => {

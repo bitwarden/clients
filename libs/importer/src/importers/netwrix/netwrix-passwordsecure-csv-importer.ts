@@ -106,7 +106,9 @@ export class NetwrixPasswordSecureCsvImporter extends BaseImporter implements Im
 
     const headerLine = columns[0];
     const lines = [headerLine, ...rows.map((row) => (row as any)[headerLine])].join("\n");
-    return this.parseCsv(lines, true, { delimiter: _delimiter });
+    // parseCsv returns null when the re-parse yields no data rows (e.g. every wrapped row is empty
+    // and gets trimmed away). Fall back to the original rows so parse() never iterates over null.
+    return this.parseCsv(lines, true, { delimiter: _delimiter }) ?? rows;
   }
 
   /**
