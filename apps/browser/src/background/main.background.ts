@@ -2018,7 +2018,6 @@ export default class MainBackground {
     );
 
     await Promise.all([
-      this.keyService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
       this.biometricStateService.logout(userBeingLoggedOut),
@@ -2030,6 +2029,8 @@ export default class MainBackground {
        *  - userNotificationSettingsService
        */
     ]);
+
+    await this.keyService.clearKeys(userBeingLoggedOut);
 
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
