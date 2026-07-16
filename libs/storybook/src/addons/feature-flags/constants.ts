@@ -24,8 +24,22 @@ export const FEATURE_FLAGS_CATALOG_GLOBAL = "bwFeatureFlagCatalog";
 export type FeatureFlagOption = { name: string; value: string };
 
 /**
- * Builds a Chromatic `modes` map that snapshots a story with the given flag(s)
- * off and then on. Opt in per-story:
+ * Builds a story-level `globals` override that enables the given flag(s) (and
+ * only those) for a single story. Use it to define distinct stories with
+ * different flag states — the override takes precedence over the panel:
+ *
+ * ```ts
+ * export const FlagOn = { globals: enabledFlags(FeatureFlag.Foobar) };
+ * export const FlagOff = { globals: enabledFlags() };
+ * ```
+ */
+export function enabledFlags(...flags: string[]) {
+  return { [FEATURE_FLAGS_GLOBAL]: flags };
+}
+
+/**
+ * Builds a Chromatic `modes` map that snapshots a single story with the given
+ * flag(s) off and then on. Opt in per-story:
  *
  * ```ts
  * export const Default = {
@@ -35,7 +49,7 @@ export type FeatureFlagOption = { name: string; value: string };
  */
 export function featureFlagModes(...flags: string[]) {
   return {
-    "flag off": { [FEATURE_FLAGS_GLOBAL]: [] as string[] },
-    "flag on": { [FEATURE_FLAGS_GLOBAL]: flags },
+    "flag off": enabledFlags(),
+    "flag on": enabledFlags(...flags),
   };
 }

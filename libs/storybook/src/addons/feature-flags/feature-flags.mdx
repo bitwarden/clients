@@ -15,6 +15,27 @@ Open the **Feature Flags** panel (bottom tab, next to Controls). It lists every 
 to its default value. Stories that read a flag via `getFeatureFlag$(...) | async` update live — no
 reload needed.
 
+## A flag on in one story, off in another
+
+To fix a flag's state per story — one story with it on, another with it off — set the story's
+`globals` with `enabledFlags`. The override takes precedence over whatever's toggled in the panel,
+so each story always renders in its own state:
+
+```ts
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { enabledFlags } from "@bitwarden/storybook";
+
+export const FlagOn: StoryObj<MyComponent> = {
+  globals: enabledFlags(FeatureFlag.MyFlag),
+};
+
+export const FlagOff: StoryObj<MyComponent> = {
+  globals: enabledFlags(),
+};
+```
+
+Pass multiple flags to enable them together: `enabledFlags(FlagA, FlagB)`.
+
 ## Snapshot a story with a flag off and on
 
 Opt a story into Chromatic on/off snapshots with `featureFlagModes`:
