@@ -116,7 +116,7 @@ describe("MainDesktopAutotypeService", () => {
       );
       expect(ipcMain.on).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.EXECUTE, expect.any(Function));
       expect(ipcMain.on).toHaveBeenCalledWith(
-        "autofill.completeAutotypeError",
+        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
         expect.any(Function),
       );
     });
@@ -292,22 +292,22 @@ describe("MainDesktopAutotypeService", () => {
     });
   });
 
-  describe("completeAutotypeError handler", () => {
+  describe("EXECUTION_ERROR handler", () => {
     it("should log autotype match errors", () => {
       const matchError: AutotypeMatchError = {
         windowTitle: "Test Window",
         errorMessage: "No matching vault item",
       };
 
-      const errorHandler = ipcHandlers.get("autofill.completeAutotypeError");
+      const errorHandler = ipcHandlers.get(AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR);
       errorHandler({}, matchError);
 
       expect(mockLogService.debug).toHaveBeenCalledWith(
-        "autofill.completeAutotypeError",
+        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
         "No match for window: Test Window",
       );
       expect(mockLogService.error).toHaveBeenCalledWith(
-        "autofill.completeAutotypeError",
+        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
         "No matching vault item",
       );
     });
@@ -342,6 +342,9 @@ describe("MainDesktopAutotypeService", () => {
       expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.TOGGLE);
       expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.CONFIGURE);
       expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(AUTOTYPE_IPC_CHANNELS.EXECUTE);
+      expect(ipcMain.removeAllListeners).toHaveBeenCalledWith(
+        AUTOTYPE_IPC_CHANNELS.EXECUTION_ERROR,
+      );
     });
 
     it("should disable autotype", () => {
