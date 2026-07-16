@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, Argon2KdfConfig } from "@bitwarden/key-management";
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { EncryptionType } from "../../../platform/enums";
@@ -21,21 +22,6 @@ describe("KeyGenerationService", () => {
     sut = new DefaultKeyGenerationService(cryptoFunctionService);
   });
 
-  describe("createKey", () => {
-    test.each([256, 512])(
-      "it should delegate key creation to crypto function service",
-      async (bitLength: 256 | 512) => {
-        cryptoFunctionService.aesGenerateKey
-          .calledWith(bitLength)
-          .mockResolvedValue(new Uint8Array(bitLength / 8) as CsprngArray);
-
-        await sut.createKey(bitLength);
-
-        expect(cryptoFunctionService.aesGenerateKey).toHaveBeenCalledWith(bitLength);
-      },
-    );
-  });
-
   describe("createMaterialAndKey", () => {
     test.each([128, 192, 256, 512])(
       "should create a 64 byte key from different material lengths",
@@ -44,7 +30,11 @@ describe("KeyGenerationService", () => {
         const inputSalt = "salt";
         const purpose = "purpose";
 
-        cryptoFunctionService.aesGenerateKey.calledWith(bitLength).mockResolvedValue(inputMaterial);
+        Object.defineProperty(SdkLoadService, "Ready", {
+          value: Promise.resolve(),
+          configurable: true,
+        });
+        jest.spyOn(SdkRandomNumberClient.prototype, "gen_bytes").mockReturnValue(inputMaterial);
         cryptoFunctionService.hkdf
           .calledWith(inputMaterial, inputSalt, purpose, 64, "sha256")
           .mockResolvedValue(new Uint8Array(64));

@@ -4,7 +4,6 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 export class NodeCryptoFunctionService implements CryptoFunctionService {
@@ -112,22 +111,6 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const privateKey = PureCrypto.rsa_generate_keypair();
     const publicKey = await this.rsaExtractPublicKey(privateKey);
     return [publicKey, privateKey];
-  }
-
-  aesGenerateKey(bitLength: 128 | 192 | 256 | 512): Promise<CsprngArray> {
-    return this.randomBytes(bitLength / 8);
-  }
-
-  randomBytes(length: number): Promise<CsprngArray> {
-    return new Promise<CsprngArray>((resolve, reject) => {
-      crypto.randomBytes(length, (error, bytes) => {
-        if (error != null) {
-          reject(error);
-        } else {
-          resolve(new Uint8Array(bytes) as CsprngArray);
-        }
-      });
-    });
   }
 
   private hmac(
