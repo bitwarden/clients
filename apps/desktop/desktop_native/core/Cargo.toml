@@ -13,7 +13,6 @@ default = [
     "dep:security-framework",
     "dep:security-framework-sys",
     "dep:zbus",
-    "dep:zbus_polkit",
 ]
 manual_test = []
 
@@ -29,7 +28,6 @@ cbc = { workspace = true, features = ["alloc"] }
 dirs = { workspace = true }
 futures = { workspace = true }
 interprocess = { workspace = true, features = ["tokio"] }
-rand = { workspace = true }
 rsa = "=0.9.6"
 sha2 = "=0.10.9"
 ssh-key = { version = "=0.6.7", features = [
@@ -50,11 +48,8 @@ zeroizing-alloc = { workspace = true }
 ashpd = { workspace = true, features = ["background", "clipboard", "remote_desktop", "screencast"] }
 homedir = { workspace = true }
 libc = { workspace = true }
-linux-keyutils = { workspace = true }
 oo7 = { workspace = true }
-secure_memory = { path = "../secure_memory" }
 zbus = { workspace = true, optional = true }
-zbus_polkit = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = { workspace = true, optional = true }
@@ -65,13 +60,9 @@ security-framework = { workspace = true, optional = true }
 security-framework-sys = { workspace = true, optional = true }
 
 [target.'cfg(windows)'.dependencies]
-chacha20poly1305 = { workspace = true }
 pin-project = { workspace = true }
 scopeguard = { workspace = true }
 secmem-proc = { workspace = true }
-secure_memory = { path = "../secure_memory" }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 windows = { workspace = true, features = [
     "Foundation",
@@ -90,6 +81,9 @@ windows-future = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+
+[target.'cfg(unix)'.dev-dependencies]
+rand = { workspace = true }
 
 [lints]
 workspace = true
