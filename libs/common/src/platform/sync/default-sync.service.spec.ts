@@ -18,7 +18,7 @@ import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-ma
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserStatusType } from "../../admin-console/enums";
