@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { CurrencyPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Inject, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
@@ -67,6 +68,7 @@ export const openOffboardingSurvey = (
   templateUrl: "offboarding-survey.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
+  providers: [CurrencyPipe],
 })
 export class OffboardingSurveyComponent implements OnInit {
   protected ResultType = OffboardingSurveyDialogResultType;
@@ -133,6 +135,7 @@ export class OffboardingSurveyComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
     private logService: LogService,
+    private currencyPipe: CurrencyPipe,
   ) {
     this.isBusiness = this.isBusinessPlan();
 
@@ -181,6 +184,13 @@ export class OffboardingSurveyComponent implements OnInit {
     } catch (e) {
       this.logService.error(e);
     }
+  }
+
+  protected formatCurrency(amount: number): string {
+    // Mirror the price-increase-warning precedent: whole-dollar amounts show no cents,
+    // fractional amounts show two decimals.
+    const digitsInfo = Number.isInteger(amount) ? "1.0-0" : "1.2-2";
+    return this.currencyPipe.transform(amount, "$", "symbol", digitsInfo) ?? `$${amount}`;
   }
 
   switchToAnnualBilling = async () => {

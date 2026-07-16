@@ -22,17 +22,16 @@
         <div data-testid="annual-upgrade-offer" class="tw-mt-3">
           <bit-callout
             type="info"
-            [title]="'switchToAnnualAndSave' | i18n: (annualUpgradeOffer.savings | currency: 'USD')"
+            [title]="'switchToAnnualAndSave' | i18n: formatCurrency(annualUpgradeOffer.savings)"
           >
-            <p>
-              {{
-                "currentCostMonthlyBilling"
-                  | i18n: (annualUpgradeOffer.currentAnnualCost | currency: "USD")
-              }}
-            </p>
-            <p>
-              {{ "annualBillingCost" | i18n: (annualUpgradeOffer.newAnnualCost | currency: "USD") }}
-            </p>
+            <div class="tw-flex tw-justify-between">
+              <span>{{ "currentCostMonthlyBilling" | i18n }}</span>
+              <span>{{ formatCurrency(annualUpgradeOffer.currentAnnualCost) }}</span>
+            </div>
+            <div class="tw-flex tw-justify-between">
+              <span>{{ "annualBillingCost" | i18n }}</span>
+              <span>{{ formatCurrency(annualUpgradeOffer.newAnnualCost) }}</span>
+            </div>
             <p class="tw-text-muted">{{ "annualSwitchDisclaimer" | i18n }}</p>
             @if (annualUpgradeRedeemError) {
               <p class="tw-text-danger">{{ annualUpgradeRedeemError }}</p>

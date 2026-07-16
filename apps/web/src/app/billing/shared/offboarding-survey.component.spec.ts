@@ -142,6 +142,40 @@ describe("OffboardingSurveyComponent", () => {
     expect(fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')).toBeNull();
   });
 
+  it("renders both cost rows, dropping cents for whole-dollar amounts", async () => {
+    const offer = new AnnualUpgradeOfferResponseModel({
+      CurrentAnnualCost: 1440,
+      NewAnnualCost: 1152,
+      Savings: 288,
+    });
+    await build(offer);
+    fixture.componentInstance.formGroup.controls.reason.setValue("too_complex");
+    fixture.detectChanges();
+
+    const callout = fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]');
+    expect(callout).not.toBeNull();
+    const text = callout.textContent as string;
+    expect(text).toContain("$1,440");
+    expect(text).toContain("$1,152");
+    expect(text).not.toContain("$1,440.00");
+  });
+
+  it("shows two decimals for fractional amounts", async () => {
+    const offer = new AnnualUpgradeOfferResponseModel({
+      CurrentAnnualCost: 1440.5,
+      NewAnnualCost: 1152.25,
+      Savings: 288.25,
+    });
+    await build(offer);
+    fixture.componentInstance.formGroup.controls.reason.setValue("too_complex");
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.querySelector('[data-testid="annual-upgrade-offer"]')
+      .textContent as string;
+    expect(text).toContain("$1,440.50");
+    expect(text).toContain("$1,152.25");
+  });
+
   it("redeeming the offer closes the dialog with a success toast and does not cancel", async () => {
     const offer = new AnnualUpgradeOfferResponseModel({
       CurrentAnnualCost: 60,
