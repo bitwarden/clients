@@ -68,7 +68,7 @@ jobs:
           if [[ "$PACKAGE_VERSION" == "$ELECTRON_BUILDER_VERSION"  ]]; then
             echo "Versions matches"
           else
-            echo "Version missmatch, package.json: $PACKAGE_VERSION, electron-builder.json: $ELECTRON_BUILDER_VERSION"
+            echo "Version mismatch, package.json: $PACKAGE_VERSION, electron-builder.json: $ELECTRON_BUILDER_VERSION"
             exit 1
           fi
 

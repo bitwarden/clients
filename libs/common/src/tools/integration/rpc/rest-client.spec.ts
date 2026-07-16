@@ -52,8 +52,8 @@ describe("RestClient", () => {
     });
 
     it.each([
-      [401, "forwaderInvalidToken"],
-      [403, "forwaderInvalidOperation"],
+      [401, "forwarderInvalidToken"],
+      [403, "forwarderInvalidOperation"],
     ])("throws an invalid token error when HTTP status is %i", async (status, messageKey) => {
       const client = new RestClient(api, i18n);
       const request: IntegrationRequest = { website: null };
@@ -66,12 +66,12 @@ describe("RestClient", () => {
     });
 
     it.each([
-      [401, null, null, "forwaderInvalidToken"],
-      [401, undefined, undefined, "forwaderInvalidToken"],
-      [401, undefined, null, "forwaderInvalidToken"],
-      [403, null, null, "forwaderInvalidOperation"],
-      [403, undefined, undefined, "forwaderInvalidOperation"],
-      [403, undefined, null, "forwaderInvalidOperation"],
+      [401, null, null, "forwarderInvalidToken"],
+      [401, undefined, undefined, "forwarderInvalidToken"],
+      [401, undefined, null, "forwarderInvalidToken"],
+      [403, null, null, "forwarderInvalidOperation"],
+      [403, undefined, undefined, "forwarderInvalidOperation"],
+      [403, undefined, null, "forwarderInvalidOperation"],
     ])(
       "throws an invalid token error when HTTP status is %i, message is %p, and error is %p",
       async (status, message, error, messageKey) => {
@@ -90,10 +90,10 @@ describe("RestClient", () => {
     );
 
     it.each([
-      [401, "message", "forwaderInvalidTokenWithMessage"],
-      [403, "message", "forwaderInvalidOperationWithMessage"],
-      [401, "error", "forwaderInvalidTokenWithMessage"],
-      [403, "error", "forwaderInvalidOperationWithMessage"],
+      [401, "message", "forwarderInvalidTokenWithMessage"],
+      [403, "message", "forwarderInvalidOperationWithMessage"],
+      [401, "error", "forwarderInvalidTokenWithMessage"],
+      [403, "error", "forwarderInvalidOperationWithMessage"],
     ])(
       "throws an invalid token detailed error when HTTP status is %i and the payload has a %s",
       async (status, property, messageKey) => {
@@ -113,8 +113,8 @@ describe("RestClient", () => {
     );
 
     it.each([
-      [401, "forwaderInvalidTokenWithMessage"],
-      [403, "forwaderInvalidOperationWithMessage"],
+      [401, "forwarderInvalidTokenWithMessage"],
+      [403, "forwarderInvalidOperationWithMessage"],
     ])(
       "throws an invalid token detailed error when HTTP status is %i and the payload has a %s",
       async (status, messageKey) => {

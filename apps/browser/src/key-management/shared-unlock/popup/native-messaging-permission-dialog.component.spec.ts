@@ -93,8 +93,8 @@ describe("NativeMessagingPermissionDialogComponent", () => {
       await component.continue();
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "nativeMessaginPermissionSidebarTitle" },
-        content: { key: "nativeMessaginPermissionSidebarDesc" },
+        title: { key: "nativeMessagingPermissionSidebarTitle" },
+        content: { key: "nativeMessagingPermissionSidebarDesc" },
         acceptButtonText: { key: "ok" },
         cancelButtonText: null,
         type: "info",

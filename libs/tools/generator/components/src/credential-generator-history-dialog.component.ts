@@ -112,7 +112,7 @@ export class CredentialGeneratorHistoryDialogComponent implements OnChanges, OnI
   protected async clear() {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "clearGeneratorHistoryTitle" },
-      content: { key: "cleargGeneratorHistoryDescription" },
+      content: { key: "clearGeneratorHistoryDescription" },
       type: "warning",
       acceptButtonText: { key: "clearHistory" },
       cancelButtonText: { key: "cancel" },
