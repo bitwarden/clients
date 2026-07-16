@@ -432,7 +432,7 @@ unsafe fn as_mut_bytes(buffer: &mut IBuffer) -> Result<&mut [u8]> {
 #[allow(clippy::print_stdout)]
 mod tests {
     use crate::{
-        biometric_v2::{
+        biometric::{
             decrypt_data, encrypt_data, has_keychain_entry, windows_hello_authenticate,
             windows_hello_authenticate_with_crypto, CHALLENGE_LENGTH, XCHACHA20POLY1305_KEY_LENGTH,
         },
