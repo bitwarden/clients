@@ -32,7 +32,12 @@ export class CipherStep implements RecoveryStep {
     const userCiphers = workingData.ciphers.filter((c) => c.organizationId == null);
     for (const cipher of userCiphers) {
       try {
-        await this.cipherService.decrypt(cipher, workingData.userId);
+        const cipherResult = await this.cipherService.decrypt(cipher, workingData.userId);
+        // Decryption MAY throw, but it also MAY have decryptionFailure set
+        if (cipherResult.decryptionFailure) {
+          throw new Error(`Cipher ID ${cipher.id} decryption failed`);
+        }
+
         this.decryptableCipherIds.push(cipher.id);
       } catch {
         logger.record(`Cipher ID ${cipher.id} was undecryptable`);
