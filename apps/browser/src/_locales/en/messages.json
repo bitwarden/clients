@@ -7022,6 +7022,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is unavailable because you didn't trust this device when logging in. Log in again and trust this device to use shared unlock."
+  },
   "newPermissionNeeded": {
     "message": "New permission needed"
   },
