@@ -1088,6 +1088,10 @@
   "passwordCopied": {
     "message": "Đã sao chép mật khẩu"
   },
+  "passwordAnnounceSpace": {
+    "message": "dấu nối",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "uri": {
     "message": "URI"
   },
@@ -1479,6 +1483,18 @@
   },
   "shared": {
     "message": "Đã chia sẻ"
+  },
+  "sharedFolder": {
+    "message": "Thư mục chia sẻ"
+  },
+  "sharedFolders": {
+    "message": "Thư mục chia sẻ"
+  },
+  "myFolder": {
+    "message": "Thư mục của tôi"
+  },
+  "myFolders": {
+    "message": "Thư mục của tôi"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden cho Doanh Nghiệp cho phép bạn chia sẻ các mục trong kho mật khẩu với người khác bằng cách tạo một tổ chức. Tìm hiểu thêm trên bitwarden.com."
@@ -3814,7 +3830,7 @@
     "message": "Tạo email"
   },
   "spinboxBoundariesHint": {
-    "message": "Giá trị phải nằm trong khoảng từ $MIN$ đến $MAX$.",
+    "message": "Độ dài phải nằm trong khoảng từ $MIN$ đến $MAX$.",
     "description": "Explains spin box minimum and maximum values to the user",
     "placeholders": {
       "min": {
@@ -4882,6 +4898,30 @@
   },
   "confirmFilePassword": {
     "message": "Nhập lại mật khẩu tập tin"
+  },
+  "keePassMasterPassword": {
+    "message": "Mật khẩu chính KeePass"
+  },
+  "addKeyFile": {
+    "message": "Thêm tệp khóa"
+  },
+  "keyFileUpload": {
+    "message": "Tải lên tệp khóa"
+  },
+  "kdbxFileUpload": {
+    "message": "Tải lên tệp KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Định dạng được chấp nhận: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Dữ liệu không đúng định dạng. Vui lòng kiểm tra tệp tin nhập và thử lại."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tệp này không phải là cơ sở dữ liệu KeePass (.kdbx) hợp lệ. Vui lòng chọn một tệp .kdbx rồi thử lại."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Cơ sở dữ liệu KeePass này quá lớn để nhập."
   },
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
@@ -6303,9 +6343,6 @@
   },
   "unlockPinSet": {
     "message": "Đã thiết lập mở khóa bằng mã PIN"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Đã thiết lập mở khóa bằng sinh trắc học"
   },
   "authenticating": {
     "message": "Đang xác thực"
