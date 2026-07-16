@@ -444,14 +444,8 @@
   "noFolders": {
     "message": "There are no folders to list."
   },
-  "helpFeedback": {
-    "message": "Help & feedback"
-  },
   "helpCenter": {
     "message": "Bitwarden Help center"
-  },
-  "communityForums": {
-    "message": "Explore Bitwarden community forums"
   },
   "contactSupport": {
     "message": "Contact Bitwarden support"
@@ -471,9 +465,6 @@
   "generator": {
     "message": "Generator",
     "description": "Short for 'credential generator'."
-  },
-  "passGenInfo": {
-    "message": "Automatically generate strong, unique passwords for your logins."
   },
   "bitWebVaultApp": {
     "message": "Bitwarden web app"
@@ -646,9 +637,6 @@
   "showAll": {
     "message": "Show all"
   },
-  "viewLess": {
-    "message": "View less"
-  },
   "viewLogin": {
     "message": "View login"
   },
@@ -760,9 +748,6 @@
   },
   "download": {
     "message": "Download"
-  },
-  "browserNotSupportClipboard": {
-    "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
   },
   "verifyYourIdentity": {
     "message": "Verify your identity"
@@ -943,9 +928,6 @@
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
-  "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
-  },
   "valueCopied": {
     "message": "$VALUE$ copied",
     "description": "Value has been copied to the clipboard.",
@@ -1073,12 +1055,6 @@
   "deletedFolder": {
     "message": "Folder deleted"
   },
-  "gettingStartedTutorial": {
-    "message": "Getting started tutorial"
-  },
-  "gettingStartedTutorialVideo": {
-    "message": "Watch our getting started tutorial to learn how to get the most out of the browser extension."
-  },
   "syncingComplete": {
     "message": "Syncing complete"
   },
@@ -1191,9 +1167,6 @@
   "showIdentitiesCurrentTabDesc": {
     "message": "List identity items on the Tab page for easy autofill."
   },
-  "clickToAutofillOnVault": {
-    "message": "Click items to autofill on Vault view"
-  },
   "clickToAutofill": {
     "message": "Click items in autofill suggestion to fill"
   },
@@ -1236,9 +1209,6 @@
   "notificationEditTooltip": {
     "message": "Edit before saving",
     "description": "Tooltip and Aria label for edit button on cipher item"
-  },
-  "newNotification": {
-    "message": "New notification"
   },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
@@ -1478,9 +1448,6 @@
   "encExportAccountWarningDesc": {
     "message": "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account."
   },
-  "exportMasterPassword": {
-    "message": "Enter your master password to export your vault data."
-  },
   "shared": {
     "message": "Shared"
   },
@@ -1533,9 +1500,6 @@
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
   },
-  "enterYourMasterPassword": {
-    "message": "Enter your master password"
-  },
   "updateSettings": {
     "message": "Update settings"
   },
@@ -1565,9 +1529,6 @@
   },
   "newAttachment": {
     "message": "Add new attachment"
-  },
-  "noAttachments": {
-    "message": "No attachments."
   },
   "attachmentSaved": {
     "message": "Attachment saved"
@@ -1601,9 +1562,6 @@
   },
   "maxFileSize": {
     "message": "Maximum file size is 500 MB."
-  },
-  "featureUnavailable": {
-    "message": "Feature unavailable"
   },
   "legacyEncryptionUnsupported": {
     "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
@@ -1923,9 +1881,6 @@
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
   },
-  "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
-  },
   "currentWebsite": {
     "message": "Current website"
   },
@@ -2036,9 +1991,6 @@
   },
   "dragToSort": {
     "message": "Drag to sort"
-  },
-  "dragToReorder": {
-    "message": "Drag to reorder"
   },
   "cfTypeText": {
     "message": "Text"
@@ -2201,41 +2153,23 @@
   "sex": {
     "message": "Sex"
   },
-  "copySex": {
-    "message": "Copy sex"
-  },
   "birthPlace": {
     "message": "Birth place"
-  },
-  "copyBirthPlace": {
-    "message": "Copy birth place"
   },
   "nationality": {
     "message": "Nationality"
   },
-  "copyNationality": {
-    "message": "Copy nationality"
-  },
   "issuingCountry": {
     "message": "Issuing country"
   },
-  "copyIssuingCountry": {
-    "message": "Copy issuing country"
-  },
   "passportType": {
     "message": "Passport type"
-  },
-  "copyPassportType": {
-    "message": "Copy passport type"
   },
   "nationalIdentificationNumber": {
     "message": "National identification number"
   },
   "issuingAuthority": {
     "message": "Issuing authority"
-  },
-  "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
   },
   "issueDate": {
     "message": "Issue date"
@@ -2338,9 +2272,6 @@
   },
   "passportDetails": {
     "message": "Passport details"
-  },
-  "passportAdded": {
-    "message": "Passport added"
   },
   "typePassportSubtitle": {
     "message": "Travel document"
@@ -3070,12 +3001,6 @@
   "nativeMessagingInvalidEncryptionTitle": {
     "message": "Desktop communication interrupted"
   },
-  "nativeMessagingWrongUserDesc": {
-    "message": "The desktop application is logged into a different account. Please ensure both applications are logged into the same account."
-  },
-  "nativeMessagingWrongUserTitle": {
-    "message": "Account missmatch"
-  },
   "nativeMessagingWrongUserKeyTitle": {
     "message": "Biometric key missmatch"
   },
@@ -3094,23 +3019,11 @@
   "biometricsNotSupportedDesc": {
     "message": "Browser biometrics is not supported on this device."
   },
-  "biometricsNotUnlockedTitle": {
-    "message": "User locked or logged out"
-  },
-  "biometricsNotUnlockedDesc": {
-    "message": "Please unlock this user in the desktop application and try again."
-  },
   "biometricsNotAvailableTitle": {
     "message": "Biometric unlock unavailable"
   },
   "biometricsNotAvailableDesc": {
     "message": "Biometric unlock is currently unavailable. Please try again later."
-  },
-  "biometricsFailedTitle": {
-    "message": "Biometrics failed"
-  },
-  "biometricsFailedDesc": {
-    "message": "Biometrics cannot be completed, consider using a master password or logging out. If this persists, please contact Bitwarden support."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Permission not provided"
@@ -3623,10 +3536,6 @@
   "selectFolder": {
     "message": "Select folder..."
   },
-  "noFoldersFound": {
-    "message": "No folders found",
-    "description": "Used as a message within the notification bar when no folders are found"
-  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -3799,9 +3708,6 @@
   },
   "error": {
     "message": "Error"
-  },
-  "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
   },
   "noPrfCredentialsAvailable": {
     "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
@@ -4050,15 +3956,6 @@
   "disabledOrganizationFilterError": {
     "message": "Items in suspended Organizations cannot be accessed. Contact your Organization owner for assistance."
   },
-  "loggingInTo": {
-    "message": "Logging in to $DOMAIN$",
-    "placeholders": {
-      "domain": {
-        "content": "$1",
-        "example": "example.com"
-      }
-    }
-  },
   "serverVersion": {
     "message": "Server version"
   },
@@ -4231,9 +4128,6 @@
   "autofillKeyboardShortcutSectionTitle": {
     "message": "Autofill shortcut"
   },
-  "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
-  },
   "autofillKeyboardManagerShortcutsLabel": {
     "message": "Manage shortcuts"
   },
@@ -4245,15 +4139,6 @@
   },
   "autofillLoginShortcutText": {
     "message": "The autofill login shortcut is $COMMAND$. Manage all shortcuts in the browser's settings.",
-    "placeholders": {
-      "command": {
-        "content": "$1",
-        "example": "CTRL+Shift+L"
-      }
-    }
-  },
-  "autofillShortcutTextSafari": {
-    "message": "Default autofill shortcut: $COMMAND$.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -4306,9 +4191,6 @@
   },
   "trusted": {
     "message": "Trusted"
-  },
-  "needsApproval": {
-    "message": "Needs approval"
   },
   "devices": {
     "message": "Devices"
@@ -4451,9 +4333,6 @@
   },
   "doNotTrust": {
     "message": "Do not trust"
-  },
-  "organizationNotTrusted": {
-    "message": "Organization is not trusted"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -4998,9 +4877,6 @@
   "overwritePasskeyAlert": {
     "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
   },
-  "featureNotSupported": {
-    "message": "Feature not yet supported"
-  },
   "yourPasskeyIsLocked": {
     "message": "Authentication required to use passkey. Verify your identity to continue."
   },
@@ -5131,17 +5007,8 @@
   "keeperSsoDesc": {
     "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
   },
-  "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
-  },
   "ssoToken": {
     "message": "SSO token"
-  },
-  "keeperAuthRequired": {
-    "message": "Keeper authentication required"
-  },
-  "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
   },
   "selectApprovalMethod": {
     "message": "Approval methods"
@@ -5188,9 +5055,6 @@
   "selectTwoFactorMethod": {
     "message": "Select two-factor method"
   },
-  "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
-  },
   "authenticatorAppTotp": {
     "message": "Authenticator app (TOTP)"
   },
@@ -5221,29 +5085,17 @@
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device"
   },
-  "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
-  },
-  "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
-  },
   "pushNotification": {
     "message": "Push notification"
   },
   "enterCodeManually": {
     "message": "Enter code manually"
   },
-  "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
-  },
   "unknownMethod": {
     "message": "Unknown method"
   },
   "selectDuoMethod": {
     "message": "Select Duo method"
-  },
-  "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
@@ -5256,12 +5108,6 @@
   },
   "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
-  },
-  "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
-  },
-  "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
   },
   "tryAnotherMethod": {
     "message": "Try another method"
@@ -5439,26 +5285,6 @@
   },
   "skip": {
     "message": "Skip"
-  },
-  "saveCipherAttemptSuccess": {
-    "message": "Credentials saved successfully!",
-    "description": "Notification message for when saving credentials has succeeded."
-  },
-  "passwordSaved": {
-    "message": "Password saved!",
-    "description": "Notification message for when saving credentials has succeeded."
-  },
-  "updateCipherAttemptSuccess": {
-    "message": "Credentials updated successfully!",
-    "description": "Notification message for when updating credentials has succeeded."
-  },
-  "passwordUpdated": {
-    "message": "Password updated!",
-    "description": "Notification message for when updating credentials has succeeded."
-  },
-  "saveCipherAttemptFailed": {
-    "message": "Error saving credentials. Check console for details.",
-    "description": "Notification message for when saving credentials has failed."
   },
   "success": {
     "message": "Success"
@@ -5761,9 +5587,6 @@
   "lastEdited": {
     "message": "Last edited"
   },
-  "ownerYou": {
-    "message": "Owner: You"
-  },
   "linked": {
     "message": "Linked"
   },
@@ -5802,9 +5625,6 @@
   },
   "downloadBitwarden": {
     "message": "Download Bitwarden"
-  },
-  "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -6096,9 +5916,6 @@
       }
     }
   },
-  "reorderWebsiteUriButton": {
-    "message": "Reorder website URI. Use arrow key to move item up or down."
-  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
@@ -6167,12 +5984,6 @@
   },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
-  },
-  "itemAssignedToCollections": {
-    "message": "Item assigned to collections"
-  },
-  "itemsAssignedToCollections": {
-    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "You have not selected anything."
@@ -6566,9 +6377,6 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
-  "vulnerablePassword": {
-    "message": "Vulnerable password."
-  },
   "changeNow": {
     "message": "Change now"
   },
@@ -6804,10 +6612,6 @@
   },
   "vaultLoaded": {
     "message": "Vault loaded"
-  },
-  "settingDisabledByPolicy": {
-    "message": "This setting is disabled by your organization's policy.",
-    "description": "This hint text is displayed when a user setting is disabled due to an organization policy."
   },
   "zipPostalCodeLabel": {
     "message": "ZIP / Postal code"
