@@ -28,12 +28,16 @@
         <bit-label>{{ "owner" | vfo1I18n: "vault" }}</bit-label>
         <bit-select formControlName="organizationId">
           @if (showPersonalOwnershipOption) {
-            <bit-option
-              [icon]="vfo1Enabled() ? 'bwi-user' : undefined"
-              [value]="null"
-              [label]="vfo1Enabled() ? ('myVault' | i18n) : (userEmail$ | async)"
-              [description]="vfo1Enabled() ? (userEmail$ | async) : undefined"
-            ></bit-option>
+            @if (vfo1Enabled()) {
+              <bit-option
+                icon="bwi-user"
+                [value]="null"
+                [label]="'myVault' | i18n"
+                [description]="userEmail$ | async"
+              ></bit-option>
+            } @else {
+              <bit-option [value]="null" [label]="userEmail$ | async"></bit-option>
+            }
           }
           @for (org of organizations; track org.id) {
             <bit-option
