@@ -10,6 +10,8 @@ import {
   RoutedVaultFilterModel,
 } from "../models/routed-vault-filter.model";
 
+import { Vfo1TerminologyService } from "./vfo1-terminology.service";
+
 /**
  * Injection token for the base route path used in vault filter navigation.
  */
@@ -26,6 +28,7 @@ export const VAULT_FILTER_BASE_ROUTE = new SafeInjectionToken<string>("VaultFilt
 export class RoutedVaultFilterService implements OnDestroy {
   private onDestroy = new Subject<void>();
   private baseRoute: string = inject(VAULT_FILTER_BASE_ROUTE, { optional: true }) ?? "";
+  private terminology = inject(Vfo1TerminologyService);
 
   /**
    * Filter values extracted from the URL.
@@ -40,7 +43,10 @@ export class RoutedVaultFilterService implements OnDestroy {
         const type = isRoutedVaultFilterItemType(unsafeType) ? unsafeType : undefined;
 
         return {
-          collectionId: (queryParams.get("collectionId") as CollectionId) ?? undefined,
+          // Accept both param names during the shared-folder terminology transition.
+          collectionId:
+            ((queryParams.get("sharedFolderId") ??
+              queryParams.get("collectionId")) as CollectionId | null) ?? undefined,
           folderId: queryParams.get("folderId") ?? undefined,
           organizationId:
             (params.get("organizationId") as OrganizationId) ??
@@ -72,9 +78,13 @@ export class RoutedVaultFilterService implements OnDestroy {
    */
   createRoute(filter: RoutedVaultFilterModel): [commands: any[], extras?: NavigationExtras] {
     const commands: string[] = this.baseRoute ? [this.baseRoute] : [];
+    // When the flag is on, write the new `sharedFolderId` param and clear the legacy
+    // `collectionId` (queryParamsHandling: "merge" removes any param set to null).
+    const useSharedFolderParam = this.terminology.enabled();
     const extras: NavigationExtras = {
       queryParams: {
-        collectionId: filter.collectionId ?? null,
+        collectionId: useSharedFolderParam ? null : (filter.collectionId ?? null),
+        sharedFolderId: useSharedFolderParam ? (filter.collectionId ?? null) : null,
         folderId: filter.folderId ?? null,
         organizationId:
           filter.organizationIdParamType === "path" ? null : (filter.organizationId ?? null),
