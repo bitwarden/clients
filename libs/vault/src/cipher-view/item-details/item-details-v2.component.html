@@ -39,9 +39,7 @@
           <span
             class="tw-flex tw-items-center tw-mt-2 tw-mr-4"
             bitTypography="body2"
-            [attr.aria-label]="
-              isOrgIcon(item) ? ('owner' | vfo1I18n: 'vault') + ' ' + item.name : getAriaLabel(item)
-            "
+            [attr.aria-label]="getAriaLabel(item)"
             [ngClass]="{ 'tw-mb-2': last && hasSmallScreen() }"
             data-testid="item-details-list"
           >

@@ -55,7 +55,10 @@ describe("ItemDetailsV2Component", () => {
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
-        { provide: I18nService, useValue: { t: (key: string) => key } },
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
+        },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
         {
           provide: EnvironmentService,
@@ -122,7 +125,9 @@ describe("ItemDetailsV2Component", () => {
       );
 
       expect(orgItem).toBeDefined();
-      expect(orgItem!.nativeElement.getAttribute("aria-label")).toBe(`vault ${orgInstance.name}`);
+      expect(orgItem!.nativeElement.getAttribute("aria-label")).toBe(
+        `vaultAriaLabel ${orgInstance.name}`,
+      );
     });
 
     it("shows personal vault chip when cipher has no organizationId", () => {

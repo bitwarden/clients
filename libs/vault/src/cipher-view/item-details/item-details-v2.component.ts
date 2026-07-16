@@ -101,7 +101,8 @@ export class ItemDetailsV2Component {
 
   getAriaLabel(item: Organization | CollectionView | FolderView): string {
     if (item instanceof Organization) {
-      return this.i18nService.t("owner") + item.name;
+      const key = this.vfo1Enabled() ? "vaultAriaLabel" : "ownerAriaLabel";
+      return this.i18nService.t(key, item.name);
     } else if (item instanceof CollectionView) {
       return this.i18nService.t("collection") + item.name;
     } else if (item instanceof FolderView) {
