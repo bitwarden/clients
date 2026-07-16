@@ -102,6 +102,7 @@ export const mockTasks = [
 ];
 
 export const mockI18n = {
+  addNewLoginItemAria: "Add new login item",
   appName: "Bitwarden",
   atRiskPassword: "At-risk password",
   atRiskNavigatePromptV2:
@@ -134,13 +135,16 @@ export const mockI18n = {
   notificationUnlockDesc: "Unlock your Bitwarden vault to complete the autofill request.",
   notificationViewAria: `View $ITEMNAME$, opens in new window`,
   notificationNewItemAria: "New Item, opens in new window",
+  opensInANewWindow: "opens in a new window",
   saveAction: "Save",
   saveAsNewLoginAction: "Save as new login",
   saveFailure: "Error saving",
   saveFailureDetails: "Oh no! We couldn't save this. Try entering the details manually.",
   saveLogin: "Save login",
+  saveToBitwarden: "Save to Bitwarden",
   selectItemAriaLabel: "Select $ITEMTYPE$, $ITEMNAME$",
   typeLogin: "Login",
+  unlockAccountAria: "Unlock account",
   unlockToSave: "Unlock to save this login",
   updateLoginAction: "Update login",
   updateLogin: "Update existing login",
