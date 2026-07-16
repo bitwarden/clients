@@ -18,7 +18,11 @@
           @for (item of users() ?? []; track item.user.id) {
             <tr bitRow>
               <td width="30" bitCell>
-                <bit-avatar [text]="item.user | userName" [id]="item.user.id"></bit-avatar>
+                <bit-avatar
+                  [text]="item.user | userName"
+                  [id]="item.user.userId ?? item.user.id"
+                  [color]="item.user.avatarColor"
+                ></bit-avatar>
               </td>
               <td bitCell>
                 {{ item.user.email }}
