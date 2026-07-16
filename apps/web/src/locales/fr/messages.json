@@ -989,6 +989,9 @@
   "save": {
     "message": "Enregistrer"
   },
+  "saveAndContinue": {
+    "message": "Enregistrer et continuer"
+  },
   "cancel": {
     "message": "Annuler"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Partagé"
+  },
+  "sharedFolder": {
+    "message": "Dossier partagé"
+  },
+  "sharedFolders": {
+    "message": "Dossiers partagés"
+  },
+  "myFolder": {
+    "message": "Mon dossier"
+  },
+  "myFolders": {
+    "message": "Mes dossiers"
   },
   "attachments": {
     "message": "Pièces jointes"
@@ -1461,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "Mot de passe copié"
+  },
+  "passwordAnnounceSpace": {
+    "message": "espace",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Copier le nom d'utilisateur",
@@ -2526,6 +2545,30 @@
   "confirmFilePassword": {
     "message": "Confirmer le Mot de Passe du Fichier"
   },
+  "keePassMasterPassword": {
+    "message": "Mot de passe principal de KeePass"
+  },
+  "addKeyFile": {
+    "message": "Ajouter un fichier de clé"
+  },
+  "keyFileUpload": {
+    "message": "Téléchargement du fichier de clé"
+  },
+  "kdbxFileUpload": {
+    "message": "Téléversement du fichier KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Formats acceptés : kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Les données ne sont pas formatées correctement. Veuillez vérifier votre fichier d'importation et réessayer."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ce fichier n'est pas une base de données KeePass valide (.kdbx). Veuillez sélectionner un fichier .kdbx et réessayer."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Cette base de données KeePass est trop grande pour être importée."
+  },
   "accountRestrictedOptionDescription": {
     "message": "Utilisez la clé de chiffrement de votre compte, dérivée du nom d'utilisateur et du mot de passe principal de votre compte, pour chiffrer l'export et restreindre l'import au seul compte Bitwarden actuel."
   },
@@ -2908,7 +2951,7 @@
     "message": "Rien à importer."
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ éléments seront ignorés",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2917,43 +2960,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "Les éléments suivants n'ont pas pu être lus et ne seront pas inclus dans votre importation :"
   },
   "contact": {
     "message": "Contact"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Abonnement"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Passeport"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Permis de conduire"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Carte d'identité"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Certificat de naissance"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "Identifiants de la base de données"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "Identifiants du serveur"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "Licence du logiciel"
   },
   "healthInsurance": {
-    "message": "Health insurance"
+    "message": "Assurance maladie"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Identifiants Wi-Fi"
   },
   "general": {
-    "message": "General"
+    "message": "Général"
   },
   "importEncKeyError": {
     "message": "Erreur lors du déchiffrement du fichier exporté. Votre clé de chiffrement ne correspond pas à la clé de chiffrement utilisée pour exporter les données."
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Texte de Send créé"
+  "createdTextSendV2": {
+    "message": "Texte de Send$SENDID$ créé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Texte de Send créé avec le courriel de vérification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Texte de Send$SENDID$ créé avec le courriel de vérification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Texte de Send créé avec le mot de passe",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Texte de Send$SENDID$ créé avec le mot de passe",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Fichier de Send créé",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Ffichier de Send$SENDID$ créé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Fichier de Send créé avec le courriel de vérification",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Fichier de Send$SENDID$ créé avec le courriel de vérification",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Fichier de Send créé avec le mot de passe",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Fichier de Send$SENDID$ créé avec mot de passe",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Modifier le Send de texte",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Texte de Send$SENDID$ modifié",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Send de fichier modifié",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Fichier de Send$SENDID$ modifié",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Send de texte supprimé",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Texte de Send$SENDID$ supprimé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Send de fichier supprimé",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Fichier de Send$SENDID$ supprimé",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Send de texte supprimé accédé",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "A accédé à un texte de Send$SENDID$ créé par $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Send de fichier accédé",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "A accédé à un fichier de Send$SENDID$ créé par $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Externe"
+  },
+  "sendAccessExternalDomain": {
+    "message": "Externe (domaine $DOMAIN$)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "Afficher le Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "Afficher l'$ID$ du membre",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "L'élément $ID$ a été déplacé vers une organisation.",
@@ -7435,8 +7591,8 @@
     "message": "Définir les options pour créer et éditer les Sends, y compris la possibilité de supprimer les Sends.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Gérer comment les membres utilisent Send. Les administrateurs et les propriétaires sont exemptés de cette politique.",
+  "sendControlsPolicyDescV4": {
+    "message": "Gérer comment les membres utilisent Send. Cette politique s'appliquera aux Sends créés après avoir activé cette politique de sécurité. Les administrateurs et les propriétaires sont exemptés.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Détermine quand des identifiants sont suggérées pour la saisie automatique. Les administrateurs et les propriétaires sont exemptés de cette politique de sécurité."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Définir une valeur par défaut pour quelles parties d'une adresse de site web (URI) doivent correspondre pour que Bitwarden suggère une connexion pour le remplissage automatique. Cette politique ne sera pas appliquée pour les propriétaires et les administrateurs."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Détection de correspondance URL par défaut"
@@ -10381,6 +10540,42 @@
       }
     }
   },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade your plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Les organisations gratuites peuvent avoir jusqu'à $COLLECTIONCOUNT$ collections. Passez à une offre payante pour inviter plus de collections.",
     "placeholders": {
@@ -12790,6 +12985,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to restore this member's access.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "Mettez à niveau votre plan pour inviter des membres et profiter de fonctionnalités de sécurité puissantes."
   },
@@ -14900,43 +15113,43 @@
     }
   },
   "keeperEmail": {
-    "message": "Keeper email"
+    "message": "Courriel de Keeper"
   },
   "keeperEmailHint": {
-    "message": "Enter the email you use to log in to Keeper"
+    "message": "Entrez l'adresse courriel que vous utilisez pour vous connecter à Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Emplacement du centre de données"
   },
   "keeperMasterPassword": {
-    "message": "Keeper master password"
+    "message": "Mot de passe principal Keeper"
   },
   "keeperMasterPasswordPrompt": {
-    "message": "Please enter your Keeper master password"
+    "message": "Veuillez entrer votre mot de passe principal de Keeper"
   },
   "twoFactorCodePrompt": {
-    "message": "Please enter the code from your two-factor method"
+    "message": "Veuillez entrer le code de votre méthode à deux facteurs"
   },
   "totpCodePrompt": {
-    "message": "Please enter the code from your authenticator app"
+    "message": "Saisissez le code de votre application d'authentification"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "Veuillez entrer le code envoyé par message texte"
   },
   "keeperDnaCodePrompt": {
-    "message": "Please enter the code from your Keeper DNA app"
+    "message": "Veuillez entrer le code de votre application Keeper DNA"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "Approbation de l'administrateur"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "Nous avons envoyé une demande d'approbation d'administrateur à votre administrateur"
   },
   "method": {
-    "message": "Method"
+    "message": "Méthode"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Importateur directe"
   },
   "csv": {
     "message": "CSV"
@@ -14945,76 +15158,76 @@
     "message": "Json"
   },
   "ssoAuthRequired": {
-    "message": "SSO authentication required"
+    "message": "Authentification SSO requise"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Votre compte Keeper nécessite une authentification SSO. Complétez la connexion dans la fenêtre du navigateur qui a été ouverte, puis collez le jeton affiché sur la page."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "Complétez la connexion dans l'onglet du navigateur qui a été ouvert. Le jeton sera capturé automatiquement."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "Jeton SSO"
   },
   "keeperAuthRequired": {
-    "message": "Keeper authentication required"
+    "message": "Authentification Keeper requise"
   },
   "keeperDeviceApprovalRequired": {
-    "message": "Keeper device approval required"
+    "message": "Autorisation de l'appareil Keeper requise"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "Méthode d'approbation"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "Autorisation de l'appareil requise"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "Approuver cet appareil en sélectionnant une méthode ci-dessous"
   },
   "keeperPush": {
     "message": "Keeper Push"
   },
   "twoFactorMethod": {
-    "message": "Two-factor method"
+    "message": "Méthode à deux facteurs"
   },
   "emailVerification": {
     "message": "Vérification du courriel"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "Veuillez vérifier votre courriel et entrer le code de vérification ci-dessous"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Notification Keeper Push envoyée à l'appareil approuvé"
   },
   "keeperPushSent": {
-    "message": "Keeper Push sent"
+    "message": "Keeper Push envoyé"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "La demande d'approbation sera annulée"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "Êtes-vous sûr de vouloir quitter ? Votre demande d'approbation de l'administrateur sera annulée."
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "Annuler la demande"
   },
   "keeperMFARequired": {
-    "message": "Keeper two-factor authentication required"
+    "message": "Authentification Keeper à deux facteurs requise"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "Approuver la demande de connexion dans votre application d'authentification. Cette boîte de dialogue se fermera automatiquement."
   },
   "selectTwoFactorMethod": {
-    "message": "Select two-factor method"
+    "message": "Sélectionnez la méthode à deux facteurs"
   },
   "selectTwoFactorMethodDesc": {
-    "message": "Choose how you want to verify your identity."
+    "message": "Choisissez comment vous voulez vérifier votre identité."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Application d'authentification (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Message texte (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -15023,85 +15236,85 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "Codes de sauvegarde"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Clé de sécurité (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Clé de sécurité (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
   },
   "keeperDnaVerification": {
-    "message": "Keeper DNA verification"
+    "message": "Vérification de Keeper DNA"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device"
+    "message": "Approuver la notification Keeper DNA sur votre appareil"
   },
   "selectKeeperDnaMethod": {
-    "message": "Select Keeper DNA method"
+    "message": "Sélectionnez la méthode Keeper DNA"
   },
   "selectKeeperDnaMethodDesc": {
-    "message": "Choose how you want to verify with Keeper DNA."
+    "message": "Choisissez comment vous voulez vérifier avec Keeper DNA."
   },
   "pushNotification": {
-    "message": "Push notification"
+    "message": "Notification poussée"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Saisir le code manuellement"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "Authentification à deux facteurs"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Méthode inconnue"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Sélectionnez la méthode Duo"
   },
   "selectDuoMethodDesc": {
-    "message": "Choose how you want to verify with Duo Security."
+    "message": "Choisissez comment vous voulez vérifier avec Duo Security."
   },
   "duoPush": {
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Appel téléphonique"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Vérification Duo"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "Approuver la notification Duo sur votre appareil."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "Un message texte a été envoyé à votre téléphone. Entrez le code dans l'application Duo pour continuer."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Répondez à l'appel de Duo et suivez les instructions."
   },
   "tryAnotherMethod": {
-    "message": "Try another method"
+    "message": "Essaie une autre méthode"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Votre compte Keeper nécessite une méthode d'authentification à deux facteurs qui n'est actuellement pas prise en charge par l'importateur direct."
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "Authentification multi-facteurs annulée"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Échec de l'authentification multi-facteurs"
   },
   "keeperConnectionError": {
-    "message": "There was a problem communicating with Keeper. Please try the import again."
+    "message": "Un problème est survenu lors de la communication avec Keeper. Veuillez réessayer l'importation une nouvelle fois."
   },
   "importingYourAccount": {
-    "message": "Importing your account..."
+    "message": "Importation de votre compte..."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Code d'accès"
   },
   "multipleInputDomainsInvalid": {
     "message": "Un ou plusieurs domaines sont invalides"

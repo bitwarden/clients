@@ -66,7 +66,7 @@
     "message": "风险趋势"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "筛选风险趋势"
   },
   "passwordsAtRisk": {
     "message": "存在风险的密码"
@@ -989,6 +989,9 @@
   "save": {
     "message": "保存"
   },
+  "saveAndContinue": {
+    "message": "保存并继续"
+  },
   "cancel": {
     "message": "取消"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "已共享"
+  },
+  "sharedFolder": {
+    "message": "共享的文件夹"
+  },
+  "sharedFolders": {
+    "message": "共享的文件夹"
+  },
+  "myFolder": {
+    "message": "我的文件夹"
+  },
+  "myFolders": {
+    "message": "我的文件夹"
   },
   "attachments": {
     "message": "附件"
@@ -1462,6 +1477,10 @@
   "passwordCopied": {
     "message": "密码已复制"
   },
+  "passwordAnnounceSpace": {
+    "message": "空格",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
+  },
   "copyUsername": {
     "message": "复制用户名",
     "description": "Copy username to clipboard"
@@ -1683,7 +1702,7 @@
     "message": "文件"
   },
   "photo": {
-    "message": "Photo"
+    "message": "照片"
   },
   "selectFile": {
     "message": "选择一个文件。"
@@ -2272,7 +2291,7 @@
     "message": "通知已发送到您的设备。"
   },
   "notificationSentDevicePart1": {
-    "message": "解锁您设备上的 Bitwarden 或通过"
+    "message": "解锁您设备上的 Bitwarden 或解锁"
   },
   "accessAttemptBy": {
     "message": "$EMAIL$ 的访问尝试",
@@ -2525,6 +2544,30 @@
   },
   "confirmFilePassword": {
     "message": "确认文件密码"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass 主密码"
+  },
+  "addKeyFile": {
+    "message": "添加密钥文件"
+  },
+  "keyFileUpload": {
+    "message": "密钥文件上传"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX 文件上传"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "可接受的格式：kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "数据格式不正确。请检查您的导入文件然后重试。"
+  },
+  "kdbxWrongFileType": {
+    "message": "此文件不是有效的 KeePass 数据库 (.kdbx) 文件。请选择一个 .kdbx 文件，然后重试。"
+  },
+  "kdbxFileTooLarge": {
+    "message": "此 KeePass 数据库过大，无法导入。"
   },
   "accountRestrictedOptionDescription": {
     "message": "使用衍生自您账户用户名和主密码的账户加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
@@ -2908,7 +2951,7 @@
     "message": "没有导入任何内容。"
   },
   "importPartialErrorTitle": {
-    "message": "$COUNT$ items will be skipped",
+    "message": "$COUNT$ 个项目将被跳过",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2917,43 +2960,43 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "以下项目无法读取，将不会包含在您的导入中："
   },
   "contact": {
-    "message": "Contact"
+    "message": "联系人"
   },
   "membership": {
     "message": "成员资格"
   },
   "passport": {
-    "message": "Passport"
+    "message": "护照"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "驾驶证"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "身份证"
   },
   "birthCertificate": {
     "message": "出生证明"
   },
   "databaseCredentials": {
-    "message": "Database credentials"
+    "message": "数据库凭据"
   },
   "serverCredentials": {
-    "message": "Server credentials"
+    "message": "服务器凭据"
   },
   "softwareLicense": {
-    "message": "Software license"
+    "message": "软件许可证"
   },
   "healthInsurance": {
     "message": "健康保险"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi 凭据"
   },
   "general": {
-    "message": "General"
+    "message": "常规"
   },
   "importEncKeyError": {
     "message": "解密导出的文件时出错。您的加密密钥与导出数据时使用的加密密钥不匹配。"
@@ -3353,7 +3396,7 @@
     "message": "密钥已损坏。"
   },
   "twoFactorU2fGiveName": {
-    "message": "给安全密钥起一个友好的名称来标识它。"
+    "message": "为安全密钥起一个友好的名称以进行识别。"
   },
   "twoFactorU2fPlugInReadKey": {
     "message": "将安全密钥插入计算机的 USB 端口，然后点击「读取密钥」按钮。"
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "创建了文本 Send"
+  "createdTextSendV2": {
+    "message": "创建了文本 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "创建了带电子邮箱验证的文本 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "创建了带电子邮箱验证的文本 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "创建了带密码的文本 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "创建了带密码的文本 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "创建了文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "创建了文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "创建了带电子邮箱验证的文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "创建了带电子邮箱验证的文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "创建了带密码的文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "创建了带密码的文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "编辑了文本 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "编辑了文本 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "编辑了文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "编辑了文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "删除了文本 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "删除了文本 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "删除了文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "删除了文件 Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "访问了文本 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "访问了由 $ID$ 创建的文本 Send$SENDID$。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "访问了文件 Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "访问了由 $ID$ 创建的文件 Send$SENDID$。",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "外部"
+  },
+  "sendAccessExternalDomain": {
+    "message": "外部（域名 $DOMAIN$）",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "查看 Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "查看成员 $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "移动了项目 $ID$ 到组织。",
@@ -6061,7 +6217,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "删除 $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6972,7 +7128,7 @@
     "message": "所有 Send"
   },
   "filterSends": {
-    "message": "Filter Sends"
+    "message": "筛选 Send"
   },
   "maxAccessCountReached": {
     "message": "已达最大访问次数",
@@ -7435,8 +7591,8 @@
     "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "管理成员如何使用 Send。管理员和所有者不受此策略的约束。",
+  "sendControlsPolicyDescV4": {
+    "message": "管理成员使用 Send 的方式。启用此策略后，此策略将应用于 Send 的创建。管理员和所有者不受此策略的约束。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "确定何时将登录建议用于自动填充。管理员和所有者不受此策略的约束。"
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "设置网站地址 (URI) 中需要匹配的默认部分，以便 Bitwarden 在自动填充时建议登录项目。所有者和管理员不受此策略的约束。"
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "默认 URI 匹配检测"
@@ -9423,17 +9582,17 @@
     "message": "此 API 密钥具有管理您组织内用户的权限。请严格保密。"
   },
   "scimInviteUsersAfterProvisioning": {
-    "message": "Automatically send email invitations"
+    "message": "自动发送电子邮件邀请"
   },
   "scimInviteUsersAfterProvisioningHint": {
-    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "message": "当通过 SCIM 配置用户时，会立即发送电子邮件邀请。",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimInviteUsersAfterProvisioningHelpTitle": {
-    "message": "About email invitations"
+    "message": "关于电子邮件邀请"
   },
   "scimInviteUsersAfterProvisioningHelpBody": {
-    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "message": "启用此设置后，通过 SCIM 配置的成员将收到电子邮件邀请，并在「成员」页面上显示为「已邀请」状态；禁用此设置后，成员将显示为「预配置」状态，必须由管理员或通过邀请链接手动邀请。",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
@@ -10355,7 +10514,7 @@
     }
   },
   "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
+    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -10381,6 +10540,42 @@
       }
     }
   },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以恢复此成员的访问权限。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "免费版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请升级您的方案以恢复此成员的访问权限。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "团队入门版方案最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级您的方案然后恢复此成员的访问权限。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个集合。请升级到付费版方案以添加更多集合。",
     "placeholders": {
@@ -10391,7 +10586,7 @@
     }
   },
   "freeOrgMaxCollectionReachedNoManageBilling": {
-    "message": "免费组织最多拥有 $COLLECTIONCOUNT$ 个集合。请联系您的组织所有者升级。",
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个集合。请联系您的组织所有者升级。",
     "placeholders": {
       "COLLECTIONCOUNT": {
         "content": "$1",
@@ -10920,7 +11115,7 @@
     "message": "忽略"
   },
   "notAvailableForFreeOrganization": {
-    "message": "此功能不适用于免费组织。请联系您的组织所有者升级。"
+    "message": "此功能不适用于免费版组织。请联系您的组织所有者升级。"
   },
   "smProjectSecretsNoItemsNoAccess": {
     "message": "请联系您的组织的管理员来管理此工程的机密。",
@@ -12298,7 +12493,7 @@
     "message": "选择一个方案"
   },
   "planBillingInterval": {
-    "message": "Plan billing interval"
+    "message": "方案计费周期"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% 折扣"
@@ -12790,6 +12985,24 @@
       }
     }
   },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请升级到付费版方案以恢复此成员的访问权限。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "家庭版组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "upgradePlans": {
     "message": "升级您的方案以邀请成员并体验强大的安全功能。"
   },
@@ -13218,7 +13431,7 @@
     }
   },
   "revokeSponsorshipAcceptedWithPriceConfirmation": {
-    "message": "If you remove $EMAIL$, the sponsorship for this Family plan will end and the saved payment method will be charged $PRICE$ + applicable tax on $DATE$. You will not be able to redeem a new sponsorship until $DATE$. Are you sure you want to continue?",
+    "message": "如果您移除 $EMAIL$，此家庭版方案赞助将终止，并且将于 $DATE$ 向已保存的付款方式收取 $PRICE$ + 相关税费。在 $DATE$ 之前您将无法兑换新的赞助。确定要继续吗？",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -14239,7 +14452,7 @@
     "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "neverLockWarning": {
-    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您必须确保您的设备安全。"
+    "message": "确定要使用「从不」选项吗？将锁定选项设置为「从不」会将密码库的加密密钥存储在您的设备上。如果使用此选项，您应确保您的设备已受到妥善保护。"
   },
   "sessionTimeoutSettingsAction": {
     "message": "超时动作"
@@ -14906,7 +15119,7 @@
     "message": "输入您用于登录 Keeper 的电子邮箱"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "数据中心位置"
   },
   "keeperMasterPassword": {
     "message": "Keeper 主密码"
@@ -14915,28 +15128,28 @@
     "message": "请输入您的 Keeper 主密码"
   },
   "twoFactorCodePrompt": {
-    "message": "请输入您的双重身份验证方式中的代码"
+    "message": "请输入来自您的双重身份验证方式的代码"
   },
   "totpCodePrompt": {
-    "message": "请输入您的验证器 App 中的代码"
+    "message": "请输入来自您的验证器 App 的代码"
   },
   "smsCodePrompt": {
-    "message": "Please enter the code sent via text message"
+    "message": "请输入通过短信发送的代码"
   },
   "keeperDnaCodePrompt": {
-    "message": "请输入您的 Keeper DNA App 中的代码"
+    "message": "请输入来自您的 Keeper DNA App 的代码"
   },
   "adminApproval": {
-    "message": "Admin approval"
+    "message": "管理员批准"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "We've sent an admin approval request to your admin"
+    "message": "我们已经向您的管理员发送了管理员批准请求"
   },
   "method": {
-    "message": "Method"
+    "message": "方式"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "直接导入器"
   },
   "csv": {
     "message": "CSV"
@@ -14954,7 +15167,7 @@
     "message": "在打开的浏览器标签页中完成登录。令牌将被自动捕获。"
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO 令牌"
   },
   "keeperAuthRequired": {
     "message": "需要 Keeper 身份验证"
@@ -14963,16 +15176,16 @@
     "message": "需要 Keeper 设备批准"
   },
   "selectApprovalMethod": {
-    "message": "Approval methods"
+    "message": "批准方式"
   },
   "deviceApprovalNeeded": {
-    "message": "Device approval needed"
+    "message": "需要设备批准"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "通过选择下面的方式来批准此设备"
   },
   "keeperPush": {
-    "message": "Keeper 推送"
+    "message": "Keeper Push"
   },
   "twoFactorMethod": {
     "message": "双重身份验证方式"
@@ -14981,28 +15194,28 @@
     "message": "电子邮箱验证"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "请检查您的电子邮箱然后在下面输入验证码"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper 推送通知已发送到认可的设备"
+    "message": "Keeper Push 通知已发送到认可的设备"
   },
   "keeperPushSent": {
-    "message": "Keeper 推送已发送"
+    "message": "Keeper Push 已发送"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "批准请求将被取消"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "确定要离开吗？您的管理员批准请求将被取消。"
   },
   "cancelRequest": {
-    "message": "Cancel request"
+    "message": "取消请求"
   },
   "keeperMFARequired": {
     "message": "需要 Keeper 双重身份验证"
   },
   "mfaPushDesc": {
-    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+    "message": "在您的身份验证 App 中批准登录请求。此对话框将自动关闭。"
   },
   "selectTwoFactorMethod": {
     "message": "选择双重身份验证方式"
@@ -15011,10 +15224,10 @@
     "message": "选择验证您的身份的方式。"
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "验证器 App (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "短信 (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -15023,13 +15236,13 @@
     "message": "RSA SecurID"
   },
   "backupCodes": {
-    "message": "Backup codes"
+    "message": "备份代码"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "安全密钥 (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "安全密钥 (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
@@ -15047,40 +15260,40 @@
     "message": "选择使用 Keeper DNA 进行验证的方式。"
   },
   "pushNotification": {
-    "message": "推送通知"
+    "message": "Push 通知"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "手动输入代码"
   },
   "twoFactorAuthentication": {
     "message": "双重身份验证"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "未知方式"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "选择 Duo 方式"
   },
   "selectDuoMethodDesc": {
     "message": "选择使用 Duo Security 进行验证的方式。"
   },
   "duoPush": {
-    "message": "Duo 推送"
+    "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "电话"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo 验证"
   },
   "duoPushWaiting": {
-    "message": "批准您设备上的 Duo 推送通知。"
+    "message": "批准您设备上的 Duo Push 通知。"
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "短信已经发送到您的手机。请在 Duo App 中输入代码以继续。"
   },
   "duoVoiceWaiting": {
-    "message": "接听来自 Duo 的电话并按照说明操作。"
+    "message": "接听来自 Duo 的电话然后按照说明操作。"
   },
   "tryAnotherMethod": {
     "message": "尝试其他方式"
@@ -15089,19 +15302,19 @@
     "message": "您的 Keeper 账户需要双重身份验证方式，而直接导入器目前不支持这种方式。"
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "多重身份验证已取消"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "多重身份验证失败"
   },
   "keeperConnectionError": {
     "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
   },
   "importingYourAccount": {
-    "message": "Importing your account..."
+    "message": "正在导入您的账户..."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "通行代码"
   },
   "multipleInputDomainsInvalid": {
     "message": "一个或多个域名无效"
@@ -15373,7 +15586,7 @@
     "message": "无法保存项目。您必须先通过组织确认才能保存项目。"
   },
   "duplicateAttachmentNameError": {
-    "message": "项目不能有具有相同文件名的多个附件"
+    "message": "项目不能有多个具有相同文件名的附件"
   },
   "sendDeletionDateSetByOrg": {
     "message": "$ORGNAME$ 已设置此删除日期",

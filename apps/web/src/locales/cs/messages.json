@@ -66,7 +66,7 @@
     "message": "Ohrožení v průběhu času"
   },
   "filterRiskOverTime": {
-    "message": "Filter risk over time"
+    "message": "Filtrování rizika v čase"
   },
   "passwordsAtRisk": {
     "message": "Zranitelná hesla"
@@ -989,6 +989,9 @@
   "save": {
     "message": "Uložit"
   },
+  "saveAndContinue": {
+    "message": "Uložit a pokračovat"
+  },
   "cancel": {
     "message": "Zrušit"
   },
@@ -1190,6 +1193,18 @@
   },
   "shared": {
     "message": "Sdílené"
+  },
+  "sharedFolder": {
+    "message": "Sdílená složka"
+  },
+  "sharedFolders": {
+    "message": "Sdílené složky"
+  },
+  "myFolder": {
+    "message": "Moje složka"
+  },
+  "myFolders": {
+    "message": "Moje složky"
   },
   "attachments": {
     "message": "Přílohy"
@@ -1461,6 +1476,10 @@
   },
   "passwordCopied": {
     "message": "Heslo bylo zkopírováno"
+  },
+  "passwordAnnounceSpace": {
+    "message": "mezera",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno",
@@ -2525,6 +2544,30 @@
   },
   "confirmFilePassword": {
     "message": "Potvrzení hesla souboru"
+  },
+  "keePassMasterPassword": {
+    "message": "Hlavní heslo KeePass"
+  },
+  "addKeyFile": {
+    "message": "Přidat soubor s klíčem"
+  },
+  "keyFileUpload": {
+    "message": "Nahrát soubor s klíčem"
+  },
+  "kdbxFileUpload": {
+    "message": "Nahrát soubor KDBX"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Povolené formáty: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
+  },
+  "kdbxWrongFileType": {
+    "message": "Tento soubor není platnou databází KeePass (.kdbx). Vyberte soubor s příponou .kdbx a zkuste to znovu."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Tato databáze KeePass je pro import příliš velká."
   },
   "accountRestrictedOptionDescription": {
     "message": "Pro zašifrování exportu a omezení importu pouze na aktuální účet Bitwardenu použijte šifrovací klíč Vašeho účtu odvozený z uživatelského jména a hlavního hesla."
@@ -4787,52 +4830,165 @@
       }
     }
   },
-  "createdTextSend": {
-    "message": "Vytvořen textový Send"
+  "createdTextSendV2": {
+    "message": "Vytvořený textový Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithEmailVerification": {
-    "message": "Vytvořen textový Send s ověřením e-mailem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithEmailVerificationV2": {
+    "message": "Vytvořený textový Send$SENDID$ s ověřením e-mailem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdTextSendWithPasswordProtection": {
-    "message": "Vytvořen textový Send s heslem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdTextSendWithPasswordProtectionV2": {
+    "message": "Vytvořený textový Send$SENDID$ s heslem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSend": {
-    "message": "Vytvořen souborový Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendV2": {
+    "message": "Vytvořený Send$SENDID$ se sbouborem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithEmailVerification": {
-    "message": "Vytvořen souborový Send s ověřením e-mailem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithEmailVerificationV2": {
+    "message": "Vytvořený Send$SENDID$ se souborem s ověřením e-mailem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "createdFileSendWithPasswordProtection": {
-    "message": "Vytvořen souborový Send s heslem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "createdFileSendWithPasswordProtectionV2": {
+    "message": "Vytvořený Send$SENDID$ se souborem s heslem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedTextSend": {
-    "message": "Upravený text v Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedTextSendV2": {
+    "message": "Upravený textový Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "editedFileSend": {
-    "message": "Upravený soubor v Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "editedFileSendV2": {
+    "message": "Upravený Send$SENDID$ se souborem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedTextSend": {
-    "message": "Smazaný text ze Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedTextSendV2": {
+    "message": "Smazaný textový Send$SENDID$",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "deletedFileSend": {
-    "message": "Smazaný soubor ze Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "deletedFileSendV2": {
+    "message": "Smazaný Send$SENDID$ se souborem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      }
+    }
   },
-  "accessedTextSend": {
-    "message": "Otevřen text Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedTextSendV2": {
+    "message": "Otevřený textový Send$SENDID$, který vytvořil $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
   },
-  "accessedFileSend": {
-    "message": "Otevřen soubor Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "accessedFileSendV2": {
+    "message": "Otevřený Send$SENDID$ se souborem, který vytvořil $ID$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "sendid": {
+        "content": "$1",
+        "example": " <a><code>abc12345</code></a>"
+      },
+      "id": {
+        "content": "$2",
+        "example": "<a><code>1a2b3c4d</code></a>"
+      }
+    }
+  },
+  "sendAccessExternal": {
+    "message": "Externí"
+  },
+  "sendAccessExternalDomain": {
+    "message": "Externí (doména $DOMAIN$)",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "acme.com"
+      }
+    }
+  },
+  "viewSendEvents": {
+    "message": "Zobrazit Send $ID$",
+    "description": "Accessible label for a clickable Send id in the event log. 'Send' is the name of the 'Bitwarden Send' feature and should not be translated.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
+  },
+  "viewMemberEvents": {
+    "message": "Zobrazit člena $ID$",
+    "description": "Accessible label for a clickable member id in the event log.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "abc12345"
+      }
+    }
   },
   "movedItemIdToOrg": {
     "message": "Položka $ID$ byla přesunuta do organizace.",
@@ -6061,7 +6217,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Smazat $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -6972,7 +7128,7 @@
     "message": "Všechny Sends"
   },
   "filterSends": {
-    "message": "Filter Sends"
+    "message": "Filtrovat Sends"
   },
   "maxAccessCountReached": {
     "message": "Dosažen maximální počet přístupů",
@@ -7435,8 +7591,8 @@
     "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
-  "sendControlsPolicyDescV3": {
-    "message": "Spravujte, jak členové používají Send. Správci a vlastníci jsou od těchto zásad osvobozeni.",
+  "sendControlsPolicyDescV4": {
+    "message": "Nastavte, jak mohou členové používat Send. Tato zásada se bude vztahovat na zprávy odeslané po jejím aktivování. Správci a vlastníci jsou z této zásady vyňati.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendOptions": {
@@ -7459,6 +7615,9 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Určete, kdy jsou přihlášení navržena pro automatické vyplňování. Správci a vlastníci jsou od těchto zásad osvobozeni."
+  },
+  "uriMatchDetectionPolicyDescV2": {
+    "message": "Nastavte výchozí hodnotu, které části adresy webové stránky (URI) se musí shodovat, aby Bitwarden navrhl přihlašovací údaje pro automatické vyplnění. Toto pravidlo se nebude vztahovat na vlastníky a správce."
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "Výchozí zjišťování shody URI"
@@ -9423,17 +9582,17 @@
     "message": "Tento klíč API má přístup ke správě uživatelů ve Vaší organizaci. Měl by být zachován v tajnosti."
   },
   "scimInviteUsersAfterProvisioning": {
-    "message": "Automatically send email invitations"
+    "message": "Automaticky odesílat e-mailové pozvánky"
   },
   "scimInviteUsersAfterProvisioningHint": {
-    "message": "Send email invitations immediately when users are provisioned via SCIM.",
+    "message": "Pošle e-mailové pozvánky okamžitě, když jsou uživatelé poskytováni prostřednictvím SCIM.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimInviteUsersAfterProvisioningHelpTitle": {
-    "message": "About email invitations"
+    "message": "O e-mailových pozvánkách"
   },
   "scimInviteUsersAfterProvisioningHelpBody": {
-    "message": "When this setting is on, members provisioned via SCIM are sent an email invite and appear as invited on the Members page. When it's off, members appear as staged and must be invited manually by an admin or by invite link.",
+    "message": "Pokud je nastavení zapnuto, členům zřízeným prostřednictvím SCIM je zaslána e-mailová pozvánka a na stránce Členové se zobrazují jako pozvaní. Je-li vypnuto, členové se zobrazují jako v přípravě a musí být pozváni ručně správcem nebo prostřednictvím pozvánkového odkazu.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
@@ -10374,6 +10533,42 @@
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
     "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na vlastníka organizace a aktualizujte Váš plán a pozvěte více členů.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedManageBilling": {
+    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Chcete-li obnovit přístup tohoto člena, přejděte na placený plán.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgRestoreLimitReachedNoManageBilling": {
+    "message": "Bezplatné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedManageBilling": {
+    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Chcete-li obnovit přístup tohoto člena, přejděte na placený plán.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na vlastníka organizace pro aktualizaci Vašeho plánu a obnovení přístupu tohoto člena.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -12298,7 +12493,7 @@
     "message": "Vyberte plán"
   },
   "planBillingInterval": {
-    "message": "Plan billing interval"
+    "message": "Interval fakturace plánu"
   },
   "thirtyFivePercentDiscount": {
     "message": "35% sleva"
@@ -12783,6 +12978,24 @@
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
     "message": "Bezplatné rodinné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedManageBilling": {
+    "message": "Rodinné organizace mohou mít až $SEATCOUNT$ členů. Chcete-li obnovit přístup tohoto člena, přejděte na placený plán.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanRestoreLimitReachedNoManageBilling": {
+    "message": "Rodinné organizace mohou mít až $SEATCOUNT$ členů. Pro aktualizaci kontaktujte vlastníka organizace.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
