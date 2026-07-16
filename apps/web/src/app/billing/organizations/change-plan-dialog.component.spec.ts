@@ -216,4 +216,44 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       expect((component as any).calculateTotalAppliedDiscount).toBeUndefined();
     });
   });
+
+  describe("isSecretsManagerTrial (PM-40440)", () => {
+    // Org carries a product-scoped discount whose `appliesTo` matches a live subscription product.
+    // Whether that reads as an SM trial now depends solely on where the discount originated.
+    const setupDiscount = (isFromSchedule: boolean) => {
+      component.selectedPlan = {
+        PasswordManager: { hasAdditionalSeatsOption: true, seatPrice: 4 },
+      } as any;
+      component.organization = { useSecretsManager: true } as any;
+      component.sub = {
+        seats: 10,
+        subscription: { items: [{ productId: "product-seat" }] },
+        customerDiscount: { appliesTo: ["product-seat"], isFromSchedule },
+      } as any;
+    };
+
+    it("still reports a genuine SM trial when the discount is not schedule-derived", () => {
+      setupDiscount(false);
+
+      expect(component.isSecretsManagerTrial()).toBe(true);
+      // Trial seat line shows "Free for 1 year"; passwordManagerSeatTotal is zeroed.
+      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(0);
+    });
+
+    it("does not report an SM trial for a deferred price-migration (schedule) discount", () => {
+      setupDiscount(true);
+
+      // Guard short-circuits even though appliesTo matches a subscription product.
+      expect(component.isSecretsManagerTrial()).toBe(false);
+      // Non-trial seat line renders the real seat total (10 seats × $4), not "Free for 1 year".
+      expect(component.passwordManagerSeatTotal(component.selectedPlan)).toBe(40);
+      // Template selects the non-trial summary layout, not the trial one.
+      expect(component.organization.useSecretsManager && !component.isSecretsManagerTrial()).toBe(
+        true,
+      );
+      expect(component.organization.useSecretsManager && component.isSecretsManagerTrial()).toBe(
+        false,
+      );
+    });
+  });
 });
