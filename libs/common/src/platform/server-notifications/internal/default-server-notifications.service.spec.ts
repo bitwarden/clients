@@ -93,7 +93,7 @@ describe("NotificationsService", () => {
 
     environmentService.environment$ = environment;
     // Ensure user-scoped environment lookups return the same test environment stream
-    environmentService.getEnvironment$.mockImplementation(
+    environmentService.userEnvironment$.mockImplementation(
       (_userId: UserId) => environment.asObservable() as any,
     );
 

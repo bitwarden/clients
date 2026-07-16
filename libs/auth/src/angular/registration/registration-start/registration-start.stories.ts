@@ -86,7 +86,7 @@ const decorators = (options: {
               { key: Region.US, domain: "bitwarden.com", urls: {} },
               { key: Region.EU, domain: "bitwarden.eu", urls: {} },
             ],
-            setEnvironment: (region: Region, urls?: Urls) => Promise.resolve({}),
+            setGlobalEnvironment: (region: Region, urls?: Urls) => Promise.resolve({}),
           } as Partial<EnvironmentService>,
         },
         {

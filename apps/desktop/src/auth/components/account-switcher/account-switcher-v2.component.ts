@@ -117,7 +117,7 @@ export class AccountSwitcherV2Component implements OnInit {
           email: active.email,
           avatarColor,
           server: (
-            await firstValueFrom(this.environmentService.getEnvironment$(active.id))
+            await firstValueFrom(this.environmentService.userEnvironment$(active.id))
           )?.getHostname(),
         };
       }),
@@ -230,7 +230,7 @@ export class AccountSwitcherV2Component implements OnInit {
         authenticationStatus: await this.authService.getAuthStatus(userId),
         avatarColor: await firstValueFrom(this.avatarService.getUserAvatarColor$(userId as UserId)),
         server: (
-          await firstValueFrom(this.environmentService.getEnvironment$(userId as UserId))
+          await firstValueFrom(this.environmentService.userEnvironment$(userId as UserId))
         )?.getHostname(),
       };
     }

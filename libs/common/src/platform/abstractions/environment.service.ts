@@ -100,6 +100,9 @@ export interface Environment {
  * The environment service. Provides access to set the current environment urls and region.
  */
 export abstract class EnvironmentService {
+  /**
+   * @deprecated Use {@link globalEnvironment$} or {@link userEnvironment$} instead.
+   */
   abstract environment$: Observable<Environment>;
 
   /**
@@ -122,7 +125,7 @@ export abstract class EnvironmentService {
   /**
    * Set the global environment.
    */
-  abstract setEnvironment(region: Region, urls?: Urls): Promise<Urls>;
+  abstract setGlobalEnvironment(region: Region, urls?: Urls): Promise<Urls>;
 
   /**
    * Seed the environment state for a given user based on the global environment.
@@ -141,12 +144,7 @@ export abstract class EnvironmentService {
   abstract setCloudRegion(userId: UserId | null, region: Region): Promise<void>;
 
   /**
-   * Get the environment from state. Useful if you need to get the environment for another user.
+   * Get the environment from state for a user.
    */
-  abstract getEnvironment$(userId: UserId): Observable<Environment>;
-
-  /**
-   * @deprecated Use {@link getEnvironment$} instead.
-   */
-  abstract getEnvironment(userId?: string): Promise<Environment | undefined>;
+  abstract userEnvironment$(userId: UserId): Observable<Environment>;
 }

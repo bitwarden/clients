@@ -95,7 +95,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
    * @param userId The user id of the user to get the push server notifications for.
    */
   private userNotifications$(userId: UserId) {
-    return this.environmentService.getEnvironment$(userId).pipe(
+    return this.environmentService.userEnvironment$(userId).pipe(
       map((env) => env.getNotificationsUrl()),
       distinctUntilChanged(),
       switchMap((notificationsUrl) => {
